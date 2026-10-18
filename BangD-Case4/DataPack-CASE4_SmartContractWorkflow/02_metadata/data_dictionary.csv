@@ -1,0 +1,132 @@
+﻿field_order,file_name,field_name,data_type,nullable,unit,description,allowed_values_or_format,example_value,usage_note
+1,contracts.csv,contract_id,string,NO,,Mã hợp đồng duy nhất.,CTdddd,CT0001,Primary key; join sang milestones.csv và events.csv.
+2,contracts.csv,contract_title,string,NO,,Tên/mô tả ngắn của hợp đồng giả lập.,,Cung cấp thiết bị lưu trữ - CT0001,Chỉ phục vụ hiển thị; không phải tên hợp đồng thực tế.
+3,contracts.csv,contract_type,category,NO,,Nhóm nghiệp vụ chính của hợp đồng.,GOODS_SUPPLY;SERVICES;SOFTWARE_IMPLEMENTATION;MAINTENANCE,GOODS_SUPPLY,Quyết định workflow template và cấu trúc milestone.
+4,contracts.csv,buyer_id,string,NO,,Mã bên mua/đơn vị đặt hàng.,Bddd,B009,Foreign key tới parties.csv với party_type=BUYER.
+5,contracts.csv,supplier_id,string,NO,,Mã nhà cung cấp.,Sddd,S021,Foreign key tới parties.csv với party_type=SUPPLIER.
+6,contracts.csv,contract_value_vnd_mn,decimal,NO,VND_million,Tổng giá trị hợp đồng.,>=0,1290,Tổng planned_payment_vnd_mn của các milestone phải bằng giá trị này.
+7,contracts.csv,currency,category,NO,,Đồng tiền của hợp đồng.,VND,VND,Các trường *_vnd_mn dùng đơn vị triệu VND.
+8,contracts.csv,signing_date,date,NO,,Ngày ký hợp đồng.,YYYY-MM-DD,2026-04-12,
+9,contracts.csv,start_date,date,NO,,Ngày bắt đầu thực hiện hợp đồng.,YYYY-MM-DD,2026-04-21,Không sớm hơn signing_date.
+10,contracts.csv,end_date,date,NO,,Ngày kết thúc theo kế hoạch.,YYYY-MM-DD,2026-07-30,Không sớm hơn start_date.
+11,contracts.csv,workflow_template,category,NO,,Mẫu workflow áp dụng cho hợp đồng.,WF_GOODS_4STAGE;WF_SERVICE_4STAGE;WF_SOFTWARE_5STAGE;WF_MAINTENANCE_3STAGE,WF_GOODS_4STAGE,Dùng để xác định số lượng và loại milestone.
+12,contracts.csv,rule_set_id,category,NO,,Mã bộ quy tắc thanh toán áp dụng.,R_GOODS_STD;R_SERVICE_STD;R_SOFTWARE_STD;R_MAINTENANCE_STD,R_GOODS_STD,Join logic sang payment_rules.csv.
+13,contracts.csv,approval_policy,category,NO,,Chính sách phê duyệt thanh toán ở cấp hợp đồng.,AUTO_IF_ALL_CONDITIONS;SINGLE_BUYER_APPROVAL;DUAL_APPROVAL;FINANCE_PLUS_OWNER,AUTO_IF_ALL_CONDITIONS,Được cụ thể hóa tại milestone.
+14,contracts.csv,approval_quorum,integer,NO,count,Số phê duyệt hợp lệ tối thiểu khi policy yêu cầu approval.,0;1;2,0,AUTO_IF_ALL_CONDITIONS có quorum=0.
+15,contracts.csv,auto_release_allowed,boolean,NO,,Cho biết có được tự động RELEASE khi đủ điều kiện mà không cần approval thủ công hay không.,TRUE;FALSE,TRUE,
+16,contracts.csv,grace_period_days,integer,NO,day,Số ngày gia hạn sau due_date trước khi tính phạt chậm.,>=0,2,Được kế thừa vào milestones.csv.
+17,contracts.csv,penalty_rate_pct_per_day,decimal,NO,percent_per_day,Tỷ lệ phạt mỗi ngày trễ sau grace period.,>=0,0.10,Tính trên planned_payment_vnd_mn của milestone có áp dụng phạt.
+18,contracts.csv,max_penalty_pct,decimal,NO,percent,Trần tỷ lệ phạt tối đa của milestone.,>=0,10.00,
+19,contracts.csv,initial_contract_status,category,NO,,Trạng thái khởi tạo của hợp đồng.,ACTIVE,ACTIVE,"Trạng thái workflow về sau phải được suy ra từ events/rules, không hard-code."
+20,contracts.csv,data_is_synthetic,boolean,NO,,Cờ xác nhận dữ liệu là giả lập.,TRUE,TRUE,Không đại diện cho hợp đồng/doanh nghiệp thực tế.
+1,parties.csv,party_id,string,NO,,Mã duy nhất của một bên hoặc vai trò tham gia workflow.,Bddd;Sddd;Addd,B001,Primary key.
+2,parties.csv,party_name,string,NO,,Tên giả lập của tổ chức/vai trò.,,An Việt Digital Services JSC,Dữ liệu giả lập.
+3,parties.csv,party_type,category,NO,,Loại bên tham gia.,BUYER;SUPPLIER;APPROVER,BUYER,Dùng để kiểm tra quyền tạo event.
+4,parties.csv,parent_party_id,string,YES,,Mã tổ chức mẹ đối với APPROVER.,Bddd hoặc blank,B001,Blank cho BUYER/SUPPLIER; foreign key tới BUYER đối với APPROVER.
+5,parties.csv,organization_category,category,NO,,Nhóm hoạt động/tổ chức.,,EDUCATION,Chủ yếu phục vụ metadata và mở rộng scenario.
+6,parties.csv,region,category,NO,,Khu vực giả lập của party.,HANOI;HO_CHI_MINH_CITY;DA_NANG;HAI_PHONG;CAN_THO,HANOI,
+7,parties.csv,country,category,NO,,Mã quốc gia.,VN,VN,
+8,parties.csv,approval_role,category,NO,,Vai trò phê duyệt.,NONE;CONTRACT_OWNER;FINANCE_APPROVER;SECONDARY_APPROVER,NONE,BUYER/SUPPLIER có giá trị NONE.
+9,parties.csv,approval_level,integer,NO,level,Cấp phê duyệt tương đối.,0;1;2,0,0 cho party không phải approver.
+10,parties.csv,approval_limit_vnd_mn,decimal,YES,VND_million,Hạn mức phê duyệt tham chiếu của approver.,>=0 hoặc blank,20000,Có thể dùng ở Silver/Gold để kiểm tra approval nâng cao.
+11,parties.csv,allowed_event_types,string_list,NO,,Danh sách event type party được phép tạo.,semicolon-separated,CONTRACT_SIGNED;ACCEPTANCE;DISPUTE;CONTRACT_CLOSE_REQUEST,Dùng dấu ';' để phân tách.
+12,parties.csv,can_approve_payment,boolean,NO,,Party có quyền tạo approval thanh toán hay không.,TRUE;FALSE,FALSE,
+13,parties.csv,can_raise_dispute,boolean,NO,,Party có quyền tạo tranh chấp hay không.,TRUE;FALSE,TRUE,
+14,parties.csv,status,category,NO,,Trạng thái hoạt động của party.,ACTIVE,ACTIVE,
+15,parties.csv,data_is_synthetic,boolean,NO,,Cờ xác nhận dữ liệu là giả lập.,TRUE,TRUE,
+1,milestones.csv,milestone_id,string,NO,,Mã milestone duy nhất.,MSdddd,MS0001,Primary key.
+2,milestones.csv,contract_id,string,NO,,Hợp đồng chứa milestone.,CTdddd,CT0001,Foreign key tới contracts.csv.
+3,milestones.csv,milestone_sequence,integer,NO,sequence,Thứ tự milestone trong hợp đồng.,1..N,1,Tăng dần trong mỗi contract_id.
+4,milestones.csv,milestone_type,category,NO,,Loại milestone nghiệp vụ.,Theo workflow_template,SIGNING,"Ví dụ SIGNING, DELIVERY, ACCEPTANCE, UAT_PASS..."
+5,milestones.csv,milestone_name,string,NO,,Tên hiển thị của milestone.,,Contract Signing,
+6,milestones.csv,due_date,date,NO,,Hạn hoàn thành milestone.,YYYY-MM-DD,2026-04-26,Nằm trong khoảng start_date..end_date của hợp đồng.
+7,milestones.csv,payment_percent,decimal,NO,percent,Tỷ lệ giá trị hợp đồng gắn với milestone.,0..100,20.00,Tổng theo contract_id = 100%.
+8,milestones.csv,planned_payment_vnd_mn,decimal,NO,VND_million,Giá trị thanh toán kế hoạch của milestone.,>=0,258.00,Tổng theo hợp đồng = contract_value_vnd_mn.
+9,milestones.csv,condition_logic,category,NO,,Cách kết hợp các điều kiện bắt buộc.,ALL,ALL,ALL nghĩa là tất cả điều kiện phải hợp lệ.
+10,milestones.csv,required_event_types,string_list,NO,,Danh sách loại event bắt buộc.,semicolon-separated,CONTRACT_SIGNED,Mỗi loại cần ít nhất một event hợp lệ sau khử trùng lặp.
+11,milestones.csv,required_condition,string,NO,,Biểu thức mô tả tổng hợp điều kiện release.,Human-readable DSL,EVENT:CONTRACT_SIGNED AND NO_OPEN_DISPUTE,Phục vụ minh họa; rule chính thức nằm trong payment_rules.csv.
+12,milestones.csv,invoice_required,boolean,NO,,Milestone có yêu cầu hóa đơn hay không.,TRUE;FALSE,FALSE,
+13,milestones.csv,approval_required,boolean,NO,,Milestone có yêu cầu approval thủ công hay không.,TRUE;FALSE,FALSE,
+14,milestones.csv,required_approval_quorum,integer,NO,count,Số approval hợp lệ tối thiểu.,>=0,0,
+15,milestones.csv,required_approval_roles,string_list,YES,,Các vai trò được chấp nhận để đạt quorum.,semicolon-separated hoặc blank,CONTRACT_OWNER,Blank khi approval_required=FALSE.
+16,milestones.csv,hold_on_open_dispute,boolean,NO,,Có HOLD thanh toán khi có dispute đang mở hay không.,TRUE,TRUE,
+17,milestones.csv,late_penalty_applicable,boolean,NO,,Milestone có áp dụng phạt chậm hay không.,TRUE;FALSE,FALSE,
+18,milestones.csv,grace_period_days,integer,NO,day,Số ngày grace sau due_date.,>=0,2,
+19,milestones.csv,penalty_rate_pct_per_day,decimal,NO,percent_per_day,Tỷ lệ phạt mỗi ngày sau grace period.,>=0,0.00,0 khi milestone không áp dụng phạt.
+20,milestones.csv,max_penalty_pct,decimal,NO,percent,Trần tỷ lệ phạt.,>=0,0.00,
+21,milestones.csv,release_rule_code,string,NO,,Mã rule áp dụng cho đúng loại milestone.,rule_set_id:milestone_type,R_GOODS_STD:SIGNING,Join sang payment_rules.csv.
+22,milestones.csv,initial_milestone_status,category,NO,,Trạng thái khởi tạo.,PLANNED,PLANNED,
+23,milestones.csv,data_is_synthetic,boolean,NO,,Cờ dữ liệu giả lập.,TRUE,TRUE,
+1,payment_rules.csv,rule_id,string,NO,,Mã rule duy nhất.,PRdddd,PR0001,Primary key.
+2,payment_rules.csv,rule_set_id,category,NO,,Bộ quy tắc chứa rule.,R_GOODS_STD;R_SERVICE_STD;R_SOFTWARE_STD;R_MAINTENANCE_STD,R_GOODS_STD,
+3,payment_rules.csv,release_rule_code,string,NO,,Mã rule scope theo milestone type.,rule_set_id:milestone_type,R_GOODS_STD:ACCEPTANCE,Join từ milestones.csv.
+4,payment_rules.csv,workflow_template,category,NO,,Workflow mà rule áp dụng.,WF_*,WF_GOODS_4STAGE,
+5,payment_rules.csv,contract_type,category,NO,,Loại hợp đồng mà rule áp dụng.,GOODS_SUPPLY;SERVICES;SOFTWARE_IMPLEMENTATION;MAINTENANCE,GOODS_SUPPLY,
+6,payment_rules.csv,applies_to_milestone_type,category,NO,,Loại milestone mà rule áp dụng.,Theo workflow,ACCEPTANCE,
+7,payment_rules.csv,priority,integer,NO,priority,Độ ưu tiên đánh giá rule.,10;20;30;40;50;60;70;80,10,Số nhỏ hơn được đánh giá trước.
+8,payment_rules.csv,evaluation_order,category,NO,,Quy ước thứ tự đánh giá.,ASCENDING_PRIORITY,ASCENDING_PRIORITY,
+9,payment_rules.csv,rule_name,string,NO,,Tên ngắn của rule.,,Open dispute blocks payment,
+10,payment_rules.csv,rule_group,category,NO,,Nhóm chức năng của rule.,BLOCKING;VALIDATION;PENALTY;RELEASE;FALLBACK,BLOCKING,
+11,payment_rules.csv,condition_expression,string,NO,,Biểu thức điều kiện của rule.,Simple rule DSL,open_dispute == TRUE,Có thể triển khai bằng Python/JS/low-code; không yêu cầu parser chuyên dụng.
+12,payment_rules.csv,decision,category,NO,,Quyết định khi rule khớp.,RELEASE;HOLD;REJECT;PENALTY,HOLD,
+13,payment_rules.csv,reason_code,category,NO,,Mã nguyên nhân chuẩn hóa.,OPEN_DISPUTE;REJECTION_PRESENT;UNAUTHORIZED_EVENT;MISSING_REQUIRED_EVENT;APPROVAL_QUORUM_NOT_MET;LATE_COMPLETION;ALL_CONDITIONS_MET;UNRESOLVED_CONDITION,OPEN_DISPUTE,
+14,payment_rules.csv,stop_processing,boolean,NO,,Dừng đánh giá các rule phía sau khi rule khớp.,TRUE,TRUE,Rule engine dùng first-match theo priority.
+15,payment_rules.csv,payable_amount_formula,string,NO,,Công thức tính số tiền được phép thanh toán.,Rule expression,0,Đơn vị kết quả: VND_million.
+16,payment_rules.csv,penalty_amount_formula,string,NO,,Công thức tính tiền phạt.,Rule expression,0,Đơn vị kết quả: VND_million.
+17,payment_rules.csv,parameter_source,string,NO,,Nguồn trường dữ liệu cần cho rule.,file:field list,"milestones.csv:due_date,planned_payment_vnd_mn,approval_required,required_approval_quorum,late_penalty_applicable,grace_period_days,penalty_rate_pct_per_day,max_penalty_pct|required events from events.csv",Hỗ trợ traceability.
+18,payment_rules.csv,rule_description_vi,string,NO,,Mô tả rule bằng tiếng Việt.,,Nếu milestone/hợp đồng đang có tranh chấp chưa đóng thì tạm giữ thanh toán.,
+19,payment_rules.csv,active,boolean,NO,,Rule đang được kích hoạt.,TRUE,TRUE,
+20,payment_rules.csv,data_is_synthetic,boolean,NO,,Cờ dữ liệu giả lập.,TRUE,TRUE,
+1,events.csv,event_id,string,NO,,Mã event duy nhất.,EVddddd,EV00001,Primary key.
+2,events.csv,contract_id,string,NO,,Hợp đồng liên quan.,CTdddd,CT0001,Foreign key tới contracts.csv.
+3,events.csv,milestone_id,string,NO,,Milestone liên quan.,MSdddd,MS0001,Foreign key tới milestones.csv.
+4,events.csv,contract_event_sequence,integer,NO,sequence,Thứ tự event trong hợp đồng sau khi sắp theo thời gian.,1..N,1,Liên tục theo contract_id.
+5,events.csv,event_timestamp,datetime,NO,,Thời điểm phát sinh event.,YYYY-MM-DDTHH:MM:SS,2026-04-24T09:20:00,
+6,events.csv,event_type,category,NO,,Loại sự kiện workflow.,CONTRACT_SIGNED;DELIVERY;INVOICE;ACCEPTANCE;APPROVAL;REJECTION;DISPUTE_OPENED;DISPUTE_RESOLVED;REQUIREMENTS_APPROVED;UAT_PASSED;GO_LIVE;KICKOFF_CONFIRMED;WARRANTY_COMPLETED;SERVICE_ACTIVATED;SERVICE_COMPLETED,CONTRACT_SIGNED,Một số event có thể xuất hiện lặp; cần xử lý duplicate.
+7,events.csv,event_status,category,NO,,Trạng thái của event.,CONFIRMED;APPROVED;REJECTED;OPEN;RESOLVED,CONFIRMED,
+8,events.csv,actor_party_id,string,NO,,Party tạo/xác nhận event.,Bddd;Sddd;Addd,B009,Foreign key tới parties.csv.
+9,events.csv,actor_party_type,category,NO,,Loại party của actor.,BUYER;SUPPLIER;APPROVER,BUYER,Dùng kiểm tra quyền của required event.
+10,events.csv,actor_role,category,NO,,Vai trò của actor tại thời điểm event.,BUYER;SUPPLIER;CONTRACT_OWNER;FINANCE_APPROVER;SECONDARY_APPROVER,BUYER,
+11,events.csv,event_source,category,NO,,Kênh sinh event.,PORTAL;API;WORKFLOW_ENGINE;MANUAL_ENTRY,PORTAL,
+12,events.csv,document_id,string,YES,,Mã chứng từ/tài liệu gắn với event.,,CTR-CT0001-01,Có thể dùng kết hợp event_type để phát hiện duplicate.
+13,events.csv,amount_vnd_mn,decimal,YES,VND_million,"Số tiền gắn với event khi phù hợp, ví dụ invoice/approval.",>=0 hoặc blank,516.00,
+14,events.csv,reference_event_id,string,YES,,"Event được tham chiếu, ví dụ dispute resolved tham chiếu dispute opened.",EVddddd hoặc blank,EV00048,Self-reference trong events.csv.
+15,events.csv,event_note,string,NO,,Mô tả ngắn của event.,,Business event recorded.,
+16,events.csv,data_is_synthetic,boolean,NO,,Cờ dữ liệu giả lập.,TRUE,TRUE,
+1,scenario_labels_sample.csv,scenario_id,string,NO,,Mã scenario mẫu công khai.,SCddd,SC001,Primary key của bộ sample.
+2,scenario_labels_sample.csv,contract_id,string,NO,,Hợp đồng của scenario.,CTdddd,CT0001,Foreign key tới contracts.csv.
+3,scenario_labels_sample.csv,milestone_id,string,NO,,Milestone đại diện cho scenario.,MSdddd,MS0003,Foreign key tới milestones.csv.
+4,scenario_labels_sample.csv,contract_type,category,NO,,Loại hợp đồng.,GOODS_SUPPLY;SERVICES;SOFTWARE_IMPLEMENTATION;MAINTENANCE,GOODS_SUPPLY,
+5,scenario_labels_sample.csv,workflow_template,category,NO,,Workflow áp dụng.,WF_*,WF_GOODS_4STAGE,
+6,scenario_labels_sample.csv,scenario_type,category,NO,,Loại tình huống mẫu.,CLEAN_RELEASE;LATE_PENALTY;OPEN_DISPUTE_HOLD;RESOLVED_DISPUTE_RELEASE;MISSING_EVENT_HOLD;APPROVAL_PENDING_HOLD;REJECTION;UNAUTHORIZED_EVENT_HOLD;DUPLICATE_EVENT_RELEASE,CLEAN_RELEASE,Chỉ là một phần nhãn công khai; không dùng để suy ra toàn bộ ground truth.
+7,scenario_labels_sample.csv,scenario_family,category,NO,,Nhóm nghiệp vụ cấp cao của scenario.,NORMAL_FLOW;DELAY;DISPUTE;MISSING_EVIDENCE;APPROVAL;REJECTION;AUTHORIZATION;DATA_QUALITY,NORMAL_FLOW,
+8,scenario_labels_sample.csv,difficulty,category,NO,,Mức độ scenario mẫu.,EASY;MEDIUM;HARD,EASY,
+9,scenario_labels_sample.csv,primary_signal,category,NO,,Tín hiệu chính cần nhận diện.,,ALL_REQUIRED_CONDITIONS_MET,
+10,scenario_labels_sample.csv,expected_action_category,category,NO,,Nhóm quyết định tham chiếu.,RELEASE;HOLD;REJECT;PENALTY,RELEASE,
+11,scenario_labels_sample.csv,scenario_description_vi,string,NO,,Mô tả scenario bằng tiếng Việt.,,"Đầy đủ sự kiện và phê duyệt hợp lệ, không có tranh chấp/rejection; milestone đủ điều kiện giải ngân.",
+12,scenario_labels_sample.csv,is_public_sample,boolean,NO,,Đánh dấu đây là nhãn mẫu công khai.,TRUE,TRUE,
+13,scenario_labels_sample.csv,data_is_synthetic,boolean,NO,,Cờ dữ liệu giả lập.,TRUE,TRUE,
+1,decision_sample.csv,scenario_id,string,NO,,Mã scenario mẫu.,SCddd,SC001,Join với scenario_labels_sample.csv.
+2,decision_sample.csv,contract_id,string,NO,,Mã hợp đồng.,CTdddd,CT0001,
+3,decision_sample.csv,milestone_id,string,NO,,Mã milestone được đánh giá.,MSdddd,MS0003,
+4,decision_sample.csv,scenario_type,category,NO,,Loại scenario.,Xem scenario_labels_sample.csv,CLEAN_RELEASE,
+5,decision_sample.csv,expected_decision,category,NO,,Quyết định ground truth mẫu.,RELEASE;HOLD;REJECT;PENALTY,RELEASE,
+6,decision_sample.csv,reason_code,category,NO,,Mã nguyên nhân của quyết định.,ALL_CONDITIONS_MET;LATE_COMPLETION;OPEN_DISPUTE;MISSING_REQUIRED_EVENT;APPROVAL_QUORUM_NOT_MET;REJECTION_PRESENT;UNAUTHORIZED_EVENT,ALL_CONDITIONS_MET,
+7,decision_sample.csv,planned_payment_vnd_mn,decimal,NO,VND_million,Giá trị thanh toán kế hoạch của milestone.,>=0,387.00,
+8,decision_sample.csv,penalty_amount_vnd_mn,decimal,NO,VND_million,Tiền phạt tham chiếu.,>=0,0.00,Bằng 0 nếu quyết định không phải PENALTY.
+9,decision_sample.csv,payable_amount_vnd_mn,decimal,NO,VND_million,Số tiền đủ điều kiện thanh toán theo rule.,>=0,387.00,RELEASE: bằng planned; HOLD/REJECT: 0; PENALTY: planned - penalty.
+10,decision_sample.csv,required_event_count,integer,NO,count,Số loại required event của milestone.,>=1,1,
+11,decision_sample.csv,valid_required_event_count,integer,NO,count,Số required event hợp lệ sau kiểm tra quyền và khử trùng lặp.,0..required_event_count,1,
+12,decision_sample.csv,missing_required_events,string_list,YES,,Danh sách required event còn thiếu.,semicolon-separated hoặc blank,ACCEPTANCE,
+13,decision_sample.csv,unauthorized_required_event_count,integer,NO,count,Số required event do party không có thẩm quyền tạo.,>=0,0,
+14,decision_sample.csv,duplicate_event_count,integer,NO,count,Số event lặp được phát hiện theo event_type/document/actor.,>=0,0,
+15,decision_sample.csv,open_dispute,boolean,NO,,Có dispute chưa được resolve tại thời điểm đánh giá hay không.,TRUE;FALSE,FALSE,
+16,decision_sample.csv,valid_rejection_count,integer,NO,count,Số rejection hợp lệ.,>=0,0,
+17,decision_sample.csv,approval_required,boolean,NO,,Milestone có yêu cầu approval hay không.,TRUE;FALSE,FALSE,
+18,decision_sample.csv,valid_approval_count,integer,NO,count,"Số approval hợp lệ, khác actor và đúng role.",>=0,0,
+19,decision_sample.csv,required_approval_quorum,integer,NO,count,Quorum approval cần đạt.,>=0,0,
+20,decision_sample.csv,days_late_after_grace,integer,NO,day,Số ngày trễ vượt quá grace period.,>=0,0,
+21,decision_sample.csv,evidence_event_ids,string_list,YES,,Danh sách event_id được dùng làm bằng chứng cho quyết định mẫu.,semicolon-separated,EV00004,Phục vụ traceability.
+22,decision_sample.csv,reference_reason_vi,string,NO,,Giải thích tham chiếu bằng tiếng Việt.,,"Đầy đủ required event và phê duyệt hợp lệ, không có tranh chấp/rejection; milestone đủ điều kiện RELEASE.",
+23,decision_sample.csv,is_public_sample,boolean,NO,,Đánh dấu dữ liệu mẫu công khai.,TRUE,TRUE,
+24,decision_sample.csv,data_is_synthetic,boolean,NO,,Cờ dữ liệu giả lập.,TRUE,TRUE,

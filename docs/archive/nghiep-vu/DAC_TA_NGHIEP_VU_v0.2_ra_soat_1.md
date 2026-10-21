@@ -1,14 +1,16 @@
+> **LƯU TRỮ — không dùng làm căn cứ.** Phiên bản 0.2 (rà soát lần 1, 21/10/2026), tên cũ `docs/Nghiệp vụ/soát nghiệp vụ lần 1.md`. Đã được thay bằng [04_DAC_TA_NGHIEP_VU.md](../../04_DAC_TA_NGHIEP_VU.md); lý do các thay đổi ở Phụ lục E của bản chuẩn. Nội dung bên dưới giữ nguyên như lúc lưu trữ.
+
 # CASE 4 — SMART CONTRACT WORKFLOW
 
-**Tài liệu định nghĩa và phân tích nghiệp vụ — bản rà soát 0.4**
+**Tài liệu định nghĩa và phân tích nghiệp vụ — bản rà soát 0.2**
 
 | Mục | Nội dung |
 | --- | --- |
 | Cuộc thi | Festival Chuyển đổi số 2026 — Vòng sơ khảo — Bảng D — Case 4 |
-| Phiên bản | 0.4 (đã làm rõ mục 9: rule theo Data Pack và trạng thái tham khảo; còn các giả định nghiệp vụ chờ xác nhận) |
+| Phiên bản | 0.2 (đã rà soát; còn các giả định chờ xác nhận) |
 | Ngày lập | 20/10/2026 |
 | Ngày rà soát | 21/10/2026 |
-| Nguồn | Đề thi Bảng D; Data Pack v1.0 (snapshot 18/10/2026): README, data dictionary, 5 file dữ liệu, 2 file mẫu; submission_output_template.csv đã được bổ sung và đối chiếu với manifest cùng dữ liệu nguồn |
+| Nguồn | Đề thi Bảng D; Data Pack v1.0 (snapshot 18/10/2026): README, data dictionary, 5 file dữ liệu, 2 file mẫu; cấu trúc template được mô tả trong manifest nhưng chưa có tệp template thực tế |
 | Đối tượng đọc | Toàn đội thi (nghiệp vụ, kỹ thuật, thuyết trình) |
 | Mục đích | Thống nhất cách hiểu bài toán, thuật ngữ và quy tắc nghiệp vụ trước khi thiết kế giải pháp |
 
@@ -183,7 +185,7 @@ release_rule_code có dạng <rule_set_id>:<milestone_type>, ví dụ R_GOODS_ST
 | Sự kiện có contract_id khác hợp đồng của milestone | 0 |
 | Tổng payment_percent mỗi hợp đồng | Đều bằng 100% |
 | Tổng tiền các milestone so với giá trị hợp đồng | Khớp cho cả 100 hợp đồng |
-| milestone_id trong template so với milestones.csv | Đã kiểm tra: 405 ID duy nhất, khớp toàn bộ milestones.csv; 22 cột đúng thứ tự manifest |
+| milestone_id trong template so với milestones.csv | Chưa kiểm tra: chưa có tệp template; manifest mô tả 405 dòng, 22 cột |
 | Milestone không có sự kiện nào | 0 |
 | Ân hạn ở milestone khác hợp đồng | 0 milestone |
 | Mức phạt mỗi ngày và trần phạt ở milestone khác hợp đồng | 185 milestone khác ở mỗi trường; dùng tham số milestone theo parameter_source của rule |
@@ -401,65 +403,18 @@ Milestone MS0020 (CT0005): kế hoạch 900 triệu, hạn 02/11/2026, ân hạn
 
 Kết quả khớp đáp án mẫu SC005. [SAMPLE]
 
-## 9. Bảng quyết định và ánh xạ trạng thái
+## 9. Bảng quyết định tổng hợp
 
-### 9.1. Quy tắc quyết định theo Data Pack
-
-**Phần này tổng hợp logic từ payment_rules.csv, không phải bảng ví dụ để tùy ý đổi quyết định hoặc thứ tự ưu tiên.** Kiểm tra 128 rule cho thấy 8 mẫu logic được dùng theo các phạm vi áp dụng. Khi triển khai, phải lấy đúng nhóm rule của milestone bằng release_rule_code, đối chiếu rule_set_id và các trường phạm vi liên quan, chỉ dùng rule đang hoạt động rồi duyệt priority tăng dần. Rule khớp đầu tiên quyết định kết quả và dừng xử lý. [ĐỀ], [DỮ LIỆU]
-
-Mỗi dòng chỉ được xét khi tất cả dòng ưu tiên trước chưa khớp. Không áp dụng các dòng độc lập và không chọn quyết định theo mức độ nghiêm trọng do nhóm tự đặt.
-
-Ký hiệu: P = planned_payment_vnd_mn; F = penalty_amount_vnd_mn tính theo công thức bên dưới. Đơn vị tiền là triệu VND.
-
-| Priority | Điều kiện nghiệp vụ diễn giải | Quyết định | reason_code | Payable | Penalty |
-| --- | --- | --- | --- | --- | --- |
-| 10 | Có tranh chấp hợp lệ đang mở trong phạm vi đánh giá | HOLD | OPEN_DISPUTE | 0 | 0 |
-| 20 | Có rejection hợp lệ | REJECT | REJECTION_PRESENT | 0 | 0 |
-| 30 | Có ít nhất một required event sai thẩm quyền | HOLD | UNAUTHORIZED_EVENT | 0 | 0 |
-| 40 | Chưa đủ bằng chứng bắt buộc hợp lệ | HOLD | MISSING_REQUIRED_EVENT | 0 | 0 |
-| 50 | Yêu cầu phê duyệt và số phê duyệt hợp lệ chưa đạt quorum | HOLD | APPROVAL_QUORUM_NOT_MET | 0 | 0 |
-| 60 | Có áp dụng phạt và ngày hoàn thành thực tế sau due_date + grace_period_days | PENALTY | LATE_COMPLETION | max(0, P − F) | F |
-| 70 | Toàn bộ điều kiện bắt buộc đạt, không có tranh chấp mở và không có rejection hợp lệ | RELEASE | ALL_CONDITIONS_MET | P | 0 |
-| 80 | Không khớp các rule trên | HOLD | UNRESOLVED_CONDITION | 0 | 0 |
-
-Công thức khi rule PENALTY thắng:
-
-```text
-days_late_after_grace = max(0, actual_completion_date - (due_date + grace_period_days))
-F = min(
-    days_late_after_grace * penalty_rate_pct_per_day / 100 * P,
-    max_penalty_pct / 100 * P
-)
-payable_amount_vnd_mn = max(0, P - F)
-```
-
-Dùng tham số tại milestone theo parameter_source của rule. Chính sách chọn ngày hoàn thành và làm tròn vẫn phải được chốt theo mục 13; bảng này không biến các giả định đó thành quy định của BTC.
-
-### 9.2. Cách hiểu điều kiện trước khi áp dụng rule
-
-- **Sai quyền và thiếu bằng chứng:** có event không đồng nghĩa có bằng chứng hợp lệ. Required event sai trạng thái hoặc sai quyền không được tính là đáp ứng. Nếu có required event sai quyền, rule 30 vẫn khớp dù đồng thời có event cùng loại đúng quyền; không xóa dấu vết sai quyền trước khi tính fact.
-- **Phê duyệt:** biểu thức gốc của rule 50 là `approval_required == TRUE AND valid_approval_count < required_approval_quorum`. README còn yêu cầu đúng actor, đúng role và không đếm một approver nhiều lần. Vì vậy, valid_approval_count phải được xây từ các phê duyệt hợp lệ, đồng thời thiết kế kiểm tra vai trò để trường hợp đủ số người nhưng thiếu vai trò bắt buộc vẫn HOLD, không lọt xuống PENALTY hoặc RELEASE. Cách biểu diễn kiểm tra vai trò trong fact là thiết kế triển khai cần được nhóm duyệt; không trình bày điều kiện bổ sung như nguyên văn biểu thức rule CSV.
-- **Quorum và vai trò theo từng mốc:** lấy required_approval_quorum và required_approval_roles của milestone. Ví dụ quorum 2 với CONTRACT_OWNER và FINANCE_APPROVER trong mục 9 README chỉ minh họa một cấu hình, không áp cho mọi milestone.
-- **Tranh chấp và rejection:** phải là sự kiện hợp lệ; quyền resolve/reject và phạm vi tranh chấp còn chưa rõ được quản lý tại mục 13. Không suy rộng chính sách chỉ từ các actor có mặt trong sample.
-- **Ưu tiên chặn trước tính tiền:** có dispute mở và rejection thì HOLD ở priority 10; thiếu evidence dù đã quá hạn thì HOLD ở priority 40; chưa đủ approval dù trễ thì HOLD ở priority 50. Các trường hợp đó có payable và penalty đầu ra bằng 0.
-- **Công thức không đổi ý nghĩa:** PENALTY có payable là max(0, P − F), không chỉ ghi P − F. Quyết định này không chứng minh đã có giao dịch chi tiền.
-
-### 9.3. Ánh xạ trạng thái do nhóm đề xuất — mang tính tham khảo
-
-**Bảng dưới là lựa chọn thiết kế của nhóm.** README mục 15 đưa ra gợi ý trạng thái và cho phép dùng tập khác nếu giải thích rõ mapping. Nhóm có thể đổi tên trạng thái, nhưng không được làm thay đổi decision, reason_code hoặc số tiền do rule xác định. [GIẢ ĐỊNH]
-
-| Quyết định / lý do | Trạng thái đề xuất | Ý nghĩa hiển thị |
-| --- | --- | --- |
-| RELEASE | ELIGIBLE_FOR_PAYMENT | Đủ điều kiện thanh toán, chưa xác nhận đã chi tiền |
-| PENALTY | ELIGIBLE_WITH_PENALTY | Đủ điều kiện xử lý sau khấu trừ phạt; payable có thể bằng 0 |
-| REJECT | REJECTED | Mốc bị từ chối theo kết quả đánh giá hiện hành |
-| HOLD / MISSING_REQUIRED_EVENT | WAITING_EVIDENCE | Chờ đủ bằng chứng hợp lệ |
-| HOLD / APPROVAL_QUORUM_NOT_MET | WAITING_APPROVAL | Chờ đủ phê duyệt hợp lệ và vai trò bắt buộc |
-| HOLD / OPEN_DISPUTE | ON_HOLD | Tạm giữ do tranh chấp đang mở |
-| HOLD / UNAUTHORIZED_EVENT | ON_HOLD | Tạm giữ để xử lý bằng chứng sai quyền |
-| HOLD / UNRESOLVED_CONDITION | ON_HOLD | Tạm giữ vì điều kiện chưa được giải quyết |
-
-ELIGIBLE_WITH_PENALTY là tên nhóm đề xuất thay cho cách gọi PAID_WITH_PENALTY trong danh sách gợi ý README, nhằm tránh biểu thị đã thanh toán. Không coi tên này là giá trị bắt buộc do BTC quy định. Trạng thái hợp đồng tổng hợp theo mục 14, không đồng nhất với quyết định của từng milestone.
+| # | Điều kiện (theo thứ tự kiểm tra) | Quyết định | Mã lý do | Payable | Penalty | Trạng thái đề xuất |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Có dispute đang mở | HOLD | OPEN_DISPUTE | 0 | 0 | ON_HOLD |
+| 2 | Có rejection hợp lệ | REJECT | REJECTION_PRESENT | 0 | 0 | REJECTED |
+| 3 | Sự kiện bắt buộc do bên sai thẩm quyền | HOLD | UNAUTHORIZED_EVENT | 0 | 0 | ON_HOLD |
+| 4 | Thiếu sự kiện bắt buộc | HOLD | MISSING_REQUIRED_EVENT | 0 | 0 | WAITING_EVIDENCE |
+| 5 | Cần phê duyệt và chưa đủ quorum | HOLD | APPROVAL_QUORUM_NOT_MET | 0 | 0 | WAITING_APPROVAL |
+| 6 | Áp dụng phạt và trễ quá ân hạn | PENALTY | LATE_COMPLETION | kế hoạch − phạt | phạt | ELIGIBLE_WITH_PENALTY |
+| 7 | Đủ mọi điều kiện | RELEASE | ALL_CONDITIONS_MET | kế hoạch | 0 | ELIGIBLE_FOR_PAYMENT |
+| 8 | Còn lại | HOLD | UNRESOLVED_CONDITION | 0 | 0 | ON_HOLD |
 
 ## 10. Tình huống minh họa từ 20 sample công khai (Có thể đọc nếu muốn hiểu hơn)
 
@@ -558,7 +513,7 @@ Lưu ý: MANUAL_ENTRY trùng khớp với 6 sự kiện sai bên trong dữ li�
 | A07 | Quy tắc làm tròn tiền | Decimal, 2 chữ số, HALF_UP; ghi rõ thứ tự làm tròn | BTC xác nhận hoặc test tham chiếu |
 | A08 | auto_release_allowed và approval_required mâu thuẫn | HOLD để kiểm tra; không diễn giải FALSE là cấm RELEASE sau khi đủ approval | Quy định nguồn ưu tiên |
 | A09 | Phụ thuộc giữa các milestone | Không tự thêm khóa chặn theo milestone_sequence | BTC xác nhận nếu có dependency |
-| A10 | Quy ước các trường đầu ra, đặc biệt confidence_score | Template đã xác minh; confidence không coi là xác suất đúng | BTC xác nhận định dạng, tính bắt buộc và cách diễn giải trường; ô trống trong mẫu không chứng minh được phép bỏ trống khi nộp |
+| A10 | Output template và confidence_score | Dùng schema manifest làm bản tạm; confidence không coi là xác suất đúng | Nhận template chính thức và quy ước trường |
 
 Mỗi giả định phải có người phụ trách, ngày chốt, phiên bản cấu hình và các test bị ảnh hưởng. Khi BTC trả lời, cập nhật đặc tả, engine và test cùng lúc.
 
@@ -587,9 +542,7 @@ Mỗi giả định phải có người phụ trách, ngày chốt, phiên bản
 
 ### 15.1. Schema output
 
-Đã đọc trực tiếp submission_output_template.csv: 405 dòng dữ liệu (không tính header), 22 cột, 405 milestone_id duy nhất. Tập ID khớp toàn bộ milestones.csv. Sáu trường nguồn ở tất cả 405 dòng khớp contracts.csv/milestones.csv, bao gồm planned_payment_vnd_mn được đối chiếu theo giá trị thập phân. Thứ tự cột và SHA-256 đều khớp dataset_manifest_final.csv. [DỮ LIỆU]
-
-Toàn bộ 16 cột do đội sinh hiện đang để trống ở tất cả các dòng. Đây là mẫu cấu trúc để điền kết quả, không phải đáp án hay output của engine.
+Manifest mô tả 22 cột; chưa kiểm tra trực tiếp được template vì không có tệp trong bộ đính kèm. Mỗi milestone phải có đúng một dòng trong output hiện hành, tổng 405 dòng.
 
 | Nhóm | Trường |
 | --- | --- |
@@ -600,7 +553,7 @@ Toàn bộ 16 cột do đội sinh hiện đang để trống ở tất cả cá
 | Giải thích | reason_code, decision_reason, evidence_event_ids, rule_id_applied |
 | Vận hành | confidence_score, processing_time_ms, evaluated_at, engine_name, audit_trace_id, notes |
 
-Không đổi ID hoặc số dòng. Giữ đúng thứ tự 22 cột của template đã được cung cấp và giữ nguyên 6 cột nguồn; ghép kết quả theo contract_id và milestone_id, không ghép theo vị trí dòng. Nếu lỗi dữ liệu khiến không đánh giá được một mốc, giữ dòng output, HOLD và ghi lỗi rõ ràng. Không gán rule_id_applied của BTC nếu thực tế chưa chạy rule đó; ghi lỗi tiền xử lý trong audit và thống nhất quy ước xuất với BTC.
+Không đổi ID hoặc số dòng. Lấy đúng thứ tự cột từ manifest rồi xác nhận lại với template chính thức. Nếu lỗi dữ liệu khiến không đánh giá được một mốc, giữ dòng output, HOLD và ghi lỗi rõ ràng. Không gán rule_id_applied của BTC nếu thực tế chưa chạy rule đó; ghi lỗi tiền xử lý trong audit và thống nhất quy ước xuất với BTC.
 
 confidence_score chưa có định nghĩa xác suất. Không điền 1.0 chỉ vì engine tất định. Để trống nếu template cho phép; nếu bắt buộc thì công bố thang đo chất lượng bằng chứng và cách tính, không gọi là độ chính xác.
 
@@ -683,7 +636,7 @@ Test kỳ vọng do người phụ trách nghiệp vụ duyệt độc lập v�
 | Tham số penalty_rate/max_penalty khác hợp đồng | 185 milestone ở mỗi trường |
 | Event sau ngày snapshot | 267 event, thuộc 93 milestone |
 | Milestone có due_date sau snapshot | 95 |
-| Template thực tế (bổ sung bản 0.3) | 405 dòng, 22 cột; 405 ID duy nhất; 6 trường nguồn khớp; 16 cột đầu ra trống; SHA-256 khớp manifest |
+| Template thực tế | Chưa được cung cấp; không xác nhận đối chiếu ID |
 | Engine khớp 20/20 và phân bố decision toàn pack | Chưa tái lập; thiếu mã nguồn/output/log |
 
 Các thống kê khác được giữ để tham khảo từ bản nháp không nên dùng làm bằng chứng nghiệm thu nếu chưa có phép tính tái lập. Kết quả kiểm tra cấu trúc không chứng minh mọi event đúng nghiệp vụ.
@@ -693,7 +646,7 @@ Các thống kê khác được giữ để tham khảo từ bản nháp không 
 1. Sửa 119 thành 145 khi nói về so khớp quyền trực tiếp; tách 26 event dispute và không đánh đồng “không khớp chuỗi” với “sai quyền”.
 2. Bỏ chỉ dẫn vô điều kiện bỏ allowed_event_types; chuyển ma trận mở rộng thành giả định có kiểm soát.
 3. Sửa kết luận tham số phạt không khác nhau: có 185 milestone khác ở rate và cap.
-4. Ở bản 0.2, bỏ khẳng định đối chiếu template khi chưa có tệp. Bản 0.3 đã nhận tệp và xác nhận 405 ID, 22 cột, sáu trường nguồn và SHA-256 khớp; cập nhật kết luận theo bằng chứng mới.
+4. Bỏ khẳng định đã đối chiếu template 405 ID vì tệp chưa có.
 5. Chuyển kết quả engine 20/20 và phân bố toàn pack thành báo cáo chưa kiểm chứng.
 6. Sửa BR-06 để giữ rule 30 khi đồng thời có event đúng và sai quyền.
 7. Bổ sung coverage vai trò, trạng thái event, quyền actor và xác thực resolve.
@@ -724,61 +677,4 @@ Danh sách này chỉ phục vụ truy vết và test; không hard-code các ID 
 - Dữ liệu đối chiếu: `contracts.csv`, `parties.csv`, `milestones.csv`, `events.csv`, `payment_rules.csv`.
 - Metadata: `data_dictionary.csv`, `dataset_manifest_final.csv`.
 - Mẫu tham chiếu: `scenario_labels_sample.csv`, `decision_sample.csv`. Bản scenario có hậu tố `(1)` là bản trùng, không tạo thêm mẫu độc lập.
-- Đã bổ sung `submission_output_template.csv` và xác minh trực tiếp. Chưa có mã engine của bản nháp hoặc ground truth đầy đủ. Bản này là đặc tả đã rà soát, không phải chứng nhận engine đúng 405/405 mốc.
-
-## 22. Bổ sung bản 0.3 — Hướng dẫn điền và nghiệm thu output
-
-### 22.1. Trách nhiệm với từng cột theo đúng thứ tự template
-
-| STT | Cột | Cách xử lý |
-| --- | --- | --- |
-| 1 | contract_id | Giữ nguyên từ template; dùng cùng milestone_id để ghép kết quả |
-| 2 | milestone_id | Giữ nguyên, không thiếu hoặc lặp |
-| 3 | contract_type | Giữ nguyên |
-| 4 | milestone_sequence | Giữ nguyên |
-| 5 | milestone_type | Giữ nguyên |
-| 6 | planned_payment_vnd_mn | Giữ nguyên giá trị và đơn vị triệu VND |
-| 7 | predicted_decision | RELEASE, HOLD, REJECT hoặc PENALTY |
-| 8 | predicted_milestone_status | Theo bảng ánh xạ trạng thái đã công bố |
-| 9 | conditions_met | Liệt kê các điều kiện thực sự đạt; định dạng cần thống nhất |
-| 10 | missing_conditions | Liệt kê điều kiện còn thiếu/chưa đạt; không ghi thiếu nếu thực tế chỉ có blocker khác |
-| 11 | payable_amount_vnd_mn | Theo rule thắng; HOLD/REJECT bằng 0 |
-| 12 | penalty_amount_vnd_mn | Theo công thức khi PENALTY thắng; các decision còn lại bằng 0 |
-| 13 | reason_code | Theo rule thắng hoặc quy ước lỗi tiền xử lý được chấp thuận |
-| 14 | decision_reason | Giải thích bằng dữ kiện cụ thể, không chỉ lặp tên decision |
-| 15 | evidence_event_ids | ID bằng chứng theo quy ước đã chốt; giữ dấu vết event bị loại trong audit |
-| 16 | rule_id_applied | ID rule thực sự áp dụng, đúng scope; không tạo ID BTC giả |
-| 17 | confidence_score | Chờ chốt ý nghĩa/thang đo; không tự suy là xác suất hay accuracy |
-| 18 | processing_time_ms | Thời gian thực đo cho phạm vi xử lý đã công bố, đơn vị ms |
-| 19 | evaluated_at | Thời điểm chạy đánh giá; phân biệt với evaluation_time dùng cắt event |
-| 20 | engine_name | Tên engine, nên kèm phiên bản hoặc liên kết tới phiên bản trong audit |
-| 21 | audit_trace_id | Tham chiếu tới bản audit của đúng lượt chạy và milestone |
-| 22 | notes | Ghi giả định, chế độ thời gian, cảnh báo; không dùng thay các trường bắt buộc khác |
-
-Các diễn giải cách điền là đặc tả đề xuất của đội dựa trên README/rule. Template trống chỉ xác nhận tên cột, thứ tự và dữ liệu điền sẵn; không tự xác nhận kiểu dữ liệu, miền giá trị hoặc tính nullable của mọi trường.
-
-### 22.2. Checklist trước khi xuất CSV
-
-- Header đúng 22 cột và đúng thứ tự; không thêm cột index.
-- Đúng 405 dòng, mỗi cặp contract_id/milestone_id xuất hiện đúng một lần.
-- Sáu cột nguồn không bị sửa; ưu tiên giữ thứ tự dòng của template để thuận tiện đối chiếu.
-- Không bỏ dòng khi engine lỗi; ghi HOLD và lý do theo chính sách lỗi đã chốt.
-- Kiểm tra decision hợp lệ và quan hệ decision–amount–reason–rule.
-- ID bằng chứng tồn tại và thuộc đúng phạm vi; audit_trace_id tra được bản ghi tương ứng.
-- Thời gian xử lý được đo, không điền số giả; evaluated_at là thời gian chạy thật.
-- Ghi CSV bằng thư viện hỗ trợ quoting để dấu phẩy/xuống dòng trong lời giải thích không làm lệch cột; dùng encoding nhất quán, ưu tiên UTF-8.
-- Đọc lại CSV sau khi ghi để kiểm tra header, số dòng, ID và số tiền.
-- Việc template khớp nguồn không thay thế kiểm thử engine với decision_sample.csv.
-
-### 22.3. Cập nhật công việc của nhóm
-
-Bạn năm 2 phụ trách dữ liệu có thể đóng đầu việc “kiểm tra template” với các kết quả đã xác minh ở mục 15.1. Bạn phụ trách kiểm thử bổ sung kiểm tra cấu trúc output theo checklist trên. Anh năm 4 phụ trách tích hợp dùng trực tiếp template để ghép kết quả và giữ schema. Các vấn đề về quyền actor, ngày hoàn thành, rounding và confidence_score vẫn cần chốt riêng.
-
-## 23. Nhật ký sửa đổi bản 0.4
-
-- Tách mục 9 thành bảng quyết định theo Data Pack, cách hiểu điều kiện và bảng trạng thái tham khảo.
-- Dùng priority 10–80 và ghi rõ first-match trong đúng phạm vi rule.
-- Sửa payable của PENALTY thành max(0, P − F), bổ sung công thức phạt ngay tại mục 9.
-- Làm rõ “chưa đủ bằng chứng hợp lệ”, trường hợp đồng thời có event đúng/sai quyền và yêu cầu bao phủ vai trò phê duyệt.
-- Giữ nguyên biểu thức rule 50 khi trích dẫn; phân biệt yêu cầu README với cách triển khai kiểm tra vai trò.
-- Phân biệt ví dụ quorum trong mục 9 README với quy tắc cần áp dụng cho từng milestone; ghi rõ các trạng thái do nhóm đề xuất.
+- Chưa có template thực tế, mã engine của bản nháp hoặc ground truth đầy đủ. Bản này là đặc tả đã rà soát, không phải chứng nhận engine đúng 405/405 mốc.

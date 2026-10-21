@@ -9,6 +9,8 @@
 | [01 — Đề bài và thuật ngữ](01_DE_BAI_VA_THUAT_NGU.md) | Giải thích bài toán, decision flow và ví dụ đối chiếu sample |
 | [02 — Chiến lược kỹ thuật](02_CHIEN_LUOC_BRONZE_SILVER_GOLD.md) | Bronze/Silver/Gold, engine, quyền, audit, ký số và AI |
 | [03 — Lộ trình và checklist](03_LO_TRINH_VA_CHECKLIST_NOP_BAI.md) | Phương án tổng thể, phân công sáu người, lịch bảy ngày và đầu ra |
+| [04 — Đặc tả nghiệp vụ](04_DAC_TA_NGHIEP_VU.md) (v1.0) | **Nguồn chuẩn** về quy tắc quyết định, thẩm quyền, trạng thái, xử lý ngoại lệ, phân quyền, đầu ra; kiểm chứng bằng [`tools/kiem_chung_nghiep_vu.py`](../tools/kiem_chung_nghiep_vu.py) và [`tests/`](../tests/test_dac_ta_nghiep_vu.py). Bản cũ ở [archive/nghiep-vu](archive/nghiep-vu/) |
+| [05 — Hướng dẫn đọc và việc còn mở](05_HUONG_DAN_DOC_VA_VIEC_CON_MO.md) | Thứ tự đọc đặc tả theo vai trò, việc còn dở (P0/P1/P2), điểm cần BTC hoặc đội quyết, bản nháp câu hỏi gửi BTC |
 | [Proposal outline](templates/PROPOSAL_OUTLINE.md) | Khung proposal 5–10 trang |
 | [Slide structure](templates/SLIDE_STRUCTURE.md) | Khung slide tối đa 15 trang |
 

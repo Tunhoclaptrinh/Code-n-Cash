@@ -39,10 +39,10 @@ D1 chốt CSV/trace mock để làm song song. CSV lấy nguyên header **22 c�
 ### Facts phải có trước khi đánh giá rule
 
 - Required events hợp lệ sau kiểm trạng thái và actor; liệt kê thiếu, sai quyền, duplicate và lý do loại.
-- Quyền actor đối chiếu party chuẩn: type/role, active, tổ chức/parent, allowed_event_types và các cờ/hạn mức liên quan. Alias event phải được đặc tả, ví dụ DISPUTE với các sự kiện mở/giải quyết.
-- Approval actor duy nhất, đúng role bắt buộc, đúng phạm vi/hạn mức theo dictionary. Không chỉ đếm số event.
+- Quyền actor đối chiếu party chuẩn: type/role, active, tổ chức/parent. Required event kiểm theo **ma trận thẩm quyền** của [đặc tả mục 4.2](04_DAC_TA_NGHIEP_VU.md#42-ma-trận-thẩm-quyền-tạo-required-event), không theo nguyên cột allowed_event_types (dùng nguyên cột làm sai 108/405 mốc và 5/20 sample); allowed_event_types chỉ dùng cho APPROVAL/REJECTION/DISPUTE (alias DISPUTE gồm cả mở/giải quyết).
+- Approval actor duy nhất, đúng role bắt buộc, đúng bên mua; đếm số vai trò được phủ, không chỉ đếm số event. Hạn mức `approval_limit_vnd_mn` là kiểm tra tùy chọn Silver, hiện không bị vượt ở mốc nào ([đặc tả BR-10](04_DAC_TA_NGHIEP_VU.md#82-quy-tắc-chi-tiết)).
 - Dispute còn mở sau khi resolve đúng reference, quyền và thứ tự thời gian; rejection hợp lệ.
-- Completion từ thời điểm bằng chứng/phê duyệt cần thiết đã đủ; không lấy ngày chạy chương trình. Batch so mẫu đọc toàn bộ lịch sử, vì Data Pack có sự kiện sau ngày thi; demo as-of dùng cutoff cấu hình riêng.
+- Completion là thời điểm muộn nhất trong các required event hợp lệ (bản sớm nhất mỗi loại), **không** tính approval ([đặc tả BR-11](04_DAC_TA_NGHIEP_VU.md#82-quy-tắc-chi-tiết)); không lấy ngày chạy chương trình. Batch so mẫu đọc toàn bộ lịch sử, vì Data Pack có sự kiện sau ngày thi; demo as-of dùng cutoff cấu hình riêng.
 
 Dedup giữ raw log, không gộp khác actor, không để sự kiện sai quyền biến mất khi chọn bản đại diện. Khóa gợi ý có contract/milestone/type/document/actor; phải chốt document rỗng và reference/timestamp. Replay không được tạo thanh toán hai lần.
 
@@ -72,13 +72,13 @@ penalty = min(days_late × rate_pct / 100 × planned,
 payable = max(0, planned - penalty)
 ```
 
-Dùng Decimal; `_vnd_mn` là **triệu VND**; 0.10 là **0,10%**, không phải 10%. Chốt precision và rounding theo dictionary/sample, không dùng float rồi format để che sai số. HOLD/REJECT không thanh toán; penalty chỉ tính theo điều kiện rule đã qua.
+Dùng Decimal; `_vnd_mn` là **triệu VND**; 0.10 là **0,10%**, không phải 10%. Làm tròn penalty tới 0,01 theo ROUND_HALF_UP rồi mới trừ ([đặc tả BR-13](04_DAC_TA_NGHIEP_VU.md#82-quy-tắc-chi-tiết); `Decimal` mặc định HALF_EVEN sẽ lệch ở MS0396), không dùng float rồi format để che sai số. HOLD/REJECT không thanh toán; penalty chỉ tính theo điều kiện rule đã qua.
 
 Ví dụ chuẩn **SC005 / CT0005 / MS0020**: due 02/11/2026, grace 5 ngày, completion 13/11/2026 → trễ 6 ngày; planned 900.00, rate 0,15%/ngày, cap 8% → penalty 8.10, payable 891.90 triệu VND. Xem [decision sample](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/03_labels_sample/decision_sample.csv).
 
 ### State khác decision
 
-State model đề xuất cần Hoàng/Tuấn khóa D1–D2: PLANNED → IN_PROGRESS → WAITING_APPROVAL → ON_HOLD / REJECTED / ELIGIBLE_FOR_PAYMENT. ON_HOLD được đánh giá lại khi có evidence/dispute resolution mới. RELEASE/PENALTY biểu thị đủ điều kiện theo mô phỏng; chỉ chuyển COMPLETED nếu chính sách/trạng thái hoàn tất được định nghĩa, không tự coi là đã chuyển tiền thật. Tổng hợp contract state phải có quy tắc riêng.
+State model đã chốt ở [đặc tả mục 9](04_DAC_TA_NGHIEP_VU.md#9-quyết-định-trạng-thái-và-xử-lý-ngoại-lệ): ánh xạ decision → trạng thái theo tên README (PENALTY → `PAID_WITH_PENALTY`, nghĩa là đủ điều kiện chi sau khấu trừ), bảng chuyển trạng thái và điều kiện đánh giá lại (9.4), xử lý ngoại lệ không có override (9.5), trạng thái hợp đồng tổng hợp (9.3). COMPLETED chỉ dùng khi có bước chi mô phỏng; không tự coi là đã chuyển tiền thật.
 
 ## 4. Audit trail và hash chain
 

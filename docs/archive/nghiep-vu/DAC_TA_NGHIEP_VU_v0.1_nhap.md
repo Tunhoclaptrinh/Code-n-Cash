@@ -1,3 +1,5 @@
+> **LƯU TRỮ — không dùng làm căn cứ.** Phiên bản 0.1 (bản nháp, 20/10/2026), tên cũ `docs/Nghiệp vụ/TaiLieu_NghiepVu_nháp.md`. Đã được thay bằng [04_DAC_TA_NGHIEP_VU.md](../../04_DAC_TA_NGHIEP_VU.md); lý do các thay đổi ở Phụ lục E của bản chuẩn. Nội dung bên dưới giữ nguyên như lúc lưu trữ.
+
 # CASE 4 — SMART CONTRACT WORKFLOW
 ## Tài liệu định nghĩa và phân tích nghiệp vụ
 

@@ -11,9 +11,10 @@ the payment conditions of every contract milestone and returns one decision per 
 ## Monorepo layout
 
 ```
+frontend/                                     React web app (see frontend/CLAUDE.md)
 BangD-Case4/
   DeThi2026_BangD_SmartContractWorkflow.pdf   Official brief (source of truth)
-  frontend/                                   React web app (see BangD-Case4/frontend/CLAUDE.md)
+  DataPack-CASE4_SmartContractWorkflow/       Official Data Pack
 docs/                                         Team documents, written in Vietnamese
   04_DAC_TA_NGHIEP_VU.md                      Business specification, the authoritative rules
 tools/kiem_chung_nghiep_vu.py                 Python reference check of the specification against the Data Pack

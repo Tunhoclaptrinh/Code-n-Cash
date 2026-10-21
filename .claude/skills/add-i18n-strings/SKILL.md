@@ -1,6 +1,6 @@
 ---
 name: add-i18n-strings
-description: Add or change user-facing text in BangD-Case4/frontend with i18next (Vietnamese and English). Use whenever a component needs a label, message, status name or any other visible text.
+description: Add or change user-facing text in the frontend app with i18next (Vietnamese and English). Use whenever a component needs a label, message, status name or any other visible text.
 ---
 
 # i18next conventions

@@ -17,7 +17,7 @@ Never commit to `main`. Examples: `feat/frontend-contract-workflow-screens`, `fi
 - Subject at most 72 characters, no trailing period. Body only for the why.
 - **Author is the human configured in git.** Do not add `Co-Authored-By`, "Generated with Claude Code" or any other
   AI attribution to commits, PR descriptions or files. Check with `git log -1 --format=%B` after committing.
-- Stage explicit paths (`git add BangD-Case4/frontend`), never `git add -A`. Do not commit `node_modules`, `dist`,
+- Stage explicit paths (`git add frontend`), never `git add -A`. Do not commit `node_modules`, `dist`,
   `.env*`, screenshots or scratch files.
 - One logical change per commit; build and typecheck pass at every commit.
 

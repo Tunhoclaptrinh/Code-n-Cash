@@ -1,6 +1,6 @@
 ---
 name: port-canvas-screen
-description: Port a screen from a design canvas board (static HTML with inline styles) into a pixel-faithful React page in BangD-Case4/frontend. Use when asked to implement, build or port a screen such as A1-C3.
+description: Port a screen from a design canvas board (static HTML with inline styles) into a pixel-faithful React page in the frontend app. Use when asked to implement, build or port a screen such as A1-C3.
 ---
 
 # Port a canvas screen to React

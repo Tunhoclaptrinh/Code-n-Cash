@@ -1,0 +1,61 @@
+{
+  "breadcrumb": {
+    "dispute": "Dispute MS{{milestoneNo}}"
+  },
+  "title": "Dispute MS{{milestoneNo}} {{milestone}}",
+  "milestones": {
+    "SIGNING": "Signing",
+    "DELIVERY": "Delivery",
+    "ACCEPTANCE": "Acceptance",
+    "WARRANTY": "Warranty"
+  },
+  "status": {
+    "OPEN": "Open, milestone on {{decision}}",
+    "AWAITING_EVIDENCE": "Waiting for the supplier's additional evidence, milestone on {{decision}}",
+    "RESOLVED": "Resolved, milestone being re-evaluated"
+  },
+  "submission": {
+    "title": "What the supplier submitted",
+    "author": "{{name}} · {{organization}}",
+    "quote": "\"{{message}}\""
+  },
+  "impact": {
+    "title": "Impact on payment",
+    "keepPenalty": "If the penalty stands",
+    "waivePenalty": "If accepted, penalty waived",
+    "unit": "million",
+    "footnote": "While the dispute is open, the milestone cannot be paid. Every step is recorded in the history."
+  },
+  "decision": {
+    "title": "Your decision",
+    "options": {
+      "ACCEPT_WAIVE_PENALTY": {
+        "name": "Accept, waive the penalty",
+        "description": "The milestone is re-evaluated and goes through two-person approval as usual."
+      },
+      "KEEP_PENALTY": {
+        "name": "Keep the penalty",
+        "description": "The reason is sent back to the supplier. The dispute closes and the milestone is re-evaluated with the original amount."
+      },
+      "REQUEST_MORE_EVIDENCE": {
+        "name": "Request more evidence",
+        "description": "The supplier is notified and submits more documents. The dispute stays open."
+      }
+    },
+    "note": {
+      "label": "Reason",
+      "required": "Enter a reason for the decision."
+    },
+    "pendingPoint": "<b>Open question:</b> only the buyer resolves disputes for now. Should this step need a third party or two-person approval?",
+    "outcome": {
+      "ACCEPT_WAIVE_PENALTY": "Accepted, penalty waived. The milestone is re-evaluated and moves on to approval.",
+      "KEEP_PENALTY": "Penalty kept. The dispute is closed and the milestone is re-evaluated with the original amount.",
+      "REQUEST_MORE_EVIDENCE": "The supplier was asked for more evidence. The dispute stays open.",
+      "by": "{{name}}, {{at}}"
+    },
+    "actions": {
+      "later": "Decide later",
+      "confirm": "Confirm decision"
+    }
+  }
+}

@@ -1,0 +1,122 @@
+.panel {
+  --avatar-bg: #ffe8c7;
+  --avatar-text: #8f4a06;
+  --file-border: #d9dfee;
+  --good-border: #bfe3cf;
+  --good-bg: #f8fdfa;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding: 22px 28px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.headingSpaced {
+  margin-top: 6px;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--avatar-bg);
+  color: var(--avatar-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.time {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--file-border);
+  border-radius: var(--radius-md);
+}
+
+.fileKind {
+  padding: 2px 7px;
+  background: var(--color-bg);
+  border: 1px solid var(--file-border);
+  border-radius: 5px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.impact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.impactCard {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.impactCardGood {
+  border-color: var(--good-border);
+  background: var(--good-bg);
+}
+
+.impactLabel {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.impactValue {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.impactValueGood {
+  color: var(--color-success);
+}
+
+.unit {
+  color: var(--color-text-muted);
+}
+
+.footnote {
+  margin-top: auto;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,49 @@
+.tile {
+  --ms-tile-green-border: #bfe3cf;
+  --ms-tile-blue-border: #c6d4f8;
+  --ms-tile-grey-border: #d9dfee;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.signed,
+.unsigned {
+  width: 40px;
+  height: 48px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  font-size: 12px;
+}
+
+.signed {
+  border: 1px solid var(--ms-tile-green-border);
+  color: var(--color-success);
+}
+
+.unsigned {
+  border: 1px solid var(--ms-tile-blue-border);
+  color: var(--color-primary-dark);
+}
+
+.plain {
+  width: 34px;
+  height: 42px;
+  border-radius: 5px;
+  background: var(--color-bg);
+  border: 1px solid var(--ms-tile-grey-border);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.chip {
+  display: inline;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--color-bg);
+  border: 1px solid var(--ms-tile-grey-border);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}

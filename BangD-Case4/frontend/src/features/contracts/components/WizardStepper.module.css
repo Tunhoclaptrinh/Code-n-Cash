@@ -1,0 +1,45 @@
+.stepper {
+  list-style: none;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.step,
+.stepCurrent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+
+.stepCurrent {
+  color: var(--color-primary-dark);
+}
+
+.bullet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-border);
+  font-weight: 800;
+}
+
+.stepCurrent .bullet {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+}

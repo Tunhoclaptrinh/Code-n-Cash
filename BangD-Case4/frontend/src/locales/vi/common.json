@@ -1,0 +1,45 @@
+{
+  "brand": { "name": "Smart Contract", "product": "Workflow" },
+  "nav": {
+    "label": "Điều hướng chính",
+    "tasks": "Việc cần làm",
+    "contracts": "Hợp đồng",
+    "myContracts": "Hợp đồng của tôi",
+    "upload": "Tải hợp đồng lên",
+    "activity": "Nhật ký hoạt động",
+    "verify": "Kiểm tra chữ ký",
+    "submissions": "Chứng từ đã nộp",
+    "approvals": "Chờ tôi phê duyệt"
+  },
+  "topbar": {
+    "role": "Vai trò",
+    "notifications": "Thông báo",
+    "account": "Menu tài khoản",
+    "language": "Ngôn ngữ",
+    "signOut": "Đăng xuất"
+  },
+  "languages": { "vi": "Tiếng Việt", "en": "English" },
+  "roles": {
+    "CONTRACT_OWNER": { "name": "Chủ hợp đồng", "short": "CO" },
+    "LEGAL_REVIEWER": { "name": "Pháp chế / BA hợp đồng", "short": "PC" },
+    "SUPPLIER": { "name": "Nhà cung cấp", "short": "NCC" },
+    "FINANCE_APPROVER": { "name": "Phê duyệt tài chính", "short": "PD" },
+    "ADMIN_AUDITOR": { "name": "Quản trị / Kiểm toán", "short": "QT" }
+  },
+  "login": {
+    "title": "Đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "errors": {
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
+      "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
+    }
+  },
+  "common": {
+    "loading": "Đang tải…",
+    "loadError": "Không tải được trang này. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "notFound": "Không có gì để hiển thị."
+  }
+}

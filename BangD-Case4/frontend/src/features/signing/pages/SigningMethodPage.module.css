@@ -1,0 +1,394 @@
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.titleRow h1 {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.stepChip {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-size: 13px;
+  padding: 3px 12px;
+}
+
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 20px;
+}
+
+.methods {
+  padding: 22px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.methods h2,
+.progress h2 {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.methodList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.method {
+  width: 100%;
+  margin: 0;
+  border: 1.5px solid var(--signing-border-card);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: inherit;
+  padding: 14px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.methodOn {
+  border: 2px solid var(--color-primary);
+  background: var(--signing-card-active);
+}
+
+.methodBlocked {
+  border: 1.5px dashed var(--signing-border-card);
+  background: var(--color-surface-muted);
+  color: var(--color-text-faint);
+  cursor: default;
+}
+
+.radio {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-strong);
+}
+
+.methodOn .radio {
+  border: 6px solid var(--color-primary);
+  background: var(--color-surface);
+}
+
+.methodBlocked .radio {
+  border-color: var(--signing-border-card);
+}
+
+.methodBody {
+  flex: 1;
+}
+
+.methodName {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.lastUsed {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  font-size: 12px;
+  padding: 1px 8px;
+}
+
+.methodDescription {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+}
+
+.methodBlocked .methodDescription {
+  color: inherit;
+}
+
+.fileBox {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.error {
+  color: var(--signing-danger-flag);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.footer {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.progress {
+  padding: 22px 28px;
+  display: flex;
+  gap: 28px;
+  min-height: 0;
+}
+
+.progressMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+}
+
+.phaseBadge {
+  margin-left: auto;
+  font-size: 12.5px;
+  padding: 2px 10px;
+}
+
+.phasePENDING {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.phaseCOMPLETED {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.phaseIDLE {
+  background: var(--signing-neutral-pill);
+  color: var(--color-text-muted);
+}
+
+.phaseCANCELLED,
+.phaseREJECTED,
+.phaseEXPIRED {
+  background: var(--color-danger-soft);
+  color: var(--signing-danger-ink);
+}
+
+.progressList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.progressItem {
+  display: flex;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.progressItem + .progressItem {
+  border-top: 1px solid var(--color-border);
+}
+
+.progressTodo {
+  color: var(--color-text-faint);
+}
+
+.progressMarker {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker_done {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.marker_wait {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.marker_current {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+.marker_failed {
+  background: var(--color-danger-soft);
+  color: var(--signing-danger-ink);
+}
+
+.marker_todo {
+  background: var(--signing-neutral-pill);
+}
+
+.progressText {
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+}
+
+.progressTodo .progressText {
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.lock {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.exceptions {
+  color: var(--color-primary-dark);
+}
+
+.progressFooter {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.phoneColumn {
+  flex: none;
+  width: 310px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.phoneCaption {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.phone {
+  width: 290px;
+  height: 560px;
+  border: 8px solid var(--color-text);
+  border-radius: 38px;
+  background: var(--signing-phone-bg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.phoneSmartCa {
+  --phone-accent: var(--signing-phone-smartca);
+}
+
+.phoneMySign {
+  --phone-accent: var(--signing-phone-mysign);
+}
+
+.phoneHeader {
+  background: var(--phone-accent);
+  color: #fff;
+  padding: 22px 18px 14px;
+}
+
+.phoneHeader b {
+  font-size: 17px;
+}
+
+.phoneProvider {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.phoneBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.phoneCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+}
+
+.phoneCodeCard {
+  text-align: center;
+}
+
+.phoneLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.phoneSub {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.phoneCode {
+  font-size: 30px;
+  letter-spacing: 6px;
+  font-family: var(--font-mono);
+}
+
+.phoneActions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.phoneReject,
+.phoneConfirm {
+  flex: 1;
+  text-align: center;
+  border-radius: var(--radius-md);
+  padding: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.phoneReject {
+  border: 1px solid var(--signing-phone-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.phoneConfirm {
+  border: 0;
+  background: var(--phone-accent);
+  color: #fff;
+}
+
+.phoneIdle {
+  margin: auto 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}

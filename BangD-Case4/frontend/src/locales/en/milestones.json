@@ -1,0 +1,388 @@
+{
+  "status": {
+    "NOT_OPEN": "Not open yet",
+    "NOT_DUE": "Not due yet",
+    "AWAITING_EVIDENCE": "Awaiting evidence",
+    "AWAITING_APPROVAL": "Awaiting approval",
+    "RELEASE": "RELEASE",
+    "PENALTY": "PENALTY",
+    "HOLD": "HOLD",
+    "REJECT": "REJECT"
+  },
+  "decisionCode": {
+    "RELEASE": "RELEASE",
+    "HOLD": "HOLD",
+    "REJECT": "REJECT",
+    "PENALTY": "PENALTY"
+  },
+  "milestoneKind": {
+    "SIGNING": "Contract signing",
+    "DELIVERY": "Delivery",
+    "ACCEPTANCE": "Acceptance",
+    "WARRANTY": "Warranty"
+  },
+  "evidenceType": {
+    "DELIVERY_REPORT": "Delivery report",
+    "INVOICE": "Invoice",
+    "ACCEPTANCE_REPORT": "Acceptance report",
+    "ACCEPTANCE_REPORT_REVISED": "Revised acceptance report",
+    "WARRANTY_END_REPORT": "Warranty completion report",
+    "OTHER": "Other document",
+    "OWN_DIGITAL_SIGNATURE": "Your digital signature"
+  },
+  "participantRole": {
+    "CONTRACT_OWNER": "Contract owner",
+    "FINANCE_APPROVER": "Finance approver",
+    "SECOND_APPROVER": "Second approver",
+    "SUPPLIER_REPRESENTATIVE": "Supplier representative"
+  },
+  "side": {
+    "BUYER": "Buyer",
+    "SUPPLIER": "Seller"
+  },
+  "contractKind": {
+    "GOODS_SUPPLY": "Goods supply contract"
+  },
+  "numberWord": {
+    "1": "One",
+    "2": "Two",
+    "3": "Three",
+    "4": "Four"
+  },
+  "common": {
+    "pdf": "PDF",
+    "millionUnit": "million",
+    "millionVnd": "{{amount}} million VND",
+    "milestoneRef": "MS{{no}} {{name}}",
+    "signatureValid": "Valid signature",
+    "signatureInvalid": "Invalid signature",
+    "notFound": "We could not find this record.",
+    "view": "View"
+  },
+  "inbox": {
+    "title": "Your tasks",
+    "subtitle_one": "{{count}} task, nearest deadline first",
+    "subtitle_other": "{{count}} tasks, nearest deadline first",
+    "intro": "Once you submit every required document with a digital signature, the system passes them to the buyer's approvers.",
+    "empty": "You have no tasks to do.",
+    "footer": "You only see tasks for contracts that name your company. You cannot approve payments or change amounts.",
+    "columns": {
+      "task": "Task",
+      "contractAndMilestone": "Contract and milestone",
+      "due": "Due",
+      "required": "To submit",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "task": {
+      "SUBMIT_EVIDENCE": "Submit {{milestone}} documents",
+      "SIGN_CONTRACT": "Sign new contract",
+      "RESUBMIT_EVIDENCE": "Add missing documents",
+      "APPROVE_PAYMENT": "Approve payment"
+    },
+    "headingMilestone": "{{contractId}} · MS{{no}} {{name}}",
+    "headingTitle": "{{contractId}} · {{title}}",
+    "contractAmount": "{{title}} · {{amount}} million VND",
+    "buyerSigned": "Buyer signed at {{time}}",
+    "requestReason": "Contract owner asked: \"{{reason}}\"",
+    "overdue_one": "{{count}} day overdue",
+    "overdue_other": "{{count}} days overdue",
+    "badge": {
+      "LATE_PENALTY_RISK": "Late, penalty possible",
+      "YOUR_TURN": "Your turn",
+      "MILESTONE_ON_HOLD": "Milestone on HOLD",
+      "ON_TIME": "On time"
+    },
+    "action": {
+      "SUBMIT_EVIDENCE": "Submit and sign",
+      "SIGN_CONTRACT": "Sign now",
+      "RESUBMIT_EVIDENCE": "Resubmit",
+      "APPROVE_PAYMENT": "Approve"
+    }
+  },
+  "submit": {
+    "breadcrumb": "{{contractId}} · MS{{no}} · Submit documents",
+    "title": "MS{{no}} {{name}}: submit documents",
+    "overdue_one": "{{count}} day overdue",
+    "overdue_other": "{{count}} days overdue",
+    "required": {
+      "title": "Documents required for this milestone"
+    },
+    "file": {
+      "meta_one": "{{fileName}} · {{size}} MB · {{count}} page",
+      "meta_other": "{{fileName}} · {{size}} MB · {{count}} pages",
+      "metaNoPages": "{{fileName}} · {{size}} MB",
+      "signed": "Signed and valid",
+      "unsigned": "Not signed",
+      "signer": "{{name}}, {{at}}",
+      "empty": "No file for this document yet",
+      "choose": "Choose file",
+      "chooseAria": "Choose a file for {{document}}",
+      "remove": "Remove",
+      "removeAria": "Remove file {{fileName}}",
+      "extraTitle": "Additional document"
+    },
+    "signingMethod": {
+      "label": "Signing method",
+      "VIETTEL_MYSIGN": "Viettel MySign"
+    },
+    "position": {
+      "label": "Signature box on the {{document}}",
+      "value": "Page {{page}}, {{corner}}.",
+      "reassign": "Reassign",
+      "corner": {
+        "BOTTOM_RIGHT": "bottom right corner"
+      }
+    },
+    "dropzone": "Add other documents (optional): drag and drop or choose files",
+    "dropzoneAria": "Add other documents",
+    "lockNote": "Once signed, a document is locked. You can only submit a new version.",
+    "later": "Later",
+    "signAndSubmit": "Sign the {{document}} and submit",
+    "submit": "Submit documents",
+    "submitting": "Submitting…",
+    "error": {
+      "EVIDENCE_INCOMPLETE": "Some required documents are missing.",
+      "UNKNOWN": "We could not submit the documents. Please try again."
+    },
+    "aftermath": {
+      "title": "What happens after you submit",
+      "actor": {
+        "SYSTEM": "System",
+        "HUMAN": "People"
+      },
+      "validate": "<b>Document check.</b> Documents only count if you are the contract's supplier and the signatures are valid.",
+      "match": "<b>Match against the milestone.</b> With all documents in, the milestone moves to approval. If something is missing, you are told straight away.",
+      "approve": "<b>{{quorumWord}} approvers on the buyer side</b> review the file and sign digitally before the payment is settled.",
+      "result": "<b>You get the result</b>: the amount paid, any penalty and the reason."
+    },
+    "penalty": {
+      "title": "About the penalty",
+      "late_one": "Delivery {{count}} day late at {{rate}}% per day on {{value}} million VND is {{penalty}} million VND. You will see this calculation in the result step, and you may open a dispute if you disagree.",
+      "late_other": "Delivery {{count}} days late at {{rate}}% per day on {{value}} million VND is {{penalty}} million VND. You will see this calculation in the result step, and you may open a dispute if you disagree.",
+      "onTime": "You are on time, so no penalty applies."
+    },
+    "submitted": "Submitted, awaiting approval"
+  },
+  "approve": {
+    "breadcrumb": "{{contractId}} · MS{{no}} {{name}}",
+    "title": "Approve payment for MS{{no}} {{name}}",
+    "state": {
+      "OPEN": "Awaiting approval",
+      "CLOSED": "Decision made"
+    },
+    "proposal": {
+      "title": "System proposal",
+      "milestoneValue": "Milestone value",
+      "penalty": "Penalty",
+      "payable": "Payable",
+      "explainLate_one": "<b>{{count}} day</b> late × <b>{{rate}}%</b> per day × {{value}} = {{penalty}}. The {{cap}}% cap is {{capAmount}}, not reached.",
+      "explainLate_other": "<b>{{count}} days</b> late × <b>{{rate}}%</b> per day × {{value}} = {{penalty}}. The {{cap}}% cap is {{capAmount}}, not reached.",
+      "explainCapped_one": "<b>{{count}} day</b> late × <b>{{rate}}%</b> per day × {{value}} exceeds the cap. The {{cap}}% cap is {{capAmount}}, so the penalty is {{penalty}}.",
+      "explainCapped_other": "<b>{{count}} days</b> late × <b>{{rate}}%</b> per day × {{value}} exceeds the cap. The {{cap}}% cap is {{capAmount}}, so the penalty is {{penalty}}.",
+      "explainOnTime": "Delivered on time, so no penalty applies.",
+      "reason": "Reason: <b>{{reason}}</b>. No dispute, documents complete and signatures valid.",
+      "reasonCode": {
+        "ALL_CONDITIONS_MET": "all conditions met",
+        "LATE_DELIVERY": "late delivery",
+        "APPROVAL_QUORUM_NOT_MET": "approval quorum not met",
+        "HELD_BY_APPROVER": "held by an approver",
+        "REJECTED_BY_APPROVER": "rejected by an approver"
+      }
+    },
+    "documents": {
+      "title": "Submitted documents",
+      "signedBy": "Signed by {{name}}, {{at}}",
+      "viewAria": "View {{document}}",
+      "note_one": "Read this {{countWord}} document before you approve. The system records whether you opened it.",
+      "note_other": "Read these {{countWord}} documents before you approve. The system records whether you opened them."
+    },
+    "progress": {
+      "title": "Approval progress: {{quorum}} people needed, {{roles}} different roles",
+      "heading": "<b>{{role}}</b> · {{person}}",
+      "headingNoPerson": "<b>{{role}}</b>",
+      "headingOptional": "<b>{{role}}</b> · optional",
+      "you": "you",
+      "state": {
+        "APPROVED": "Approved and signed at {{time}}",
+        "HELD": "Put on hold at {{time}}",
+        "REJECTED": "Rejected at {{time}}",
+        "CURRENT_YOU": "Your turn",
+        "CURRENT_OTHER": "Waiting for approval",
+        "PENDING": "Not their turn yet",
+        "PENDING_OPTIONAL": "Only needed if one of the two above rejects"
+      }
+    },
+    "consequences": {
+      "title": "What happens with each choice",
+      "approve": "<b>Approve and sign:</b> once both roles have signed, the system fixes the penalty and sends the payment order for {{payable}} million.",
+      "hold": "<b>Hold (HOLD):</b> the milestone stops, you record a reason, and it goes back to the contract owner.",
+      "reject": "<b>Reject (REJECT):</b> a reason is required and this milestone is not paid."
+    },
+    "note": {
+      "label": "Note or reason",
+      "hint": "required when holding or rejecting",
+      "required": "Please give a reason when holding or rejecting."
+    },
+    "actions": {
+      "reject": "Reject",
+      "hold": "Hold",
+      "approve": "Approve and sign"
+    },
+    "confirm": {
+      "title": "Confirm digital signature",
+      "body": "You are about to sign and approve a payment of {{payable}} million VND for MS{{no}} {{name}}. This signature cannot be withdrawn.",
+      "cancel": "Cancel",
+      "submit": "Sign",
+      "submitting": "Signing…"
+    },
+    "error": {
+      "ALREADY_VOTED": "Your role has already voted on this milestone.",
+      "NOT_AN_APPROVER": "You are not one of the approvers for this milestone.",
+      "APPROVAL_CLOSED": "This milestone already has a decision.",
+      "UNKNOWN": "We could not record your vote. Please try again."
+    }
+  },
+  "decision": {
+    "breadcrumb": "MS{{no}} {{name}}: decision",
+    "meta": "{{contractId}} · {{title}} · {{supplier}}",
+    "headline": {
+      "RELEASE": "MS{{no}} {{name}} is paid {{amount}} million VND",
+      "PENALTY": "MS{{no}} {{name}} is paid {{amount}} million VND",
+      "HOLD": "MS{{no}} {{name}} is on hold",
+      "REJECT": "MS{{no}} {{name}} was rejected and is not paid"
+    },
+    "summary": {
+      "RELEASE": "All conditions are met. {{approvers}} approvers signed digitally at {{time}} on {{date}}.",
+      "PENALTY_one": "Delivered {{count}} day late, so a penalty of {{penalty}} million VND is deducted. {{approvers}} approvers signed digitally at {{time}} on {{date}}.",
+      "PENALTY_other": "Delivered {{count}} days late, so a penalty of {{penalty}} million VND is deducted. {{approvers}} approvers signed digitally at {{time}} on {{date}}.",
+      "HOLD": "The milestone is stopped and unpaid. Decision recorded at {{time}} on {{date}}.",
+      "REJECT": "The milestone was rejected and is not paid. Decision recorded at {{time}} on {{date}}."
+    },
+    "actions": {
+      "export": "Export PDF file",
+      "transfer": "Send payment order to accounting",
+      "transferred": "Sent to accounting",
+      "transferring": "Sending…"
+    },
+    "amounts": {
+      "title": "Amounts (million VND)",
+      "milestoneValue": "Milestone value",
+      "lateDays": "Days late",
+      "lateDaysValue_one": "{{count}} day",
+      "lateDaysValue_other": "{{count}} days",
+      "rate": "Penalty rate",
+      "rateValue": "{{rate}}% per day",
+      "cap": "{{cap}}% penalty cap",
+      "penalty": "Penalty = the smaller of {{calculated}} and {{cap}}",
+      "payableFormula": "Payable = {{value}} − {{penalty}}",
+      "payableNone": "This milestone is not paid",
+      "note": "Unit: million VND. The supplier sees this exact calculation."
+    },
+    "reasons": {
+      "title": "Why this decision",
+      "NO_OPEN_DISPUTE": "No open dispute or rejection.",
+      "AUTHORIZED_SUBMITTER_AND_VALID_SIGNATURES_one": "The submitter is authorised; the document has a valid signature.",
+      "AUTHORIZED_SUBMITTER_AND_VALID_SIGNATURES_other": "The submitter is authorised; all {{count}} documents have valid signatures.",
+      "APPROVAL_QUORUM_MET_one": "{{count}} approver signed, once per role.",
+      "APPROVAL_QUORUM_MET_other": "{{count}} approvers signed, once per role.",
+      "LATE_DELIVERY_one": "<b>Delivered {{count}} day late</b> against the {{due}} deadline, so a penalty applies.",
+      "LATE_DELIVERY_other": "<b>Delivered {{count}} days late</b> against the {{due}} deadline, so a penalty applies.",
+      "HELD_BY_APPROVER": "<b>An approver put this milestone on hold</b> and recorded a reason.",
+      "REJECTED_BY_APPROVER": "<b>An approver rejected this milestone</b> and recorded a reason.",
+      "relatedDocuments": "Related documents"
+    },
+    "history": {
+      "title": "Processing history",
+      "note": "History is append-only: nothing is edited or deleted.",
+      "category": {
+        "SIGNATURE": "Signature",
+        "SYSTEM": "System",
+        "HUMAN": "People"
+      },
+      "event": {
+        "DOCUMENT_SIGNED": "{{actor}} signed the {{document}}",
+        "DOCUMENT_SIGNED_WITH_ROLE": "{{actor}} ({{role}}) signed the {{document}}",
+        "EVIDENCE_RECEIVED": "Received the documents, validated them, proposed {{code}} and sent for approval",
+        "EVIDENCE_RECEIVED_PENALTY": "Received the documents, validated them, proposed {{code}} {{penalty}} and sent for approval",
+        "APPROVED_AND_SIGNED": "{{actor}} ({{role}}) approved and signed",
+        "HELD": "{{actor}} ({{role}}) put the milestone on hold",
+        "REJECTED": "{{actor}} ({{role}}) rejected the milestone",
+        "DECISION_FINALIZED": "Finalised {{code}}; all parties notified",
+        "DECISION_FINALIZED_PAYABLE": "Finalised {{code}}, payable {{payable}}; all parties notified"
+      }
+    },
+    "dispute": {
+      "title": "Supplier disagrees?",
+      "body_one": "They can open a dispute within {{count}} day. The milestone then goes to HOLD until someone resolves it.",
+      "body_other": "They can open a dispute within {{count}} days. The milestone then goes to HOLD until someone resolves it.",
+      "link": "Open the dispute screen"
+    }
+  },
+  "detail": {
+    "breadcrumb": "{{contractId}}",
+    "meta": "{{kind}} · {{supplier}}",
+    "phase": {
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed"
+    },
+    "actions": {
+      "download": "Download signed copy",
+      "verify": "Verify signatures"
+    },
+    "tabs": {
+      "label": "Contract content",
+      "milestones": "Milestones",
+      "documents": "Documents",
+      "participants": "Participants",
+      "history": "History"
+    },
+    "milestone": {
+      "name": "MS{{no}} · {{name}}",
+      "due": "Due {{due}}",
+      "dueDelivered": "Due {{due}}, delivered {{delivered}}",
+      "amountUnit": "million VND",
+      "fact": {
+        "completed": "Completed:",
+        "paid": "Payable:",
+        "penalty": "Penalty:",
+        "required": "To submit:",
+        "submitter": "Submitted by:",
+        "opensWhen": "Opens when:",
+        "submittedOn": "Submitted:"
+      },
+      "opensWhenValue": "MS{{no}} is complete",
+      "side": {
+        "transferred": "Sent to accounting",
+        "notTransferred": "Not sent to accounting",
+        "viewDecision": "View decision",
+        "waitingSubmitter": "Waiting for {{role}} to submit documents",
+        "awaitingApproval": "Waiting for approvers",
+        "noTask": "No task yet"
+      }
+    },
+    "payment": {
+      "title": "Payment overview",
+      "contractValue": "Contract value",
+      "settled": "Payment settled",
+      "penalty": "Penalty deducted",
+      "notDue": "Not due yet",
+      "inProgress": "In progress",
+      "unit": "Unit: million VND",
+      "progressAria": "Share of the contract value with payment settled"
+    },
+    "participants": {
+      "title": "Participants",
+      "role": "{{role}}, {{side}}"
+    },
+    "documents": {
+      "title": "Contract documents",
+      "empty": "No documents yet.",
+      "meta": "MS{{no}} · {{type}}"
+    },
+    "history": {
+      "body": "Every action on this contract is recorded in the activity log.",
+      "link": "Open the activity log"
+    }
+  }
+}

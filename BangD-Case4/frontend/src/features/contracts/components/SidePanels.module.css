@@ -1,0 +1,120 @@
+.checks {
+  --check-mark-bg: var(--color-success-soft);
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 20px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.checksTitle {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.check {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.checkMark {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--check-mark-bg);
+  color: var(--color-success);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.preview {
+  --preview-stage-bg: #e9edf5;
+  --preview-line: #e6eaf2;
+  --preview-line-strong: #d8deea;
+
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+}
+
+.previewTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.previewPage {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+}
+
+.previewStage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--preview-stage-bg);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 318px;
+  height: 420px;
+  padding: 22px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgb(27 36 55 / 15%);
+}
+
+.line {
+  height: 7px;
+  border-radius: 3px;
+  background: var(--preview-line);
+}
+
+.lineStrong {
+  background: var(--preview-line-strong);
+}
+
+.signatures {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.signatureBox {
+  flex: 1;
+  height: 96px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+}

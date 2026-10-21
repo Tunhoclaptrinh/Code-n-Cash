@@ -1,0 +1,178 @@
+{
+  "breadcrumb": {
+    "home": "Trang chủ",
+    "contracts": "Hợp đồng",
+    "upload": "Tải hợp đồng lên"
+  },
+  "contractList": {
+    "title": "Hợp đồng",
+    "subtitle_one": "{{count}} hợp đồng của {{organization}}",
+    "subtitle_other": "{{count}} hợp đồng của {{organization}}",
+    "upload": "Tải hợp đồng lên",
+    "newlyDigitized": "Mới số hóa",
+    "tiles": {
+      "buyer": {
+        "signature": "Chờ tôi ký",
+        "dispute": "Chờ tôi giải quyết tranh chấp",
+        "evidence": "Chờ bên khác nộp chứng từ",
+        "completed": "Đã hoàn tất thanh toán"
+      },
+      "supplier": {
+        "signature": "Chờ bên mua ký",
+        "dispute": "Đang tranh chấp",
+        "evidence": "Chờ tôi nộp chứng từ",
+        "completed": "Đã hoàn tất thanh toán"
+      }
+    },
+    "filters": {
+      "searchPlaceholder": "Tìm theo mã, tên hợp đồng, nhà cung cấp",
+      "searchLabel": "Tìm hợp đồng",
+      "typeLabel": "Loại hợp đồng",
+      "allTypes": "Mọi loại hợp đồng",
+      "statusLabel": "Trạng thái",
+      "allStatuses": "Mọi trạng thái",
+      "policyLabel": "Chính sách phê duyệt",
+      "allPolicies": "Mọi chính sách phê duyệt"
+    },
+    "table": {
+      "columns": {
+        "contract": "Hợp đồng",
+        "supplier": "Nhà cung cấp",
+        "value": "Giá trị (triệu VND)",
+        "progress": "Tiến độ các mốc",
+        "status": "Trạng thái",
+        "waiting": "Đang chờ",
+        "actions": "Thao tác"
+      },
+      "empty": "Không có hợp đồng phù hợp"
+    },
+    "progress": {
+      "milestones": "{{done}}/{{total}} mốc",
+      "milestonesDeducted": "{{done}}/{{total}} mốc, {{deducted}} mốc bị khấu trừ"
+    },
+    "status": {
+      "AWAITING_SIGNATURE": "Chờ ký",
+      "DISPUTED": "Tranh chấp",
+      "AWAITING_EVIDENCE": "Chờ chứng từ",
+      "COMPLETED": "Hoàn tất"
+    },
+    "waiting": {
+      "OWNER_SIGNS_FIRST": {
+        "self": "<b>Bạn</b> ký số trước (Bên A)",
+        "other": "<b>Chủ hợp đồng</b> ký số trước (Bên A)"
+      },
+      "OWNER_RESOLVES_DISPUTE": {
+        "self": "<b>Bạn</b> giải quyết tranh chấp ở mốc {{milestoneNo}}",
+        "other": "<b>Chủ hợp đồng</b> giải quyết tranh chấp ở mốc {{milestoneNo}}"
+      },
+      "SUPPLIER_SUBMITS_EVIDENCE": {
+        "self": "<b>Bạn</b> nộp chứng từ mốc {{milestoneNo}}",
+        "other": "Nhà cung cấp nộp chứng từ mốc {{milestoneNo}}"
+      },
+      "NOTHING": "Không còn việc"
+    },
+    "actions": {
+      "signNow": "Ký ngay",
+      "open": "Mở"
+    }
+  },
+  "contractUpload": {
+    "steps": {
+      "label": "Các bước đăng ký hợp đồng",
+      "upload": "Tải lên",
+      "positions": "Vị trí ký",
+      "review": "Rà soát điều khoản",
+      "sign": "Ký số",
+      "effective": "Có hiệu lực"
+    },
+    "title": "Đăng ký hợp đồng mới",
+    "form": {
+      "type": {
+        "label": "Loại hợp đồng",
+        "options": {
+          "GOODS_SUPPLY": {
+            "name": "Cung cấp hàng hóa",
+            "hint": "Quyết định mẫu 4 mốc: ký, giao hàng, nghiệm thu, bảo hành."
+          }
+        }
+      },
+      "code": {
+        "label": "Mã hợp đồng",
+        "value": "{{code}} (hệ thống cấp)"
+      },
+      "title": {
+        "label": "Tên hợp đồng",
+        "counter": "{{count}}/{{max}} ký tự",
+        "errors": {
+          "required": "Nhập tên hợp đồng."
+        }
+      },
+      "supplier": {
+        "label": "Nhà cung cấp"
+      },
+      "reviewer": {
+        "label": "Người rà soát bản số hóa",
+        "option": "{{role}}, {{organization}}"
+      },
+      "flow": {
+        "label": "Mẫu trình tự ký",
+        "templates": {
+          "TWO_PARTY_BUYER_FIRST": "Hợp đồng hai bên: Bên mua rồi Nhà cung cấp"
+        },
+        "stepChip": "{{no}} · {{label}}",
+        "steps": {
+          "BUYER_OWNER": "Bên mua, Chủ hợp đồng",
+          "SUPPLIER_FINAL_DIGITAL": "Nhà cung cấp, bước cuối bắt buộc chữ ký số"
+        }
+      },
+      "positionsNotice": {
+        "title": "Vị trí ký được gán ở bước sau",
+        "body": "Hệ thống không tự nhận diện vị trí ký. Sau khi tải lên, bạn gán ô ký cho từng bước của trình tự này ngay trên trang PDF.",
+        "link": "Xem màn gán vị trí ký"
+      },
+      "file": {
+        "label": "Tệp hợp đồng",
+        "constraint": "PDF hoặc DOCX, tối đa 20 MB",
+        "meta": "{{size}} MB · {{pages}} trang · tải lên xong",
+        "metaNoPages": "{{size}} MB · tải lên xong",
+        "replace": "Thay tệp",
+        "replaceHint": "Thay tệp sau khi đã cấu hình sẽ buộc kiểm tra lại vị trí ký và bản số hóa, để chữ ký không rơi sai chỗ.",
+        "errors": {
+          "type": "Chỉ chấp nhận tệp PDF hoặc DOCX.",
+          "size": "Tệp vượt quá 20 MB."
+        }
+      },
+      "appendix": {
+        "label": "Phụ lục đính kèm",
+        "optional": "không bắt buộc",
+        "drop": "Kéo thả hoặc chọn tệp phụ lục",
+        "remove": "Bỏ tệp {{name}}"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "continue": "Tiếp tục: gán vị trí ký"
+      }
+    },
+    "checks": {
+      "title": "Kiểm tra tệp vừa tải lên",
+      "readable": {
+        "title": "Đọc được nội dung.",
+        "detail": "{{pages}} trang, không phải bản scan."
+      },
+      "ready": {
+        "title": "Sẵn sàng gán vị trí ký.",
+        "detail": "Trình tự ký có {{steps}} bước, mỗi bước cần một ô ký trên trang PDF."
+      },
+      "unsigned": {
+        "title": "Chưa có chữ ký số nào",
+        "detail": "trong tệp: đúng với hợp đồng mới."
+      }
+    },
+    "preview": {
+      "title": "Xem trước",
+      "page": "Trang {{page}} / {{total}}",
+      "partyA": "ĐẠI DIỆN BÊN A",
+      "partyB": "ĐẠI DIỆN BÊN B"
+    }
+  }
+}

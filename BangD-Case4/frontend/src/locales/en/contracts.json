@@ -1,0 +1,178 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "contracts": "Contracts",
+    "upload": "Upload contract"
+  },
+  "contractList": {
+    "title": "Contracts",
+    "subtitle_one": "{{count}} contract of {{organization}}",
+    "subtitle_other": "{{count}} contracts of {{organization}}",
+    "upload": "Upload contract",
+    "newlyDigitized": "Newly digitized",
+    "tiles": {
+      "buyer": {
+        "signature": "Waiting for my signature",
+        "dispute": "Waiting for me to resolve a dispute",
+        "evidence": "Waiting for others to submit evidence",
+        "completed": "Payment completed"
+      },
+      "supplier": {
+        "signature": "Waiting for the buyer to sign",
+        "dispute": "In dispute",
+        "evidence": "Waiting for me to submit evidence",
+        "completed": "Payment completed"
+      }
+    },
+    "filters": {
+      "searchPlaceholder": "Search by code, contract title or supplier",
+      "searchLabel": "Search contracts",
+      "typeLabel": "Contract type",
+      "allTypes": "All contract types",
+      "statusLabel": "Status",
+      "allStatuses": "All statuses",
+      "policyLabel": "Approval policy",
+      "allPolicies": "All approval policies"
+    },
+    "table": {
+      "columns": {
+        "contract": "Contract",
+        "supplier": "Supplier",
+        "value": "Value (million VND)",
+        "progress": "Milestone progress",
+        "status": "Status",
+        "waiting": "Waiting for",
+        "actions": "Actions"
+      },
+      "empty": "No matching contracts"
+    },
+    "progress": {
+      "milestones": "{{done}}/{{total}} milestones",
+      "milestonesDeducted": "{{done}}/{{total}} milestones, {{deducted}} paid with a deduction"
+    },
+    "status": {
+      "AWAITING_SIGNATURE": "Awaiting signature",
+      "DISPUTED": "Disputed",
+      "AWAITING_EVIDENCE": "Awaiting evidence",
+      "COMPLETED": "Completed"
+    },
+    "waiting": {
+      "OWNER_SIGNS_FIRST": {
+        "self": "<b>You</b> sign digitally first (Party A)",
+        "other": "<b>The contract owner</b> signs digitally first (Party A)"
+      },
+      "OWNER_RESOLVES_DISPUTE": {
+        "self": "<b>You</b> resolve the dispute on milestone {{milestoneNo}}",
+        "other": "<b>The contract owner</b> resolves the dispute on milestone {{milestoneNo}}"
+      },
+      "SUPPLIER_SUBMITS_EVIDENCE": {
+        "self": "<b>You</b> submit evidence for milestone {{milestoneNo}}",
+        "other": "The supplier submits evidence for milestone {{milestoneNo}}"
+      },
+      "NOTHING": "Nothing left to do"
+    },
+    "actions": {
+      "signNow": "Sign now",
+      "open": "Open"
+    }
+  },
+  "contractUpload": {
+    "steps": {
+      "label": "Contract registration steps",
+      "upload": "Upload",
+      "positions": "Signature positions",
+      "review": "Clause review",
+      "sign": "Digital signing",
+      "effective": "In force"
+    },
+    "title": "Register a new contract",
+    "form": {
+      "type": {
+        "label": "Contract type",
+        "options": {
+          "GOODS_SUPPLY": {
+            "name": "Supply of goods",
+            "hint": "Standard 4-milestone template: signing, delivery, acceptance, warranty."
+          }
+        }
+      },
+      "code": {
+        "label": "Contract code",
+        "value": "{{code}} (assigned by the system)"
+      },
+      "title": {
+        "label": "Contract title",
+        "counter": "{{count}}/{{max}} characters",
+        "errors": {
+          "required": "Enter a contract title."
+        }
+      },
+      "supplier": {
+        "label": "Supplier"
+      },
+      "reviewer": {
+        "label": "Digitization reviewer",
+        "option": "{{role}}, {{organization}}"
+      },
+      "flow": {
+        "label": "Signing flow template",
+        "templates": {
+          "TWO_PARTY_BUYER_FIRST": "Two-party contract: buyer first, then the supplier"
+        },
+        "stepChip": "{{no}} · {{label}}",
+        "steps": {
+          "BUYER_OWNER": "Buyer, contract owner",
+          "SUPPLIER_FINAL_DIGITAL": "Supplier, digital signature required on the last step"
+        }
+      },
+      "positionsNotice": {
+        "title": "Signature positions are assigned in the next step",
+        "body": "The system does not detect signature positions on its own. After the upload, you assign a signature box to each step of this flow directly on the PDF page.",
+        "link": "See the signature position screen"
+      },
+      "file": {
+        "label": "Contract file",
+        "constraint": "PDF or DOCX, up to 20 MB",
+        "meta": "{{size}} MB · {{pages}} pages · upload complete",
+        "metaNoPages": "{{size}} MB · upload complete",
+        "replace": "Replace file",
+        "replaceHint": "Replacing the file after configuration forces a new check of the signature positions and the digitized copy, so that no signature lands in the wrong place.",
+        "errors": {
+          "type": "Only PDF or DOCX files are accepted.",
+          "size": "The file is larger than 20 MB."
+        }
+      },
+      "appendix": {
+        "label": "Attached appendices",
+        "optional": "optional",
+        "drop": "Drag and drop or choose appendix files",
+        "remove": "Remove file {{name}}"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "continue": "Continue: assign signature positions"
+      }
+    },
+    "checks": {
+      "title": "Checks on the uploaded file",
+      "readable": {
+        "title": "Content is readable.",
+        "detail": "{{pages}} pages, not a scan."
+      },
+      "ready": {
+        "title": "Ready to assign signature positions.",
+        "detail": "The signing flow has {{steps}} steps, each needing a signature box on the PDF page."
+      },
+      "unsigned": {
+        "title": "No digital signature yet",
+        "detail": "in the file: expected for a new contract."
+      }
+    },
+    "preview": {
+      "title": "Preview",
+      "page": "Page {{page}} / {{total}}",
+      "partyA": "PARTY A REPRESENTATIVE",
+      "partyB": "PARTY B REPRESENTATIVE"
+    }
+  }
+}

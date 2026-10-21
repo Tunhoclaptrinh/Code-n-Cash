@@ -1,0 +1,63 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.btnPrimary,
+.btnSecondary,
+.btnDanger {
+  display: inline-block;
+  border-radius: var(--radius-md);
+  padding: 11px 22px;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  border: 0;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btnSecondary {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.btnDanger {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-danger-strong);
+}
+
+.pill {
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+}
+
+.notice {
+  background: var(--signing-notice-bg);
+  border: 1px solid var(--signing-notice-border);
+  border-radius: var(--radius-md);
+  color: var(--signing-notice-text);
+}
+
+.noticeTitle {
+  color: var(--color-warning);
+}
+
+.tone1 {
+  --tone: var(--signing-tone-1);
+  --tone-bg: var(--signing-tone-1-bg);
+  --tone-ink: var(--signing-tone-1-ink);
+}
+
+.tone2 {
+  --tone: var(--signing-tone-2);
+  --tone-bg: var(--signing-tone-2-bg);
+  --tone-ink: var(--signing-tone-2-ink);
+}

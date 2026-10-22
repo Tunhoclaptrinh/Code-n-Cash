@@ -8,7 +8,7 @@ export interface SearchInputProps extends Omit<InputProps, "onChange"> {
   debounceMs?: number;
 }
 export const SearchInput: React.FC<SearchInputProps> = ({
-  placeholder = uiText("s4de3e10f3e"),
+  placeholder = uiText("search.placeholder"),
   onSearchChange,
   debounceMs = 300,
   value,

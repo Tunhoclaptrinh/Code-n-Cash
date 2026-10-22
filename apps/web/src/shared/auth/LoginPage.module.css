@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(360px, 5fr) 7fr;
-  background: var(--color-bg);
+  background: var(--bg-root);
 }
 
 /* Brand panel */
@@ -94,10 +94,17 @@
   padding: 48px 24px;
 }
 
-.language {
+.toolbar {
   position: absolute;
-  top: 20px;
-  right: 24px;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
 }
 
 .form {

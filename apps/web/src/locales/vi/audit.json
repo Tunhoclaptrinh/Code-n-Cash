@@ -17,7 +17,8 @@
     "from": "Từ ngày",
     "to": "Đến ngày",
     "rowCount_one": "{{count}} dòng",
-    "rowCount_other": "{{count}} dòng"
+    "rowCount_other": "{{count}} dòng",
+    "searchPlaceholder": "Tìm theo việc, người thực hiện, hợp đồng…"
   },
   "table": {
     "columns": {
@@ -86,5 +87,10 @@
     "castVote": "Ghi nhận phê duyệt",
     "transferToAccounting": "Chuyển kế toán",
     "resolveDispute": "Giải quyết tranh chấp"
+  },
+  "appendOnly": "Nhật ký chỉ ghi thêm: không có thao tác sửa hay xóa bản ghi.",
+  "detail": {
+    "view": "Xem chi tiết",
+    "entryId": "Mã bản ghi"
   }
 }

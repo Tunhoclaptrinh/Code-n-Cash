@@ -12,8 +12,8 @@ export function FormModal<T = any>({
   initialValues,
   loading = false,
   width = 580,
-  submitText = uiText("s2fd5312bdf"),
-  cancelText = uiText("s247d4b1efe"),
+  submitText = uiText("action.save"),
+  cancelText = uiText("action.cancel"),
   resetText,
   footerAlign = "center",
   footer,
@@ -53,12 +53,12 @@ export function FormModal<T = any>({
         {icon}
         <span style={{ fontWeight: 700, fontSize: 16 }}>
           {isEditing
-            ? uiText("s651d0866d1", { v0: entityName })
-            : uiText("s9895782768", { v0: entityName })}
+            ? uiText("form.editTitle", { name: entityName })
+            : uiText("form.createTitle", { name: entityName })}
         </span>
       </Space>
     ) : (
-      uiText("s8484368494")
+      uiText("form.defaultEntity")
     ));
   return (
     <Modal

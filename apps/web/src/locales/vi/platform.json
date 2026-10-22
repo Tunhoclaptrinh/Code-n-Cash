@@ -8,7 +8,6 @@
   "error": "Thao tác thất bại",
   "saved": "Đã lưu thành công",
   "deleteTitle": "Xác nhận xóa",
-  "deleteBody": "Thao tác sẽ xóa bản ghi này.",
   "edit": "Chỉnh sửa",
   "create": "Thêm mới",
   "resources": {
@@ -43,7 +42,9 @@
     "resource": "Tài nguyên",
     "actorId": "Người thực hiện",
     "recordId": "Mã bản ghi",
-    "updatedAt": "Cập nhật"
+    "updatedAt": "Cập nhật",
+    "version": "Phiên bản",
+    "createdAt": "Tạo lúc"
   },
   "data": {
     "title": "Kết quả Data Pack",
@@ -119,5 +120,13 @@
     }
   },
   "passwordTooShort": "Mật khẩu cần ít nhất 12 ký tự.",
-  "copy": "Sao chép"
+  "copy": "Sao chép",
+  "detail": "Xem chi tiết",
+  "delete": "Xóa",
+  "cancel": "Hủy",
+  "moreActions": "Thao tác khác",
+  "deleteBody_one": "Bản ghi đã chọn sẽ bị xóa. Thao tác được ghi vào nhật ký hệ thống.",
+  "deleteBody_other": "{{count}} bản ghi đã chọn sẽ bị xóa. Thao tác được ghi vào nhật ký hệ thống.",
+  "deleted_one": "Đã xóa bản ghi",
+  "deleted_other": "Đã xóa {{count}} bản ghi"
 }

@@ -98,6 +98,17 @@
       "SIGN_CONTRACT": "Sign now",
       "RESUBMIT_EVIDENCE": "Resubmit",
       "APPROVE_PAYMENT": "Approve"
+    },
+    "tabs": {
+      "ALL": "All"
+    },
+    "detail": {
+      "context": "Context"
+    },
+    "actions": {
+      "detail": "View details",
+      "openContract": "Open contract",
+      "more": "More actions"
     }
   },
   "submit": {

@@ -28,7 +28,7 @@ export interface DetailModalProps {
 export const DetailModal: React.FC<DetailModalProps> = ({
   open,
   title,
-  entityName = uiText("s6e90be127a"),
+  entityName = uiText("detail.defaultEntity"),
   record,
   items = [],
   status,
@@ -56,7 +56,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <Space size={8}>
             <EyeOutlined style={{ color: "#315bea" }} />
             <span style={{ fontWeight: 700, fontSize: 16 }}>
-              {title || uiText("se06590af80", { v0: entityName })}
+              {title || uiText("detail.title", { name: entityName })}
             </span>
           </Space>
           {status && <StatusTag status={status} text={statusLabel} />}
@@ -101,10 +101,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 e.currentTarget.style.color = "#EF4444";
                 e.currentTarget.style.backgroundColor = "transparent";
               }}
-              title={uiText("s2943962c53", { v0: entityName })}
+              title={uiText("detail.delete", { name: entityName })}
             >
               <DeleteOutlined style={{ fontSize: 13, color: "#EF4444" }} />
-              <span>{uiText("saa1d94fc16")}</span>
+              <span>{uiText("action.delete")}</span>
             </span>
           )}
 
@@ -114,7 +114,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             onClick={onClose}
             style={{ minWidth: 80 }}
           >
-            {uiText("sd2b73ab2ad")}
+            {uiText("action.close")}
           </BaseButton>
           {extraActions}
           {onEdit && record && (
@@ -128,7 +128,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               }}
               style={{ minWidth: 80 }}
             >
-              {uiText("sb59e6523fc")}
+              {uiText("action.edit")}
             </BaseButton>
           )}
         </div>

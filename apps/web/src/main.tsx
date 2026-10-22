@@ -1,3 +1,4 @@
+import "@codecash/ui/tokens.css";
 import "@codecash/ui/styles.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

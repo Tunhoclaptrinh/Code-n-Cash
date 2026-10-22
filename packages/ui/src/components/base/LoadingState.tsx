@@ -4,7 +4,7 @@ import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { LoadingStateProps } from "./types";
 export const LoadingState: React.FC<LoadingStateProps> = ({
-  tip = uiText("sde68491680"),
+  tip = uiText("loading.data"),
   size = "default",
   minHeight = 200,
 }) => {

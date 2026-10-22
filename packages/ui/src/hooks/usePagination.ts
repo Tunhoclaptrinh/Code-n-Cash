@@ -88,7 +88,7 @@ export const usePagination = (
       total,
       showSizeChanger: true,
       showQuickJumper: true,
-      showTotal: (t: number) => uiText("s759d7c0fc5", { v0: t }),
+      showTotal: (t: number) => uiText("table.totalRecords", { count: t }),
       pageSizeOptions: ["10", "20", "50", "100"],
     };
   }, [page, pageSize, total]);

@@ -5,8 +5,8 @@ import { SaveOutlined, CloseOutlined, UndoOutlined } from "@ant-design/icons";
 import { BaseButton } from "./BaseButton";
 import { FormFooterProps } from "./types";
 export const FormFooter: React.FC<FormFooterProps> = ({
-  submitText = uiText("s2fd5312bdf"),
-  cancelText = uiText("s247d4b1efe"),
+  submitText = uiText("action.save"),
+  cancelText = uiText("action.cancel"),
   resetText,
   loading = false,
   disabled = false,

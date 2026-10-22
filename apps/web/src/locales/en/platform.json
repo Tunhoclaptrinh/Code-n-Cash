@@ -8,7 +8,6 @@
   "error": "Operation failed",
   "saved": "Saved successfully",
   "deleteTitle": "Confirm deletion",
-  "deleteBody": "This record will be deleted.",
   "edit": "Edit",
   "create": "Create",
   "resources": {
@@ -43,7 +42,9 @@
     "resource": "Resource",
     "actorId": "Actor ID",
     "recordId": "Record ID",
-    "updatedAt": "Updated"
+    "updatedAt": "Updated",
+    "version": "Version",
+    "createdAt": "Created"
   },
   "data": {
     "title": "Data Pack results",
@@ -119,5 +120,13 @@
     }
   },
   "passwordTooShort": "The password needs at least 12 characters.",
-  "copy": "Copy"
+  "copy": "Copy",
+  "detail": "View details",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "moreActions": "More actions",
+  "deleteBody_one": "The selected record will be deleted. The action is recorded in the system audit.",
+  "deleteBody_other": "{{count}} selected records will be deleted. The action is recorded in the system audit.",
+  "deleted_one": "Record deleted",
+  "deleted_other": "{{count}} records deleted"
 }

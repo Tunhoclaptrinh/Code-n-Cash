@@ -49,7 +49,7 @@ export const DataTable = <T extends Record<string, any>>({
   pagination,
   onPaginationChange,
   searchable = true,
-  searchPlaceholder = uiText("sf696346284"),
+  searchPlaceholder = uiText("table.search"),
   searchValue,
   onSearch,
   hideGlobalSearch = false,
@@ -165,7 +165,7 @@ export const DataTable = <T extends Record<string, any>>({
     !tableColumns.find((c) => c.key === "actions")
   ) {
     tableColumns.push({
-      title: uiText("sfed024b82c"),
+      title: uiText("table.actions"),
       key: "actions",
       width: actionsWidth,
       fixed: "right",
@@ -180,14 +180,14 @@ export const DataTable = <T extends Record<string, any>>({
             {onView && (
               <IconButton
                 icon={<EyeOutlined />}
-                tooltip={uiText("se30c937169")}
+                tooltip={uiText("table.view")}
                 onClick={() => onView(record)}
               />
             )}
             {onEdit && (
               <IconButton
                 icon={<EditOutlined />}
-                tooltip={uiText("sb59e6523fc")}
+                tooltip={uiText("action.edit")}
                 color="#fcc20f"
                 hoverColor="#d49e07"
                 onClick={() => onEdit(record)}
@@ -196,7 +196,7 @@ export const DataTable = <T extends Record<string, any>>({
             {onDelete && (
               <IconButton
                 icon={<DeleteOutlined />}
-                tooltip={uiText("sd9f091e36a")}
+                tooltip={uiText("table.delete")}
                 danger
                 onClick={() => onDelete(recKey)}
               />
@@ -267,8 +267,8 @@ export const DataTable = <T extends Record<string, any>>({
             {
               key: "batch-delete",
               icon: <DeleteOutlined style={{ color: "#EF4444" }} />,
-              label: uiText("s3248a567ff", {
-                v0: activeSelectedRowKeys.length,
+              label: uiText("table.deleteSelected", {
+                count: activeSelectedRowKeys.length,
               }),
               onClick: () => onBatchDelete(activeSelectedRowKeys),
               danger: true,
@@ -346,7 +346,7 @@ export const DataTable = <T extends Record<string, any>>({
           {showAddBtn && (
             <BaseButton variant="primary" onClick={onAdd} size="small" glow>
               <PlusOutlined />
-              {uiText("sb64afef142")}
+              {uiText("action.create")}
             </BaseButton>
           )}
 
@@ -358,7 +358,7 @@ export const DataTable = <T extends Record<string, any>>({
               loading={importLoading}
               icon={<UploadOutlined />}
             >
-              {uiText("sd6fbc9d2bd")}
+              {uiText("table.import")}
             </BaseButton>
           )}
 
@@ -370,7 +370,7 @@ export const DataTable = <T extends Record<string, any>>({
               loading={exportLoading}
               icon={<DownloadOutlined />}
             >
-              {uiText("sf3e4fadb9e")}
+              {uiText("table.export")}
             </BaseButton>
           )}
 
@@ -380,7 +380,7 @@ export const DataTable = <T extends Record<string, any>>({
             <Badge count={activeSelectedRowKeys.length}>
               <Dropdown menu={batchActionsMenu} trigger={["click"]}>
                 <BaseButton variant="ghost" size="small">
-                  {uiText("s2cb1c469c4")}
+                  {uiText("table.bulkActions")}
                   <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
                 </BaseButton>
               </Dropdown>
@@ -421,13 +421,13 @@ export const DataTable = <T extends Record<string, any>>({
                 onClick={() => setFilterModalOpen(true)}
                 icon={<FilterOutlined />}
               >
-                {uiText("s75051abc1e")}
+                {uiText("table.filters")}
               </BaseButton>
             </Badge>
           )}
 
           {onRefresh && (
-            <Tooltip title={uiText("s61b0561227")}>
+            <Tooltip title={uiText("action.refresh")}>
               <BaseButton
                 variant="ghost"
                 size="small"
@@ -435,7 +435,7 @@ export const DataTable = <T extends Record<string, any>>({
                 loading={loading}
                 icon={<ReloadOutlined />}
               >
-                {uiText("s61b0561227")}
+                {uiText("action.refresh")}
               </BaseButton>
             </Tooltip>
           )}
@@ -455,7 +455,7 @@ export const DataTable = <T extends Record<string, any>>({
               gap: 4,
             }}
           >
-            {uiText("sc73de6b489")}
+            {uiText("table.total")}
             <span style={{ color: "#315bea", fontWeight: 800 }}>
               {totalCount}
             </span>
@@ -485,7 +485,7 @@ export const DataTable = <T extends Record<string, any>>({
                 showQuickJumper: true,
                 pageSizeOptions: ["10", "20", "50", "100"],
                 showTotal: (total: number) =>
-                  uiText("s759d7c0fc5", { v0: total }),
+                  uiText("table.totalRecords", { count: total }),
                 ...(pagination || {}),
               }
             : false
@@ -501,8 +501,8 @@ export const DataTable = <T extends Record<string, any>>({
         locale={{
           emptyText: (
             <EmptyState
-              title={emptyText || uiText("s0638beb9c4")}
-              description={uiText("s09bd2a87c4")}
+              title={emptyText || uiText("table.emptyTitle")}
+              description={uiText("table.emptyHint")}
             />
           ),
         }}
@@ -512,7 +512,7 @@ export const DataTable = <T extends Record<string, any>>({
       <Modal
         open={filterModalOpen}
         onCancel={() => setFilterModalOpen(false)}
-        title={uiText("s7babe198d6")}
+        title={uiText("filter.title")}
         width={680}
         footer={null}
         destroyOnHidden
@@ -561,7 +561,9 @@ export const DataTable = <T extends Record<string, any>>({
         }}
         onDownloadTemplate={onDownloadTemplate}
         loading={importLoading}
-        entityName={typeof title === "string" ? title : uiText("s64e00d431c")}
+        entityName={
+          typeof title === "string" ? title : uiText("import.defaultEntity")
+        }
       />
     </div>
   );

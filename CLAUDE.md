@@ -16,6 +16,7 @@ Smart Contract Workflow, Case 4. The official brief and `docs/04_DAC_TA_NGHIEP_V
 
 - Code identifiers/comments are English. User-facing strings live in Vietnamese/English locale resources. Team docs remain Vietnamese.
 - Use Ant Design and shared components. The earlier exact canvas styling requirement is superseded by the user's Ant Design migration request; retain workflow semantics and routes.
+- `packages/ui` base components, hooks and utils are ported from UniFlow: do not change their behaviour or look. Extend through props, CSS tokens or new components in `apps/web/src/shared/ui`. List pages follow the UniFlow base pattern in docs/08_HUONG_DAN_PHAT_TRIEN_UI.md.
 - The browser does not own business decisions. Keep business handlers in the API and Data Pack calculations in Python. Never use floats for Data Pack money.
 - Derive identity and scope from the authenticated actor. Never trust a client-supplied role, actor ID or tenant header.
 - Audit and decisions are not generic editable CRUD. Add explicit domain actions with permission checks.

@@ -94,10 +94,22 @@
     "placeholder": "Tìm kiếm dữ liệu…"
   },
   "status": {
+    "aiApproved": "AI đã duyệt",
+    "aiRecovered": "AI tự phục hồi",
     "awaiting": "Chờ xác nhận",
     "failed": "Thất bại",
+    "manualRequired": "Cần ghép thủ công",
     "processing": "Đang xử lý",
     "success": "Thành công"
+  },
+  "storage": {
+    "clearLocal": "Không xóa sạch được localStorage:",
+    "readLocal": "Không đọc được localStorage [{{key}}]:",
+    "readSession": "Không đọc được sessionStorage [{{key}}]:",
+    "removeLocal": "Không xóa được localStorage [{{key}}]:",
+    "removeSession": "Không xóa được sessionStorage [{{key}}]:",
+    "writeLocal": "Không ghi được localStorage [{{key}}]:",
+    "writeSession": "Không ghi được sessionStorage [{{key}}]:"
   },
   "table": {
     "actions": "Thao tác",

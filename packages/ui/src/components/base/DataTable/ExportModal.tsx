@@ -72,7 +72,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         <Space>
           <DownloadOutlined style={{ color: "#315bea" }} />
           <span style={{ fontWeight: 700, fontSize: 16 }}>
-            {uiText("s8c7bae12fd")}
+            {uiText("export.title")}
           </span>
         </Space>
       }
@@ -84,7 +84,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             onClick={onCancel}
             style={{ minWidth: 96, height: 32 }}
           >
-            {uiText("s247d4b1efe")}
+            {uiText("action.cancel")}
           </BaseButton>
           <BaseButton
             variant="brand"
@@ -96,7 +96,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             glow
             style={{ minWidth: 140, height: 32 }}
           >
-            {uiText("s901b5e5657")}
+            {uiText("export.start")}
           </BaseButton>
         </div>
       }
@@ -118,7 +118,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               strong
               style={{ display: "block", marginBottom: 8 }}
             >
-              {uiText("s01f8f4391d")}
+              {uiText("export.scope")}
             </Typography.Text>
             <Radio.Group
               value={scope}
@@ -126,17 +126,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               style={{ display: "flex", flexDirection: "column", gap: 8 }}
             >
               <Radio value="all">
-                {uiText("s7d5ea2f4dc")}
-                {totalRecords || uiText("s0925c5e405")}
-                {uiText("scb01a1a8ee")}
+                {uiText("export.scopeAll", { count: totalRecords })}
               </Radio>
               <Radio value="page">
-                {uiText("s8d9a3b0164")}
-                {currentPageSize}
-                {uiText("scb01a1a8ee")}
+                {uiText("export.scopePage", { count: currentPageSize })}
               </Radio>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <Radio value="custom">{uiText("s0161b20fe4")}</Radio>
+                <Radio value="custom">{uiText("export.scopeLimit")}</Radio>
                 {scope === "custom" && (
                   <InputNumber
                     min={1}
@@ -158,15 +154,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               strong
               style={{ display: "block", marginBottom: 8 }}
             >
-              {uiText("s46ba11800e")}
+              {uiText("export.format")}
             </Typography.Text>
             <Radio.Group
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               style={{ display: "flex", gap: 20 }}
             >
-              <Radio value="csv">{uiText("s492fb087ab")}</Radio>
-              <Radio value="json">{uiText("sb3166bed89")}</Radio>
+              <Radio value="csv">{uiText("export.formatCsv")}</Radio>
+              <Radio value="json">{uiText("export.formatJson")}</Radio>
             </Radio.Group>
           </section>
         </Space>
@@ -180,7 +176,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               marginBottom: 8,
             }}
           >
-            <Typography.Text strong>{uiText("saac1c309a3")}</Typography.Text>
+            <Typography.Text strong>{uiText("export.columns")}</Typography.Text>
             <OrderedListOutlined style={{ color: "#9CA3AF" }} />
           </div>
           <div

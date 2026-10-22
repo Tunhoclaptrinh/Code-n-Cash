@@ -36,8 +36,8 @@ export const StatusTag: React.FC<StatusTagProps> = ({
         >
           {label ||
             (normalized === "AUTO_APPROVED"
-              ? uiText("s6eab27c270")
-              : uiText("s9a7d703709"))}
+              ? uiText("status.aiApproved")
+              : uiText("status.success"))}
         </Tag>
       );
     case "PROCESSING":
@@ -55,7 +55,7 @@ export const StatusTag: React.FC<StatusTagProps> = ({
             color: "#3B82F6",
           }}
         >
-          {label || uiText("s39fc933455")}
+          {label || uiText("status.processing")}
         </Tag>
       );
     case "PENDING_REVIEW":
@@ -73,7 +73,7 @@ export const StatusTag: React.FC<StatusTagProps> = ({
             color: "#F59E0B",
           }}
         >
-          {label || uiText("sb00ce9b6e3")}
+          {label || uiText("status.awaiting")}
         </Tag>
       );
     case "AUTO_HEALED":
@@ -90,7 +90,7 @@ export const StatusTag: React.FC<StatusTagProps> = ({
             color: "#8B5CF6",
           }}
         >
-          {label || uiText("s6df7bbe8d9")}
+          {label || uiText("status.aiRecovered")}
         </Tag>
       );
     case "FAILED":
@@ -111,8 +111,8 @@ export const StatusTag: React.FC<StatusTagProps> = ({
         >
           {label ||
             (normalized === "MANUAL_REQUIRED"
-              ? uiText("s2fce2c1485")
-              : uiText("s471434ca39"))}
+              ? uiText("status.manualRequired")
+              : uiText("status.failed"))}
         </Tag>
       );
     default:

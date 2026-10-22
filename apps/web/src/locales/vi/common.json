@@ -16,7 +16,8 @@
     "groups": {
       "workflow": "Nghiệp vụ",
       "data": "Dữ liệu & quản trị"
-    }
+    },
+    "home": "Trang chủ"
   },
   "topbar": {
     "role": "Vai trò",
@@ -31,7 +32,9 @@
     "pendingTasks_other": "{{count}} việc đang chờ bạn",
     "noPendingTasks": "Không có việc đang chờ",
     "themeLight": "Chuyển sang giao diện sáng",
-    "themeDark": "Chuyển sang giao diện tối"
+    "themeDark": "Chuyển sang giao diện tối",
+    "guide": "Hướng dẫn nhanh",
+    "openInbox": "Mở danh sách việc cần làm"
   },
   "languages": {
     "vi": "Tiếng Việt",
@@ -92,6 +95,38 @@
       "title": "Không hiển thị được trang này",
       "body": "Đã có lỗi khi tải màn hình. Hãy tải lại trang; nếu lỗi lặp lại, hãy báo cho quản trị viên.",
       "reload": "Tải lại trang"
+    }
+  },
+  "sider": {
+    "environment": "Môi trường",
+    "demoShort": "Demo",
+    "demoBody": "Bản demo: dữ liệu mẫu, luồng ký mô phỏng."
+  },
+  "onboarding": {
+    "title": "Chào mừng đến với CodeCash",
+    "subtitle": "Chọn ngôn ngữ và giao diện trước khi bắt đầu.",
+    "language": "Ngôn ngữ",
+    "theme": "Giao diện",
+    "light": "Sáng",
+    "dark": "Tối",
+    "suggested": "Đề xuất",
+    "start": "Bắt đầu sử dụng",
+    "footnote": "Bạn có thể đổi lại bất cứ lúc nào trên thanh tiêu đề.",
+    "tips": {
+      "done": "Đã hiểu",
+      "guide": {
+        "title": "Hướng dẫn nhanh",
+        "body": "Bấm vào đây để xem lại các gợi ý này."
+      },
+      "language": {
+        "title": "Ngôn ngữ",
+        "body": "Chuyển giữa tiếng Việt và tiếng Anh."
+      },
+      "theme": {
+        "title": "Giao diện sáng/tối",
+        "body": "Đổi giao diện cho dễ nhìn hơn."
+      },
+      "title": "Mẹo nhanh trên thanh tiêu đề"
     }
   }
 }

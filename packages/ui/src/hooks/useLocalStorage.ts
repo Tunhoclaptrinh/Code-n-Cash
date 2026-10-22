@@ -9,7 +9,7 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.warn(uiText("sa8c718d0ef", { v0: key }), error);
+      console.warn(uiText("storage.readLocal", { key: key }), error);
       return initialValue;
     }
   });
@@ -17,7 +17,7 @@ export function useLocalStorage<T>(
     try {
       window.localStorage.setItem(key, JSON.stringify(storedValue));
     } catch (error) {
-      console.warn(uiText("s4466e1cc85", { v0: key }), error);
+      console.warn(uiText("storage.writeLocal", { key: key }), error);
     }
   }, [key, storedValue]);
   return [storedValue, setStoredValue];

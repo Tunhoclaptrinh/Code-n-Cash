@@ -73,7 +73,17 @@
     },
     "actions": {
       "signNow": "Sign now",
-      "open": "Open"
+      "open": "Open contract",
+      "detail": "Quick view",
+      "verify": "Verify signatures",
+      "activity": "View activity",
+      "more": "More actions"
+    },
+    "tabs": {
+      "ALL": "All"
+    },
+    "detail": {
+      "title": "Contract title"
     }
   },
   "contractUpload": {

@@ -2,53 +2,67 @@ import { useCallback, useState } from "react";
 import {
   Avatar,
   Badge,
-  Breadcrumb,
   Button,
   Drawer,
   Dropdown,
   Grid,
   Layout,
   Menu,
+  Space,
   Tag,
   Tooltip,
-  Typography,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
   BellOutlined,
-  CheckOutlined,
-  GlobalOutlined,
+  LeftOutlined,
   LogoutOutlined,
-  MenuFoldOutlined,
   MenuOutlined,
-  MenuUnfoldOutlined,
-  MoonOutlined,
-  SunOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link, Outlet, useNavigate, useNavigation } from "react-router-dom";
-import { useAppConfig, useLocalStorage } from "@codecash/ui";
-import { getPendingTaskCount } from "../api/tasks.api";
+import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
+import { useLocalStorage } from "@codecash/ui";
+import { listPendingTasks } from "../api/tasks.api";
 import { useCurrentUser, useSession } from "../auth/session";
 import { initialsOf } from "../lib/initials";
+import { useOnboarding } from "../onboarding/OnboardingContext";
 import { BrandMark } from "../ui/BrandMark";
 import { navByRole, type NavItem } from "./navConfig";
+import { NotificationDrawer } from "./NotificationDrawer";
 import { PageChromeContext, type PageChrome } from "./pageChrome";
+import { PreferenceControls } from "./PreferenceControls";
 import styles from "./AppLayout.module.css";
 
+const roleColor: Record<string, string> = {
+  CONTRACT_OWNER: "blue",
+  LEGAL_REVIEWER: "geekblue",
+  FINANCE_APPROVER: "green",
+  ADMIN_AUDITOR: "red",
+  SUPPLIER: "gold",
+};
+
 /**
- * Persistent frame for every signed-in route: sidebar (drawer on small screens), header and
- * the routed page. Pages publish their breadcrumb and active nav entry through `AppPage`.
+ * Persistent frame for signed-in routes, following UniFlow's MainLayout: a full-width header
+ * (brand, help/language/theme, notifications, account), a sidebar below it and the routed page.
+ * Pages publish their breadcrumb and active nav entry through `AppPage`.
  */
 export function AppLayout() {
-  const { t, i18n } = useTranslation("common");
+  const { t } = useTranslation("common");
   const { t: tp } = useTranslation("platform");
   const user = useCurrentUser();
   const { signOut } = useSession();
   const navigate = useNavigate();
+  const location = useLocation();
   const navigation = useNavigation();
-  const { themeMode, toggleTheme } = useAppConfig();
+  const { phase } = useOnboarding();
   const screens = Grid.useBreakpoint();
   const desktop = screens.lg ?? true;
   const [collapsed, setCollapsed] = useLocalStorage(
@@ -56,53 +70,69 @@ export function AppLayout() {
     false,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [chrome, setChrome] = useState<PageChrome>({ breadcrumb: [] });
   const publish = useCallback((next: PageChrome) => setChrome(next), []);
 
+  // Count the same list the notification drawer shows, so badge and list always agree.
   const pending = useQuery({
-    queryKey: ["pending-task-count", user.id],
-    queryFn: () => getPendingTaskCount(user.id),
+    queryKey: ["pending-tasks", user.id],
+    queryFn: () => listPendingTasks(user.id),
   });
-  const pendingCount = pending.data ?? 0;
-  const groups = navByRole[user.role];
-  const inbox = groups
-    .flatMap((group) => group.items)
-    .find((item) => item.badge);
+  const pendingCount = pending.data?.length ?? 0;
+  const sections = navByRole[user.role];
+  const inbox = sections.flat().find((item) => item.badge);
 
-  const label = (item: NavItem) =>
+  const label = (item: { labelKey: string; ns?: string }) =>
     item.ns === "platform" ? tp(item.labelKey) : t(item.labelKey);
-  const menuItems: MenuProps["items"] = groups.map((group) => ({
-    type: "group",
-    key: group.labelKey,
-    label: collapsed && desktop ? null : t(group.labelKey),
-    children: group.items.map((item) => ({
-      key: item.key,
-      icon: <item.icon />,
-      label: (
-        <span className={styles.menuLabel}>
-          {label(item)}
-          {item.badge && pendingCount > 0 ? (
-            <Badge count={pendingCount} size="small" />
-          ) : null}
-        </span>
-      ),
-      onClick: () => {
-        setDrawerOpen(false);
-        navigate(item.to);
-      },
-    })),
-  }));
+  const go = (to: string) => {
+    setDrawerOpen(false);
+    navigate(to);
+  };
+  const toMenuItem = (
+    item: NavItem,
+  ): NonNullable<MenuProps["items"]>[number] =>
+    item.children
+      ? {
+          key: item.key,
+          icon: <item.icon />,
+          label: label(item),
+          children: item.children.map((child) => ({
+            key: child.to,
+            label: label(child),
+            onClick: () => go(child.to),
+          })),
+        }
+      : {
+          key: item.key,
+          icon: <item.icon />,
+          label: (
+            <span className={styles.menuLabel}>
+              {label(item)}
+              {item.badge && pendingCount > 0 ? (
+                <Badge count={pendingCount} size="small" />
+              ) : null}
+            </span>
+          ),
+          onClick: () => go(item.to),
+        };
+  const menuItems: MenuProps["items"] = sections.flatMap((section, index) => [
+    ...(index > 0 ? [{ type: "divider" as const }] : []),
+    ...section.map(toMenuItem),
+  ]);
+  const submenuKeys = sections
+    .flat()
+    .filter((item) => item.children)
+    .map((item) => item.key);
 
-  const language = i18n.language?.startsWith("vi") ? "vi" : "en";
   const accountMenu: MenuProps["items"] = [
     {
       key: "profile",
       disabled: true,
       label: (
         <div className={styles.profile}>
-          <Typography.Text strong>{user.displayName}</Typography.Text>
-          <Typography.Text type="secondary">{user.email}</Typography.Text>
-          <Tag color="blue">{t(`roles.${user.role}.name`)}</Tag>
+          <b>{user.displayName}</b>
+          <span>{user.email}</span>
         </div>
       ),
     },
@@ -116,69 +146,50 @@ export function AppLayout() {
     },
   ];
 
-  const sider = (
-    <>
-      <Link to="/" className={styles.brand} aria-label={t("brand.name")}>
-        <BrandMark />
-        {collapsed && desktop ? null : (
-          <span className={styles.brandText}>
-            <b>{t("brand.name")}</b>
-            <small>{t("brand.product")}</small>
-          </span>
-        )}
-      </Link>
-      <Menu
-        mode="inline"
-        aria-label={t("nav.label")}
-        selectedKeys={chrome.active ? [chrome.active] : []}
-        items={menuItems}
-        className={styles.menu}
-      />
-    </>
+  const menu = (
+    <Menu
+      className="base-sidebar-menu"
+      mode="inline"
+      aria-label={t("nav.label")}
+      selectedKeys={[chrome.active ?? "", location.pathname]}
+      defaultOpenKeys={submenuKeys}
+      items={menuItems}
+    />
+  );
+  const footerCollapsed = desktop && collapsed;
+  const siderFooter = (
+    <div className={styles.siderFooter} data-collapsed={footerCollapsed}>
+      {footerCollapsed ? (
+        <Tooltip title={t("sider.environment")} placement="right">
+          <Tag color="processing" style={{ margin: 0 }}>
+            {t("sider.demoShort")}
+          </Tag>
+        </Tooltip>
+      ) : (
+        <>
+          <div className={styles.siderFooterTitle}>
+            {t("sider.environment")}
+          </div>
+          <div className={styles.siderFooterText}>{t("sider.demoBody")}</div>
+          <Space size={6} wrap>
+            <Tag color="processing" style={{ margin: 0 }}>
+              v{__APP_VERSION__}
+            </Tag>
+            <Tag style={{ margin: 0 }}>{user.roleChipOrganization}</Tag>
+          </Space>
+        </>
+      )}
+    </div>
   );
 
   return (
     <Layout className={styles.shell}>
-      {desktop ? (
-        <Layout.Sider
-          width={248}
-          collapsedWidth={72}
-          collapsed={collapsed}
-          trigger={null}
-          className={styles.sider}
-        >
-          {sider}
-        </Layout.Sider>
-      ) : (
-        <Drawer
-          placement="left"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          size={280}
-          closable={false}
-          styles={{ body: { padding: 0 } }}
-          className={styles.drawer}
-        >
-          {sider}
-        </Drawer>
-      )}
-      <Layout className={styles.main}>
-        <div
-          className={styles.progress}
-          data-active={navigation.state === "loading"}
-          aria-hidden="true"
-        />
-        <Layout.Header className={styles.header}>
-          {desktop ? (
-            <Tooltip title={t(collapsed ? "topbar.expand" : "topbar.collapse")}>
-              <Button
-                type="text"
-                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
-                aria-label={t(collapsed ? "topbar.expand" : "topbar.collapse")}
-              />
-            </Tooltip>
-          ) : (
+      <Layout.Header
+        className={styles.header}
+        style={phase === "tips" ? { zIndex: 1002 } : undefined}
+      >
+        <div className={styles.headerLeft}>
+          {desktop ? null : (
             <Button
               type="text"
               icon={<MenuOutlined />}
@@ -186,102 +197,122 @@ export function AppLayout() {
               aria-label={t("topbar.openMenu")}
             />
           )}
-          {desktop ? (
-            <Breadcrumb
-              className={styles.breadcrumb}
-              items={chrome.breadcrumb.map((item) => ({
-                title: item.to ? (
-                  <Link to={item.to}>{item.label}</Link>
-                ) : (
-                  item.label
-                ),
-              }))}
-            />
-          ) : (
-            <Link to="/" className={styles.compactBrand}>
-              <BrandMark size={28} />
-            </Link>
-          )}
-          <div className={styles.actions}>
-            <Dropdown
-              trigger={["click"]}
-              menu={{
-                selectedKeys: [language],
-                items: (["vi", "en"] as const).map((code) => ({
-                  key: code,
-                  label: t(`languages.${code}`),
-                  icon: language === code ? <CheckOutlined /> : <span />,
-                  onClick: () => void i18n.changeLanguage(code),
-                })),
-              }}
-            >
-              <Button
-                type="text"
-                icon={<GlobalOutlined />}
-                aria-label={t("topbar.language")}
-              >
-                {desktop ? language.toUpperCase() : null}
-              </Button>
-            </Dropdown>
-            <Tooltip
-              title={t(
-                themeMode === "dark" ? "topbar.themeLight" : "topbar.themeDark",
-              )}
-            >
-              <Button
-                type="text"
-                icon={themeMode === "dark" ? <SunOutlined /> : <MoonOutlined />}
-                onClick={toggleTheme}
-                aria-label={t(
-                  themeMode === "dark"
-                    ? "topbar.themeLight"
-                    : "topbar.themeDark",
-                )}
-              />
+          <Link to="/" className={styles.brand} aria-label={t("brand.name")}>
+            <BrandMark size={32} />
+            {screens.sm === false ? null : (
+              <span className={styles.brandText}>
+                <b>{t("brand.name")}</b>
+                <small>{t("brand.product")}</small>
+              </span>
+            )}
+          </Link>
+        </div>
+        <div className={styles.actions}>
+          <PreferenceControls compact={!desktop} />
+          {inbox ? (
+            <Tooltip title={t("topbar.notifications")}>
+              <Badge count={pendingCount} size="small" offset={[-4, 4]}>
+                <Button
+                  type="text"
+                  shape="circle"
+                  icon={<BellOutlined />}
+                  onClick={() => setNotificationsOpen(true)}
+                  aria-label={t("topbar.notifications")}
+                  data-testid="header-notifications"
+                />
+              </Badge>
             </Tooltip>
-            {inbox ? (
-              <Tooltip
-                title={
-                  pendingCount
-                    ? t("topbar.pendingTasks", { count: pendingCount })
-                    : t("topbar.noPendingTasks")
-                }
-              >
-                <Badge count={pendingCount} size="small" offset={[-4, 4]}>
-                  <Button
-                    type="text"
-                    icon={<BellOutlined />}
-                    onClick={() => navigate(inbox.to)}
-                    aria-label={t("topbar.notifications")}
-                  />
-                </Badge>
-              </Tooltip>
-            ) : null}
-            <Dropdown trigger={["click"]} menu={{ items: accountMenu }}>
-              <Button
-                type="text"
-                className={styles.account}
-                aria-label={t("topbar.account")}
-              >
-                <Avatar size={32} className={styles.avatar}>
-                  {initialsOf(user.displayName)}
-                </Avatar>
-                {screens.md ? (
-                  <span className={styles.accountText}>
-                    <b>{user.displayName}</b>
-                    <small>{t(`roles.${user.role}.name`)}</small>
-                  </span>
-                ) : null}
-              </Button>
-            </Dropdown>
-          </div>
-        </Layout.Header>
+          ) : null}
+          <Dropdown
+            trigger={["click"]}
+            menu={{ items: accountMenu }}
+            placement="bottomRight"
+          >
+            <button
+              type="button"
+              className={styles.account}
+              aria-label={t("topbar.account")}
+            >
+              <Avatar size={30} className={styles.avatar}>
+                {initialsOf(user.displayName)}
+              </Avatar>
+              {screens.md ? (
+                <>
+                  <span className={styles.accountName}>{user.displayName}</span>
+                  <Tag color={roleColor[user.role]} className={styles.roleTag}>
+                    {t(`roles.${user.role}.name`)}
+                  </Tag>
+                </>
+              ) : null}
+            </button>
+          </Dropdown>
+        </div>
+        <div
+          className={styles.progress}
+          data-active={navigation.state === "loading"}
+          aria-hidden="true"
+        />
+      </Layout.Header>
+
+      <Layout hasSider className={styles.body}>
+        {desktop ? (
+          <Layout.Sider
+            width={240}
+            collapsedWidth={70}
+            collapsed={collapsed}
+            trigger={null}
+            className={styles.sider}
+          >
+            <div className={styles.siderInner}>
+              <div className={styles.siderMenu}>{menu}</div>
+              {siderFooter}
+            </div>
+            <button
+              type="button"
+              className={styles.collapse}
+              onClick={() => setCollapsed(!collapsed)}
+              aria-label={t(collapsed ? "topbar.expand" : "topbar.collapse")}
+              title={t(collapsed ? "topbar.expand" : "topbar.collapse")}
+            >
+              {collapsed ? <RightOutlined /> : <LeftOutlined />}
+            </button>
+          </Layout.Sider>
+        ) : (
+          <Drawer
+            placement="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            size={280}
+            title={
+              <span className={styles.brand}>
+                <BrandMark size={28} />
+                <span className={styles.brandText}>
+                  <b>{t("brand.name")}</b>
+                  <small>{t("brand.product")}</small>
+                </span>
+              </span>
+            }
+            styles={{ body: { padding: "8px 0" } }}
+          >
+            {menu}
+            {siderFooter}
+          </Drawer>
+        )}
         <Layout.Content className={styles.content}>
           <PageChromeContext.Provider value={publish}>
             <Outlet />
           </PageChromeContext.Provider>
         </Layout.Content>
       </Layout>
+
+      {inbox ? (
+        <NotificationDrawer
+          open={notificationsOpen}
+          userId={user.id}
+          inboxPath={inbox.to}
+          onClose={() => setNotificationsOpen(false)}
+        />
+      ) : null}
     </Layout>
   );
 }

@@ -28,12 +28,12 @@ export const ImportModal: React.FC<ImportModalProps> = ({
   onImport,
   onDownloadTemplate,
   loading = false,
-  entityName = uiText("s64e00d431c"),
+  entityName = uiText("import.defaultEntity"),
 }) => {
   const [fileList, setFileList] = useState<any[]>([]);
   const handleUpload = () => {
     if (fileList.length === 0) {
-      message.warning(uiText("s27817cf73e"));
+      message.warning(uiText("import.chooseFile"));
       return;
     }
     const file = fileList[0].originFileObj || fileList[0];
@@ -49,8 +49,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
         <Space>
           <UploadOutlined style={{ color: "#315bea" }} />
           <span style={{ fontWeight: 700, fontSize: 16 }}>
-            {uiText("s7b0c691d9d")}
-            {entityName})
+            {uiText("import.title", { name: entityName })}
           </span>
         </Space>
       }
@@ -62,7 +61,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             onClick={onCancel}
             style={{ minWidth: 96, height: 32 }}
           >
-            {uiText("s247d4b1efe")}
+            {uiText("action.cancel")}
           </BaseButton>
           <BaseButton
             variant="brand"
@@ -74,7 +73,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             glow
             style={{ minWidth: 140, height: 32 }}
           >
-            {uiText("s3b3b64ea38")}
+            {uiText("import.submit")}
           </BaseButton>
         </div>
       }
@@ -91,7 +90,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             alignItems: "center",
           }}
         >
-          <Text type="secondary">{uiText("sf97cbb8135")}</Text>
+          <Text type="secondary">{uiText("import.templateHint")}</Text>
           {onDownloadTemplate && (
             <BaseButton
               variant="secondary"
@@ -99,7 +98,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
               icon={<DownloadOutlined />}
               onClick={() => onDownloadTemplate()}
             >
-              {uiText("sf1ed496674")}
+              {uiText("import.downloadTemplate")}
             </BaseButton>
           )}
         </div>
@@ -118,10 +117,10 @@ export const ImportModal: React.FC<ImportModalProps> = ({
             <InboxOutlined style={{ color: "#315bea", fontSize: 44 }} />
           </p>
           <p className="ant-upload-text" style={{ fontWeight: 600 }}>
-            {uiText("sbacf5621e3")}
+            {uiText("import.dropzone")}
           </p>
           <Paragraph type="secondary" style={{ fontSize: 12, margin: 0 }}>
-            {uiText("seea3ae04ea")}
+            {uiText("import.formats")}
           </Paragraph>
         </Dragger>
       </div>

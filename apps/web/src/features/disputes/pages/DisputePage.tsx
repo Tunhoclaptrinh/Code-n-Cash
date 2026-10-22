@@ -1,17 +1,20 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { PageHeader } from "@codecash/ui";
 import { AppPage } from "@/shared/layout/AppPage";
+import { PageState } from "@/shared/ui/PageState";
+import { ToneTag, type Tone } from "@/shared/ui/ToneTag";
 import { getDispute } from "../api/dispute.api";
 import { DecisionPanel } from "../components/DecisionPanel";
 import { SubmissionPanel } from "../components/SubmissionPanel";
 import type { DisputeStatus } from "../types";
 import styles from "./DisputePage.module.css";
 
-const STATUS_CLASS: Record<DisputeStatus, string> = {
-  OPEN: styles.statusOpen,
-  AWAITING_EVIDENCE: styles.statusOpen,
-  RESOLVED: styles.statusResolved,
+const STATUS_TONE: Record<DisputeStatus, Tone> = {
+  OPEN: "warning",
+  AWAITING_EVIDENCE: "warning",
+  RESOLVED: "success",
 };
 
 /** Milestone currently on HOLD while the dispute is unresolved. */
@@ -19,7 +22,6 @@ const HELD_DECISION = "HOLD";
 
 export default function DisputePage() {
   const { t } = useTranslation("disputes");
-  const { t: tc } = useTranslation("common");
   const params = useParams();
   const contractCode = params.contractId ?? "";
   const milestoneNo = Number(params.milestoneNo);
@@ -39,21 +41,21 @@ export default function DisputePage() {
         { label: t("breadcrumb.dispute", { milestoneNo }) },
       ]}
     >
-      {dispute.isPending ? <p>{tc("common.loading")}</p> : null}
-      {dispute.isError ? <p role="alert">{tc("common.notFound")}</p> : null}
+      {dispute.isPending ? <PageState kind="loading" /> : null}
+      {dispute.isError ? <PageState kind="notFound" /> : null}
       {data ? (
         <>
-          <div className={styles.header}>
-            <h1 className={styles.title}>
-              {t("title", {
-                milestoneNo,
-                milestone: t(`milestones.${data.milestoneKind}`),
-              })}
-            </h1>
-            <span className={`${styles.status} ${STATUS_CLASS[data.status]}`}>
-              {t(`status.${data.status}`, { decision: HELD_DECISION })}
-            </span>
-          </div>
+          <PageHeader
+            title={t("title", {
+              milestoneNo,
+              milestone: t(`milestones.${data.milestoneKind}`),
+            })}
+            tags={
+              <ToneTag tone={STATUS_TONE[data.status]}>
+                {t(`status.${data.status}`, { decision: HELD_DECISION })}
+              </ToneTag>
+            }
+          />
           <div className={styles.columns}>
             <SubmissionPanel dispute={data} />
             <DecisionPanel dispute={data} />

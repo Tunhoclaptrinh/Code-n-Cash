@@ -22,6 +22,13 @@ export type NavKey =
   | "data"
   | "platform";
 
+export interface NavChild {
+  /** Route path; also the menu key so the open route is highlighted. */
+  to: string;
+  labelKey: string;
+  ns?: "common" | "platform";
+}
+
 export interface NavItem {
   key: NavKey;
   to: string;
@@ -29,15 +36,25 @@ export interface NavItem {
   /** Translation key; `ns` defaults to `common`. */
   labelKey: string;
   ns?: "common" | "platform";
-  /** Shows the pending-task count; the bell in the header links here. */
+  /** Shows the pending-task count; the header bell opens this inbox. */
   badge?: boolean;
+  /** Rendered as an always-open submenu, as in the UniFlow sidebar. */
+  children?: NavChild[];
 }
 
-export interface NavGroup {
-  /** Translation key inside `common`. */
-  labelKey: string;
-  items: NavItem[];
-}
+/** Sections are separated by a divider in the sidebar. */
+export type NavSection = NavItem[];
+
+/** Resources of Administration, in the order of the API definitions. */
+export const PLATFORM_RESOURCES = [
+  "organizations",
+  "users",
+  "contract-drafts",
+  "milestone-templates",
+  "settings",
+  "documents",
+  "audit",
+] as const;
 
 const tasks: NavItem = {
   key: "tasks",
@@ -83,56 +100,46 @@ const platform: NavItem = {
   icon: SettingOutlined,
   labelKey: "title",
   ns: "platform",
+  children: PLATFORM_RESOURCES.map((name) => ({
+    to: `/platform/${name}`,
+    labelKey: `resources.${name}`,
+    ns: "platform" as const,
+  })),
 };
 
 const ownerWorkflow = [tasks, contracts, upload, activity, verify];
 
-export const navByRole: Record<Role, NavGroup[]> = {
-  CONTRACT_OWNER: [
-    { labelKey: "nav.groups.workflow", items: ownerWorkflow },
-    { labelKey: "nav.groups.data", items: [data] },
-  ],
-  LEGAL_REVIEWER: [
-    { labelKey: "nav.groups.workflow", items: ownerWorkflow },
-    { labelKey: "nav.groups.data", items: [data] },
-  ],
-  ADMIN_AUDITOR: [
-    { labelKey: "nav.groups.workflow", items: ownerWorkflow },
-    { labelKey: "nav.groups.data", items: [data, platform] },
-  ],
+export const navByRole: Record<Role, NavSection[]> = {
+  CONTRACT_OWNER: [ownerWorkflow, [data]],
+  LEGAL_REVIEWER: [ownerWorkflow, [data]],
+  ADMIN_AUDITOR: [ownerWorkflow, [data, platform]],
   SUPPLIER: [
-    {
-      labelKey: "nav.groups.workflow",
-      items: [
-        tasks,
-        { ...contracts, labelKey: "nav.myContracts" },
-        {
-          key: "submissions",
-          to: "/submissions",
-          icon: FileProtectOutlined,
-          labelKey: "nav.submissions",
-        },
-        verify,
-      ],
-    },
+    [
+      tasks,
+      { ...contracts, labelKey: "nav.myContracts" },
+      {
+        key: "submissions",
+        to: "/submissions",
+        icon: FileProtectOutlined,
+        labelKey: "nav.submissions",
+      },
+      verify,
+    ],
   ],
   FINANCE_APPROVER: [
-    {
-      labelKey: "nav.groups.workflow",
-      items: [
-        {
-          key: "approvals",
-          to: "/approvals",
-          icon: InboxOutlined,
-          labelKey: "nav.approvals",
-          badge: true,
-        },
-        contracts,
-        activity,
-        verify,
-      ],
-    },
-    { labelKey: "nav.groups.data", items: [data] },
+    [
+      {
+        key: "approvals",
+        to: "/approvals",
+        icon: InboxOutlined,
+        labelKey: "nav.approvals",
+        badge: true,
+      },
+      contracts,
+      activity,
+      verify,
+    ],
+    [data],
   ],
 };
 

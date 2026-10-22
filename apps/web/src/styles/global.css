@@ -1,4 +1,7 @@
-/* Design tokens come from @codecash/ui/styles.css, imported first in main.tsx. */
+/*
+ * Application-wide styles, ported from UniFlow's styles/global.less (base design system).
+ * Design tokens come from @codecash/ui/tokens.css, imported first in main.tsx.
+ */
 
 *,
 *::before,
@@ -14,11 +17,12 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
+  background: var(--bg-root);
+  color: var(--text-primary);
+  font-family: var(--font-family-sans);
   font-size: 15px;
   line-height: 1.5;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -41,10 +45,146 @@ p {
   margin: 0;
 }
 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Button sizes shared by Ant Design and BaseButton */
+.ant-btn {
+  font-family: var(--font-family-sans);
+  font-weight: 600;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  max-width: 100%;
+}
+.ant-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.ant-btn.ant-btn-sm {
+  height: 32px;
+  padding-inline: 12px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+.ant-btn.ant-btn-lg {
+  height: 44px;
+  padding-inline: 22px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+.ant-btn.ant-btn-icon-only.ant-btn-sm {
+  padding-inline: 0;
+  width: 32px;
+}
+.codecash-btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+.codecash-btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-primary-subtle) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--color-primary) 40%,
+    transparent
+  ) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Sidebar navigation (UniFlow base-sidebar-menu) */
+.base-sidebar-menu.ant-menu {
+  border-inline-end: 0 !important;
+  background: transparent !important;
+  font-family: var(--font-family-sans);
+}
+.base-sidebar-menu.ant-menu .ant-menu-item,
+.base-sidebar-menu.ant-menu .ant-menu-submenu-title {
+  margin: 3px 8px !important;
+  width: calc(100% - 16px) !important;
+  border-radius: 6px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  color: #374151;
+}
+.base-sidebar-menu.ant-menu .ant-menu-item:hover,
+.base-sidebar-menu.ant-menu .ant-menu-submenu-title:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+.base-sidebar-menu.ant-menu .anticon {
+  font-size: 15px !important;
+  color: #4b5563;
+}
+.base-sidebar-menu.ant-menu .ant-menu-item-selected,
+.base-sidebar-menu.ant-menu .ant-menu-item-selected .anticon {
+  background-color: var(--color-primary-subtle) !important;
+  color: var(--color-primary) !important;
+  font-weight: 700 !important;
+}
+.base-sidebar-menu.ant-menu .ant-menu-item-selected .anticon {
+  background: none !important;
+}
+.base-sidebar-menu.ant-menu
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title,
+.base-sidebar-menu.ant-menu
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title
+  .anticon {
+  color: var(--color-primary) !important;
+  font-weight: 700 !important;
+}
+.base-sidebar-menu.ant-menu .ant-menu-sub {
+  background: transparent !important;
+}
+.base-sidebar-menu.ant-menu .ant-menu-sub .ant-menu-item {
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 13px !important;
+  padding-left: 44px !important;
+  margin: 2px 8px !important;
+}
+
+[data-theme="dark"] .base-sidebar-menu.ant-menu .ant-menu-item,
+[data-theme="dark"] .base-sidebar-menu.ant-menu .ant-menu-submenu-title {
+  color: #d1d5db;
+}
+[data-theme="dark"] .base-sidebar-menu.ant-menu .ant-menu-item:hover,
+[data-theme="dark"] .base-sidebar-menu.ant-menu .ant-menu-submenu-title:hover {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}
+[data-theme="dark"] .base-sidebar-menu.ant-menu .anticon {
+  color: #9ca3af;
+}
+[data-theme="dark"] .base-sidebar-menu.ant-menu .ant-menu-item-selected,
+[data-theme="dark"]
+  .base-sidebar-menu.ant-menu
+  .ant-menu-item-selected
+  .anticon,
+[data-theme="dark"]
+  .base-sidebar-menu.ant-menu
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title {
+  color: #a6bdff !important;
+}
+
 .ant-table-wrapper {
   width: 100%;
   min-width: 0;
-}
-.ant-btn {
-  max-width: 100%;
 }

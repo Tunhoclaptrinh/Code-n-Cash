@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { SessionProvider } from "./shared/auth/session";
+import { OnboardingProvider } from "./shared/onboarding/OnboardingContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,9 +26,11 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <UiProvider>
         <ErrorBoundary>
-          <SessionProvider>
-            <RouterProvider router={router} />
-          </SessionProvider>
+          <OnboardingProvider>
+            <SessionProvider>
+              <RouterProvider router={router} />
+            </SessionProvider>
+          </OnboardingProvider>
         </ErrorBoundary>
       </UiProvider>
     </QueryClientProvider>

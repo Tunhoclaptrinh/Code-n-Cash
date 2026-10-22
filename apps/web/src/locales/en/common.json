@@ -16,7 +16,8 @@
     "groups": {
       "workflow": "Workflow",
       "data": "Data & administration"
-    }
+    },
+    "home": "Home"
   },
   "topbar": {
     "role": "Role",
@@ -31,7 +32,9 @@
     "pendingTasks_other": "{{count}} tasks waiting for you",
     "noPendingTasks": "No pending tasks",
     "themeLight": "Switch to light theme",
-    "themeDark": "Switch to dark theme"
+    "themeDark": "Switch to dark theme",
+    "guide": "Quick guide",
+    "openInbox": "Open my tasks"
   },
   "languages": {
     "vi": "Tiếng Việt",
@@ -92,6 +95,38 @@
       "title": "Unable to display this page",
       "body": "Something went wrong while loading this screen. Reload the page; if it keeps happening, tell an administrator.",
       "reload": "Reload page"
+    }
+  },
+  "sider": {
+    "environment": "Environment",
+    "demoShort": "Demo",
+    "demoBody": "Demo build: sample data, simulated signing."
+  },
+  "onboarding": {
+    "title": "Welcome to CodeCash",
+    "subtitle": "Pick a language and a theme to get started.",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "suggested": "Suggested",
+    "start": "Get started",
+    "footnote": "You can change both at any time from the header.",
+    "tips": {
+      "done": "Got it",
+      "guide": {
+        "title": "Quick guide",
+        "body": "Click here to see these tips again."
+      },
+      "language": {
+        "title": "Language",
+        "body": "Switch between Vietnamese and English."
+      },
+      "theme": {
+        "title": "Light or dark",
+        "body": "Change the theme to whatever is easier on your eyes."
+      },
+      "title": "Quick tips for the header"
     }
   }
 }

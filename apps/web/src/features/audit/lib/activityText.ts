@@ -82,23 +82,3 @@ export function filterActivity(
     );
   });
 }
-
-/** Quotes a value for CSV when it contains a delimiter, quote or line break. */
-function csvCell(value: string): string {
-  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
-}
-
-export function toCsv(rows: string[][]): string {
-  return rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
-}
-
-export function downloadCsv(fileName: string, csv: string): void {
-  // The byte order mark lets spreadsheet apps read Vietnamese text as UTF-8.
-  const blob = new Blob([`﻿${csv}`], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(url);
-}

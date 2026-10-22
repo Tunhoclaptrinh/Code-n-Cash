@@ -2,7 +2,7 @@ import { uiText } from "../i18n";
 import { notify } from "./notification";
 export async function copyToClipboard(
   text: string,
-  successMessage = uiText("sf56a510e30"),
+  successMessage = uiText("clipboard.copied"),
 ): Promise<boolean> {
   try {
     if (navigator.clipboard && window.isSecureContext) {
@@ -24,9 +24,9 @@ export async function copyToClipboard(
       notify.success(successMessage);
       return true;
     }
-    throw new Error(uiText("sc2dd6b03d4"));
+    throw new Error(uiText("clipboard.failedTitle"));
   } catch (err) {
-    notify.error(uiText("sdb7c1f09b9"));
+    notify.error(uiText("clipboard.failed"));
     return false;
   }
 }

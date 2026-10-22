@@ -93,6 +93,29 @@ try {
     deviceScaleFactor: 1,
     mobile: false,
   });
+  // First visit: language and theme must be chosen, then the header tips show once.
+  await until("!!document.querySelector('[data-testid=welcome-start]')");
+  assert.equal(
+    await evaluate(
+      "document.querySelector('[data-testid=welcome-start]').disabled",
+    ),
+    true,
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=welcome-language-en]').click()",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=welcome-theme-light]').click()",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=welcome-start]').click()",
+  );
+  await until("!!document.querySelector('.cc-tip [data-testid=tips-done]')");
+  await evaluate("document.querySelector('[data-testid=tips-done]').click()");
+  assert.equal(
+    await evaluate("localStorage.getItem('codecash.onboarding')"),
+    "done",
+  );
   await until("!!document.querySelector('input[autocomplete=username]')");
   await evaluate(
     "document.querySelector('input[autocomplete=username]').focus()",
@@ -170,6 +193,53 @@ try {
   );
   await until("location.pathname === '/platform/users'");
   assert.equal(await evaluate("window.__navigationProbe"), true);
+  // Base CRUD: create through FormModal, find it in the table, delete through ConfirmModal.
+  const orgName = `Smoke Org ${Date.now()}`;
+  await send("Page.navigate", { url: base + "/platform/organizations" });
+  await until(
+    "!!document.querySelector('.data-table-wrapper .codecash-btn-primary')",
+  );
+  await pause(400);
+  await evaluate(
+    "document.querySelector('.data-table-wrapper .codecash-btn-primary').click()",
+  );
+  await until("!!document.querySelector('.ant-modal input#name')");
+  for (const [id, value] of [
+    ["name", orgName],
+    ["code", `SMK${Date.now() % 100000}`],
+  ]) {
+    await evaluate(`document.querySelector('.ant-modal input#${id}').focus()`);
+    await send("Input.insertText", { text: value });
+  }
+  await evaluate(
+    "document.querySelector('.ant-modal #kind').closest('.ant-select').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))",
+  );
+  await until("!!document.querySelector('.ant-select-item-option')");
+  await evaluate("document.querySelector('.ant-select-item-option').click()");
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+  );
+  await until(`document.body.innerText.includes(${JSON.stringify(orgName)})`);
+  await evaluate(
+    `(() => { const row = Array.from(document.querySelectorAll('.ant-table-row')).find((r) => r.innerText.includes(${JSON.stringify(orgName)})); row.querySelector('.ant-checkbox-input').click(); })()`,
+  );
+  await until(
+    "!!document.querySelector('.data-table-wrapper .ant-badge .ant-btn')",
+  );
+  await evaluate(
+    "document.querySelector('.data-table-wrapper .ant-badge .ant-btn').click()",
+  );
+  await until("!!document.querySelector('.ant-dropdown-menu-item-danger')");
+  await evaluate(
+    "document.querySelector('.ant-dropdown-menu-item-danger').click()",
+  );
+  // ConfirmModal is the last modal opened; its submit is the last footer button.
+  await until("document.querySelectorAll('.ant-modal-footer').length > 1");
+  await pause(300);
+  await evaluate(
+    "Array.from(Array.from(document.querySelectorAll('.ant-modal-footer')).at(-1).querySelectorAll('button')).at(-1).click()",
+  );
+  await until(`!document.body.innerText.includes(${JSON.stringify(orgName)})`);
   await send("Emulation.setDeviceMetricsOverride", {
     width: 390,
     height: 844,
@@ -211,7 +281,7 @@ try {
     JSON.stringify({ screens, errors, signatureCheck: fake }, null, 2),
   );
   console.log(
-    `Browser smoke passed: login, ${screens.length} screens, desktop/mobile layout, upload validation, resource tabs, unsigned PDF handling.`,
+    `Browser smoke passed: first-run onboarding, login, ${screens.length} screens, desktop/mobile layout, upload validation, resource tabs, admin create/delete, unsigned PDF handling.`,
   );
 } finally {
   ws?.close();

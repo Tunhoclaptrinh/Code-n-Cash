@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { Button, Input, Modal } from "antd";
+import { PageHeader } from "@codecash/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -145,12 +146,14 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
 
   return (
     <>
-      <div className={styles.heading}>
-        <h1>{t("approve.title", { no: milestone.no, name: milestoneName })}</h1>
-        <ToneTag tone={open ? "warning" : "neutral"}>
-          {t(`approve.state.${data.status}`)}
-        </ToneTag>
-      </div>
+      <PageHeader
+        title={t("approve.title", { no: milestone.no, name: milestoneName })}
+        tags={
+          <ToneTag tone={open ? "warning" : "neutral"}>
+            {t(`approve.state.${data.status}`)}
+          </ToneTag>
+        }
+      />
 
       <div className={styles.grid}>
         <div className={styles.column}>

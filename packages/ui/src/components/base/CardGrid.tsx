@@ -7,8 +7,8 @@ export function CardGrid<T = any>({
   data = [],
   loading = false,
   renderCard,
-  emptyTitle = uiText("s1a567dab5f"),
-  emptyDescription = uiText("sc957f30d7a"),
+  emptyTitle = uiText("empty.noData"),
+  emptyDescription = uiText("empty.noItems"),
   colProps = {
     xs: 24,
     sm: 12,
@@ -19,7 +19,7 @@ export function CardGrid<T = any>({
   keyExtractor,
 }: CardGridProps<T>) {
   if (loading) {
-    return <LoadingState tip={uiText("sd37b2a68bf")} />;
+    return <LoadingState tip={uiText("loading.list")} />;
   }
   if (!data || data.length === 0) {
     return <EmptyState title={emptyTitle} description={emptyDescription} />;

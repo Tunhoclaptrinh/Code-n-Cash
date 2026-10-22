@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type DragEvent } from "react";
 import { Button } from "antd";
+import { PageHeader } from "@codecash/ui";
 import type { TFunction } from "i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
@@ -208,14 +209,16 @@ function Workspace({
 
   return (
     <>
-      <div className={styles.heading}>
-        <h1>{t("submit.title", { no: milestone.no, name: milestoneName })}</h1>
-        {data.overdueDays > 0 ? (
-          <ToneTag tone="danger">
-            {t("submit.overdue", { count: data.overdueDays })}
-          </ToneTag>
-        ) : null}
-      </div>
+      <PageHeader
+        title={t("submit.title", { no: milestone.no, name: milestoneName })}
+        tags={
+          data.overdueDays > 0 ? (
+            <ToneTag tone="danger">
+              {t("submit.overdue", { count: data.overdueDays })}
+            </ToneTag>
+          ) : null
+        }
+      />
 
       <div className={styles.grid}>
         <Panel className={`${styles.panel} ${styles.panelLeft}`}>

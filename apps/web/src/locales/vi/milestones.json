@@ -96,6 +96,17 @@
       "SIGN_CONTRACT": "Ký ngay",
       "RESUBMIT_EVIDENCE": "Nộp lại",
       "APPROVE_PAYMENT": "Phê duyệt"
+    },
+    "tabs": {
+      "ALL": "Tất cả"
+    },
+    "detail": {
+      "context": "Bối cảnh"
+    },
+    "actions": {
+      "detail": "Xem chi tiết",
+      "openContract": "Mở hợp đồng",
+      "more": "Thao tác khác"
     }
   },
   "submit": {

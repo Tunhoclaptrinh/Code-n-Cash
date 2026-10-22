@@ -46,7 +46,7 @@ export function useResource<T extends Entity>(
       sort: (sortBy: string, sortOrder: "asc" | "desc") =>
         setParams((p) => ({ ...p, sortBy, sortOrder, page: 1 })),
     }),
-    [params.limit],
+    [],
   );
   return { query, params, setParams, change, create, update, remove, refresh };
 }

@@ -94,10 +94,22 @@
     "placeholder": "Search data…"
   },
   "status": {
+    "aiApproved": "AI approved",
+    "aiRecovered": "AI recovered",
     "awaiting": "Awaiting confirmation",
     "failed": "Failed",
+    "manualRequired": "Manual matching required",
     "processing": "Processing",
     "success": "Success"
+  },
+  "storage": {
+    "clearLocal": "Unable to clear localStorage:",
+    "readLocal": "Unable to read localStorage [{{key}}]:",
+    "readSession": "Unable to read sessionStorage [{{key}}]:",
+    "removeLocal": "Unable to remove localStorage [{{key}}]:",
+    "removeSession": "Unable to remove sessionStorage [{{key}}]:",
+    "writeLocal": "Unable to write localStorage [{{key}}]:",
+    "writeSession": "Unable to write sessionStorage [{{key}}]:"
   },
   "table": {
     "actions": "Actions",

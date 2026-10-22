@@ -20,11 +20,11 @@ export class ErrorBoundary extends Component<
     return this.state.failed ? (
       <Result
         status="error"
-        title={uiText("errorTitle")}
-        subTitle={uiText("errorHint")}
+        title={uiText("error.title")}
+        subTitle={uiText("error.hint")}
         extra={
           <Button onClick={() => window.location.reload()}>
-            {uiText("retry")}
+            {uiText("action.retry")}
           </Button>
         }
       />

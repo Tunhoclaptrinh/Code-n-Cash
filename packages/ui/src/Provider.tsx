@@ -4,14 +4,14 @@ import enUS from "antd/locale/en_US";
 import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
 import { AppConfigProvider, useAppConfig } from "./context/AppConfigContext";
-import { buildTheme } from "./theme";
+import { themeConfigFor } from "./theme";
 function Config({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
   const { themeMode } = useAppConfig();
   return (
     <ConfigProvider
       locale={i18n.language?.startsWith("vi") ? viVN : enUS}
-      theme={buildTheme(themeMode)}
+      theme={themeConfigFor(themeMode)}
     >
       <App>{children}</App>
     </ConfigProvider>

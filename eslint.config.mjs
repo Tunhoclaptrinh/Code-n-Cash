@@ -39,6 +39,16 @@ export default [
     },
   },
   {
+    // Base components ported from UniFlow keep their public prop lists; do not edit them for lint.
+    files: ["packages/ui/src/components/**/*.{ts,tsx}", "packages/ui/src/utils/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { args: "none", caughtErrors: "none", ignoreRestSiblings: true },
+      ],
+    },
+  },
+  {
     // The browser never decides business outcomes: no fixture stores or engine code in the web app.
     files: ["apps/web/src/**/*.{ts,tsx}"],
     rules: {

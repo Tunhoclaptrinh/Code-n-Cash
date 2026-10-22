@@ -73,7 +73,17 @@
     },
     "actions": {
       "signNow": "Ký ngay",
-      "open": "Mở"
+      "open": "Mở hợp đồng",
+      "detail": "Xem nhanh",
+      "verify": "Kiểm tra chữ ký",
+      "activity": "Xem nhật ký",
+      "more": "Thao tác khác"
+    },
+    "tabs": {
+      "ALL": "Tất cả"
+    },
+    "detail": {
+      "title": "Tên hợp đồng"
     }
   },
   "contractUpload": {

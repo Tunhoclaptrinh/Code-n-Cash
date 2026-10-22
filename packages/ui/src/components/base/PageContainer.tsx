@@ -58,7 +58,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
                         }}
                       >
                         <HomeOutlined />
-                        {uiText("s738a4cd148")}
+                        {uiText("nav.home")}
                       </Link>
                     ),
                   },

@@ -1,4 +1,8 @@
 import { useLayoutEffect, type ReactNode } from "react";
+import { Breadcrumb } from "antd";
+import { HomeOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import type { NavKey } from "./navConfig";
 import { usePublishChrome, type BreadcrumbItem } from "./pageChrome";
 import styles from "./AppLayout.module.css";
@@ -15,8 +19,9 @@ interface Props {
 }
 
 /**
- * Body of a signed-in screen. The sidebar and header live in `AppLayout` and stay mounted
- * across navigation; this component only publishes the page's breadcrumb and active nav key.
+ * Body of a signed-in screen. The header and sidebar live in `AppLayout` and stay mounted
+ * across navigation; this component publishes the active nav key and renders the breadcrumb
+ * above the page, in the style of the base PageContainer breadcrumb.
  */
 export function AppPage({
   active,
@@ -24,6 +29,7 @@ export function AppPage({
   contentClassName,
   children,
 }: Props) {
+  const { t } = useTranslation("common");
   const publish = usePublishChrome();
   const trail = JSON.stringify(breadcrumb);
   useLayoutEffect(() => {
@@ -31,6 +37,27 @@ export function AppPage({
   }, [publish, active, trail]);
   return (
     <div className={[styles.page, contentClassName].filter(Boolean).join(" ")}>
+      {breadcrumb.length ? (
+        <Breadcrumb
+          className={styles.breadcrumb}
+          items={[
+            {
+              title: (
+                <Link to="/" aria-label={t("nav.home")}>
+                  <HomeOutlined />
+                </Link>
+              ),
+            },
+            ...breadcrumb.map((item) => ({
+              title: item.to ? (
+                <Link to={item.to}>{item.label}</Link>
+              ) : (
+                item.label
+              ),
+            })),
+          ]}
+        />
+      ) : null}
       {children}
     </div>
   );

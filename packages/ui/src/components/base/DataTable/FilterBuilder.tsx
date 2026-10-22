@@ -23,17 +23,17 @@ export interface FilterBuilderProps {
   applyText?: string;
 }
 export const OPERATOR_LABELS: Record<string, string> = {
-  eq: uiText("sd71bdec1da"),
-  ne: uiText("s3bc6bae133"),
-  gt: uiText("s179aa466ff"),
-  gte: uiText("s0c07cd31e1"),
-  lt: uiText("sca70d4be08"),
-  lte: uiText("s40f300d6e5"),
-  like: uiText("s7bb114417f"),
-  ilike: uiText("s998bae0cdc"),
-  not_like: uiText("s968ed4be99"),
-  in: uiText("sd2d2c342ca"),
-  nin: uiText("s846d51d088"),
+  eq: uiText("filter.operator.eq"),
+  ne: uiText("filter.operator.ne"),
+  gt: uiText("filter.operator.gt"),
+  gte: uiText("filter.operator.gte"),
+  lt: uiText("filter.operator.lt"),
+  lte: uiText("filter.operator.lte"),
+  like: uiText("filter.operator.like"),
+  ilike: uiText("filter.operator.ilike"),
+  not_like: uiText("filter.operator.notLike"),
+  in: uiText("filter.operator.in"),
+  nin: uiText("filter.operator.notIn"),
 };
 export const FilterBuilder: React.FC<FilterBuilderProps> = ({
   filters,
@@ -50,7 +50,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
   onClear,
   onCancel,
   hideFooter = false,
-  applyText = uiText("s97819907a6"),
+  applyText = uiText("filter.apply"),
 }) => {
   return (
     <div className="filter-builder-container">
@@ -66,7 +66,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
               border: "2px dashed var(--border-subtle, #E5E7EB)",
             }}
           >
-            <p style={{ margin: 0, fontSize: 13 }}>{uiText("s691e64ab83")}</p>
+            <p style={{ margin: 0, fontSize: 13 }}>{uiText("filter.empty")}</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -152,7 +152,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
                   <div style={{ flex: 1 }}>
                     {filter.type === "select" && (
                       <Select
-                        placeholder={uiText("sa02d0bbea7")}
+                        placeholder={uiText("filter.selectValue")}
                         value={filterValues[activeKey]}
                         disabled={filter.disabled}
                         onChange={(val) =>
@@ -172,7 +172,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
 
                     {(filter.type === "input" || filter.type === "number") && (
                       <Input
-                        placeholder={uiText("s469b116391")}
+                        placeholder={uiText("filter.enterValue")}
                         value={filterValues[activeKey]}
                         disabled={filter.disabled}
                         onChange={(e) =>
@@ -188,7 +188,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
 
                     {filter.type === "date" && (
                       <DatePicker
-                        placeholder={uiText("sa4d14e6bfb")}
+                        placeholder={uiText("filter.selectDate")}
                         disabled={filter.disabled}
                         style={{ width: "100%" }}
                         value={
@@ -208,8 +208,8 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
                   <Tooltip
                     title={
                       filter.disabled
-                        ? uiText("seb417ffdf6")
-                        : uiText("s9176cddf30")
+                        ? uiText("filter.fixed")
+                        : uiText("filter.remove")
                     }
                   >
                     <BaseButton
@@ -254,7 +254,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
               }}
               icon={<PlusOutlined />}
             >
-              {uiText("s8d05648afd")}
+              {uiText("filter.add")}
             </BaseButton>
           </Dropdown>
         </div>
@@ -278,7 +278,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
               onClick={onCancel}
               style={{ minWidth: 90 }}
             >
-              {uiText("s34ca764caf")}
+              {uiText("action.cancel")}
             </BaseButton>
           )}
           {onClear && (
@@ -288,7 +288,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
               onClick={onClear}
               style={{ minWidth: 90 }}
             >
-              {uiText("sd89e6c532f")}
+              {uiText("filter.clear")}
             </BaseButton>
           )}
           {onApply && (

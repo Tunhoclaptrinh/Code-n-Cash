@@ -7,8 +7,8 @@ import { EmptyStateProps } from "./types";
 const { Paragraph } = Typography;
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon = <InboxOutlined style={{ fontSize: 44, color: "#9CA3AF" }} />,
-  title = uiText("se77813987e"),
-  description = uiText("s836584783e"),
+  title = uiText("empty.title"),
+  description = uiText("empty.description"),
   actionText,
   onAction,
 }) => {

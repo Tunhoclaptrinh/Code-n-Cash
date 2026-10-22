@@ -17,7 +17,8 @@
     "from": "From date",
     "to": "To date",
     "rowCount_one": "{{count}} row",
-    "rowCount_other": "{{count}} rows"
+    "rowCount_other": "{{count}} rows",
+    "searchPlaceholder": "Search action, actor, contract…"
   },
   "table": {
     "columns": {
@@ -86,5 +87,10 @@
     "castVote": "Recorded approval decision",
     "transferToAccounting": "Transferred to accounting",
     "resolveDispute": "Resolved dispute"
+  },
+  "appendOnly": "Append-only log: entries cannot be edited or deleted.",
+  "detail": {
+    "view": "View details",
+    "entryId": "Entry ID"
   }
 }

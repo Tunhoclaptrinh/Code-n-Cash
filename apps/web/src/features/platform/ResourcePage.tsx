@@ -3,25 +3,34 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
-  Button,
+  Dropdown,
   Form,
   Input,
   InputNumber,
   Switch,
   Select,
   Alert,
+  Space,
   Tag,
   Typography,
   App as AntApp,
   Upload,
 } from "antd";
+import type { MenuProps } from "antd";
 import {
   CloudUploadOutlined,
+  DeleteOutlined,
   DownloadOutlined,
+  EditOutlined,
+  EyeOutlined,
   KeyOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import {
+  BaseButton,
+  ConfirmModal,
   DataTable,
+  DetailModal,
   PageContainer,
   FormModal,
   IconButton,
@@ -51,7 +60,7 @@ export default function ResourcePage() {
   const { resource = "organizations" } = useParams();
   const { t } = useTranslation("platform");
   const { t: tc } = useTranslation("common");
-  const { message, modal } = AntApp.useApp();
+  const { message } = AntApp.useApp();
   const [selectedKeys, setSelectedKeys] = useState<Key[]>([]);
   const [editor, setEditor] = useState<Entity | null | undefined>();
   const service = useMemo(
@@ -72,6 +81,9 @@ export default function ResourcePage() {
   const readOnly = definition?.readOnly;
   const busy = state.create.isPending || state.update.isPending;
   const [passwordTarget, setPasswordTarget] = useState<Entity>();
+  const [viewing, setViewing] = useState<Entity>();
+  const [pendingDelete, setPendingDelete] = useState<Key[]>();
+  const [deleting, setDeleting] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [file, setFile] = useState<File>();
 
@@ -133,34 +145,108 @@ export default function ResourcePage() {
 
   const report = (error: unknown) =>
     message.error(error instanceof Error ? error.message : t("error"));
+  const download = async (record: Entity) => {
+    try {
+      downloadBlob(
+        await platform.download(`/documents/${record.id}/download`),
+        String(record.name),
+      );
+    } catch (error) {
+      report(error);
+    }
+  };
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    try {
+      if (pendingDelete.length === 1)
+        await state.remove.mutateAsync(String(pendingDelete[0]));
+      else {
+        await service.removeMany(pendingDelete.map(String));
+        state.setParams((p) => ({ ...p, page: 1 }));
+        await state.refresh();
+      }
+      setSelectedKeys((keys) => keys.filter((k) => !pendingDelete.includes(k)));
+      message.success(t("deleted", { count: pendingDelete.length }));
+      setPendingDelete(undefined);
+    } catch (error) {
+      report(error);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
-  const rowActions =
-    resource === "documents"
-      ? (record: Entity) => (
-          <IconButton
-            icon={<DownloadOutlined />}
-            tooltip={t("download")}
-            onClick={async () => {
-              try {
-                downloadBlob(
-                  await platform.download(`/documents/${record.id}/download`),
-                  String(record.name),
-                );
-              } catch (error) {
-                report(error);
-              }
-            }}
-          />
-        )
-      : resource === "users"
-        ? (record: Entity) => (
-            <IconButton
-              icon={<KeyOutlined />}
-              tooltip={t("resetPassword")}
-              onClick={() => setPasswordTarget(record)}
-            />
-          )
-        : undefined;
+  // Row actions follow the UniFlow base: one primary icon, the rest in a menu.
+  const menuFor = (record: Entity): MenuProps["items"] => [
+    {
+      key: "detail",
+      icon: <EyeOutlined />,
+      label: t("detail"),
+      onClick: () => setViewing(record),
+    },
+    ...(resource === "users"
+      ? [
+          {
+            key: "password",
+            icon: <KeyOutlined />,
+            label: t("resetPassword"),
+            onClick: () => setPasswordTarget(record),
+          },
+        ]
+      : []),
+    ...(resource === "documents"
+      ? [
+          {
+            key: "download",
+            icon: <DownloadOutlined />,
+            label: t("download"),
+            onClick: () => void download(record),
+          },
+        ]
+      : []),
+    ...(readOnly
+      ? []
+      : [
+          { type: "divider" as const },
+          {
+            key: "delete",
+            icon: <DeleteOutlined />,
+            label: t("delete"),
+            danger: true,
+            onClick: () => setPendingDelete([record.id]),
+          },
+        ]),
+  ];
+  const rowActions = (record: Entity) => (
+    <Space size={4}>
+      {readOnly ? (
+        <IconButton
+          icon={
+            resource === "documents" ? <DownloadOutlined /> : <EyeOutlined />
+          }
+          tooltip={resource === "documents" ? t("download") : t("detail")}
+          onClick={() =>
+            resource === "documents"
+              ? void download(record)
+              : setViewing(record)
+          }
+        />
+      ) : (
+        <IconButton
+          icon={<EditOutlined />}
+          tooltip={t("edit")}
+          onClick={() => setEditor(record)}
+        />
+      )}
+      <Dropdown
+        menu={{ items: menuFor(record) }}
+        trigger={["click"]}
+        placement="bottomRight"
+      >
+        <IconButton icon={<MenuOutlined />} tooltip={t("moreActions")} />
+      </Dropdown>
+    </Space>
+  );
 
   return (
     <AppPage
@@ -185,13 +271,13 @@ export default function ResourcePage() {
         }}
         extra={
           resource === "documents" ? (
-            <Button
-              type="primary"
+            <BaseButton
+              variant="primary"
               icon={<CloudUploadOutlined />}
               onClick={() => setUploadOpen(true)}
             >
               {t("upload")}
-            </Button>
+            </BaseButton>
           ) : undefined
         }
       >
@@ -229,39 +315,12 @@ export default function ResourcePage() {
             })
           }
           customActions={rowActions}
+          onView={(record) => setViewing(record)}
           onAdd={readOnly ? undefined : () => setEditor(null)}
-          onEdit={readOnly ? undefined : (record) => setEditor(record)}
-          onDelete={
-            readOnly
-              ? undefined
-              : (id) =>
-                  modal.confirm({
-                    title: t("deleteTitle"),
-                    content: t("deleteBody"),
-                    okButtonProps: { danger: true },
-                    onOk: () =>
-                      state.remove.mutateAsync(String(id)).catch((error) => {
-                        report(error);
-                        throw error;
-                      }),
-                  })
-          }
           selectedRowKeys={selectedKeys}
           onSelectChange={setSelectedKeys}
           batchOperations={!readOnly}
-          onBatchDelete={(ids) =>
-            modal.confirm({
-              title: t("deleteTitle"),
-              content: t("deleteBody"),
-              okButtonProps: { danger: true },
-              onOk: async () => {
-                await service.removeMany(ids.map(String));
-                setSelectedKeys([]);
-                state.setParams((p) => ({ ...p, page: 1 }));
-                await state.refresh();
-              },
-            })
-          }
+          onBatchDelete={(ids) => setPendingDelete(ids)}
           filters={definition?.fields
             .filter(
               (field) => field.type === "select" || field.type === "boolean",
@@ -497,6 +556,53 @@ export default function ResourcePage() {
           <Input.Password autoComplete="new-password" />
         </Form.Item>
       </FormModal>
+      <DetailModal
+        open={!!viewing}
+        entityName={t(`resources.${resource}`)}
+        record={viewing}
+        onClose={() => setViewing(undefined)}
+        onEdit={readOnly ? undefined : (record) => setEditor(record)}
+        onDelete={
+          readOnly ? undefined : (record) => setPendingDelete([record.id])
+        }
+        items={
+          viewing
+            ? [
+                ...(definition?.fields ?? []).map((field) => ({
+                  key: field.key,
+                  label: fieldLabel(field.key),
+                  value: renderValue(field, viewing[field.key]),
+                })),
+                {
+                  key: "version",
+                  label: t("fields.version"),
+                  value: String(viewing.version),
+                },
+                {
+                  key: "createdAt",
+                  label: t("fields.createdAt"),
+                  value: formatDateTime(viewing.createdAt),
+                },
+                {
+                  key: "updatedAt",
+                  label: fieldLabel("updatedAt"),
+                  value: formatDateTime(viewing.updatedAt),
+                },
+              ]
+            : []
+        }
+      />
+      <ConfirmModal
+        open={!!pendingDelete}
+        danger
+        title={t("deleteTitle")}
+        content={t("deleteBody", { count: pendingDelete?.length ?? 0 })}
+        confirmText={t("delete")}
+        cancelText={t("cancel")}
+        loading={deleting}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setPendingDelete(undefined)}
+      />
     </AppPage>
   );
 }

@@ -1,0 +1,99 @@
+import { uiText } from "../../i18n";
+import { useEffect } from "react";
+import { Modal, Form, Space, Spin } from "antd";
+import { FormFooter } from "./FormFooter";
+import { FormModalProps } from "./types";
+export function FormModal<T = any>({
+  open,
+  title,
+  entityName,
+  isEditing,
+  icon,
+  initialValues,
+  loading = false,
+  width = 580,
+  submitText = uiText("s2fd5312bdf"),
+  cancelText = uiText("s247d4b1efe"),
+  resetText,
+  footerAlign = "center",
+  footer,
+  onClose,
+  onSubmit,
+  onReset,
+  children,
+}: FormModalProps<T>) {
+  const [form] = Form.useForm<T>();
+  useEffect(() => {
+    if (open) {
+      form.resetFields();
+      if (initialValues) {
+        form.setFieldsValue(initialValues as any);
+      }
+    }
+  }, [open, initialValues, form]);
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      await onSubmit(values);
+      onClose();
+    } catch (error) {
+      console.warn("Form validation failed:", error);
+    }
+  };
+  const handleReset = () => {
+    form.resetFields();
+    if (onReset) {
+      onReset();
+    }
+  };
+  const modalTitle =
+    title ||
+    (entityName ? (
+      <Space size={8}>
+        {icon}
+        <span style={{ fontWeight: 700, fontSize: 16 }}>
+          {isEditing
+            ? uiText("s651d0866d1", { v0: entityName })
+            : uiText("s9895782768", { v0: entityName })}
+        </span>
+      </Space>
+    ) : (
+      uiText("s8484368494")
+    ));
+  return (
+    <Modal
+      open={open}
+      onCancel={onClose}
+      width={width}
+      title={modalTitle}
+      footer={
+        footer === undefined ? (
+          <FormFooter
+            align={footerAlign}
+            submitText={submitText}
+            cancelText={cancelText}
+            resetText={resetText}
+            loading={loading}
+            onCancel={onClose}
+            onSubmit={handleOk}
+            onReset={resetText ? handleReset : undefined}
+            style={{ marginTop: 0, paddingTop: 12 }}
+          />
+        ) : (
+          footer
+        )
+      }
+      styles={{
+        body: { padding: "16px 0 0 0" },
+      }}
+      centered
+      destroyOnHidden
+    >
+      <Spin spinning={loading}>
+        <Form form={form} layout="vertical" initialValues={initialValues}>
+          {typeof children === "function" ? children(form) : children}
+        </Form>
+      </Spin>
+    </Modal>
+  );
+}

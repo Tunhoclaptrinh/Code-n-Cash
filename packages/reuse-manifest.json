@@ -1,0 +1,323 @@
+{
+  "referenceRepository": "UniFlow-PTIT_Aka",
+  "records": [
+    {
+      "source": "apps/web/src/components/base/FormFooter.tsx",
+      "sourceSha256": "2f5f9da7c7a7569e12fbb5dd745584a10adb78f14dbfdb3a69b429404044c28d",
+      "target": "packages/ui/src/components/base/FormFooter.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/FormModal.tsx",
+      "sourceSha256": "2a6cd4232991d876fc32d45868946695231c44a342f06718328e26ea1456f36a",
+      "target": "packages/ui/src/components/base/FormModal.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/BadgeStatus.tsx",
+      "sourceSha256": "5995134a713cc01d515d281a47e714f7da7daa9a1c95327693a0a0f1617f5cf7",
+      "target": "packages/ui/src/components/base/BadgeStatus.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/PageContainer.tsx",
+      "sourceSha256": "75e1f8c511594b99c7d163b5476cbfffb1143893befe5655ec4d0ff287918987",
+      "target": "packages/ui/src/components/base/PageContainer.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DebounceSelect.tsx",
+      "sourceSha256": "4871f1e6da1d748137ff054a3bfa064d2d45db5aa61faa4e21c5dcc3cceab99b",
+      "target": "packages/ui/src/components/base/DebounceSelect.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/BaseCard.tsx",
+      "sourceSha256": "bd44eb03992b842b31de34d04ff7c40eefb2070f4c5ca5ec7a5964fb53d5b592",
+      "target": "packages/ui/src/components/base/BaseCard.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/LoadingState.tsx",
+      "sourceSha256": "442cbb3c7d03a374ab8d308f20621e565447bcf9bb7755fc13d3bcc478a9c815",
+      "target": "packages/ui/src/components/base/LoadingState.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/StatisticCard.tsx",
+      "sourceSha256": "99ee675df070cb1459a692191b215e82e6c35f80c36196c2e3decdc2f16e8ef9",
+      "target": "packages/ui/src/components/base/StatisticCard.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/ConfirmModal.tsx",
+      "sourceSha256": "7b7cbe320df426427f0e49f7962c5d3984bbd0357aaccb4245b6b2978121c393",
+      "target": "packages/ui/src/components/base/ConfirmModal.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/ActionDrawer.tsx",
+      "sourceSha256": "9a7b161373f2b75f4fdd337ae5db2f547cfe0f89a57ab64c83e45b52360cdb60",
+      "target": "packages/ui/src/components/base/ActionDrawer.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/FormDrawer.tsx",
+      "sourceSha256": "fd0d29336237563864b22ed559b361f5f30340c55edaae0e528173d64ade1d94",
+      "target": "packages/ui/src/components/base/FormDrawer.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable.tsx",
+      "sourceSha256": "b04f471451c49418873d0d00a0eefd5b71bb635b732e82109ae2ae5f876c7417",
+      "target": "packages/ui/src/components/base/DataTable.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/BaseButton.tsx",
+      "sourceSha256": "1e1ffef423f303a72233020c840baaea283750ee379508008de078b888ed8aea",
+      "target": "packages/ui/src/components/base/BaseButton.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/index.ts",
+      "sourceSha256": "351f1594dcfc144b619cae1c3ecc348a6dd93d6c33eec2da75492a27c439d1ef",
+      "target": "packages/ui/src/components/base/index.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/StatusTag.tsx",
+      "sourceSha256": "54051bd5c3483b5edcae375ab860423772827d5f18bf686a296710b53a2bdc29",
+      "target": "packages/ui/src/components/base/StatusTag.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/ErrorBoundary.tsx",
+      "sourceSha256": "35bae9581e165772f18d260948f9f17448b2a1e0db22a7a54c60248dc79bac54",
+      "target": "packages/ui/src/components/base/ErrorBoundary.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/CardGrid.tsx",
+      "sourceSha256": "683fa744c223d5822784de5b6b77fa9ffdcb0e98bcb370bb4987a655c828e5fb",
+      "target": "packages/ui/src/components/base/CardGrid.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DetailModal.tsx",
+      "sourceSha256": "65f611d3538fc5843def7d3a143a29e4e48391fdb45d325f6dec4618786f53ac",
+      "target": "packages/ui/src/components/base/DetailModal.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/SearchInput.tsx",
+      "sourceSha256": "98998951021127c048db148d6bf9317024ab0ec8cd7626e6b09813de154035e5",
+      "target": "packages/ui/src/components/base/SearchInput.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/IconButton.tsx",
+      "sourceSha256": "3eef26c954dcb437677166a5a0010370c0fbf45db0f9013931c7d1c515cb7498",
+      "target": "packages/ui/src/components/base/IconButton.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/PageHeader.tsx",
+      "sourceSha256": "34537b30cd76ddbd1f4c8754e628ba072128dcd7a06cfa797fd04e38f18ca517",
+      "target": "packages/ui/src/components/base/PageHeader.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/TabSwitcher.tsx",
+      "sourceSha256": "c186c4405af92d6582bcb91f3b6409ae93b750968b60b63dad18f3af7edc641b",
+      "target": "packages/ui/src/components/base/TabSwitcher.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/EmptyState.tsx",
+      "sourceSha256": "96aa02809a1e8b92fb9c357202e7ea0b1bcb62b9cec2b561e4bd2b179faad77a",
+      "target": "packages/ui/src/components/base/EmptyState.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/types.ts",
+      "sourceSha256": "9e95368450b5a9632ae72241cd7112449744f01ee15b5f4c2a21ed57264b5f4e",
+      "target": "packages/ui/src/components/base/types.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable/styles.less",
+      "sourceSha256": "5925efe90dce2bce3472029f417cf26d8dd164cf48df94341f5e5cb9f2c0d059",
+      "target": "packages/ui/src/components/base/DataTable/styles.less",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable/ExportModal.tsx",
+      "sourceSha256": "791f70433746a1892517a3ce77b056076da4c13e30d583ce830220a5601fcad9",
+      "target": "packages/ui/src/components/base/DataTable/ExportModal.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable/FilterBuilder.tsx",
+      "sourceSha256": "e9fa6611ad1bfe022ca7fd2a85b10ee8b768deeb87555781d8cb4a690c17b85b",
+      "target": "packages/ui/src/components/base/DataTable/FilterBuilder.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable/ImportModal.tsx",
+      "sourceSha256": "61dc88ee0ccfad9acb809fa48ba2ea7cdd5bcc8f00655d2a00b6a37c92d4ec6d",
+      "target": "packages/ui/src/components/base/DataTable/ImportModal.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable/index.tsx",
+      "sourceSha256": "b87fcfffbbf77877860a7f7b19b4fd64c1ea27664c220f6c781b0623bc5df3c8",
+      "target": "packages/ui/src/components/base/DataTable/index.tsx",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/components/base/DataTable/types.ts",
+      "sourceSha256": "235a36c2c2594002ba70e0a1751daec7f26903e914ecbb62bd6977ebe10fe669",
+      "target": "packages/ui/src/components/base/DataTable/types.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/hooks/useDebounce.ts",
+      "sourceSha256": "2d9f8d565fad48bd87509a59181e40d97d9f8f3572143bb4ea424d8b8fcd595b",
+      "target": "packages/ui/src/hooks/useDebounce.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/hooks/useFilters.ts",
+      "sourceSha256": "7233d6d793be1ad16f5fce280eb8225f9d3cec977e84b7d937e5e562673c36d5",
+      "target": "packages/ui/src/hooks/useFilters.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/hooks/useAsync.ts",
+      "sourceSha256": "7b801a30a8e680c826565abf897c255b884416d54d54770266b77f6caf51654c",
+      "target": "packages/ui/src/hooks/useAsync.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/hooks/usePagination.ts",
+      "sourceSha256": "6d2f96cfab953503fac49ab4fdccdd62b478b94386fd04a684a6b710328608d8",
+      "target": "packages/ui/src/hooks/usePagination.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/hooks/useLocalStorage.ts",
+      "sourceSha256": "280dafd72368239c712a387cac12b8e1b1bf37148693416f1ce6d7b0de9eb269",
+      "target": "packages/ui/src/hooks/useLocalStorage.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/notification.ts",
+      "sourceSha256": "bded8750c75c8391f1a9ba69cab172dd5f10420dc70afb0e9c31cbc3c06e6134",
+      "target": "packages/ui/src/utils/notification.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/storage.ts",
+      "sourceSha256": "285d05b31a4aae22492a7c1e510b763ef4c3d8a87877474ee0a51b8f2f64acb7",
+      "target": "packages/ui/src/utils/storage.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/clipboard.ts",
+      "sourceSha256": "a1022b34ff92d09a230e56d7bd45adc22328c3fb3878c8e054669c0d3e149f50",
+      "target": "packages/ui/src/utils/clipboard.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/validation.ts",
+      "sourceSha256": "bf73a816a9b796264e21a3acff7a7ee9f38b516b28e45f30befb88f7e80bf6a3",
+      "target": "packages/ui/src/utils/validation.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/formatters.ts",
+      "sourceSha256": "3a4254b1c51560aea9dac1075246c5c4e8b4bc7c2f76c0326731245218b1dd51",
+      "target": "packages/ui/src/utils/formatters.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/eventEmitter.ts",
+      "sourceSha256": "e927daa1532faf9111739fdc25c101e04dfdca5d570f37161ceec1d821f29f3c",
+      "target": "packages/ui/src/utils/eventEmitter.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/web/src/utils/export.ts",
+      "sourceSha256": "1621daae346c28d193f0359a841808de7b2e4f2dc6a72262c24c9154f3446c8a",
+      "target": "packages/ui/src/utils/export.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/filters/all-exceptions.filter.ts",
+      "sourceSha256": "1de4fe7b951ed9b87ba7f6a29a981a167ff9f341eec50fc068aeb57ef2707bc3",
+      "target": "apps/api/src/common/filters/all-exceptions.filter.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/guards/roles.guard.ts",
+      "sourceSha256": "2d4435d0ff574ea65d00d73370c83089c766a47c5a617cd57cafd3a1ebc8e148",
+      "target": "apps/api/src/common/guards/roles.guard.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/dto/pagination.dto.ts",
+      "sourceSha256": "3820f1c2cbdc99553e46c7c0904484d6b532803a8a4ccd09e6e54cde34e18311",
+      "target": "apps/api/src/common/dto/pagination.dto.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/services/base.service.ts",
+      "sourceSha256": "4d55ecb91e15965118be993252669322f05671475a7012f0b1f46abb6276c483",
+      "target": "apps/api/src/common/services/base.service.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/interceptors/logging.interceptor.ts",
+      "sourceSha256": "bbca53532f80d74b2fc1293527b1d5505b372fd7c02b638b18024c59b5d21dcb",
+      "target": "apps/api/src/common/interceptors/logging.interceptor.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/interceptors/transform.interceptor.ts",
+      "sourceSha256": "f734d6691f3e49b45157341255b081af02b08fb8e1c9f7251d7f782d649fbf22",
+      "target": "apps/api/src/common/interceptors/transform.interceptor.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/controllers/base.controller.ts",
+      "sourceSha256": "efe4d5d76f01650a3a4953644ffb91a1e0c631fe3c646e019fd20e79cf9519a0",
+      "target": "apps/api/src/common/controllers/base.controller.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/decorators/tenant.decorator.ts",
+      "sourceSha256": "cfb7fb32a9a79f0b8fb711f52ba54ba7b8454627412d3de19171ae43df0da775",
+      "target": "apps/api/src/common/decorators/tenant.decorator.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/decorators/current-user.decorator.ts",
+      "sourceSha256": "a5e5a7d9b85cff68d6a7f0d4219e976a28a023d3ee1a186e57832a596e14171b",
+      "target": "apps/api/src/common/decorators/current-user.decorator.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/decorators/roles.decorator.ts",
+      "sourceSha256": "dff34cc7bb5b68a76f53bc000daa226498f9e0949d34a2035de4e81e9ebca4d6",
+      "target": "apps/api/src/common/decorators/roles.decorator.ts",
+      "status": "adapted"
+    },
+    {
+      "source": "apps/backend/src/common/utils/query-builder.ts",
+      "sourceSha256": "f4087855df4d5a2770b614c62e95bf80918c139547822f3ca058d5e015ea4de0",
+      "target": "apps/api/src/common/utils/query-builder.ts",
+      "status": "adapted"
+    }
+  ]
+}

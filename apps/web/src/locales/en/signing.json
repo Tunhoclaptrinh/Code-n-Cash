@@ -1,0 +1,408 @@
+{
+  "wizard": {
+    "label": "Contract setup steps",
+    "steps": {
+      "UPLOAD": "Upload",
+      "SIGN_POSITIONS": "Signature positions",
+      "REVIEW": "Clause review",
+      "SIGN": "Sign",
+      "EFFECTIVE": "In force"
+    }
+  },
+  "party": {
+    "BUYER": "Buyer",
+    "SUPPLIER": "Supplier"
+  },
+  "document": {
+    "article": {
+      "ARTICLE_13": "ARTICLE 13. OBLIGATIONS OF THE PARTIES",
+      "ARTICLE_14": "ARTICLE 14. EFFECT OF THE CONTRACT"
+    },
+    "representative": {
+      "BUYER": "REPRESENTATIVE OF PARTY A",
+      "SUPPLIER": "REPRESENTATIVE OF PARTY B"
+    }
+  },
+  "slot": {
+    "label": "Slot {{stepNo}}",
+    "state": {
+      "MINE": "Your turn",
+      "CURRENT": "Their turn",
+      "WAITING": "Not yet",
+      "SIGNED": "Signed"
+    }
+  },
+  "method": {
+    "USB_TOKEN": {
+      "name": "USB token",
+      "description": "Plug the token into this computer and enter the PIN. Signing software must be installed.",
+      "description_certified": "Plug the token into this computer and enter the PIN. Certificate: {{holder}}, expires {{expiry}}."
+    },
+    "VNPT_SMARTCA": {
+      "name": "VNPT SmartCA",
+      "app": "SmartCA",
+      "description": "Confirm in the phone app.",
+      "description_certified": "Confirm in the phone app. Certificate: {{holder}}, expires {{expiry}}."
+    },
+    "VIETTEL_MYSIGN": {
+      "name": "Viettel MySign",
+      "app": "MySign",
+      "description": "Confirm in the phone app.",
+      "description_certified": "Confirm in the phone app. Certificate: {{holder}}, expires {{expiry}}."
+    },
+    "IMAGE": {
+      "name": "Signature image",
+      "description": "Draw a signature image on the page. There is no digital signature, so it cannot be verified.",
+      "blocked": "Not available for this contract: it only draws an image on the page, carries no digital signature, has no legal value and cannot be verified."
+    }
+  },
+  "errors": {
+    "NOT_YOUR_TURN": "It is not your turn to sign.",
+    "IMAGE_NOT_ALLOWED": "This contract requires a digital signature; a signature image cannot be used.",
+    "SIGNING_ALREADY_STARTED": "Someone has already signed, so this can no longer be changed.",
+    "UNKNOWN": "That did not work. Please try again."
+  },
+  "positions": {
+    "breadcrumb": {
+      "parent": "Upload contract",
+      "current": "Signature positions"
+    },
+    "title": "Assign a signature slot to each step",
+    "fileMeta": "{{fileName}} · Page {{page}} / {{total}}",
+    "stepChip": "Step {{stepNo}} · {{party}}",
+    "stepChipActive": "Placing: Step {{stepNo}} · {{party}}",
+    "hint": "Click an empty area to place a slot, or drag to draw one. Drag a slot to move it, drag the bottom-right corner to resize.",
+    "slot": {
+      "aria": "Signature slot {{stepNo}}, {{party}}. Use the arrow keys to move, Shift plus arrow to resize, Delete to remove.",
+      "signDate": "Signed on: dd/mm/yyyy"
+    },
+    "pager": {
+      "previous": "Previous page",
+      "next": "Next page",
+      "current": "Page <b>{{page}}</b> / {{total}}"
+    },
+    "zoom": {
+      "label": "Zoom",
+      "out": "Zoom out",
+      "in": "Zoom in"
+    },
+    "list": {
+      "title": "Signature slots",
+      "reset": "Reset to sample positions",
+      "cardTitle": "{{party}} · {{person}}",
+      "status": {
+        "UNASSIGNED": "Not placed",
+        "NEEDS_FIX": "Needs fixing",
+        "ASSIGNED": "Placed"
+      },
+      "position": "Page {{page}} · {{top}} mm from top, {{left}} mm from left · size {{width}}×{{height}} mm",
+      "empty": "No slot yet. Select this step, then click or drag on the PDF page.",
+      "look": {
+        "label": "Appearance",
+        "NAME_AND_TIME": "Name and signing time",
+        "WITH_TITLE": "Add job title"
+      },
+      "remove": "Remove slot"
+    },
+    "tip": {
+      "label": "Tip:",
+      "body": "select a slot, then use the arrow keys to move, Shift + arrow to resize, Delete to remove. If you change the file, slots must be placed again."
+    },
+    "checks": {
+      "title": "Checks before continuing",
+      "ONE_SLOT_PER_STEP": "Every signing step has exactly one slot.",
+      "NO_OVERLAP": "The two slots do not overlap.",
+      "NO_CONTENT_COVERED": "A slot does not cover clause text or a signer name."
+    },
+    "actions": {
+      "back": "Back",
+      "continue": "Save positions and continue",
+      "blocked": "Complete the checks to continue"
+    }
+  },
+  "digitize": {
+    "breadcrumb": {
+      "parent": "Signature positions",
+      "current": "Digitisation and clause review"
+    },
+    "source": {
+      "title": "Source text in the PDF",
+      "badge": "Read from the PDF content",
+      "location": "Article {{article}}, page {{page}}",
+      "hint": "Yellow areas are where the system read out figures. Click a row on the right to see where it came from.",
+      "vnd": "{{value}} VND",
+      "clause": {
+        "TOTAL_VALUE": "The total contract value is <mark>{{value}}</mark>, paid in {{milestones}} milestones.",
+        "DELIVERY": "Delivery milestone: <mark>{{value}}</mark>, delivery due <mark>{{date}}</mark>. Documents: {{documents}}.",
+        "LATE_PENALTY": "Late delivery is penalised at <mark>{{rate}}% of the milestone value per day</mark>, with a total penalty of no more than <mark>{{cap}}% of the milestone value</mark>.",
+        "APPROVALS": "Every payment needs <mark>{{approvers}} approvers</mark> from the Buyer."
+      }
+    },
+    "numberWords": {
+      "1": "one",
+      "2": "two",
+      "3": "three",
+      "4": "four",
+      "5": "five"
+    },
+    "result": {
+      "title_one": "Digitised terms: {{count}} payment milestone",
+      "title_other": "Digitised terms: {{count}} payment milestones",
+      "pendingBadge_one": "{{count}} item to confirm",
+      "pendingBadge_other": "{{count}} items to confirm",
+      "reviewedBadge": "Fully confirmed",
+      "columns": {
+        "milestone": "Milestone",
+        "value": "Value (million VND)",
+        "dueDate": "Due",
+        "documents": "Required documents",
+        "penalty": "Late penalty",
+        "source": "Source"
+      },
+      "milestoneCode": "MS{{no}}",
+      "milestoneKind": {
+        "SIGNING": "Contract signing",
+        "DELIVERY": "Delivery",
+        "ACCEPTANCE": "Acceptance",
+        "WARRANTY": "Warranty"
+      },
+      "dueUnknown": "Unknown",
+      "documents": {
+        "SIGNED_CONTRACT": "signed contract",
+        "DELIVERY_NOTE": "delivery note",
+        "INVOICE": "invoice",
+        "ACCEPTANCE_REPORT": "acceptance report",
+        "WARRANTY_END_REPORT": "warranty end report"
+      },
+      "penalty": {
+        "NONE": "None",
+        "RATE": "{{rate}}%/day, up to {{cap}}%"
+      },
+      "sourceStatus": {
+        "MATCH": "Matches",
+        "NEEDS_CONFIRMATION": "Needs confirmation",
+        "CONFIRMED": "Confirmed"
+      }
+    },
+    "ambiguity": {
+      "title": "MS{{no}}: the contract only says \"after {{months}} months of warranty\"",
+      "body": "There is no specific date, so the system cannot work it out. Enter a due date, or leave it empty and this milestone stays on HOLD until a date is known.",
+      "label": "MS{{no}} due date",
+      "invalid": "That date is not valid."
+    },
+    "approvers": {
+      "title": "Approvers named in the contract",
+      "role": {
+        "CONTRACT_OWNER": "Contract owner",
+        "FINANCE_APPROVER": "Finance approver",
+        "SECOND_APPROVER": "Second approver"
+      },
+      "note": "Approvals needed before a decision is made: {{number}}."
+    },
+    "total": {
+      "title": "Sum of milestones",
+      "value": "{{value}} million VND",
+      "match": "Matches the contract value in Article {{article}}.",
+      "mismatch": "Does not match the contract value ({{value}} million VND)."
+    },
+    "footer": {
+      "lockNote": "Once confirmed, the digitised terms are locked. To change them, create a new version and sign again.",
+      "locked": "The digitised terms are confirmed and locked.",
+      "back": "Back",
+      "confirm": "Confirm digitised terms and continue to signing",
+      "continue": "Continue to signing"
+    }
+  },
+  "flow": {
+    "breadcrumb": {
+      "parent": "Contracts",
+      "current": "{{code}} · Signing sequence"
+    },
+    "status": {
+      "WAITING": "Awaiting signature",
+      "SIGNED": "Fully signed"
+    },
+    "meta_one": "{{code}} · {{supplier}} · {{value}} million VND · {{count}} page",
+    "meta_other": "{{code}} · {{supplier}} · {{value}} million VND · {{count}} pages",
+    "sequence": {
+      "title": "Signing sequence",
+      "stepTitle": "{{party}} · {{person}}",
+      "badge": {
+        "MINE": "Your turn",
+        "CURRENT": "Awaiting signature",
+        "WAITING": "Waiting for step {{stepNo}}",
+        "SIGNED": "Signed"
+      },
+      "description": {
+        "intermediate": "{{role}}, {{organization}}. Signs with a digital signature backed by a valid certificate.",
+        "final": "{{organization}}. This is the last step and needs a digital signature; a signature image is not allowed."
+      },
+      "note": {
+        "lastMethod": "Method used last time: {{method}}",
+        "notifyNext": "After you sign, the system notifies this person.",
+        "queued": "The system notifies this person when it is their turn.",
+        "awaiting": "The system is waiting for this person to sign.",
+        "signed": "Signed on {{dateTime}} with {{method}}."
+      }
+    },
+    "rules": {
+      "title": "Sequence rules",
+      "turn": "Only the person whose turn it is can sign. Everyone else can only view.",
+      "lock": "The file cannot be edited after the first signature.",
+      "cancel": "A signing request can only be cancelled while nobody has signed."
+    },
+    "actions": {
+      "cancelRequest": "Cancel signing request",
+      "later": "Later",
+      "signNow": "Sign now",
+      "viewVerification": "View the signature check"
+    }
+  },
+  "signMethod": {
+    "breadcrumb": {
+      "current": "Sign step {{stepNo}}"
+    },
+    "title": "Sign contract {{code}}",
+    "stepChip": "Step {{stepNo}} / {{total}} · {{party}}",
+    "methods": {
+      "title": "Choose a signing method",
+      "label": "Signing method",
+      "lastUsed": "Used last time"
+    },
+    "file": {
+      "title": "File to be signed",
+      "meta_one": "{{fileName}} · {{count}} page",
+      "meta_other": "{{fileName}} · {{count}} pages"
+    },
+    "actions": {
+      "back": "Back",
+      "sendRemote": "Send signing request to phone",
+      "sendUsb": "Start signing with token",
+      "cancel": "Cancel request"
+    },
+    "progress": {
+      "title": "Signing progress",
+      "badge": {
+        "IDLE": "Not sent",
+        "PENDING": "Waiting for confirmation",
+        "COMPLETED": "Signed",
+        "CANCELLED": "Cancelled",
+        "REJECTED": "Rejected",
+        "EXPIRED": "Expired"
+      },
+      "idle": {
+        "title": "Signing request not sent",
+        "description": "Choose a method, then send the signing request."
+      },
+      "ended": {
+        "CANCELLED": {
+          "title": "The signing request was cancelled",
+          "description": "You cancelled the request. Send it again when you are ready."
+        },
+        "REJECTED": {
+          "title": "The request was rejected on the phone",
+          "description": "Send the request again if you want to keep signing."
+        },
+        "EXPIRED": {
+          "title": "The request has expired",
+          "description": "Send the request again to get a new confirmation code."
+        }
+      },
+      "sent": {
+        "title": "Signing request sent",
+        "REMOTE": "The request has reached the app on your phone.",
+        "USB": "The request has reached the signing software on this computer."
+      },
+      "wait": {
+        "REMOTE": {
+          "title": "Waiting for you to confirm on your phone",
+          "description": "Sent to the {{app}} app at {{time}}. {{remaining}} left before the request expires. Check that the confirmation code on your phone matches <code>{{code}}</code>."
+        },
+        "USB": {
+          "title": "Waiting for you to enter the PIN on the token",
+          "description": "Sent to the signing software at {{time}}. {{remaining}} left before the request expires."
+        }
+      },
+      "done": {
+        "title": "Done",
+        "description": "Your signature is recorded in the contract and the {{nextParty}} is notified that it is their turn.",
+        "descriptionFinal": "Your signature is recorded in the contract, which now has every signature and is in force."
+      },
+      "confirmed": {
+        "title": "Confirmed"
+      }
+    },
+    "lock": {
+      "title": "The file is locked while you wait",
+      "body": "Nobody can upload a new file or change the signature positions. Click \"Cancel request\" to unlock it. If something goes wrong, see <b>signing exceptions</b>."
+    },
+    "phone": {
+      "caption": "Screen on the signer's phone<br/>(the certificate provider's app, outside this system)",
+      "title": "Digital signing request",
+      "document": "Document",
+      "documentName": "Contract {{code}}",
+      "signer": "Signer",
+      "codeLabel": "Confirmation code, must match the computer screen",
+      "reject": "Reject",
+      "confirm": "Confirm",
+      "idle": "No signing request has been sent to this phone."
+    }
+  },
+  "verify": {
+    "breadcrumb": {
+      "parent": "Contracts",
+      "current": "{{code}} · Signature check"
+    },
+    "banner": {
+      "EFFECTIVE": {
+        "title": "The contract has every signature and is in force from {{dateTime}}",
+        "body_one": "Both parties have signed. The system has opened {{count}} payment milestone to start tracking.",
+        "body_other": "Both parties have signed. The system has opened {{count}} payment milestones to start tracking."
+      },
+      "INCOMPLETE": {
+        "title": "The contract does not have every signature yet",
+        "body": "Only {{signed}} of {{total}} valid signatures are in the file."
+      },
+      "action": "View the contract milestones"
+    },
+    "signatures": {
+      "title": "Signatures in the file",
+      "signer": "{{person}} · {{party}}",
+      "status": {
+        "VALID": "Valid",
+        "INVALID": "Invalid"
+      },
+      "signedAt": "Signing time",
+      "method": "Method",
+      "certificate": "Certificate",
+      "certificateValid": "Valid until {{expiry}}",
+      "certificateExpired": "Expired since {{expiry}}",
+      "content": "Content after signing",
+      "contentIntact": "Not changed",
+      "contentChanged": "Has been changed"
+    },
+    "check": {
+      "title": "Check any file",
+      "description": "Third parties, auditors or partners drop a PDF here to see whether the signatures still hold, without signing in to the contract.",
+      "dropzone": "Drop a PDF here or choose a file",
+      "aria": "Choose a PDF file to check",
+      "checking": "Checking…",
+      "result": {
+        "VALID_one": "Found {{count}} signature in the file; the content has not changed since signing.",
+        "VALID_other": "Found {{count}} signatures in the file; the content has not changed since signing.",
+        "NO_SIGNATURE": "This file has no digital signature.",
+        "NOT_PDF": "This is not a PDF file.",
+        "UNVERIFIED": "Signature structure detected; cryptographic signature and certificate have not been verified."
+      }
+    },
+    "invalid": {
+      "title": "When the result reports invalid",
+      "reasons": {
+        "CONTENT_EDITED": "The file content was edited after signing, even by one character.",
+        "WRONG_SIGNER": "The signer is not the person assigned to that step.",
+        "CERT_REVOKED": "The certificate was revoked, or expired before the signing time."
+      },
+      "exceptions": "See the screen for each exception"
+    }
+  }
+}

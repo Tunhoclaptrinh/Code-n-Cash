@@ -1,2 +1,12 @@
+node_modules/
+dist/
 __pycache__/
 *.pyc
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.data/
+artifacts/
+playwright-report/
+test-results/

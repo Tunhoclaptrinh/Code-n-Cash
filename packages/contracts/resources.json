@@ -1,0 +1,92 @@
+[
+  {
+    "name": "organizations",
+    "fields": [
+      { "key": "name", "type": "string", "required": true },
+      { "key": "code", "type": "string", "required": true },
+      {
+        "key": "kind",
+        "type": "select",
+        "required": true,
+        "options": ["BUYER", "SUPPLIER"]
+      },
+      { "key": "email", "type": "email" }
+    ]
+  },
+  {
+    "name": "users",
+    "fields": [
+      { "key": "displayName", "type": "string", "required": true },
+      { "key": "email", "type": "email", "required": true },
+      {
+        "key": "role",
+        "type": "select",
+        "required": true,
+        "options": [
+          "CONTRACT_OWNER",
+          "LEGAL_REVIEWER",
+          "FINANCE_APPROVER",
+          "ADMIN_AUDITOR",
+          "SUPPLIER"
+        ]
+      },
+      { "key": "organizationId", "type": "string", "required": true },
+      { "key": "active", "type": "boolean" }
+    ]
+  },
+  {
+    "name": "contract-drafts",
+    "fields": [
+      { "key": "code", "type": "string", "required": true },
+      { "key": "title", "type": "string", "required": true },
+      { "key": "supplierId", "type": "string", "required": true },
+      {
+        "key": "contractType",
+        "type": "select",
+        "required": true,
+        "options": [
+          "GOODS_SUPPLY",
+          "SERVICES",
+          "SOFTWARE_IMPLEMENTATION",
+          "MAINTENANCE"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "milestone-templates",
+    "fields": [
+      { "key": "name", "type": "string", "required": true },
+      { "key": "milestoneType", "type": "string", "required": true },
+      { "key": "requiredEvents", "type": "string", "required": true },
+      { "key": "approvalQuorum", "type": "number", "required": true }
+    ]
+  },
+  {
+    "name": "settings",
+    "fields": [
+      { "key": "name", "type": "string", "required": true },
+      { "key": "value", "type": "string", "required": true }
+    ]
+  },
+  {
+    "name": "documents",
+    "readOnly": true,
+    "fields": [
+      { "key": "name", "type": "string", "required": true },
+      { "key": "contractId", "type": "string", "required": true },
+      { "key": "sha256", "type": "string" },
+      { "key": "size", "type": "number" }
+    ]
+  },
+  {
+    "name": "audit",
+    "readOnly": true,
+    "fields": [
+      { "key": "action", "type": "string" },
+      { "key": "resource", "type": "string" },
+      { "key": "actorId", "type": "string" },
+      { "key": "recordId", "type": "string" }
+    ]
+  }
+]

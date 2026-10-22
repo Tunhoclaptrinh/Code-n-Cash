@@ -1,0 +1,74 @@
+:root {
+  /* Surfaces and text */
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafd;
+  --color-text: #1b2437;
+  --color-text-secondary: #3a445c;
+  --color-text-muted: #4a5570;
+  --color-text-faint: #7a859f;
+
+  /* Borders */
+  --color-border: #e3e8f2;
+  --color-border-input: #d5dcee;
+  --color-border-strong: #b8c3db;
+
+  /* Brand */
+  --color-primary: #3d68e4;
+  --color-primary-dark: #2f52b8;
+  --color-primary-deep: #1e3a8a;
+  --color-primary-soft: #eaf0ff;
+  --color-primary-soft-border: #c9d6fa;
+  --color-avatar-bg: #e4ebff;
+
+  /* Status */
+  --color-success: #0f6a3c;
+  --color-success-strong: #14804a;
+  --color-success-soft: #e4f6ec;
+  --color-danger: #a8231f;
+  --color-danger-strong: #b02a25;
+  --color-danger-soft: #fdebea;
+  --color-warning: #7a4b00;
+  --color-warning-soft: #fff1d6;
+  --color-neutral-badge: #2e3a7c;
+  --color-neutral-badge-soft: #eef0fb;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 99px;
+
+  --font-sans:
+    "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #101318;
+  --color-surface: #171b22;
+  --color-surface-muted: #202631;
+  --color-text: #f1f4fb;
+  --color-text-secondary: #d0d7e6;
+  --color-text-muted: #a8b3c8;
+  --color-text-faint: #8290a9;
+  --color-border: #343e50;
+  --color-border-input: #46536b;
+  --color-border-strong: #5d6c86;
+  --color-primary: #85a7ff;
+  --color-primary-dark: #a6bdff;
+  --color-primary-deep: #bbcdff;
+  --color-primary-soft: #1e315a;
+  --color-success: #80d9a8;
+  --color-success-soft: #173b2b;
+  --color-danger: #ffaaa6;
+  --color-danger-soft: #4c2225;
+  --color-warning: #ffe09a;
+  --color-warning-soft: #43381f;
+  --color-neutral-badge: #c8d2ff;
+  --color-neutral-badge-soft: #2c3352;
+  --bg-surface-card: #171b22;
+  --bg-surface-alt: #202631;
+  --border-subtle: #343e50;
+  --text-primary: #f1f4fb;
+  --text-secondary: #c0cada;
+}

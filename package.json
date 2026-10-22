@@ -1,0 +1,39 @@
+{
+  "name": "codecash",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:web": "pnpm --filter @codecash/web dev",
+    "dev:api": "pnpm --filter @codecash/api dev",
+    "dev:engine": "python3 apps/engine/server.py",
+    "build": "pnpm --filter @codecash/api build && pnpm --filter @codecash/web build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm test:python && pnpm test:unit",
+    "test:python": "python3 -m unittest discover -s tests -v",
+    "test:unit": "pnpm --filter @codecash/api build && node tests/foundation/resource.test.mjs && node tests/foundation/workflow.test.mjs",
+    "test:e2e": "node scripts/smoke.mjs",
+    "check:data": "python3 tools/kiem_chung_nghiep_vu.py --check",
+    "lint": "eslint apps/web/src apps/api/src packages/ui/src packages/api-client/src packages/contracts/src",
+    "format": "prettier --write apps packages scripts",
+    "infra:up": "docker compose -f infra/compose.yaml up -d",
+    "infra:down": "docker compose -f infra/compose.yaml down",
+    "test:workflow": "pnpm --filter @codecash/api build && node tests/foundation/workflow.test.mjs",
+    "test:browser": "node scripts/browser-smoke.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "typescript": "^5.9.3",
+    "tsx": "^4.20.0",
+    "@types/node": "^26.6.5",
+    "prettier": "^3.9.10",
+    "eslint": "^9.39.0",
+    "typescript-eslint": "^8.46.0",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "globals": "^16.5.0"
+  }
+}

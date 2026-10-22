@@ -1,0 +1,402 @@
+{
+  "wizard": {
+    "label": "Các bước tạo hợp đồng",
+    "steps": {
+      "UPLOAD": "Tải lên",
+      "SIGN_POSITIONS": "Vị trí ký",
+      "REVIEW": "Rà soát điều khoản",
+      "SIGN": "Ký số",
+      "EFFECTIVE": "Có hiệu lực"
+    }
+  },
+  "party": {
+    "BUYER": "Bên mua",
+    "SUPPLIER": "Nhà cung cấp"
+  },
+  "document": {
+    "article": {
+      "ARTICLE_13": "ĐIỀU 13. NGHĨA VỤ CỦA CÁC BÊN",
+      "ARTICLE_14": "ĐIỀU 14. HIỆU LỰC HỢP ĐỒNG"
+    },
+    "representative": {
+      "BUYER": "ĐẠI DIỆN BÊN A",
+      "SUPPLIER": "ĐẠI DIỆN BÊN B"
+    }
+  },
+  "slot": {
+    "label": "Ô ký {{stepNo}}",
+    "state": {
+      "MINE": "Đến lượt bạn",
+      "CURRENT": "Đang đến lượt",
+      "WAITING": "Chưa đến lượt",
+      "SIGNED": "Đã ký"
+    }
+  },
+  "method": {
+    "USB_TOKEN": {
+      "name": "USB token",
+      "description": "Cắm token vào máy này, nhập mã PIN. Cần cài phần mềm ký trên máy.",
+      "description_certified": "Cắm token vào máy này, nhập mã PIN. Chứng thư: {{holder}}, hết hạn {{expiry}}."
+    },
+    "VNPT_SMARTCA": {
+      "name": "VNPT SmartCA",
+      "app": "SmartCA",
+      "description": "Xác nhận trên ứng dụng điện thoại.",
+      "description_certified": "Xác nhận trên ứng dụng điện thoại. Chứng thư: {{holder}}, hết hạn {{expiry}}."
+    },
+    "VIETTEL_MYSIGN": {
+      "name": "Viettel MySign",
+      "app": "MySign",
+      "description": "Xác nhận trên ứng dụng điện thoại.",
+      "description_certified": "Xác nhận trên ứng dụng điện thoại. Chứng thư: {{holder}}, hết hạn {{expiry}}."
+    },
+    "IMAGE": {
+      "name": "Ảnh chữ ký",
+      "description": "Vẽ ảnh chữ ký lên trang. Không có chữ ký số nên không kiểm tra được.",
+      "blocked": "Không dùng cho hợp đồng này: chỉ vẽ hình lên trang, không có chữ ký số nên không có giá trị pháp lý và không kiểm tra được."
+    }
+  },
+  "errors": {
+    "NOT_YOUR_TURN": "Chưa đến lượt bạn ký.",
+    "IMAGE_NOT_ALLOWED": "Hợp đồng này bắt buộc chữ ký số, không dùng được ảnh chữ ký.",
+    "SIGNING_ALREADY_STARTED": "Đã có người ký nên không thể thay đổi.",
+    "UNKNOWN": "Không thực hiện được. Vui lòng thử lại."
+  },
+  "positions": {
+    "breadcrumb": {
+      "parent": "Tải hợp đồng lên",
+      "current": "Cấu hình vị trí ký"
+    },
+    "title": "Gán vị trí ký cho từng bước",
+    "fileMeta": "{{fileName}} · Trang {{page}} / {{total}}",
+    "stepChip": "Bước {{stepNo}} · {{party}}",
+    "stepChipActive": "Đang gán: Bước {{stepNo}} · {{party}}",
+    "hint": "Bấm vào chỗ trống để đặt ô, hoặc kéo để vẽ ô. Kéo ô để dời, kéo góc dưới phải để đổi cỡ.",
+    "slot": {
+      "aria": "Ô ký {{stepNo}}, {{party}}. Dùng phím mũi tên để dời, Shift cộng mũi tên để đổi cỡ, Delete để xóa.",
+      "signDate": "Ký ngày: dd/mm/yyyy"
+    },
+    "pager": {
+      "previous": "Trang trước",
+      "next": "Trang sau",
+      "current": "Trang <b>{{page}}</b> / {{total}}"
+    },
+    "zoom": {
+      "label": "Thu phóng",
+      "out": "Thu nhỏ",
+      "in": "Phóng to"
+    },
+    "list": {
+      "title": "Danh sách ô ký",
+      "reset": "Đặt lại vị trí mẫu",
+      "cardTitle": "{{party}} · {{person}}",
+      "status": {
+        "UNASSIGNED": "Chưa gán",
+        "NEEDS_FIX": "Cần chỉnh",
+        "ASSIGNED": "Đã gán"
+      },
+      "position": "Trang {{page}} · cách mép trên {{top}} mm, mép trái {{left}} mm · cỡ {{width}}×{{height}} mm",
+      "empty": "Chưa có ô ký. Chọn bước này rồi bấm hoặc kéo trên trang PDF.",
+      "look": {
+        "label": "Giao diện",
+        "NAME_AND_TIME": "Tên và thời điểm ký",
+        "WITH_TITLE": "Thêm chức danh"
+      },
+      "remove": "Xóa ô"
+    },
+    "tip": {
+      "label": "Mẹo:",
+      "body": "chọn ô, rồi dùng phím mũi tên để dời, Shift + mũi tên để đổi cỡ, Delete để xóa. Đổi tệp thì phải gán lại."
+    },
+    "checks": {
+      "title": "Kiểm tra trước khi tiếp tục",
+      "ONE_SLOT_PER_STEP": "Mỗi bước ký có đúng một ô.",
+      "NO_OVERLAP": "Hai ô ký không chồng lên nhau.",
+      "NO_CONTENT_COVERED": "Ô ký không đè lên nội dung điều khoản hoặc tên người ký."
+    },
+    "actions": {
+      "back": "Quay lại",
+      "continue": "Lưu vị trí ký và tiếp tục",
+      "blocked": "Hoàn tất các mục kiểm tra để tiếp tục"
+    }
+  },
+  "digitize": {
+    "breadcrumb": {
+      "parent": "Vị trí ký",
+      "current": "Số hóa và rà soát điều khoản"
+    },
+    "source": {
+      "title": "Văn bản gốc trong PDF",
+      "badge": "Đọc từ nội dung PDF",
+      "location": "Điều {{article}}, trang {{page}}",
+      "hint": "Vùng tô vàng là chỗ hệ thống đã đọc ra số liệu. Bấm vào một dòng bên phải để xem nó lấy từ đâu.",
+      "vnd": "{{value}} đồng",
+      "clause": {
+        "TOTAL_VALUE": "Tổng giá trị hợp đồng là <mark>{{value}}</mark>, thanh toán theo {{milestones}} mốc.",
+        "DELIVERY": "Mốc giao hàng: <mark>{{value}}</mark>, hạn giao <mark>{{date}}</mark>. Chứng từ gồm {{documents}}.",
+        "LATE_PENALTY": "Giao chậm bị phạt <mark>{{rate}}% giá trị mốc mỗi ngày</mark>, tổng mức phạt không quá <mark>{{cap}}% giá trị mốc</mark>.",
+        "APPROVALS": "Mỗi lần thanh toán cần <mark>{{approvers}} người phê duyệt</mark> từ phía Bên mua."
+      }
+    },
+    "numberWords": {
+      "1": "một",
+      "2": "hai",
+      "3": "ba",
+      "4": "bốn",
+      "5": "năm"
+    },
+    "result": {
+      "title_other": "Bản số hóa: {{count}} mốc thanh toán",
+      "pendingBadge_other": "{{count}} điểm cần xác nhận",
+      "reviewedBadge": "Đã xác nhận đầy đủ",
+      "columns": {
+        "milestone": "Mốc",
+        "value": "Giá trị (triệu VND)",
+        "dueDate": "Hạn",
+        "documents": "Chứng từ bắt buộc",
+        "penalty": "Phạt chậm",
+        "source": "Nguồn"
+      },
+      "milestoneCode": "MS{{no}}",
+      "milestoneKind": {
+        "SIGNING": "Ký hợp đồng",
+        "DELIVERY": "Giao hàng",
+        "ACCEPTANCE": "Nghiệm thu",
+        "WARRANTY": "Bảo hành"
+      },
+      "dueUnknown": "Chưa rõ",
+      "documents": {
+        "SIGNED_CONTRACT": "hợp đồng đã ký",
+        "DELIVERY_NOTE": "biên bản giao hàng",
+        "INVOICE": "hóa đơn",
+        "ACCEPTANCE_REPORT": "biên bản nghiệm thu",
+        "WARRANTY_END_REPORT": "biên bản hết bảo hành"
+      },
+      "penalty": {
+        "NONE": "Không",
+        "RATE": "{{rate}}%/ngày, tối đa {{cap}}%"
+      },
+      "sourceStatus": {
+        "MATCH": "Khớp",
+        "NEEDS_CONFIRMATION": "Cần xác nhận",
+        "CONFIRMED": "Đã xác nhận"
+      }
+    },
+    "ambiguity": {
+      "title": "MS{{no}}: hợp đồng chỉ ghi \"sau {{months}} tháng bảo hành\"",
+      "body": "Chưa có ngày cụ thể nên hệ thống không tự suy ra được. Nhập ngày hạn, hoặc để trống và mốc này sẽ luôn ở trạng thái HOLD cho tới khi có ngày.",
+      "label": "Hạn MS{{no}}",
+      "invalid": "Ngày không hợp lệ."
+    },
+    "approvers": {
+      "title": "Người phê duyệt theo hợp đồng",
+      "role": {
+        "CONTRACT_OWNER": "Chủ hợp đồng",
+        "FINANCE_APPROVER": "Phê duyệt tài chính",
+        "SECOND_APPROVER": "Phê duyệt thứ hai"
+      },
+      "note": "Cần {{number}} người đồng ý mới ra quyết định."
+    },
+    "total": {
+      "title": "Tổng các mốc",
+      "value": "{{value}} triệu VND",
+      "match": "Khớp với giá trị hợp đồng ở Điều {{article}}.",
+      "mismatch": "Không khớp với giá trị hợp đồng ({{value}} triệu VND)."
+    },
+    "footer": {
+      "lockNote": "Khi xác nhận, bản số hóa bị khóa. Muốn sửa phải tạo phiên bản mới và ký lại.",
+      "locked": "Bản số hóa đã được xác nhận và khóa.",
+      "back": "Quay lại",
+      "confirm": "Xác nhận bản số hóa và chuyển sang ký",
+      "continue": "Chuyển sang ký"
+    }
+  },
+  "flow": {
+    "breadcrumb": {
+      "parent": "Hợp đồng",
+      "current": "{{code}} · Trình tự ký"
+    },
+    "status": {
+      "WAITING": "Chờ ký",
+      "SIGNED": "Đã ký đủ"
+    },
+    "meta_other": "{{code}} · {{supplier}} · {{value}} triệu VND · {{count}} trang",
+    "sequence": {
+      "title": "Trình tự ký",
+      "stepTitle": "{{party}} · {{person}}",
+      "badge": {
+        "MINE": "Đến lượt bạn",
+        "CURRENT": "Đang chờ ký",
+        "WAITING": "Chờ bước {{stepNo}}",
+        "SIGNED": "Đã ký"
+      },
+      "description": {
+        "intermediate": "{{role}}, {{organization}}. Ký bằng chữ ký số có chứng thư còn hiệu lực.",
+        "final": "{{organization}}. Là bước cuối, bắt buộc chữ ký số, không dùng ảnh chữ ký."
+      },
+      "note": {
+        "lastMethod": "Phương thức đã dùng lần trước: {{method}}",
+        "notifyNext": "Sau khi bạn ký, hệ thống gửi thông báo cho người này.",
+        "queued": "Hệ thống sẽ thông báo cho người này khi đến lượt.",
+        "awaiting": "Hệ thống đang chờ người này ký.",
+        "signed": "Đã ký lúc {{dateTime}} bằng {{method}}."
+      }
+    },
+    "rules": {
+      "title": "Quy tắc của trình tự",
+      "turn": "Chỉ người đang đến lượt mới ký được. Người khác mở ra chỉ xem.",
+      "lock": "Tệp không được sửa sau khi có chữ ký đầu tiên.",
+      "cancel": "Hủy yêu cầu ký chỉ làm được khi chưa có ai ký."
+    },
+    "actions": {
+      "cancelRequest": "Hủy yêu cầu ký",
+      "later": "Để sau",
+      "signNow": "Ký ngay",
+      "viewVerification": "Xem kết quả kiểm tra chữ ký"
+    }
+  },
+  "signMethod": {
+    "breadcrumb": {
+      "current": "Ký bước {{stepNo}}"
+    },
+    "title": "Ký hợp đồng {{code}}",
+    "stepChip": "Bước {{stepNo}} / {{total}} · {{party}}",
+    "methods": {
+      "title": "Chọn phương thức ký",
+      "label": "Phương thức ký",
+      "lastUsed": "Dùng lần trước"
+    },
+    "file": {
+      "title": "Tệp sẽ được ký",
+      "meta_other": "{{fileName}} · {{count}} trang"
+    },
+    "actions": {
+      "back": "Quay lại",
+      "sendRemote": "Gửi yêu cầu ký đến điện thoại",
+      "sendUsb": "Bắt đầu ký bằng token",
+      "cancel": "Hủy yêu cầu"
+    },
+    "progress": {
+      "title": "Tiến trình ký",
+      "badge": {
+        "IDLE": "Chưa gửi",
+        "PENDING": "Đang chờ xác nhận",
+        "COMPLETED": "Đã ký",
+        "CANCELLED": "Đã hủy",
+        "REJECTED": "Bị từ chối",
+        "EXPIRED": "Đã hết hạn"
+      },
+      "idle": {
+        "title": "Chưa gửi yêu cầu ký",
+        "description": "Chọn phương thức rồi bấm gửi yêu cầu ký."
+      },
+      "ended": {
+        "CANCELLED": {
+          "title": "Yêu cầu ký đã bị hủy",
+          "description": "Bạn đã hủy yêu cầu. Gửi lại khi sẵn sàng."
+        },
+        "REJECTED": {
+          "title": "Yêu cầu bị từ chối trên điện thoại",
+          "description": "Gửi lại yêu cầu nếu bạn muốn ký tiếp."
+        },
+        "EXPIRED": {
+          "title": "Yêu cầu đã hết hạn",
+          "description": "Gửi lại yêu cầu để nhận mã xác nhận mới."
+        }
+      },
+      "sent": {
+        "title": "Đã gửi yêu cầu ký",
+        "REMOTE": "Yêu cầu đã đến ứng dụng trên điện thoại của bạn.",
+        "USB": "Yêu cầu đã đến phần mềm ký trên máy này."
+      },
+      "wait": {
+        "REMOTE": {
+          "title": "Chờ bạn xác nhận trên điện thoại",
+          "description": "Đã gửi đến ứng dụng {{app}} lúc {{time}}. Còn {{remaining}} trước khi yêu cầu hết hạn. Kiểm tra mã xác nhận trên điện thoại trùng với mã <code>{{code}}</code>."
+        },
+        "USB": {
+          "title": "Chờ bạn nhập mã PIN trên token",
+          "description": "Đã gửi đến phần mềm ký lúc {{time}}. Còn {{remaining}} trước khi yêu cầu hết hạn."
+        }
+      },
+      "done": {
+        "title": "Hoàn tất",
+        "description": "Chữ ký của bạn được ghi vào hợp đồng, {{nextParty}} nhận thông báo đến lượt ký.",
+        "descriptionFinal": "Chữ ký của bạn được ghi vào hợp đồng, hợp đồng đủ chữ ký và có hiệu lực."
+      },
+      "confirmed": {
+        "title": "Đã xác nhận"
+      }
+    },
+    "lock": {
+      "title": "Trong lúc chờ, tệp bị khóa",
+      "body": "Không ai tải tệp mới hay sửa vị trí ký được. Bấm \"Hủy yêu cầu\" để mở khóa. Nếu gặp sự cố, xem <b>các ngoại lệ khi ký</b>."
+    },
+    "phone": {
+      "caption": "Màn hình trên điện thoại của người ký<br/>(ứng dụng của nhà cấp chứng thư, ngoài hệ thống)",
+      "title": "Yêu cầu ký số",
+      "document": "Văn bản",
+      "documentName": "Hợp đồng {{code}}",
+      "signer": "Người ký",
+      "codeLabel": "Mã xác nhận, phải trùng với màn hình máy tính",
+      "reject": "Từ chối",
+      "confirm": "Xác nhận",
+      "idle": "Chưa có yêu cầu ký nào gửi đến điện thoại."
+    }
+  },
+  "verify": {
+    "breadcrumb": {
+      "parent": "Hợp đồng",
+      "current": "{{code}} · Kiểm tra chữ ký"
+    },
+    "banner": {
+      "EFFECTIVE": {
+        "title": "Hợp đồng đã đủ chữ ký, có hiệu lực từ {{dateTime}}",
+        "body_other": "Cả hai bên đã ký. Hệ thống đã mở {{count}} mốc thanh toán để bắt đầu theo dõi."
+      },
+      "INCOMPLETE": {
+        "title": "Hợp đồng chưa đủ chữ ký",
+        "body": "Mới có {{signed}} trên {{total}} chữ ký hợp lệ trong tệp."
+      },
+      "action": "Xem các mốc của hợp đồng"
+    },
+    "signatures": {
+      "title": "Chữ ký trong tệp",
+      "signer": "{{person}} · {{party}}",
+      "status": {
+        "VALID": "Hợp lệ",
+        "INVALID": "Không hợp lệ"
+      },
+      "signedAt": "Thời điểm ký",
+      "method": "Phương thức",
+      "certificate": "Chứng thư",
+      "certificateValid": "Còn hiệu lực đến {{expiry}}",
+      "certificateExpired": "Đã hết hạn từ {{expiry}}",
+      "content": "Nội dung sau khi ký",
+      "contentIntact": "Không bị thay đổi",
+      "contentChanged": "Đã bị thay đổi"
+    },
+    "check": {
+      "title": "Kiểm tra một tệp bất kỳ",
+      "description": "Bên thứ ba, kiểm toán hoặc đối tác kéo tệp PDF vào đây để biết các chữ ký còn đúng hay không, không cần đăng nhập vào hợp đồng.",
+      "dropzone": "Kéo thả tệp PDF vào đây hoặc chọn tệp",
+      "aria": "Chọn tệp PDF để kiểm tra",
+      "checking": "Đang kiểm tra…",
+      "result": {
+        "VALID_other": "Tìm thấy {{count}} chữ ký trong tệp, nội dung chưa bị thay đổi sau khi ký.",
+        "NO_SIGNATURE": "Tệp này không có chữ ký số.",
+        "NOT_PDF": "Đây không phải tệp PDF.",
+        "UNVERIFIED": "Phát hiện cấu trúc chữ ký; chưa xác minh mật mã hoặc chứng thư."
+      }
+    },
+    "invalid": {
+      "title": "Khi nào kết quả báo không hợp lệ",
+      "reasons": {
+        "CONTENT_EDITED": "Nội dung tệp bị sửa sau khi ký, kể cả một ký tự.",
+        "WRONG_SIGNER": "Người ký không phải người được chỉ định cho bước đó.",
+        "CERT_REVOKED": "Chứng thư đã bị thu hồi, hoặc hết hạn trước thời điểm ký."
+      },
+      "exceptions": "Xem màn hình từng ngoại lệ"
+    }
+  }
+}

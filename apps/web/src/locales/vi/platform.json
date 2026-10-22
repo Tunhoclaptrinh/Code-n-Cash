@@ -27,10 +27,10 @@
     "email": "Email",
     "displayName": "Họ tên",
     "role": "Vai trò",
-    "organizationId": "Mã tổ chức",
+    "organizationId": "Tổ chức",
     "active": "Hoạt động",
     "title": "Tiêu đề",
-    "supplierId": "Mã nhà cung cấp",
+    "supplierId": "Nhà cung cấp",
     "contractType": "Loại hợp đồng",
     "milestoneType": "Loại mốc",
     "requiredEvents": "Sự kiện bắt buộc",
@@ -42,7 +42,8 @@
     "action": "Hành động",
     "resource": "Tài nguyên",
     "actorId": "Người thực hiện",
-    "recordId": "Mã bản ghi"
+    "recordId": "Mã bản ghi",
+    "updatedAt": "Cập nhật"
   },
   "data": {
     "title": "Kết quả Data Pack",
@@ -58,6 +59,36 @@
       "payable_amount_vnd_mn": "Đủ điều kiện trả (triệu VND)",
       "penalty_amount_vnd_mn": "Tiền phạt (triệu VND)",
       "reason_code": "Mã lý do"
+    },
+    "evaluateForbidden": "Vai trò của bạn chỉ được xem kết quả, không chạy đánh giá.",
+    "subtitle": "Đánh giá {{milestones}} mốc của {{contracts}} hợp đồng trong Data Pack bằng engine Python theo đặc tả.",
+    "summary": {
+      "payable": "Tổng đủ điều kiện trả (triệu VND)",
+      "penalty": "Tổng tiền phạt (triệu VND)",
+      "sample": "Khớp nhãn mẫu công khai",
+      "sampleHint": "Chỉ đo trên {{total}} mốc có nhãn công khai; không suy ra độ chính xác cho toàn bộ {{milestones}} mốc.",
+      "run": "Lần chạy",
+      "invariants": "Bất biến",
+      "invariantsOk": "Không vi phạm",
+      "invariantsBroken_one": "{{count}} vi phạm",
+      "invariantsBroken_other": "{{count}} vi phạm"
+    },
+    "decisionHint": {
+      "RELEASE": "Đủ điều kiện thanh toán",
+      "HOLD": "Tạm giữ, chờ bổ sung",
+      "REJECT": "Không thanh toán",
+      "PENALTY": "Thanh toán có khấu trừ phạt"
+    },
+    "allDecisions": "Tất cả quyết định",
+    "traceFields": {
+      "decision": "Quyết định",
+      "reason": "Mã lý do",
+      "rule": "Quy tắc áp dụng",
+      "payable": "Đủ điều kiện trả",
+      "penalty": "Tiền phạt",
+      "evidence": "Sự kiện bằng chứng",
+      "missing": "Điều kiện còn thiếu",
+      "raw": "Dữ liệu trace đầy đủ"
     }
   },
   "resetPassword": "Đặt lại mật khẩu",
@@ -65,5 +96,28 @@
   "upload": "Tải tài liệu PDF lên",
   "download": "Tải xuống",
   "chooseFile": "Chọn tệp PDF (tối đa 20 MB)",
-  "draftId": "ID hợp đồng nháp"
+  "draftId": "ID hợp đồng nháp",
+  "descriptions": {
+    "organizations": "Bên mua và nhà cung cấp tham gia hợp đồng.",
+    "users": "Tài khoản đăng nhập, vai trò và tổ chức của từng người.",
+    "contract-drafts": "Hợp đồng đang soạn trước khi đưa vào luồng ký.",
+    "milestone-templates": "Mẫu mốc thanh toán và điều kiện phê duyệt.",
+    "settings": "Tham số vận hành dùng chung.",
+    "documents": "Tệp PDF đã tải lên, kèm mã băm SHA-256.",
+    "audit": "Nhật ký chỉ ghi thêm của mọi thao tác quản trị."
+  },
+  "options": {
+    "kind": {
+      "BUYER": "Bên mua",
+      "SUPPLIER": "Nhà cung cấp"
+    },
+    "contractType": {
+      "GOODS_SUPPLY": "Cung cấp hàng hóa",
+      "SERVICES": "Dịch vụ",
+      "SOFTWARE_IMPLEMENTATION": "Triển khai phần mềm",
+      "MAINTENANCE": "Bảo trì"
+    }
+  },
+  "passwordTooShort": "Mật khẩu cần ít nhất 12 ký tự.",
+  "copy": "Sao chép"
 }

@@ -1,5 +1,15 @@
+import type { ComponentType } from "react";
+import {
+  AuditOutlined,
+  CloudUploadOutlined,
+  DatabaseOutlined,
+  FileProtectOutlined,
+  FileTextOutlined,
+  InboxOutlined,
+  SafetyCertificateOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 import type { Role } from "../api/types";
-import type { IconName } from "../ui/Icon";
 
 export type NavKey =
   | "tasks"
@@ -8,94 +18,121 @@ export type NavKey =
   | "activity"
   | "verify"
   | "submissions"
-  | "approvals";
+  | "approvals"
+  | "data"
+  | "platform";
 
 export interface NavItem {
   key: NavKey;
   to: string;
-  icon: IconName;
-  /** Translation key inside the `common` namespace. */
+  icon: ComponentType;
+  /** Translation key; `ns` defaults to `common`. */
   labelKey: string;
-  /** Where the pending-task badge is shown. */
+  ns?: "common" | "platform";
+  /** Shows the pending-task count; the bell in the header links here. */
   badge?: boolean;
 }
 
-const owner: NavItem[] = [
-  {
-    key: "tasks",
-    to: "/tasks",
-    icon: "inbox",
-    labelKey: "nav.tasks",
-    badge: true,
-  },
-  {
-    key: "contracts",
-    to: "/contracts",
-    icon: "file",
-    labelKey: "nav.contracts",
-  },
-  {
-    key: "upload",
-    to: "/contracts/new",
-    icon: "upload",
-    labelKey: "nav.upload",
-  },
-  {
-    key: "activity",
-    to: "/activity-log",
-    icon: "clock",
-    labelKey: "nav.activity",
-  },
-  { key: "verify", to: "/verify", icon: "shield", labelKey: "nav.verify" },
-];
+export interface NavGroup {
+  /** Translation key inside `common`. */
+  labelKey: string;
+  items: NavItem[];
+}
 
-export const navByRole: Record<Role, NavItem[]> = {
-  CONTRACT_OWNER: owner,
-  LEGAL_REVIEWER: owner,
-  ADMIN_AUDITOR: owner,
+const tasks: NavItem = {
+  key: "tasks",
+  to: "/tasks",
+  icon: InboxOutlined,
+  labelKey: "nav.tasks",
+  badge: true,
+};
+const contracts: NavItem = {
+  key: "contracts",
+  to: "/contracts",
+  icon: FileTextOutlined,
+  labelKey: "nav.contracts",
+};
+const upload: NavItem = {
+  key: "upload",
+  to: "/contracts/new",
+  icon: CloudUploadOutlined,
+  labelKey: "nav.upload",
+};
+const activity: NavItem = {
+  key: "activity",
+  to: "/activity-log",
+  icon: AuditOutlined,
+  labelKey: "nav.activity",
+};
+const verify: NavItem = {
+  key: "verify",
+  to: "/verify",
+  icon: SafetyCertificateOutlined,
+  labelKey: "nav.verify",
+};
+const data: NavItem = {
+  key: "data",
+  to: "/data",
+  icon: DatabaseOutlined,
+  labelKey: "data.title",
+  ns: "platform",
+};
+const platform: NavItem = {
+  key: "platform",
+  to: "/platform/organizations",
+  icon: SettingOutlined,
+  labelKey: "title",
+  ns: "platform",
+};
+
+const ownerWorkflow = [tasks, contracts, upload, activity, verify];
+
+export const navByRole: Record<Role, NavGroup[]> = {
+  CONTRACT_OWNER: [
+    { labelKey: "nav.groups.workflow", items: ownerWorkflow },
+    { labelKey: "nav.groups.data", items: [data] },
+  ],
+  LEGAL_REVIEWER: [
+    { labelKey: "nav.groups.workflow", items: ownerWorkflow },
+    { labelKey: "nav.groups.data", items: [data] },
+  ],
+  ADMIN_AUDITOR: [
+    { labelKey: "nav.groups.workflow", items: ownerWorkflow },
+    { labelKey: "nav.groups.data", items: [data, platform] },
+  ],
   SUPPLIER: [
     {
-      key: "tasks",
-      to: "/tasks",
-      icon: "inbox",
-      labelKey: "nav.tasks",
-      badge: true,
+      labelKey: "nav.groups.workflow",
+      items: [
+        tasks,
+        { ...contracts, labelKey: "nav.myContracts" },
+        {
+          key: "submissions",
+          to: "/submissions",
+          icon: FileProtectOutlined,
+          labelKey: "nav.submissions",
+        },
+        verify,
+      ],
     },
-    {
-      key: "contracts",
-      to: "/contracts",
-      icon: "file",
-      labelKey: "nav.myContracts",
-    },
-    {
-      key: "submissions",
-      to: "/submissions",
-      icon: "upload",
-      labelKey: "nav.submissions",
-    },
-    { key: "verify", to: "/verify", icon: "shield", labelKey: "nav.verify" },
   ],
   FINANCE_APPROVER: [
     {
-      key: "approvals",
-      to: "/approvals",
-      icon: "inbox",
-      labelKey: "nav.approvals",
-      badge: true,
+      labelKey: "nav.groups.workflow",
+      items: [
+        {
+          key: "approvals",
+          to: "/approvals",
+          icon: InboxOutlined,
+          labelKey: "nav.approvals",
+          badge: true,
+        },
+        contracts,
+        activity,
+        verify,
+      ],
     },
-    {
-      key: "contracts",
-      to: "/contracts",
-      icon: "file",
-      labelKey: "nav.contracts",
-    },
-    {
-      key: "activity",
-      to: "/activity-log",
-      icon: "clock",
-      labelKey: "nav.activity",
-    },
-    { key: "verify", to: "/verify", icon: "shield", labelKey: "nav.verify" },
+    { labelKey: "nav.groups.data", items: [data] },
   ],
 };
 

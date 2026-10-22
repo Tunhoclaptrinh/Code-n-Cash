@@ -1,10 +1,9 @@
-import { Table, Tag } from "antd";
-import { UiButton, UiInput } from "@/shared/ui/controls";
+import { Button, Input, Table, Tag } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import {
   formatDate,
   formatMillionVnd,
@@ -12,7 +11,7 @@ import {
 } from "@/shared/lib/format";
 import { confirmDigitization, getDigitization } from "../api/digitization.api";
 import { signingKeys } from "../api/signingConfig.api";
-import { PageStatus } from "../components/PageStatus";
+import { PageState } from "@/shared/ui/PageState";
 import { WizardStepper } from "../components/WizardStepper";
 import {
   capitalize,
@@ -43,7 +42,7 @@ export default function DigitizeReviewPage() {
   });
 
   return (
-    <AppShell
+    <AppPage
       active="upload"
       breadcrumb={[
         {
@@ -56,9 +55,9 @@ export default function DigitizeReviewPage() {
       {digitization.data ? (
         <Review contractId={contractId} data={digitization.data} />
       ) : (
-        <PageStatus isError={digitization.isError} />
+        <PageState kind={digitization.isError ? "error" : "loading"} />
       )}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -251,7 +250,7 @@ function Review({
                 >
                   {t("digitize.ambiguity.label", { no: pending.no })}
                 </label>
-                <UiInput
+                <Input
                   id="milestone-deadline"
                   className={styles.deadlineInput}
                   value={deadlineText}
@@ -318,16 +317,16 @@ function Review({
             >
               {t("digitize.footer.back")}
             </Link>
-            <UiButton
-              type="button"
-              className={shared.btnPrimary}
+            <Button
+              type="primary"
+              size="large"
               disabled={confirm.isPending}
               onClick={onConfirm}
             >
               {data.locked
                 ? t("digitize.footer.continue")
                 : t("digitize.footer.confirm")}
-            </UiButton>
+            </Button>
           </div>
         </section>
       </div>

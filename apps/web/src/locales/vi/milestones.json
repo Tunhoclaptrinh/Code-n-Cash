@@ -314,7 +314,8 @@
     },
     "actions": {
       "download": "Tải bản đã ký",
-      "verify": "Kiểm tra chữ ký"
+      "verify": "Kiểm tra chữ ký",
+      "downloadUnavailable": "Bản đã ký sẽ tải được khi tích hợp nhà cung cấp chữ ký số (CA)."
     },
     "tabs": {
       "label": "Nội dung hợp đồng",

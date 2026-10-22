@@ -51,9 +51,8 @@ export class EngineController {
     "ADMIN_AUDITOR",
   )
   @Get("decisions")
-  async decisions(@Req() req: SessionRequest) {
-    const result = await this.run();
-    return result;
+  async decisions() {
+    return this.run();
   }
   @Roles("CONTRACT_OWNER", "FINANCE_APPROVER", "ADMIN_AUDITOR")
   @Post("evaluate")

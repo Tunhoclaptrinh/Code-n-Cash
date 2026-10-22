@@ -15,7 +15,7 @@ import {
 import { DataTable, PageContainer, StatisticCard } from "@codecash/ui";
 import type { ContractStatus } from "@/shared/api/types";
 import { useCurrentUser } from "@/shared/auth/session";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatMillionVnd } from "@/shared/lib/format";
 import { getContractList } from "../api/contractList.api";
 import type { ContractRow } from "../types";
@@ -40,7 +40,7 @@ export default function ContractListPage() {
         organizationId: user.organizationId,
       }),
   });
-  const contracts = list.data?.contracts ?? [];
+  const contracts = useMemo(() => list.data?.contracts ?? [], [list.data]);
   const visible = useMemo(
     () =>
       contracts.filter(
@@ -161,9 +161,8 @@ export default function ContractListPage() {
     },
   ];
   return (
-    <AppShell
+    <AppPage
       active="contracts"
-      showNotifications
       breadcrumb={[
         { label: t("breadcrumb.home") },
         { label: t("breadcrumb.contracts") },
@@ -220,7 +219,7 @@ export default function ContractListPage() {
           onSearch={setSearch}
         />
       </PageContainer>
-    </AppShell>
+    </AppPage>
   );
 }
 function WaitingFor({ contract }: { contract: ContractRow }) {

@@ -1,12 +1,12 @@
-import { UiButton, UiInput } from "@/shared/ui/controls";
 import { useState, type ChangeEvent, type DragEvent } from "react";
+import { Button } from "antd";
 import type { TFunction } from "i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { useCurrentUser } from "@/shared/auth/session";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatMillionVnd, formatNumber } from "@/shared/lib/format";
 import {
   attachEvidenceFile,
@@ -15,10 +15,9 @@ import {
   signAndSubmitEvidence,
   type EvidenceWorkspace,
 } from "../api/evidence.api";
-import { Badge } from "../components/Badge";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { PageMessage } from "../components/PageMessage";
+import { ToneTag } from "@/shared/ui/ToneTag";
+import { Panel } from "@/shared/ui/Panel";
+import { PageState } from "@/shared/ui/PageState";
 import { PdfTile } from "../components/PdfTile";
 import {
   evidenceName,
@@ -103,9 +102,9 @@ export default function EvidenceSubmissionPage() {
   ];
 
   return (
-    <AppShell active="submissions" breadcrumb={breadcrumb}>
-      {workspace.isPending ? <PageMessage kind="loading" /> : null}
-      {workspace.isError ? <PageMessage kind="error" /> : null}
+    <AppPage active="submissions" breadcrumb={breadcrumb}>
+      {workspace.isPending ? <PageState kind="loading" /> : null}
+      {workspace.isError ? <PageState kind="error" /> : null}
       {data ? (
         <Workspace
           data={data}
@@ -139,7 +138,7 @@ export default function EvidenceSubmissionPage() {
           }
         />
       ) : null}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -165,6 +164,7 @@ function Workspace({
   onSubmit,
 }: WorkspaceProps) {
   const { t } = useTranslation("milestones");
+  const navigate = useNavigate();
   const [dragging, setDragging] = useState(false);
   const { milestone, files, penaltyEstimate } = data;
   const milestoneName = t(`milestoneKind.${milestone.kind}`);
@@ -211,14 +211,14 @@ function Workspace({
       <div className={styles.heading}>
         <h1>{t("submit.title", { no: milestone.no, name: milestoneName })}</h1>
         {data.overdueDays > 0 ? (
-          <Badge tone="danger" size="md">
+          <ToneTag tone="danger">
             {t("submit.overdue", { count: data.overdueDays })}
-          </Badge>
+          </ToneTag>
         ) : null}
       </div>
 
       <div className={styles.grid}>
-        <Card className={`${styles.panel} ${styles.panelLeft}`}>
+        <Panel className={`${styles.panel} ${styles.panelLeft}`}>
           <h2>{t("submit.required.title")}</h2>
 
           {requiredFiles.map(({ type, file }) =>
@@ -245,7 +245,7 @@ function Workspace({
                 <span className={styles.textButton}>
                   {t("submit.file.choose")}
                 </span>
-                <UiInput
+                <input
                   type="file"
                   className={styles.fileInput}
                   aria-label={t("submit.file.chooseAria", {
@@ -265,11 +265,11 @@ function Workspace({
                 <div className={styles.fileMeta}>{fileMeta(t, file)}</div>
               </div>
               {file.signature ? (
-                <Badge tone="success">{t("submit.file.signed")}</Badge>
+                <ToneTag tone="success">{t("submit.file.signed")}</ToneTag>
               ) : (
                 <>
-                  <Badge tone="primary">{t("submit.file.unsigned")}</Badge>
-                  <UiButton
+                  <ToneTag tone="primary">{t("submit.file.unsigned")}</ToneTag>
+                  <button
                     type="button"
                     className={`${styles.textButton} ${styles.textButtonDanger}`}
                     aria-label={t("submit.file.removeAria", {
@@ -278,7 +278,7 @@ function Workspace({
                     onClick={() => onRemove(file.id)}
                   >
                     {t("submit.file.remove")}
-                  </UiButton>
+                  </button>
                 </>
               )}
             </div>
@@ -294,7 +294,7 @@ function Workspace({
             onDrop={onDrop}
           >
             {t("submit.dropzone")}
-            <UiInput
+            <input
               type="file"
               multiple
               className={styles.fileInput}
@@ -316,21 +316,20 @@ function Workspace({
 
           <div className={styles.actions}>
             <span className={styles.lockNote}>{t("submit.lockNote")}</span>
-            <Button to="/tasks" variant="outline" size="md">
+            <Button onClick={() => navigate("/tasks")}>
               {t("submit.later")}
             </Button>
             <Button
-              variant="primary"
-              size="md"
+              type="primary"
               disabled={busy || submitted || !data.canSubmit}
               onClick={onSubmit}
             >
               {submitLabel}
             </Button>
           </div>
-        </Card>
+        </Panel>
 
-        <Card className={`${styles.panel} ${styles.panelRight}`}>
+        <Panel className={`${styles.panel} ${styles.panelRight}`}>
           <h2>{t("submit.aftermath.title")}</h2>
           <ol className={styles.steps}>
             {AFTERMATH_STEPS.map((step) => (
@@ -362,7 +361,7 @@ function Workspace({
                 })
               : t("submit.penalty.onTime")}
           </div>
-        </Card>
+        </Panel>
       </div>
     </>
   );
@@ -399,11 +398,11 @@ function RequiredFileCard({ file, active, contractId }: RequiredFileCardProps) {
           <div className={styles.fileMeta}>{fileMeta(t, file)}</div>
         </div>
         <div className={styles.fileSide}>
-          <Badge tone={file.signature.valid ? "success" : "danger"}>
+          <ToneTag tone={file.signature.valid ? "success" : "danger"}>
             {file.signature.valid
               ? t("submit.file.signed")
               : t("common.signatureInvalid")}
-          </Badge>
+          </ToneTag>
           <div className={styles.fileSignature}>
             {t("submit.file.signer", {
               name: file.signature.signerName,
@@ -425,7 +424,7 @@ function RequiredFileCard({ file, active, contractId }: RequiredFileCardProps) {
           <b>{name}</b>
           <div className={styles.fileMeta}>{fileMeta(t, file)}</div>
         </div>
-        <Badge tone="primary">{t("submit.file.unsigned")}</Badge>
+        <ToneTag tone="primary">{t("submit.file.unsigned")}</ToneTag>
       </div>
       {file.signingMethod && file.signaturePosition ? (
         <div className={styles.options}>

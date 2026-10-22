@@ -1,44 +1,89 @@
 import { useState } from "react";
-import { Form, Input, Button, Card, Alert, Typography, Space } from "antd";
-import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Alert, Button, Form, Input, Segmented, Typography } from "antd";
+import {
+  AuditOutlined,
+  FileProtectOutlined,
+  LockOutlined,
+  MailOutlined,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router-dom";
 import { homeByRole } from "../layout/navConfig";
+import { BrandMark } from "../ui/BrandMark";
 import { useSession } from "./session";
+import styles from "./LoginPage.module.css";
+
+const HIGHLIGHTS = [
+  { key: "sign", icon: <SafetyCertificateOutlined /> },
+  { key: "evidence", icon: <FileProtectOutlined /> },
+  { key: "audit", icon: <AuditOutlined /> },
+] as const;
+
 export default function LoginPage() {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const { user, signIn } = useSession();
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   if (user) return <Navigate to={homeByRole[user.role]} replace />;
+  const language = i18n.language?.startsWith("vi") ? "vi" : "en";
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        background: "linear-gradient(140deg,#eef3ff,#f8fafc)",
-      }}
-    >
-      <Card
-        style={{
-          width: 420,
-          maxWidth: "calc(100vw - 32px)",
-          boxShadow: "0 16px 64px #315bea18",
-        }}
-      >
-        <Space orientation="vertical" size={20} style={{ width: "100%" }}>
-          <Typography.Title level={3}>{t("brand.name")}</Typography.Title>
-          <Typography.Text type="secondary">
+    <div className={styles.page}>
+      <aside className={styles.brandPanel}>
+        <div className={styles.brand}>
+          <BrandMark size={40} inverse />
+          <span>
+            <b>{t("brand.name")}</b>
+            <small>{t("brand.product")}</small>
+          </span>
+        </div>
+        <p className={styles.tagline}>{t("login.subtitle")}</p>
+        <ul className={styles.highlights}>
+          {HIGHLIGHTS.map((item) => (
+            <li key={item.key}>
+              <span className={styles.highlightIcon}>{item.icon}</span>
+              {t(`login.highlights.${item.key}`)}
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <main className={styles.formPanel}>
+        <div className={styles.language}>
+          <Segmented
+            size="small"
+            value={language}
+            onChange={(code) => void i18n.changeLanguage(String(code))}
+            options={[
+              { value: "vi", label: "VI" },
+              { value: "en", label: "EN" },
+            ]}
+            aria-label={t("topbar.language")}
+          />
+        </div>
+        <div className={styles.form}>
+          <div className={styles.compactBrand}>
+            <BrandMark size={36} />
+            <b>{t("brand.name")}</b>
+          </div>
+          <Typography.Title level={2} className={styles.title}>
+            {t("login.title")}
+          </Typography.Title>
+          <Typography.Paragraph type="secondary">
             {t("brand.product")}
-          </Typography.Text>
-          <Typography.Title level={4}>{t("login.title")}</Typography.Title>
+          </Typography.Paragraph>
           {error ? (
-            <Alert type="error" title={t("login.errors.INVALID_CREDENTIALS")} />
+            <Alert
+              type="error"
+              showIcon
+              title={t("login.errors.INVALID_CREDENTIALS")}
+              style={{ marginBottom: 16 }}
+            />
           ) : null}
           <Form
             layout="vertical"
+            requiredMark={false}
+            size="large"
             onFinish={async ({ email, password }) => {
               setBusy(true);
               setError(false);
@@ -73,8 +118,13 @@ export default function LoginPage() {
               {t("login.submit")}
             </Button>
           </Form>
-        </Space>
-      </Card>
+          {import.meta.env.DEV ? (
+            <Typography.Paragraph type="secondary" className={styles.hint}>
+              {t("login.demoHint")}
+            </Typography.Paragraph>
+          ) : null}
+        </div>
+      </main>
     </div>
   );
 }

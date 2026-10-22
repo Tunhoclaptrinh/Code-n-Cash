@@ -1,22 +1,24 @@
 import { Tag } from "antd";
 import type { ReactNode } from "react";
-export type BadgeTone =
+
+export type Tone =
   "success" | "warning" | "danger" | "primary" | "neutral" | "indigo";
-export type BadgeSize = "sm" | "md" | "lg" | "strong" | "headline";
-const colors = {
+
+const colors: Record<Tone, string> = {
   success: "success",
   warning: "warning",
   danger: "error",
-  primary: "blue",
+  primary: "processing",
   neutral: "default",
   indigo: "geekblue",
 };
-export function Badge({
+
+/** Ant Design tag coloured by semantic tone, so screens never pick raw colours. */
+export function ToneTag({
   tone,
   children,
 }: {
-  tone: BadgeTone;
-  size?: BadgeSize;
+  tone: Tone;
   children: ReactNode;
 }) {
   return <Tag color={colors[tone]}>{children}</Tag>;

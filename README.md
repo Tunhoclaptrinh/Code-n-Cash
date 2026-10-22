@@ -4,7 +4,7 @@ Monorepo cho Case 4, Bảng D: số hóa hợp đồng, ký theo trình tự, n�
 
 ## Khởi chạy
 
-Yêu cầu: Node.js 24, pnpm 12.14.0, Python 3.9+. Không cần cài thư viện Python cho engine hiện tại.
+Yêu cầu: Node.js 24 (xem `.nvmrc`), pnpm 12.14.0 (qua corepack), Python 3.9+. Không cần cài thư viện Python cho engine hiện tại.
 
 ```bash
 corepack enable
@@ -42,23 +42,22 @@ packages/
   contracts/            Kiểu trao đổi và định nghĩa resource dùng cho form/API
   api-client/           HTTP client, CRUD client, upload/download
   config/               TypeScript dùng chung
-infra/                   MongoDB replica set cho chế độ Mongo
-scripts/                 Smoke test HTTP
+infra/                   compose.yaml (Mongo local), compose.prod.yaml (stack production), nginx/
+Dockerfile               Image api (NestJS + engine Python) và web (nginx + SPA)
+scripts/                 Smoke test HTTP và trình duyệt
 BangD-Case4/              Đề và dữ liệu BTC, giữ nguyên
 ```
 
-Xem [tài liệu kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [hồ sơ nghiệp vụ](docs/README.md), [đặc tả v1.0](docs/04_DAC_TA_NGHIEP_VU.md).
+Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md). Nghiệp vụ: [hồ sơ](docs/README.md), [đặc tả v1.0](docs/04_DAC_TA_NGHIEP_VU.md).
 
 ## Kiểm tra
 
 ```bash
-pnpm typecheck
-pnpm lint
-pnpm build
-pnpm test
+pnpm check             # typecheck + lint (0 warning) + format:check + build + test
+pnpm format            # Prettier cho apps, packages, scripts
 pnpm check:data
 pnpm test:e2e          # Cần API đang chạy; tạo/xóa dữ liệu smoke riêng
-pnpm test:browser      # Cần web + API đang chạy và Google Chrome
+pnpm test:browser      # Cần web + API đang chạy và Google Chrome; ảnh lưu ở artifacts/browser
 ```
 
 `pnpm test` gồm bộ kiểm chứng nghiệp vụ Python, adapter đầu ra và kiểm thử nền API/workflow. CI chạy cùng các lệnh này và kiểm tra HTTP với thư mục dữ liệu tạm. TypeScript 5.9 dùng cho tooling/API để tương thích ESLint; ứng dụng web tiếp tục dùng TypeScript 7.
@@ -75,18 +74,26 @@ python3 apps/engine/cli.py --output artifacts/run-local
 
 Có thể chạy worker riêng bằng `pnpm dev:engine` và đặt `ENGINE_URL=http://127.0.0.1:8000` để API gọi worker thay vì CLI.
 
-## MongoDB và môi trường triển khai
+## MongoDB local
 
 ```bash
 pnpm infra:up
 # Trong .env:
 # STORAGE_DRIVER=mongo
 # MONGO_URI=mongodb://127.0.0.1:27017/codecash?replicaSet=rs0
-# JWT_SECRET=<secret riêng của môi trường>
 pnpm dev:api
 ```
 
-Mongo cần replica set để giao dịch cập nhật dữ liệu cùng audit. Chế độ file dành cho một tiến trình local; production bắt buộc Mongo và JWT_SECRET. File upload nằm trong `.data/uploads/`, cần volume lưu bền khi triển khai. Không sao chép `.env`, tài khoản dịch vụ hoặc khóa của UniFlow.
+Mongo cần replica set để giao dịch cập nhật dữ liệu cùng audit. Chế độ file dành cho một tiến trình local; production bắt buộc Mongo và `JWT_SECRET`. Không sao chép `.env`, tài khoản dịch vụ hoặc khóa của UniFlow.
+
+## Triển khai
+
+```bash
+cp .env.production.example .env.production   # điền JWT_SECRET, WEB_ORIGIN, SEED_PASSWORD
+docker compose -f infra/compose.prod.yaml --env-file .env.production up -d --build --wait
+```
+
+Stack gồm nginx (SPA + proxy `/api`), API (kèm engine Python) và MongoDB replica set; web nghe ở `127.0.0.1:8080` để đặt sau reverse proxy TLS. HTTPS, sao lưu, cập nhật/quay lui và xử lý sự cố: [docs/07](docs/07_HUONG_DAN_TRIEN_KHAI.md). CI build hai image và chạy smoke qua nginx ở mỗi lần push.
 
 ## Phạm vi cần hiểu đúng
 

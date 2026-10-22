@@ -58,11 +58,11 @@ Việc nhập Data Pack thành toàn bộ đối tượng workflow tương tác,
 1. CRUD đơn giản: khai báo resource/field, xác định scope và quyền; dùng ResourcePage/useResource; thêm test quyền, dữ liệu lỗi và phiên bản.
 2. Nghiệp vụ có trạng thái: tạo module/action riêng, không cho generic PATCH sửa decision hoặc chữ ký. Gắn audit và test chuyển trạng thái.
 3. API client mới: dùng client chung; query/mutation qua TanStack Query; queryKey chứa identity và tham số truy vấn.
-4. UI mới: dùng packages/ui và Ant Design, thêm đủ hai locale, không tự chép layout/bảng/form.
+4. UI mới: dùng packages/ui và Ant Design, thêm đủ hai locale, không tự chép layout/bảng/form. Quy ước chi tiết ở [08 — Phát triển giao diện](08_HUONG_DAN_PHAT_TRIEN_UI.md).
 5. Thay đổi luật: cập nhật đặc tả, engine và test cùng nhau; kiểm lại 20 mẫu và invariant toàn 405 mốc.
 
 ## 7. Kiểm tra và triển khai
 
 Theo README root: install → typecheck/lint → build → test → smoke HTTP. Bộ nghiệp vụ Python cũ được giữ; adapter CSV có test schema, tiền và trace; nền API có test scope/version/import/persistence; workflow có test giả actor và lưu bền.
 
-CI chưa deploy. Mongo, CA, email và object storage bên ngoài cần cấu hình/kiểm thử riêng khi triển khai. Không có tác vụ tự gửi email hoặc thanh toán thật trong base này.
+CI build image `api`/`web` và chạy stack `infra/compose.prod.yaml` với smoke qua nginx, nhưng không tự deploy. Cách dựng môi trường ở [07 — Triển khai](07_HUONG_DAN_TRIEN_KHAI.md). CA, email và object storage bên ngoài cần cấu hình/kiểm thử riêng. Không có tác vụ tự gửi email hoặc thanh toán thật trong base này.

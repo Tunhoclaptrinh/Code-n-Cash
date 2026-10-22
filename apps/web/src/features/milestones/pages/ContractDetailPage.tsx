@@ -1,20 +1,20 @@
 import { PageContainer } from "@codecash/ui";
-import { Space } from "antd";
+import { Button, Space, Tooltip } from "antd";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
-import { AppShell } from "@/shared/layout/AppShell";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatDate, formatMillionVnd } from "@/shared/lib/format";
 import { getContractOverview } from "../api/contracts.api";
-import { Badge } from "../components/Badge";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { PageMessage } from "../components/PageMessage";
+import { ToneTag } from "@/shared/ui/ToneTag";
+import { Panel } from "@/shared/ui/Panel";
+import { PageState } from "@/shared/ui/PageState";
 import { PdfTile } from "../components/PdfTile";
 import { StatusBadge } from "../components/StatusBadge";
-import { evidenceName, initialsOf } from "../lib/display";
+import { initialsOf } from "@/shared/lib/initials";
+import { evidenceName } from "../lib/display";
 import type {
   ContractOverview,
   MilestoneRow,
@@ -58,6 +58,7 @@ const cardClass: Record<Emphasis, string> = {
 export default function ContractDetailPage() {
   const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
+  const navigate = useNavigate();
   const contractId = useParams().contractId ?? "";
   const [tab, setTab] = useState<TabKey>("milestones");
 
@@ -68,7 +69,7 @@ export default function ContractDetailPage() {
   const data = overview.data;
 
   return (
-    <AppShell
+    <AppPage
       active="contracts"
       breadcrumb={[
         { label: tc("nav.contracts"), to: "/contracts" },
@@ -76,8 +77,8 @@ export default function ContractDetailPage() {
       ]}
       contentClassName={styles.page}
     >
-      {overview.isPending ? <PageMessage kind="loading" /> : null}
-      {overview.isError ? <PageMessage kind="error" /> : null}
+      {overview.isPending ? <PageState kind="loading" /> : null}
+      {overview.isError ? <PageState kind="error" /> : null}
       {data ? (
         <PageContainer
           title={data.title}
@@ -86,23 +87,16 @@ export default function ContractDetailPage() {
             supplier: data.supplierName,
           })}
           tags={
-            <Badge
-              tone={data.phase === "COMPLETED" ? "neutral" : "success"}
-              size="lg"
-            >
+            <ToneTag tone={data.phase === "COMPLETED" ? "neutral" : "success"}>
               {t(`detail.phase.${data.phase}`)}
-            </Badge>
+            </ToneTag>
           }
           extra={
             <Space wrap>
-              <Button variant="outline" size="header">
-                {t("detail.actions.download")}
-              </Button>
-              <Button
-                to={`/verify/${data.contractId}`}
-                variant="outline"
-                size="header"
-              >
+              <Tooltip title={t("detail.actions.downloadUnavailable")}>
+                <Button disabled>{t("detail.actions.download")}</Button>
+              </Tooltip>
+              <Button onClick={() => navigate(`/verify/${data.contractId}`)}>
                 {t("detail.actions.verify")}
               </Button>
             </Space>
@@ -125,16 +119,16 @@ export default function ContractDetailPage() {
               </ol>
               <div className={styles.sidebar}>
                 <PaymentOverview data={data} />
-                <Card className={`${styles.sideCard} ${styles.people}`}>
+                <Panel className={`${styles.sideCard} ${styles.people}`}>
                   <h2>{t("detail.participants.title")}</h2>
                   <ParticipantRows participants={data.participants} />
-                </Card>
+                </Panel>
               </div>
             </div>
           ) : null}
 
           {tab === "documents" ? (
-            <Card className={styles.tabPanel}>
+            <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>
                 <h2>{t("detail.documents.title")}</h2>
                 {data.documents.length === 0 ? (
@@ -155,39 +149,41 @@ export default function ContractDetailPage() {
                         })}
                       </div>
                     </div>
-                    <Badge tone={file.signature?.valid ? "success" : "primary"}>
+                    <ToneTag
+                      tone={file.signature?.valid ? "success" : "primary"}
+                    >
                       {file.signature?.valid
                         ? t("common.signatureValid")
                         : t("submit.file.unsigned")}
-                    </Badge>
+                    </ToneTag>
                   </div>
                 ))}
               </div>
-            </Card>
+            </Panel>
           ) : null}
 
           {tab === "participants" ? (
-            <Card className={styles.tabPanel}>
+            <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>
                 <h2>{t("detail.participants.title")}</h2>
                 <ParticipantRows participants={data.participants} />
               </div>
-            </Card>
+            </Panel>
           ) : null}
 
           {tab === "history" ? (
-            <Card className={styles.tabPanel}>
+            <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>
                 <p>{t("detail.history.body")}</p>
                 <Link to="/activity-log" className={styles.link}>
                   {t("detail.history.link")}
                 </Link>
               </div>
-            </Card>
+            </Panel>
           ) : null}
         </PageContainer>
       ) : null}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -224,36 +220,41 @@ function MilestoneItem({
               : row.no}
         </span>
       </div>
-      <Card
+      <Panel
         as="div"
         className={`${styles.milestoneCard} ${cardClass[emphasis]}`}
       >
-        <div className={styles.info}>
+        <div className={styles.cardHead}>
           <div className={styles.nameRow}>
             <b className={styles.name}>
               {t("detail.milestone.name", { no: row.no, name })}
             </b>
             <StatusBadge status={row.status} />
           </div>
-          <div className={styles.due}>{dueLine}</div>
-          {factsOf(t, tc, row).map((fact) => (
-            <div key={fact.label} className={styles.fact}>
-              <span className={styles.factLabel}>{fact.label} </span>
-              <b>{fact.value}</b>
-            </div>
-          ))}
+          <div className={styles.amountBlock}>
+            <b className={styles.amount}>
+              {formatMillionVnd(row.plannedMillion)}
+            </b>
+            <span className={styles.amountUnit}>
+              {t("detail.milestone.amountUnit")}
+            </span>
+          </div>
         </div>
-        <div>
-          <b className={styles.amount}>
-            {formatMillionVnd(row.plannedMillion)}
-          </b>
-          <span className={styles.amountUnit}>
-            {" "}
-            {t("detail.milestone.amountUnit")}
-          </span>
+        <div className={styles.cardBody}>
+          <div className={styles.info}>
+            <div className={styles.due}>{dueLine}</div>
+            {factsOf(t, tc, row).map((fact) => (
+              <div key={fact.label} className={styles.fact}>
+                <span className={styles.factLabel}>{fact.label} </span>
+                <b>{fact.value}</b>
+              </div>
+            ))}
+          </div>
+          <div className={styles.side}>
+            <MilestoneSide row={row} contractId={contractId} />
+          </div>
         </div>
-        <div className={styles.side}>{sideOf(t, tc, row, contractId)}</div>
-      </Card>
+      </Panel>
     </li>
   );
 }
@@ -317,12 +318,16 @@ function factsOf(
   }
 }
 
-function sideOf(
-  t: TFunction<"milestones">,
-  tc: TFunction<"common">,
-  row: MilestoneRow,
-  contractId: string,
-): ReactNode {
+function MilestoneSide({
+  row,
+  contractId,
+}: {
+  row: MilestoneRow;
+  contractId: string;
+}): ReactNode {
+  const { t } = useTranslation("milestones");
+  const { t: tc } = useTranslation("common");
+  const navigate = useNavigate();
   switch (row.status) {
     case "RELEASE":
       return row.transferredToAccounting ? (
@@ -339,9 +344,11 @@ function sideOf(
     case "REJECT":
       return (
         <Button
-          to={`/contracts/${contractId}/milestones/${row.no}/decision`}
-          variant="primary"
-          size="compact"
+          type="primary"
+          size="small"
+          onClick={() =>
+            navigate(`/contracts/${contractId}/milestones/${row.no}/decision`)
+          }
         >
           {t("detail.milestone.side.viewDecision")}
         </Button>
@@ -375,7 +382,7 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
   const percent = (part: number) =>
     `${Math.round((part / data.valueMillion) * 1000) / 10}%`;
   return (
-    <Card className={`${styles.sideCard} ${styles.payment}`}>
+    <Panel className={`${styles.sideCard} ${styles.payment}`}>
       <h2>{t("detail.payment.title")}</h2>
       <div className={styles.paymentRow}>
         <span className={styles.paymentLabel}>
@@ -434,7 +441,7 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
         />
       </div>
       <div className={styles.unit}>{t("detail.payment.unit")}</div>
-    </Card>
+    </Panel>
   );
 }
 

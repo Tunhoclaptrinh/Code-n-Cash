@@ -1,4 +1,4 @@
-import { UiButton } from "@/shared/ui/controls";
+import { Button } from "antd";
 import {
   useEffect,
   useRef,
@@ -9,14 +9,14 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import {
   getDefaultSignatureSlots,
   getSigningConfig,
   saveSignatureSlots,
   signingKeys,
 } from "../api/signingConfig.api";
-import { PageStatus } from "../components/PageStatus";
+import { PageState } from "@/shared/ui/PageState";
 import { WizardStepper } from "../components/WizardStepper";
 import { toneClass } from "../lib/tone";
 import { cx } from "../lib/helpers";
@@ -120,7 +120,7 @@ export default function SignaturePositionsPage() {
   });
 
   return (
-    <AppShell
+    <AppPage
       active="upload"
       breadcrumb={[
         { label: t("positions.breadcrumb.parent"), to: "/contracts/new" },
@@ -130,9 +130,9 @@ export default function SignaturePositionsPage() {
       {config.data ? (
         <Editor contractId={contractId} config={config.data} />
       ) : (
-        <PageStatus isError={config.isError} />
+        <PageState kind={config.isError ? "error" : "loading"} />
       )}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -405,7 +405,7 @@ function Editor({ contractId, config }: EditorProps) {
                 party: t(`party.${step.party}`),
               };
               return (
-                <UiButton
+                <button
                   key={step.stepNo}
                   type="button"
                   className={on ? styles.chipOn : styles.chip}
@@ -416,7 +416,7 @@ function Editor({ contractId, config }: EditorProps) {
                     on ? "positions.stepChipActive" : "positions.stepChip",
                     params,
                   )}
-                </UiButton>
+                </button>
               );
             })}
             <span className={styles.hint}>{t("positions.hint")}</span>
@@ -493,7 +493,7 @@ function Editor({ contractId, config }: EditorProps) {
                         height: box.h,
                       }}
                     >
-                      <UiButton
+                      <button
                         type="button"
                         className={styles.slotButton}
                         aria-label={t("positions.slot.aria", {
@@ -523,7 +523,7 @@ function Editor({ contractId, config }: EditorProps) {
                         <span className={styles.slotLine4}>
                           {t("positions.slot.signDate")}
                         </span>
-                      </UiButton>
+                      </button>
                       <span
                         className={styles.slotHandle}
                         aria-hidden="true"
@@ -538,7 +538,7 @@ function Editor({ contractId, config }: EditorProps) {
             </div>
           </div>
           <div className={styles.pager}>
-            <UiButton
+            <button
               type="button"
               className={styles.pagerButton}
               aria-label={t("positions.pager.previous")}
@@ -546,7 +546,7 @@ function Editor({ contractId, config }: EditorProps) {
               onClick={() => setPage(firstPage)}
             >
               ◀
-            </UiButton>
+            </button>
             <span>
               <Trans
                 t={t}
@@ -555,7 +555,7 @@ function Editor({ contractId, config }: EditorProps) {
                 components={{ b: <b className={styles.strong} /> }}
               />
             </span>
-            <UiButton
+            <button
               type="button"
               className={styles.pagerButton}
               aria-label={t("positions.pager.next")}
@@ -563,10 +563,10 @@ function Editor({ contractId, config }: EditorProps) {
               onClick={() => setPage(lastPage)}
             >
               ▶
-            </UiButton>
+            </button>
             <span className={styles.zoom}>
               {t("positions.zoom.label")}
-              <UiButton
+              <button
                 type="button"
                 className={styles.pagerButton}
                 aria-label={t("positions.zoom.out")}
@@ -575,9 +575,9 @@ function Editor({ contractId, config }: EditorProps) {
                 }
               >
                 −
-              </UiButton>
+              </button>
               <b className={styles.zoomValue}>{zoom}%</b>
-              <UiButton
+              <button
                 type="button"
                 className={styles.pagerButton}
                 aria-label={t("positions.zoom.in")}
@@ -586,7 +586,7 @@ function Editor({ contractId, config }: EditorProps) {
                 }
               >
                 +
-              </UiButton>
+              </button>
             </span>
           </div>
         </section>
@@ -595,13 +595,13 @@ function Editor({ contractId, config }: EditorProps) {
           <section className={cx(shared.card, styles.listCard)}>
             <div className={styles.listHeader}>
               <h2>{t("positions.list.title")}</h2>
-              <UiButton
+              <button
                 type="button"
                 className={styles.resetButton}
                 onClick={() => reset.mutate()}
               >
                 {t("positions.list.reset")}
-              </UiButton>
+              </button>
             </div>
             {steps.map((step) => {
               const box = boxes[step.stepNo];
@@ -658,7 +658,7 @@ function Editor({ contractId, config }: EditorProps) {
                     </span>
                     {(["NAME_AND_TIME", "WITH_TITLE"] as const).map(
                       (option) => (
-                        <UiButton
+                        <button
                           key={option}
                           type="button"
                           className={cx(
@@ -674,10 +674,10 @@ function Editor({ contractId, config }: EditorProps) {
                           }
                         >
                           {t(`positions.list.look.${option}`)}
-                        </UiButton>
+                        </button>
                       ),
                     )}
-                    <UiButton
+                    <button
                       type="button"
                       className={cx(
                         styles.removeButton,
@@ -686,7 +686,7 @@ function Editor({ contractId, config }: EditorProps) {
                       onClick={() => put(step.stepNo, null)}
                     >
                       {t("positions.list.remove")}
-                    </UiButton>
+                    </button>
                   </div>
                 </div>
               );
@@ -727,14 +727,14 @@ function Editor({ contractId, config }: EditorProps) {
               {t("positions.actions.back")}
             </Link>
             {canContinue ? (
-              <UiButton
-                type="button"
-                className={shared.btnPrimary}
+              <Button
+                type="primary"
+                size="large"
                 disabled={save.isPending}
                 onClick={() => save.mutate()}
               >
                 {t("positions.actions.continue")}
-              </UiButton>
+              </Button>
             ) : (
               <span className={styles.blocked} role="status">
                 {t("positions.actions.blocked")}

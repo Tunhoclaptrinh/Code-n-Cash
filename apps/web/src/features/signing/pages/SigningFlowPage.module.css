@@ -201,6 +201,7 @@
 
 .stepBody {
   flex: 1;
+  min-width: 0;
 }
 
 .stepHead {
@@ -273,4 +274,31 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .documentCard {
+    padding: 16px;
+  }
+  .page {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 400 / 520;
+    padding: 20px;
+  }
+  .titleRow,
+  .stepHead,
+  .footer {
+    flex-wrap: wrap;
+  }
+  .step {
+    padding: 14px;
+  }
 }

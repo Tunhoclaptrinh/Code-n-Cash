@@ -27,10 +27,10 @@
     "email": "Email",
     "displayName": "Full name",
     "role": "Role",
-    "organizationId": "Organization ID",
+    "organizationId": "Organization",
     "active": "Active",
     "title": "Title",
-    "supplierId": "Supplier ID",
+    "supplierId": "Supplier",
     "contractType": "Contract type",
     "milestoneType": "Milestone type",
     "requiredEvents": "Required events",
@@ -42,7 +42,8 @@
     "action": "Action",
     "resource": "Resource",
     "actorId": "Actor ID",
-    "recordId": "Record ID"
+    "recordId": "Record ID",
+    "updatedAt": "Updated"
   },
   "data": {
     "title": "Data Pack results",
@@ -58,6 +59,36 @@
       "payable_amount_vnd_mn": "Payable (million VND)",
       "penalty_amount_vnd_mn": "Penalty (million VND)",
       "reason_code": "Reason code"
+    },
+    "evaluateForbidden": "Your role can view results but not run an evaluation.",
+    "subtitle": "Evaluates {{milestones}} milestones across {{contracts}} contracts in the Data Pack with the specification-driven Python engine.",
+    "summary": {
+      "payable": "Total payable (million VND)",
+      "penalty": "Total penalty (million VND)",
+      "sample": "Public sample labels matched",
+      "sampleHint": "Measured on the {{total}} publicly labelled milestones only; it says nothing about accuracy on all {{milestones}} milestones.",
+      "run": "Run",
+      "invariants": "Invariants",
+      "invariantsOk": "No violations",
+      "invariantsBroken_one": "{{count}} violation",
+      "invariantsBroken_other": "{{count}} violations"
+    },
+    "decisionHint": {
+      "RELEASE": "Eligible for payment",
+      "HOLD": "On hold pending more evidence",
+      "REJECT": "Not payable",
+      "PENALTY": "Payable with a penalty deducted"
+    },
+    "allDecisions": "All decisions",
+    "traceFields": {
+      "decision": "Decision",
+      "reason": "Reason code",
+      "rule": "Rule applied",
+      "payable": "Payable",
+      "penalty": "Penalty",
+      "evidence": "Evidence events",
+      "missing": "Missing conditions",
+      "raw": "Full trace"
     }
   },
   "resetPassword": "Reset password",
@@ -65,5 +96,28 @@
   "upload": "Upload PDF document",
   "download": "Download",
   "chooseFile": "Choose a PDF file (up to 20 MB)",
-  "draftId": "Contract draft ID"
+  "draftId": "Contract draft ID",
+  "descriptions": {
+    "organizations": "Buyers and suppliers that take part in contracts.",
+    "users": "Sign-in accounts with each person's role and organization.",
+    "contract-drafts": "Contracts being prepared before they enter the signing flow.",
+    "milestone-templates": "Payment milestone templates and approval rules.",
+    "settings": "Shared operating parameters.",
+    "documents": "Uploaded PDF files with their SHA-256 hash.",
+    "audit": "Append-only log of every administrative action."
+  },
+  "options": {
+    "kind": {
+      "BUYER": "Buyer",
+      "SUPPLIER": "Supplier"
+    },
+    "contractType": {
+      "GOODS_SUPPLY": "Goods supply",
+      "SERVICES": "Services",
+      "SOFTWARE_IMPLEMENTATION": "Software implementation",
+      "MAINTENANCE": "Maintenance"
+    }
+  },
+  "passwordTooShort": "The password needs at least 12 characters.",
+  "copy": "Copy"
 }

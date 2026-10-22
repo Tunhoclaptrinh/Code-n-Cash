@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { ToneTag, type Tone } from "@/shared/ui/ToneTag";
 import type { DecisionCode, MilestoneStatus } from "../types";
-import { Badge, type BadgeSize, type BadgeTone } from "./Badge";
 
-const tones: Record<MilestoneStatus, BadgeTone> = {
+const tones: Record<MilestoneStatus, Tone> = {
   NOT_OPEN: "neutral",
   NOT_DUE: "neutral",
   AWAITING_EVIDENCE: "primary",
@@ -13,21 +13,12 @@ const tones: Record<MilestoneStatus, BadgeTone> = {
   REJECT: "danger",
 };
 
-export function toneOfDecision(code: DecisionCode): BadgeTone {
+export function toneOfDecision(code: DecisionCode): Tone {
   return tones[code];
 }
 
-interface StatusBadgeProps {
-  status: MilestoneStatus;
-  size?: BadgeSize;
-}
-
-/** Milestone status or decision code as a coloured pill; the label is translated at render time. */
-export function StatusBadge({ status, size = "sm" }: StatusBadgeProps) {
+/** Milestone status or decision code as a coloured tag; the label is translated at render time. */
+export function StatusBadge({ status }: { status: MilestoneStatus }) {
   const { t } = useTranslation("milestones");
-  return (
-    <Badge tone={tones[status]} size={size}>
-      {t(`status.${status}`)}
-    </Badge>
-  );
+  return <ToneTag tone={tones[status]}>{t(`status.${status}`)}</ToneTag>;
 }

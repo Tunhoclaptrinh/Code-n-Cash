@@ -1,4 +1,4 @@
-import { UiButton, UiInput, UiTextarea } from "@/shared/ui/controls";
+import { Button, Input, Radio } from "antd";
 import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
@@ -82,8 +82,7 @@ export function DecisionPanel({ dispute }: { dispute: Dispute }) {
             key={value}
             className={value === option ? styles.optionSelected : styles.option}
           >
-            <UiInput
-              type="radio"
+            <Radio
               name={`${ids}-option`}
               className={styles.radio}
               value={value}
@@ -106,7 +105,7 @@ export function DecisionPanel({ dispute }: { dispute: Dispute }) {
         <label htmlFor={noteId} className={styles.label}>
           {t("decision.note.label")} <span className={styles.required}>*</span>
         </label>
-        <UiTextarea
+        <Input.TextArea
           id={noteId}
           className={styles.note}
           rows={3}
@@ -157,14 +156,14 @@ export function DecisionPanel({ dispute }: { dispute: Dispute }) {
         >
           {t("decision.actions.later")}
         </Link>
-        <UiButton
-          type="button"
-          className={styles.confirm}
+        <Button
+          type="primary"
+          size="large"
           disabled={!canDecide || decide.isPending}
           onClick={onConfirm}
         >
           {t("decision.actions.confirm")}
-        </UiButton>
+        </Button>
       </div>
     </section>
   );

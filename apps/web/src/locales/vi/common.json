@@ -1,5 +1,8 @@
 {
-  "brand": { "name": "Smart Contract", "product": "Workflow" },
+  "brand": {
+    "name": "CodeCash",
+    "product": "Smart Contract Workflow"
+  },
   "nav": {
     "label": "Điều hướng chính",
     "tasks": "Việc cần làm",
@@ -9,22 +12,52 @@
     "activity": "Nhật ký hoạt động",
     "verify": "Kiểm tra chữ ký",
     "submissions": "Chứng từ đã nộp",
-    "approvals": "Chờ tôi phê duyệt"
+    "approvals": "Chờ tôi phê duyệt",
+    "groups": {
+      "workflow": "Nghiệp vụ",
+      "data": "Dữ liệu & quản trị"
+    }
   },
   "topbar": {
     "role": "Vai trò",
     "notifications": "Thông báo",
     "account": "Menu tài khoản",
     "language": "Ngôn ngữ",
-    "signOut": "Đăng xuất"
+    "signOut": "Đăng xuất",
+    "openMenu": "Mở điều hướng",
+    "collapse": "Thu gọn thanh bên",
+    "expand": "Mở rộng thanh bên",
+    "pendingTasks_one": "{{count}} việc đang chờ bạn",
+    "pendingTasks_other": "{{count}} việc đang chờ bạn",
+    "noPendingTasks": "Không có việc đang chờ",
+    "themeLight": "Chuyển sang giao diện sáng",
+    "themeDark": "Chuyển sang giao diện tối"
   },
-  "languages": { "vi": "Tiếng Việt", "en": "English" },
+  "languages": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
   "roles": {
-    "CONTRACT_OWNER": { "name": "Chủ hợp đồng", "short": "CO" },
-    "LEGAL_REVIEWER": { "name": "Pháp chế / BA hợp đồng", "short": "PC" },
-    "SUPPLIER": { "name": "Nhà cung cấp", "short": "NCC" },
-    "FINANCE_APPROVER": { "name": "Phê duyệt tài chính", "short": "PD" },
-    "ADMIN_AUDITOR": { "name": "Quản trị / Kiểm toán", "short": "QT" }
+    "CONTRACT_OWNER": {
+      "name": "Chủ hợp đồng",
+      "short": "CO"
+    },
+    "LEGAL_REVIEWER": {
+      "name": "Pháp chế / BA hợp đồng",
+      "short": "PC"
+    },
+    "SUPPLIER": {
+      "name": "Nhà cung cấp",
+      "short": "NCC"
+    },
+    "FINANCE_APPROVER": {
+      "name": "Phê duyệt tài chính",
+      "short": "PD"
+    },
+    "ADMIN_AUDITOR": {
+      "name": "Quản trị / Kiểm toán",
+      "short": "QT"
+    }
   },
   "login": {
     "title": "Đăng nhập",
@@ -34,6 +67,13 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
       "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
+    },
+    "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
+    "demoHint": "Môi trường thử nghiệm: dùng một tài khoản mẫu trong README.",
+    "highlights": {
+      "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
+      "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
+      "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
     }
   },
   "common": {
@@ -41,5 +81,17 @@
     "loadError": "Không tải được trang này. Vui lòng thử lại.",
     "retry": "Thử lại",
     "notFound": "Không có gì để hiển thị."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "body": "Đường dẫn không tồn tại hoặc bạn không có quyền xem trang này.",
+      "back": "Về trang chính"
+    },
+    "route": {
+      "title": "Không hiển thị được trang này",
+      "body": "Đã có lỗi khi tải màn hình. Hãy tải lại trang; nếu lỗi lặp lại, hãy báo cho quản trị viên.",
+      "reload": "Tải lại trang"
+    }
   }
 }

@@ -1,11 +1,11 @@
-import { UiTextarea } from "@/shared/ui/controls";
 import { useId, useState } from "react";
+import { Button, Input, Modal } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { useCurrentUser } from "@/shared/auth/session";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import {
   formatDateTime,
   formatMillionVnd,
@@ -19,11 +19,9 @@ import {
   type ApprovalStep,
   type ApprovalView,
 } from "../api/approvals.api";
-import { Badge } from "../components/Badge";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { ConfirmDialog } from "../components/ConfirmDialog";
-import { PageMessage } from "../components/PageMessage";
+import { ToneTag } from "@/shared/ui/ToneTag";
+import { Panel } from "@/shared/ui/Panel";
+import { PageState } from "@/shared/ui/PageState";
 import { PdfTile } from "../components/PdfTile";
 import { toneOfDecision } from "../components/StatusBadge";
 import { evidenceName, numberWord } from "../lib/display";
@@ -67,15 +65,15 @@ export default function PaymentApprovalPage() {
   ];
 
   return (
-    <AppShell
+    <AppPage
       active="approvals"
       breadcrumb={breadcrumb}
       contentClassName={styles.content}
     >
-      {view.isPending ? <PageMessage kind="loading" /> : null}
-      {view.isError ? <PageMessage kind="error" /> : null}
+      {view.isPending ? <PageState kind="loading" /> : null}
+      {view.isError ? <PageState kind="error" /> : null}
       {data ? <ApprovalWorkspace data={data} /> : null}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -149,19 +147,19 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
     <>
       <div className={styles.heading}>
         <h1>{t("approve.title", { no: milestone.no, name: milestoneName })}</h1>
-        <Badge tone={open ? "warning" : "neutral"} size="md">
+        <ToneTag tone={open ? "warning" : "neutral"}>
           {t(`approve.state.${data.status}`)}
-        </Badge>
+        </ToneTag>
       </div>
 
       <div className={styles.grid}>
         <div className={styles.column}>
-          <Card className={`${styles.panel} ${styles.proposal}`}>
+          <Panel className={`${styles.panel} ${styles.proposal}`}>
             <div className={styles.proposalTitle}>
               <h2>{t("approve.proposal.title")}</h2>
-              <Badge tone={toneOfDecision(proposal.code)} size="strong">
+              <ToneTag tone={toneOfDecision(proposal.code)}>
                 {t(`decisionCode.${proposal.code}`)}
-              </Badge>
+              </ToneTag>
             </div>
             <div className={styles.stats}>
               <div className={styles.stat}>
@@ -229,9 +227,9 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                 components={{ b: <b /> }}
               />
             </div>
-          </Card>
+          </Panel>
 
-          <Card className={`${styles.panel} ${styles.documents}`}>
+          <Panel className={`${styles.panel} ${styles.documents}`}>
             <h2>{t("approve.documents.title")}</h2>
             {data.documents.map((file) => (
               <div key={file.id} className={styles.document}>
@@ -247,11 +245,11 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                     </div>
                   ) : null}
                 </div>
-                <Badge tone={file.signature?.valid ? "success" : "danger"}>
+                <ToneTag tone={file.signature?.valid ? "success" : "danger"}>
                   {file.signature?.valid
                     ? t("common.signatureValid")
                     : t("common.signatureInvalid")}
-                </Badge>
+                </ToneTag>
                 <Link
                   to={`/verify/${data.contractId}`}
                   className={styles.documentLink}
@@ -273,10 +271,10 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                 ).toLocaleLowerCase(),
               })}
             </div>
-          </Card>
+          </Panel>
         </div>
 
-        <Card className={`${styles.panel} ${styles.decisionPanel}`}>
+        <Panel className={`${styles.panel} ${styles.decisionPanel}`}>
           <h2>
             {t("approve.progress.title", {
               quorum: data.quorum,
@@ -323,7 +321,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               {t("approve.note.label")}{" "}
               <span className={styles.noteHint}>{t("approve.note.hint")}</span>
             </label>
-            <UiTextarea
+            <Input.TextArea
               id={noteId}
               rows={2}
               className={`${styles.noteInput} ${noteMissing ? styles.noteInputInvalid : ""}`}
@@ -351,51 +349,52 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
 
           <div className={styles.actions}>
             <Button
-              variant="outlineDanger"
-              size="md"
+              color="danger"
+              variant="outlined"
               disabled={!open || vote.isPending}
               onClick={reject}
             >
               {t("approve.actions.reject")}
             </Button>
             <Button
-              variant="outlineWarning"
-              size="md"
+              color="orange"
+              variant="outlined"
               disabled={!open || vote.isPending}
               onClick={hold}
             >
               {t("approve.actions.hold")}
             </Button>
             <Button
-              variant="success"
-              size="md"
+              color="green"
+              variant="solid"
               disabled={!open || vote.isPending}
               onClick={() => setConfirming(true)}
             >
               {t("approve.actions.approve")}
             </Button>
           </div>
-        </Card>
+        </Panel>
       </div>
 
-      <ConfirmDialog
+      <Modal
         open={confirming}
         title={t("approve.confirm.title")}
-        body={t("approve.confirm.body", {
-          payable,
-          no: milestone.no,
-          name: milestoneName,
-        })}
-        confirmLabel={
+        okText={
           vote.isPending
             ? t("approve.confirm.submitting")
             : t("approve.confirm.submit")
         }
-        cancelLabel={t("approve.confirm.cancel")}
-        busy={vote.isPending}
-        onConfirm={() => vote.mutate("APPROVE")}
+        cancelText={t("approve.confirm.cancel")}
+        confirmLoading={vote.isPending}
+        onOk={() => vote.mutate("APPROVE")}
         onCancel={() => setConfirming(false)}
-      />
+      >
+        {t("approve.confirm.body", {
+          payable,
+          no: milestone.no,
+          name: milestoneName,
+        })}
+      </Modal>
     </>
   );
 }

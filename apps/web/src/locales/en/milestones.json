@@ -328,7 +328,8 @@
     },
     "actions": {
       "download": "Download signed copy",
-      "verify": "Verify signatures"
+      "verify": "Verify signatures",
+      "downloadUnavailable": "The signed copy becomes downloadable once a certificate authority is integrated."
     },
     "tabs": {
       "label": "Contract content",

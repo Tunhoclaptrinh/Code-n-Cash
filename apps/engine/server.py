@@ -1,6 +1,7 @@
-"""Optional long-lived engine HTTP worker, bound to localhost."""
+"""Optional long-lived engine HTTP worker; binds to localhost unless ENGINE_HOST is set."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import os
 from cli import evaluate, encode
 
 
@@ -17,4 +18,6 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
-ThreadingHTTPServer(('127.0.0.1', 8000), Handler).serve_forever()
+HOST = os.environ.get('ENGINE_HOST', '127.0.0.1')
+PORT = int(os.environ.get('ENGINE_PORT', '8000'))
+ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()

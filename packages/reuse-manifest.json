@@ -149,7 +149,8 @@
       "source": "apps/web/src/components/base/DataTable/styles.less",
       "sourceSha256": "5925efe90dce2bce3472029f417cf26d8dd164cf48df94341f5e5cb9f2c0d059",
       "target": "packages/ui/src/components/base/DataTable/styles.less",
-      "status": "adapted"
+      "status": "removed",
+      "note": "Never imported and Less is not configured; table styles live in packages/ui/src/styles/base.css"
     },
     {
       "source": "apps/web/src/components/base/DataTable/ExportModal.tsx",

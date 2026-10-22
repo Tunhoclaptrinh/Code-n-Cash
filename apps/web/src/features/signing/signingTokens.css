@@ -23,10 +23,39 @@
   --signing-phone-mysign: #d71920;
   --signing-phone-bg: #f2f5fb;
   --signing-phone-line: #c3ccdf;
-  --signing-tone-1: #3d68e4;
+  --signing-tone-1: #315bea;
   --signing-tone-1-bg: #eaf0ff;
   --signing-tone-1-ink: #1e3a8a;
   --signing-tone-2: #7a5af0;
   --signing-tone-2-bg: #f1ecff;
   --signing-tone-2-ink: #4b2fb8;
+}
+
+:root[data-theme="dark"] {
+  --signing-surface-canvas: #0d1015;
+  --signing-line-skeleton: #2a3241;
+  --signing-line-success: #24543a;
+  --signing-border-card: #343e50;
+  --signing-border-chip: #46598f;
+  --signing-card-active: #1a2438;
+  --signing-card-zebra: #1b2029;
+  --signing-notice-bg: #3a3020;
+  --signing-notice-border: #6b5525;
+  --signing-notice-text: #ffe3a6;
+  --signing-danger-line: #6b2a27;
+  --signing-danger-flag: #ff8b82;
+  --signing-danger-ink: #ffb4ad;
+  --signing-neutral-pill: #262d3a;
+  --signing-success-banner-bg: #16301f;
+  --signing-success-banner-text: #a9dcbf;
+  --signing-highlight: #5a4a14;
+  --signing-warn-row: #2f2918;
+  --signing-phone-bg: #1b2029;
+  --signing-phone-line: #3b4558;
+  --signing-tone-1: #6f8ff5;
+  --signing-tone-1-bg: #1e315a;
+  --signing-tone-1-ink: #bbcdff;
+  --signing-tone-2: #a28cf7;
+  --signing-tone-2-bg: #2d2452;
+  --signing-tone-2-ink: #d6cbff;
 }

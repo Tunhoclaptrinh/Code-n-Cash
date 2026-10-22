@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Typography, Button, Tag, Alert } from "antd";
 import { DataTable, PageContainer } from "@codecash/ui";
 import { useCurrentUser } from "@/shared/auth/session";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatDate, formatMillionVnd, formatTime } from "@/shared/lib/format";
 import { getTaskInbox } from "../api/tasks.api";
 import { evidenceName, lowerCase } from "../lib/display";
@@ -108,7 +108,7 @@ export default function TaskInboxPage() {
     },
   ];
   return (
-    <AppShell active="tasks" breadcrumb={[{ label: tc("nav.tasks") }]}>
+    <AppPage active="tasks" breadcrumb={[{ label: tc("nav.tasks") }]}>
       <PageContainer
         title={t("inbox.title")}
         subtitle={t("inbox.subtitle", { count: inbox.data?.length ?? 0 })}
@@ -125,6 +125,6 @@ export default function TaskInboxPage() {
         />
         <Typography.Paragraph>{t("inbox.footer")}</Typography.Paragraph>
       </PageContainer>
-    </AppShell>
+    </AppPage>
   );
 }

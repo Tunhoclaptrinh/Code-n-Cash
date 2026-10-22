@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { getDispute } from "../api/dispute.api";
 import { DecisionPanel } from "../components/DecisionPanel";
 import { SubmissionPanel } from "../components/SubmissionPanel";
@@ -32,7 +32,7 @@ export default function DisputePage() {
   const data = dispute.data;
 
   return (
-    <AppShell
+    <AppPage
       active="contracts"
       breadcrumb={[
         { label: contractCode, to: `/contracts/${contractCode}` },
@@ -60,6 +60,6 @@ export default function DisputePage() {
           </div>
         </>
       ) : null}
-    </AppShell>
+    </AppPage>
   );
 }

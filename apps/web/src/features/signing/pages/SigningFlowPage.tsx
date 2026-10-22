@@ -1,12 +1,11 @@
-import { UiButton } from "@/shared/ui/controls";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime, formatMillionVnd } from "@/shared/lib/format";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import { cancelSigning } from "../api/signingFlow.api";
-import { PageStatus } from "../components/PageStatus";
+import { PageState } from "@/shared/ui/PageState";
 import { WizardStepper } from "../components/WizardStepper";
 import { useCurrentUser } from "@/shared/auth/session";
 import { cx } from "../lib/helpers";
@@ -37,7 +36,7 @@ export default function SigningFlowPage() {
   });
 
   return (
-    <AppShell
+    <AppPage
       active="tasks"
       breadcrumb={[
         { label: t("flow.breadcrumb.parent"), to: "/contracts" },
@@ -47,9 +46,9 @@ export default function SigningFlowPage() {
       {overview.data ? (
         <Flow contractId={contractId} overview={overview.data} />
       ) : (
-        <PageStatus isError={overview.isError} />
+        <PageState kind={overview.isError ? "error" : "loading"} />
       )}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -164,14 +163,14 @@ function Flow({
 
           <div className={styles.footer}>
             {canCancel ? (
-              <UiButton
+              <button
                 type="button"
                 className={styles.cancel}
                 disabled={cancel.isPending}
                 onClick={() => cancel.mutate()}
               >
                 {t("flow.actions.cancelRequest")}
-              </UiButton>
+              </button>
             ) : null}
             <Link to="/contracts" className={shared.btnSecondary}>
               {t("flow.actions.later")}

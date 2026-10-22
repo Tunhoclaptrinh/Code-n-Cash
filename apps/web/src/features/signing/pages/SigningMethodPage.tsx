@@ -1,11 +1,11 @@
-import { UiButton } from "@/shared/ui/controls";
+import { Button } from "antd";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { useCurrentUser } from "@/shared/auth/session";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatTime } from "@/shared/lib/format";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import {
@@ -15,7 +15,7 @@ import {
   rejectSigningRequest,
   sendSigningRequest,
 } from "../api/signingFlow.api";
-import { PageStatus } from "../components/PageStatus";
+import { PageState } from "@/shared/ui/PageState";
 import {
   cx,
   formatCountdown,
@@ -47,7 +47,7 @@ export default function SigningMethodPage() {
   });
 
   return (
-    <AppShell
+    <AppPage
       active="tasks"
       breadcrumb={[
         {
@@ -65,9 +65,9 @@ export default function SigningMethodPage() {
           userId={user.id}
         />
       ) : (
-        <PageStatus isError={overview.isError} />
+        <PageState kind={overview.isError ? "error" : "loading"} />
       )}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -150,7 +150,7 @@ function MethodSelection({
   if (!turnIsOpen && !completed.current && current?.status !== "COMPLETED") {
     return <Navigate to={sequencePath} replace />;
   }
-  if (request.isPending) return <PageStatus isError={false} />;
+  if (request.isPending) return <PageState kind="loading" />;
 
   const lastError = [send, confirm, reject, cancel].find(
     (mutation) => mutation.error,
@@ -213,9 +213,9 @@ function MethodSelection({
             >
               {t("signMethod.actions.back")}
             </Link>
-            <UiButton
-              type="button"
-              className={shared.btnPrimary}
+            <Button
+              type="primary"
+              size="large"
               disabled={send.isPending || selectedKind === "IMAGE"}
               onClick={() => send.mutate()}
             >
@@ -224,7 +224,7 @@ function MethodSelection({
                   ? "signMethod.actions.sendUsb"
                   : "signMethod.actions.sendRemote",
               )}
-            </UiButton>
+            </Button>
           </div>
         </section>
 
@@ -263,14 +263,14 @@ function MethodSelection({
             ) : null}
             {pending ? (
               <div className={styles.progressFooter}>
-                <UiButton
-                  type="button"
-                  className={shared.btnDanger}
+                <Button
+                  danger
+                  size="large"
                   disabled={cancel.isPending}
                   onClick={() => cancel.mutate()}
                 >
                   {t("signMethod.actions.cancel")}
-                </UiButton>
+                </Button>
               </div>
             ) : null}
           </div>
@@ -322,7 +322,7 @@ function MethodCard({
       : t(`method.${method}.description`);
 
   return (
-    <UiButton
+    <button
       type="button"
       role="radio"
       aria-checked={selected}
@@ -346,7 +346,7 @@ function MethodCard({
         </span>
         <span className={styles.methodDescription}>{description}</span>
       </span>
-    </UiButton>
+    </button>
   );
 }
 
@@ -565,22 +565,22 @@ function PhoneFrame({
               <b className={styles.phoneCode}>{request.code}</b>
             </div>
             <div className={styles.phoneActions}>
-              <UiButton
+              <button
                 type="button"
                 className={styles.phoneReject}
                 disabled={busy}
                 onClick={onReject}
               >
                 {t("signMethod.phone.reject")}
-              </UiButton>
-              <UiButton
+              </button>
+              <button
                 type="button"
                 className={styles.phoneConfirm}
                 disabled={busy}
                 onClick={onConfirm}
               >
                 {t("signMethod.phone.confirm")}
-              </UiButton>
+              </button>
             </div>
           </div>
         ) : (

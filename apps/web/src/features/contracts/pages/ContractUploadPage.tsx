@@ -3,7 +3,7 @@ import { Alert } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/shared/auth/session";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import {
   getContractDraft,
   getUploadFormOptions,
@@ -35,7 +35,7 @@ export default function ContractUploadPage() {
     : undefined;
 
   return (
-    <AppShell
+    <AppPage
       active="upload"
       breadcrumb={[
         { label: t("breadcrumb.contracts"), to: "/contracts" },
@@ -70,6 +70,6 @@ export default function ContractUploadPage() {
           </>
         ) : null}
       </PageContainer>
-    </AppShell>
+    </AppPage>
   );
 }

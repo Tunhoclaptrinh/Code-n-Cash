@@ -105,6 +105,10 @@ async function main() {
     SwaggerModule.createDocument(app, config),
   );
   app.enableShutdownHooks();
-  await app.listen(Number(process.env.API_PORT ?? 3000), "127.0.0.1");
+  // Loopback by default; containers set API_HOST=0.0.0.0 behind the reverse proxy.
+  await app.listen(
+    Number(process.env.API_PORT ?? 3000),
+    process.env.API_HOST ?? "127.0.0.1",
+  );
 }
 void main();

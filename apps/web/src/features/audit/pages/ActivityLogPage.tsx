@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import {
   getDefaultActivityRange,
   listActivityEntries,
@@ -22,7 +22,7 @@ export default function ActivityLogPage() {
   });
 
   return (
-    <AppShell
+    <AppPage
       active="activity"
       breadcrumb={[{ label: t("breadcrumb.activityLog") }]}
     >
@@ -35,6 +35,6 @@ export default function ActivityLogPage() {
       {entries.data && range.data ? (
         <ActivityLogView entries={entries.data} defaultRange={range.data} />
       ) : null}
-    </AppShell>
+    </AppPage>
   );
 }

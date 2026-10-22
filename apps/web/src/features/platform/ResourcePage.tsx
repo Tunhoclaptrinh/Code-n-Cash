@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type Key, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -10,29 +10,49 @@ import {
   Switch,
   Select,
   Alert,
-  Space,
+  Tag,
+  Typography,
   App as AntApp,
   Upload,
 } from "antd";
 import {
+  CloudUploadOutlined,
+  DownloadOutlined,
+  KeyOutlined,
+} from "@ant-design/icons";
+import {
   DataTable,
   PageContainer,
   FormModal,
+  IconButton,
   useResource,
   parseImportFile,
   downloadBlob,
   exportToCSV,
   exportToJSON,
 } from "@codecash/ui";
-import type { Entity, ResourceDefinition } from "@codecash/contracts";
+import type {
+  Entity,
+  ResourceDefinition,
+  ResourceField,
+} from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
+import { formatDateTime, formatNumber } from "@/shared/lib/format";
+
+/** Fields that hold an organization id; they render and edit as the organization name. */
+const ORGANIZATION_FIELDS: Record<string, "any" | "SUPPLIER"> = {
+  organizationId: "any",
+  supplierId: "SUPPLIER",
+};
+
 export default function ResourcePage() {
   const navigate = useNavigate();
   const { resource = "organizations" } = useParams();
   const { t } = useTranslation("platform");
+  const { t: tc } = useTranslation("common");
   const { message, modal } = AntApp.useApp();
-  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<Key[]>([]);
   const [editor, setEditor] = useState<Entity | null | undefined>();
   const service = useMemo(
     () => platform.resource<Entity>(resource),
@@ -43,35 +63,116 @@ export default function ResourcePage() {
     queryKey: ["definitions"],
     queryFn: () => platform.get<ResourceDefinition[]>("/resources"),
   });
+  const organizations = useQuery({
+    queryKey: ["resource", "organizations", "lookup"],
+    queryFn: () =>
+      platform.resource<Entity>("organizations").list({ page: 1, limit: 100 }),
+  });
   const definition = definitions.data?.find((x) => x.name === resource);
   const readOnly = definition?.readOnly;
   const busy = state.create.isPending || state.update.isPending;
-  const columns = (definition?.fields ?? []).map((field) => ({
-    key: field.key,
-    dataIndex: field.key,
-    title: t(`fields.${field.key}`, { defaultValue: field.key }),
-    sorter: true,
-    render: (value: unknown) =>
-      typeof value === "boolean"
-        ? t(value ? "yes" : "no")
-        : String(value ?? ""),
-  }));
   const [passwordTarget, setPasswordTarget] = useState<Entity>();
-  const [password, setPassword] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
   const [file, setFile] = useState<File>();
+
+  const fieldLabel = (key: string) => t(`fields.${key}`, { defaultValue: key });
+  const optionLabel = (field: ResourceField, value: string) =>
+    field.key === "role"
+      ? tc(`roles.${value}.name`, { defaultValue: value })
+      : t(`options.${field.key}.${value}`, { defaultValue: value });
+  const organizationName = (id: unknown) =>
+    String(
+      organizations.data?.items.find((org) => org.id === id)?.name ?? id ?? "",
+    );
+  const organizationOptions = (kind: "any" | "SUPPLIER") =>
+    (organizations.data?.items ?? [])
+      .filter((org) => kind === "any" || org.kind === kind)
+      .map((org) => ({ value: org.id, label: String(org.name) }));
+
+  const renderValue = (field: ResourceField, value: unknown): ReactNode => {
+    if (value === undefined || value === null || value === "") return "—";
+    if (field.type === "boolean")
+      return (
+        <Tag color={value ? "success" : "default"}>
+          {t(value ? "yes" : "no")}
+        </Tag>
+      );
+    if (field.type === "select")
+      return <Tag>{optionLabel(field, String(value))}</Tag>;
+    if (field.key in ORGANIZATION_FIELDS) return organizationName(value);
+    if (field.key === "sha256")
+      return (
+        <Typography.Text
+          code
+          copyable={{ text: String(value), tooltips: [t("copy"), t("saved")] }}
+        >
+          {String(value).slice(0, 12)}…
+        </Typography.Text>
+      );
+    if (field.key === "size" && typeof value === "number")
+      return `${formatNumber(value / 1024, 1)} KB`;
+    return String(value);
+  };
+
+  const columns = [
+    ...(definition?.fields ?? []).map((field) => ({
+      key: field.key,
+      dataIndex: field.key,
+      title: fieldLabel(field.key),
+      sorter: true,
+      render: (value: unknown) => renderValue(field, value),
+    })),
+    {
+      key: "updatedAt",
+      dataIndex: "updatedAt",
+      title: fieldLabel("updatedAt"),
+      sorter: true,
+      render: (value: string) => (value ? formatDateTime(value) : "—"),
+    },
+  ];
+
   const report = (error: unknown) =>
     message.error(error instanceof Error ? error.message : t("error"));
+
+  const rowActions =
+    resource === "documents"
+      ? (record: Entity) => (
+          <IconButton
+            icon={<DownloadOutlined />}
+            tooltip={t("download")}
+            onClick={async () => {
+              try {
+                downloadBlob(
+                  await platform.download(`/documents/${record.id}/download`),
+                  String(record.name),
+                );
+              } catch (error) {
+                report(error);
+              }
+            }}
+          />
+        )
+      : resource === "users"
+        ? (record: Entity) => (
+            <IconButton
+              icon={<KeyOutlined />}
+              tooltip={t("resetPassword")}
+              onClick={() => setPasswordTarget(record)}
+            />
+          )
+        : undefined;
+
   return (
-    <AppShell
+    <AppPage
       active="platform"
       breadcrumb={[
-        { label: t("title") },
+        { label: t("title"), to: "/platform/organizations" },
         { label: t(`resources.${resource}`) },
       ]}
     >
       <PageContainer
-        title={t(`resources.${resource}`)}
+        title={t("title")}
+        subtitle={t(`descriptions.${resource}`, { defaultValue: "" })}
         tabs={definitions.data?.map((d) => ({
           key: d.name,
           tab: t(`resources.${d.name}`),
@@ -84,14 +185,18 @@ export default function ResourcePage() {
         }}
         extra={
           resource === "documents" ? (
-            <Button type="primary" onClick={() => setUploadOpen(true)}>
+            <Button
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => setUploadOpen(true)}
+            >
               {t("upload")}
             </Button>
           ) : undefined
         }
       >
         {state.query.isError ? (
-          <Alert type="error" title={state.query.error.message} />
+          <Alert type="error" showIcon title={state.query.error.message} />
         ) : null}
         <DataTable<Entity>
           rowKey="id"
@@ -123,41 +228,7 @@ export default function ResourcePage() {
               };
             })
           }
-          customActions={
-            resource === "documents"
-              ? (record) => (
-                  <Button
-                    onClick={async () => {
-                      try {
-                        downloadBlob(
-                          await platform.download(
-                            `/documents/${record.id}/download`,
-                          ),
-                          String(record.name),
-                        );
-                      } catch (error) {
-                        report(error);
-                      }
-                    }}
-                  >
-                    {t("download")}
-                  </Button>
-                )
-              : resource === "users"
-                ? (record) => (
-                    <Space>
-                      <Button
-                        onClick={() => {
-                          setPassword("");
-                          setPasswordTarget(record);
-                        }}
-                      >
-                        {t("resetPassword")}
-                      </Button>
-                    </Space>
-                  )
-                : undefined
-          }
+          customActions={rowActions}
           onAdd={readOnly ? undefined : () => setEditor(null)}
           onEdit={readOnly ? undefined : (record) => setEditor(record)}
           onDelete={
@@ -167,6 +238,7 @@ export default function ResourcePage() {
                   modal.confirm({
                     title: t("deleteTitle"),
                     content: t("deleteBody"),
+                    okButtonProps: { danger: true },
                     onOk: () =>
                       state.remove.mutateAsync(String(id)).catch((error) => {
                         report(error);
@@ -181,6 +253,7 @@ export default function ResourcePage() {
             modal.confirm({
               title: t("deleteTitle"),
               content: t("deleteBody"),
+              okButtonProps: { danger: true },
               onOk: async () => {
                 await service.removeMany(ids.map(String));
                 setSelectedKeys([]);
@@ -195,7 +268,7 @@ export default function ResourcePage() {
             )
             .map((field) => ({
               key: field.key,
-              label: t(`fields.${field.key}`, { defaultValue: field.key }),
+              label: fieldLabel(field.key),
               type: "select" as const,
               operators: ["eq" as const],
               options:
@@ -204,7 +277,10 @@ export default function ResourcePage() {
                       { value: true, label: t("yes") },
                       { value: false, label: t("no") },
                     ]
-                  : field.options?.map((value) => ({ value, label: value })),
+                  : field.options?.map((value) => ({
+                      value,
+                      label: optionLabel(field, value),
+                    })),
             }))}
           filterValues={state.params.filters ?? {}}
           onFilterChange={(key, value) =>
@@ -312,7 +388,7 @@ export default function ResourcePage() {
           <Form.Item
             key={field.key}
             name={field.key}
-            label={t(`fields.${field.key}`, { defaultValue: field.key })}
+            label={fieldLabel(field.key)}
             valuePropName={field.type === "boolean" ? "checked" : "value"}
             rules={[
               {
@@ -321,17 +397,23 @@ export default function ResourcePage() {
               },
             ]}
           >
-            {field.type === "select" ? (
+            {field.key in ORGANIZATION_FIELDS ? (
+              <Select
+                showSearch={{ optionFilterProp: "label" }}
+                loading={organizations.isPending}
+                options={organizationOptions(ORGANIZATION_FIELDS[field.key])}
+              />
+            ) : field.type === "select" ? (
               <Select
                 options={field.options?.map((value) => ({
-                  label: value,
+                  label: optionLabel(field, value),
                   value,
                 }))}
               />
             ) : field.type === "boolean" ? (
               <Switch />
             ) : field.type === "number" ? (
-              <InputNumber min={0} />
+              <InputNumber min={0} style={{ width: "100%" }} />
             ) : (
               <Input />
             )}
@@ -341,15 +423,26 @@ export default function ResourcePage() {
       <FormModal
         open={uploadOpen}
         title={t("upload")}
-        onClose={() => setUploadOpen(false)}
+        onClose={() => {
+          setUploadOpen(false);
+          setFile(undefined);
+        }}
         onSubmit={async (values: { draftId: string }) => {
-          if (!file) throw new Error(t("chooseFile"));
+          if (!file) {
+            message.warning(t("chooseFile"));
+            throw new Error(t("chooseFile"));
+          }
           const body = new FormData();
           body.append("file", file);
-          await platform.request(
-            "/documents/" + encodeURIComponent(values.draftId),
-            { method: "POST", body },
-          );
+          try {
+            await platform.request(
+              "/documents/" + encodeURIComponent(values.draftId),
+              { method: "POST", body },
+            );
+          } catch (error) {
+            report(error);
+            throw error;
+          }
           await state.refresh();
           message.success(t("saved"));
           setFile(undefined);
@@ -371,27 +464,39 @@ export default function ResourcePage() {
           }}
           onRemove={() => setFile(undefined)}
         >
+          <p className="ant-upload-drag-icon">
+            <CloudUploadOutlined />
+          </p>
           <p>{t("chooseFile")}</p>
         </Upload.Dragger>
       </FormModal>
       <FormModal
         open={!!passwordTarget}
-        title={t("resetPassword")}
+        title={`${t("resetPassword")} · ${String(passwordTarget?.displayName ?? "")}`}
         onClose={() => setPasswordTarget(undefined)}
-        onSubmit={async () => {
-          await platform.post(`/auth/users/${passwordTarget!.id}/password`, {
-            password,
-          });
+        onSubmit={async ({ password }: { password: string }) => {
+          try {
+            await platform.post(`/auth/users/${passwordTarget!.id}/password`, {
+              password,
+            });
+          } catch (error) {
+            report(error);
+            throw error;
+          }
           message.success(t("saved"));
         }}
       >
-        <Form.Item label={t("newPassword")}>
-          <Input.Password
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
+        <Form.Item
+          name="password"
+          label={t("newPassword")}
+          rules={[
+            { required: true },
+            { min: 12, max: 128, message: t("passwordTooShort") },
+          ]}
+        >
+          <Input.Password autoComplete="new-password" />
         </Form.Item>
       </FormModal>
-    </AppShell>
+    </AppPage>
   );
 }

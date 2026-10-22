@@ -7,16 +7,6 @@ export function formatShortDateTime(value: string): string {
   return `${formatDate(value).slice(0, 5)} ${formatTime(value)}`;
 }
 
-/** Two-letter avatar initials from the given name, without Vietnamese tone marks (Đức becomes ĐU). */
-export function initialsOf(fullName: string): string {
-  const givenName = fullName.trim().split(/\s+/).pop() ?? "";
-  return givenName
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .slice(0, 2)
-    .toLocaleUpperCase();
-}
-
 export function lowerCase(value: string, language: string): string {
   return value.toLocaleLowerCase(language);
 }

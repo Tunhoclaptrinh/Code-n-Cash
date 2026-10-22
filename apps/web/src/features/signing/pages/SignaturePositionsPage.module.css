@@ -464,3 +464,24 @@
   border-radius: var(--radius-md);
   padding: 11px 22px;
 }
+
+/* Two columns collapse on narrow screens; wide document canvases scroll inside their card. */
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.layout > * {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .layout > section {
+    padding: 16px;
+  }
+  .footer,
+  .canvasHeader {
+    flex-wrap: wrap;
+  }
+}

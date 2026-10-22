@@ -1,5 +1,8 @@
 {
-  "brand": { "name": "Smart Contract", "product": "Workflow" },
+  "brand": {
+    "name": "CodeCash",
+    "product": "Smart Contract Workflow"
+  },
   "nav": {
     "label": "Main navigation",
     "tasks": "My tasks",
@@ -9,22 +12,52 @@
     "activity": "Activity log",
     "verify": "Verify signature",
     "submissions": "Submitted documents",
-    "approvals": "Awaiting my approval"
+    "approvals": "Awaiting my approval",
+    "groups": {
+      "workflow": "Workflow",
+      "data": "Data & administration"
+    }
   },
   "topbar": {
     "role": "Role",
     "notifications": "Notifications",
     "account": "Account menu",
     "language": "Language",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "openMenu": "Open navigation",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "pendingTasks_one": "{{count}} task waiting for you",
+    "pendingTasks_other": "{{count}} tasks waiting for you",
+    "noPendingTasks": "No pending tasks",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme"
   },
-  "languages": { "vi": "Tiếng Việt", "en": "English" },
+  "languages": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
   "roles": {
-    "CONTRACT_OWNER": { "name": "Contract owner", "short": "CO" },
-    "LEGAL_REVIEWER": { "name": "Legal / Contract BA", "short": "PC" },
-    "SUPPLIER": { "name": "Supplier", "short": "SUP" },
-    "FINANCE_APPROVER": { "name": "Finance approver", "short": "FA" },
-    "ADMIN_AUDITOR": { "name": "Admin / Auditor", "short": "AD" }
+    "CONTRACT_OWNER": {
+      "name": "Contract owner",
+      "short": "CO"
+    },
+    "LEGAL_REVIEWER": {
+      "name": "Legal / Contract BA",
+      "short": "PC"
+    },
+    "SUPPLIER": {
+      "name": "Supplier",
+      "short": "SUP"
+    },
+    "FINANCE_APPROVER": {
+      "name": "Finance approver",
+      "short": "FA"
+    },
+    "ADMIN_AUDITOR": {
+      "name": "Admin / Auditor",
+      "short": "AD"
+    }
   },
   "login": {
     "title": "Sign in",
@@ -34,6 +67,13 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email or password is incorrect.",
       "UNKNOWN": "Could not sign in. Please try again."
+    },
+    "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
+    "demoHint": "Demo environment: use one of the sample accounts listed in the README.",
+    "highlights": {
+      "sign": "Sequential digital signing, document locked after the first signature",
+      "evidence": "Evidence submission, validation and two-person approval",
+      "audit": "Append-only activity log for every action"
     }
   },
   "common": {
@@ -41,5 +81,17 @@
     "loadError": "Could not load this page. Please try again.",
     "retry": "Try again",
     "notFound": "Nothing to show here."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "body": "This address does not exist or you are not allowed to view it.",
+      "back": "Back to home"
+    },
+    "route": {
+      "title": "Unable to display this page",
+      "body": "Something went wrong while loading this screen. Reload the page; if it keeps happening, tell an administrator.",
+      "reload": "Reload page"
+    }
   }
 }

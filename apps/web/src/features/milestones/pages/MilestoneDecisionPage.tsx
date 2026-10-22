@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "antd";
 import type { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import {
   formatDate,
   formatMillionVnd,
@@ -14,10 +15,9 @@ import {
   transferToAccounting,
   type DecisionView,
 } from "../api/contracts.api";
-import { Badge } from "../components/Badge";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { PageMessage } from "../components/PageMessage";
+import { ToneTag } from "@/shared/ui/ToneTag";
+import { Panel } from "@/shared/ui/Panel";
+import { PageState } from "@/shared/ui/PageState";
 import { PdfTile } from "../components/PdfTile";
 import { toneOfDecision } from "../components/StatusBadge";
 import { evidenceName, formatShortDateTime, numberWord } from "../lib/display";
@@ -49,13 +49,13 @@ export default function MilestoneDecisionPage() {
   ];
 
   return (
-    <AppShell active="contracts" breadcrumb={breadcrumb}>
-      {view.isPending ? <PageMessage kind="loading" /> : null}
+    <AppPage active="contracts" breadcrumb={breadcrumb}>
+      {view.isPending ? <PageState kind="loading" /> : null}
       {view.isError || view.data === null ? (
-        <PageMessage kind={view.isError ? "error" : "notFound"} />
+        <PageState kind={view.isError ? "error" : "notFound"} />
       ) : null}
       {data ? <DecisionContent data={data} /> : null}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -83,7 +83,7 @@ function DecisionContent({ data }: { data: DecisionView }) {
 
   return (
     <>
-      <Card as="div" className={styles.banner}>
+      <Panel as="div" className={styles.banner}>
         <div className={styles.bannerText}>
           <div className={styles.bannerMeta}>
             {t("decision.meta", {
@@ -100,9 +100,9 @@ function DecisionContent({ data }: { data: DecisionView }) {
                 amount: formatMillionVnd(decision.payableMillion),
               })}
             </h1>
-            <Badge tone={toneOfDecision(decision.code)} size="headline">
+            <ToneTag tone={toneOfDecision(decision.code)}>
               {t(`decisionCode.${decision.code}`)}
-            </Badge>
+            </ToneTag>
           </div>
           <div className={styles.bannerSummary}>
             {t(`decision.summary.${decision.code}`, {
@@ -115,17 +115,13 @@ function DecisionContent({ data }: { data: DecisionView }) {
           </div>
         </div>
         <div className={styles.bannerActions}>
-          <Button
-            variant="outline"
-            size="header"
-            onClick={() => window.print()}
-          >
+          <Button onClick={() => window.print()}>
             {t("decision.actions.export")}
           </Button>
           {payable ? (
             <Button
-              variant="outlineSuccess"
-              size="header"
+              color="green"
+              variant="outlined"
               disabled={decision.transferredToAccounting || transfer.isPending}
               onClick={() => transfer.mutate()}
             >
@@ -137,10 +133,10 @@ function DecisionContent({ data }: { data: DecisionView }) {
             </Button>
           ) : null}
         </div>
-      </Card>
+      </Panel>
 
       <div className={styles.grid}>
-        <Card className={`${styles.panel} ${styles.amounts}`}>
+        <Panel className={`${styles.panel} ${styles.amounts}`}>
           <h2>{t("decision.amounts.title")}</h2>
           <AmountRow
             label={t("decision.amounts.milestoneValue")}
@@ -192,9 +188,9 @@ function DecisionContent({ data }: { data: DecisionView }) {
             </b>
           </div>
           <div className={styles.panelNote}>{t("decision.amounts.note")}</div>
-        </Card>
+        </Panel>
 
-        <Card className={`${styles.panel} ${styles.reasons}`}>
+        <Panel className={`${styles.panel} ${styles.reasons}`}>
           <h2>{t("decision.reasons.title")}</h2>
           {reasonRows.map((code) => {
             const warn =
@@ -250,17 +246,17 @@ function DecisionContent({ data }: { data: DecisionView }) {
                 <span className={styles.relatedName}>
                   {evidenceName(t, file.type)}
                 </span>
-                <Badge tone={file.signature?.valid ? "success" : "danger"}>
+                <ToneTag tone={file.signature?.valid ? "success" : "danger"}>
                   {file.signature?.valid
                     ? t("common.signatureValid")
                     : t("common.signatureInvalid")}
-                </Badge>
+                </ToneTag>
               </div>
             ))}
           </div>
-        </Card>
+        </Panel>
 
-        <Card className={`${styles.panel} ${styles.history}`}>
+        <Panel className={`${styles.panel} ${styles.history}`}>
           <h2>{t("decision.history.title")}</h2>
           <ol className={styles.timeline}>
             {data.history.map((event, index) => (
@@ -282,10 +278,10 @@ function DecisionContent({ data }: { data: DecisionView }) {
             ))}
           </ol>
           <div className={styles.historyNote}>{t("decision.history.note")}</div>
-        </Card>
+        </Panel>
       </div>
 
-      <Card as="div" className={styles.dispute}>
+      <Panel as="div" className={styles.dispute}>
         <b className={styles.disputeTitle}>{t("decision.dispute.title")}</b>
         <span className={styles.disputeText}>
           {t("decision.dispute.body", { count: data.disputeWindowDays })}
@@ -296,7 +292,7 @@ function DecisionContent({ data }: { data: DecisionView }) {
         >
           {t("decision.dispute.link")}
         </Link>
-      </Card>
+      </Panel>
     </>
   );
 }

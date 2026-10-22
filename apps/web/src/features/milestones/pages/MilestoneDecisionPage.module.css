@@ -260,3 +260,23 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+@media (max-width: 760px) {
+  .banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
+  .bannerActions {
+    margin-left: 0;
+    flex: initial;
+    flex-wrap: wrap;
+  }
+  .bannerActions > * {
+    max-width: 100%;
+    white-space: normal;
+    height: auto;
+    min-height: 36px;
+  }
+}

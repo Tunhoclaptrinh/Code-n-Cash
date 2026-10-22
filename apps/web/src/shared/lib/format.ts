@@ -35,3 +35,18 @@ export function formatTime(value: string | Date): string {
 export function formatDateTime(value: string | Date): string {
   return `${formatDate(value)} ${formatTime(value)}`;
 }
+
+/**
+ * Groups a decimal string such as "365785.87" for display without converting it to a float,
+ * so Data Pack amounts keep the exact digits the engine produced.
+ */
+export function formatDecimalString(value: string): string {
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
+  if (!match) return value;
+  const [, sign, whole, fraction] = match;
+  const format = new Intl.NumberFormat(locale());
+  const decimal =
+    format.formatToParts(1.1).find((part) => part.type === "decimal")?.value ??
+    ".";
+  return `${sign}${format.format(BigInt(whole))}${fraction ? decimal + fraction : ""}`;
+}

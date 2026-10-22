@@ -1,14 +1,13 @@
-import { UiInput } from "@/shared/ui/controls";
 import { useState, type DragEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
-import { AppShell } from "@/shared/layout/AppShell";
+import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime } from "@/shared/lib/format";
 import { signingKeys } from "../api/signingConfig.api";
 import { checkFile, getVerification } from "../api/verification.api";
-import { PageStatus } from "../components/PageStatus";
+import { PageState } from "@/shared/ui/PageState";
 import { cx, formatMonthYear, isCertificateExpired } from "../lib/helpers";
 import { toneClass } from "../lib/tone";
 import type {
@@ -36,7 +35,7 @@ export default function SignatureVerificationPage() {
   });
 
   return (
-    <AppShell
+    <AppPage
       active="verify"
       breadcrumb={[
         { label: t("verify.breadcrumb.parent"), to: "/contracts" },
@@ -46,9 +45,9 @@ export default function SignatureVerificationPage() {
       {verification.data ? (
         <Verification contractId={contractId} result={verification.data} />
       ) : (
-        <PageStatus isError={verification.isError} />
+        <PageState kind={verification.isError ? "error" : "loading"} />
       )}
-    </AppShell>
+    </AppPage>
   );
 }
 
@@ -248,7 +247,7 @@ function FileCheck({ contractId }: { contractId: string }) {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
       >
-        <UiInput
+        <input
           type="file"
           accept=".pdf,application/pdf"
           className={styles.fileInput}

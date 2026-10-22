@@ -1,10 +1,21 @@
-import { UiButton, UiInput, UiSelect } from "@/shared/ui/controls";
-import { Fragment, useId, useRef, useState, type ChangeEvent } from "react";
+import {
+  Alert,
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Tag,
+  Typography,
+} from "antd";
+import { BaseCard, FormFooter } from "@codecash/ui";
+import { Fragment, useRef, useState, type ChangeEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { formatNumber } from "@/shared/lib/format";
-import { Icon } from "@/shared/ui/Icon";
 import { saveContractDraft } from "../api/contractDraft.api";
 import type {
   ContractDraft,
@@ -12,7 +23,6 @@ import type {
   ContractFileKind,
   UploadFormOptions,
 } from "../types";
-import styles from "./ContractUploadForm.module.css";
 
 const TITLE_MAX_LENGTH = 250;
 const FILE_MAX_BYTES = 20 * 1024 * 1024;
@@ -38,7 +48,6 @@ export function ContractUploadForm({
   const { t: tc } = useTranslation("common");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const ids = useId();
 
   const [title, setTitle] = useState(draft.title);
   const [type, setType] = useState(draft.type);
@@ -106,281 +115,231 @@ export function ContractUploadForm({
   const fileSize = formatNumber(file.sizeBytes / BYTES_PER_MB, 1);
 
   return (
-    <section className={styles.form}>
-      <h1 className={styles.title}>{t("contractUpload.title")}</h1>
-
-      <div className={styles.pair}>
-        <div>
-          <label htmlFor={`${ids}-type`} className={styles.label}>
-            {t("contractUpload.form.type.label")}{" "}
-            <span className={styles.required}>*</span>
-          </label>
-          <UiSelect
-            id={`${ids}-type`}
-            className={styles.control}
-            value={type}
-            onChange={(event) => setType(event.target.value as typeof type)}
-          >
-            {options.types.map((value) => (
-              <option key={value} value={value}>
-                {t(`contractUpload.form.type.options.${value}.name`)}
-              </option>
-            ))}
-          </UiSelect>
-          <div className={styles.hint}>
-            {t(`contractUpload.form.type.options.${type}.hint`)}
-          </div>
-        </div>
-        <div>
-          <label htmlFor={`${ids}-code`} className={styles.label}>
-            {t("contractUpload.form.code.label")}
-          </label>
-          <UiInput
-            id={`${ids}-code`}
-            className={`${styles.control} ${styles.readOnly}`}
-            value={t("contractUpload.form.code.value", { code: draft.code })}
-            readOnly
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor={`${ids}-title`} className={styles.label}>
-          {t("contractUpload.form.title.label")}{" "}
-          <span className={styles.required}>*</span>
-        </label>
-        <UiInput
-          id={`${ids}-title`}
-          className={styles.control}
-          value={title}
-          maxLength={TITLE_MAX_LENGTH}
-          aria-invalid={titleError}
-          aria-describedby={`${ids}-title-counter`}
-          onChange={(event) => {
-            setTitle(event.target.value);
-            setTitleError(false);
-          }}
-        />
-        {titleError ? (
-          <div className={styles.error} role="alert">
-            {t("contractUpload.form.title.errors.required")}
-          </div>
-        ) : null}
-        <div
-          id={`${ids}-title-counter`}
-          className={`${styles.hint} ${styles.counter}`}
-        >
-          {t("contractUpload.form.title.counter", {
-            count: title.length,
-            max: TITLE_MAX_LENGTH,
-          })}
-        </div>
-      </div>
-
-      <div className={styles.pair}>
-        <div>
-          <label htmlFor={`${ids}-supplier`} className={styles.label}>
-            {t("contractUpload.form.supplier.label")}{" "}
-            <span className={styles.required}>*</span>
-          </label>
-          <UiSelect
-            id={`${ids}-supplier`}
-            className={styles.control}
-            value={supplierId}
-            onChange={(event) => setSupplierId(event.target.value)}
-          >
-            {options.suppliers.map((supplier) => (
-              <option key={supplier.id} value={supplier.id}>
-                {supplier.name}
-              </option>
-            ))}
-          </UiSelect>
-        </div>
-        <div>
-          <label htmlFor={`${ids}-reviewer`} className={styles.label}>
-            {t("contractUpload.form.reviewer.label")}{" "}
-            <span className={styles.required}>*</span>
-          </label>
-          <UiSelect
-            id={`${ids}-reviewer`}
-            className={styles.control}
-            value={reviewerId}
-            onChange={(event) => setReviewerId(event.target.value)}
-          >
-            {options.reviewers.map((reviewer) => (
-              <option key={reviewer.id} value={reviewer.id}>
-                {t("contractUpload.form.reviewer.option", {
-                  role: tc(`roles.${reviewer.role}.name`),
-                  organization: reviewer.organizationLabel,
+    <BaseCard>
+      <Form layout="vertical" onFinish={onContinue}>
+        <Row gutter={16}>
+          <Col xs={24} md={12}>
+            <Form.Item
+              label={t("contractUpload.form.type.label")}
+              required
+              extra={t(`contractUpload.form.type.options.${type}.hint`)}
+            >
+              <Select
+                value={type}
+                onChange={setType}
+                options={options.types.map((value) => ({
+                  value,
+                  label: t(`contractUpload.form.type.options.${value}.name`),
+                }))}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item label={t("contractUpload.form.code.label")}>
+              <Input
+                value={t("contractUpload.form.code.value", {
+                  code: draft.code,
                 })}
-              </option>
-            ))}
-          </UiSelect>
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor={`${ids}-flow`} className={styles.label}>
-          {t("contractUpload.form.flow.label")}{" "}
-          <span className={styles.required}>*</span>
-        </label>
-        <UiSelect
-          id={`${ids}-flow`}
-          className={styles.control}
-          value={templateId}
-          onChange={(event) =>
-            setTemplateId(event.target.value as typeof templateId)
+                readOnly
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item
+          label={t("contractUpload.form.title.label")}
+          htmlFor="contract-title"
+          required
+          validateStatus={titleError ? "error" : undefined}
+          help={
+            titleError
+              ? t("contractUpload.form.title.errors.required")
+              : undefined
           }
         >
-          {options.signingTemplates.map((candidate) => (
-            <option key={candidate.id} value={candidate.id}>
-              {t(`contractUpload.form.flow.templates.${candidate.id}`)}
-            </option>
-          ))}
-        </UiSelect>
-        <div className={styles.chips}>
-          {template?.steps.map((step, index) => (
-            <Fragment key={step.no}>
-              {index > 0 ? (
-                <span aria-hidden="true" className={styles.arrow}>
-                  →
-                </span>
-              ) : null}
-              <span className={styles.chip}>
-                {t("contractUpload.form.flow.stepChip", {
-                  no: step.no,
-                  label: t(`contractUpload.form.flow.steps.${step.kind}`),
-                })}
-              </span>
-            </Fragment>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.notice}>
-        <span className={styles.noticeMark} aria-hidden="true">
-          i
-        </span>
-        <div>
-          <b>{t("contractUpload.form.positionsNotice.title")}</b>
-          <div className={styles.noticeBody}>
-            {t("contractUpload.form.positionsNotice.body")}{" "}
-            <Link
-              to={`/contracts/${draft.code}/sign-positions`}
-              className={styles.noticeLink}
-            >
-              {t("contractUpload.form.positionsNotice.link")}
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div className={styles.label}>
-          {t("contractUpload.form.file.label")}{" "}
-          <span className={styles.required}>*</span>{" "}
-          <span className={styles.labelNote}>
-            {t("contractUpload.form.file.constraint")}
-          </span>
-        </div>
-        <div className={styles.file}>
-          <div className={styles.fileBadge}>{file.kind}</div>
-          <div className={styles.fileInfo}>
-            <b>{file.name}</b>
-            <div className={styles.fileMeta}>
-              {file.pages === undefined
-                ? t("contractUpload.form.file.metaNoPages", { size: fileSize })
-                : t("contractUpload.form.file.meta", {
-                    size: fileSize,
-                    pages: file.pages,
+          <Input
+            id="contract-title"
+            value={title}
+            maxLength={TITLE_MAX_LENGTH}
+            showCount
+            aria-invalid={titleError}
+            onChange={(event) => {
+              setTitle(event.target.value);
+              setTitleError(false);
+            }}
+          />
+        </Form.Item>
+        <Row gutter={16}>
+          <Col xs={24} md={12}>
+            <Form.Item label={t("contractUpload.form.supplier.label")} required>
+              <Select
+                value={supplierId}
+                onChange={setSupplierId}
+                options={options.suppliers.map((supplier) => ({
+                  value: supplier.id,
+                  label: supplier.name,
+                }))}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item label={t("contractUpload.form.reviewer.label")} required>
+              <Select
+                value={reviewerId}
+                onChange={setReviewerId}
+                options={options.reviewers.map((reviewer) => ({
+                  value: reviewer.id,
+                  label: t("contractUpload.form.reviewer.option", {
+                    role: tc(`roles.${reviewer.role}.name`),
+                    organization: reviewer.organizationLabel,
+                  }),
+                }))}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item label={t("contractUpload.form.flow.label")} required>
+          <Select
+            value={templateId}
+            onChange={setTemplateId}
+            options={options.signingTemplates.map((candidate) => ({
+              value: candidate.id,
+              label: t(`contractUpload.form.flow.templates.${candidate.id}`),
+            }))}
+          />
+          <Space wrap style={{ marginTop: 12 }}>
+            {template?.steps.map((step, index) => (
+              <Fragment key={step.no}>
+                {index > 0 ? <span aria-hidden="true">→</span> : null}
+                <Tag color="blue">
+                  {t("contractUpload.form.flow.stepChip", {
+                    no: step.no,
+                    label: t(`contractUpload.form.flow.steps.${step.kind}`),
                   })}
-            </div>
-          </div>
-          <UiButton
-            type="button"
-            className={styles.linkButton}
-            onClick={() => fileInput.current?.click()}
+                </Tag>
+              </Fragment>
+            ))}
+          </Space>
+        </Form.Item>
+        <Alert
+          showIcon
+          type="info"
+          title={t("contractUpload.form.positionsNotice.title")}
+          description={
+            <>
+              {t("contractUpload.form.positionsNotice.body")}{" "}
+              <Link to={`/contracts/${draft.code}/sign-positions`}>
+                {t("contractUpload.form.positionsNotice.link")}
+              </Link>
+            </>
+          }
+          style={{ marginBottom: 24 }}
+        />
+        <Form.Item
+          label={t("contractUpload.form.file.label")}
+          required
+          extra={t("contractUpload.form.file.constraint")}
+          validateStatus={fileError ? "error" : undefined}
+          help={
+            fileError
+              ? t(`contractUpload.form.file.errors.${fileError}`)
+              : undefined
+          }
+        >
+          <BaseCard bodyStyle={{ padding: 16 }}>
+            <Space
+              wrap
+              style={{ width: "100%", justifyContent: "space-between" }}
+            >
+              <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
+                <Tag>{file.kind}</Tag>
+                <Typography.Text strong>{file.name}</Typography.Text>
+                <div>
+                  <Typography.Text type="secondary">
+                    {file.pages === undefined
+                      ? t("contractUpload.form.file.metaNoPages", {
+                          size: fileSize,
+                        })
+                      : t("contractUpload.form.file.meta", {
+                          size: fileSize,
+                          pages: file.pages,
+                        })}
+                  </Typography.Text>
+                </div>
+              </div>
+              <Button onClick={() => fileInput.current?.click()}>
+                {t("contractUpload.form.file.replace")}
+              </Button>
+            </Space>
+            <input
+              ref={fileInput}
+              type="file"
+              hidden
+              style={{ display: "none" }}
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={onReplaceFile}
+            />
+          </BaseCard>
+          <Typography.Text type="secondary">
+            {t("contractUpload.form.file.replaceHint")}
+          </Typography.Text>
+        </Form.Item>
+        <Form.Item
+          label={
+            <>
+              {t("contractUpload.form.appendix.label")}{" "}
+              <Typography.Text type="secondary">
+                {t("contractUpload.form.appendix.optional")}
+              </Typography.Text>
+            </>
+          }
+        >
+          <Button
+            block
+            type="dashed"
+            onClick={() => appendixInput.current?.click()}
           >
-            {t("contractUpload.form.file.replace")}
-          </UiButton>
-          <UiInput
-            ref={fileInput}
+            {t("contractUpload.form.appendix.drop")}
+          </Button>
+          <input
+            ref={appendixInput}
             type="file"
             hidden
-            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            onChange={onReplaceFile}
+            style={{ display: "none" }}
+            multiple
+            onChange={onAddAppendix}
           />
-        </div>
-        {fileError ? (
-          <div className={styles.error} role="alert">
-            {t(`contractUpload.form.file.errors.${fileError}`)}
-          </div>
-        ) : null}
-        <div className={styles.replaceHint}>
-          {t("contractUpload.form.file.replaceHint")}
-        </div>
-      </div>
-
-      <div>
-        <div className={styles.label}>
-          {t("contractUpload.form.appendix.label")}{" "}
-          <span className={styles.labelNote}>
-            {t("contractUpload.form.appendix.optional")}
-          </span>
-        </div>
-        <UiButton
-          type="button"
-          className={styles.appendixDrop}
-          onClick={() => appendixInput.current?.click()}
-        >
-          <Icon name="upload" />
-          {t("contractUpload.form.appendix.drop")}
-        </UiButton>
-        <UiInput
-          ref={appendixInput}
-          type="file"
-          hidden
-          multiple
-          onChange={onAddAppendix}
-        />
-        {appendixNames.length > 0 ? (
-          <ul className={styles.appendixList}>
+          <Space wrap style={{ marginTop: 8 }}>
             {appendixNames.map((name) => (
-              <li key={name}>
-                <span>{name}</span>
-                <UiButton
-                  type="button"
-                  className={styles.linkButton}
-                  aria-label={t("contractUpload.form.appendix.remove", {
-                    name,
-                  })}
-                  onClick={() =>
-                    setAppendixNames((current) =>
-                      current.filter((existing) => existing !== name),
-                    )
-                  }
-                >
-                  ×
-                </UiButton>
-              </li>
+              <Tag
+                key={name}
+                closable
+                onClose={() =>
+                  setAppendixNames((current) =>
+                    current.filter((existing) => existing !== name),
+                  )
+                }
+              >
+                {name}
+              </Tag>
             ))}
-          </ul>
+          </Space>
+        </Form.Item>
+        {save.isError ? (
+          <Alert
+            type="error"
+            showIcon
+            title={save.error.message}
+            style={{ marginBottom: 16 }}
+          />
         ) : null}
-      </div>
-
-      <div className={styles.actions}>
-        <Link to="/contracts" className={styles.cancel}>
-          {t("contractUpload.form.actions.cancel")}
-        </Link>
-        <UiButton
-          type="button"
-          className={styles.continue}
-          onClick={onContinue}
-          disabled={save.isPending}
-        >
-          {t("contractUpload.form.actions.continue")}
-        </UiButton>
-      </div>
-    </section>
+        <FormFooter
+          loading={save.isPending}
+          submitText={t("contractUpload.form.actions.continue")}
+          cancelText={t("contractUpload.form.actions.cancel")}
+          onCancel={() => navigate("/contracts")}
+          onSubmit={onContinue}
+        />
+      </Form>
+    </BaseCard>
   );
 }

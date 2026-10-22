@@ -1,6 +1,7 @@
-import { Card as AntCard } from "antd";
+import { BaseCard } from "@codecash/ui";
 import type { ReactNode } from "react";
 export function Card({
+  as: Element = "section",
   className,
   children,
 }: {
@@ -9,8 +10,23 @@ export function Card({
   children: ReactNode;
 }) {
   return (
-    <AntCard className={className} styles={{ body: { padding: 20 } }}>
-      {children}
-    </AntCard>
+    <BaseCard
+      bodyStyle={{
+        padding: 0,
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+      }}
+      style={{
+        minWidth: 0,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Element className={className} style={{ flex: 1, minWidth: 0 }}>
+        {children}
+      </Element>
+    </BaseCard>
   );
 }

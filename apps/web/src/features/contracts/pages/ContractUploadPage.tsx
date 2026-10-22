@@ -1,3 +1,5 @@
+import { PageContainer, BaseCard, LoadingState } from "@codecash/ui";
+import { Alert } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/shared/auth/session";
@@ -40,30 +42,34 @@ export default function ContractUploadPage() {
         { label: t("breadcrumb.upload") },
       ]}
     >
-      {draft.isError || options.isError ? (
-        <p role="alert">{tc("common.loadError")}</p>
-      ) : null}
-      {draft.isPending || options.isPending ? (
-        <p>{tc("common.loading")}</p>
-      ) : null}
-      {draft.data && options.data ? (
-        <>
-          <WizardStepper current={1} />
-          <div className={styles.columns}>
-            <ContractUploadForm draft={draft.data} options={options.data} />
-            <div className={styles.side}>
-              <FileChecksPanel
-                pages={draft.data.file.pages ?? 0}
-                signingSteps={template?.steps.length ?? 0}
-              />
-              <PagePreviewPanel
-                page={draft.data.file.pages ?? 0}
-                total={draft.data.file.pages ?? 0}
-              />
+      <PageContainer title={t("contractUpload.title")}>
+        {draft.isError || options.isError ? (
+          <Alert type="error" showIcon title={tc("common.loadError")} />
+        ) : null}
+        {draft.isPending || options.isPending ? (
+          <LoadingState tip={tc("common.loading")} />
+        ) : null}
+        {draft.data && options.data ? (
+          <>
+            <BaseCard>
+              <WizardStepper current={1} />
+            </BaseCard>
+            <div className={styles.columns}>
+              <ContractUploadForm draft={draft.data} options={options.data} />
+              <div className={styles.side}>
+                <FileChecksPanel
+                  pages={draft.data.file.pages ?? 0}
+                  signingSteps={template?.steps.length ?? 0}
+                />
+                <PagePreviewPanel
+                  page={draft.data.file.pages ?? 0}
+                  total={draft.data.file.pages ?? 0}
+                />
+              </div>
             </div>
-          </div>
-        </>
-      ) : null}
+          </>
+        ) : null}
+      </PageContainer>
     </AppShell>
   );
 }

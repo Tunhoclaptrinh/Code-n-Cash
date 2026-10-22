@@ -11,6 +11,7 @@ import {
   Alert,
   Card,
   Tabs,
+  theme,
 } from "antd";
 import {
   PlusOutlined,
@@ -98,6 +99,7 @@ export const DataTable = <T extends Record<string, any>>({
   searchFields = [],
   ...antTableProps
 }: DataTableProps<T>) => {
+  const { token } = theme.useToken();
   const [localPagination, setLocalPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -288,7 +290,14 @@ export const DataTable = <T extends Record<string, any>>({
   const showBatchBtn = !!batchOperations && activeSelectedRowKeys.length > 0;
   const showFilterBtn = filters && filters.length > 0;
   const renderContent = () => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+        paddingTop: 16,
+      }}
+    >
       {statistics ? (
         <div style={{ padding: "16px 20px 0 20px" }}>{statistics}</div>
       ) : statisticsData && statisticsData.length > 0 ? (
@@ -305,7 +314,12 @@ export const DataTable = <T extends Record<string, any>>({
       ) : null}
 
       {(headerContent || (tabs && tabs.length > 0)) && (
-        <div style={{ padding: "0 20px", borderBottom: "1px solid #E5E7EB" }}>
+        <div
+          style={{
+            padding: "0 20px",
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
           {headerContent}
           {tabs && tabs.length > 0 && (
             <Tabs
@@ -393,7 +407,9 @@ export const DataTable = <T extends Record<string, any>>({
               }}
               style={{ width: 200, height: 32, borderRadius: 6 }}
               allowClear
-              prefix={<SearchOutlined style={{ color: "#9CA3AF" }} />}
+              prefix={
+                <SearchOutlined style={{ color: token.colorTextPlaceholder }} />
+              }
             />
           )}
 
@@ -429,11 +445,11 @@ export const DataTable = <T extends Record<string, any>>({
               height: 32,
               padding: "0 12px",
               borderRadius: 6,
-              background: "var(--bg-surface-card, #FFFFFF)",
-              border: "1px solid var(--border-subtle, #E5E7EB)",
+              background: token.colorBgContainer,
+              border: `1px solid ${token.colorBorderSecondary}`,
               fontSize: 13,
               fontWeight: 600,
-              color: "var(--text-secondary, #4B5563)",
+              color: token.colorTextSecondary,
               display: "inline-flex",
               alignItems: "center",
               gap: 4,
@@ -561,7 +577,11 @@ export const DataTable = <T extends Record<string, any>>({
                 <div style={{ fontWeight: 800, fontSize: 16 }}>{title}</div>
                 {subtitle && (
                   <div
-                    style={{ color: "#6B7280", fontSize: 12, fontWeight: 400 }}
+                    style={{
+                      color: token.colorTextSecondary,
+                      fontSize: 12,
+                      fontWeight: 400,
+                    }}
                   >
                     {subtitle}
                   </div>
@@ -571,7 +591,7 @@ export const DataTable = <T extends Record<string, any>>({
           }
           style={{
             borderRadius: 12,
-            border: "1px solid #E5E7EB",
+            border: `1px solid ${token.colorBorderSecondary}`,
             boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
             overflow: "hidden",
           }}

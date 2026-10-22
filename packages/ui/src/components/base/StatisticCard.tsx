@@ -1,5 +1,15 @@
 import React, { isValidElement, ReactElement } from "react";
-import { Card, Statistic, Tag, Skeleton, Space, Row, Col, Spin } from "antd";
+import {
+  Card,
+  Statistic,
+  Tag,
+  Skeleton,
+  Space,
+  Row,
+  Col,
+  Spin,
+  theme,
+} from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { formatNumber } from "../../utils/formatters";
 import {
@@ -24,6 +34,7 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({
   onClick,
   style,
 }) => {
+  const { token } = theme.useToken();
   return (
     <Card
       variant="borderless"
@@ -34,7 +45,7 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({
         cursor: onClick ? "pointer" : "default",
         transition: "all 0.3s ease",
         boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.04)",
-        border: "1px solid var(--border-subtle, #E5E7EB)",
+        border: `1px solid ${token.colorBorderSecondary}`,
         ...style,
       }}
       styles={{ body: { padding: 18 } }}
@@ -48,7 +59,13 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({
             marginBottom: 10,
           }}
         >
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#6B7280" }}>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: token.colorTextSecondary,
+            }}
+          >
             {title}
           </span>
 
@@ -85,10 +102,10 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({
               precision={precision}
               valueStyle={{
                 fontWeight: 800,
-                fontSize: 26,
+                fontSize: 28,
                 letterSpacing: "-0.5px",
                 color: valueColor || "inherit",
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily: token.fontFamily,
               }}
             />
 
@@ -119,7 +136,9 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({
                   {trend.value}
                 </Tag>
                 {trend.label && (
-                  <span style={{ fontSize: 12, color: "#6B7280" }}>
+                  <span
+                    style={{ fontSize: 12, color: token.colorTextSecondary }}
+                  >
                     {trend.label}
                   </span>
                 )}
@@ -127,7 +146,13 @@ export const StatisticCard: React.FC<StatisticCardProps> = ({
             )}
 
             {subText && (
-              <div style={{ marginTop: 4, fontSize: 12, color: "#6B7280" }}>
+              <div
+                style={{
+                  marginTop: 4,
+                  fontSize: 12,
+                  color: token.colorTextSecondary,
+                }}
+              >
                 {subText}
               </div>
             )}

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { BaseCard } from "@codecash/ui";
 import styles from "./SidePanels.module.css";
 
 interface PagePreviewPanelProps {
@@ -11,15 +12,10 @@ export function PagePreviewPanel({ page, total }: PagePreviewPanelProps) {
   const { t } = useTranslation("contracts");
 
   return (
-    <section className={styles.preview}>
-      <div className={styles.previewHeader}>
-        <h2 className={styles.previewTitle}>
-          {t("contractUpload.preview.title")}
-        </h2>
-        <span className={styles.previewPage}>
-          {t("contractUpload.preview.page", { page, total })}
-        </span>
-      </div>
+    <BaseCard
+      title={t("contractUpload.preview.title")}
+      extra={t("contractUpload.preview.page", { page, total })}
+    >
       <div className={styles.previewStage}>
         <div className={styles.sheet}>
           <div
@@ -39,6 +35,6 @@ export function PagePreviewPanel({ page, total }: PagePreviewPanelProps) {
           </div>
         </div>
       </div>
-    </section>
+    </BaseCard>
   );
 }

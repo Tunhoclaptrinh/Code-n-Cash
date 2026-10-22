@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { BaseCard } from "@codecash/ui";
 import styles from "./SidePanels.module.css";
 
 interface FileChecksPanelProps {
@@ -11,8 +12,7 @@ export function FileChecksPanel({ pages, signingSteps }: FileChecksPanelProps) {
   const { t } = useTranslation("contracts");
 
   return (
-    <section className={styles.checks}>
-      <h2 className={styles.checksTitle}>{t("contractUpload.checks.title")}</h2>
+    <BaseCard title={t("contractUpload.checks.title")}>
       <div className={styles.check}>
         <span className={styles.checkMark} aria-hidden="true">
           ✓
@@ -40,6 +40,6 @@ export function FileChecksPanel({ pages, signingSteps }: FileChecksPanelProps) {
           {t("contractUpload.checks.unsigned.detail")}
         </span>
       </div>
-    </section>
+    </BaseCard>
   );
 }

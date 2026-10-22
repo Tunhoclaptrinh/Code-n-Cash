@@ -11,6 +11,7 @@ import {
   Tag,
   Drawer,
   Empty,
+  theme,
 } from "antd";
 import {
   MenuOutlined,
@@ -22,7 +23,7 @@ import {
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppConfig } from "@codecash/ui";
 import { getPendingTaskCount } from "../api/tasks.api";
 import { useCurrentUser, useSession } from "../auth/session";
@@ -52,6 +53,7 @@ export function AppShell({
   const { signOut } = useSession();
   const navigate = useNavigate();
   const { themeMode, toggleTheme } = useAppConfig();
+  const { token } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [notifications, setNotifications] = useState(false);
   const tasks = useQuery({
@@ -79,7 +81,7 @@ export function AppShell({
         collapsedWidth={64}
         theme={themeMode === "dark" ? "dark" : "light"}
         width={240}
-        style={{ borderRight: "1px solid #e5e9f2" }}
+        style={{ borderRight: `1px solid ${token.colorBorderSecondary}` }}
       >
         <div
           style={{
@@ -123,7 +125,7 @@ export function AppShell({
           ]}
         />
       </Layout.Sider>
-      <Layout>
+      <Layout style={{ minWidth: 0 }}>
         <Layout.Header
           style={{
             padding: "0 24px",
@@ -132,7 +134,10 @@ export function AppShell({
             gap: 16,
             alignItems: "center",
             background: themeMode === "dark" ? "#141414" : "white",
-            borderBottom: "1px solid #e5e9f2",
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+            position: "sticky",
+            top: 0,
+            zIndex: 20,
           }}
         >
           <Button
@@ -143,11 +148,7 @@ export function AppShell({
           />
           <Breadcrumb
             items={breadcrumb.map((x) => ({
-              title: x.to ? (
-                <a onClick={() => navigate(x.to!)}>{x.label}</a>
-              ) : (
-                x.label
-              ),
+              title: x.to ? <Link to={x.to}>{x.label}</Link> : x.label,
             }))}
           />
           <Space style={{ marginLeft: "auto" }}>
@@ -204,7 +205,13 @@ export function AppShell({
         </Layout.Header>
         <Layout.Content
           className={contentClassName}
-          style={{ padding: 24, minWidth: 0 }}
+          style={{
+            padding: 24,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
         >
           {children}
         </Layout.Content>

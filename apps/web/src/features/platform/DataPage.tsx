@@ -2,8 +2,6 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Button,
-  Card,
-  Statistic,
   Row,
   Col,
   Tag,
@@ -13,7 +11,13 @@ import {
   Space,
 } from "antd";
 import { useState } from "react";
-import { DataTable, exportToCSV, exportToJSON } from "@codecash/ui";
+import {
+  DataTable,
+  PageContainer,
+  StatisticCard,
+  exportToCSV,
+  exportToJSON,
+} from "@codecash/ui";
 import { platform } from "@/shared/api/platform";
 import { AppShell } from "@/shared/layout/AppShell";
 import { useCurrentUser } from "@/shared/auth/session";
@@ -74,58 +78,71 @@ export default function DataPage() {
   }));
   return (
     <AppShell active="data" breadcrumb={[{ label: t("data.title") }]}>
-      <Space style={{ marginBottom: 24 }}>
-        <Button
-          type="primary"
-          loading={evaluate.isPending}
-          disabled={
-            !["CONTRACT_OWNER", "FINANCE_APPROVER", "ADMIN_AUDITOR"].includes(
-              user.role,
+      <PageContainer
+        title={t("data.title")}
+        extra={
+          <Space wrap>
+            <Button
+              type="primary"
+              loading={evaluate.isPending}
+              disabled={
+                ![
+                  "CONTRACT_OWNER",
+                  "FINANCE_APPROVER",
+                  "ADMIN_AUDITOR",
+                ].includes(user.role)
+              }
+              onClick={() => evaluate.mutate()}
+            >
+              {t("data.evaluate")}
+            </Button>
+            <Button
+              disabled={!result.data}
+              onClick={() =>
+                exportToCSV(result.data!.rows, "submission_output.csv")
+              }
+            >
+              {t("data.export")}
+            </Button>
+            <Button
+              disabled={!result.data}
+              onClick={() => exportToJSON(result.data!.traces, "audit.json")}
+            >
+              {t("data.audit")}
+            </Button>
+          </Space>
+        }
+      >
+        {evaluate.isError ? (
+          <Alert type="error" showIcon title={evaluate.error.message} />
+        ) : null}
+        {result.isError ? (
+          <Alert type="error" title={result.error.message} />
+        ) : null}
+        {result.data?.summary ? (
+          <Row gutter={[16, 16]}>
+            {Object.entries(result.data.summary.decisions).map(
+              ([key, value]) => (
+                <Col key={key} xs={12} lg={6}>
+                  <StatisticCard title={key} value={value} />
+                </Col>
+              ),
+            )}
+          </Row>
+        ) : null}
+        <DataTable
+          rowKey="milestone_id"
+          columns={columns}
+          dataSource={result.data?.rows ?? []}
+          loading={result.isPending}
+          searchFields={["contract_id", "milestone_id", "reason_code"]}
+          onView={(row) =>
+            setTrace(
+              result.data?.traces.find((x) => x.id === row.audit_trace_id),
             )
           }
-          onClick={() => evaluate.mutate()}
-        >
-          {t("data.evaluate")}
-        </Button>
-        <Button
-          disabled={!result.data}
-          onClick={() =>
-            exportToCSV(result.data!.rows, "submission_output.csv")
-          }
-        >
-          {t("data.export")}
-        </Button>
-        <Button
-          disabled={!result.data}
-          onClick={() => exportToJSON(result.data!.traces, "audit.json")}
-        >
-          {t("data.audit")}
-        </Button>
-      </Space>
-      {result.isError ? (
-        <Alert type="error" title={result.error.message} />
-      ) : null}
-      {result.data?.summary ? (
-        <Row gutter={16}>
-          {Object.entries(result.data.summary.decisions).map(([key, value]) => (
-            <Col key={key} xs={12} lg={6}>
-              <Card>
-                <Statistic title={key} value={value} />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      ) : null}
-      <DataTable
-        rowKey="milestone_id"
-        columns={columns}
-        dataSource={result.data?.rows ?? []}
-        loading={result.isPending}
-        searchFields={["contract_id", "milestone_id", "reason_code"]}
-        onView={(row) =>
-          setTrace(result.data?.traces.find((x) => x.id === row.audit_trace_id))
-        }
-      />
+        />
+      </PageContainer>
       <Drawer
         open={!!trace}
         onClose={() => setTrace(undefined)}

@@ -143,17 +143,63 @@ try {
     );
     assert.equal(screen.overflow, false, route);
     screens.push({ route: screen.route, overflow: screen.overflow });
-    if (route === "/contracts") {
-      assert.ok(screen.text.includes("CT0101"));
-      const screenshot = await send("Page.captureScreenshot", {
-        format: "png",
-      });
-      await writeFile(
-        "artifacts/browser/contracts.png",
-        Buffer.from(screenshot.data, "base64"),
-      );
-    }
+    if (route === "/contracts") assert.ok(screen.text.includes("CT0101"));
+    const screenshot = await send("Page.captureScreenshot", { format: "png" });
+    await writeFile(
+      `artifacts/browser/${route.slice(1).replaceAll("/", "-")}.png`,
+      Buffer.from(screenshot.data, "base64"),
+    );
     if (route === "/data") assert.ok(screen.text.includes("405"));
+  }
+  // Exercise the replaced form and SPA resource tabs without mutating business data.
+  await send("Page.navigate", { url: base + "/contracts/new" });
+  await until("!!document.querySelector('#contract-title')");
+  await evaluate(
+    `(() => { const input = document.querySelector('#contract-title'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); })()`,
+  );
+  await pause(100);
+  await evaluate(
+    "Array.from(document.querySelectorAll('form button')).at(-1).click()",
+  );
+  await until("!!document.querySelector('.ant-form-item-explain-error')");
+  assert.equal(await evaluate("location.pathname"), "/contracts/new");
+  await send("Page.navigate", { url: base + "/platform/organizations" });
+  await until("!!document.querySelector('.ant-tabs-tab[data-node-key=users]')");
+  await evaluate(
+    "window.__navigationProbe = true; document.querySelector('.ant-tabs-tab[data-node-key=users]').click()",
+  );
+  await until("location.pathname === '/platform/users'");
+  assert.equal(await evaluate("window.__navigationProbe"), true);
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  for (const route of [
+    "/contracts",
+    "/contracts/new",
+    "/contracts/CT0101",
+    "/submissions/CT0101/2",
+    "/approvals/CT0101/2",
+    "/contracts/CT0101/milestones/2/decision",
+    "/activity-log",
+    "/platform/organizations",
+    "/data",
+  ]) {
+    await send("Page.navigate", { url: base + route });
+    await until("document.querySelectorAll('.ant-layout').length>0");
+    await pause(700);
+    const overflow = await evaluate(
+      "document.documentElement.scrollWidth>innerWidth",
+    );
+    assert.equal(overflow, false, `mobile: ${route}`);
+    screens.push({ route, width: 390, overflow });
+    const screenshot = await send("Page.captureScreenshot", { format: "png" });
+    await writeFile(
+      `artifacts/browser/mobile-${route.slice(1).replaceAll("/", "-")}.png`,
+      Buffer.from(screenshot.data, "base64"),
+    );
   }
   const fake = await evaluate(
     `(async()=>{const {checkFile}=await import('/src/features/signing/api/verification.api.ts');return checkFile(null,new File(['%PDF-1.4\\n/ByteRange [0 1 2 3]'],'unsigned.pdf'));})()`,
@@ -165,7 +211,7 @@ try {
     JSON.stringify({ screens, errors, signatureCheck: fake }, null, 2),
   );
   console.log(
-    `Browser smoke passed: login, ${screens.length} screens, desktop layout, unsigned PDF handling.`,
+    `Browser smoke passed: login, ${screens.length} screens, desktop/mobile layout, upload validation, resource tabs, unsigned PDF handling.`,
   );
 } finally {
   ws?.close();

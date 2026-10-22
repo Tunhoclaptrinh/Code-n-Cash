@@ -6,16 +6,13 @@ import {
   Button,
   Row,
   Col,
-  Card,
-  Statistic,
   Select,
   Progress,
   Tag,
   Typography,
-  Space,
   Alert,
 } from "antd";
-import { DataTable } from "@codecash/ui";
+import { DataTable, PageContainer, StatisticCard } from "@codecash/ui";
 import type { ContractStatus } from "@/shared/api/types";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppShell } from "@/shared/layout/AppShell";
@@ -172,65 +169,57 @@ export default function ContractListPage() {
         { label: t("breadcrumb.contracts") },
       ]}
     >
-      <Space
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 20,
-        }}
+      <PageContainer
+        title={t("contractList.title")}
+        subtitle={t("contractList.subtitle", {
+          count: contracts.length,
+          organization: list.data?.organizationName ?? "",
+        })}
+        extra={
+          user.role === "CONTRACT_OWNER" ? (
+            <Button type="primary" onClick={() => navigate("/contracts/new")}>
+              {t("contractList.upload")}
+            </Button>
+          ) : undefined
+        }
       >
-        <div>
-          <Typography.Title level={2}>
-            {t("contractList.title")}
-          </Typography.Title>
-          <Typography.Text type="secondary">
-            {t("contractList.subtitle", {
-              count: contracts.length,
-              organization: list.data?.organizationName,
-            })}
-          </Typography.Text>
-        </div>
-        {user.role === "CONTRACT_OWNER" ? (
-          <Button type="primary" onClick={() => navigate("/contracts/new")}>
-            {t("contractList.upload")}
-          </Button>
-        ) : null}
-      </Space>
-      <Row gutter={[16, 16]}>
-        {tiles.map((tile) => (
-          <Col xs={12} xl={6} key={tile.key}>
-            <Card>
-              <Statistic
+        <Row gutter={[16, 16]}>
+          {tiles.map((tile) => (
+            <Col xs={12} xl={6} key={tile.key}>
+              <StatisticCard
+                loading={list.isPending}
                 title={t(`contractList.tiles.${perspective}.${tile.key}`)}
                 value={tile.count}
               />
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <Space style={{ marginBottom: 16 }}>
-        <Select
-          value={status}
-          onChange={setStatus}
-          style={{ minWidth: 220 }}
-          options={[
-            { value: "", label: t("contractList.filters.allStatuses") },
-            ...STATUSES.map((value) => ({
-              value,
-              label: t(`contractList.status.${value}`),
-            })),
-          ]}
+            </Col>
+          ))}
+        </Row>
+        {list.isError ? (
+          <Alert type="error" title={String(list.error)} />
+        ) : null}
+        <DataTable<ContractRow>
+          extra={
+            <Select
+              value={status}
+              onChange={setStatus}
+              style={{ minWidth: 220 }}
+              options={[
+                { value: "", label: t("contractList.filters.allStatuses") },
+                ...STATUSES.map((value) => ({
+                  value,
+                  label: t(`contractList.status.${value}`),
+                })),
+              ]}
+            />
+          }
+          dataSource={visible}
+          columns={columns}
+          rowKey="code"
+          loading={list.isPending}
+          searchValue={search}
+          onSearch={setSearch}
         />
-      </Space>
-      {list.isError ? <Alert type="error" title={String(list.error)} /> : null}
-      <DataTable<ContractRow>
-        dataSource={visible}
-        columns={columns}
-        rowKey="code"
-        loading={list.isPending}
-        searchValue={search}
-        onSearch={setSearch}
-      />
+      </PageContainer>
     </AppShell>
   );
 }

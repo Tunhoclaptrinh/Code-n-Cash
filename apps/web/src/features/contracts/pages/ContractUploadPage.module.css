@@ -12,3 +12,9 @@
   gap: 20px;
   min-height: 0;
 }
+
+@media (max-width: 1200px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

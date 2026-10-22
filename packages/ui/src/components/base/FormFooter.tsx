@@ -48,7 +48,7 @@ export const FormFooter: React.FC<FormFooterProps> = ({
         </div>
       )}
 
-      <Space size="middle">
+      <Space wrap size="middle">
         {onReset && resetText && (
           <BaseButton
             variant="secondary"

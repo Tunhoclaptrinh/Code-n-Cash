@@ -1,6 +1,6 @@
-import { UiInput } from "@/shared/ui/controls";
-import { formatDate } from "@/shared/lib/format";
-import styles from "./ActivityLogView.module.css";
+import { DatePicker, Space, Typography } from "antd";
+import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 interface DateFilterProps {
   id: string;
@@ -12,10 +12,6 @@ interface DateFilterProps {
   onChange: (value: string) => void;
 }
 
-/**
- * Shows the date in the active locale's format and keeps a transparent native date input on top,
- * so the picker, keyboard entry and screen-reader semantics come from the browser.
- */
 export function DateFilter({
   id,
   label,
@@ -24,26 +20,20 @@ export function DateFilter({
   max,
   onChange,
 }: DateFilterProps) {
+  const { i18n } = useTranslation();
   return (
-    <>
-      <label htmlFor={id} className={styles.filterLabel}>
-        {label}
-      </label>
-      <div className={styles.dateControl}>
-        <span aria-hidden="true">
-          {value ? formatDate(`${value}T00:00:00`) : " "}
-        </span>
-        <UiInput
-          id={id}
-          type="date"
-          className={styles.dateInput}
-          value={value}
-          min={min}
-          max={max}
-          onChange={(event) => onChange(event.target.value)}
-          onClick={(event) => event.currentTarget.showPicker?.()}
-        />
-      </div>
-    </>
+    <Space size={8}>
+      <Typography.Text>
+        <label htmlFor={id}>{label}</label>
+      </Typography.Text>
+      <DatePicker
+        id={id}
+        value={value ? dayjs(value) : null}
+        minDate={min ? dayjs(min) : undefined}
+        maxDate={max ? dayjs(max) : undefined}
+        format={i18n.language.startsWith("vi") ? "DD/MM/YYYY" : "MM/DD/YYYY"}
+        onChange={(date) => onChange(date?.format("YYYY-MM-DD") ?? "")}
+      />
+    </Space>
   );
 }

@@ -1,4 +1,5 @@
-import { UiButton } from "@/shared/ui/controls";
+import { PageContainer } from "@codecash/ui";
+import { Space } from "antd";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
@@ -78,24 +79,22 @@ export default function ContractDetailPage() {
       {overview.isPending ? <PageMessage kind="loading" /> : null}
       {overview.isError ? <PageMessage kind="error" /> : null}
       {data ? (
-        <>
-          <div className={styles.header}>
-            <div className={styles.headerText}>
-              <div className={styles.meta}>
-                {t("detail.meta", {
-                  kind: t(`contractKind.${data.kind}`),
-                  supplier: data.supplierName,
-                })}
-              </div>
-              <h1>{data.title}</h1>
-            </div>
+        <PageContainer
+          title={data.title}
+          subtitle={t("detail.meta", {
+            kind: t(`contractKind.${data.kind}`),
+            supplier: data.supplierName,
+          })}
+          tags={
             <Badge
               tone={data.phase === "COMPLETED" ? "neutral" : "success"}
               size="lg"
             >
               {t(`detail.phase.${data.phase}`)}
             </Badge>
-            <div className={styles.headerActions}>
+          }
+          extra={
+            <Space wrap>
               <Button variant="outline" size="header">
                 {t("detail.actions.download")}
               </Button>
@@ -106,37 +105,14 @@ export default function ContractDetailPage() {
               >
                 {t("detail.actions.verify")}
               </Button>
-            </div>
-          </div>
-
-          <div
-            className={styles.tabs}
-            role="tablist"
-            aria-label={t("detail.tabs.label")}
-          >
-            {TABS.map((key) => (
-              <UiButton
-                key={key}
-                type="button"
-                role="tab"
-                id={`tab-${key}`}
-                aria-selected={tab === key}
-                aria-controls={`panel-${key}`}
-                className={`${styles.tab} ${tab === key ? styles.tabActive : ""}`}
-                onClick={() => setTab(key)}
-              >
-                {t(`detail.tabs.${key}`)}
-              </UiButton>
-            ))}
-          </div>
-
+            </Space>
+          }
+          tabs={TABS.map((key) => ({ key, tab: t(`detail.tabs.${key}`) }))}
+          activeTabKey={tab}
+          onTabChange={(key) => setTab(key as TabKey)}
+        >
           {tab === "milestones" ? (
-            <div
-              className={styles.grid}
-              role="tabpanel"
-              id="panel-milestones"
-              aria-labelledby="tab-milestones"
-            >
+            <div className={styles.grid}>
               <ol className={styles.timeline}>
                 {data.milestones.map((row, index) => (
                   <MilestoneItem
@@ -159,12 +135,7 @@ export default function ContractDetailPage() {
 
           {tab === "documents" ? (
             <Card className={styles.tabPanel}>
-              <div
-                role="tabpanel"
-                id="panel-documents"
-                aria-labelledby="tab-documents"
-                className={styles.panelBody}
-              >
+              <div className={styles.panelBody}>
                 <h2>{t("detail.documents.title")}</h2>
                 {data.documents.length === 0 ? (
                   <p className={styles.empty}>{t("detail.documents.empty")}</p>
@@ -197,12 +168,7 @@ export default function ContractDetailPage() {
 
           {tab === "participants" ? (
             <Card className={styles.tabPanel}>
-              <div
-                role="tabpanel"
-                id="panel-participants"
-                aria-labelledby="tab-participants"
-                className={styles.panelBody}
-              >
+              <div className={styles.panelBody}>
                 <h2>{t("detail.participants.title")}</h2>
                 <ParticipantRows participants={data.participants} />
               </div>
@@ -211,12 +177,7 @@ export default function ContractDetailPage() {
 
           {tab === "history" ? (
             <Card className={styles.tabPanel}>
-              <div
-                role="tabpanel"
-                id="panel-history"
-                aria-labelledby="tab-history"
-                className={styles.panelBody}
-              >
+              <div className={styles.panelBody}>
                 <p>{t("detail.history.body")}</p>
                 <Link to="/activity-log" className={styles.link}>
                   {t("detail.history.link")}
@@ -224,7 +185,7 @@ export default function ContractDetailPage() {
               </div>
             </Card>
           ) : null}
-        </>
+        </PageContainer>
       ) : null}
     </AppShell>
   );

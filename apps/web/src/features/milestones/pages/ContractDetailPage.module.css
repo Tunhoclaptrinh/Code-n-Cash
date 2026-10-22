@@ -355,3 +355,42 @@
   --ms-amber-wash: #fffcf5;
   --ms-blue-wash: #f6f9ff;
 }
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.milestoneCard {
+  min-width: 0;
+}
+@media (max-width: 1400px) {
+  .milestoneCard {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .side {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+}
+@media (max-width: 760px) {
+  .header,
+  .headerActions,
+  .nameRow,
+  .documentRow {
+    flex-wrap: wrap;
+  }
+  .headerActions {
+    margin-left: 0;
+  }
+  .milestoneCard {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    gap: 12px;
+  }
+  .tabs {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}

@@ -45,15 +45,6 @@ p {
   width: 100%;
   min-width: 0;
 }
-.ant-select {
-  min-width: 140px;
-}
-.ant-steps {
-  margin-bottom: 24px;
-}
-.ant-card {
-  margin-bottom: 16px;
-}
 .ant-btn {
   max-width: 100%;
 }

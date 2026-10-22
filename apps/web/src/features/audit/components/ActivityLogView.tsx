@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Button, Space, Select, Typography, Tag } from "antd";
-import { DataTable } from "@codecash/ui";
+import { Button, Space, Select, Tag } from "antd";
+import { DataTable, PageContainer } from "@codecash/ui";
 import { formatDateTime } from "@/shared/lib/format";
 import {
   actorName,
@@ -117,66 +117,59 @@ export function ActivityLogView({
       ]),
     );
   return (
-    <>
-      <Space
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 24,
-        }}
-      >
-        <div>
-          <Typography.Title level={2}>{t("title")}</Typography.Title>
-          <Typography.Text type="secondary">{t("subtitle")}</Typography.Text>
-        </div>
-        <Button onClick={exportCsv}>{t("export.button")}</Button>
-      </Space>
-      <Space wrap style={{ marginBottom: 16 }}>
-        <Select
-          value={filters.contractCode}
-          onChange={(contractCode) => update({ contractCode })}
-          options={[
-            { value: "", label: t("filters.allContracts") },
-            ...contracts.map((value) => ({ value, label: value })),
-          ]}
-        />
-        <Select
-          value={filters.actorId}
-          onChange={(actorId) => update({ actorId })}
-          options={[{ value: "", label: t("filters.all") }, ...actors]}
-        />
-        <Select
-          value={filters.category}
-          onChange={(category) => update({ category })}
-          options={[
-            { value: "", label: t("filters.all") },
-            ...categories.map((value) => ({
-              value,
-              label: t(`categories.${value}`),
-            })),
-          ]}
-        />
-        <DateFilter
-          id="log-from"
-          label={t("filters.from")}
-          value={filters.from}
-          max={filters.to}
-          onChange={(from) => update({ from })}
-        />
-        <DateFilter
-          id="log-to"
-          label={t("filters.to")}
-          value={filters.to}
-          min={filters.from}
-          onChange={(to) => update({ to })}
-        />
-      </Space>
+    <PageContainer
+      title={t("title")}
+      subtitle={t("subtitle")}
+      extra={<Button onClick={exportCsv}>{t("export.button")}</Button>}
+    >
       <DataTable<ActivityEntry>
+        headerContent={
+          <Space wrap style={{ marginBottom: 16 }}>
+            <Select
+              value={filters.contractCode}
+              onChange={(contractCode) => update({ contractCode })}
+              options={[
+                { value: "", label: t("filters.allContracts") },
+                ...contracts.map((value) => ({ value, label: value })),
+              ]}
+            />
+            <Select
+              value={filters.actorId}
+              onChange={(actorId) => update({ actorId })}
+              options={[{ value: "", label: t("filters.all") }, ...actors]}
+            />
+            <Select
+              value={filters.category}
+              onChange={(category) => update({ category })}
+              options={[
+                { value: "", label: t("filters.all") },
+                ...categories.map((value) => ({
+                  value,
+                  label: t(`categories.${value}`),
+                })),
+              ]}
+            />
+            <DateFilter
+              id="log-from"
+              label={t("filters.from")}
+              value={filters.from}
+              max={filters.to}
+              onChange={(from) => update({ from })}
+            />
+            <DateFilter
+              id="log-to"
+              label={t("filters.to")}
+              value={filters.to}
+              min={filters.from}
+              onChange={(to) => update({ to })}
+            />
+          </Space>
+        }
         dataSource={visible}
         columns={columns}
         rowKey="id"
         searchable={false}
       />
-    </>
+    </PageContainer>
   );
 }

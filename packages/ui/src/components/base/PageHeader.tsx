@@ -1,8 +1,10 @@
 import React from "react";
-import { Space, Typography } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Space, Typography, Tooltip } from "antd";
 const { Title, Paragraph } = Typography;
 export interface PageHeaderProps {
   title: React.ReactNode;
+  tooltip?: React.ReactNode;
   subtitle?: React.ReactNode;
   icon?: React.ReactNode;
   extra?: React.ReactNode;
@@ -10,6 +12,7 @@ export interface PageHeaderProps {
 }
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
+  tooltip,
   subtitle,
   icon,
   extra,
@@ -23,29 +26,39 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         alignItems: "flex-start",
         flexWrap: "wrap",
         gap: 16,
-        marginBottom: 20,
+        minWidth: 0,
       }}
     >
       <div>
-        <Space size={10} style={{ marginBottom: 4 }}>
+        <Space wrap size={10} style={{ marginBottom: 4 }}>
           {icon}
-          <Title level={4} style={{ margin: 0, fontWeight: 800 }}>
+          <Title level={3} style={{ margin: 0, fontWeight: 650 }}>
             {title}
           </Title>
+          {tooltip && (
+            <Tooltip title={tooltip}>
+              <QuestionCircleOutlined />
+            </Tooltip>
+          )}
           {tags}
         </Space>
 
         {subtitle && (
-          <Paragraph
-            style={{ color: "#6B7280", fontSize: 13, margin: 0, marginTop: 2 }}
-          >
+          <Paragraph type="secondary" style={{ margin: 0, marginTop: 4 }}>
             {subtitle}
           </Paragraph>
         )}
       </div>
 
       {extra && (
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           {extra}
         </div>
       )}

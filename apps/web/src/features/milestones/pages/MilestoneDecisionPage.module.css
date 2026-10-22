@@ -39,7 +39,8 @@
 }
 
 .grid {
-  flex: 1;
+  flex: none;
+  align-items: start;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr);
@@ -252,4 +253,10 @@
   margin-left: auto;
   color: var(--color-primary-dark);
   font-weight: 700;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

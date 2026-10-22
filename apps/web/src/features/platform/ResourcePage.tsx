@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,12 +11,12 @@ import {
   Select,
   Alert,
   Space,
-  Typography,
   App as AntApp,
   Upload,
 } from "antd";
 import {
   DataTable,
+  PageContainer,
   FormModal,
   useResource,
   parseImportFile,
@@ -28,6 +28,7 @@ import type { Entity, ResourceDefinition } from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
 import { AppShell } from "@/shared/layout/AppShell";
 export default function ResourcePage() {
+  const navigate = useNavigate();
   const { resource = "organizations" } = useParams();
   const { t } = useTranslation("platform");
   const { message, modal } = AntApp.useApp();
@@ -69,226 +70,223 @@ export default function ResourcePage() {
         { label: t(`resources.${resource}`) },
       ]}
     >
-      <Typography.Title level={2}>
-        {t(`resources.${resource}`)}
-      </Typography.Title>
-      <Space wrap style={{ marginBottom: 20 }}>
-        {definitions.data?.map((d) => (
-          <Button
-            key={d.name}
-            href={`/platform/${d.name}`}
-            type={d.name === resource ? "primary" : "default"}
-          >
-            {t(`resources.${d.name}`)}
-          </Button>
-        ))}
-      </Space>
-      {state.query.isError ? (
-        <Alert type="error" title={state.query.error.message} />
-      ) : null}
-      {resource === "documents" ? (
-        <Button
-          type="primary"
-          style={{ marginBottom: 16 }}
-          onClick={() => setUploadOpen(true)}
-        >
-          {t("upload")}
-        </Button>
-      ) : null}
-      <DataTable<Entity>
-        rowKey="id"
-        dataSource={state.query.data?.items ?? []}
-        columns={columns}
-        loading={state.query.isPending}
-        searchValue={state.params.search ?? ""}
-        onSearch={(value) => state.change.search(value)}
-        onRefresh={() => void state.refresh()}
-        pagination={{
-          current: state.params.page,
-          pageSize: state.params.limit,
-          total: state.query.data?.total ?? 0,
+      <PageContainer
+        title={t(`resources.${resource}`)}
+        tabs={definitions.data?.map((d) => ({
+          key: d.name,
+          tab: t(`resources.${d.name}`),
+        }))}
+        activeTabKey={resource}
+        onTabChange={(key) => {
+          setSelectedKeys([]);
+          setEditor(undefined);
+          navigate(`/platform/${key}`);
         }}
-        onPaginationChange={(page: any, _: unknown, sorter: any) =>
-          state.setParams((previous) => {
-            const sortBy = sorter.order ? String(sorter.field) : "createdAt";
-            const sortOrder = sorter.order === "ascend" ? "asc" : "desc";
-            const changed =
-              sortBy !== (previous.sortBy ?? "createdAt") ||
-              sortOrder !== (previous.sortOrder ?? "desc") ||
-              page.pageSize !== previous.limit;
-            return {
-              ...previous,
-              page: changed ? 1 : page.current,
-              limit: page.pageSize,
-              sortBy,
-              sortOrder,
-            };
-          })
+        extra={
+          resource === "documents" ? (
+            <Button type="primary" onClick={() => setUploadOpen(true)}>
+              {t("upload")}
+            </Button>
+          ) : undefined
         }
-        customActions={
-          resource === "documents"
-            ? (record) => (
-                <Button
-                  onClick={async () => {
-                    try {
-                      downloadBlob(
-                        await platform.download(
-                          `/documents/${record.id}/download`,
-                        ),
-                        String(record.name),
-                      );
-                    } catch (error) {
-                      report(error);
-                    }
-                  }}
-                >
-                  {t("download")}
-                </Button>
-              )
-            : resource === "users"
+      >
+        {state.query.isError ? (
+          <Alert type="error" title={state.query.error.message} />
+        ) : null}
+        <DataTable<Entity>
+          rowKey="id"
+          dataSource={state.query.data?.items ?? []}
+          columns={columns}
+          loading={state.query.isPending}
+          searchValue={state.params.search ?? ""}
+          onSearch={(value) => state.change.search(value)}
+          onRefresh={() => void state.refresh()}
+          pagination={{
+            current: state.params.page,
+            pageSize: state.params.limit,
+            total: state.query.data?.total ?? 0,
+          }}
+          onPaginationChange={(page: any, _: unknown, sorter: any) =>
+            state.setParams((previous) => {
+              const sortBy = sorter.order ? String(sorter.field) : "createdAt";
+              const sortOrder = sorter.order === "ascend" ? "asc" : "desc";
+              const changed =
+                sortBy !== (previous.sortBy ?? "createdAt") ||
+                sortOrder !== (previous.sortOrder ?? "desc") ||
+                page.pageSize !== previous.limit;
+              return {
+                ...previous,
+                page: changed ? 1 : page.current,
+                limit: page.pageSize,
+                sortBy,
+                sortOrder,
+              };
+            })
+          }
+          customActions={
+            resource === "documents"
               ? (record) => (
-                  <Space>
-                    <Button onClick={() => setEditor(record)}>
-                      {t("edit")}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setPassword("");
-                        setPasswordTarget(record);
-                      }}
-                    >
-                      {t("resetPassword")}
-                    </Button>
-                  </Space>
+                  <Button
+                    onClick={async () => {
+                      try {
+                        downloadBlob(
+                          await platform.download(
+                            `/documents/${record.id}/download`,
+                          ),
+                          String(record.name),
+                        );
+                      } catch (error) {
+                        report(error);
+                      }
+                    }}
+                  >
+                    {t("download")}
+                  </Button>
                 )
-              : undefined
-        }
-        onAdd={readOnly ? undefined : () => setEditor(null)}
-        onEdit={readOnly ? undefined : (record) => setEditor(record)}
-        onDelete={
-          readOnly
-            ? undefined
-            : (id) =>
-                modal.confirm({
-                  title: t("deleteTitle"),
-                  content: t("deleteBody"),
-                  onOk: () =>
-                    state.remove.mutateAsync(String(id)).catch((error) => {
-                      report(error);
-                      throw error;
-                    }),
-                })
-        }
-        selectedRowKeys={selectedKeys}
-        onSelectChange={setSelectedKeys}
-        batchOperations={!readOnly}
-        onBatchDelete={(ids) =>
-          modal.confirm({
-            title: t("deleteTitle"),
-            content: t("deleteBody"),
-            onOk: async () => {
-              await service.removeMany(ids.map(String));
-              setSelectedKeys([]);
-              state.setParams((p) => ({ ...p, page: 1 }));
-              await state.refresh();
-            },
-          })
-        }
-        filters={definition?.fields
-          .filter(
-            (field) => field.type === "select" || field.type === "boolean",
-          )
-          .map((field) => ({
-            key: field.key,
-            label: t(`fields.${field.key}`, { defaultValue: field.key }),
-            type: "select" as const,
-            operators: ["eq" as const],
-            options:
-              field.type === "boolean"
-                ? [
-                    { value: true, label: t("yes") },
-                    { value: false, label: t("no") },
-                  ]
-                : field.options?.map((value) => ({ value, label: value })),
-          }))}
-        filterValues={state.params.filters ?? {}}
-        onFilterChange={(key, value) =>
-          state.setParams((previous) => {
-            const filters = { ...previous.filters };
-            if (value === undefined || value === "") delete filters[key];
-            else filters[key] = value;
-            return { ...previous, filters, page: 1 };
-          })
-        }
-        onClearFilters={() => state.change.filter({})}
-        onExport={async (options) => {
-          try {
-            let rows: Entity[] = [];
-            if (options.scope === "page") rows = state.query.data?.items ?? [];
-            else {
-              const first = await service.list({
-                ...state.params,
-                page: 1,
-                limit: 100,
-              });
-              rows = first.items;
-              const wanted =
-                options.scope === "custom"
-                  ? Math.min(options.limit ?? first.total, first.total)
-                  : first.total;
-              for (
-                let page = 2;
-                rows.length < wanted && page <= first.totalPages;
-                page++
-              )
-                rows.push(
-                  ...(await service.list({ ...state.params, page, limit: 100 }))
-                    .items,
-                );
-              rows = rows.slice(0, wanted);
+              : resource === "users"
+                ? (record) => (
+                    <Space>
+                      <Button
+                        onClick={() => {
+                          setPassword("");
+                          setPasswordTarget(record);
+                        }}
+                      >
+                        {t("resetPassword")}
+                      </Button>
+                    </Space>
+                  )
+                : undefined
+          }
+          onAdd={readOnly ? undefined : () => setEditor(null)}
+          onEdit={readOnly ? undefined : (record) => setEditor(record)}
+          onDelete={
+            readOnly
+              ? undefined
+              : (id) =>
+                  modal.confirm({
+                    title: t("deleteTitle"),
+                    content: t("deleteBody"),
+                    onOk: () =>
+                      state.remove.mutateAsync(String(id)).catch((error) => {
+                        report(error);
+                        throw error;
+                      }),
+                  })
+          }
+          selectedRowKeys={selectedKeys}
+          onSelectChange={setSelectedKeys}
+          batchOperations={!readOnly}
+          onBatchDelete={(ids) =>
+            modal.confirm({
+              title: t("deleteTitle"),
+              content: t("deleteBody"),
+              onOk: async () => {
+                await service.removeMany(ids.map(String));
+                setSelectedKeys([]);
+                state.setParams((p) => ({ ...p, page: 1 }));
+                await state.refresh();
+              },
+            })
+          }
+          filters={definition?.fields
+            .filter(
+              (field) => field.type === "select" || field.type === "boolean",
+            )
+            .map((field) => ({
+              key: field.key,
+              label: t(`fields.${field.key}`, { defaultValue: field.key }),
+              type: "select" as const,
+              operators: ["eq" as const],
+              options:
+                field.type === "boolean"
+                  ? [
+                      { value: true, label: t("yes") },
+                      { value: false, label: t("no") },
+                    ]
+                  : field.options?.map((value) => ({ value, label: value })),
+            }))}
+          filterValues={state.params.filters ?? {}}
+          onFilterChange={(key, value) =>
+            state.setParams((previous) => {
+              const filters = { ...previous.filters };
+              if (value === undefined || value === "") delete filters[key];
+              else filters[key] = value;
+              return { ...previous, filters, page: 1 };
+            })
+          }
+          onClearFilters={() => state.change.filter({})}
+          onExport={async (options) => {
+            try {
+              let rows: Entity[] = [];
+              if (options.scope === "page")
+                rows = state.query.data?.items ?? [];
+              else {
+                const first = await service.list({
+                  ...state.params,
+                  page: 1,
+                  limit: 100,
+                });
+                rows = first.items;
+                const wanted =
+                  options.scope === "custom"
+                    ? Math.min(options.limit ?? first.total, first.total)
+                    : first.total;
+                for (
+                  let page = 2;
+                  rows.length < wanted && page <= first.totalPages;
+                  page++
+                )
+                  rows.push(
+                    ...(
+                      await service.list({ ...state.params, page, limit: 100 })
+                    ).items,
+                  );
+                rows = rows.slice(0, wanted);
+              }
+              const selected = options.columns?.length
+                ? rows.map((row) =>
+                    Object.fromEntries(
+                      options.columns.map((key: string) => [key, row[key]]),
+                    ),
+                  )
+                : rows;
+              if (options.format === "json") exportToJSON(selected, resource);
+              else exportToCSV(selected, resource);
+            } catch (error) {
+              report(error);
             }
-            const selected = options.columns?.length
-              ? rows.map((row) =>
-                  Object.fromEntries(
-                    options.columns.map((key: string) => [key, row[key]]),
-                  ),
-                )
-              : rows;
-            if (options.format === "json") exportToJSON(selected, resource);
-            else exportToCSV(selected, resource);
-          } catch (error) {
-            report(error);
-          }
-        }}
-        exportable
-        exportFilename={resource}
-        importable={!readOnly}
-        onImport={async (file) => {
-          try {
-            const rows = await parseImportFile(file);
-            const typed = rows.map((row) =>
-              Object.fromEntries(
-                Object.entries(row).map(([key, value]) => {
-                  const field = definition?.fields.find((f) => f.key === key);
-                  return [
-                    key,
-                    field?.type === "number"
-                      ? Number(value)
-                      : field?.type === "boolean"
-                        ? value === true || value === "true"
-                        : value,
-                  ];
-                }),
-              ),
-            );
-            await service.import(typed);
-            await state.refresh();
-            message.success(t("saved"));
-          } catch (error) {
-            report(error);
-          }
-        }}
-      />
+          }}
+          exportable
+          exportFilename={resource}
+          importable={!readOnly}
+          onImport={async (file) => {
+            try {
+              const rows = await parseImportFile(file);
+              const typed = rows.map((row) =>
+                Object.fromEntries(
+                  Object.entries(row).map(([key, value]) => {
+                    const field = definition?.fields.find((f) => f.key === key);
+                    return [
+                      key,
+                      field?.type === "number"
+                        ? Number(value)
+                        : field?.type === "boolean"
+                          ? value === true || value === "true"
+                          : value,
+                    ];
+                  }),
+                ),
+              );
+              await service.import(typed);
+              await state.refresh();
+              message.success(t("saved"));
+            } catch (error) {
+              report(error);
+            }
+          }}
+        />
+      </PageContainer>
       <FormModal
         open={editor !== undefined}
         title={t(editor ? "edit" : "create")}

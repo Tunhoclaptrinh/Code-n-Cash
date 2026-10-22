@@ -25,6 +25,7 @@ import {
 } from "@codecash/ui";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
+import { columnSearch } from "@/shared/ui/columnSearch";
 import { formatDate, formatMillionVnd, formatTime } from "@/shared/lib/format";
 import { getTaskInbox } from "../api/tasks.api";
 import { evidenceName, lowerCase } from "../lib/display";
@@ -170,6 +171,11 @@ export default function TaskInboxPage() {
     {
       key: "task",
       title: t("inbox.columns.task"),
+      filters: KINDS.map((value) => ({
+        text: t(`inbox.task.${value}`, { milestone: "" }).trim(),
+        value,
+      })),
+      onFilter: (value: unknown, r: TaskRow) => r.kind === value,
       render: (_: unknown, r: TaskRow) => (
         <div style={{ cursor: "pointer" }} onClick={() => setDetail(r)}>
           <Typography.Text strong>{taskTitle(r)}</Typography.Text>
@@ -181,6 +187,7 @@ export default function TaskInboxPage() {
       title: t("inbox.columns.contractAndMilestone"),
       sorter: (a: TaskRow, b: TaskRow) =>
         a.contractId.localeCompare(b.contractId),
+      ...columnSearch<TaskRow>((r) => `${heading(r)} ${subtitle(r)}`),
       render: (_: unknown, r: TaskRow) => (
         <>
           {heading(r)}
@@ -219,6 +226,11 @@ export default function TaskInboxPage() {
       key: "status",
       dataIndex: "badge",
       title: t("inbox.columns.status"),
+      filters: BADGES.map((value) => ({
+        text: t(`inbox.badge.${value}`),
+        value,
+      })),
+      onFilter: (value: unknown, r: TaskRow) => r.badge === value,
       render: (badge: Badge) => (
         <Tag color={badgeColor[badge].tag}>{t(`inbox.badge.${badge}`)}</Tag>
       ),

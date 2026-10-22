@@ -81,7 +81,8 @@ export function AppLayout() {
   });
   const pendingCount = pending.data?.length ?? 0;
   const sections = navByRole[user.role];
-  const inbox = sections.flat().find((item) => item.badge);
+  const navItems = sections.flatMap((section) => section.items);
+  const inbox = navItems.find((item) => item.badge);
 
   const label = (item: { labelKey: string; ns?: string }) =>
     item.ns === "platform" ? tp(item.labelKey) : t(item.labelKey);
@@ -116,12 +117,23 @@ export function AppLayout() {
           ),
           onClick: () => go(item.to),
         };
-  const menuItems: MenuProps["items"] = sections.flatMap((section, index) => [
-    ...(index > 0 ? [{ type: "divider" as const }] : []),
-    ...section.map(toMenuItem),
-  ]);
-  const submenuKeys = sections
-    .flat()
+  // Business areas get a heading; when the sidebar is collapsed a divider stands in for it.
+  const menuItems: MenuProps["items"] = sections.flatMap((section, index) =>
+    desktop && collapsed
+      ? [
+          ...(index > 0 ? [{ type: "divider" as const }] : []),
+          ...section.items.map(toMenuItem),
+        ]
+      : [
+          {
+            type: "group" as const,
+            key: section.labelKey,
+            label: t(section.labelKey),
+            children: section.items.map(toMenuItem),
+          },
+        ],
+  );
+  const submenuKeys = navItems
     .filter((item) => item.children)
     .map((item) => item.key);
 

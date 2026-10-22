@@ -26,6 +26,19 @@ beforeEach(async () => {
   repo = new Repository();
   await repo.init();
   service = new BaseService(repo);
+  // Drafts reference their supplier; the fixture supplier must exist (no audit entry).
+  await repo.mutate("organizations", (items) =>
+    items.push({
+      id: "supplier",
+      name: "Supplier Co",
+      code: "SUP",
+      kind: "SUPPLIER",
+      organizationId: "org-one",
+      version: 1,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    }),
+  );
 });
 afterEach(async () => {
   await repo.onModuleDestroy();
@@ -231,4 +244,81 @@ test("reset password and logout invalidate prior tokens without exposing secrets
   const audit = (await repo.list("audit")).at(-1);
   assert.equal(audit.action, "RESET_PASSWORD");
   assert.equal(JSON.stringify(audit).includes("ChangedPassword123!"), false);
+});
+
+test("the permission matrix decides every resource operation", async () => {
+  const supplier = { ...actor, id: "s", role: "SUPPLIER" };
+  const legal = { ...actor, id: "l", role: "LEGAL_REVIEWER" };
+  await assert.rejects(service.list("users", {}, supplier), /PERMISSION/);
+  await assert.rejects(service.list("audit", {}, legal), /PERMISSION/);
+  await assert.rejects(
+    service.list("contract-drafts", {}, supplier),
+    /PERMISSION/,
+  );
+  await assert.rejects(
+    service.create(
+      "organizations",
+      { name: "X", code: "X", kind: "BUYER" },
+      legal,
+    ),
+    /PERMISSION/,
+  );
+  await assert.rejects(
+    service.create(
+      "contract-drafts",
+      { ...draft("R"), supplierId: "ghost" },
+      actor,
+    ),
+    /INVALID_REFERENCE/,
+  );
+  assert.equal((await service.list("contract-drafts", {}, legal)).total, 0);
+});
+
+test("import is validated row by row before anything is written", async () => {
+  await service.create("contract-drafts", draft("TAKEN"), actor);
+  const report = await service.validateImport(
+    "contract-drafts",
+    {
+      items: [
+        draft("NEW"),
+        draft("TAKEN"),
+        { ...draft("BAD"), contractType: "NOPE", supplierId: "ghost" },
+        draft("NEW"),
+      ],
+    },
+    actor,
+  );
+  assert.deepEqual(report.summary, { total: 4, valid: 1, error: 3 });
+  assert.deepEqual(report.results[1].errors, ["DUPLICATE_RECORD"]);
+  assert.deepEqual(report.results[2].errors, [
+    "INVALID_OPTION:contractType",
+    "INVALID_REFERENCE:supplierId",
+  ]);
+  assert.equal((await repo.list("contract-drafts")).length, 1);
+});
+
+test("export streams the filtered set with populated names, template lists the columns", async () => {
+  await service.create("contract-drafts", draft("A1"), actor);
+  await service.create("contract-drafts", draft("B2"), actor);
+  const csv = await service.export(
+    "contract-drafts",
+    { search: "A1", columns: "code,supplierId" },
+    actor,
+  );
+  assert.equal(csv.contentType.startsWith("text/csv"), true);
+  const lines = csv.body.replace("\uFEFF", "").trim().split("\r\n");
+  assert.deepEqual(lines, [
+    "code,supplierId,supplierId_name",
+    "A1,supplier,Supplier Co",
+  ]);
+  await assert.rejects(
+    service.export("contract-drafts", { columns: "passwordHash" }, actor),
+    /INVALID_COLUMN/,
+  );
+  const template = await service.template("contract-drafts", actor);
+  assert.equal(
+    template.split("\r\n")[0].replace("\uFEFF", ""),
+    "code,title,supplierId,contractType",
+  );
+  assert.equal((await repo.list("audit")).at(-1).action, "EXPORT");
 });

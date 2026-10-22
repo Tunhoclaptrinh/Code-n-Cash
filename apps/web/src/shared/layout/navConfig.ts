@@ -42,8 +42,12 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-/** Sections are separated by a divider in the sidebar. */
-export type NavSection = NavItem[];
+/** A business area of the sidebar, shown under its own heading. */
+export interface NavSection {
+  /** Translation key inside `common`. */
+  labelKey: string;
+  items: NavItem[];
+}
 
 /** Resources of Administration, in the order of the API definitions. */
 export const PLATFORM_RESOURCES = [
@@ -100,21 +104,51 @@ const platform: NavItem = {
   icon: SettingOutlined,
   labelKey: "title",
   ns: "platform",
-  children: PLATFORM_RESOURCES.map((name) => ({
-    to: `/platform/${name}`,
-    labelKey: `resources.${name}`,
-    ns: "platform" as const,
-  })),
+  children: [
+    ...PLATFORM_RESOURCES.map((name) => ({
+      to: `/platform/${name}`,
+      labelKey: `resources.${name}`,
+      ns: "platform" as const,
+    })),
+    {
+      to: "/platform/permissions",
+      labelKey: "permissions.title",
+      ns: "platform",
+    },
+  ],
 };
 
-const ownerWorkflow = [tasks, contracts, upload, activity, verify];
+const workflow = (items: NavItem[]): NavSection => ({
+  labelKey: "nav.groups.workflow",
+  items,
+});
+const monitoring = (items: NavItem[]): NavSection => ({
+  labelKey: "nav.groups.monitoring",
+  items,
+});
+const dataAndAdmin = (items: NavItem[]): NavSection => ({
+  labelKey: "nav.groups.data",
+  items,
+});
 
 export const navByRole: Record<Role, NavSection[]> = {
-  CONTRACT_OWNER: [ownerWorkflow, [data]],
-  LEGAL_REVIEWER: [ownerWorkflow, [data]],
-  ADMIN_AUDITOR: [ownerWorkflow, [data, platform]],
+  CONTRACT_OWNER: [
+    workflow([tasks, contracts, upload, verify]),
+    monitoring([activity]),
+    dataAndAdmin([data]),
+  ],
+  LEGAL_REVIEWER: [
+    workflow([tasks, contracts, upload, verify]),
+    monitoring([activity]),
+    dataAndAdmin([data]),
+  ],
+  ADMIN_AUDITOR: [
+    workflow([tasks, contracts, verify]),
+    monitoring([activity]),
+    dataAndAdmin([data, platform]),
+  ],
   SUPPLIER: [
-    [
+    workflow([
       tasks,
       { ...contracts, labelKey: "nav.myContracts" },
       {
@@ -124,10 +158,10 @@ export const navByRole: Record<Role, NavSection[]> = {
         labelKey: "nav.submissions",
       },
       verify,
-    ],
+    ]),
   ],
   FINANCE_APPROVER: [
-    [
+    workflow([
       {
         key: "approvals",
         to: "/approvals",
@@ -136,10 +170,10 @@ export const navByRole: Record<Role, NavSection[]> = {
         badge: true,
       },
       contracts,
-      activity,
       verify,
-    ],
-    [data],
+    ]),
+    monitoring([activity]),
+    dataAndAdmin([data]),
   ],
 };
 

@@ -14,8 +14,9 @@
     "submissions": "Submitted documents",
     "approvals": "Awaiting my approval",
     "groups": {
-      "workflow": "Workflow",
-      "data": "Data & administration"
+      "workflow": "Contract workflow",
+      "data": "Data & administration",
+      "monitoring": "Monitoring & audit"
     },
     "home": "Home"
   },
@@ -72,12 +73,13 @@
       "UNKNOWN": "Could not sign in. Please try again."
     },
     "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
-    "demoHint": "Demo environment: use one of the sample accounts listed in the README.",
+    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
     "highlights": {
       "sign": "Sequential digital signing, document locked after the first signature",
       "evidence": "Evidence submission, validation and two-person approval",
       "audit": "Append-only activity log for every action"
-    }
+    },
+    "demoAccounts": "Demo accounts"
   },
   "common": {
     "loading": "Loading…",
@@ -128,5 +130,47 @@
       },
       "title": "Quick tips for the header"
     }
+  },
+  "importPreview": {
+    "title": "Check import data",
+    "confirm_one": "Import {{count}} valid row",
+    "confirm_other": "Import {{count}} valid rows",
+    "cancel": "Cancel",
+    "total_one": "Total: {{count}}",
+    "total_other": "Total: {{count}}",
+    "valid_one": "Valid: {{count}}",
+    "valid_other": "Valid: {{count}}",
+    "invalid_one": "Errors: {{count}}",
+    "invalid_other": "Errors: {{count}}",
+    "errorsOnly": "Show only rows with errors",
+    "partial": "{{error}} rows are invalid. Import to add the {{valid}} valid rows and skip the rest, or fix the file and import again.",
+    "none": "No row is valid. Fix the file using the errors below and import again.",
+    "allValid_one": "The {{count}} row is valid.",
+    "allValid_other": "All {{count}} rows are valid.",
+    "status": "Status",
+    "rowValid": "Valid",
+    "rowInvalid": "Error",
+    "errorsColumn": "Problems found",
+    "errors": {
+      "REQUIRED": "Required field missing",
+      "INVALID_OPTION": "Value not in the allowed list",
+      "INVALID_REFERENCE": "Referenced record not found",
+      "DUPLICATE_RECORD": "Duplicate code or email",
+      "UNKNOWN_FIELD": "Unsupported column",
+      "INVALID_EMAIL": "Invalid email",
+      "INVALID_NUMBER": "Must be a non-negative number",
+      "INVALID_BOOLEAN": "Must be true or false",
+      "INVALID_STRING": "Invalid text value",
+      "INVALID_BODY": "Invalid row"
+    }
+  },
+  "modal": {
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
+  },
+  "columnSearch": {
+    "placeholder": "Search this column…",
+    "search": "Search",
+    "reset": "Reset"
   }
 }

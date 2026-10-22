@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdtemp, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 const base = process.env.WEB_URL ?? "http://127.0.0.1:5173";
 const profile = await mkdtemp(join(tmpdir(), "codecash-browser-"));
 const chrome = spawn(
@@ -93,7 +93,23 @@ try {
     deviceScaleFactor: 1,
     mobile: false,
   });
-  // First visit: language and theme must be chosen, then the header tips show once.
+  // The welcome belongs to the main screen, so the login page shows none.
+  await until("!!document.querySelector('[data-testid=demo-accounts]')");
+  await pause(500);
+  assert.equal(
+    await evaluate("!!document.querySelector('[data-testid=welcome-start]')"),
+    false,
+  );
+  // Demo menu (top right): picking an account fills the form and signs in at once.
+  await evaluate(
+    "document.querySelector('[data-testid=demo-accounts]').dispatchEvent(new MouseEvent('mouseover', { bubbles: true })); document.querySelector('[data-testid=demo-accounts]').click()",
+  );
+  await until("!!document.querySelector('[data-testid=demo-account]')");
+  await evaluate(
+    "Array.from(document.querySelectorAll('[data-testid=demo-account]')).find((x) => x.innerText.includes('admin@novaan.vn')).click()",
+  );
+  await until("location.pathname!='/login'");
+  // First visit after login: language and theme must be chosen, then the header tips show once.
   await until("!!document.querySelector('[data-testid=welcome-start]')");
   assert.equal(
     await evaluate(
@@ -116,17 +132,6 @@ try {
     await evaluate("localStorage.getItem('codecash.onboarding')"),
     "done",
   );
-  await until("!!document.querySelector('input[autocomplete=username]')");
-  await evaluate(
-    "document.querySelector('input[autocomplete=username]').focus()",
-  );
-  await send("Input.insertText", { text: "admin@novaan.vn" });
-  await evaluate(
-    "document.querySelector('input[autocomplete=current-password]').focus()",
-  );
-  await send("Input.insertText", { text: "Passw0rd!" });
-  await evaluate("document.querySelector('button[type=submit]').click()");
-  await until("location.pathname!='/login'");
   const routes = [
     "/contracts",
     "/contracts/new",
@@ -143,6 +148,7 @@ try {
     "/platform/organizations",
     "/platform/users",
     "/platform/documents",
+    "/platform/permissions",
     "/data",
   ];
   const screens = [];
@@ -193,6 +199,84 @@ try {
   );
   await until("location.pathname === '/platform/users'");
   assert.equal(await evaluate("window.__navigationProbe"), true);
+  // Contract list: the code opens the record in a modal that can fill the screen.
+  await send("Page.navigate", { url: base + "/contracts" });
+  await until("document.querySelectorAll('.ant-table-row').length > 0");
+  // Uploading is drafting (contracts:draft-write), which the admin does not hold.
+  assert.equal(
+    await evaluate(
+      "!!document.querySelector('[data-testid=upload-contract-link]')",
+    ),
+    false,
+  );
+  await until(
+    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).some((x) => x.innerText.includes('CT0101'))",
+  );
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).find((x) => x.innerText.includes('CT0101')).click()",
+  );
+  await until("!!document.querySelector('[data-testid=modal-fullscreen]')");
+  await until("!!document.querySelector('.ant-modal .ant-tabs')");
+  await evaluate(
+    "document.querySelector('[data-testid=modal-fullscreen]').click()",
+  );
+  await pause(300);
+  assert.equal(
+    await evaluate(
+      "Math.round(document.querySelector('.ant-modal').getBoundingClientRect().width) === innerWidth",
+    ),
+    true,
+  );
+  await evaluate("document.querySelector('.ant-modal-close').click()");
+  await until(
+    "!document.querySelector('.ant-modal-wrap:not([style*=none]) .ant-modal')",
+  );
+  // Data Pack from scratch: upload the five data files, run, see 405 rows.
+  await send("Page.navigate", { url: base + "/data" });
+  await until("!!document.querySelector('[data-testid=dataset-upload]')");
+  await evaluate(
+    "document.querySelector('[data-testid=dataset-upload]').click()",
+  );
+  await until("!!document.querySelector('.ant-modal input[type=file]')");
+  const { root } = await send("DOM.getDocument");
+  const { nodeId } = await send("DOM.querySelector", {
+    nodeId: root.nodeId,
+    selector: ".ant-modal input[type=file]",
+  });
+  await send("DOM.setFileInputFiles", {
+    nodeId,
+    files: [
+      "contracts",
+      "parties",
+      "milestones",
+      "events",
+      "payment_rules",
+    ].map((name) =>
+      resolve(
+        `BangD-Case4/DataPack-CASE4_SmartContractWorkflow/01_data/${name}.csv`,
+      ),
+    ),
+  });
+  await until(
+    "document.querySelectorAll('.ant-upload-list-item').length === 5",
+  );
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+  );
+  await until("!!document.querySelector('[data-testid=dataset-checklist]')");
+  await evaluate(
+    "document.querySelector('[data-testid=data-evaluate]').click()",
+  );
+  await until(
+    "document.body.innerText.includes('405') && !!document.querySelector('[data-testid=data-download]:not([disabled])')",
+  );
+  const removed = await evaluate(`(async () => {
+    const headers = { Authorization: 'Bearer ' + localStorage.getItem('codecash.accessToken') };
+    const list = await (await fetch('/api/v1/engine/datasets', { headers })).json();
+    for (const d of list.data) await fetch('/api/v1/engine/datasets/' + d.id, { method: 'DELETE', headers });
+    return list.data.length;
+  })()`);
+  assert.ok(removed >= 1);
   // Base CRUD: create through FormModal, find it in the table, delete through ConfirmModal.
   const orgName = `Smoke Org ${Date.now()}`;
   await send("Page.navigate", { url: base + "/platform/organizations" });
@@ -255,6 +339,7 @@ try {
     "/contracts/CT0101/milestones/2/decision",
     "/activity-log",
     "/platform/organizations",
+    "/platform/permissions",
     "/data",
   ]) {
     await send("Page.navigate", { url: base + route });
@@ -281,7 +366,7 @@ try {
     JSON.stringify({ screens, errors, signatureCheck: fake }, null, 2),
   );
   console.log(
-    `Browser smoke passed: first-run onboarding, login, ${screens.length} screens, desktop/mobile layout, upload validation, resource tabs, admin create/delete, unsigned PDF handling.`,
+    `Browser smoke passed: demo login, onboarding after login, ${screens.length} screens, desktop/mobile layout, upload validation, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
   );
 } finally {
   ws?.close();

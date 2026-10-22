@@ -26,11 +26,11 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <UiProvider>
         <ErrorBoundary>
-          <OnboardingProvider>
-            <SessionProvider>
+          <SessionProvider>
+            <OnboardingProvider>
               <RouterProvider router={router} />
-            </SessionProvider>
-          </OnboardingProvider>
+            </OnboardingProvider>
+          </SessionProvider>
         </ErrorBoundary>
       </UiProvider>
     </QueryClientProvider>

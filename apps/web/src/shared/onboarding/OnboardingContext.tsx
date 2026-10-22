@@ -6,13 +6,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useSession } from "../auth/session";
 import { WelcomeModal } from "./WelcomeModal";
 
 const STORAGE_KEY = "codecash.onboarding";
 
 /**
- * First-run flow: `welcome` asks for language and theme, `tips` points at the header controls
- * where both can be changed later, `done` is stored so the flow never repeats on this browser.
+ * First-run flow, shown on the main screen after the first sign-in: `welcome` asks for language
+ * and theme, `tips` points at the header controls where both can be changed later. Finishing the
+ * tips stores `done`, so the flow never repeats on this browser. The help button reopens the tips.
  */
 export type OnboardingPhase = "welcome" | "tips" | "done";
 
@@ -40,23 +42,31 @@ function readDone(): boolean {
 }
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [phase, setPhase] = useState<OnboardingPhase>(() =>
-    readDone() ? "done" : "welcome",
-  );
+  const { user } = useSession();
+  const [done, setDone] = useState(readDone);
+  const [welcomed, setWelcomed] = useState(false);
+  const [tips, setTips] = useState(false);
+  const phase: OnboardingPhase =
+    !done && user && !welcomed ? "welcome" : tips ? "tips" : "done";
   const finishTips = useCallback(() => {
-    setPhase("done");
+    setTips(false);
+    if (!welcomed) return;
+    setDone(true);
     try {
       localStorage.setItem(STORAGE_KEY, "done");
     } catch {
       /* storage unavailable: the flow shows again next visit */
     }
-  }, []);
+  }, [welcomed]);
   const value = useMemo<OnboardingValue>(
     () => ({
       phase,
-      finishWelcome: () => setPhase("tips"),
+      finishWelcome: () => {
+        setWelcomed(true);
+        setTips(true);
+      },
       finishTips,
-      showTips: () => setPhase("tips"),
+      showTips: () => setTips(true),
     }),
     [phase, finishTips],
   );

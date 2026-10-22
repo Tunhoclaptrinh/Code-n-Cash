@@ -48,7 +48,8 @@ Sửa `.env.production`:
 | `WEB_ORIGIN` | Có | Origin công khai, ví dụ `https://codecash.example.com` |
 | `SEED_PASSWORD` | Lần đầu | Mật khẩu cho 5 tài khoản mẫu; xóa sau lần khởi động đầu (mục 4) |
 | `MONGO_URI` | Không | Để trống dùng container `mongo`; điền URI cluster quản lý (Atlas…) nếu có |
-| `ENGINE_URL` | Không | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image |
+| `ENGINE_URL` | Không | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image. Bộ dữ liệu tải lên luôn chạy bằng CLI trong image |
+| `DEMO_LOGIN` | Không | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng 5 tài khoản mẫu). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo |
 | `WEB_BIND`, `WEB_PORT` | Không | Mặc định `127.0.0.1:8080`, chỉ reverse proxy trên host truy cập được |
 | `IMAGE_PREFIX`, `IMAGE_TAG` | Không | Tên image khi đẩy lên registry (mục 7) |
 
@@ -129,7 +130,7 @@ Tên volume có tiền tố project `codecash_`.
 docker compose -f infra/compose.prod.yaml --env-file .env.production exec -T mongo \
   mongodump --archive --gzip --db codecash > backup/mongo-$(date +%F).archive.gz
 
-# Tệp PDF đã tải lên
+# Tệp PDF và bộ dữ liệu Data Pack đã tải lên (/data/uploads, /data/datasets)
 docker run --rm -v codecash_uploads:/data -v "$PWD/backup":/backup alpine \
   tar czf /backup/uploads-$(date +%F).tgz -C /data .
 ```
@@ -184,6 +185,8 @@ Chạy lệnh trên bằng systemd hoặc PM2. Phục vụ `apps/web/dist` bằn
 | Trình duyệt báo 502 | `api` chưa healthy hoặc đang khởi động lại | `ps`, `logs api` |
 | Upload báo 413 | Tệp > 20 MB, hoặc reverse proxy host giới hạn thấp hơn | Đặt `client_max_body_size 25m` ở proxy host |
 | Trang Data Pack lỗi khi đánh giá | Python không chạy được hoặc thiếu Data Pack trong image | `logs api`; image phải chứa `BangD-Case4/DataPack-CASE4_SmartContractWorkflow` |
+| Tải bộ dữ liệu báo 422 `DATASET_INVALID …` | Thiếu tệp bắt buộc hoặc thiếu cột so với Data Pack chính thức | Xem danh sách tệp trên trang Data Pack; bổ sung rồi tải lại |
+| Tải bộ dữ liệu báo 413 | Vượt 25 MB mỗi lần gửi (`client_max_body_size` của nginx) | Nén thư mục thành ZIP hoặc tải ít tệp hơn mỗi lần |
 | Đăng nhập được nhưng lập tức bị đẩy ra | Đổi `JWT_SECRET` hoặc mật khẩu làm token cũ vô hiệu | Đăng nhập lại |
 
 ## 13. Trước khi dùng cho hồ sơ thật
@@ -194,5 +197,7 @@ Bản này đủ cho demo, staging và thử nghiệm nội bộ. Còn các đi�
 - Luồng ký số là **mô phỏng**, chưa tích hợp CA; nút tải bản đã ký đang tắt.
 - Dữ liệu workflow là bộ hợp đồng mẫu; Data Pack 100 hợp đồng/405 mốc chỉ được đánh giá ở trang Data Pack, chưa nhập thành hợp đồng thao tác được.
 - Swagger `/api/docs` mở công khai qua nginx; chặn ở reverse proxy nếu không cần.
+- `DEMO_LOGIN` phải để `false`: khi bật, ai mở trang đăng nhập cũng vào được bằng tài khoản mẫu.
+- Ma trận phân quyền nằm trong `packages/contracts/permissions.json` và được đóng vào image; đổi quyền là đổi mã, cần review hai người (SoD-4), không sửa trên giao diện.
 - Chưa có giới hạn tần suất đăng nhập, cảnh báo tự động hay sao lưu tự động; API chạy một instance.
 - Accuracy chỉ đo trên 20 mẫu công khai, không đại diện cho toàn bộ 405 mốc.

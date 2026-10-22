@@ -9,7 +9,11 @@ import {
   type ReactNode,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getUser, signIn as signInRequest } from "../api/auth.api";
+import {
+  getUser,
+  signIn as signInRequest,
+  signInDemo as signInDemoRequest,
+} from "../api/auth.api";
 import type { User } from "../api/types";
 
 const STORAGE_KEY = "scw.session.userId";
@@ -19,6 +23,8 @@ interface SessionValue {
   /** True while a stored session is being restored on first load. */
   restoring: boolean;
   signIn: (email: string, password: string) => Promise<User>;
+  /** One-click sign-in with a sample account (only when the API allows demo sign-in). */
+  signInDemo: (email: string) => Promise<User>;
   signOut: () => void;
 }
 
@@ -86,15 +92,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("codecash:workflow-changed", refresh);
     };
   }, [queryClient]);
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      const signedIn = await signInRequest(email, password);
+  const start = useCallback(
+    (signedIn: User) => {
       writeStoredUserId(signedIn.id);
       queryClient.clear();
       setUser(signedIn);
       return signedIn;
     },
     [queryClient],
+  );
+  const signIn = useCallback(
+    async (email: string, password: string) =>
+      start(await signInRequest(email, password)),
+    [start],
+  );
+  const signInDemo = useCallback(
+    async (email: string) => start(await signInDemoRequest(email)),
+    [start],
   );
 
   const signOut = useCallback(() => {
@@ -106,8 +120,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const value = useMemo(
-    () => ({ user, restoring, signIn, signOut }),
-    [user, restoring, signIn, signOut],
+    () => ({ user, restoring, signIn, signInDemo, signOut }),
+    [user, restoring, signIn, signInDemo, signOut],
   );
 
   return (

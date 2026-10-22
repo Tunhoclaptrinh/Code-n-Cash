@@ -17,7 +17,7 @@ import { resolve } from "node:path";
 import type { Response } from "express";
 import { Repository } from "./common/repository";
 import { BaseService } from "./common/services/base.service";
-import { Roles } from "./common/decorators/roles.decorator";
+import { RequirePermission } from "./common/permissions";
 import type { SessionRequest, RecordEntity } from "./common/types";
 @Controller("documents")
 export class DocumentsController {
@@ -32,7 +32,7 @@ export class DocumentsController {
       "uploads",
     );
   }
-  @Roles("CONTRACT_OWNER", "LEGAL_REVIEWER", "ADMIN_AUDITOR")
+  @RequirePermission("documents:upload")
   @Post(":draftId")
   @UseInterceptors(
     FileInterceptor("file", {
@@ -76,7 +76,9 @@ export class DocumentsController {
     }
     return record;
   }
-  @Get(":id/download") async download(
+  @RequirePermission("documents:download")
+  @Get(":id/download")
+  async download(
     @Param("id") id: string,
     @Req() req: SessionRequest,
     @Res() res: Response,

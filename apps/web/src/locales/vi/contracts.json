@@ -84,6 +84,21 @@
     },
     "detail": {
       "title": "Tên hợp đồng"
+    },
+    "modal": {
+      "overview": "Tổng quan",
+      "kind": "Loại hợp đồng",
+      "due": "Hạn",
+      "paid": "Đã chốt (triệu VND)",
+      "edit": "Sửa bản nháp",
+      "save": "Lưu thay đổi",
+      "discard": "Đóng",
+      "editHint": "Chỉ sửa được hợp đồng vừa số hóa và chưa ai ký. Hợp đồng đã ký là hồ sơ nghiệp vụ, không sửa hay xóa trực tiếp.",
+      "saved": "Đã lưu bản nháp",
+      "cancelSigning": "Hủy luồng ký",
+      "cancelBody": "Hủy toàn bộ yêu cầu ký của {{code}}. Chỉ làm được khi chưa ai ký; thao tác được ghi nhật ký.",
+      "cancelled": "Đã hủy các yêu cầu ký đang chờ",
+      "openPage": "Mở trang chi tiết"
     }
   },
   "contractUpload": {

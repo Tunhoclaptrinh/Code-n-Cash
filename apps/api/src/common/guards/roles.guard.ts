@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ROLES_KEY } from "../decorators/roles.decorator";
+import { PERMISSION_KEY, can } from "../permissions";
 import type { Role } from "../types";
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -28,6 +29,12 @@ export class RolesGuard implements CanActivate {
     ]);
     if (roles?.length && !roles.includes(user.role))
       throw new ForbiddenException();
+    const permission = this.reflector.getAllAndOverride<string>(
+      PERMISSION_KEY,
+      [ctx.getHandler(), ctx.getClass()],
+    );
+    if (permission && !can(user.role, permission))
+      throw new ForbiddenException("PERMISSION_DENIED");
     return true;
   }
 }

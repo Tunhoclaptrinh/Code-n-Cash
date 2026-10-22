@@ -26,6 +26,7 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { Repository } from "./common/repository";
+import { can } from "./common/permissions";
 import { BaseService } from "./common/services/base.service";
 import type { Actor, SessionRequest } from "./common/types";
 import { db } from "./workflow/shared/mock/db";
@@ -97,6 +98,48 @@ const modules: Record<string, Record<string, (...args: any[]) => any>> = {
   },
   "shared-tasks": { getPendingTaskCount: m13.getPendingTaskCount },
 };
+/**
+ * Permission each workflow action needs (packages/contracts/permissions.json). Actions missing
+ * here are refused, so a new handler cannot ship without an explicit permission.
+ */
+const ACTION_PERMISSION: Record<string, string> = {
+  getContractDraft: "contracts:draft-read",
+  getUploadFormOptions: "contracts:draft-read",
+  saveContractDraft: "contracts:draft-write",
+  getContractList: "contracts:read",
+  listContractSummaries: "contracts:read",
+  getContractSummary: "contracts:read",
+  listOrganizations: "contracts:read",
+  getContractOverview: "contracts:read",
+  getDecisionView: "contracts:read",
+  getDigitization: "contracts:read",
+  confirmDigitization: "contracts:digitize",
+  getSigningConfig: "contracts:read",
+  getDefaultSignatureSlots: "contracts:read",
+  getSigningOverview: "contracts:read",
+  saveSignatureSlots: "contracts:signature-slots",
+  getSigningRequest: "contracts:read",
+  sendSigningRequest: "signing:sign",
+  confirmSigningRequest: "signing:sign",
+  rejectSigningRequest: "signing:sign",
+  cancelSigningRequest: "signing:sign",
+  cancelSigning: "signing:cancel",
+  getVerification: "signing:verify",
+  getTaskInbox: "tasks:read",
+  getPendingTaskCount: "tasks:read",
+  getEvidenceWorkspace: "tasks:read",
+  attachEvidenceFile: "evidence:submit",
+  removeEvidenceFile: "evidence:submit",
+  signAndSubmitEvidence: "evidence:submit",
+  getApprovalView: "approvals:read",
+  markDocumentViewed: "approvals:mark-viewed",
+  castVote: "approvals:vote",
+  transferToAccounting: "payments:transfer",
+  getDispute: "disputes:read",
+  resolveDispute: "disputes:resolve",
+  listActivityEntries: "activity:read",
+  getDefaultActivityRange: "activity:read",
+};
 const snapshot = () =>
   structuredClone({
     db,
@@ -142,6 +185,9 @@ export class WorkflowService {
         throw new NotFoundException("ACTION_NOT_FOUND");
       const fn = modules[module]?.[action];
       if (!fn) throw new NotFoundException("ACTION_NOT_FOUND");
+      const permission = ACTION_PERMISSION[action];
+      if (!permission || !can(actor.role, permission))
+        throw new ForbiddenException("ACTION_FORBIDDEN");
       const raw = (input as { args?: unknown[] })?.args;
       if (!Array.isArray(raw) || raw.length > 6)
         throw new BadRequestException("INVALID_ARGUMENTS");
@@ -161,15 +207,7 @@ export class WorkflowService {
         ].includes(action)
       )
         args[0] = actor.id;
-      if (action === "getApprovalView") {
-        if (
-          !["CONTRACT_OWNER", "FINANCE_APPROVER", "ADMIN_AUDITOR"].includes(
-            actor.role,
-          )
-        )
-          throw new ForbiddenException();
-        args[1] = actor.role;
-      }
+      if (action === "getApprovalView") args[1] = actor.role;
       if (action === "getSigningOverview") args[1] = actor.id;
       if (action === "getUploadFormOptions") args[0] = actor.organizationId;
       const reference =
@@ -183,8 +221,6 @@ export class WorkflowService {
                 ? args[1]
                 : undefined;
       if (reference) this.scope(reference, actor);
-      if (module === "contracts-contractDraft" && actor.role === "SUPPLIER")
-        throw new ForbiddenException("ACTION_FORBIDDEN");
       if (action === "castVote" && args[0] && typeof args[0] === "object") {
         const approval =
           milestoneDb.approvalCases[
@@ -195,31 +231,6 @@ export class WorkflowService {
       }
       const writes = !/^(get|list)/.test(action);
       if (writes) {
-        const allowed =
-          action === "castVote"
-            ? ["CONTRACT_OWNER", "FINANCE_APPROVER"]
-            : [
-                  "attachEvidenceFile",
-                  "removeEvidenceFile",
-                  "signAndSubmitEvidence",
-                ].includes(action)
-              ? ["SUPPLIER"]
-              : action === "transferToAccounting"
-                ? ["FINANCE_APPROVER"]
-                : [
-                      "sendSigningRequest",
-                      "confirmSigningRequest",
-                      "rejectSigningRequest",
-                      "cancelSigningRequest",
-                    ].includes(action)
-                  ? ["CONTRACT_OWNER", "SUPPLIER"]
-                  : action === "markDocumentViewed"
-                    ? ["CONTRACT_OWNER", "FINANCE_APPROVER", "ADMIN_AUDITOR"]
-                    : action === "resolveDispute" || action === "cancelSigning"
-                      ? ["CONTRACT_OWNER"]
-                      : ["CONTRACT_OWNER", "LEGAL_REVIEWER"];
-        if (!allowed.includes(actor.role))
-          throw new ForbiddenException("ACTION_FORBIDDEN");
         if (["castVote", "signAndSubmitEvidence"].includes(action)) {
           if (!args[0] || typeof args[0] !== "object")
             throw new BadRequestException("INVALID_INPUT");

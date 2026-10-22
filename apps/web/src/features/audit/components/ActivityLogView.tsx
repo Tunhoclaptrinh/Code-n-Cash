@@ -16,6 +16,7 @@ import {
   type StatisticsItem,
 } from "@codecash/ui";
 import { formatDateTime } from "@/shared/lib/format";
+import { columnSearch } from "@/shared/ui/columnSearch";
 import {
   actorName,
   contractReference,
@@ -149,6 +150,11 @@ export function ActivityLogView({
     {
       key: "actor",
       title: t("table.columns.actor"),
+      filters: [...new Set(entries.map((e) => e.actor.role))].map((role) => ({
+        text: t(`actorRoles.${role}`),
+        value: role,
+      })),
+      onFilter: (value: unknown, e: ActivityEntry) => e.actor.role === value,
       render: (_: unknown, e: ActivityEntry) => (
         <>
           {actorName(t, e)}
@@ -164,6 +170,11 @@ export function ActivityLogView({
       key: "category",
       dataIndex: "category",
       title: t("table.columns.category"),
+      filters: categories.map((value) => ({
+        text: t(`categories.${value}`),
+        value,
+      })),
+      onFilter: (value: unknown, e: ActivityEntry) => e.category === value,
       render: (c: ActivityCategory) => (
         <Tag color={categoryColor[c].tag}>{t(`categories.${c}`)}</Tag>
       ),
@@ -171,11 +182,17 @@ export function ActivityLogView({
     {
       key: "action",
       title: t("table.columns.action"),
+      ...columnSearch<ActivityEntry>((e) => describeAction(t, e.action)),
       render: (_: unknown, e: ActivityEntry) => describeAction(t, e.action),
     },
     {
       key: "contract",
       title: t("table.columns.contract"),
+      filters: [...new Set(entries.map((e) => e.contractCode))]
+        .sort()
+        .map((value) => ({ text: value, value })),
+      filterSearch: true,
+      onFilter: (value: unknown, e: ActivityEntry) => e.contractCode === value,
       render: (_: unknown, e: ActivityEntry) => (
         <Link to={`/contracts/${e.contractCode}`}>
           {contractReference(t, e)}

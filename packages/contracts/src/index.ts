@@ -56,6 +56,8 @@ export interface ResourceField {
   type: "string" | "email" | "number" | "boolean" | "select";
   required?: boolean;
   options?: string[];
+  /** Resource this field references by id; forms populate it and the API checks it exists. */
+  ref?: string;
 }
 export interface ResourceDefinition {
   name: string;
@@ -77,4 +79,28 @@ export function pageResult<T>(
   limit: number,
 ): PageResult<T> {
   return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
+}
+
+/** all = every organization, org = own organization, own = records the user is party to, assigned = steps assigned to the user. */
+export type PermissionScope = "all" | "org" | "own" | "assigned";
+/** Shape of packages/contracts/permissions.json, served read-only by GET /permissions. */
+export interface PermissionMatrix {
+  roles: Role[];
+  modules: {
+    key: string;
+    permissions: {
+      key: string;
+      grants: Partial<Record<Role, PermissionScope>>;
+    }[];
+  }[];
+}
+/** Import dry-run report from POST /resources/:resource/import/validate. */
+export interface ImportValidationReport {
+  summary: { total: number; valid: number; error: number };
+  results: {
+    row: number;
+    data: Record<string, unknown>;
+    status: "valid" | "invalid";
+    errors: string[];
+  }[];
 }

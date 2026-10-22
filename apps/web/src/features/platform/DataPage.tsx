@@ -3,8 +3,10 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
+  App as AntApp,
   Collapse,
   Descriptions,
+  Dropdown,
   Space,
   Tag,
   Tooltip,
@@ -24,19 +26,35 @@ import {
   DetailModal,
   IconButton,
   PageContainer,
+  downloadBlob,
   exportToCSV,
   exportToJSON,
+  useAccess,
   useFilters,
   usePagination,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
-import { platform } from "@/shared/api/platform";
 import { AppPage } from "@/shared/layout/AppPage";
 import { useCurrentUser } from "@/shared/auth/session";
 import { formatDecimalString } from "@/shared/lib/format";
+import { columnSearch } from "@/shared/ui/columnSearch";
+import {
+  OUTPUT_FILES,
+  downloadDatasetFile,
+  evaluateDataPack,
+  evaluateDataset,
+  getDatasetResult,
+  getDecisions,
+  listDatasets,
+  type Decision,
+  type EngineRow as Row,
+  type EvaluationSummary,
+  type OutputFile,
+  type Trace,
+} from "./api/engine.api";
+import { DATA_PACK, DatasetPanel } from "./components/DatasetPanel";
 
-type Decision = "RELEASE" | "HOLD" | "REJECT" | "PENALTY";
 const DECISIONS: Decision[] = ["RELEASE", "PENALTY", "HOLD", "REJECT"];
 const decisionColor: Record<
   Decision,
@@ -47,29 +65,6 @@ const decisionColor: Record<
   HOLD: { tag: "warning", bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
   REJECT: { tag: "error", bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
 };
-const EVALUATORS = ["CONTRACT_OWNER", "FINANCE_APPROVER", "ADMIN_AUDITOR"];
-
-type Row = Record<string, string>;
-interface Trace {
-  id: string;
-  result: Record<string, unknown>;
-  [key: string]: unknown;
-}
-interface Evaluation {
-  runId: string;
-  rows: Row[];
-  traces: Trace[];
-  summary: {
-    contracts: number;
-    milestones: number;
-    sampleMatched: number;
-    sampleTotal: number;
-    invariantViolations: string[];
-    payableMillion: string;
-    penaltyMillion: string;
-    decisions: Partial<Record<Decision, number>>;
-  };
-}
 type Filters = {
   milestone_type?: string;
   reason_code?: string;
@@ -79,21 +74,61 @@ type Filters = {
 export default function DataPage() {
   const { t } = useTranslation("platform");
   const user = useCurrentUser();
+  const { message } = AntApp.useApp();
+  const { hasPermission } = useAccess(user);
   const cache = useQueryClient();
+  const [source, setSource] = useState(DATA_PACK);
   const [tab, setTab] = useState<Decision | "ALL">("ALL");
   const [traceRow, setTraceRow] = useState<Row>();
   const { filters, updateFilter, clearFilters } = useFilters<Filters>({});
   const { page, pageSize, goToPage, handleTableChange } = usePagination(1, 10);
+  const canManage = hasPermission("engine:datasets");
+  const datasets = useQuery({
+    queryKey: ["engine", "datasets", user.id],
+    queryFn: listDatasets,
+    enabled: canManage,
+  });
+  const dataset = datasets.data?.find((d) => d.id === source);
+  const official = source === DATA_PACK;
   const result = useQuery({
-    queryKey: ["engine"],
-    queryFn: () => platform.get<Evaluation>("/engine/decisions"),
+    queryKey: ["engine", "result", user.id, source],
+    queryFn: () => (official ? getDecisions() : getDatasetResult(source)),
+    enabled: official || !!dataset?.lastRun,
   });
   const evaluate = useMutation({
-    mutationFn: () => platform.post<Evaluation>("/engine/evaluate", {}),
-    onSuccess: (data) => cache.setQueryData(["engine"], data),
+    mutationFn: () => (official ? evaluateDataPack() : evaluateDataset(source)),
+    onSuccess: async (data) => {
+      cache.setQueryData(["engine", "result", user.id, source], data);
+      if (!official) await datasets.refetch();
+    },
   });
-  const canEvaluate = EVALUATORS.includes(user.role);
+  const canEvaluate = official
+    ? hasPermission("engine:evaluate")
+    : canManage && !!dataset?.report.ok;
   const summary = result.data?.summary;
+  const changeSource = (next: string) => {
+    setSource(next);
+    setTab("ALL");
+    clearFilters();
+    goToPage(1);
+    evaluate.reset();
+  };
+  const download = async (file: OutputFile) => {
+    if (!result.data) return;
+    if (!official) {
+      try {
+        downloadBlob(await downloadDatasetFile(source, file), file);
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : String(error));
+      }
+    } else if (file === "submission_output.csv")
+      exportToCSV(result.data.rows, file);
+    else
+      exportToJSON(
+        file === "audit.json" ? result.data.traces : result.data.summary,
+        file,
+      );
+  };
   const allRows = useMemo(() => result.data?.rows ?? [], [result.data]);
   const rows = useMemo(
     () =>
@@ -160,9 +195,10 @@ export default function DataPage() {
     {
       key: "contract_id",
       dataIndex: "contract_id",
-      width: 120,
+      width: 140,
       title: t("data.columns.contract_id"),
       sorter: (a: Row, b: Row) => a.contract_id.localeCompare(b.contract_id),
+      ...columnSearch<Row>((row) => row.contract_id),
       render: (value: string) => (
         <Typography.Text strong>{value}</Typography.Text>
       ),
@@ -170,21 +206,30 @@ export default function DataPage() {
     {
       key: "milestone_id",
       dataIndex: "milestone_id",
-      width: 120,
+      width: 140,
       title: t("data.columns.milestone_id"),
       sorter: (a: Row, b: Row) => a.milestone_id.localeCompare(b.milestone_id),
+      ...columnSearch<Row>((row) => row.milestone_id),
     },
     {
       key: "milestone_type",
       dataIndex: "milestone_type",
-      width: 140,
+      width: 170,
       title: t("data.columns.milestone_type"),
+      filters: distinct("milestone_type").map(({ value }) => ({
+        text: value,
+        value,
+      })),
+      filterSearch: true,
+      onFilter: (value: unknown, row: Row) => row.milestone_type === value,
     },
     {
       key: "predicted_decision",
       dataIndex: "predicted_decision",
-      width: 130,
+      width: 150,
       title: t("data.columns.predicted_decision"),
+      filters: DECISIONS.map((value) => ({ text: value, value })),
+      onFilter: (value: unknown, row: Row) => row.predicted_decision === value,
       render: (value: Decision) => (
         <Tooltip title={t(`data.decisionHint.${value}`)}>
           <Tag color={decisionColor[value].tag}>{value}</Tag>
@@ -212,6 +257,12 @@ export default function DataPage() {
       dataIndex: "reason_code",
       width: 230,
       title: t("data.columns.reason_code"),
+      filters: distinct("reason_code").map(({ value }) => ({
+        text: value,
+        value,
+      })),
+      filterSearch: true,
+      onFilter: (value: unknown, row: Row) => row.reason_code === value,
       render: (value: string) => (
         <Typography.Text code style={{ whiteSpace: "nowrap" }}>
           {value}
@@ -226,7 +277,8 @@ export default function DataPage() {
         title={t("data.title")}
         subtitle={
           summary
-            ? t("data.subtitle", {
+            ? t(dataset ? "data.subtitleDataset" : "data.subtitle", {
+                name: dataset?.name,
                 milestones: summary.milestones,
                 contracts: summary.contracts,
               })
@@ -241,33 +293,55 @@ export default function DataPage() {
               disabled={!canEvaluate}
               tooltip={canEvaluate ? undefined : t("data.evaluateForbidden")}
               onClick={() => evaluate.mutate()}
+              data-testid="data-evaluate"
             >
               {t("data.evaluate")}
             </BaseButton>
-            <BaseButton
-              variant="secondary"
-              icon={<DownloadOutlined />}
+            <Dropdown
               disabled={!result.data}
-              onClick={() => exportToCSV(allRows, "submission_output.csv")}
+              trigger={["click"]}
+              menu={{
+                items: OUTPUT_FILES.map((file) => ({
+                  key: file,
+                  icon: <DownloadOutlined />,
+                  label: t(`data.downloadItems.${file}`),
+                  onClick: () => void download(file),
+                })),
+              }}
             >
-              {t("data.export")}
-            </BaseButton>
-            <BaseButton
-              variant="secondary"
-              icon={<DownloadOutlined />}
-              disabled={!result.data}
-              onClick={() => exportToJSON(result.data!.traces, "audit.json")}
-            >
-              {t("data.audit")}
-            </BaseButton>
+              <BaseButton
+                variant="secondary"
+                icon={<DownloadOutlined />}
+                disabled={!result.data}
+                data-testid="data-download"
+              >
+                {t("data.download")}
+              </BaseButton>
+            </Dropdown>
           </Space>
         }
       >
+        {canManage ? (
+          <DatasetPanel
+            source={source}
+            datasets={datasets.data ?? []}
+            loading={datasets.isPending}
+            canManage={canManage}
+            onSourceChange={changeSource}
+            onChanged={() => datasets.refetch()}
+          />
+        ) : null}
         {evaluate.isError ? (
           <Alert type="error" showIcon title={evaluate.error.message} />
         ) : null}
         {result.isError ? (
           <Alert type="error" showIcon title={result.error.message} />
+        ) : null}
+        {dataset?.report.ok && !dataset.lastRun && !evaluate.isPending ? (
+          <Alert type="info" showIcon title={t("data.source.runFirst")} />
+        ) : null}
+        {summary?.source?.kind === "dataset" ? (
+          <SourceNotes summary={summary} />
         ) : null}
         {summary ? (
           <BaseCard bodyStyle={{ padding: 0 }}>
@@ -302,17 +376,29 @@ export default function DataPage() {
                       </Tooltip>
                     </Space>
                   ),
-                  children: `${summary.sampleMatched}/${summary.sampleTotal}`,
+                  children: summary.sampleTotal ? (
+                    `${summary.sampleMatched}/${summary.sampleTotal}`
+                  ) : (
+                    <Typography.Text type="secondary">
+                      {t("data.summary.noLabels")}
+                    </Typography.Text>
+                  ),
                 },
                 {
                   key: "invariants",
                   label: t("data.summary.invariants"),
                   children: summary.invariantViolations.length ? (
-                    <Tag color="error">
-                      {t("data.summary.invariantsBroken", {
-                        count: summary.invariantViolations.length,
-                      })}
-                    </Tag>
+                    <Tooltip
+                      title={summary.invariantViolations
+                        .slice(0, 10)
+                        .join("; ")}
+                    >
+                      <Tag color="error">
+                        {t("data.summary.invariantsBroken", {
+                          count: summary.invariantViolations.length,
+                        })}
+                      </Tag>
+                    </Tooltip>
                   ) : (
                     <Tag color="success" icon={<CheckCircleOutlined />}>
                       {t("data.summary.invariantsOk")}
@@ -399,6 +485,37 @@ export default function DataPage() {
         ) : null}
       </DetailModal>
     </AppPage>
+  );
+}
+
+/** What the engine did with an uploaded dataset: generated template, scope file. */
+function SourceNotes({ summary }: { summary: EvaluationSummary }) {
+  const { t } = useTranslation("platform");
+  const source = summary.source!;
+  const unknown = source.unknownScopeIds ?? [];
+  return (
+    <Space direction="vertical" size={8} style={{ width: "100%" }}>
+      {source.generatedTemplate ? (
+        <Alert type="info" showIcon title={t("data.source.templateHint")} />
+      ) : null}
+      {source.scopeRows ? (
+        <Alert
+          type="info"
+          showIcon
+          title={t("data.source.scopeHint", { count: source.scopeRows })}
+        />
+      ) : null}
+      {unknown.length ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={t("data.source.unknownScope", {
+            count: unknown.length,
+            ids: unknown.slice(0, 10).join(", "),
+          })}
+        />
+      ) : null}
+    </Space>
   );
 }
 

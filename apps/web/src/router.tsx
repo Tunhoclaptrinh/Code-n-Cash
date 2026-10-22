@@ -32,6 +32,11 @@ function pages() {
     { path: "/", element: <HomeRedirect /> },
 
     {
+      path: "/platform/permissions",
+      lazy: () =>
+        import("@/features/platform/PermissionMatrixPage").then(asRoute),
+    },
+    {
       path: "/platform/:resource?",
       lazy: () => import("@/features/platform/ResourcePage").then(asRoute),
     },

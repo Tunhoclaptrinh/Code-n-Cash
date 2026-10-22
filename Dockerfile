@@ -48,8 +48,8 @@ COPY --from=api-deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /app/apps/api/dist ./apps/api/dist
 COPY apps/api/package.json ./apps/api/
 # Runtime files the API reads relative to REPO_ROOT: resource definitions and the engine.
-COPY packages/contracts/resources.json ./packages/contracts/
-COPY apps/engine/cli.py apps/engine/server.py ./apps/engine/
+COPY packages/contracts/resources.json packages/contracts/permissions.json ./packages/contracts/
+COPY apps/engine/cli.py apps/engine/dataset.py apps/engine/server.py ./apps/engine/
 COPY tools/kiem_chung_nghiep_vu.py ./tools/
 COPY BangD-Case4/DataPack-CASE4_SmartContractWorkflow ./BangD-Case4/DataPack-CASE4_SmartContractWorkflow
 RUN mkdir -p /data && chown node:node /data

@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import sys
+import zipfile
 from collections import Counter
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -13,23 +14,33 @@ from time import perf_counter
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kiem_chung_nghiep_vu as spec
+import dataset
 
 
-def evaluate(as_of=None):
-    pack = spec.Pack.load(spec.DEFAULT_DATA)
+def evaluate(as_of=None, data=None):
+    """Official Data Pack by default. With `data`, an uploaded dataset: invariant breaks are reported, not raised."""
+    if data:
+        pack, fingerprint, source = dataset.load(data)
+    else:
+        pack = spec.Pack.load(spec.DEFAULT_DATA)
+        fingerprint = hashlib.sha256(''.join(
+            hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((spec.DEFAULT_DATA / '01_data').glob('*.csv'))
+        ).encode()).hexdigest()
+        source = {'kind': 'datapack'}
     results, timings = {}, {}
     for mid in pack.milestones:
         start = perf_counter()
-        results[mid] = spec.evaluate(pack, mid, as_of=as_of)
+        try:
+            results[mid] = spec.evaluate(pack, mid, as_of=as_of)
+        except (KeyError, ValueError, ArithmeticError) as error:
+            raise ValueError(f'EVALUATION_FAILED {mid}: {type(error).__name__} {error}') from error
         timings[mid] = (perf_counter() - start) * 1000
     violations = spec.check_invariants(pack, results) if not as_of else []
-    if violations:
+    if violations and not data:
         raise ValueError('; '.join(violations))
     now = datetime.now(timezone.utc).isoformat()
-    fingerprint = hashlib.sha256(''.join(
-        hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((spec.DEFAULT_DATA / '01_data').glob('*.csv'))
-    ).encode()).hexdigest()
     run_id = 'run-' + hashlib.sha256((fingerprint + spec.SPEC_VERSION + str(as_of)).encode()).hexdigest()[:16]
     flags = spec.assumption_flags(pack, results)
     rows, traces = [], []
@@ -51,11 +62,14 @@ def evaluate(as_of=None):
                        'evaluatedAt': now, 'result': result, 'actors': sorted({pack.event_by_id[e]['actor_party_id'] for e in result['evidence']}),
                        'parameters': pack.milestones[mid]})
     matched, mismatches = spec.compare_samples(pack, results) if not as_of else (None, [])
+    # Totals, like the decision counts, cover the output rows (the scope file can narrow them).
+    scored = [results[t['milestone_id']] for t in pack.template]
     return {'runId': run_id, 'inputFingerprint': fingerprint, 'rows': rows, 'traces': traces,
-            'summary': {'milestones': len(rows), 'contracts': len(pack.contracts), 'decisions': dict(Counter(r['decision'] for r in results.values())),
+            'summary': {'source': source, 'milestones': len(rows), 'contracts': len(pack.contracts),
+                        'decisions': dict(Counter(r['decision'] for r in scored)),
                         'sampleMatched': matched, 'sampleTotal': len(pack.decisions), 'sampleMismatches': mismatches,
-                        'invariantViolations': violations, 'payableMillion': str(sum(r['payable'] for r in results.values())),
-                        'penaltyMillion': str(sum(r['penalty'] for r in results.values()))}}
+                        'invariantViolations': violations, 'payableMillion': str(sum(r['payable'] for r in scored)),
+                        'penaltyMillion': str(sum(r['penalty'] for r in scored))}}
 
 
 def encode(value):
@@ -69,12 +83,22 @@ if __name__ == '__main__':
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--as-of')
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--data', type=Path, help='uploaded dataset folder instead of the official Data Pack')
+    parser.add_argument('--inspect', action='store_true', help='only report which files were found in --data')
     args = parser.parse_args()
-    result = evaluate(args.as_of)
+    try:
+        if args.inspect:
+            print(json.dumps(dataset.inspect(args.data or spec.DEFAULT_DATA), ensure_ascii=False))
+            sys.exit(0)
+        result = evaluate(args.as_of, args.data)
+    except (ValueError, zipfile.BadZipFile) as error:
+        # One line the API can show; a traceback adds nothing for a bad upload.
+        print(str(error), file=sys.stderr)
+        sys.exit(2)
     if args.output:
         args.output.mkdir(parents=True, exist_ok=True)
         with (args.output / 'submission_output.csv').open('w', encoding='utf-8-sig', newline='') as handle:
-            writer = csv.DictWriter(handle, fieldnames=result['rows'][0].keys())
+            writer = csv.DictWriter(handle, fieldnames=result['rows'][0].keys() if result['rows'] else dataset.TEMPLATE_COLUMNS)
             writer.writeheader()
             writer.writerows(result['rows'])
         (args.output / 'audit.json').write_text(json.dumps(result['traces'], default=encode, ensure_ascii=False, indent=2))

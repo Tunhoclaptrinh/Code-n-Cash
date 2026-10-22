@@ -17,6 +17,7 @@ import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { EngineController } from "./engine";
+import { PermissionsController } from "./permissions.controller";
 process.env.REPO_ROOT ??= resolve(__dirname, "../../..");
 loadEnv({ path: resolve(process.env.REPO_ROOT, ".env") });
 process.chdir(process.env.REPO_ROOT);
@@ -35,6 +36,7 @@ class HealthController {
     EngineController,
     WorkflowController,
     DocumentsController,
+    PermissionsController,
   ],
   providers: [
     Repository,

@@ -28,6 +28,7 @@ export class Repository implements OnModuleDestroy {
         "milestone-templates",
         "settings",
         "documents",
+        "datasets",
         "audit",
         "workflow-state",
       ])

@@ -18,7 +18,8 @@ apps/web/src/
     layout/             AppLayout, AppPage, navConfig, PreferenceControls, NotificationDrawer
     onboarding/         Màn chào lần đầu (chọn ngôn ngữ, giao diện) và gợi ý trên header
     pages/              NotFoundPage, RouteErrorPage
-    ui/                 PageState, Panel, ToneTag, BrandMark
+    ui/                 PageState, Panel, ToneTag, BrandMark, ExpandableModal,
+                        ImportPreviewModal, columnSearch
     api/ auth/ lib/     Client có xác thực, phiên đăng nhập, định dạng
   features/<miền>/      api/ components/ pages/ lib/ types.ts
   locales/{vi,en}/      Một namespace cho mỗi miền + common
@@ -37,11 +38,14 @@ Mọi trang danh sách dùng đủ các phần sau của base. Trang mẫu: [Con
 | Tab nhanh | `tabs`, `activeTab`, `onTabChange` theo trạng thái |
 | Tìm kiếm | Lọc client: `searchFields`; lọc server hoặc tìm theo chữ đã dịch: `searchValue` + `onSearch` |
 | Bộ lọc | `filters` (`FilterConfig`: `select`, `input`, `date`) + `useFilters` → `filterValues`, `onFilterChange`, `onClearFilters` |
+| Lọc theo cột | Cột liệt kê được: `filters` + `onFilter` của Ant Design (thêm `filterSearch` khi nhiều giá trị). Cột chữ: `...columnSearch((row) => text)` từ `shared/ui/columnSearch`. Lọc phía server (ResourcePage): `filteredValue` + `filterMultiple: false`, đổi thành `params.filters` trong `onPaginationChange` |
+| Chọn bản ghi liên kết | Trường có `ref` trong `resources.json`: `DebounceSelect` tìm từ xa, lưu id, hiển thị tên; bảng và tệp xuất có cột `<field>_name` |
 | Tải lại | `onRefresh={() => query.refetch()}` |
 | Phân trang | Client: `usePagination` → `pagination={{ current, pageSize }}`, `onPaginationChange={handleTableChange}`; server: `useResource` |
-| Xuất/nhập | `exportable` + `onExport` (dữ liệu đã làm phẳng, nhãn đã dịch); `importable` + `onImport` cho tài nguyên CRUD |
+| Xuất/nhập | Lọc client: `exportable` + `onExport` (dữ liệu đã làm phẳng, nhãn đã dịch). Tài nguyên CRUD (theo Base): xuất phía server `GET /resources/:r/export?format&columns&filters…`; nhập qua `GET …/template` → `POST …/import/validate` → `ImportPreviewModal` (báo lỗi từng dòng) → chỉ nhập dòng hợp lệ |
+| Quyền | `useAccess(user).hasPermission("module:action")`; ẩn nút khi không có quyền, API vẫn kiểm lại |
 | Thao tác hàng | `customActions` **thay thế** nút mặc định: một `IconButton` chính + `Dropdown` chứa Xem chi tiết/Sửa/Xóa… |
-| Xem chi tiết | `DetailModal` với `items`, có `onEdit`/`onDelete` nếu được sửa |
+| Xem chi tiết | `DetailModal` với `items`, có `onEdit`/`onDelete` nếu được sửa. Bản ghi dài (tab, bảng con): `ExpandableModal` có nút phóng toàn màn hình, ví dụ [ContractModal](../apps/web/src/features/contracts/components/ContractModal.tsx) |
 | Thêm/sửa | `onAdd` (nút "Thêm mới") + `FormModal` với `Form.Item` có `rules` |
 | Xóa | `ConfirmModal` (`danger`); xóa nhiều: `batchOperations` + `onBatchDelete` |
 
@@ -58,33 +62,47 @@ Nhật ký kiểm toán chỉ có xem, lọc, xuất: không có sửa/xóa (CLA
    ```
 
 2. Đăng ký trong `router.tsx` bằng `lazy: () => import(...).then(asRoute)`.
-3. Mục menu mới: thêm vào `navConfig.ts`. Mục con (như Quản trị hệ thống) khai báo `children`; khóa của mục con là đường dẫn.
+3. Mục menu mới: thêm vào `navConfig.ts`. Menu chia theo khu vực nghiệp vụ (`workflow()`, `monitoring()`, `dataAndAdmin()`, mỗi khu có `labelKey` làm tiêu đề nhóm); mục con (như Quản trị hệ thống) khai báo `children`, khóa của mục con là đường dẫn. Khi sidebar thu gọn, tiêu đề nhóm thành đường kẻ.
 4. Thêm chuỗi vào **cả** `locales/vi/<ns>.json` và `locales/en/<ns>.json`.
 
 Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) dùng `PageHeader` hoặc `PageContainer` cho tiêu đề, `Panel` cho khối nội dung tự quản padding, `ToneTag` cho trạng thái, `PageState` cho đang tải/lỗi.
 
-## 5. Màn chào lần đầu
+## 5. Màn chào lần đầu và đăng nhập demo
 
-- Lần đầu mở ứng dụng (trang đăng nhập hoặc trong app) hiện modal bắt chọn ngôn ngữ và giao diện; nút "Bắt đầu" chỉ bật khi đã chọn cả hai, lựa chọn áp dụng ngay.
+- Trang đăng nhập không hiện màn chào. Sau lần đăng nhập đầu tiên, ngay trên màn chính, hiện modal bắt chọn ngôn ngữ và giao diện; nút "Bắt đầu" chỉ bật khi đã chọn cả hai, lựa chọn áp dụng ngay.
 - Chọn xong, ba nút Hướng dẫn, Ngôn ngữ, Sáng/tối trên header cùng nhấp nháy và một thẻ gợi ý giải thích; bấm "Đã hiểu" hoặc ra ngoài để đóng.
 - Trạng thái lưu ở `localStorage["codecash.onboarding"] = "done"`; xóa khóa này để xem lại từ đầu. Nút Hướng dẫn trên header mở lại thẻ gợi ý bất cứ lúc nào.
 - Mã: [`shared/onboarding`](../apps/web/src/shared/onboarding/), [`PreferenceControls`](../apps/web/src/shared/layout/PreferenceControls.tsx).
+- Khi API bật `DEMO_LOGIN` (mặc định ngoài production), góc phải trang đăng nhập có menu "Tài khoản demo" lấy từ `GET /auth/demo-accounts`; chọn một tài khoản là điền email và đăng nhập ngay (`POST /auth/demo-login`). API chỉ nhận 5 tài khoản mẫu còn hoạt động và ghi `LOGIN_DEMO` vào nhật ký.
 
-## 6. Dữ liệu, nghiệp vụ, i18n
+## 6. Phân quyền
+
+- Nguồn duy nhất: [`packages/contracts/permissions.json`](../packages/contracts/permissions.json), khóa dạng `module:action` (Base), mỗi vai trò có phạm vi `own`/`org`/`all`.
+- API: `@RequirePermission("engine:evaluate")` trên route; `BaseService` kiểm `<resource>:<read|create|update|delete|import|export>`; mỗi hành động workflow ánh xạ tới một quyền trong `workflow.controller.ts` (thiếu ánh xạ là bị từ chối).
+- Web: `user.permissions` (API tính từ vai trò) → `useAccess(user)`. Trang **Ma trận phân quyền** (`/platform/permissions`) chỉ đọc: đổi quyền cần người thứ hai duyệt (SoD-3, SoD-4) nên đi qua review mã.
+
+## 7. Trang Data Pack và bộ dữ liệu tải lên
+
+- Nguồn dữ liệu: Data Pack chính thức hoặc bộ dữ liệu người dùng tải lên ([DatasetPanel](../apps/web/src/features/platform/components/DatasetPanel.tsx)). Tải lên nhận CSV rời hoặc ZIP của cả thư mục; engine tìm tệp theo tên và báo tệp nào đủ, thiếu, thiếu cột trước khi chạy.
+- Không có `submission_output_template.csv` thì engine dựng 22 cột theo thứ tự `milestones.csv`. Có `*test_ids*.csv` (ví dụ `hidden_test_ids_Case4.csv`) thì chỉ xuất các mốc trong danh sách; engine vẫn đọc toàn bộ dữ liệu.
+- "Tải kết quả": `submission_output.csv`, `audit.json`, `metrics.json` do engine ghi (`GET /engine/datasets/:id/files/:file`). Quyền `engine:datasets`.
+
+## 8. Dữ liệu, nghiệp vụ, i18n
 
 - Đọc/ghi qua module trong `features/<miền>/api/` hoặc `shared/api`; TanStack Query với `queryKey` chứa `user.id`. Trình duyệt không quyết định nghiệp vụ; ESLint chặn import mã server.
 - Tiền Data Pack là chuỗi thập phân: `formatDecimalString`. Tiền workflow (triệu VND): `formatMillionVnd`. Ngày giờ: `formatDate`, `formatDateTime`.
 - Mọi chuỗi hiển thị, gồm `aria-label`, `placeholder`, tooltip, qua i18n; số đếm dùng `key_one`/`key_other`.
 
-## 7. Kiểm tra trước khi mở PR
+## 9. Kiểm tra trước khi mở PR
 
 ```bash
 pnpm check              # typecheck, lint (0 warning), format:check, build, test
 pnpm dev                # rồi, ở terminal khác:
-pnpm test:browser       # onboarding, 25 màn desktop/mobile, tạo/xóa qua base; ảnh ở artifacts/browser
+pnpm test:browser       # đăng nhập demo, màn chào sau đăng nhập, 27 màn desktop/mobile, modal toàn màn,
+                        # tải và chạy bộ dữ liệu, tạo/xóa qua base; ảnh ở artifacts/browser
 ```
 
-## 8. Không tạo lại
+## 10. Không tạo lại
 
 | Đã gỡ | Thay bằng |
 | --- | --- |

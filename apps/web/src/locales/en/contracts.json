@@ -84,6 +84,21 @@
     },
     "detail": {
       "title": "Contract title"
+    },
+    "modal": {
+      "overview": "Overview",
+      "kind": "Contract type",
+      "due": "Due",
+      "paid": "Settled (million VND)",
+      "edit": "Edit draft",
+      "save": "Save changes",
+      "discard": "Close",
+      "editHint": "Only a newly digitized contract that nobody has signed can be edited. Signed contracts are workflow records and are not edited or deleted directly.",
+      "saved": "Draft saved",
+      "cancelSigning": "Cancel signing",
+      "cancelBody": "Cancel every signing request of {{code}}. Only possible before anyone signs; the action is logged.",
+      "cancelled": "Pending signing requests cancelled",
+      "openPage": "Open full page"
     }
   },
   "contractUpload": {

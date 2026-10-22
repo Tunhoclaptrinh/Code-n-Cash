@@ -14,8 +14,9 @@
     "submissions": "Chứng từ đã nộp",
     "approvals": "Chờ tôi phê duyệt",
     "groups": {
-      "workflow": "Nghiệp vụ",
-      "data": "Dữ liệu & quản trị"
+      "workflow": "Nghiệp vụ hợp đồng",
+      "data": "Dữ liệu & quản trị",
+      "monitoring": "Theo dõi & kiểm toán"
     },
     "home": "Trang chủ"
   },
@@ -72,12 +73,13 @@
       "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
     },
     "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
-    "demoHint": "Môi trường thử nghiệm: dùng một tài khoản mẫu trong README.",
+    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
     "highlights": {
       "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
       "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
       "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
-    }
+    },
+    "demoAccounts": "Tài khoản demo"
   },
   "common": {
     "loading": "Đang tải…",
@@ -128,5 +130,47 @@
       },
       "title": "Mẹo nhanh trên thanh tiêu đề"
     }
+  },
+  "importPreview": {
+    "title": "Xác minh dữ liệu nhập",
+    "confirm_one": "Nhập {{count}} hàng hợp lệ",
+    "confirm_other": "Nhập {{count}} hàng hợp lệ",
+    "cancel": "Hủy",
+    "total_one": "Tổng: {{count}}",
+    "total_other": "Tổng: {{count}}",
+    "valid_one": "Hợp lệ: {{count}}",
+    "valid_other": "Hợp lệ: {{count}}",
+    "invalid_one": "Lỗi: {{count}}",
+    "invalid_other": "Lỗi: {{count}}",
+    "errorsOnly": "Chỉ hiện hàng lỗi",
+    "partial": "Có {{error}} hàng không hợp lệ. Bấm Nhập để nhập {{valid}} hàng hợp lệ và bỏ qua hàng lỗi, hoặc sửa tệp rồi nhập lại.",
+    "none": "Không có hàng hợp lệ. Sửa tệp theo lỗi bên dưới rồi nhập lại.",
+    "allValid_one": "Tất cả {{count}} hàng hợp lệ.",
+    "allValid_other": "Tất cả {{count}} hàng hợp lệ.",
+    "status": "Trạng thái",
+    "rowValid": "Hợp lệ",
+    "rowInvalid": "Lỗi",
+    "errorsColumn": "Lỗi phát hiện",
+    "errors": {
+      "REQUIRED": "Thiếu trường bắt buộc",
+      "INVALID_OPTION": "Giá trị không thuộc danh sách",
+      "INVALID_REFERENCE": "Không tìm thấy bản ghi tham chiếu",
+      "DUPLICATE_RECORD": "Trùng mã hoặc email",
+      "UNKNOWN_FIELD": "Có cột không được hỗ trợ",
+      "INVALID_EMAIL": "Email không hợp lệ",
+      "INVALID_NUMBER": "Phải là số không âm",
+      "INVALID_BOOLEAN": "Phải là true/false",
+      "INVALID_STRING": "Giá trị chữ không hợp lệ",
+      "INVALID_BODY": "Hàng không hợp lệ"
+    }
+  },
+  "modal": {
+    "fullscreen": "Mở toàn màn hình",
+    "exitFullscreen": "Thu nhỏ"
+  },
+  "columnSearch": {
+    "placeholder": "Tìm trong cột…",
+    "search": "Tìm",
+    "reset": "Xóa"
   }
 }

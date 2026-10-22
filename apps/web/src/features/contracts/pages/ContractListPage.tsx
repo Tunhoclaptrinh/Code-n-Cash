@@ -2,25 +2,32 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Alert, Dropdown, Progress, Space, Tag, Typography } from "antd";
+import {
+  Alert,
+  Button,
+  Dropdown,
+  Progress,
+  Space,
+  Tag,
+  Typography,
+} from "antd";
 import type { MenuProps } from "antd";
 import {
+  ArrowRightOutlined,
   AuditOutlined,
   EditOutlined,
   EyeOutlined,
   FileSearchOutlined,
   MenuOutlined,
-  PlusOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import {
-  BaseButton,
   DataTable,
-  DetailModal,
   IconButton,
   PageContainer,
   exportToCSV,
   exportToJSON,
+  useAccess,
   useFilters,
   usePagination,
   type FilterConfig,
@@ -30,7 +37,9 @@ import type { ContractStatus } from "@/shared/api/types";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { formatMillionVnd } from "@/shared/lib/format";
+import { columnSearch } from "@/shared/ui/columnSearch";
 import { getContractList } from "../api/contractList.api";
+import { ContractModal } from "../components/ContractModal";
 import type { ContractRow } from "../types";
 
 const STATUSES: ContractStatus[] = [
@@ -89,7 +98,8 @@ export default function ContractListPage() {
     [contracts, tab, filters],
   );
   const perspective = user.role === "SUPPLIER" ? "supplier" : "buyer";
-  const canUpload = user.role === "CONTRACT_OWNER";
+  const { hasPermission } = useAccess(user);
+  const canUpload = hasPermission("contracts:draft-write");
   const canSign = (c: ContractRow) =>
     user.role === "CONTRACT_OWNER" && c.waitingFor.kind === "OWNER_SIGNS_FIRST";
 
@@ -192,6 +202,7 @@ export default function ContractListPage() {
       dataIndex: "code",
       title: t("contractList.table.columns.contract"),
       sorter: (a: ContractRow, b: ContractRow) => a.code.localeCompare(b.code),
+      ...columnSearch<ContractRow>((c) => `${c.code} ${c.title}`),
       render: (_: unknown, c: ContractRow) => (
         <div style={{ cursor: "pointer" }} onClick={() => setDetail(c)}>
           <Space size={6} wrap>
@@ -214,6 +225,9 @@ export default function ContractListPage() {
       title: t("contractList.table.columns.supplier"),
       sorter: (a: ContractRow, b: ContractRow) =>
         a.supplierName.localeCompare(b.supplierName),
+      filters: supplierOptions.map((o) => ({ text: o.label, value: o.value })),
+      filterSearch: true,
+      onFilter: (value: unknown, c: ContractRow) => c.supplierName === value,
     },
     {
       key: "valueMillion",
@@ -244,6 +258,11 @@ export default function ContractListPage() {
       key: "status",
       dataIndex: "status",
       title: t("contractList.table.columns.status"),
+      filters: STATUSES.map((value) => ({
+        text: t(`contractList.status.${value}`),
+        value,
+      })),
+      onFilter: (value: unknown, c: ContractRow) => c.status === value,
       render: (s: ContractStatus) => (
         <Tag color={statusColor[s]}>{t(`contractList.status.${s}`)}</Tag>
       ),
@@ -324,14 +343,15 @@ export default function ContractListPage() {
           }}
           extra={
             canUpload ? (
-              <BaseButton
-                variant="primary"
-                size="small"
-                icon={<PlusOutlined />}
+              <Button
+                type="link"
+                icon={<ArrowRightOutlined />}
+                iconPlacement="end"
                 onClick={() => navigate("/contracts/new")}
+                data-testid="upload-contract-link"
               >
                 {t("contractList.upload")}
-              </BaseButton>
+              </Button>
             ) : null
           }
           customActions={(c) => (
@@ -364,58 +384,14 @@ export default function ContractListPage() {
           )}
         />
       </PageContainer>
-      <DetailModal
-        open={!!detail}
-        title={detail ? `${detail.code} · ${detail.title}` : undefined}
-        record={detail}
+      <ContractModal
+        contract={detail}
+        statusTag={(c) => (
+          <Tag color={statusColor[c.status]} style={{ margin: 0 }}>
+            {t(`contractList.status.${c.status}`)}
+          </Tag>
+        )}
         onClose={() => setDetail(undefined)}
-        items={
-          detail
-            ? [
-                {
-                  key: "supplier",
-                  label: t("contractList.table.columns.supplier"),
-                  value: detail.supplierName,
-                },
-                {
-                  key: "value",
-                  label: t("contractList.table.columns.value"),
-                  value: formatMillionVnd(detail.valueMillion),
-                },
-                {
-                  key: "status",
-                  label: t("contractList.table.columns.status"),
-                  value: (
-                    <Tag color={statusColor[detail.status]}>
-                      {t(`contractList.status.${detail.status}`)}
-                    </Tag>
-                  ),
-                },
-                {
-                  key: "progress",
-                  label: t("contractList.table.columns.progress"),
-                  value: progressText(detail),
-                },
-                {
-                  key: "waiting",
-                  label: t("contractList.table.columns.waiting"),
-                  value: <WaitingFor contract={detail} />,
-                  span: 2,
-                },
-              ]
-            : []
-        }
-        extraActions={
-          detail ? (
-            <BaseButton
-              variant="primary"
-              icon={<FileSearchOutlined />}
-              onClick={() => navigate(`/contracts/${detail.code}`)}
-            >
-              {t("contractList.actions.open")}
-            </BaseButton>
-          ) : null
-        }
       />
     </AppPage>
   );

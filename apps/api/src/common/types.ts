@@ -27,6 +27,8 @@ export interface Field {
   type: string;
   required?: boolean;
   options?: string[];
+  /** Name of the resource this field points to (by id). */
+  ref?: string;
 }
 export interface Resource {
   name: string;

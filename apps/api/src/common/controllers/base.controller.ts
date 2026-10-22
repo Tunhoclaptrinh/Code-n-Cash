@@ -8,8 +8,10 @@ import {
   Query,
   Body,
   Req,
+  Res,
   Inject,
 } from "@nestjs/common";
+import type { Response } from "express";
 import { BaseService } from "../services/base.service";
 import type { SessionRequest } from "../types";
 @Controller("resources")
@@ -17,6 +19,36 @@ export class BaseController {
   constructor(@Inject(BaseService) private service: BaseService) {}
   @Get() definitions() {
     return this.service.definitions;
+  }
+  /** Declared before `:resource/:id` so these names are never read as record ids. */
+  @Get(":resource/export") async export(
+    @Param("resource") name: string,
+    @Query() query: Record<string, unknown>,
+    @Req() req: SessionRequest,
+    @Res() res: Response,
+  ) {
+    const file = await this.service.export(name, query, req.user);
+    const ext = file.contentType.startsWith("text/csv") ? "csv" : "json";
+    res.setHeader("Content-Type", file.contentType);
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${name}.${ext}"`,
+    );
+    res.send(file.body);
+  }
+  @Get(":resource/template") async template(
+    @Param("resource") name: string,
+    @Req() req: SessionRequest,
+    @Res() res: Response,
+  ) {
+    const csv = await this.service.template(name, req.user);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${name}_template.csv"`,
+    );
+    res.send(csv);
   }
   @Get(":resource") list(
     @Param("resource") name: string,
@@ -53,6 +85,13 @@ export class BaseController {
     @Req() req: SessionRequest,
   ) {
     return this.service.remove(name, id, req.user);
+  }
+  @Post(":resource/import/validate") validateImport(
+    @Param("resource") name: string,
+    @Body() body: unknown,
+    @Req() req: SessionRequest,
+  ) {
+    return this.service.validateImport(name, body, req.user);
   }
   @Post(":resource/import") import(
     @Param("resource") name: string,

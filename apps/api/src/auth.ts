@@ -18,15 +18,26 @@ import { randomBytes } from "node:crypto";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { Repository } from "./common/repository";
-import { Roles, Public } from "./common/decorators/roles.decorator";
+import { Public } from "./common/decorators/roles.decorator";
+import { RequirePermission, permissionsFor } from "./common/permissions";
 import type { Actor, SessionRequest, Role, RecordEntity } from "./common/types";
-const permissions: Record<Role, string[]> = {
-  ADMIN_AUDITOR: ["manage:all", "audit:read", "data:read", "evaluate:run"],
-  CONTRACT_OWNER: ["draft:write", "data:read", "evaluate:run"],
-  LEGAL_REVIEWER: ["draft:write", "data:read"],
-  FINANCE_APPROVER: ["data:read", "evaluate:run"],
-  SUPPLIER: ["data:read"],
-};
+/** Accounts created by `seed()`; the demo sign-in menu lists only these. */
+const DEMO_ACCOUNT_IDS = [
+  "u-owner",
+  "u-legal",
+  "u-finance",
+  "u-admin",
+  "u-supplier",
+];
+/**
+ * One-click demo sign-in: on by default in development, off in production unless DEMO_LOGIN=true.
+ * Never enable it on a deployment that holds real data.
+ */
+export function demoLoginEnabled() {
+  if (process.env.DEMO_LOGIN === "true") return true;
+  if (process.env.DEMO_LOGIN === "false") return false;
+  return process.env.NODE_ENV !== "production";
+}
 @Injectable()
 export class AuthService {
   private secret = process.env.JWT_SECRET || randomBytes(48).toString("hex");
@@ -44,7 +55,7 @@ export class AuthService {
       roleChipOrganization: String(
         record.roleChipOrganization ?? record.organizationId,
       ),
-      permissions: permissions[record.role as Role] ?? [],
+      permissions: permissionsFor(record.role as Role),
       active: record.active !== false,
     };
   }
@@ -68,6 +79,9 @@ export class AuthService {
       !(await bcrypt.compare(password, String(user.passwordHash)))
     )
       throw new UnauthorizedException("INVALID_CREDENTIALS");
+    return this.session(user);
+  }
+  private session(user: RecordEntity) {
     return {
       token: jwt.sign(
         { sub: user.id, tv: user.tokenVersion ?? 0 },
@@ -80,6 +94,49 @@ export class AuthService {
       ),
       user: this.actor(user),
     };
+  }
+  async demoAccounts() {
+    if (!demoLoginEnabled()) return { enabled: false, accounts: [] };
+    const users = await this.repo.list("users");
+    return {
+      enabled: true,
+      accounts: DEMO_ACCOUNT_IDS.map((id) => users.find((u) => u.id === id))
+        .filter((u): u is RecordEntity => !!u && u.active !== false)
+        .map((u) => ({
+          email: String(u.email),
+          displayName: String(u.displayName),
+          role: u.role as Role,
+          organization: String(u.roleChipOrganization ?? ""),
+        })),
+    };
+  }
+  async demoLogin(body: unknown) {
+    if (!demoLoginEnabled()) throw new NotFoundException("DEMO_LOGIN_DISABLED");
+    const email = String((body as { email?: unknown })?.email ?? "")
+      .trim()
+      .toLowerCase();
+    const user = (await this.repo.list("users")).find(
+      (x) =>
+        DEMO_ACCOUNT_IDS.includes(x.id) &&
+        String(x.email).toLowerCase() === email &&
+        x.active !== false,
+    );
+    if (!user) throw new UnauthorizedException("INVALID_CREDENTIALS");
+    const now = new Date().toISOString();
+    await this.repo.mutate("audit", (items) =>
+      items.push({
+        id: randomBytes(16).toString("hex"),
+        version: 1,
+        createdAt: now,
+        updatedAt: now,
+        organizationId: String(user.organizationId),
+        actorId: user.id,
+        action: "LOGIN_DEMO",
+        resource: "users",
+        recordId: user.id,
+      }),
+    );
+    return this.session(user);
   }
   async authenticate(token: string) {
     try {
@@ -204,13 +261,21 @@ export class AuthController {
   @Public() @Post("login") login(@Body() body: unknown) {
     return this.auth.login(body);
   }
+  @Public() @Get("demo-accounts") demoAccounts() {
+    return this.auth.demoAccounts();
+  }
+  @Public() @Post("demo-login") demoLogin(@Body() body: unknown) {
+    return this.auth.demoLogin(body);
+  }
   @Post("logout") logout(@Req() req: SessionRequest) {
     return this.auth.logout(req.user);
   }
   @Get("me") me(@Req() req: SessionRequest) {
     return req.user;
   }
-  @Roles("ADMIN_AUDITOR") @Post("users/:id/password") reset(
+  @RequirePermission("users:reset-password")
+  @Post("users/:id/password")
+  reset(
     @Param("id") id: string,
     @Body() body: { password: unknown },
     @Req() req: SessionRequest,

@@ -1,15 +1,29 @@
 import { useState } from "react";
-import { Alert, Button, Form, Input, Typography } from "antd";
+import {
+  Alert,
+  Avatar,
+  Button,
+  Dropdown,
+  Form,
+  Input,
+  Tag,
+  Typography,
+} from "antd";
 import {
   AuditOutlined,
+  DownOutlined,
   FileProtectOutlined,
   LockOutlined,
   MailOutlined,
   SafetyCertificateOutlined,
+  UserSwitchOutlined,
 } from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router-dom";
+import { listDemoAccounts, type DemoAccount } from "../api/auth.api";
 import { homeByRole } from "../layout/navConfig";
+import { initialsOf } from "../lib/initials";
 import { PreferenceControls } from "../layout/PreferenceControls";
 import { useOnboarding } from "../onboarding/OnboardingContext";
 import { BrandMark } from "../ui/BrandMark";
@@ -25,11 +39,32 @@ const HIGHLIGHTS = [
 export default function LoginPage() {
   const { t } = useTranslation("common");
   const { phase } = useOnboarding();
-  const { user, signIn } = useSession();
+  const { user, signIn, signInDemo } = useSession();
   const navigate = useNavigate();
+  const [form] = Form.useForm<{ email: string; password: string }>();
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
+  const demo = useQuery({
+    queryKey: ["demo-accounts"],
+    queryFn: listDemoAccounts,
+    staleTime: Infinity,
+  });
   if (user) return <Navigate to={homeByRole[user.role]} replace />;
+
+  /** Fills the form so the choice is visible, then signs in without a password. */
+  const signInWithDemo = async (account: DemoAccount) => {
+    form.setFieldsValue({ email: account.email, password: "" });
+    setBusy(true);
+    setError(false);
+    try {
+      const actor = await signInDemo(account.email);
+      navigate(homeByRole[actor.role], { replace: true });
+    } catch {
+      setError(true);
+      setBusy(false);
+    }
+  };
+  const demoAccounts = demo.data ?? [];
   return (
     <div className={styles.page}>
       <aside className={styles.brandPanel}>
@@ -55,6 +90,43 @@ export default function LoginPage() {
           className={styles.toolbar}
           style={phase === "tips" ? { zIndex: 1002 } : undefined}
         >
+          {demoAccounts.length ? (
+            <Dropdown
+              trigger={["click"]}
+              placement="bottomRight"
+              menu={{
+                items: demoAccounts.map((account) => ({
+                  key: account.email,
+                  onClick: () => void signInWithDemo(account),
+                  label: (
+                    <span
+                      className={styles.demoItem}
+                      data-testid="demo-account"
+                    >
+                      <Avatar size={32} className={styles.demoAvatar}>
+                        {initialsOf(account.displayName)}
+                      </Avatar>
+                      <span className={styles.demoText}>
+                        <b>{account.displayName}</b>
+                        <small>{account.email}</small>
+                      </span>
+                      <Tag color="blue" style={{ margin: 0 }}>
+                        {t(`roles.${account.role}.name`)}
+                      </Tag>
+                    </span>
+                  ),
+                })),
+              }}
+            >
+              <Button
+                type="text"
+                icon={<UserSwitchOutlined />}
+                data-testid="demo-accounts"
+              >
+                {t("login.demoAccounts")} <DownOutlined />
+              </Button>
+            </Dropdown>
+          ) : null}
           <PreferenceControls />
         </div>
         <div className={styles.form}>
@@ -77,6 +149,7 @@ export default function LoginPage() {
             />
           ) : null}
           <Form
+            form={form}
             layout="vertical"
             requiredMark={false}
             size="large"
@@ -114,7 +187,7 @@ export default function LoginPage() {
               {t("login.submit")}
             </Button>
           </Form>
-          {import.meta.env.DEV ? (
+          {demoAccounts.length ? (
             <Typography.Paragraph type="secondary" className={styles.hint}>
               {t("login.demoHint")}
             </Typography.Paragraph>

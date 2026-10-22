@@ -70,6 +70,15 @@ Vào **Kết quả Data Pack** để chạy đánh giá, xem quyết định/tra
 python3 apps/engine/cli.py --output artifacts/run-local
 ```
 
+Chạy từ đầu trên bộ dữ liệu khác (ví dụ khi BTC phát dữ liệu chấm): trên trang Data Pack chọn **Tải bộ dữ liệu lên**, hoặc dùng CLI với thư mục chứa CSV rời hay ZIP của Data Pack:
+
+```bash
+python3 apps/engine/cli.py --data duong/dan/bo-du-lieu --inspect          # tệp nào đủ, thiếu, thiếu cột
+python3 apps/engine/cli.py --data duong/dan/bo-du-lieu --output artifacts/run-hidden
+```
+
+Bắt buộc 5 tệp `contracts`, `parties`, `milestones`, `events`, `payment_rules`. Không có template thì dựng 22 cột theo `milestones.csv`; có `*test_ids*.csv` thì chỉ xuất các mốc trong đó. Với bộ dữ liệu tải lên, vi phạm bất biến được báo trong `metrics.json` thay vì dừng chạy.
+
 Đầu ra: `submission_output.csv` đúng 22 cột/405 dòng, `audit.json`, `metrics.json`. Adapter gọi đúng bộ quy tắc đang được kiểm chứng, dùng Decimal, giữ sáu trường BTC điền sẵn. Accuracy chỉ công bố trên 20 mẫu công khai; độ phủ 405 mốc không phải ground truth toàn bộ.
 
 Có thể chạy worker riêng bằng `pnpm dev:engine` và đặt `ENGINE_URL=http://127.0.0.1:8000` để API gọi worker thay vì CLI.

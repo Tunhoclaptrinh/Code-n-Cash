@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -6,11 +6,7 @@ import {
   App as AntApp,
   Button,
   Descriptions,
-  Empty,
-  Form,
-  Input,
   Progress,
-  Select,
   Space,
   Table,
   Tabs,
@@ -19,30 +15,39 @@ import {
 } from "antd";
 import {
   ArrowRightOutlined,
-  EditOutlined,
+  FormOutlined,
   SafetyCertificateOutlined,
   StopOutlined,
 } from "@ant-design/icons";
 import { ConfirmModal, useAccess } from "@codecash/ui";
+import type { EventRow, MilestoneRow } from "@codecash/contracts";
+import { ApiError } from "@/shared/api/client";
+import { cancelSigning, getContractOverview } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
-import { formatDate, formatMillionVnd } from "@/shared/lib/format";
+import { describeNext } from "@/shared/lib/domain";
+import {
+  formatDate,
+  formatDateTime,
+  formatDecimalString,
+} from "@/shared/lib/format";
+import {
+  DecisionTag,
+  MilestoneStatusTag,
+  OriginTag,
+} from "@/shared/ui/DomainTags";
 import { ExpandableModal } from "@/shared/ui/ExpandableModal";
 import { PageState } from "@/shared/ui/PageState";
-import { getContractOverview } from "@/features/milestones/api/contracts.api";
-import { StatusBadge } from "@/features/milestones/components/StatusBadge";
-import type { MilestoneRow } from "@/features/milestones/types";
-import { cancelSigning } from "@/features/signing/api/signingFlow.api";
-import {
-  getContractDraft,
-  getUploadFormOptions,
-  saveContractDraft,
-} from "../api/contractDraft.api";
 import type { ContractRow } from "../types";
 
+const percentOf = (part: string, whole: string) =>
+  Number(whole) > 0
+    ? Math.round((Number(part) / Number(whole)) * 1000) / 10
+    : 0;
+
 /**
- * Contract record in a modal that can fill the screen: overview, milestones, people and files,
- * plus the domain actions the user may take here. Contracts are workflow records, so there is
- * no generic delete; an unsigned draft can be edited and its signing sequence cancelled.
+ * Quick view of a contract in a modal that can fill the screen: terms, milestones with the engine's
+ * decision, people and events. Contracts are workflow records, so there is no generic edit or
+ * delete; a draft continues in the upload wizard and an unsigned sequence can be cancelled.
  */
 export function ContractModal({
   contract,
@@ -50,112 +55,123 @@ export function ContractModal({
   onClose,
 }: {
   contract?: ContractRow;
-  statusTag: (contract: ContractRow) => React.ReactNode;
+  statusTag: (contract: ContractRow) => ReactNode;
   onClose: () => void;
 }) {
   const { t } = useTranslation("contracts");
-  const { t: tm } = useTranslation("milestones");
+  const { t: td } = useTranslation("domain");
   const { message } = AntApp.useApp();
   const navigate = useNavigate();
   const cache = useQueryClient();
   const user = useCurrentUser();
   const { hasPermission } = useAccess(user);
-  const [editing, setEditing] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
-  const [form] = Form.useForm<{ title: string; supplierId: string }>();
-  const code = contract?.code ?? "";
+  const id = contract?.id ?? "";
   const overview = useQuery({
-    queryKey: ["milestones", "overview", code],
-    queryFn: () => getContractOverview(code),
+    queryKey: ["milestones", "overview", id],
+    queryFn: () => getContractOverview(id),
     enabled: !!contract,
   });
-  const unsigned = contract?.status === "AWAITING_SIGNATURE";
-  const canEdit =
-    unsigned &&
-    !!contract?.isNewlyDigitized &&
-    hasPermission("contracts:draft-write");
-  const canCancel = unsigned && hasPermission("signing:cancel");
-  const options = useQuery({
-    queryKey: ["contracts", "upload-options", user.organizationId],
-    queryFn: () => getUploadFormOptions(user.organizationId),
-    enabled: editing,
-  });
-  const refresh = () =>
-    cache.invalidateQueries({
-      predicate: (q) =>
-        ["contract-summaries", "milestones"].includes(String(q.queryKey[0])),
-    });
-  const save = useMutation({
-    mutationFn: async (values: { title: string; supplierId: string }) => {
-      const draft = await getContractDraft();
-      return saveContractDraft({ ...draft, ...values });
-    },
-    onSuccess: async () => {
-      message.success(t("contractList.modal.saved"));
-      setEditing(false);
-      await refresh();
-      onClose();
-    },
-    onError: (error) => message.error(String(error)),
-  });
+  const data = overview.data;
+  const canCancel =
+    contract?.status === "AWAITING_SIGNATURE" &&
+    contract.signing?.signed === 0 &&
+    hasPermission("signing:cancel");
   const cancel = useMutation({
-    mutationFn: () => cancelSigning(code),
+    mutationFn: () => cancelSigning(id),
     onSuccess: async () => {
       message.success(t("contractList.modal.cancelled"));
       setConfirmCancel(false);
-      await refresh();
+      await cache.invalidateQueries({ queryKey: ["contract-summaries"] });
+      onClose();
     },
-    onError: (error) => message.error(String(error)),
+    onError: (error) =>
+      message.error(
+        td(`errors.${error instanceof ApiError ? error.code : "UNKNOWN"}`, {
+          defaultValue: td("errors.UNKNOWN"),
+        }),
+      ),
   });
-  const close = () => {
-    setEditing(false);
-    onClose();
-  };
-  const data = overview.data;
-  const paidPercent = data
-    ? Math.round((data.settledMillion / data.valueMillion) * 100)
-    : 0;
 
   const milestoneColumns = [
     {
-      key: "no",
-      title: tm("detail.tabs.milestones"),
+      key: "sequence",
+      title: t("contractList.modal.milestone"),
       render: (_: unknown, m: MilestoneRow) => (
-        <Typography.Text strong>
-          {tm("detail.milestone.name", {
-            no: m.no,
-            name: tm(`milestoneKind.${m.kind}`),
-          })}
-        </Typography.Text>
+        <Space direction="vertical" size={0}>
+          <Typography.Text strong>
+            {td("milestoneNo", { no: m.sequence })} ·{" "}
+            {td(`milestoneType.${m.type}`)}
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {m.id} · {m.ruleId}
+          </Typography.Text>
+        </Space>
       ),
     },
     {
       key: "due",
       title: t("contractList.modal.due"),
-      render: (_: unknown, m: MilestoneRow) => formatDate(m.dueDate),
+      render: (_: unknown, m: MilestoneRow) =>
+        m.dueDate ? formatDate(m.dueDate) : "—",
     },
     {
       key: "planned",
       title: t("contractList.table.columns.value"),
       align: "right" as const,
       render: (_: unknown, m: MilestoneRow) =>
-        formatMillionVnd(m.plannedMillion),
+        formatDecimalString(m.plannedMillion),
     },
     {
       key: "status",
       title: t("contractList.table.columns.status"),
       render: (_: unknown, m: MilestoneRow) => (
-        <StatusBadge status={m.status} />
+        <Space size={4} wrap>
+          <MilestoneStatusTag status={m.status} />
+          <DecisionTag decision={m.decision} />
+        </Space>
       ),
     },
     {
-      key: "paid",
+      key: "payable",
       title: t("contractList.modal.paid"),
       align: "right" as const,
       render: (_: unknown, m: MilestoneRow) =>
-        m.payableMillion === undefined
-          ? "—"
-          : formatMillionVnd(m.payableMillion),
+        formatDecimalString(m.payableMillion),
+    },
+    {
+      key: "next",
+      title: t("contractList.table.columns.waiting"),
+      render: (_: unknown, m: MilestoneRow) => describeNext(td, m.next),
+    },
+  ];
+  const eventColumns = [
+    {
+      key: "at",
+      title: t("contractList.modal.at"),
+      render: (_: unknown, e: EventRow) => formatDateTime(e.at),
+    },
+    {
+      key: "type",
+      title: t("contractList.modal.event"),
+      render: (_: unknown, e: EventRow) => (
+        <Space size={4} wrap>
+          <Typography.Text strong>{td(`eventType.${e.type}`)}</Typography.Text>
+          <OriginTag origin={e.origin} />
+        </Space>
+      ),
+    },
+    {
+      key: "actor",
+      title: t("contractList.modal.actor"),
+      render: (_: unknown, e: EventRow) => e.recordedBy ?? e.actor.name,
+    },
+    {
+      key: "id",
+      title: "ID",
+      render: (_: unknown, e: EventRow) => (
+        <Typography.Text code>{e.id}</Typography.Text>
+      ),
     },
   ];
 
@@ -163,14 +179,15 @@ export function ContractModal({
     <>
       <ExpandableModal
         open={!!contract}
-        onClose={close}
+        onClose={onClose}
         title={
           contract ? (
             <Space wrap size={8}>
               <span>
-                {contract.code} · {contract.title}
+                {contract.id} · {contract.title}
               </span>
               {statusTag(contract)}
+              <OriginTag origin={contract.origin} />
             </Space>
           ) : null
         }
@@ -186,86 +203,36 @@ export function ContractModal({
                   {t("contractList.modal.cancelSigning")}
                 </Button>
               ) : null}
-              {canEdit && !editing ? (
+              {contract.status === "DRAFT" &&
+              hasPermission("contracts:draft-write") ? (
                 <Button
-                  icon={<EditOutlined />}
-                  onClick={() => {
-                    form.setFieldsValue({
-                      title: contract.title,
-                      supplierId: contract.supplierId,
-                    });
-                    setEditing(true);
-                  }}
+                  icon={<FormOutlined />}
+                  onClick={() => navigate("/contracts/new")}
                 >
-                  {t("contractList.modal.edit")}
+                  {t("contractList.actions.completeDraft")}
                 </Button>
               ) : null}
-              {editing ? (
-                <>
-                  <Button onClick={() => setEditing(false)}>
-                    {t("contractList.modal.discard")}
-                  </Button>
-                  <Button
-                    type="primary"
-                    loading={save.isPending}
-                    onClick={() => form.submit()}
-                  >
-                    {t("contractList.modal.save")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    icon={<SafetyCertificateOutlined />}
-                    onClick={() => navigate(`/verify/${contract.code}`)}
-                  >
-                    {t("contractList.actions.verify")}
-                  </Button>
-                  <Button
-                    type="primary"
-                    icon={<ArrowRightOutlined />}
-                    iconPlacement="end"
-                    onClick={() => navigate(`/contracts/${contract.code}`)}
-                  >
-                    {t("contractList.modal.openPage")}
-                  </Button>
-                </>
-              )}
+              {contract.signing ? (
+                <Button
+                  icon={<SafetyCertificateOutlined />}
+                  onClick={() => navigate(`/verify/${contract.id}`)}
+                >
+                  {t("contractList.actions.verify")}
+                </Button>
+              ) : null}
+              <Button
+                type="primary"
+                icon={<ArrowRightOutlined />}
+                iconPlacement="end"
+                onClick={() => navigate(`/contracts/${contract.id}`)}
+              >
+                {t("contractList.modal.openPage")}
+              </Button>
             </Space>
           ) : null
         }
       >
-        {editing && contract ? (
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={(values) => save.mutate(values)}
-          >
-            <Form.Item
-              name="title"
-              label={t("contractList.detail.title")}
-              rules={[{ required: true, max: 250 }]}
-            >
-              <Input showCount maxLength={250} />
-            </Form.Item>
-            <Form.Item
-              name="supplierId"
-              label={t("contractList.table.columns.supplier")}
-              rules={[{ required: true }]}
-            >
-              <Select
-                loading={options.isPending}
-                options={(options.data?.suppliers ?? []).map((s) => ({
-                  value: s.id,
-                  label: s.name,
-                }))}
-              />
-            </Form.Item>
-            <Typography.Paragraph type="secondary">
-              {t("contractList.modal.editHint")}
-            </Typography.Paragraph>
-          </Form>
-        ) : overview.isPending ? (
+        {overview.isPending ? (
           <PageState kind="loading" />
         ) : overview.isError || !data || !contract ? (
           <PageState kind="error" onRetry={() => void overview.refetch()} />
@@ -287,53 +254,89 @@ export function ContractModal({
                       column={{ xs: 1, md: 2 }}
                       items={[
                         {
+                          key: "buyer",
+                          label: t("contractList.table.columns.buyer"),
+                          children: `${contract.buyer.name} (${contract.buyer.id})`,
+                        },
+                        {
                           key: "supplier",
                           label: t("contractList.table.columns.supplier"),
-                          children: contract.supplierName,
+                          children: `${contract.supplier.name} (${contract.supplier.id})`,
                         },
                         {
                           key: "kind",
                           label: t("contractList.modal.kind"),
-                          children: tm(`contractKind.${data.kind}`),
+                          children: `${td(`contractType.${contract.type}`)} · ${td(`workflow.${data.workflowTemplate}`)}`,
+                        },
+                        {
+                          key: "policy",
+                          label: t("contractList.filters.policyLabel"),
+                          children: td(`policy.${contract.approvalPolicy}`),
                         },
                         {
                           key: "value",
                           label: t("contractList.table.columns.value"),
-                          children: formatMillionVnd(data.valueMillion),
+                          children: formatDecimalString(contract.valueMillion),
                         },
                         {
-                          key: "milestones",
-                          label: t("contractList.table.columns.progress"),
-                          children: `${contract.milestonesDone}/${contract.milestonesTotal}`,
+                          key: "term",
+                          label: t("contractList.modal.term"),
+                          children: `${formatDate(contract.startDate)} – ${formatDate(contract.endDate)}`,
+                        },
+                        {
+                          key: "penalty",
+                          label: t("contractList.modal.penaltyTerms"),
+                          children: t("contractList.modal.penaltyValue", {
+                            grace: data.graceDays,
+                            rate: data.penaltyRatePct,
+                            cap: data.maxPenaltyPct,
+                          }),
+                        },
+                        {
+                          key: "rules",
+                          label: t("contractList.modal.ruleSet"),
+                          children: data.ruleSetId,
                         },
                       ]}
                     />
                     <div>
                       <Typography.Text strong>
-                        {tm("detail.payment.title")}
+                        {t("contractList.modal.payment")}
                       </Typography.Text>
                       <Progress
-                        percent={paidPercent}
+                        percent={percentOf(
+                          data.totals.eligibleMillion,
+                          data.totals.valueMillion,
+                        )}
                         success={{
-                          percent: Math.round(
-                            ((data.settledMillion - data.penaltyMillion) /
-                              data.valueMillion) *
-                              100,
+                          percent: percentOf(
+                            data.totals.paidMillion,
+                            data.totals.valueMillion,
                           ),
                         }}
                       />
                       <Space wrap size={6}>
                         <Tag color="success">
-                          {tm("detail.payment.settled")}:{" "}
-                          {formatMillionVnd(data.settledMillion)}
+                          {t("contractList.modal.eligible")}:{" "}
+                          {formatDecimalString(data.totals.eligibleMillion)}
                         </Tag>
                         <Tag color="warning">
-                          {tm("detail.payment.penalty")}:{" "}
-                          {formatMillionVnd(data.penaltyMillion)}
+                          {t("contractList.modal.penalty")}:{" "}
+                          {formatDecimalString(data.totals.penaltyMillion)}
                         </Tag>
+                        <Tag color="processing">
+                          {t("contractList.modal.held")}:{" "}
+                          {formatDecimalString(data.totals.heldMillion)}
+                        </Tag>
+                        {data.totals.rejectedMillion !== "0.00" ? (
+                          <Tag color="error">
+                            {t("contractList.modal.rejected")}:{" "}
+                            {formatDecimalString(data.totals.rejectedMillion)}
+                          </Tag>
+                        ) : null}
                         <Tag>
-                          {tm("detail.payment.notDue")}:{" "}
-                          {formatMillionVnd(data.notDueMillion)}
+                          {t("contractList.modal.transferred")}:{" "}
+                          {formatDecimalString(data.totals.paidMillion)}
                         </Tag>
                       </Space>
                     </div>
@@ -342,73 +345,75 @@ export function ContractModal({
               },
               {
                 key: "milestones",
-                label: tm("detail.tabs.milestones"),
+                label: t("contractList.modal.milestones", {
+                  count: data.milestones.length,
+                }),
                 children: (
                   <Table<MilestoneRow>
                     size="small"
-                    rowKey="no"
+                    rowKey="id"
                     dataSource={data.milestones}
                     columns={milestoneColumns}
                     pagination={false}
                     scroll={{ x: "max-content" }}
+                    onRow={(m) => ({
+                      style: { cursor: "pointer" },
+                      onClick: () =>
+                        navigate(
+                          `/contracts/${contract.id}/milestones/${m.sequence}/decision`,
+                        ),
+                    })}
                   />
                 ),
               },
               {
                 key: "participants",
-                label: tm("detail.tabs.participants"),
+                label: t("contractList.modal.participants"),
                 children: data.participants.map((person) => (
                   <div
-                    key={person.id}
+                    key={`${person.kind}-${person.partyId}`}
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
+                      gap: 8,
                       padding: "8px 0",
                       borderTop: "1px solid var(--border-divider)",
                     }}
                   >
-                    <Typography.Text strong>{person.name}</Typography.Text>
-                    <Tag style={{ margin: 0 }}>
-                      {tm(`participantRole.${person.role}`)}
-                    </Tag>
+                    <span>
+                      <Typography.Text strong>
+                        {person.personName ?? person.name}
+                      </Typography.Text>{" "}
+                      <Typography.Text type="secondary">
+                        {person.personName ? `${person.name} · ` : ""}
+                        {person.partyId}
+                      </Typography.Text>
+                    </span>
+                    <Space size={4}>
+                      <Tag style={{ margin: 0 }}>
+                        {person.approvalRole
+                          ? td(`approvalRole.${person.approvalRole}`)
+                          : td(`side.${person.side}`)}
+                      </Tag>
+                      <OriginTag origin={person.origin} />
+                    </Space>
                   </div>
                 )),
               },
               {
-                key: "documents",
-                label: tm("detail.tabs.documents"),
-                children: data.documents.length ? (
-                  data.documents.map(({ milestoneNo, file }) => (
-                    <div
-                      key={`${milestoneNo}-${file.id}`}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 8,
-                        padding: "8px 0",
-                        borderTop: "1px solid var(--border-divider)",
-                      }}
-                    >
-                      <span>
-                        <Typography.Text strong>
-                          {file.fileName}
-                        </Typography.Text>{" "}
-                        <Typography.Text type="secondary">
-                          MS{milestoneNo}
-                        </Typography.Text>
-                      </span>
-                      <Tag
-                        color={file.signature?.valid ? "success" : "default"}
-                        style={{ margin: 0 }}
-                      >
-                        {file.signature?.valid
-                          ? tm("common.signatureValid")
-                          : tm("submit.file.unsigned")}
-                      </Tag>
-                    </div>
-                  ))
-                ) : (
-                  <Empty description={tm("detail.documents.empty")} />
+                key: "events",
+                label: t("contractList.modal.events", {
+                  count: data.events.length,
+                }),
+                children: (
+                  <Table<EventRow>
+                    size="small"
+                    rowKey="id"
+                    dataSource={[...data.events].reverse()}
+                    columns={eventColumns}
+                    pagination={{ pageSize: 8, hideOnSinglePage: true }}
+                    scroll={{ x: "max-content" }}
+                  />
                 ),
               },
             ]}
@@ -419,7 +424,7 @@ export function ContractModal({
         open={confirmCancel}
         danger
         title={t("contractList.modal.cancelSigning")}
-        content={t("contractList.modal.cancelBody", { code })}
+        content={t("contractList.modal.cancelBody", { code: id })}
         confirmText={t("contractList.modal.cancelSigning")}
         cancelText={t("contractList.modal.discard")}
         loading={cancel.isPending}

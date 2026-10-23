@@ -2,9 +2,12 @@
   "$comment": "Single source of truth for system permissions (spec section 17). The API enforces it; the web only reads it. Scope: all = every organization, org = own organization, own = only records the user is party to, assigned = only steps assigned to the user.",
   "roles": [
     "CONTRACT_OWNER",
-    "LEGAL_REVIEWER",
     "FINANCE_APPROVER",
+    "SECONDARY_APPROVER",
+    "LEGAL_REVIEWER",
     "ADMIN_AUDITOR",
+    "SYSTEM_ADMIN",
+    "AUDITOR",
     "SUPPLIER"
   ],
   "modules": [
@@ -15,9 +18,11 @@
           "key": "contracts:read",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
             "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all",
             "SUPPLIER": "own"
           }
         },
@@ -26,8 +31,8 @@
           "grants": {
             "CONTRACT_OWNER": "org",
             "LEGAL_REVIEWER": "org",
-            "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "all"
+            "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all"
           }
         },
         {
@@ -60,22 +65,28 @@
           "key": "signing:sign",
           "grants": {
             "CONTRACT_OWNER": "assigned",
+            "FINANCE_APPROVER": "assigned",
+            "SECONDARY_APPROVER": "assigned",
+            "LEGAL_REVIEWER": "assigned",
             "SUPPLIER": "assigned"
           }
         },
         {
           "key": "signing:cancel",
           "grants": {
-            "CONTRACT_OWNER": "org"
+            "CONTRACT_OWNER": "org",
+            "LEGAL_REVIEWER": "org"
           }
         },
         {
           "key": "signing:verify",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
             "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all",
             "SUPPLIER": "own"
           }
         }
@@ -88,15 +99,19 @@
           "key": "tasks:read",
           "grants": {
             "CONTRACT_OWNER": "own",
-            "LEGAL_REVIEWER": "own",
             "FINANCE_APPROVER": "own",
+            "SECONDARY_APPROVER": "own",
+            "LEGAL_REVIEWER": "own",
             "ADMIN_AUDITOR": "own",
+            "SYSTEM_ADMIN": "own",
+            "AUDITOR": "own",
             "SUPPLIER": "own"
           }
         },
         {
           "key": "evidence:submit",
           "grants": {
+            "LEGAL_REVIEWER": "org",
             "SUPPLIER": "own"
           }
         },
@@ -105,22 +120,17 @@
           "grants": {
             "CONTRACT_OWNER": "org",
             "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "all"
+            "SECONDARY_APPROVER": "org",
+            "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "approvals:vote",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "FINANCE_APPROVER": "org"
-          }
-        },
-        {
-          "key": "approvals:mark-viewed",
-          "grants": {
-            "CONTRACT_OWNER": "org",
             "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "all"
+            "SECONDARY_APPROVER": "org"
           }
         },
         {
@@ -138,16 +148,51 @@
           "key": "disputes:read",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
             "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all",
+            "SUPPLIER": "own"
+          }
+        },
+        {
+          "key": "disputes:open",
+          "grants": {
+            "CONTRACT_OWNER": "org",
+            "LEGAL_REVIEWER": "org",
             "SUPPLIER": "own"
           }
         },
         {
           "key": "disputes:resolve",
           "grants": {
-            "CONTRACT_OWNER": "org"
+            "CONTRACT_OWNER": "org",
+            "LEGAL_REVIEWER": "org"
+          }
+        }
+      ]
+    },
+    {
+      "key": "controls",
+      "permissions": [
+        {
+          "key": "exceptions:read",
+          "grants": {
+            "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all"
+          }
+        },
+        {
+          "key": "exceptions:propose",
+          "grants": {
+            "ADMIN_AUDITOR": "all"
+          }
+        },
+        {
+          "key": "exceptions:decide",
+          "grants": {
+            "ADMIN_AUDITOR": "all"
           }
         }
       ]
@@ -159,9 +204,11 @@
           "key": "activity:read",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
             "ADMIN_AUDITOR": "all",
+            "AUDITOR": "all",
             "SUPPLIER": "own"
           }
         }
@@ -174,9 +221,11 @@
           "key": "engine:read",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "org"
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
+            "ADMIN_AUDITOR": "org",
+            "AUDITOR": "org"
           }
         },
         {
@@ -204,9 +253,12 @@
           "key": "documents:read",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "all"
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
@@ -214,25 +266,30 @@
           "grants": {
             "CONTRACT_OWNER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "documents:download",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "all"
+            "SECONDARY_APPROVER": "org",
+            "LEGAL_REVIEWER": "org",
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "documents:export",
           "grants": {
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org",
             "FINANCE_APPROVER": "org",
-            "ADMIN_AUDITOR": "all"
+            "LEGAL_REVIEWER": "org",
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         }
       ]
@@ -243,217 +300,239 @@
         {
           "key": "organizations:read",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "CONTRACT_OWNER": "all",
+            "LEGAL_REVIEWER": "all",
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "organizations:create",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "organizations:update",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "organizations:delete",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "organizations:import",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "organizations:export",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "users:read",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "users:create",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "users:update",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "users:delete",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "users:import",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "users:export",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "users:reset-password",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "contract-drafts:read",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org"
+            "LEGAL_REVIEWER": "org",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "contract-drafts:create",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org"
+            "LEGAL_REVIEWER": "org",
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "contract-drafts:update",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org"
+            "LEGAL_REVIEWER": "org",
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "contract-drafts:delete",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org"
+            "LEGAL_REVIEWER": "org",
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "contract-drafts:import",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org"
+            "LEGAL_REVIEWER": "org",
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "contract-drafts:export",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "CONTRACT_OWNER": "org",
-            "LEGAL_REVIEWER": "org"
+            "LEGAL_REVIEWER": "org",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "milestone-templates:read",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "CONTRACT_OWNER": "all",
+            "LEGAL_REVIEWER": "all",
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "milestone-templates:create",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "milestone-templates:update",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "milestone-templates:delete",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "milestone-templates:import",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "milestone-templates:export",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "settings:read",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "settings:create",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "settings:update",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "settings:delete",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "settings:import",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "settings:export",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "audit:read",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "audit:export",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         },
         {
           "key": "permissions:read",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
           }
         }
       ]

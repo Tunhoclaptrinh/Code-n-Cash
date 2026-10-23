@@ -20,7 +20,7 @@
     "format:check": "prettier --check apps packages scripts",
     "test": "pnpm test:python && pnpm test:unit",
     "test:python": "python3 -m unittest discover -s tests -v",
-    "test:unit": "pnpm --filter @codecash/api build && node tests/foundation/resource.test.mjs && node tests/foundation/workflow.test.mjs",
+    "test:unit": "pnpm --filter @codecash/api build && node tests/foundation/resource.test.mjs && node tests/foundation/workflow.test.mjs && node tests/foundation/domain-types.test.mjs && node tests/foundation/listing.test.mjs",
     "test:workflow": "pnpm --filter @codecash/api build && node tests/foundation/workflow.test.mjs",
     "test:e2e": "node scripts/smoke.mjs",
     "test:browser": "node scripts/browser-smoke.mjs",

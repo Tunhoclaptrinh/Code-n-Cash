@@ -93,6 +93,21 @@ try {
     deviceScaleFactor: 1,
     mobile: false,
   });
+  // Demo menu (top right): picking an account fills the form and signs in at once.
+  async function loginAs(email) {
+    await evaluate("localStorage.removeItem('codecash.accessToken')");
+    await send("Page.navigate", { url: base + "/login" });
+    await until("!!document.querySelector('[data-testid=demo-accounts]')");
+    await pause(400);
+    await evaluate(
+      "document.querySelector('[data-testid=demo-accounts]').click()",
+    );
+    await until("!!document.querySelector('[data-testid=demo-account]')");
+    await evaluate(
+      `Array.from(document.querySelectorAll('[data-testid=demo-account]')).find((x) => x.innerText.includes(${JSON.stringify(email)})).click()`,
+    );
+    await until("location.pathname!='/login'");
+  }
   // The welcome belongs to the main screen, so the login page shows none.
   await until("!!document.querySelector('[data-testid=demo-accounts]')");
   await pause(500);
@@ -100,15 +115,8 @@ try {
     await evaluate("!!document.querySelector('[data-testid=welcome-start]')"),
     false,
   );
-  // Demo menu (top right): picking an account fills the form and signs in at once.
-  await evaluate(
-    "document.querySelector('[data-testid=demo-accounts]').dispatchEvent(new MouseEvent('mouseover', { bubbles: true })); document.querySelector('[data-testid=demo-accounts]').click()",
-  );
-  await until("!!document.querySelector('[data-testid=demo-account]')");
-  await evaluate(
-    "Array.from(document.querySelectorAll('[data-testid=demo-account]')).find((x) => x.innerText.includes('admin@novaan.vn')).click()",
-  );
-  await until("location.pathname!='/login'");
+  await loginAs("admin@codecash.vn");
+  assert.equal(await evaluate("location.pathname"), "/exceptions");
   // First visit after login: language and theme must be chosen, then the header tips show once.
   await until("!!document.querySelector('[data-testid=welcome-start]')");
   assert.equal(
@@ -132,31 +140,14 @@ try {
     await evaluate("localStorage.getItem('codecash.onboarding')"),
     "done",
   );
-  const routes = [
-    "/contracts",
-    "/contracts/new",
-    "/contracts/CT0101/sign-positions",
-    "/contracts/CT0101/digitize",
-    "/contracts/CT0101/signing",
-    "/verify/CT0101",
-    "/contracts/CT0101",
-    "/submissions/CT0101/2",
-    "/approvals/CT0101/2",
-    "/contracts/CT0101/milestones/2/decision",
-    "/contracts/CT0101/milestones/2/dispute",
-    "/activity-log",
-    "/platform/organizations",
-    "/platform/users",
-    "/platform/documents",
-    "/platform/permissions",
-    "/data",
-  ];
+  // The controllers' queue holds the six Data Pack milestones with an unauthorised event.
+  await until("document.querySelectorAll('.ant-table-row').length === 6");
   const screens = [];
   await mkdir("artifacts/browser", { recursive: true });
-  for (const route of routes) {
+  async function visit(route) {
     await send("Page.navigate", { url: base + route });
     await until("document.querySelectorAll('.ant-layout').length>0");
-    await pause(route === "/data" ? 1200 : 550);
+    await pause(route === "/data" || route === "/integrity" ? 1200 : 700);
     const screen = await evaluate(
       "({route:location.pathname,text:document.body.innerText,overflow:document.documentElement.scrollWidth>innerWidth})",
     );
@@ -172,7 +163,9 @@ try {
     );
     assert.equal(screen.overflow, false, route);
     screens.push({ route: screen.route, overflow: screen.overflow });
-    if (route === "/contracts") assert.ok(screen.text.includes("CT0101"));
+    if (route === "/contracts") assert.ok(screen.text.includes("CT0001"));
+    if (route === "/contracts/CT0019/milestones/3/decision")
+      assert.ok(screen.text.includes("PR00"));
     const screenshot = await send("Page.captureScreenshot", { format: "png" });
     await writeFile(
       `artifacts/browser/${route.slice(1).replaceAll("/", "-")}.png`,
@@ -180,25 +173,107 @@ try {
     );
     if (route === "/data") assert.ok(screen.text.includes("405"));
   }
-  // Exercise the replaced form and SPA resource tabs without mutating business data.
-  await send("Page.navigate", { url: base + "/contracts/new" });
-  await until("!!document.querySelector('#contract-title')");
-  await evaluate(
-    `(() => { const input = document.querySelector('#contract-title'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); })()`,
+  async function visitMobile(routes) {
+    await send("Emulation.setDeviceMetricsOverride", {
+      width: 390,
+      height: 844,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    for (const route of routes) {
+      await send("Page.navigate", { url: base + route });
+      await until("document.querySelectorAll('.ant-layout').length>0");
+      await pause(700);
+      const overflow = await evaluate(
+        "document.documentElement.scrollWidth>innerWidth",
+      );
+      assert.equal(overflow, false, `mobile: ${route}`);
+      screens.push({ route, width: 390, overflow });
+      const screenshot = await send("Page.captureScreenshot", {
+        format: "png",
+      });
+      await writeFile(
+        `artifacts/browser/mobile-${route.slice(1).replaceAll("/", "-")}.png`,
+        Buffer.from(screenshot.data, "base64"),
+      );
+    }
+    await send("Emulation.setDeviceMetricsOverride", {
+      width: 1440,
+      height: 1000,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+  }
+  for (const route of [
+    "/exceptions",
+    "/tasks",
+    "/contracts",
+    "/contracts/CT0101/sign-positions",
+    "/contracts/CT0101/digitize",
+    "/contracts/CT0102/signing",
+    "/verify/CT0103",
+    "/contracts/CT0103",
+    "/contracts/CT0019",
+    "/approvals/CT0103/2",
+    "/contracts/CT0019/milestones/3/decision",
+    "/contracts/CT0090/milestones/3/decision",
+    "/contracts/CT0019/milestones/3/dispute",
+    "/activity-log",
+    "/integrity",
+    "/data",
+  ])
+    await visit(route);
+  // Integrity check: audit chain, sealed evidence and every decision re-run are intact.
+  await send("Page.navigate", { url: base + "/integrity" });
+  await until(
+    "document.querySelectorAll('[data-testid=verdict-ok]').length === 4",
   );
-  await pause(100);
+  // Replay: the engine re-evaluates CT0019 milestone 3 after each of its four events.
+  await send("Page.navigate", {
+    url: base + "/contracts/CT0019/milestones/3/decision",
+  });
+  await until("!!document.querySelector('[data-testid=replay-timeline]')");
   await evaluate(
-    "Array.from(document.querySelectorAll('form button')).at(-1).click()",
+    "document.querySelector('[data-testid=replay-timeline]').click()",
   );
-  await until("!!document.querySelector('.ant-form-item-explain-error')");
-  assert.equal(await evaluate("location.pathname"), "/contracts/new");
-  await send("Page.navigate", { url: base + "/platform/organizations" });
-  await until("!!document.querySelector('.ant-tabs-tab[data-node-key=users]')");
+  await until(
+    "document.querySelectorAll('[data-testid=replay-table] .ant-table-row').length >= 4",
+  );
+  // Search without accents is sent to the API; the list shrinks to the one matching contract.
+  await send("Page.navigate", { url: base + "/contracts" });
+  await until("document.querySelectorAll('.ant-table-row').length === 10");
   await evaluate(
-    "window.__navigationProbe = true; document.querySelector('.ant-tabs-tab[data-node-key=users]').click()",
+    "document.querySelector('.data-table-wrapper input.ant-input').focus()",
   );
-  await until("location.pathname === '/platform/users'");
-  assert.equal(await evaluate("window.__navigationProbe"), true);
+  await send("Input.insertText", { text: "phong thuc hanh" });
+  await until(
+    "document.querySelectorAll('.ant-table-row').length === 1 && document.querySelector('.ant-table-row').innerText.includes('CT0101')",
+  );
+  // The export holds exactly what the table shows: here the one matching contract.
+  const downloads = join(profile, "downloads");
+  await mkdir(downloads, { recursive: true });
+  await send("Page.setDownloadBehavior", {
+    behavior: "allow",
+    downloadPath: downloads,
+  });
+  await evaluate(
+    "Array.from(document.querySelectorAll('.data-table-wrapper button')).find((b) => b.innerText.trim() === 'Export').click()",
+  );
+  await until("!!document.querySelector('.ant-modal-footer')");
+  await pause(300);
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+  );
+  let exported = "";
+  for (let i = 0; i < 50 && !exported; i++) {
+    await pause(100);
+    exported = await readFile(join(downloads, "contracts.csv"), "utf8").catch(
+      () => "",
+    );
+  }
+  const lines = exported.trim().split(/\r?\n/);
+  assert.equal(lines.length, 2, exported);
+  assert.ok(lines[1].includes("CT0101"));
   // Contract list: the code opens the record in a modal that can fill the screen.
   await send("Page.navigate", { url: base + "/contracts" });
   await until("document.querySelectorAll('.ant-table-row').length > 0");
@@ -210,22 +285,19 @@ try {
     false,
   );
   await until(
-    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).some((x) => x.innerText.includes('CT0101'))",
+    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).some((x) => x.innerText.includes('CT0001'))",
   );
   await evaluate(
-    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).find((x) => x.innerText.includes('CT0101')).click()",
+    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).find((x) => x.innerText.includes('CT0001')).click()",
   );
   await until("!!document.querySelector('[data-testid=modal-fullscreen]')");
   await until("!!document.querySelector('.ant-modal .ant-tabs')");
   await evaluate(
     "document.querySelector('[data-testid=modal-fullscreen]').click()",
   );
-  await pause(300);
-  assert.equal(
-    await evaluate(
-      "Math.round(document.querySelector('.ant-modal').getBoundingClientRect().width) === innerWidth",
-    ),
-    true,
+  // The modal grows with an animation; wait for it instead of a fixed delay.
+  await until(
+    "Math.round(document.querySelector('.ant-modal').getBoundingClientRect().width) === innerWidth",
   );
   await evaluate("document.querySelector('.ant-modal-close').click()");
   await until(
@@ -277,6 +349,35 @@ try {
     return list.data.length;
   })()`);
   assert.ok(removed >= 1);
+  await visitMobile([
+    "/exceptions",
+    "/contracts",
+    "/contracts/CT0103",
+    "/approvals/CT0103/2",
+    "/contracts/CT0019/milestones/3/decision",
+    "/contracts/CT0019/milestones/3/dispute",
+    "/activity-log",
+    "/integrity",
+    "/data",
+  ]);
+  // System administrator (SoD-1): accounts and configuration, no contract data.
+  await loginAs("sysadmin@codecash.vn");
+  assert.equal(await evaluate("location.pathname"), "/platform/organizations");
+  for (const route of [
+    "/platform/organizations",
+    "/platform/users",
+    "/platform/milestone-templates",
+    "/platform/documents",
+    "/platform/permissions",
+  ])
+    await visit(route);
+  await send("Page.navigate", { url: base + "/platform/organizations" });
+  await until("!!document.querySelector('.ant-tabs-tab[data-node-key=users]')");
+  await evaluate(
+    "window.__navigationProbe = true; document.querySelector('.ant-tabs-tab[data-node-key=users]').click()",
+  );
+  await until("location.pathname === '/platform/users'");
+  assert.equal(await evaluate("window.__navigationProbe"), true);
   // Base CRUD: create through FormModal, find it in the table, delete through ConfirmModal.
   const orgName = `Smoke Org ${Date.now()}`;
   await send("Page.navigate", { url: base + "/platform/organizations" });
@@ -324,38 +425,64 @@ try {
     "Array.from(Array.from(document.querySelectorAll('.ant-modal-footer')).at(-1).querySelectorAll('button')).at(-1).click()",
   );
   await until(`!document.body.innerText.includes(${JSON.stringify(orgName)})`);
-  await send("Emulation.setDeviceMetricsOverride", {
-    width: 390,
-    height: 844,
-    deviceScaleFactor: 1,
-    mobile: false,
-  });
-  for (const route of [
-    "/contracts",
-    "/contracts/new",
-    "/contracts/CT0101",
-    "/submissions/CT0101/2",
-    "/approvals/CT0101/2",
-    "/contracts/CT0101/milestones/2/decision",
-    "/activity-log",
-    "/platform/organizations",
-    "/platform/permissions",
-    "/data",
-  ]) {
-    await send("Page.navigate", { url: base + route });
-    await until("document.querySelectorAll('.ant-layout').length>0");
-    await pause(700);
-    const overflow = await evaluate(
-      "document.documentElement.scrollWidth>innerWidth",
-    );
-    assert.equal(overflow, false, `mobile: ${route}`);
-    screens.push({ route, width: 390, overflow });
-    const screenshot = await send("Page.captureScreenshot", { format: "png" });
-    await writeFile(
-      `artifacts/browser/mobile-${route.slice(1).replaceAll("/", "-")}.png`,
-      Buffer.from(screenshot.data, "base64"),
-    );
-  }
+  await visitMobile(["/platform/organizations", "/platform/permissions"]);
+  // Auditor: reads everything, starts on the integrity check, has no create button anywhere.
+  await loginAs("auditor@codecash.vn");
+  assert.equal(await evaluate("location.pathname"), "/integrity");
+  await until(
+    "document.querySelectorAll('[data-testid=verdict-ok]').length === 4",
+  );
+  await send("Page.navigate", { url: base + "/platform/organizations" });
+  await until("document.querySelectorAll('.ant-table-row').length > 0");
+  assert.equal(
+    await evaluate(
+      "!!document.querySelector('.data-table-wrapper .codecash-btn-primary')",
+    ),
+    false,
+  );
+  // Finance approves CT0103 delivery on screen; the engine answers PENALTY (two days late).
+  await loginAs("finance@novaan.vn");
+  await send("Page.navigate", { url: base + "/tasks" });
+  await until("document.body.innerText.includes('CT0103')");
+  await send("Page.navigate", { url: base + "/approvals/CT0103/2" });
+  await until(
+    "!!document.querySelector('[data-testid=approve-payment]:not([disabled])')",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=approve-payment]').click()",
+  );
+  await until("!!document.querySelector('.ant-modal-footer .ant-btn-primary')");
+  await pause(300);
+  await evaluate(
+    "document.querySelector('.ant-modal-footer .ant-btn-primary').click()",
+  );
+  await until(
+    "location.pathname === '/contracts/CT0103/milestones/2/decision'",
+  );
+  await until(
+    "document.body.innerText.includes('PENALTY') && document.body.innerText.includes('PR00')",
+  );
+  // The buyer's contract officer: the upload form refuses an empty title.
+  await loginAs("legal@novaan.vn");
+  await send("Page.navigate", { url: base + "/contracts/new" });
+  await until("!!document.querySelector('#contract-title')");
+  await evaluate(
+    `(() => { const input = document.querySelector('#contract-title'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); })()`,
+  );
+  await pause(100);
+  await evaluate(
+    "Array.from(document.querySelectorAll('form button')).at(-1).click()",
+  );
+  await until("!!document.querySelector('.ant-form-item-explain-error')");
+  assert.equal(await evaluate("location.pathname"), "/contracts/new");
+  assert.ok(
+    await evaluate(
+      "document.querySelectorAll('[data-testid=signer-list] .ant-row').length >= 2",
+    ),
+  );
+  // The supplier sees its turn to sign CT0102 (three signers, the owner already signed).
+  await loginAs("supplier@phuminh.vn");
+  await until("document.body.innerText.includes('CT0102')");
   const fake = await evaluate(
     `(async()=>{const {checkFile}=await import('/src/features/signing/api/verification.api.ts');return checkFile(null,new File(['%PDF-1.4\\n/ByteRange [0 1 2 3]'],'unsigned.pdf'));})()`,
   );
@@ -366,7 +493,7 @@ try {
     JSON.stringify({ screens, errors, signatureCheck: fake }, null, 2),
   );
   console.log(
-    `Browser smoke passed: demo login, onboarding after login, ${screens.length} screens, desktop/mobile layout, upload validation, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
+    `Browser smoke passed: demo login per role, onboarding after login, ${screens.length} screens, desktop/mobile layout, exception queue, server-side search, integrity check, replay, separated internal roles, approval → engine PENALTY, upload validation, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
   );
 } finally {
   ws?.close();

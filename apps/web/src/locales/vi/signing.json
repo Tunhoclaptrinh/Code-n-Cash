@@ -130,20 +130,13 @@
       "badge": "Đọc từ nội dung PDF",
       "location": "Điều {{article}}, trang {{page}}",
       "hint": "Vùng tô vàng là chỗ hệ thống đã đọc ra số liệu. Bấm vào một dòng bên phải để xem nó lấy từ đâu.",
-      "vnd": "{{value}} đồng",
+      "vnd": "{{value}} triệu đồng",
       "clause": {
         "TOTAL_VALUE": "Tổng giá trị hợp đồng là <mark>{{value}}</mark>, thanh toán theo {{milestones}} mốc.",
         "DELIVERY": "Mốc giao hàng: <mark>{{value}}</mark>, hạn giao <mark>{{date}}</mark>. Chứng từ gồm {{documents}}.",
         "LATE_PENALTY": "Giao chậm bị phạt <mark>{{rate}}% giá trị mốc mỗi ngày</mark>, tổng mức phạt không quá <mark>{{cap}}% giá trị mốc</mark>.",
-        "APPROVALS": "Mỗi lần thanh toán cần <mark>{{approvers}} người phê duyệt</mark> từ phía Bên mua."
+        "APPROVALS": "Mỗi lần thanh toán cần phê duyệt của <mark>{{approvers}} vai trò</mark> phía Bên mua."
       }
-    },
-    "numberWords": {
-      "1": "một",
-      "2": "hai",
-      "3": "ba",
-      "4": "bốn",
-      "5": "năm"
     },
     "result": {
       "title_other": "Bản số hóa: {{count}} mốc thanh toán",
@@ -158,23 +151,10 @@
         "source": "Nguồn"
       },
       "milestoneCode": "MS{{no}}",
-      "milestoneKind": {
-        "SIGNING": "Ký hợp đồng",
-        "DELIVERY": "Giao hàng",
-        "ACCEPTANCE": "Nghiệm thu",
-        "WARRANTY": "Bảo hành"
-      },
       "dueUnknown": "Chưa rõ",
-      "documents": {
-        "SIGNED_CONTRACT": "hợp đồng đã ký",
-        "DELIVERY_NOTE": "biên bản giao hàng",
-        "INVOICE": "hóa đơn",
-        "ACCEPTANCE_REPORT": "biên bản nghiệm thu",
-        "WARRANTY_END_REPORT": "biên bản hết bảo hành"
-      },
       "penalty": {
         "NONE": "Không",
-        "RATE": "{{rate}}%/ngày, tối đa {{cap}}%"
+        "RATE": "{{rate}}%/ngày, trần {{cap}}%"
       },
       "sourceStatus": {
         "MATCH": "Khớp",
@@ -190,12 +170,9 @@
     },
     "approvers": {
       "title": "Người phê duyệt theo hợp đồng",
-      "role": {
-        "CONTRACT_OWNER": "Chủ hợp đồng",
-        "FINANCE_APPROVER": "Phê duyệt tài chính",
-        "SECOND_APPROVER": "Phê duyệt thứ hai"
-      },
-      "note": "Cần {{number}} người đồng ý mới ra quyết định."
+      "none": "Không cần phê duyệt",
+      "note_one": "Cần {{count}} vai trò phê duyệt cho mỗi mốc.",
+      "note_other": "Cần {{count}} vai trò phê duyệt cho mỗi mốc."
     },
     "total": {
       "title": "Tổng các mốc",
@@ -397,6 +374,7 @@
         "CERT_REVOKED": "Chứng thư đã bị thu hồi, hoặc hết hạn trước thời điểm ký."
       },
       "exceptions": "Xem màn hình từng ngoại lệ"
-    }
+    },
+    "pick": "Hợp đồng:"
   }
 }

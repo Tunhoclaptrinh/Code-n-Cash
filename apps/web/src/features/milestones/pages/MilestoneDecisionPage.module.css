@@ -18,8 +18,13 @@
 
 .bannerHeadline {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 8px 14px;
+}
+
+.bannerText {
+  min-width: 0;
 }
 
 .bannerHeadline h1 {
@@ -267,6 +272,9 @@
     align-items: stretch;
     gap: 16px;
     padding: 16px;
+  }
+  .bannerHeadline h1 {
+    font-size: 21px;
   }
   .bannerActions {
     margin-left: 0;

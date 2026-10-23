@@ -17,7 +17,8 @@ const actor = {
   roleChipOrganization: "One",
   permissions: [],
 };
-const admin = { ...actor, id: "admin", role: "ADMIN_AUDITOR" };
+// Accounts and configuration belong to the system administrator (SoD-1).
+const admin = { ...actor, id: "admin", role: "SYSTEM_ADMIN" };
 beforeEach(async () => {
   dir = await mkdtemp(join(tmpdir(), "codecash-test-"));
   process.env.DATA_DIR = dir;
@@ -100,8 +101,9 @@ test("pagination, sorting and search are applied to the whole filtered dataset",
   );
   assert.equal(page.total, 3);
   assert.equal(page.items[0].code, "B");
+  // "B" appears only in draft B; "C" would also match the supplier's name "Supplier Co".
   assert.equal(
-    (await service.list("contract-drafts", { search: "C" }, actor)).total,
+    (await service.list("contract-drafts", { search: "B" }, actor)).total,
     1,
   );
   await assert.rejects(service.list("contract-drafts", { limit: 1000 }, actor));
@@ -321,4 +323,19 @@ test("export streams the filtered set with populated names, template lists the c
     "code,title,supplierId,contractType",
   );
   assert.equal((await repo.list("audit")).at(-1).action, "EXPORT");
+});
+
+test("search ignores accents, needs every word and matches a reference by its name", async () => {
+  await service.create(
+    "contract-drafts",
+    { ...draft("SEARCH"), title: "Thiết bị phòng lab" },
+    actor,
+  );
+  const total = async (search) =>
+    (await service.list("contract-drafts", { search }, actor)).total;
+  assert.equal(await total("thiet bi"), 1);
+  assert.equal(await total("THIẾT lab"), 1);
+  // "Supplier Co" is the name of the referenced organisation, not a field of the draft.
+  assert.equal(await total("supplier co"), 1);
+  assert.equal(await total("thiet xyz"), 0);
 });

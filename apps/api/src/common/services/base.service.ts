@@ -16,6 +16,8 @@ import { parseFilters } from "../utils/query-builder";
 import { toCsv } from "../utils/csv";
 import { can, scopeOf } from "../permissions";
 import type { Actor, Field, Resource, RecordEntity } from "../types";
+import { repoRoot } from "../paths";
+import { fold } from "../../domain/listing";
 
 /** Each operation maps to `<resource>:<operation>` in packages/contracts/permissions.json. */
 type Operation = "read" | "create" | "update" | "delete" | "import" | "export";
@@ -25,10 +27,7 @@ const MAX_BATCH = 500;
 export class BaseService {
   readonly definitions: Resource[] = JSON.parse(
     readFileSync(
-      resolve(
-        process.env.REPO_ROOT ?? process.cwd(),
-        "packages/contracts/resources.json",
-      ),
+      resolve(repoRoot(), "packages/contracts/resources.json"),
       "utf8",
     ),
   );
@@ -45,6 +44,11 @@ export class BaseService {
     if (!can(actor.role, `${name}:${operation}`))
       throw new ForbiddenException("PERMISSION_DENIED");
     return def;
+  }
+  /** Data Pack and workflow records change only through their own actions (resources.json). */
+  private assertUnmanaged(def: Resource, item: RecordEntity) {
+    if (def.managedOrigins?.includes(String(item.origin)))
+      throw new ForbiddenException("MANAGED_RECORD");
   }
   private visible(name: string, item: RecordEntity, actor: Actor) {
     return (
@@ -169,14 +173,33 @@ export class BaseService {
       Object.entries(filters).every(([k, v]) => x[k] === v),
     );
     if (query.search) {
-      const q = String(query.search).toLowerCase();
-      items = items.filter((x) =>
-        def.fields.some((f) =>
-          String(x[f.key] ?? "")
-            .toLowerCase()
-            .includes(q),
-        ),
-      );
+      // Every word must appear, accents and case ignored; a reference also matches by its name.
+      const words = fold(String(query.search)).split(/\s+/).filter(Boolean);
+      const names = new Map<string, Map<string, string>>();
+      for (const f of def.fields)
+        if (f.ref && !names.has(f.ref))
+          names.set(
+            f.ref,
+            new Map(
+              (await this.repo.list(f.ref)).map((r) => [
+                r.id,
+                String(r.name ?? ""),
+              ]),
+            ),
+          );
+      items = items.filter((x) => {
+        const text = fold(
+          def.fields
+            .map((f) =>
+              [
+                x[f.key] ?? "",
+                f.ref ? (names.get(f.ref)?.get(String(x[f.key])) ?? "") : "",
+              ].join(" "),
+            )
+            .join(" "),
+        );
+        return words.every((word) => text.includes(word));
+      });
     }
     items.sort((a, b) => {
       const x = a[sort],
@@ -272,6 +295,7 @@ export class BaseService {
           (x) => x.id === id && this.visible(name, x, actor),
         );
         if (i < 0) throw new NotFoundException();
+        this.assertUnmanaged(def, items[i]);
         if (items[i].version !== expected)
           throw new ConflictException("VERSION_CONFLICT");
         if (items.some((x) => x.id !== id && this.duplicate(data, x)))
@@ -289,7 +313,7 @@ export class BaseService {
     return this.clean(updated);
   }
   async remove(name: string, id: string, actor: Actor) {
-    this.access(name, actor, "delete");
+    const def = this.access(name, actor, "delete");
     await this.get(name, id, actor);
     if (name === "users" && id === actor.id)
       throw new ForbiddenException("CANNOT_DELETE_SELF");
@@ -300,6 +324,7 @@ export class BaseService {
           (x) => x.id === id && this.visible(name, x, actor),
         );
         if (index < 0) throw new NotFoundException();
+        this.assertUnmanaged(def, items[index]);
         items.splice(index, 1);
       },
       this.auditRecord("DELETE", name, id, actor),
@@ -419,6 +444,7 @@ export class BaseService {
     const available = [
       "id",
       ...def.fields.map((f) => f.key),
+      "origin",
       "createdAt",
       "updatedAt",
     ];
@@ -464,7 +490,7 @@ export class BaseService {
       : { contentType: "text/csv; charset=utf-8", body: toCsv(columns, rows) };
   }
   async bulkDelete(name: string, body: unknown, actor: Actor) {
-    this.access(name, actor, "delete");
+    const def = this.access(name, actor, "delete");
     const ids = (body as any)?.ids;
     if (
       !Array.isArray(ids) ||
@@ -478,9 +504,13 @@ export class BaseService {
     await this.repo.mutate(
       name,
       (items) => {
-        for (const id of ids)
-          if (!items.some((x) => x.id === id && this.visible(name, x, actor)))
-            throw new NotFoundException("RECORD_NOT_FOUND");
+        for (const id of ids) {
+          const item = items.find(
+            (x) => x.id === id && this.visible(name, x, actor),
+          );
+          if (!item) throw new NotFoundException("RECORD_NOT_FOUND");
+          this.assertUnmanaged(def, item);
+        }
         for (let i = items.length - 1; i >= 0; i--)
           if (ids.includes(items[i].id)) items.splice(i, 1);
       },

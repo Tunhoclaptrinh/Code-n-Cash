@@ -1,4 +1,5 @@
 import { platform } from "../api/platform";
+import { WORKFLOW_KEYS } from "../api/domain";
 import {
   createContext,
   useCallback,
@@ -77,13 +78,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const refresh = () =>
       void queryClient.invalidateQueries({
         predicate: (query) =>
-          [
-            "activity-log",
-            "contract-summaries",
-            "pending-task-count",
-            "pending-tasks",
-            "milestones",
-          ].includes(String(query.queryKey[0])) ||
+          WORKFLOW_KEYS.includes(String(query.queryKey[0])) ||
           (query.queryKey[0] === "resource" && query.queryKey[1] === "audit"),
       });
     window.addEventListener("codecash:workflow-changed", refresh);

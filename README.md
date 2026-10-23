@@ -18,24 +18,27 @@ pnpm dev
 - Swagger: <http://127.0.0.1:3000/api/docs>
 - Chạy riêng: `pnpm dev:web`, `pnpm dev:api`.
 
-Chế độ local mặc định lưu dữ liệu ở `.data/`, không cần Docker. API tự tạo tài khoản ban đầu khi chưa có dữ liệu; mật khẩu local `Passw0rd!`:
+Chế độ local mặc định lưu dữ liệu ở `.data/`, không cần Docker. Lần khởi động đầu, API nạp toàn bộ Data Pack (100 hợp đồng, 405 mốc, 1.134 sự kiện) làm dữ liệu sống, thêm dữ liệu bổ sung có đánh dấu (tài khoản, thứ tự ký, 4 hợp đồng demo CT0101–CT0104) và chạy engine một lượt. Đăng nhập bằng menu **Tài khoản demo** ở trang đăng nhập, hoặc email với mật khẩu local `Passw0rd!`:
 
 | Tài khoản | Vai trò |
 | --- | --- |
-| `owner@novaan.vn` | Chủ hợp đồng |
-| `legal@novaan.vn` | Pháp chế/nghiệp vụ |
+| `owner@novaan.vn` | Chủ hợp đồng (Nova An, bên mua B010) |
 | `finance@novaan.vn` | Phê duyệt tài chính |
-| `admin@novaan.vn` | Quản trị/kiểm toán |
-| `supplier@phuminh.vn` | Nhà cung cấp |
+| `secondary@novaan.vn` | Phê duyệt cấp 2 |
+| `legal@novaan.vn` | Cán bộ hợp đồng bên mua |
+| `supplier@phuminh.vn` | Nhà cung cấp (Phú Minh, S015) |
+| `admin@codecash.vn`, `controller@codecash.vn` | Kiểm soát viên (hai người cho duyệt ngoại lệ BR-19) |
+| `sysadmin@codecash.vn` | Quản trị hệ thống: tài khoản, tổ chức, mẫu mốc, tham số |
+| `auditor@codecash.vn` | Kiểm toán: chỉ đọc, Kiểm tra toàn vẹn |
 
-Tài khoản admin có mục **Quản trị hệ thống**: tổ chức, người dùng, hợp đồng nháp, mẫu milestone, cấu hình, tài liệu và audit. Tài khoản tạo mới có thể đặt mật khẩu ở màn hình Người dùng. Các màn hình workflow cũ giữ route và quy trình; dữ liệu xử lý đã chuyển sang API.
+Mỗi tổ chức khác trong Data Pack cũng có tài khoản (69 tài khoản). Vai trò nào thấy và làm gì, kịch bản demo, KPI: [09 — Tính năng và vai trò](docs/09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Muốn về dữ liệu ban đầu: dừng API, chuyển thư mục `.data/` đi chỗ khác rồi chạy lại.
 
 ## Cấu trúc
 
 ```text
 apps/
   web/                  React 19, Router 7, Ant Design 6, i18next, TanStack Query
-  api/                  NestJS: auth, quyền, CRUD, tài liệu, workflow, audit
+  api/                  NestJS: auth, quyền, CRUD, tài liệu, audit; src/domain: Data Pack, seed, workflow
   engine/               Adapter Python: Data Pack → CSV chuẩn + trace + KPI
 packages/
   ui/                   Base UI chuyển từ UniFlow và chuẩn hóa cho CodeCash
@@ -48,7 +51,7 @@ scripts/                 Smoke test HTTP và trình duyệt
 BangD-Case4/              Đề và dữ liệu BTC, giữ nguyên
 ```
 
-Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md). Nghiệp vụ: [hồ sơ](docs/README.md), [đặc tả v1.0](docs/04_DAC_TA_NGHIEP_VU.md).
+Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md), [09 — Tính năng và vai trò](docs/09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Nghiệp vụ: [hồ sơ](docs/README.md), [đặc tả v1.0](docs/04_DAC_TA_NGHIEP_VU.md).
 
 ## Kiểm tra
 
@@ -106,8 +109,8 @@ Stack gồm nginx (SPA + proxy `/api`), API (kèm engine Python) và MongoDB rep
 
 ## Phạm vi cần hiểu đúng
 
-- Các workflow ký/phê duyệt được chuyển từ bản giao diện hiện có lên server, lưu trạng thái và kiểm danh tính/phạm vi. Luồng ký nhà cung cấp vẫn là mô phỏng; chưa tích hợp CA thật.
-- Kiểm một PDF bên ngoài không báo VALID chỉ vì có `/ByteRange`: trạng thái là **chưa xác minh** nếu mới nhận diện cấu trúc.
-- Workflow minh họa dùng bộ hợp đồng mẫu ban đầu; đánh giá 100 hợp đồng/405 milestone dùng engine theo đặc tả ở trang Data Pack. Chưa nhập toàn bộ Data Pack thành các hợp đồng có thể sửa/ký trong workflow.
-- Các luật mẫu workflow được giữ khi chuyển UI; chưa được coi là bộ thay thế cho engine Data Pack đã kiểm chứng.
+- Mọi quyết định (RELEASE/HOLD/REJECT/PENALTY, số tiền, phạt) do engine Python theo đặc tả v1.0 đưa ra trên toàn bộ dữ liệu sau mỗi thao tác; trình duyệt và API không tự quyết định.
+- Ký số là mô phỏng, chưa tích hợp CA thật. Kiểm một PDF bên ngoài không báo VALID chỉ vì có `/ByteRange`: trạng thái là **chưa xác minh** nếu mới nhận diện cấu trúc.
+- Rà soát điều khoản dựng mốc từ mẫu quy trình của Data Pack và dữ liệu nhập ở form; chưa có OCR/AI đọc PDF.
+- Accuracy chỉ đo trên 20 mẫu công khai; không suy ra cho 405 mốc hay hidden test.
 - MongoDB có adapter và cấu hình nhưng phải chạy integration test với Mongo thực trước khi triển khai; kiểm thử mặc định dùng kho file.

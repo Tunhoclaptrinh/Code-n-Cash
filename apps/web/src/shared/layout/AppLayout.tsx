@@ -45,7 +45,10 @@ const roleColor: Record<string, string> = {
   CONTRACT_OWNER: "blue",
   LEGAL_REVIEWER: "geekblue",
   FINANCE_APPROVER: "green",
+  SECONDARY_APPROVER: "cyan",
   ADMIN_AUDITOR: "red",
+  SYSTEM_ADMIN: "volcano",
+  AUDITOR: "purple",
   SUPPLIER: "gold",
 };
 
@@ -77,7 +80,7 @@ export function AppLayout() {
   // Count the same list the notification drawer shows, so badge and list always agree.
   const pending = useQuery({
     queryKey: ["pending-tasks", user.id],
-    queryFn: () => listPendingTasks(user.id),
+    queryFn: listPendingTasks,
   });
   const pendingCount = pending.data?.length ?? 0;
   const sections = navByRole[user.role];

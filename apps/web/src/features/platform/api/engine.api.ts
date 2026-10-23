@@ -7,7 +7,31 @@ export interface Trace {
   result: Record<string, unknown>;
   [key: string]: unknown;
 }
+export interface Share {
+  count: number;
+  total: number;
+}
+/** Spec section 15, measured by the engine. Labelled metrics are null without decision labels. */
+export interface Kpi {
+  labelled: number;
+  decisionAccuracy: Share | null;
+  scenarioAccuracy: Share | null;
+  macroF1: string | null;
+  unauthorizedPayment: Share | null;
+  overHold: Share | null;
+  amountAccuracy: (Share & { maxAbsError: string }) | null;
+  coverage: Share;
+  traceability: Share;
+  processing: {
+    totalMs: string;
+    medianMs: string | null;
+    p95Ms: string | null;
+    machine: string;
+  };
+}
 export interface EvaluationSummary {
+  /** Absent on runs recorded before the engine measured KPIs. */
+  kpi?: Kpi;
   source?: {
     kind: "datapack" | "dataset";
     generatedTemplate?: boolean;

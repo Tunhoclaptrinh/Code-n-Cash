@@ -1,61 +1,63 @@
 {
   "breadcrumb": {
-    "dispute": "Dispute MS{{milestoneNo}}"
+    "dispute": "Dispute, milestone {{milestoneNo}}"
   },
-  "title": "Dispute MS{{milestoneNo}} {{milestone}}",
-  "milestones": {
-    "SIGNING": "Signing",
-    "DELIVERY": "Delivery",
-    "ACCEPTANCE": "Acceptance",
-    "WARRANTY": "Warranty"
-  },
-  "status": {
-    "OPEN": "Open, milestone on {{decision}}",
-    "AWAITING_EVIDENCE": "Waiting for the supplier's additional evidence, milestone on {{decision}}",
-    "RESOLVED": "Resolved, milestone being re-evaluated"
-  },
+  "title": "Dispute · Milestone {{milestoneNo}} · {{milestone}}",
   "submission": {
-    "title": "What the supplier submitted",
+    "title_one": "{{count}} dispute on this milestone",
+    "title_other": "{{count}} disputes on this milestone",
+    "none": "No dispute on this milestone.",
     "author": "{{name}} · {{organization}}",
-    "quote": "\"{{message}}\""
+    "quote": "\"{{message}}\"",
+    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+  },
+  "state": {
+    "OPEN": "Open",
+    "RESOLVED": "Validly closed"
+  },
+  "notes": {
+    "title": "Notes from the parties",
+    "kind": {
+      "REQUEST_INFO": "Request for info",
+      "DISPUTE_NOTE": "Note"
+    }
   },
   "impact": {
-    "title": "Impact on payment",
-    "keepPenalty": "If the penalty stands",
-    "waivePenalty": "If accepted, penalty waived",
+    "title": "Effect on payment",
+    "now": "Now",
+    "afterResolve": "If every dispute is closed (engine dry run)",
     "unit": "million",
-    "footnote": "While the dispute is open, the milestone cannot be paid. Every step is recorded in the history."
+    "penalty": "penalty {{penalty}}",
+    "noPreview": "Only the buyer or contract owner sees the dry run while a dispute is open.",
+    "footnote": "While a dispute is open the milestone is held (rule 10). Nobody edits the penalty by hand: the engine recomputes the amount after the dispute closes."
   },
   "decision": {
-    "title": "Your decision",
+    "title": "Handle the dispute",
     "options": {
-      "ACCEPT_WAIVE_PENALTY": {
-        "name": "Accept, waive the penalty",
-        "description": "The milestone is re-evaluated and goes through two-person approval as usual."
+      "RESOLVE": {
+        "name": "Close the dispute",
+        "description": "Records DISPUTE_RESOLVED referencing each open dispute (BR-08). The engine re-evaluates at once."
       },
-      "KEEP_PENALTY": {
-        "name": "Keep the penalty",
-        "description": "The reason is sent back to the supplier. The dispute closes and the milestone is re-evaluated with the original amount."
+      "REQUEST_INFO": {
+        "name": "Request info",
+        "description": "A note to the party who opened it; the dispute stays open and the milestone held."
       },
-      "REQUEST_MORE_EVIDENCE": {
-        "name": "Request more evidence",
-        "description": "The supplier is notified and submits more documents. The dispute stays open."
+      "OPEN": {
+        "name": "Open a new dispute",
+        "description": "Records DISPUTE_OPENED. The milestone is held until the buyer closes it validly."
       }
     },
     "note": {
       "label": "Reason",
-      "required": "Enter a reason for the decision."
+      "required": "Write a reason."
     },
-    "pendingPoint": "<b>Open question:</b> only the buyer resolves disputes for now. Should this step need a third party or two-person approval?",
-    "outcome": {
-      "ACCEPT_WAIVE_PENALTY": "Accepted, penalty waived. The milestone is re-evaluated and moves on to approval.",
-      "KEEP_PENALTY": "Penalty kept. The dispute is closed and the milestone is re-evaluated with the original amount.",
-      "REQUEST_MORE_EVIDENCE": "The supplier was asked for more evidence. The dispute stays open.",
-      "by": "{{name}}, {{at}}"
-    },
+    "readOnly": "You can only view the disputes of this milestone.",
+    "rule": "\"Easy to open, hard to close\": every DISPUTE_OPENED blocks payment; only a DISPUTE_RESOLVED by the buyer (or its contract owner), referencing that dispute and not earlier than it, lifts the block.",
+    "done": "Event recorded. The engine re-evaluated: {{status}} ({{reason}}).",
+    "noted": "Note recorded.",
     "actions": {
-      "later": "Decide later",
-      "confirm": "Confirm decision"
+      "trace": "Open the decision trace",
+      "confirm": "Confirm"
     }
   }
 }

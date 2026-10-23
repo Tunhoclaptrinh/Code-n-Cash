@@ -1,78 +1,74 @@
 import { useId, useState } from "react";
-import { Button, Input, Modal } from "antd";
+import { Alert, App as AntApp, Button, Input, Modal, Space, Tag } from "antd";
 import { PageHeader } from "@codecash/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import type { ApprovalSlot, ApprovalView } from "@codecash/contracts";
 import { ApiError } from "@/shared/api/client";
-import { useCurrentUser } from "@/shared/auth/session";
-import { AppPage } from "@/shared/layout/AppPage";
-import {
-  formatDateTime,
-  formatMillionVnd,
-  formatNumber,
-  formatTime,
-} from "@/shared/lib/format";
 import {
   castVote,
   getApprovalView,
-  markDocumentViewed,
-  type ApprovalStep,
-  type ApprovalView,
-} from "../api/approvals.api";
-import { ToneTag } from "@/shared/ui/ToneTag";
-import { Panel } from "@/shared/ui/Panel";
+  type VoteChoice,
+} from "@/shared/api/domain";
+import { AppPage } from "@/shared/layout/AppPage";
+import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
+import {
+  DecisionTag,
+  MilestoneStatusTag,
+  OriginTag,
+} from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
+import { Panel } from "@/shared/ui/Panel";
+import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
-import { toneOfDecision } from "../components/StatusBadge";
-import { evidenceName, numberWord } from "../lib/display";
-import type { VoteChoice } from "../types";
 import styles from "./PaymentApprovalPage.module.css";
 
+/** Approval of a milestone payment by one of the buyer's approvers (BR-10: one role, one approval). */
 export default function PaymentApprovalPage() {
   const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
+  const { t: td } = useTranslation("domain");
   const params = useParams();
-  const user = useCurrentUser();
   const routeContractId = params.contractId;
-  const routeMilestoneNo = params.milestoneNo
+  const routeSequence = params.milestoneNo
     ? Number(params.milestoneNo)
     : undefined;
-
   const view = useQuery({
     queryKey: [
       "milestones",
       "approval",
-      user.id,
       routeContractId ?? null,
-      routeMilestoneNo ?? null,
+      routeSequence ?? null,
     ],
-    queryFn: () =>
-      getApprovalView(user.id, user.role, routeContractId, routeMilestoneNo),
+    queryFn: () => getApprovalView(routeContractId, routeSequence),
   });
   const data = view.data;
-
-  const breadcrumb = [
-    { label: tc("nav.approvals"), to: "/approvals" },
-    {
-      label: data
-        ? t("approve.breadcrumb", {
-            contractId: data.contractId,
-            no: data.milestone.no,
-            name: t(`milestoneKind.${data.milestone.kind}`),
-          })
-        : (routeContractId ?? ""),
-    },
-  ];
-
   return (
     <AppPage
-      active="approvals"
-      breadcrumb={breadcrumb}
+      active="tasks"
+      breadcrumb={[
+        { label: tc("nav.tasks"), to: "/tasks" },
+        {
+          label: data
+            ? t("approve.breadcrumb", {
+                contractId: data.contract.id,
+                no: data.milestone.sequence,
+                name: td(`milestoneType.${data.milestone.type}`),
+              })
+            : (routeContractId ?? ""),
+        },
+      ]}
       contentClassName={styles.content}
     >
       {view.isPending ? <PageState kind="loading" /> : null}
-      {view.isError ? <PageState kind="error" /> : null}
+      {view.isError ? (
+        view.error instanceof ApiError && view.error.code === "NO_OPEN_TASK" ? (
+          <PageState kind="empty" title={td("errors.NO_OPEN_TASK")} />
+        ) : (
+          <PageState kind="error" onRetry={() => void view.refetch()} />
+        )
+      ) : null}
       {data ? <ApprovalWorkspace data={data} /> : null}
     </AppPage>
   );
@@ -80,89 +76,96 @@ export default function PaymentApprovalPage() {
 
 function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   const { t } = useTranslation("milestones");
-  const user = useCurrentUser();
+  const { t: td } = useTranslation("domain");
+  const { message } = AntApp.useApp();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const noteId = useId();
   const [note, setNote] = useState("");
   const [noteMissing, setNoteMissing] = useState(false);
   const [confirming, setConfirming] = useState(false);
-
-  const { milestone, proposal } = data;
-  const milestoneName = t(`milestoneKind.${milestone.kind}`);
-  const open = data.status === "OPEN";
+  const { milestone, contract, evaluation, preview } = data;
+  const name = td(`milestoneType.${milestone.type}`);
+  const decisionPath = `/contracts/${contract.id}/milestones/${milestone.sequence}/decision`;
 
   const vote = useMutation({
     mutationFn: (choice: VoteChoice) =>
       castVote({
-        userId: user.id,
-        role: user.role,
-        actorName: user.displayName,
-        contractId: data.contractId,
-        milestoneNo: milestone.no,
+        contractId: contract.id,
+        sequence: milestone.sequence,
         choice,
         note,
       }),
-    onSuccess: async (result) => {
+    onSuccess: async (result, choice) => {
       setConfirming(false);
       await queryClient.invalidateQueries({ queryKey: ["milestones"] });
-      await queryClient.invalidateQueries({ queryKey: ["pending-task-count"] });
-      if (result.finalized) {
-        navigate(
-          `/contracts/${data.contractId}/milestones/${milestone.no}/decision`,
-        );
+      if (choice === "REQUEST_INFO") {
+        message.success(t("approve.requested"));
+        setNote("");
+        return;
       }
+      if (result.evaluation)
+        message.success(
+          t("approve.done", {
+            status: td(`status.${result.evaluation.status}`),
+            reason: td(`reason.${result.evaluation.reasonCode}`),
+          }),
+        );
+      navigate(decisionPath);
     },
-    onError: () => setConfirming(false),
+    onError: (error) => {
+      setConfirming(false);
+      message.error(
+        td(`errors.${error instanceof ApiError ? error.code : "UNKNOWN"}`, {
+          defaultValue: td("errors.UNKNOWN"),
+        }),
+      );
+    },
   });
-
-  const viewed = useMutation({
-    mutationFn: (fileId: string) =>
-      markDocumentViewed(data.contractId, milestone.no, fileId),
-  });
-
-  const hold = () => submitStopping("HOLD");
-  const reject = () => submitStopping("REJECT");
-  function submitStopping(choice: "HOLD" | "REJECT") {
+  const needNote = (choice: "REJECT" | "REQUEST_INFO") => {
     if (!note.trim()) {
       setNoteMissing(true);
       return;
     }
     setNoteMissing(false);
     vote.mutate(choice);
-  }
-
-  const payable = formatMillionVnd(proposal.payableMillion);
-  const errorCode =
-    vote.error instanceof ApiError ? vote.error.code : "UNKNOWN";
-  const explainValues = {
-    count: proposal.lateDays,
-    rate: formatNumber(proposal.rateBpPerDay / 100, 2),
-    value: formatMillionVnd(proposal.valueMillion),
-    penalty: formatMillionVnd(proposal.penaltyMillion),
-    cap: formatNumber(proposal.capBp / 100, 2),
-    capAmount: formatMillionVnd(proposal.capMillion),
   };
 
   return (
     <>
       <PageHeader
-        title={t("approve.title", { no: milestone.no, name: milestoneName })}
+        title={t("approve.title", { no: milestone.sequence, name })}
+        subtitle={`${contract.id} · ${contract.title} · ${contract.supplier.name}`}
         tags={
-          <ToneTag tone={open ? "warning" : "neutral"}>
-            {t(`approve.state.${data.status}`)}
-          </ToneTag>
+          <Space size={6}>
+            <MilestoneStatusTag status={milestone.status} />
+            <DecisionTag decision={evaluation.decision} />
+            <OriginTag origin={contract.origin} />
+          </Space>
         }
       />
-
+      {data.blockedReason ? (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+          title={t(`approve.blocked.${data.blockedReason}`, {
+            defaultValue: data.blockedReason,
+          })}
+        />
+      ) : null}
       <div className={styles.grid}>
         <div className={styles.column}>
           <Panel className={`${styles.panel} ${styles.proposal}`}>
             <div className={styles.proposalTitle}>
-              <h2>{t("approve.proposal.title")}</h2>
-              <ToneTag tone={toneOfDecision(proposal.code)}>
-                {t(`decisionCode.${proposal.code}`)}
-              </ToneTag>
+              <h2>
+                {t(
+                  preview
+                    ? "approve.proposal.title"
+                    : "approve.proposal.currentTitle",
+                )}
+              </h2>
+              {preview ? <DecisionTag decision={preview.decision} /> : null}
             </div>
             <div className={styles.stats}>
               <div className={styles.stat}>
@@ -170,7 +173,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   {t("approve.proposal.milestoneValue")}
                 </div>
                 <b className={styles.statValue}>
-                  {formatMillionVnd(proposal.valueMillion)}
+                  {formatDecimalString(milestone.plannedMillion)}
                 </b>
                 <span className={styles.statUnit}>
                   {" "}
@@ -182,7 +185,9 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   {t("approve.proposal.penalty")}
                 </div>
                 <b className={`${styles.statValue} ${styles.statValuePenalty}`}>
-                  {formatMillionVnd(proposal.penaltyMillion)}
+                  {formatDecimalString(
+                    preview?.penaltyMillion ?? evaluation.penaltyMillion,
+                  )}
                 </b>
                 <span className={styles.statUnit}>
                   {" "}
@@ -194,7 +199,9 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   {t("approve.proposal.payable")}
                 </div>
                 <b className={`${styles.statValue} ${styles.statValuePayable}`}>
-                  {payable}
+                  {formatDecimalString(
+                    preview?.payableMillion ?? evaluation.payableMillion,
+                  )}
                 </b>
                 <span className={styles.statUnit}>
                   {" "}
@@ -203,76 +210,64 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               </div>
             </div>
             <div className={styles.explain}>
-              {proposal.lateDays > 0 ? (
-                <Trans
-                  t={t}
-                  i18nKey={
-                    proposal.capReached
-                      ? "approve.proposal.explainCapped"
-                      : "approve.proposal.explainLate"
-                  }
-                  values={explainValues}
-                  components={{ b: <b /> }}
-                />
-              ) : (
-                t("approve.proposal.explainOnTime")
-              )}
+              {preview
+                ? t("approve.proposal.preview", {
+                    decision: preview.decision,
+                    reason: td(`reason.${preview.reasonCode}`),
+                    count: preview.daysLate,
+                  })
+                : t("approve.proposal.current", {
+                    reason: td(`reason.${evaluation.reasonCode}`),
+                  })}
             </div>
             <div className={styles.reason}>
-              <Trans
-                t={t}
-                i18nKey="approve.proposal.reason"
-                values={{
-                  reason: t(
-                    `approve.proposal.reasonCode.${proposal.reasonCode}`,
-                  ),
-                }}
-                components={{ b: <b /> }}
-              />
+              <Link to={decisionPath}>{t("approve.proposal.trace")}</Link>
             </div>
           </Panel>
 
           <Panel className={`${styles.panel} ${styles.documents}`}>
             <h2>{t("approve.documents.title")}</h2>
-            {data.documents.map((file) => (
-              <div key={file.id} className={styles.document}>
+            {data.evidence.map((event) => (
+              <div key={event.id} className={styles.document}>
                 <PdfTile variant="plain" />
                 <div className={styles.documentInfo}>
-                  <b>{evidenceName(t, file.type)}</b>
-                  {file.signature ? (
-                    <div className={styles.documentMeta}>
-                      {t("approve.documents.signedBy", {
-                        name: file.signature.signerName,
-                        at: formatDateTime(file.signature.signedAt),
-                      })}
-                    </div>
-                  ) : null}
+                  <b>{td(`eventType.${event.type}`)}</b>
+                  <div className={styles.documentMeta}>
+                    {t("approve.documents.recorded", {
+                      id: event.id,
+                      by: event.recordedBy ?? event.actor.name,
+                      at: formatDateTime(event.at),
+                    })}
+                  </div>
                 </div>
-                <ToneTag tone={file.signature?.valid ? "success" : "danger"}>
-                  {file.signature?.valid
-                    ? t("common.signatureValid")
-                    : t("common.signatureInvalid")}
-                </ToneTag>
-                <Link
-                  to={`/verify/${data.contractId}`}
-                  className={styles.documentLink}
-                  aria-label={t("approve.documents.viewAria", {
-                    document: evidenceName(t, file.type),
-                  })}
-                  onClick={() => viewed.mutate(file.id)}
-                >
-                  {t("common.view")}
-                </Link>
+                <Space size={4}>
+                  <ToneTag tone="success">{td("eventClass.EVIDENCE")}</ToneTag>
+                  <OriginTag origin={event.origin} />
+                </Space>
               </div>
             ))}
+            {milestone.requirements
+              .filter((r) => r.state !== "VALID")
+              .map((r) => (
+                <div key={r.eventType} className={styles.document}>
+                  <PdfTile variant="plain" />
+                  <div className={styles.documentInfo}>
+                    <b>{td(`eventType.${r.eventType}`)}</b>
+                    <div className={styles.documentMeta}>
+                      {t("approve.documents.missing", {
+                        side: td(`side.${r.side}`),
+                      })}
+                    </div>
+                  </div>
+                  <ToneTag tone="danger">
+                    {td(
+                      `eventClass.${r.state === "UNAUTHORIZED" ? "UNAUTHORIZED" : "WRONG_STATUS"}`,
+                    )}
+                  </ToneTag>
+                </div>
+              ))}
             <div className={styles.documentsNote}>
-              {t("approve.documents.note", {
-                count: data.documents.length,
-                countWord: numberWord(
-                  t,
-                  data.documents.length,
-                ).toLocaleLowerCase(),
-              })}
+              {t("approve.documents.note")}
             </div>
           </Panel>
         </div>
@@ -280,45 +275,27 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
         <Panel className={`${styles.panel} ${styles.decisionPanel}`}>
           <h2>
             {t("approve.progress.title", {
-              quorum: data.quorum,
-              roles: data.distinctRoles,
+              quorum: milestone.quorum,
+              roles: milestone.approvalRoles.length,
             })}
           </h2>
           <ol className={styles.steps}>
-            {data.steps.map((step, index) => (
-              <StepItem key={step.role} step={step} index={index} />
+            {data.slots.map((slot, index) => (
+              <StepItem key={slot.role} slot={slot} index={index} />
             ))}
           </ol>
-
           <div className={styles.consequences}>
             <b>{t("approve.consequences.title")}</b>
             <div className={styles.consequenceFirst}>
-              <Trans
-                t={t}
-                i18nKey="approve.consequences.approve"
-                values={{
-                  quorumWord: numberWord(t, data.quorum).toLocaleLowerCase(),
-                  payable,
-                }}
-                components={{ b: <b className={styles.approveText} /> }}
-              />
+              {t("approve.consequences.approve")}
             </div>
             <div className={styles.consequence}>
-              <Trans
-                t={t}
-                i18nKey="approve.consequences.hold"
-                components={{ b: <b className={styles.holdText} /> }}
-              />
+              {t("approve.consequences.requestInfo")}
             </div>
             <div className={styles.consequence}>
-              <Trans
-                t={t}
-                i18nKey="approve.consequences.reject"
-                components={{ b: <b className={styles.rejectText} /> }}
-              />
+              {t("approve.consequences.reject")}
             </div>
           </div>
-
           <div>
             <label htmlFor={noteId} className={styles.noteLabel}>
               {t("approve.note.label")}{" "}
@@ -330,115 +307,85 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               className={`${styles.noteInput} ${noteMissing ? styles.noteInputInvalid : ""}`}
               value={note}
               aria-invalid={noteMissing}
-              aria-describedby={noteMissing ? `${noteId}-error` : undefined}
               onChange={(event) => {
                 setNote(event.target.value);
                 if (event.target.value.trim()) setNoteMissing(false);
               }}
             />
             {noteMissing ? (
-              <p id={`${noteId}-error`} className={styles.error} role="alert">
+              <p className={styles.error} role="alert">
                 {t("approve.note.required")}
               </p>
             ) : null}
-            {vote.isError ? (
-              <p className={styles.error} role="alert">
-                {t(`approve.error.${errorCode}`, {
-                  defaultValue: t("approve.error.UNKNOWN"),
-                })}
-              </p>
-            ) : null}
           </div>
-
           <div className={styles.actions}>
             <Button
               color="danger"
               variant="outlined"
-              disabled={!open || vote.isPending}
-              onClick={reject}
+              disabled={!data.canReject || vote.isPending}
+              onClick={() => needNote("REJECT")}
             >
               {t("approve.actions.reject")}
             </Button>
             <Button
               color="orange"
               variant="outlined"
-              disabled={!open || vote.isPending}
-              onClick={hold}
+              disabled={!data.canReject || vote.isPending}
+              onClick={() => needNote("REQUEST_INFO")}
             >
-              {t("approve.actions.hold")}
+              {t("approve.actions.requestInfo")}
             </Button>
             <Button
               color="green"
               variant="solid"
-              disabled={!open || vote.isPending}
+              disabled={!data.canApprove || vote.isPending}
               onClick={() => setConfirming(true)}
+              data-testid="approve-payment"
             >
               {t("approve.actions.approve")}
             </Button>
           </div>
         </Panel>
       </div>
-
       <Modal
         open={confirming}
         title={t("approve.confirm.title")}
-        okText={
-          vote.isPending
-            ? t("approve.confirm.submitting")
-            : t("approve.confirm.submit")
-        }
+        okText={t("approve.confirm.submit")}
         cancelText={t("approve.confirm.cancel")}
         confirmLoading={vote.isPending}
         onOk={() => vote.mutate("APPROVE")}
         onCancel={() => setConfirming(false)}
       >
         {t("approve.confirm.body", {
-          payable,
-          no: milestone.no,
-          name: milestoneName,
+          no: milestone.sequence,
+          name,
+          decision: preview?.decision ?? evaluation.decision,
+          payable: formatDecimalString(
+            preview?.payableMillion ?? evaluation.payableMillion,
+          ),
         })}
       </Modal>
     </>
   );
 }
 
-function StepItem({ step, index }: { step: ApprovalStep; index: number }) {
+function StepItem({ slot, index }: { slot: ApprovalSlot; index: number }) {
   const { t } = useTranslation("milestones");
-  const role = t(`participantRole.${step.role}`);
-
+  const { t: td } = useTranslation("domain");
   const tone =
-    step.state === "APPROVED"
+    slot.state === "APPROVED"
       ? "Done"
-      : step.state === "CURRENT"
-        ? "Current"
-        : step.state === "PENDING"
-          ? "Pending"
-          : "Stopped";
+      : slot.state === "REJECTED"
+        ? "Stopped"
+        : slot.isYou
+          ? "Current"
+          : "Pending";
   const marker =
-    step.state === "APPROVED"
+    slot.state === "APPROVED"
       ? "✓"
-      : step.state === "HELD"
-        ? "!"
-        : step.state === "REJECTED"
-          ? "×"
-          : String(index + 1);
-
-  const headingKey = !step.required
-    ? "headingOptional"
-    : step.isYou || step.personName
-      ? "heading"
-      : "headingNoPerson";
-  const person = step.isYou ? t("approve.progress.you") : step.personName;
-
-  const stateKey =
-    step.state === "CURRENT"
-      ? step.isYou
-        ? "CURRENT_YOU"
-        : "CURRENT_OTHER"
-      : step.state === "PENDING" && !step.required
-        ? "PENDING_OPTIONAL"
-        : step.state;
-
+      : slot.state === "REJECTED"
+        ? "×"
+        : String(index + 1);
   return (
     <li className={`${styles.step} ${styles[`step${tone}`]}`}>
       <span
@@ -448,16 +395,20 @@ function StepItem({ step, index }: { step: ApprovalStep; index: number }) {
         {marker}
       </span>
       <div className={styles.stepBody}>
-        <Trans
-          t={t}
-          i18nKey={`approve.progress.${headingKey}`}
-          values={{ role, person }}
-          components={{ b: <b /> }}
-        />
+        <b>{td(`approvalRole.${slot.role}`)}</b> ·{" "}
+        {slot.isYou ? t("approve.progress.you") : slot.personName}{" "}
+        <Tag style={{ margin: 0 }}>{slot.partyId}</Tag>
         <div className={styles.stepSub}>
-          {t(`approve.progress.state.${stateKey}`, {
-            time: step.signedAt ? formatTime(step.signedAt) : "",
-          })}
+          {slot.state === "PENDING"
+            ? t(
+                slot.isYou
+                  ? "approve.progress.state.CURRENT_YOU"
+                  : "approve.progress.state.WAITING",
+              )
+            : t(`approve.progress.state.${slot.state}`, {
+                time: slot.at ? formatDateTime(slot.at) : "",
+              })}
+          {slot.eventId ? ` · ${slot.eventId}` : ""}
         </div>
       </div>
     </li>

@@ -1,23 +1,8 @@
-/** Features call this after they complete or create work for a user. */
-import { workflowCall } from "@/shared/api/workflow";
+import type { TaskRow } from "@codecash/contracts";
+import { getPendingTaskCount, getTaskInbox } from "./domain";
 
-export async function getPendingTaskCount(userId: string): Promise<number> {
-  return workflowCall("shared-tasks", "getPendingTaskCount", [userId]);
-}
+export type PendingTask = TaskRow;
+export { getPendingTaskCount };
 
-/** The fields of an inbox row the header notification list shows. */
-export interface PendingTask {
-  id: string;
-  kind: string;
-  contractId: string;
-  heading:
-    | { kind: "MILESTONE"; no: number; milestoneKind: string }
-    | { kind: "TITLE"; title: string };
-  dueDate: string;
-  overdueDays: number;
-  href: string;
-}
-
-export async function listPendingTasks(userId: string): Promise<PendingTask[]> {
-  return workflowCall("milestones-tasks", "getTaskInbox", [userId]);
-}
+/** Open work of the signed-in user; the API derives it from the latest evaluations. */
+export const listPendingTasks = (): Promise<TaskRow[]> => getTaskInbox();

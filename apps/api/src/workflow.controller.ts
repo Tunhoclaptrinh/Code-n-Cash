@@ -1,389 +1,299 @@
-import * as m0 from "./workflow/features/contracts/api/contractDraft.api";
-import * as m1 from "./workflow/features/contracts/api/contractList.api";
-import * as m2 from "./workflow/features/signing/api/digitization.api";
-import * as m3 from "./workflow/features/signing/api/signingConfig.api";
-import * as m4 from "./workflow/features/signing/api/signingFlow.api";
-import * as m5 from "./workflow/features/signing/api/verification.api";
-import * as m6 from "./workflow/features/milestones/api/approvals.api";
-import * as m7 from "./workflow/features/milestones/api/contracts.api";
-import * as m8 from "./workflow/features/milestones/api/evidence.api";
-import * as m9 from "./workflow/features/milestones/api/tasks.api";
-import * as m10 from "./workflow/features/disputes/api/dispute.api";
-import * as m11 from "./workflow/features/audit/api/activity.api";
-import * as m12 from "./workflow/shared/api/contracts.api";
-import * as m13 from "./workflow/shared/api/tasks.api";
 import {
-  Injectable,
-  Inject,
-  Controller,
-  Post,
-  Param,
-  Body,
-  Req,
   BadRequestException,
+  Body,
+  Controller,
   ForbiddenException,
+  Inject,
+  Injectable,
   NotFoundException,
-  ConflictException,
+  Param,
+  Post,
+  Req,
 } from "@nestjs/common";
-import { Repository } from "./common/repository";
 import { can } from "./common/permissions";
-import { BaseService } from "./common/services/base.service";
 import type { Actor, SessionRequest } from "./common/types";
-import { db } from "./workflow/shared/mock/db";
-import { milestoneDb } from "./workflow/features/milestones/mock/seed";
-import { signingDb } from "./workflow/features/signing/mock/signingDb";
-import {
-  exportDraft,
-  restoreDraft,
-} from "./workflow/features/contracts/api/contractDraft.api";
-import {
-  exportDisputes,
-  restoreDisputes,
-} from "./workflow/features/disputes/api/dispute.api";
-const modules: Record<string, Record<string, (...args: any[]) => any>> = {
-  "contracts-contractDraft": {
-    getContractDraft: m0.getContractDraft,
-    getUploadFormOptions: m0.getUploadFormOptions,
-    saveContractDraft: m0.saveContractDraft,
-  },
-  "contracts-contractList": { getContractList: m1.getContractList },
-  "signing-digitization": {
-    getDigitization: m2.getDigitization,
-    confirmDigitization: m2.confirmDigitization,
-  },
-  "signing-signingConfig": {
-    getSigningConfig: m3.getSigningConfig,
-    getDefaultSignatureSlots: m3.getDefaultSignatureSlots,
-    saveSignatureSlots: m3.saveSignatureSlots,
-    getSigningOverview: m3.getSigningOverview,
-  },
-  "signing-signingFlow": {
-    getSigningRequest: m4.getSigningRequest,
-    sendSigningRequest: m4.sendSigningRequest,
-    confirmSigningRequest: m4.confirmSigningRequest,
-    rejectSigningRequest: m4.rejectSigningRequest,
-    cancelSigningRequest: m4.cancelSigningRequest,
-    cancelSigning: m4.cancelSigning,
-  },
-  "signing-verification": { getVerification: m5.getVerification },
-  "milestones-approvals": {
-    getApprovalView: m6.getApprovalView,
-    markDocumentViewed: m6.markDocumentViewed,
-    castVote: m6.castVote,
-  },
-  "milestones-contracts": {
-    getContractOverview: m7.getContractOverview,
-    getDecisionView: m7.getDecisionView,
-    transferToAccounting: m7.transferToAccounting,
-  },
-  "milestones-evidence": {
-    getEvidenceWorkspace: m8.getEvidenceWorkspace,
-    attachEvidenceFile: m8.attachEvidenceFile,
-    removeEvidenceFile: m8.removeEvidenceFile,
-    signAndSubmitEvidence: m8.signAndSubmitEvidence,
-  },
-  "milestones-tasks": { getTaskInbox: m9.getTaskInbox },
-  "disputes-dispute": {
-    getDispute: m10.getDispute,
-    resolveDispute: m10.resolveDispute,
-  },
-  "audit-activity": {
-    listActivityEntries: m11.listActivityEntries,
-    getDefaultActivityRange: m11.getDefaultActivityRange,
-  },
-  "shared-contracts": {
-    listContractSummaries: m12.listContractSummaries,
-    getContractSummary: m12.getContractSummary,
-    listOrganizations: m12.listOrganizations,
-  },
-  "shared-tasks": { getPendingTaskCount: m13.getPendingTaskCount },
-};
-/**
- * Permission each workflow action needs (packages/contracts/permissions.json). Actions missing
- * here are refused, so a new handler cannot ship without an explicit permission.
- */
-const ACTION_PERMISSION: Record<string, string> = {
-  getContractDraft: "contracts:draft-read",
-  getUploadFormOptions: "contracts:draft-read",
-  saveContractDraft: "contracts:draft-write",
-  getContractList: "contracts:read",
-  listContractSummaries: "contracts:read",
-  getContractSummary: "contracts:read",
-  listOrganizations: "contracts:read",
-  getContractOverview: "contracts:read",
-  getDecisionView: "contracts:read",
-  getDigitization: "contracts:read",
-  confirmDigitization: "contracts:digitize",
-  getSigningConfig: "contracts:read",
-  getDefaultSignatureSlots: "contracts:read",
-  getSigningOverview: "contracts:read",
-  saveSignatureSlots: "contracts:signature-slots",
-  getSigningRequest: "contracts:read",
-  sendSigningRequest: "signing:sign",
-  confirmSigningRequest: "signing:sign",
-  rejectSigningRequest: "signing:sign",
-  cancelSigningRequest: "signing:sign",
-  cancelSigning: "signing:cancel",
-  getVerification: "signing:verify",
-  getTaskInbox: "tasks:read",
-  getPendingTaskCount: "tasks:read",
-  getEvidenceWorkspace: "tasks:read",
-  attachEvidenceFile: "evidence:submit",
-  removeEvidenceFile: "evidence:submit",
-  signAndSubmitEvidence: "evidence:submit",
-  getApprovalView: "approvals:read",
-  markDocumentViewed: "approvals:mark-viewed",
-  castVote: "approvals:vote",
-  transferToAccounting: "payments:transfer",
-  getDispute: "disputes:read",
-  resolveDispute: "disputes:resolve",
-  listActivityEntries: "activity:read",
-  getDefaultActivityRange: "activity:read",
-};
-const snapshot = () =>
-  structuredClone({
-    db,
-    milestoneDb,
-    signingDb,
-    draft: exportDraft(),
-    disputes: exportDisputes(),
-  });
-function restore(state: ReturnType<typeof snapshot>) {
-  Object.assign(db, state.db);
-  Object.assign(milestoneDb, state.milestoneDb);
-  Object.assign(signingDb, state.signingDb);
-  restoreDraft(state.draft);
-  restoreDisputes(state.disputes);
+import * as actions from "./domain/actions";
+import * as drafts from "./domain/drafts";
+import * as lists from "./domain/lists";
+import { DomainService } from "./domain/service";
+import * as signing from "./domain/signing";
+import * as views from "./domain/views";
+
+type Args = unknown[];
+interface Handler {
+  /** Permission from packages/contracts/permissions.json; actions without one are refused. */
+  permission: string;
+  run: (domain: DomainService, actor: Actor, args: Args) => Promise<unknown>;
 }
+
+const str = (value: unknown) => (typeof value === "string" ? value : "");
+const num = (value: unknown) =>
+  typeof value === "number" ? value : Number(value);
+const opt = (value: unknown) =>
+  value === undefined || value === null ? undefined : value;
+const input = <T>(value: unknown): T => {
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new BadRequestException("INVALID_INPUT");
+  return value as T;
+};
+
+const read = (
+  permission: string,
+  fn: (ctx: never, args: Args, dryRun: never) => unknown,
+  extra: string[] = [],
+): Handler => ({
+  permission,
+  run: (domain, actor, args) =>
+    domain.read(
+      actor,
+      (ctx, dryRun) => fn(ctx as never, args, dryRun as never),
+      extra,
+    ),
+});
+const write = (
+  permission: string,
+  name: string,
+  fn: (ctx: never, args: Args) => actions.Outcome | Promise<actions.Outcome>,
+): Handler => ({
+  permission,
+  run: (domain, actor, args) =>
+    domain.write(actor, name, (ctx) => fn(ctx as never, args)),
+});
+
+/**
+ * Workflow actions. The signed-in actor comes from the session, never from the arguments; each
+ * handler checks the business rules (who may record which event) inside the domain layer.
+ */
+/** A head hash saved earlier ("seq:hash"), checked against the audit chain. */
+const anchorOf = (value: unknown) => {
+  if (value === undefined || value === null || value === "") return undefined;
+  const match = /^(\d{1,9}):([0-9a-f]{64})$/.exec(str(value).trim());
+  if (!match) throw new BadRequestException("INVALID_ANCHOR");
+  return { seq: Number(match[1]), hash: match[2] };
+};
+
+const HANDLERS: Record<string, Record<string, Handler>> = {
+  contracts: {
+    getContractList: read("contracts:read", (ctx) => views.contractList(ctx)),
+    listContracts: read("contracts:read", (ctx, [query]) =>
+      lists.listContracts(ctx, query),
+    ),
+    getContractOverview: read("contracts:read", (ctx, [id]) =>
+      views.contractOverview(ctx, str(id)),
+    ),
+    getMilestoneDetail: read("contracts:read", (ctx, [id, sequence]) =>
+      views.milestoneDetail(ctx, str(id), num(sequence)),
+    ),
+    getMilestoneTimeline: read("contracts:read", (ctx, [id, sequence]) =>
+      views.milestoneTimeline(ctx, str(id), num(sequence)),
+    ),
+  },
+  integrity: {
+    verifyIntegrity: read(
+      "audit:read",
+      (ctx, [anchor]) => views.integrityReport(ctx, anchorOf(anchor)),
+      ["audit"],
+    ),
+  },
+  tasks: {
+    getTaskInbox: read("tasks:read", (ctx) => views.taskInbox(ctx)),
+    listTasks: read("tasks:read", (ctx, [query]) =>
+      lists.listTasks(ctx, query),
+    ),
+    getPendingTaskCount: read(
+      "tasks:read",
+      (ctx) => views.taskInbox(ctx).length,
+    ),
+  },
+  evidence: {
+    getEvidenceWorkspace: read("tasks:read", (ctx, [id, sequence], dryRun) =>
+      views.evidenceWorkspace(
+        ctx,
+        dryRun,
+        (c, m) => actions.evidenceEvents(c, m),
+        opt(id) as string | undefined,
+        opt(sequence) as number | undefined,
+      ),
+    ),
+    attachEvidenceFile: write(
+      "evidence:submit",
+      "attachEvidenceFile",
+      (ctx, [value]) => actions.attachEvidence(ctx, input(value)),
+    ),
+    removeEvidenceFile: write(
+      "evidence:submit",
+      "removeEvidenceFile",
+      (ctx, [value]) => actions.removeEvidence(ctx, input(value)),
+    ),
+    submitEvidence: write("evidence:submit", "submitEvidence", (ctx, [value]) =>
+      actions.submitEvidence(ctx, input(value)),
+    ),
+  },
+  approvals: {
+    getApprovalView: read("approvals:read", (ctx, [id, sequence], dryRun) =>
+      views.approvalView(
+        ctx,
+        dryRun,
+        (c, m) => actions.approvalEvent(c, m),
+        opt(id) as string | undefined,
+        opt(sequence) as number | undefined,
+      ),
+    ),
+    castVote: write("approvals:vote", "castVote", (ctx, [value]) =>
+      actions.castVote(ctx, input(value)),
+    ),
+  },
+  disputes: {
+    getDispute: read("disputes:read", (ctx, [id, sequence], dryRun) =>
+      views.disputeView(
+        ctx,
+        dryRun,
+        (c, m) => actions.resolutionEvents(c, m),
+        str(id),
+        num(sequence),
+      ),
+    ),
+    openDispute: write("disputes:open", "openDispute", (ctx, [value]) =>
+      actions.openDispute(ctx, input(value)),
+    ),
+    resolveDispute: write(
+      "disputes:resolve",
+      "resolveDispute",
+      (ctx, [value]) => actions.resolveDispute(ctx, input(value)),
+    ),
+  },
+  payments: {
+    transferToAccounting: write(
+      "payments:transfer",
+      "transferToAccounting",
+      (ctx, [value]) => actions.transferToAccounting(ctx, input(value)),
+    ),
+  },
+  exceptions: {
+    listExceptionQueue: read("exceptions:read", (ctx) =>
+      views.exceptionQueue(ctx),
+    ),
+    listExceptions: read("exceptions:read", (ctx, [query]) =>
+      lists.listExceptions(ctx, query),
+    ),
+    proposeException: write(
+      "exceptions:propose",
+      "proposeException",
+      (ctx, [value]) => actions.proposeException(ctx, input(value)),
+    ),
+    decideException: write(
+      "exceptions:decide",
+      "decideException",
+      (ctx, [value]) => actions.decideException(ctx, input(value)),
+    ),
+  },
+  signing: {
+    getSigningConfig: read("contracts:read", (ctx, [code]) =>
+      signing.signingConfig(ctx, str(code)),
+    ),
+    getDefaultSignatureSlots: read("contracts:read", (ctx, [code]) =>
+      signing.defaultSignatureSlots(ctx, str(code)),
+    ),
+    getSigningOverview: read("contracts:read", (ctx, [code]) =>
+      signing.signingOverview(ctx, str(code)),
+    ),
+    getVerification: read("signing:verify", (ctx, [code]) =>
+      signing.verification(ctx, str(code)),
+    ),
+    saveSignatureSlots: write(
+      "contracts:signature-slots",
+      "saveSignatureSlots",
+      (ctx, [code, slots]) => signing.saveSlots(ctx, str(code), input(slots)),
+    ),
+    getSigningRequest: write(
+      "contracts:read",
+      "getSigningRequest",
+      (ctx, [code, step]) => signing.readRequest(ctx, str(code), num(step)),
+    ),
+    sendSigningRequest: write(
+      "signing:sign",
+      "sendSigningRequest",
+      (ctx, [code, step, method]) =>
+        signing.sendRequest(ctx, str(code), num(step), str(method) as never),
+    ),
+    confirmSigningRequest: write(
+      "signing:sign",
+      "confirmSigningRequest",
+      (ctx, [code, step]) => signing.confirmRequest(ctx, str(code), num(step)),
+    ),
+    rejectSigningRequest: write(
+      "signing:sign",
+      "rejectSigningRequest",
+      (ctx, [code, step]) => signing.rejectRequest(ctx, str(code), num(step)),
+    ),
+    cancelSigningRequest: write(
+      "signing:sign",
+      "cancelSigningRequest",
+      (ctx, [code, step]) => signing.cancelRequest(ctx, str(code), num(step)),
+    ),
+    cancelSigning: write("signing:cancel", "cancelSigning", (ctx, [code]) =>
+      signing.cancelSigning(ctx, str(code)),
+    ),
+  },
+  drafts: {
+    getContractDraft: read("contracts:draft-read", (ctx, [code]) =>
+      drafts.currentDraft(ctx, opt(code) as string | undefined),
+    ),
+    getUploadFormOptions: read("contracts:draft-read", (ctx) =>
+      drafts.uploadFormOptions(ctx),
+    ),
+    saveContractDraft: write(
+      "contracts:draft-write",
+      "saveContractDraft",
+      (ctx, [value]) => drafts.saveDraft(ctx, input(value)),
+    ),
+    getDigitization: read("contracts:read", (ctx, [code]) =>
+      drafts.digitization(ctx, str(code)),
+    ),
+    confirmDigitization: write(
+      "contracts:digitize",
+      "confirmDigitization",
+      (ctx, [code, value]) =>
+        drafts.confirmDigitization(
+          ctx,
+          str(code),
+          input(value ?? { dueDate: null }),
+        ),
+    ),
+  },
+  activity: {
+    listActivityEntries: read("activity:read", (ctx) => views.activity(ctx), [
+      "audit",
+    ]),
+    listActivity: read(
+      "activity:read",
+      (ctx, [query]) => lists.listActivity(ctx, query),
+      ["audit"],
+    ),
+    getDefaultActivityRange: read("activity:read", (ctx) =>
+      views.activityRange(ctx),
+    ),
+  },
+};
+
 @Injectable()
 export class WorkflowService {
-  private queue: Promise<unknown> = Promise.resolve();
-  constructor(
-    @Inject(Repository) private repo: Repository,
-    @Inject(BaseService) private base: BaseService,
-  ) {}
-  private scope(id: string, actor: Actor) {
-    const contract = db.contractSummaries.find((x) => x.code === id);
-    if (!contract) throw new NotFoundException("CONTRACT_NOT_FOUND");
-    if (
-      actor.role === "SUPPLIER"
-        ? contract.supplierId !== actor.organizationId
-        : actor.role !== "ADMIN_AUDITOR" &&
-          actor.organizationId !== "org-nova-an"
-    )
-      throw new ForbiddenException("CONTRACT_ACCESS_DENIED");
-  }
-  call(module: string, action: string, input: unknown, actor: Actor) {
-    const task = this.queue.then(async () => {
-      const stored = (await this.repo.list("workflow-state"))[0];
-      const expectedVersion = stored?.version ?? 0;
-      if (stored?.state) restore(stored.state as ReturnType<typeof snapshot>);
-      if (
-        !Object.hasOwn(modules, module) ||
-        !Object.hasOwn(modules[module], action)
-      )
-        throw new NotFoundException("ACTION_NOT_FOUND");
-      const fn = modules[module]?.[action];
-      if (!fn) throw new NotFoundException("ACTION_NOT_FOUND");
-      const permission = ACTION_PERMISSION[action];
-      if (!permission || !can(actor.role, permission))
-        throw new ForbiddenException("ACTION_FORBIDDEN");
-      const raw = (input as { args?: unknown[] })?.args;
-      if (!Array.isArray(raw) || raw.length > 6)
-        throw new BadRequestException("INVALID_ARGUMENTS");
-      const args: any[] = structuredClone(raw);
-      if (module === "contracts-contractList")
-        args[0] = {
-          id: actor.id,
-          role: actor.role,
-          organizationId: actor.organizationId,
-        };
-      if (
-        [
-          "getTaskInbox",
-          "getPendingTaskCount",
-          "getEvidenceWorkspace",
-          "getApprovalView",
-        ].includes(action)
-      )
-        args[0] = actor.id;
-      if (action === "getApprovalView") args[1] = actor.role;
-      if (action === "getSigningOverview") args[1] = actor.id;
-      if (action === "getUploadFormOptions") args[0] = actor.organizationId;
-      const reference =
-        typeof args[0] === "string" && args[0].startsWith("CT")
-          ? args[0]
-          : args[0] && typeof args[0] === "object"
-            ? (args[0].contractId ?? args[0].contractCode ?? args[0].code)
-            : action === "getApprovalView"
-              ? args[2]
-              : action === "getEvidenceWorkspace"
-                ? args[1]
-                : undefined;
-      if (reference) this.scope(reference, actor);
-      if (action === "castVote" && args[0] && typeof args[0] === "object") {
-        const approval =
-          milestoneDb.approvalCases[
-            `${args[0].contractId}:${args[0].milestoneNo}`
-          ];
-        if (approval?.votes.some((vote) => vote.userId === actor.id))
-          throw new ConflictException("ALREADY_VOTED");
-      }
-      const writes = !/^(get|list)/.test(action);
-      if (writes) {
-        if (["castVote", "signAndSubmitEvidence"].includes(action)) {
-          if (!args[0] || typeof args[0] !== "object")
-            throw new BadRequestException("INVALID_INPUT");
-          args[0] = {
-            ...args[0],
-            userId: actor.id,
-            role: actor.role,
-            actorName: actor.displayName,
-            signerName: actor.displayName,
-          };
-        }
-        if (
-          action === "castVote" &&
-          !["APPROVE", "HOLD", "REJECT"].includes(args[0].choice)
-        )
-          throw new BadRequestException("INVALID_VOTE");
-        if (action === "resolveDispute") {
-          if (
-            !args[0] ||
-            ![
-              "ACCEPT_WAIVE_PENALTY",
-              "KEEP_PENALTY",
-              "REQUEST_MORE_EVIDENCE",
-            ].includes(args[0].option)
-          )
-            throw new BadRequestException("INVALID_RESOLUTION");
-          args[0].actor = { id: actor.id, displayName: actor.displayName };
-        }
-        if (
-          action === "attachEvidenceFile" &&
-          (!args[0] ||
-            typeof args[0].fileName !== "string" ||
-            args[0].fileName.length > 255 ||
-            typeof args[0].sizeMb !== "number" ||
-            args[0].sizeMb < 0 ||
-            args[0].sizeMb > 20)
-        )
-          throw new BadRequestException("INVALID_FILE");
-        if (
-          [
-            "sendSigningRequest",
-            "confirmSigningRequest",
-            "rejectSigningRequest",
-            "cancelSigningRequest",
-          ].includes(action)
-        ) {
-          const stored = signingDb.contracts[args[0]];
-          const step = stored?.steps.find((x) => x.stepNo === args[1]);
-          if (step?.signerUserId !== actor.id)
-            throw new ForbiddenException("NOT_ASSIGNED_SIGNER");
-        }
-      }
-      const before = snapshot();
-      try {
-        let result = await fn(...args);
-        if (action === "listActivityEntries") {
-          const log = (await this.repo.list("audit")).filter(
-            (entry) =>
-              String(entry.recordId).startsWith("CT") &&
-              !/^(get|list)/.test(String(entry.action)),
-          );
-          const users = await this.repo.list("users");
-          result = [
-            ...result,
-            ...log.map((entry) => {
-              const user =
-                users.find((user) => user.id === entry.actorId) ??
-                (entry.actorId === actor.id ? actor : undefined);
-              const module = String(entry.resource);
-              return {
-                id: entry.id,
-                at: entry.createdAt,
-                actor: {
-                  id: entry.actorId,
-                  displayName: user?.displayName ?? entry.actorId,
-                  role:
-                    user?.role === "LEGAL_REVIEWER"
-                      ? "LEGAL"
-                      : (user?.role ?? "SYSTEM"),
-                },
-                category: module.startsWith("signing")
-                  ? "SIGN"
-                  : module.startsWith("disputes")
-                    ? "DISPUTE"
-                    : module.endsWith("approvals")
-                      ? "APPROVAL"
-                      : module.endsWith("evidence")
-                        ? "EVIDENCE"
-                        : "SYSTEM",
-                action: { kind: "WORKFLOW_ACTION", code: entry.action },
-                contractCode: entry.recordId,
-              };
-            }),
-          ];
-        }
-        if (action === "getDefaultActivityRange")
-          result = { ...result, to: new Date().toISOString().slice(0, 10) };
-
-        if (result && typeof result === "object") {
-          const id = result.contractId ?? result.contractCode;
-          if (id) this.scope(id, actor);
-        }
-        if (
-          actor.role === "SUPPLIER" &&
-          ["listContractSummaries", "listActivityEntries"].includes(action)
-        )
-          result = result.filter((item: any) => {
-            const id = item.code ?? item.contractCode;
-            return db.contractSummaries.some(
-              (c) => c.code === id && c.supplierId === actor.organizationId,
-            );
-          });
-        const state = snapshot();
-        if (writes || JSON.stringify(before) !== JSON.stringify(state)) {
-          const now = new Date().toISOString();
-          await this.repo.mutate(
-            "workflow-state",
-            (items) => {
-              const previous = items[0];
-              if ((previous?.version ?? 0) !== expectedVersion)
-                throw new ConflictException("WORKFLOW_VERSION_CONFLICT");
-              items.splice(0, items.length, {
-                id: "workflow",
-                state,
-                version: (previous?.version ?? 0) + 1,
-                createdAt: previous?.createdAt ?? now,
-                updatedAt: now,
-              });
-            },
-            this.base.auditRecord(
-              action,
-              module,
-              String(reference ?? ""),
-              actor,
-            ),
-          );
-        }
-        return structuredClone(result);
-      } catch (error) {
-        restore(before);
-        if (
-          error instanceof Error &&
-          error.name === "Error" &&
-          /^[A-Z_]+$/.test(error.message)
-        )
-          throw new BadRequestException(error.message);
-        throw error;
-      }
-    });
-    this.queue = task.catch(() => {});
-    return task;
+  constructor(@Inject(DomainService) private domain: DomainService) {}
+  async call(module: string, action: string, body: unknown, actor: Actor) {
+    const handler =
+      Object.hasOwn(HANDLERS, module) && Object.hasOwn(HANDLERS[module], action)
+        ? HANDLERS[module][action]
+        : undefined;
+    if (!handler) throw new NotFoundException("ACTION_NOT_FOUND");
+    if (!can(actor.role, handler.permission))
+      throw new ForbiddenException("ACTION_FORBIDDEN");
+    const args = (body as { args?: unknown })?.args ?? [];
+    if (!Array.isArray(args) || args.length > 6)
+      throw new BadRequestException("INVALID_ARGUMENTS");
+    return handler.run(this.domain, actor, structuredClone(args));
   }
 }
+
 @Controller("workflow")
 export class WorkflowController {
   constructor(@Inject(WorkflowService) private service: WorkflowService) {}

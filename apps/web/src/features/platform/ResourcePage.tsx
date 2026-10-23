@@ -1,4 +1,4 @@
-import { useMemo, useState, type Key, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type Key, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -36,13 +36,16 @@ import {
   FormModal,
   IconButton,
   useAccess,
+  useDebounce,
   useResource,
   parseImportFile,
   downloadBlob,
 } from "@codecash/ui";
+import { ApiError as HttpError } from "@codecash/api-client";
 import type {
   Entity,
   ImportValidationReport,
+  Origin,
   PageQuery,
   ResourceDefinition,
   ResourceField,
@@ -51,6 +54,7 @@ import { platform } from "@/shared/api/platform";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime, formatNumber } from "@/shared/lib/format";
+import { OriginTag } from "@/shared/ui/DomainTags";
 import { ImportPreviewModal } from "@/shared/ui/ImportPreviewModal";
 
 type Filters = NonNullable<PageQuery["filters"]>;
@@ -78,9 +82,14 @@ function typedRow(
   return result;
 }
 
+/** One page per resource: switching tabs starts with fresh search, filters, sort and selection. */
 export default function ResourcePage() {
-  const navigate = useNavigate();
   const { resource = "organizations" } = useParams();
+  return <ResourceView key={resource} resource={resource} />;
+}
+
+function ResourceView({ resource }: { resource: string }) {
+  const navigate = useNavigate();
   const { t } = useTranslation("platform");
   const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
@@ -101,6 +110,18 @@ export default function ResourcePage() {
     [resource],
   );
   const state = useResource(resource, service);
+  // Typing waits 300 ms before asking the server, and a new search starts on page 1.
+  const [searchText, setSearchText] = useState("");
+  const search = useDebounce(searchText.trim(), 300);
+  const { setParams } = state;
+  useEffect(
+    () =>
+      setParams((p) =>
+        (p.search ?? "") === search ? p : { ...p, search, page: 1 },
+      ),
+    [search, setParams],
+  );
+  const [exporting, setExporting] = useState(false);
   const definitions = useQuery({
     queryKey: ["definitions"],
     queryFn: () => platform.get<ResourceDefinition[]>("/resources"),
@@ -114,6 +135,12 @@ export default function ResourcePage() {
   const fields = useMemo(() => definition?.fields ?? [], [definition]);
   const readOnly = definition?.readOnly;
   const can = (operation: string) => hasPermission(`${resource}:${operation}`);
+  /** Data Pack and workflow records change only through their own screens (resources.json). */
+  const editable = (record: Entity, operation: "update" | "delete") =>
+    !readOnly &&
+    !definition?.managedOrigins?.includes(String(record.origin)) &&
+    can(operation);
+  const items = state.query.data?.items ?? [];
   const filters: Filters = state.params.filters ?? {};
   const busy = state.create.isPending || state.update.isPending;
 
@@ -202,6 +229,17 @@ export default function ResourcePage() {
         render: (value: unknown) => renderValue(field, value),
       };
     }),
+    ...(items.some((item) => item.origin)
+      ? [
+          {
+            key: "origin",
+            dataIndex: "origin",
+            title: fieldLabel("origin"),
+            render: (value: Origin | undefined) =>
+              value ? <OriginTag origin={value} /> : "—",
+          },
+        ]
+      : []),
     {
       key: "updatedAt",
       dataIndex: "updatedAt",
@@ -212,7 +250,13 @@ export default function ResourcePage() {
   ];
 
   const report = (error: unknown) =>
-    message.error(error instanceof Error ? error.message : t("error"));
+    message.error(
+      error instanceof HttpError
+        ? t(`errors.${error.code}`, { defaultValue: error.message })
+        : error instanceof Error
+          ? error.message
+          : t("error"),
+    );
   const download = async (record: Entity) => {
     try {
       downloadBlob(
@@ -280,7 +324,7 @@ export default function ResourcePage() {
           },
         ]
       : []),
-    ...(!readOnly && can("delete")
+    ...(editable(record, "delete")
       ? [
           { type: "divider" as const },
           {
@@ -295,7 +339,7 @@ export default function ResourcePage() {
   ];
   const rowActions = (record: Entity) => (
     <Space size={4}>
-      {!readOnly && can("update") ? (
+      {editable(record, "update") ? (
         <IconButton
           icon={<EditOutlined />}
           tooltip={t("edit")}
@@ -338,6 +382,7 @@ export default function ResourcePage() {
       query.set("page", String(state.params.page ?? 1));
     } else if (options.scope === "custom" && options.limit)
       query.set("limit", String(options.limit));
+    setExporting(true);
     try {
       downloadBlob(
         await platform.download(`/resources/${resource}/export?${query}`),
@@ -345,6 +390,8 @@ export default function ResourcePage() {
       );
     } catch (error) {
       report(error);
+    } finally {
+      setExporting(false);
     }
   };
   const validateImport = async (selected: File) => {
@@ -436,11 +483,13 @@ export default function ResourcePage() {
         ) : null}
         <DataTable<Entity>
           rowKey="id"
-          dataSource={state.query.data?.items ?? []}
+          dataSource={items}
           columns={columns}
           loading={state.query.isPending}
-          searchValue={state.params.search ?? ""}
-          onSearch={(value) => state.change.search(value)}
+          searchValue={searchText}
+          onSearch={setSearchText}
+          searchPlaceholder={t("searchPlaceholder")}
+          exportLoading={exporting}
           onRefresh={() => void state.refresh()}
           pagination={{
             current: state.params.page,
@@ -503,6 +552,11 @@ export default function ResourcePage() {
           exportFilename={resource}
           onExport={(options) => void exportFile(options)}
           importable={!readOnly && can("import")}
+          importColumns={fields.map((f) => ({
+            key: f.key,
+            dataIndex: f.key,
+            title: fieldLabel(f.key),
+          }))}
           onDownloadTemplate={async () => {
             try {
               downloadBlob(
@@ -666,10 +720,12 @@ export default function ResourcePage() {
         record={viewing}
         onClose={() => setViewing(undefined)}
         onEdit={
-          !readOnly && can("update") ? (record) => setEditor(record) : undefined
+          viewing && editable(viewing, "update")
+            ? (record) => setEditor(record)
+            : undefined
         }
         onDelete={
-          !readOnly && can("delete")
+          viewing && editable(viewing, "delete")
             ? (record) => setPendingDelete([record.id])
             : undefined
         }

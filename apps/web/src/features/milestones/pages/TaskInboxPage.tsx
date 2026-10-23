@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Alert, Dropdown, Space, Tag, Typography } from "antd";
@@ -16,20 +15,17 @@ import {
   DetailModal,
   IconButton,
   PageContainer,
-  exportToCSV,
-  exportToJSON,
-  useFilters,
-  usePagination,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
+import type { TaskKind, TaskRow } from "@codecash/contracts";
+import { listTasks } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
+import { formatDate, formatDecimalString } from "@/shared/lib/format";
+import { useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
-import { formatDate, formatMillionVnd, formatTime } from "@/shared/lib/format";
-import { getTaskInbox } from "../api/tasks.api";
-import { evidenceName, lowerCase } from "../lib/display";
-import type { TaskKind, TaskRow } from "../types";
+import { OriginTag } from "@/shared/ui/DomainTags";
 
 type Badge = TaskRow["badge"];
 const BADGES: Badge[] = [
@@ -40,9 +36,13 @@ const BADGES: Badge[] = [
 ];
 const KINDS: TaskKind[] = [
   "SUBMIT_EVIDENCE",
-  "SIGN_CONTRACT",
   "RESUBMIT_EVIDENCE",
   "APPROVE_PAYMENT",
+  "RESOLVE_DISPUTE",
+  "SIGN_CONTRACT",
+  "COMPLETE_DRAFT",
+  "REVIEW_EXCEPTION",
+  "DECIDE_EXCEPTION",
 ];
 const badgeColor: Record<Badge, { tag: string; bg: string; value: string }> = {
   LATE_PENALTY_RISK: {
@@ -63,71 +63,45 @@ const badgeColor: Record<Badge, { tag: string; bg: string; value: string }> = {
   ON_TIME: { tag: "success", bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
 };
 
-type Filters = { contractId?: string; kind?: TaskKind };
-
+/** Work waiting for the signed-in user; each row comes from the latest engine decision (spec 9.5). */
 export default function TaskInboxPage() {
-  const { t, i18n } = useTranslation("milestones");
+  const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
+  const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Badge | "ALL">("ALL");
   const [detail, setDetail] = useState<TaskRow>();
-  const { filters, updateFilter, clearFilters } = useFilters<Filters>({});
-  const { page, pageSize, goToPage, handleTableChange } = usePagination(1, 10);
-  const inbox = useQuery({
-    queryKey: ["milestones", "inbox", user.id],
-    queryFn: () => getTaskInbox(user.id),
+  // One page at a time from the API; the inbox order (most urgent first) is the default sort.
+  const list = useListQuery<TaskRow>({
+    key: ["pending-tasks", user.id],
+    fetch: listTasks,
+    sort: { by: "rank", order: "asc" },
   });
-  const rows = useMemo(() => inbox.data ?? [], [inbox.data]);
-  const visible = useMemo(
-    () =>
-      rows.filter(
-        (r) =>
-          (tab === "ALL" || r.badge === tab) &&
-          (!filters.contractId || r.contractId === filters.contractId) &&
-          (!filters.kind || r.kind === filters.kind),
-      ),
-    [rows, tab, filters],
-  );
+  const { filters, setFilter } = list;
+  const facets = list.data?.facets ?? {};
+  const count = (key: string, value: string) =>
+    facets[key]?.find((f) => f.value === value)?.count ?? 0;
+  const kinds = KINDS.filter((kind) => count("kind", kind));
+  const tab = filters.badge?.length === 1 ? String(filters.badge[0]) : "ALL";
 
-  const name = (r: TaskRow) =>
-    r.heading.kind === "MILESTONE"
-      ? t(`milestoneKind.${r.heading.milestoneKind}`)
-      : "";
-  const taskTitle = (r: TaskRow) =>
-    t(`inbox.task.${r.kind}`, {
-      milestone: lowerCase(name(r), i18n.language),
-    });
-  const heading = (r: TaskRow) =>
-    r.heading.kind === "MILESTONE"
-      ? t("inbox.headingMilestone", {
-          contractId: r.contractId,
-          no: r.heading.no,
-          name: name(r),
-        })
-      : t("inbox.headingTitle", {
-          contractId: r.contractId,
-          title: r.heading.title,
-        });
-  const subtitle = (r: TaskRow) =>
-    r.subtitle.kind === "CONTRACT_AMOUNT"
-      ? t("inbox.contractAmount", {
-          title: r.subtitle.title,
-          amount: formatMillionVnd(r.subtitle.amountMillion),
-        })
-      : r.subtitle.kind === "BUYER_SIGNED"
-        ? t("inbox.buyerSigned", { time: formatTime(r.subtitle.at) })
-        : t("inbox.requestReason", { reason: r.subtitle.text });
-  const requirements = (r: TaskRow) =>
-    r.requirements.map((x) => evidenceName(t, x)).join(", ");
+  const what = (r: TaskRow) =>
+    r.eventTypes.length
+      ? r.eventTypes.map((type) => td(`eventType.${type}`)).join(", ")
+      : r.roles.length
+        ? r.roles.map((role) => td(`approvalRole.${role}`)).join(", ")
+        : r.reasonCode
+          ? td(`reason.${r.reasonCode}`)
+          : "—";
+  const where = (r: TaskRow) =>
+    r.sequence && r.milestoneType
+      ? `${td("milestoneNo", { no: r.sequence })} · ${td(`milestoneType.${r.milestoneType}`)}`
+      : r.contractTitle;
 
-  const changeTab = (key: string) => {
-    setTab(key as Badge | "ALL");
-    goToPage(1);
-  };
+  const changeTab = (key: string) =>
+    setFilter("badge", key === "ALL" ? undefined : [key]);
   const statistics: StatisticsItem[] = BADGES.map((badge) => ({
     title: t(`inbox.badge.${badge}`),
-    value: rows.filter((r) => r.badge === badge).length,
+    value: count("badge", badge),
     backgroundColor: badgeColor[badge].bg,
     valueColor: badgeColor[badge].value,
     selected: tab === badge,
@@ -136,19 +110,22 @@ export default function TaskInboxPage() {
   const filterConfig: FilterConfig[] = [
     {
       key: "contractId",
-      label: t("inbox.columns.contractAndMilestone"),
+      label: t("inbox.columns.contract"),
       type: "select",
-      options: [...new Set(rows.map((r) => r.contractId))]
-        .sort()
-        .map((value) => ({ value, label: value })),
+      operators: ["eq"],
+      options: (facets.contractId ?? []).map((f) => ({
+        value: f.value,
+        label: f.value,
+      })),
     },
     {
       key: "kind",
       label: t("inbox.columns.task"),
       type: "select",
-      options: KINDS.map((value) => ({
+      operators: ["eq"],
+      options: kinds.map((value) => ({
         value,
-        label: t(`inbox.task.${value}`, { milestone: "" }).trim(),
+        label: td(`taskKind.${value}`),
       })),
     },
   ];
@@ -165,52 +142,76 @@ export default function TaskInboxPage() {
       label: t("inbox.actions.openContract"),
       onClick: () => navigate(`/contracts/${r.contractId}`),
     },
+    ...(r.sequence
+      ? [
+          {
+            key: "decision",
+            icon: <FileSearchOutlined />,
+            label: t("inbox.actions.openDecision"),
+            onClick: () =>
+              navigate(
+                `/contracts/${r.contractId}/milestones/${r.sequence}/decision`,
+              ),
+          },
+        ]
+      : []),
   ];
 
   const columns = [
     {
-      key: "task",
+      ...list.column("kind"),
       title: t("inbox.columns.task"),
-      filters: KINDS.map((value) => ({
-        text: t(`inbox.task.${value}`, { milestone: "" }).trim(),
-        value,
-      })),
-      onFilter: (value: unknown, r: TaskRow) => r.kind === value,
+      filters: kinds.map((value) => ({ text: td(`taskKind.${value}`), value })),
+      filterMultiple: false,
       render: (_: unknown, r: TaskRow) => (
         <div style={{ cursor: "pointer" }} onClick={() => setDetail(r)}>
-          <Typography.Text strong>{taskTitle(r)}</Typography.Text>
+          <Typography.Text strong>{td(`taskKind.${r.kind}`)}</Typography.Text>
+          <div>
+            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+              {what(r)}
+            </Typography.Text>
+          </div>
         </div>
       ),
     },
     {
-      key: "contract",
-      title: t("inbox.columns.contractAndMilestone"),
-      sorter: (a: TaskRow, b: TaskRow) =>
-        a.contractId.localeCompare(b.contractId),
-      ...columnSearch<TaskRow>((r) => `${heading(r)} ${subtitle(r)}`),
+      ...list.column("contract"),
+      title: t("inbox.columns.contract"),
+      sorter: true,
+      ...columnSearch(),
       render: (_: unknown, r: TaskRow) => (
         <>
-          {heading(r)}
-          <div>
-            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-              {subtitle(r)}
-            </Typography.Text>
-          </div>
+          <Space size={6} wrap>
+            <Typography.Text strong>{r.contractId}</Typography.Text>
+            <OriginTag origin={r.origin} />
+          </Space>
+          <div>{where(r)}</div>
+          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+            {r.contractTitle}
+          </Typography.Text>
         </>
       ),
     },
     {
-      key: "due",
+      ...list.column("amount"),
+      title: t("inbox.columns.amount"),
+      align: "right" as const,
+      sorter: true,
+      render: (_: unknown, r: TaskRow) =>
+        r.amountMillion ? formatDecimalString(r.amountMillion) : "—",
+    },
+    {
+      ...list.column("dueDate"),
       dataIndex: "dueDate",
       title: t("inbox.columns.due"),
-      sorter: (a: TaskRow, b: TaskRow) => a.dueDate.localeCompare(b.dueDate),
+      sorter: true,
       render: (_: unknown, r: TaskRow) => (
         <>
-          {formatDate(r.dueDate)}
+          {r.dueDate ? formatDate(r.dueDate) : "—"}
           {r.overdueDays > 0 ? (
             <div>
               <Typography.Text type="danger" style={{ fontSize: 12.5 }}>
-                {t("inbox.overdue", { count: r.overdueDays })}
+                {td("overdue", { count: r.overdueDays })}
               </Typography.Text>
             </div>
           ) : null}
@@ -218,49 +219,52 @@ export default function TaskInboxPage() {
       ),
     },
     {
-      key: "required",
-      title: t("inbox.columns.required"),
-      render: (_: unknown, r: TaskRow) => requirements(r),
-    },
-    {
-      key: "status",
+      ...list.column("badge"),
       dataIndex: "badge",
       title: t("inbox.columns.status"),
       filters: BADGES.map((value) => ({
         text: t(`inbox.badge.${value}`),
         value,
       })),
-      onFilter: (value: unknown, r: TaskRow) => r.badge === value,
+      filterMultiple: false,
       render: (badge: Badge) => (
         <Tag color={badgeColor[badge].tag}>{t(`inbox.badge.${badge}`)}</Tag>
       ),
     },
   ];
 
-  const exportRows = (list: TaskRow[]) =>
-    list.map((r) => ({
-      [t("inbox.columns.task")]: taskTitle(r),
-      [t("inbox.columns.contractAndMilestone")]: heading(r),
-      [t("inbox.columns.due")]: formatDate(r.dueDate),
-      [t("inbox.columns.required")]: requirements(r),
-      [t("inbox.columns.status")]: t(`inbox.badge.${r.badge}`),
-    }));
+  const onExport = list.exporter(
+    columns,
+    {
+      kind: (r) => ({
+        [t("inbox.columns.task")]: td(`taskKind.${r.kind}`),
+        [t("inbox.columns.required")]: what(r),
+      }),
+      contract: (r) => ({
+        [t("inbox.columns.contract")]: r.contractId,
+        [t("inbox.columns.milestone")]: where(r),
+      }),
+      amount: (r) => r.amountMillion ?? "",
+      dueDate: (r) => (r.dueDate ? formatDate(r.dueDate) : ""),
+      badge: (r) => t(`inbox.badge.${r.badge}`),
+    },
+    "tasks",
+  );
 
   return (
     <AppPage active="tasks" breadcrumb={[{ label: tc("nav.tasks") }]}>
       <PageContainer
         title={t("inbox.title")}
-        subtitle={t("inbox.subtitle", { count: rows.length })}
+        subtitle={t("inbox.subtitle", { count: list.data?.scopeTotal ?? 0 })}
         tooltip={t("inbox.intro")}
       >
-        {inbox.isError ? (
+        {list.result.isError ? (
           <Alert type="error" showIcon title={tc("common.loadError")} />
         ) : null}
         <DataTable<TaskRow>
           rowKey="id"
-          dataSource={visible}
           columns={columns}
-          loading={inbox.isPending}
+          {...list.table}
           emptyText={t("inbox.empty")}
           statisticsData={statistics}
           tabs={[
@@ -269,35 +273,19 @@ export default function TaskInboxPage() {
           ]}
           activeTab={tab}
           onTabChange={changeTab}
-          searchFields={["contractId"]}
+          searchPlaceholder={t("inbox.searchPlaceholder")}
           filters={filterConfig}
-          filterValues={filters}
-          onFilterChange={(key, value) => {
-            updateFilter(key as keyof Filters, value || undefined);
-            goToPage(1);
-          }}
-          onClearFilters={clearFilters}
-          onRefresh={() => void inbox.refetch()}
-          pagination={{ current: page, pageSize }}
-          onPaginationChange={handleTableChange}
           exportable
-          onExport={(options) => {
-            const list = exportRows(
-              options.scope === "page"
-                ? visible.slice((page - 1) * pageSize, page * pageSize)
-                : options.scope === "custom"
-                  ? visible.slice(0, options.limit)
-                  : visible,
-            );
-            if (options.format === "json") exportToJSON(list, "tasks");
-            else exportToCSV(list, "tasks");
-          }}
+          exportFilename="tasks"
+          onExport={(options) => void onExport(options)}
           customActions={(r) => (
             <Space size={4}>
               <IconButton
                 icon={<ArrowRightOutlined />}
                 tooltip={t(`inbox.action.${r.kind}`)}
-                success={r.primary}
+                success={
+                  r.badge === "LATE_PENALTY_RISK" || r.badge === "YOUR_TURN"
+                }
                 onClick={() => navigate(r.href)}
               />
               <Dropdown
@@ -319,7 +307,7 @@ export default function TaskInboxPage() {
       </PageContainer>
       <DetailModal
         open={!!detail}
-        title={detail ? taskTitle(detail) : undefined}
+        title={detail ? td(`taskKind.${detail.kind}`) : undefined}
         record={detail}
         onClose={() => setDetail(undefined)}
         items={
@@ -327,23 +315,39 @@ export default function TaskInboxPage() {
             ? [
                 {
                   key: "contract",
-                  label: t("inbox.columns.contractAndMilestone"),
-                  value: heading(detail),
+                  label: t("inbox.columns.contract"),
+                  value: `${detail.contractId} · ${detail.contractTitle}`,
                   span: 2,
                 },
                 {
-                  key: "subtitle",
-                  label: t("inbox.detail.context"),
-                  value: subtitle(detail),
+                  key: "milestone",
+                  label: t("inbox.columns.milestone"),
+                  value: where(detail),
                   span: 2,
                 },
+                {
+                  key: "required",
+                  label: t("inbox.columns.required"),
+                  value: what(detail),
+                  span: 2,
+                },
+                ...(detail.reasonCode
+                  ? [
+                      {
+                        key: "reason",
+                        label: t("inbox.detail.reason"),
+                        value: td(`reason.${detail.reasonCode}`),
+                        span: 2,
+                      },
+                    ]
+                  : []),
                 {
                   key: "due",
                   label: t("inbox.columns.due"),
                   value:
-                    formatDate(detail.dueDate) +
+                    (detail.dueDate ? formatDate(detail.dueDate) : "—") +
                     (detail.overdueDays > 0
-                      ? ` · ${t("inbox.overdue", { count: detail.overdueDays })}`
+                      ? ` · ${td("overdue", { count: detail.overdueDays })}`
                       : ""),
                 },
                 {
@@ -356,10 +360,9 @@ export default function TaskInboxPage() {
                   ),
                 },
                 {
-                  key: "required",
-                  label: t("inbox.columns.required"),
-                  value: requirements(detail),
-                  span: 2,
+                  key: "origin",
+                  label: t("inbox.detail.origin"),
+                  value: <OriginTag origin={detail.origin} />,
                 },
               ]
             : []

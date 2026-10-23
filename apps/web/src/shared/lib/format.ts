@@ -2,14 +2,6 @@ import i18n from "@/i18n";
 
 const locale = () => (i18n.language?.startsWith("vi") ? "vi-VN" : "en-US");
 
-/** Money in this product is always expressed in millions of VND with two decimals. */
-export function formatMillionVnd(value: number): string {
-  return new Intl.NumberFormat(locale(), {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
 export function formatNumber(value: number, maximumFractionDigits = 0): string {
   return new Intl.NumberFormat(locale(), { maximumFractionDigits }).format(
     value,
@@ -49,4 +41,18 @@ export function formatDecimalString(value: string): string {
     format.formatToParts(1.1).find((part) => part.type === "decimal")?.value ??
     ".";
   return `${sign}${format.format(BigInt(whole))}${fraction ? decimal + fraction : ""}`;
+}
+
+/** Exact sum of decimal strings ("1290.00" + "0.10"), computed in hundredths without floats. */
+export function sumDecimalStrings(values: string[]): string {
+  const cents = values.reduce((total, value) => {
+    const match = /^(-?)(\d+)(?:\.(\d{1,2}))?$/.exec(value.trim());
+    if (!match) return total;
+    const amount =
+      BigInt(match[2]) * 100n + BigInt((match[3] ?? "").padEnd(2, "0"));
+    return total + (match[1] ? -amount : amount);
+  }, 0n);
+  const sign = cents < 0n ? "-" : "";
+  const abs = cents < 0n ? -cents : cents;
+  return `${sign}${abs / 100n}.${String(abs % 100n).padStart(2, "0")}`;
 }

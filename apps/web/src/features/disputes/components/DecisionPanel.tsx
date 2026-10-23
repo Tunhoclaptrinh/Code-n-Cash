@@ -1,51 +1,67 @@
-import { Button, Input, Radio } from "antd";
+import { App as AntApp, Button, Input, Radio } from "antd";
 import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { useCurrentUser } from "@/shared/auth/session";
-import { formatDateTime } from "@/shared/lib/format";
-import { resolveDispute } from "../api/dispute.api";
-import type { Dispute, ResolutionOption } from "../types";
+import type { Evaluation } from "@codecash/contracts";
+import { ApiError } from "@/shared/api/client";
+import { openDispute, resolveDispute } from "@/shared/api/domain";
+import type { DisputeView } from "../types";
 import styles from "./DecisionPanel.module.css";
 
-const OPTIONS: ResolutionOption[] = [
-  "ACCEPT_WAIVE_PENALTY",
-  "KEEP_PENALTY",
-  "REQUEST_MORE_EVIDENCE",
-];
+type Option = "RESOLVE" | "REQUEST_INFO" | "OPEN";
 
-/** Right column: the contract owner's decision on the dispute. */
-export function DecisionPanel({ dispute }: { dispute: Dispute }) {
+/**
+ * Right column. The buyer (or its contract owner) closes disputes with DISPUTE_RESOLVED events
+ * that reference them (BR-08); either party may open a new one. Nobody edits the penalty by hand:
+ * the engine re-evaluates the milestone after every event (spec 9.5).
+ */
+export function DecisionPanel({ view }: { view: DisputeView }) {
   const { t } = useTranslation("disputes");
-  const { t: tc } = useTranslation("common");
-  const user = useCurrentUser();
+  const { t: td } = useTranslation("domain");
+  const { message } = AntApp.useApp();
   const queryClient = useQueryClient();
   const ids = useId();
-
-  const [option, setOption] = useState<ResolutionOption>(
-    dispute.resolution?.option ?? "ACCEPT_WAIVE_PENALTY",
-  );
-  const [note, setNote] = useState(
-    dispute.resolution?.note ?? dispute.draftNote,
-  );
+  const options: Option[] = [
+    ...(view.canResolve ? (["RESOLVE", "REQUEST_INFO"] as const) : []),
+    ...(view.canOpen ? (["OPEN"] as const) : []),
+  ];
+  const [option, setOption] = useState<Option | undefined>(options[0]);
+  const [note, setNote] = useState("");
   const [noteMissing, setNoteMissing] = useState(false);
+  const ref = {
+    contractId: view.contract.id,
+    sequence: view.milestone.sequence,
+  };
 
-  const isOpen = dispute.status === "OPEN";
-  const canDecide = isOpen && user.role === "CONTRACT_OWNER";
-
-  const decide = useMutation({
-    mutationFn: resolveDispute,
-    onSuccess: async (updated) => {
-      queryClient.setQueryData(
-        ["dispute", updated.contractCode, updated.milestoneNo],
-        updated,
+  const act = useMutation({
+    mutationFn: (): Promise<{ evaluation?: Evaluation | null }> =>
+      option === "OPEN"
+        ? openDispute({ ...ref, note: note.trim() })
+        : resolveDispute({
+            ...ref,
+            option: option as "RESOLVE" | "REQUEST_INFO",
+            note: note.trim(),
+          }),
+    onSuccess: async (result) => {
+      setNote("");
+      message.success(
+        result.evaluation
+          ? t("decision.done", {
+              status: td(`status.${result.evaluation.status}`),
+              reason: td(`reason.${result.evaluation.reasonCode}`),
+            })
+          : t("decision.noted"),
       );
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["pending-task-count"] }),
-        queryClient.invalidateQueries({ queryKey: ["contract-summaries"] }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: ["dispute"] });
+      await queryClient.invalidateQueries({ queryKey: ["milestones"] });
     },
+    onError: (error) =>
+      message.error(
+        td(`errors.${error instanceof ApiError ? error.code : "UNKNOWN"}`, {
+          defaultValue: td("errors.UNKNOWN"),
+        }),
+      ),
   });
 
   function onConfirm() {
@@ -53,114 +69,90 @@ export function DecisionPanel({ dispute }: { dispute: Dispute }) {
       setNoteMissing(true);
       return;
     }
-    decide.mutate({
-      contractCode: dispute.contractCode,
-      milestoneNo: dispute.milestoneNo,
-      option,
-      note: note.trim(),
-      actor: { id: user.id, displayName: user.displayName },
-    });
+    act.mutate();
   }
 
   const headingId = `${ids}-heading`;
   const noteId = `${ids}-note`;
-  const resolution = dispute.resolution;
-
   return (
     <section className={styles.panel}>
       <h2 id={headingId} className={styles.heading}>
         {t("decision.title")}
       </h2>
-
-      <div
-        className={styles.options}
-        role="radiogroup"
-        aria-labelledby={headingId}
-      >
-        {OPTIONS.map((value) => (
-          <label
-            key={value}
-            className={value === option ? styles.optionSelected : styles.option}
-          >
-            <Radio
-              name={`${ids}-option`}
-              className={styles.radio}
-              value={value}
-              checked={value === option}
-              disabled={!canDecide}
-              onChange={() => setOption(value)}
-            />
-            <span className={styles.indicator} aria-hidden="true" />
-            <div>
-              <b>{t(`decision.options.${value}.name`)}</b>
-              <div className={styles.optionHint}>
-                {t(`decision.options.${value}.description`)}
+      {options.length ? (
+        <div
+          className={styles.options}
+          role="radiogroup"
+          aria-labelledby={headingId}
+        >
+          {options.map((value) => (
+            <label
+              key={value}
+              className={
+                value === option ? styles.optionSelected : styles.option
+              }
+            >
+              <Radio
+                name={`${ids}-option`}
+                className={styles.radio}
+                value={value}
+                checked={value === option}
+                onChange={() => setOption(value)}
+                data-testid={`dispute-option-${value}`}
+              />
+              <span className={styles.indicator} aria-hidden="true" />
+              <div>
+                <b>{t(`decision.options.${value}.name`)}</b>
+                <div className={styles.optionHint}>
+                  {t(`decision.options.${value}.description`)}
+                </div>
               </div>
-            </div>
+            </label>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.pending}>{t("decision.readOnly")}</div>
+      )}
+      {options.length ? (
+        <div>
+          <label htmlFor={noteId} className={styles.label}>
+            {t("decision.note.label")}{" "}
+            <span className={styles.required}>*</span>
           </label>
-        ))}
-      </div>
-
-      <div>
-        <label htmlFor={noteId} className={styles.label}>
-          {t("decision.note.label")} <span className={styles.required}>*</span>
-        </label>
-        <Input.TextArea
-          id={noteId}
-          className={styles.note}
-          rows={3}
-          value={note}
-          readOnly={!canDecide}
-          aria-invalid={noteMissing}
-          onChange={(event) => {
-            setNote(event.target.value);
-            setNoteMissing(false);
-          }}
-        />
-        {noteMissing ? (
-          <div className={styles.error} role="alert">
-            {t("decision.note.required")}
-          </div>
-        ) : null}
-      </div>
-
-      <div className={styles.pending}>
-        <Trans
-          t={t}
-          i18nKey="decision.pendingPoint"
-          components={{ b: <b /> }}
-        />
-      </div>
-
-      {resolution ? (
-        <div className={styles.outcome} role="status">
-          <b>{t(`decision.outcome.${resolution.option}`)}</b>
-          <div>
-            {t("decision.outcome.by", {
-              name: resolution.decidedBy,
-              at: formatDateTime(resolution.decidedAt),
-            })}
-          </div>
+          <Input.TextArea
+            id={noteId}
+            className={styles.note}
+            rows={3}
+            value={note}
+            aria-invalid={noteMissing}
+            onChange={(event) => {
+              setNote(event.target.value);
+              setNoteMissing(false);
+            }}
+            data-testid="dispute-note"
+          />
+          {noteMissing ? (
+            <div className={styles.error} role="alert">
+              {t("decision.note.required")}
+            </div>
+          ) : null}
         </div>
       ) : null}
-      {decide.isError ? (
-        <div className={styles.error} role="alert">
-          {tc("common.loadError")}
-        </div>
-      ) : null}
-
+      <div className={styles.pending}>{t("decision.rule")}</div>
       <div className={styles.actions}>
         <Link
-          to={`/contracts/${dispute.contractCode}`}
+          to={`/contracts/${view.contract.id}/milestones/${view.milestone.sequence}/decision`}
           className={styles.later}
         >
-          {t("decision.actions.later")}
+          {t("decision.actions.trace")}
         </Link>
         <Button
           type="primary"
           size="large"
-          disabled={!canDecide || decide.isPending}
+          disabled={!option || act.isPending}
+          loading={act.isPending}
           onClick={onConfirm}
+          data-testid="dispute-confirm"
         >
           {t("decision.actions.confirm")}
         </Button>

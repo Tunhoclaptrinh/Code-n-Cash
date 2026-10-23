@@ -1,61 +1,63 @@
 {
   "breadcrumb": {
-    "dispute": "Tranh chấp MS{{milestoneNo}}"
+    "dispute": "Tranh chấp mốc {{milestoneNo}}"
   },
-  "title": "Tranh chấp MS{{milestoneNo}} {{milestone}}",
-  "milestones": {
-    "SIGNING": "Ký kết",
-    "DELIVERY": "Giao hàng",
-    "ACCEPTANCE": "Nghiệm thu",
-    "WARRANTY": "Bảo hành"
-  },
-  "status": {
-    "OPEN": "Đang mở, mốc đang {{decision}}",
-    "AWAITING_EVIDENCE": "Chờ Nhà cung cấp bổ sung chứng cứ, mốc đang {{decision}}",
-    "RESOLVED": "Đã giải quyết, mốc được đánh giá lại"
-  },
+  "title": "Tranh chấp · Mốc {{milestoneNo}} · {{milestone}}",
   "submission": {
-    "title": "Nội dung Nhà cung cấp gửi",
+    "title_one": "{{count}} tranh chấp của mốc",
+    "title_other": "{{count}} tranh chấp của mốc",
+    "none": "Mốc chưa có tranh chấp nào.",
     "author": "{{name}} · {{organization}}",
-    "quote": "\"{{message}}\""
+    "quote": "\"{{message}}\"",
+    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+  },
+  "state": {
+    "OPEN": "Đang mở",
+    "RESOLVED": "Đã đóng hợp lệ"
+  },
+  "notes": {
+    "title": "Ghi chú của các bên",
+    "kind": {
+      "REQUEST_INFO": "Yêu cầu bổ sung",
+      "DISPUTE_NOTE": "Ghi chú"
+    }
   },
   "impact": {
     "title": "Tác động đến thanh toán",
-    "keepPenalty": "Nếu giữ nguyên tiền phạt",
-    "waivePenalty": "Nếu chấp nhận, bỏ tiền phạt",
+    "now": "Hiện tại",
+    "afterResolve": "Nếu đóng mọi tranh chấp (engine chạy thử)",
     "unit": "triệu",
-    "footnote": "Trong lúc tranh chấp đang mở, mốc không được thanh toán. Mọi bước đều được ghi vào lịch sử."
+    "penalty": "phạt {{penalty}}",
+    "noPreview": "Chỉ bên mua hoặc chủ hợp đồng xem được kết quả chạy thử khi có tranh chấp mở.",
+    "footnote": "Trong lúc tranh chấp mở, mốc bị giữ (rule 10). Không ai sửa tay tiền phạt: số tiền luôn do engine tính lại sau khi đóng tranh chấp."
   },
   "decision": {
-    "title": "Quyết định của bạn",
+    "title": "Xử lý tranh chấp",
     "options": {
-      "ACCEPT_WAIVE_PENALTY": {
-        "name": "Chấp nhận, bỏ tiền phạt",
-        "description": "Mốc được đánh giá lại và đi qua phê duyệt hai người như thường lệ."
+      "RESOLVE": {
+        "name": "Đóng tranh chấp",
+        "description": "Ghi DISPUTE_RESOLVED tham chiếu từng tranh chấp đang mở (BR-08). Engine đánh giá lại mốc ngay."
       },
-      "KEEP_PENALTY": {
-        "name": "Giữ nguyên tiền phạt",
-        "description": "Gửi lại lý do cho Nhà cung cấp. Tranh chấp đóng, mốc đánh giá lại với số tiền cũ."
+      "REQUEST_INFO": {
+        "name": "Yêu cầu bổ sung",
+        "description": "Ghi chú cho bên mở tranh chấp; tranh chấp vẫn mở và mốc vẫn bị giữ."
       },
-      "REQUEST_MORE_EVIDENCE": {
-        "name": "Yêu cầu bổ sung chứng cứ",
-        "description": "Nhà cung cấp được báo và nộp thêm tài liệu. Tranh chấp vẫn mở."
+      "OPEN": {
+        "name": "Mở tranh chấp mới",
+        "description": "Ghi DISPUTE_OPENED. Mốc bị giữ cho đến khi bên mua đóng tranh chấp hợp lệ."
       }
     },
     "note": {
       "label": "Lý do",
-      "required": "Nhập lý do cho quyết định."
+      "required": "Nhập lý do."
     },
-    "pendingPoint": "<b>Điểm đang chờ chốt:</b> hiện chỉ Bên mua giải quyết tranh chấp. Có cần bên thứ ba hoặc phê duyệt hai người cho bước này không?",
-    "outcome": {
-      "ACCEPT_WAIVE_PENALTY": "Đã chấp nhận, bỏ tiền phạt. Mốc được đánh giá lại và chuyển sang phê duyệt.",
-      "KEEP_PENALTY": "Đã giữ nguyên tiền phạt. Tranh chấp đã đóng, mốc được đánh giá lại với số tiền cũ.",
-      "REQUEST_MORE_EVIDENCE": "Đã yêu cầu Nhà cung cấp bổ sung chứng cứ. Tranh chấp vẫn mở.",
-      "by": "{{name}}, {{at}}"
-    },
+    "readOnly": "Bạn chỉ xem được tranh chấp của mốc này.",
+    "rule": "Nguyên tắc \"mở dễ, đóng khó\": mọi DISPUTE_OPENED đều chặn chi; chỉ DISPUTE_RESOLVED do bên mua (hoặc chủ hợp đồng) tạo, tham chiếu đúng tranh chấp và không sớm hơn lúc mở mới gỡ được chặn.",
+    "done": "Đã ghi event. Engine đánh giá lại: {{status}} ({{reason}}).",
+    "noted": "Đã ghi chú.",
     "actions": {
-      "later": "Để sau",
-      "confirm": "Xác nhận quyết định"
+      "trace": "Xem truy vết quyết định",
+      "confirm": "Xác nhận"
     }
   }
 }

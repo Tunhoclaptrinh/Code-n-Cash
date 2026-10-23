@@ -1,72 +1,107 @@
 import { PageContainer } from "@codecash/ui";
-import { Button, Space, Tooltip } from "antd";
-import { useState, type ReactNode } from "react";
+import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
+import {
+  CheckCircleFilled,
+  CloseCircleFilled,
+  ExclamationCircleFilled,
+} from "@ant-design/icons";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { AppPage } from "@/shared/layout/AppPage";
-import { formatDate, formatMillionVnd } from "@/shared/lib/format";
-import { getContractOverview } from "../api/contracts.api";
-import { ToneTag } from "@/shared/ui/ToneTag";
-import { Panel } from "@/shared/ui/Panel";
-import { PageState } from "@/shared/ui/PageState";
-import { PdfTile } from "../components/PdfTile";
-import { StatusBadge } from "../components/StatusBadge";
-import { initialsOf } from "@/shared/lib/initials";
-import { evidenceName } from "../lib/display";
+import { useNavigate, useParams } from "react-router-dom";
 import type {
   ContractOverview,
+  EventRow,
   MilestoneRow,
   MilestoneStatus,
   Participant,
-} from "../types";
+  Requirement,
+  Role,
+  TimelineEntry,
+} from "@codecash/contracts";
+import { getContractOverview } from "@/shared/api/domain";
+import { useCurrentUser } from "@/shared/auth/session";
+import { AppPage } from "@/shared/layout/AppPage";
+import { describeNext } from "@/shared/lib/domain";
+import {
+  formatDate,
+  formatDateTime,
+  formatDecimalString,
+} from "@/shared/lib/format";
+import { initialsOf } from "@/shared/lib/initials";
+import {
+  ContractStatusTag,
+  DecisionTag,
+  MilestoneStatusTag,
+  OriginTag,
+} from "@/shared/ui/DomainTags";
+import { PageState } from "@/shared/ui/PageState";
+import { Panel } from "@/shared/ui/Panel";
 import styles from "./ContractDetailPage.module.css";
 
-type TabKey = "milestones" | "documents" | "participants" | "history";
-const TABS: TabKey[] = ["milestones", "documents", "participants", "history"];
-
-type Emphasis = "done" | "attention" | "danger" | "active" | "idle";
+type TabKey = "milestones" | "events" | "history" | "signing" | "participants";
+type Emphasis = "done" | "attention" | "danger" | "active";
 
 const emphasisOf: Record<MilestoneStatus, Emphasis> = {
-  RELEASE: "done",
-  PENALTY: "attention",
-  HOLD: "attention",
-  REJECT: "danger",
-  AWAITING_EVIDENCE: "active",
-  AWAITING_APPROVAL: "active",
-  NOT_DUE: "idle",
-  NOT_OPEN: "idle",
+  ELIGIBLE_FOR_PAYMENT: "done",
+  COMPLETED: "done",
+  PAID_WITH_PENALTY: "attention",
+  ON_HOLD: "attention",
+  REJECTED: "danger",
+  WAITING_EVIDENCE: "active",
+  WAITING_APPROVAL: "active",
 };
-
 const markerClass: Record<Emphasis, string> = {
   done: styles.markerDone,
   attention: styles.markerAttention,
   danger: styles.markerDanger,
   active: styles.markerActive,
-  idle: styles.markerIdle,
 };
-
 const cardClass: Record<Emphasis, string> = {
   done: "",
   attention: styles.cardAttention,
   danger: styles.cardDanger,
   active: styles.cardActive,
-  idle: "",
 };
+
+/**
+ * What the signed-in user can do about a milestone, as a button. A UI hint only: the API checks
+ * the same rules again (spec 4.2 and 17) before recording anything.
+ */
+function actionFor(row: MilestoneRow, role: Role) {
+  const step = row.next;
+  if (step.kind === "SUBMIT") {
+    const mine =
+      (step.side === "SUPPLIER" && role === "SUPPLIER") ||
+      (step.side === "BUYER" && role === "LEGAL_REVIEWER");
+    return mine ? ("submit" as const) : null;
+  }
+  if (step.kind === "APPROVE")
+    return step.roles.includes(role as never) ? ("approve" as const) : null;
+  if (step.kind === "RESOLVE_DISPUTE")
+    return role === "CONTRACT_OWNER" || role === "LEGAL_REVIEWER"
+      ? ("dispute" as const)
+      : null;
+  if (step.kind === "TRANSFER" && role === "FINANCE_APPROVER")
+    return "transfer" as const;
+  if (step.kind === "REVIEW_EXCEPTION" && role === "ADMIN_AUDITOR")
+    return "exception" as const;
+  return null;
+}
 
 export default function ContractDetailPage() {
   const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
+  const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
   const contractId = useParams().contractId ?? "";
   const [tab, setTab] = useState<TabKey>("milestones");
-
   const overview = useQuery({
     queryKey: ["milestones", "overview", contractId],
     queryFn: () => getContractOverview(contractId),
   });
   const data = overview.data;
+  const contract = data?.contract;
 
   return (
     <AppPage
@@ -78,90 +113,131 @@ export default function ContractDetailPage() {
       contentClassName={styles.page}
     >
       {overview.isPending ? <PageState kind="loading" /> : null}
-      {overview.isError ? <PageState kind="error" /> : null}
-      {data ? (
+      {overview.isError ? (
+        <PageState kind="error" onRetry={() => void overview.refetch()} />
+      ) : null}
+      {data && contract ? (
         <PageContainer
-          title={data.title}
+          title={contract.title}
           subtitle={t("detail.meta", {
-            kind: t(`contractKind.${data.kind}`),
-            supplier: data.supplierName,
+            id: contract.id,
+            kind: td(`contractType.${contract.type}`),
+            buyer: contract.buyer.name,
+            supplier: contract.supplier.name,
           })}
           tags={
-            <ToneTag tone={data.phase === "COMPLETED" ? "neutral" : "success"}>
-              {t(`detail.phase.${data.phase}`)}
-            </ToneTag>
+            <Space size={6}>
+              <ContractStatusTag status={contract.status} />
+              <OriginTag origin={contract.origin} />
+              {contract.openDispute ? (
+                <Tag color="error">{t("detail.disputeFlag")}</Tag>
+              ) : null}
+            </Space>
           }
           extra={
             <Space wrap>
-              <Tooltip title={t("detail.actions.downloadUnavailable")}>
-                <Button disabled>{t("detail.actions.download")}</Button>
-              </Tooltip>
-              <Button onClick={() => navigate(`/verify/${data.contractId}`)}>
-                {t("detail.actions.verify")}
+              {contract.status === "AWAITING_SIGNATURE" ? (
+                <Button
+                  type="primary"
+                  onClick={() => navigate(`/contracts/${contract.id}/signing`)}
+                >
+                  {t("detail.actions.signing")}
+                </Button>
+              ) : null}
+              {contract.signing ? (
+                <Button onClick={() => navigate(`/verify/${contract.id}`)}>
+                  {t("detail.actions.verify")}
+                </Button>
+              ) : null}
+              <Button
+                onClick={() =>
+                  navigate(`/activity-log?contract=${contract.id}`)
+                }
+              >
+                {t("detail.actions.activity")}
               </Button>
             </Space>
           }
-          tabs={TABS.map((key) => ({ key, tab: t(`detail.tabs.${key}`) }))}
+          tabs={(
+            [
+              "milestones",
+              "events",
+              "history",
+              "signing",
+              "participants",
+            ] as TabKey[]
+          ).map((key) => ({
+            key,
+            tab: t(`detail.tabs.${key}`, {
+              count:
+                key === "events"
+                  ? data.events.length
+                  : key === "milestones"
+                    ? data.milestones.length
+                    : 0,
+            }),
+          }))}
           activeTabKey={tab}
           onTabChange={(key) => setTab(key as TabKey)}
         >
           {tab === "milestones" ? (
             <div className={styles.grid}>
-              <ol className={styles.timeline}>
-                {data.milestones.map((row, index) => (
-                  <MilestoneItem
-                    key={row.no}
-                    row={row}
-                    contractId={data.contractId}
-                    isLast={index === data.milestones.length - 1}
-                  />
-                ))}
-              </ol>
+              {data.milestones.length ? (
+                <ol className={styles.timeline}>
+                  {data.milestones.map((row, index) => (
+                    <MilestoneItem
+                      key={row.id}
+                      row={row}
+                      contractId={contract.id}
+                      isLast={index === data.milestones.length - 1}
+                    />
+                  ))}
+                </ol>
+              ) : (
+                <Panel className={styles.tabPanel}>
+                  <div className={styles.panelBody}>
+                    <p className={styles.empty}>{t("detail.noMilestones")}</p>
+                  </div>
+                </Panel>
+              )}
               <div className={styles.sidebar}>
                 <PaymentOverview data={data} />
                 <Panel className={`${styles.sideCard} ${styles.people}`}>
-                  <h2>{t("detail.participants.title")}</h2>
-                  <ParticipantRows participants={data.participants} />
+                  <h2>{t("detail.terms.title")}</h2>
+                  <TermRow
+                    label={td(`workflow.${data.workflowTemplate}`)}
+                    value={data.ruleSetId}
+                  />
+                  <TermRow
+                    label={t("detail.terms.policy")}
+                    value={td(`policy.${contract.approvalPolicy}`)}
+                  />
+                  <TermRow
+                    label={t("detail.terms.period")}
+                    value={`${formatDate(contract.startDate)} – ${formatDate(contract.endDate)}`}
+                  />
+                  <TermRow
+                    label={t("detail.terms.penalty")}
+                    value={t("detail.terms.penaltyValue", {
+                      grace: data.graceDays,
+                      rate: data.penaltyRatePct,
+                      cap: data.maxPenaltyPct,
+                    })}
+                  />
                 </Panel>
               </div>
             </div>
           ) : null}
-
-          {tab === "documents" ? (
-            <Panel className={styles.tabPanel}>
-              <div className={styles.panelBody}>
-                <h2>{t("detail.documents.title")}</h2>
-                {data.documents.length === 0 ? (
-                  <p className={styles.empty}>{t("detail.documents.empty")}</p>
-                ) : null}
-                {data.documents.map(({ milestoneNo, file }) => (
-                  <div
-                    key={`${milestoneNo}-${file.id}`}
-                    className={styles.documentRow}
-                  >
-                    <PdfTile variant="plain" />
-                    <div className={styles.documentName}>
-                      <b>{file.fileName}</b>
-                      <div className={styles.documentMeta}>
-                        {t("detail.documents.meta", {
-                          no: milestoneNo,
-                          type: evidenceName(t, file.type),
-                        })}
-                      </div>
-                    </div>
-                    <ToneTag
-                      tone={file.signature?.valid ? "success" : "primary"}
-                    >
-                      {file.signature?.valid
-                        ? t("common.signatureValid")
-                        : t("submit.file.unsigned")}
-                    </ToneTag>
-                  </div>
-                ))}
-              </div>
-            </Panel>
+          {tab === "events" ? (
+            <EventsTable events={data.events} milestones={data.milestones} />
           ) : null}
-
+          {tab === "history" ? (
+            <HistoryTimeline
+              entries={data.timeline}
+              milestones={data.milestones}
+            />
+          ) : null}
+          {tab === "signing" ? <SigningPanel data={data} /> : null}
           {tab === "participants" ? (
             <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>
@@ -170,20 +246,50 @@ export default function ContractDetailPage() {
               </div>
             </Panel>
           ) : null}
-
-          {tab === "history" ? (
-            <Panel className={styles.tabPanel}>
-              <div className={styles.panelBody}>
-                <p>{t("detail.history.body")}</p>
-                <Link to="/activity-log" className={styles.link}>
-                  {t("detail.history.link")}
-                </Link>
-              </div>
-            </Panel>
-          ) : null}
         </PageContainer>
       ) : null}
     </AppPage>
+  );
+}
+
+function TermRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.paymentRow}>
+      <span className={styles.paymentLabel}>{label}</span>
+      <b className={styles.paymentValue}>{value}</b>
+    </div>
+  );
+}
+
+function RequirementChip({ requirement }: { requirement: Requirement }) {
+  const { t } = useTranslation("milestones");
+  const { t: td } = useTranslation("domain");
+  const icon =
+    requirement.state === "VALID" ? (
+      <CheckCircleFilled />
+    ) : requirement.state === "UNAUTHORIZED" ? (
+      <ExclamationCircleFilled />
+    ) : (
+      <CloseCircleFilled />
+    );
+  const color =
+    requirement.state === "VALID"
+      ? "success"
+      : requirement.state === "UNAUTHORIZED"
+        ? "error"
+        : "default";
+  return (
+    <Tooltip
+      title={t(`detail.requirement.${requirement.state}`, {
+        side: td(`side.${requirement.side}`),
+        at: requirement.at ? formatDateTime(requirement.at) : "",
+        id: requirement.eventId ?? "",
+      })}
+    >
+      <Tag icon={icon} color={color} style={{ margin: 0 }}>
+        {td(`eventType.${requirement.eventType}`)}
+      </Tag>
+    </Tooltip>
   );
 }
 
@@ -197,19 +303,23 @@ function MilestoneItem({
   isLast: boolean;
 }) {
   const { t } = useTranslation("milestones");
-  const { t: tc } = useTranslation("common");
+  const { t: td } = useTranslation("domain");
+  const navigate = useNavigate();
+  const user = useCurrentUser();
   const emphasis = emphasisOf[row.status];
-  const name = t(`milestoneKind.${row.kind}`);
-
-  const dueLine = row.deliveredOn
-    ? t("detail.milestone.dueDelivered", {
-        due: formatDate(row.dueDate),
-        delivered: formatDate(row.deliveredOn),
-      })
-    : t("detail.milestone.due", { due: formatDate(row.dueDate) });
+  const action = actionFor(row, user.role);
+  const decisionPath = `/contracts/${contractId}/milestones/${row.sequence}/decision`;
+  const actionPath =
+    action === "submit"
+      ? `/submissions/${contractId}/${row.sequence}`
+      : action === "approve"
+        ? `/approvals/${contractId}/${row.sequence}`
+        : action === "dispute"
+          ? `/contracts/${contractId}/milestones/${row.sequence}/dispute`
+          : decisionPath;
 
   return (
-    <li className={styles.milestone}>
+    <li className={styles.milestone} data-testid="milestone-item">
       <div className={styles.rail}>
         {isLast ? null : <span className={styles.railLine} />}
         <span className={`${styles.marker} ${markerClass[emphasis]}`}>
@@ -217,7 +327,7 @@ function MilestoneItem({
             ? "✓"
             : emphasis === "attention" || emphasis === "danger"
               ? "!"
-              : row.no}
+              : row.sequence}
         </span>
       </div>
       <Panel
@@ -227,13 +337,18 @@ function MilestoneItem({
         <div className={styles.cardHead}>
           <div className={styles.nameRow}>
             <b className={styles.name}>
-              {t("detail.milestone.name", { no: row.no, name })}
+              {td("milestoneNo", { no: row.sequence })} ·{" "}
+              {td(`milestoneType.${row.type}`)}
             </b>
-            <StatusBadge status={row.status} />
+            <MilestoneStatusTag status={row.status} />
+            <DecisionTag decision={row.decision} />
+            {row.origin !== "DATA_PACK" ? (
+              <OriginTag origin={row.origin} />
+            ) : null}
           </div>
           <div className={styles.amountBlock}>
             <b className={styles.amount}>
-              {formatMillionVnd(row.plannedMillion)}
+              {formatDecimalString(row.plannedMillion)}
             </b>
             <span className={styles.amountUnit}>
               {t("detail.milestone.amountUnit")}
@@ -242,16 +357,97 @@ function MilestoneItem({
         </div>
         <div className={styles.cardBody}>
           <div className={styles.info}>
-            <div className={styles.due}>{dueLine}</div>
-            {factsOf(t, tc, row).map((fact) => (
-              <div key={fact.label} className={styles.fact}>
-                <span className={styles.factLabel}>{fact.label} </span>
-                <b>{fact.value}</b>
+            <div className={styles.due}>
+              {row.dueDate
+                ? t("detail.milestone.due", {
+                    due: formatDate(row.dueDate),
+                    grace: row.graceDays,
+                  })
+                : t("detail.milestone.noDue")}
+              {row.completedAt
+                ? ` · ${t("detail.milestone.completed", { at: formatDate(row.completedAt) })}`
+                : ""}
+            </div>
+            <Space size={[4, 4]} wrap style={{ margin: "6px 0" }}>
+              {row.requirements.map((requirement) => (
+                <RequirementChip
+                  key={requirement.eventType}
+                  requirement={requirement}
+                />
+              ))}
+              {row.approvalRequired ? (
+                <Tag
+                  color={
+                    row.validApprovals >= row.quorum ? "success" : "processing"
+                  }
+                  style={{ margin: 0 }}
+                >
+                  {t("detail.milestone.approvals", {
+                    done: row.validApprovals,
+                    quorum: row.quorum,
+                  })}
+                </Tag>
+              ) : (
+                <Tag style={{ margin: 0 }}>
+                  {t("detail.milestone.noApproval")}
+                </Tag>
+              )}
+            </Space>
+            <div className={styles.fact}>
+              <span className={styles.factLabel}>
+                {t("detail.milestone.reason")}{" "}
+              </span>
+              <b>{td(`reason.${row.reasonCode}`)}</b>
+              <Typography.Text type="secondary">
+                {" "}
+                · {row.ruleId}
+              </Typography.Text>
+            </div>
+            {row.decision === "RELEASE" || row.decision === "PENALTY" ? (
+              <div className={styles.fact}>
+                <span className={styles.factLabel}>
+                  {t("detail.milestone.payable")}{" "}
+                </span>
+                <b>{formatDecimalString(row.payableMillion)}</b>
+                {row.decision === "PENALTY" ? (
+                  <Typography.Text type="warning">
+                    {" "}
+                    ·{" "}
+                    {t("detail.milestone.penalty", {
+                      penalty: formatDecimalString(row.penaltyMillion),
+                      days: row.daysLate,
+                    })}
+                  </Typography.Text>
+                ) : null}
               </div>
-            ))}
+            ) : null}
+            <div className={styles.fact}>
+              <span className={styles.factLabel}>
+                {t("detail.milestone.next")}{" "}
+              </span>
+              <b>{describeNext(td, row.next)}</b>
+            </div>
           </div>
           <div className={styles.side}>
-            <MilestoneSide row={row} contractId={contractId} />
+            <Space
+              direction="vertical"
+              size={6}
+              style={{ alignItems: "flex-end" }}
+            >
+              {action ? (
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => navigate(actionPath)}
+                  data-testid={`milestone-action-${action}`}
+                >
+                  {t(`detail.milestone.action.${action}`)}
+                </Button>
+              ) : null}
+              <Button size="small" onClick={() => navigate(decisionPath)}>
+                {t("detail.milestone.trace")}
+              </Button>
+            </Space>
           </div>
         </div>
       </Panel>
@@ -259,173 +455,36 @@ function MilestoneItem({
   );
 }
 
-function factsOf(
-  t: TFunction<"milestones">,
-  tc: TFunction<"common">,
-  row: MilestoneRow,
-): Array<{ label: string; value: string }> {
-  const fact = (key: string) => t(`detail.milestone.fact.${key}`);
-  const evidence = row.requiredEvidence
-    .map((type) => evidenceName(t, type))
-    .join(", ");
-  const paid = formatMillionVnd(row.payableMillion ?? 0);
-
-  switch (row.status) {
-    case "RELEASE":
-      return [
-        ...(row.completedOn
-          ? [{ label: fact("completed"), value: formatDate(row.completedOn) }]
-          : []),
-        { label: fact("paid"), value: paid },
-      ];
-    case "PENALTY":
-      return [
-        {
-          label: fact("penalty"),
-          value: formatMillionVnd(row.penaltyMillion ?? 0),
-        },
-        { label: fact("paid"), value: paid },
-      ];
-    case "HOLD":
-    case "REJECT":
-      return [{ label: fact("paid"), value: paid }];
-    case "AWAITING_APPROVAL":
-      return [
-        { label: fact("required"), value: evidence },
-        ...(row.deliveredOn
-          ? [{ label: fact("submittedOn"), value: formatDate(row.deliveredOn) }]
-          : []),
-      ];
-    case "NOT_OPEN":
-      return [
-        { label: fact("required"), value: evidence },
-        {
-          label: fact("opensWhen"),
-          value: t("detail.milestone.opensWhenValue", {
-            no: row.opensAfterNo ?? row.no - 1,
-          }),
-        },
-      ];
-    case "AWAITING_EVIDENCE":
-    case "NOT_DUE":
-      return [
-        { label: fact("required"), value: evidence },
-        {
-          label: fact("submitter"),
-          value: tc(`roles.${row.submitterRole}.name`),
-        },
-      ];
-  }
-}
-
-function MilestoneSide({
-  row,
-  contractId,
-}: {
-  row: MilestoneRow;
-  contractId: string;
-}): ReactNode {
-  const { t } = useTranslation("milestones");
-  const { t: tc } = useTranslation("common");
-  const navigate = useNavigate();
-  switch (row.status) {
-    case "RELEASE":
-      return row.transferredToAccounting ? (
-        <span className={styles.sideDone}>
-          {t("detail.milestone.side.transferred")}
-        </span>
-      ) : (
-        <span className={styles.sideMuted}>
-          {t("detail.milestone.side.notTransferred")}
-        </span>
-      );
-    case "PENALTY":
-    case "HOLD":
-    case "REJECT":
-      return (
-        <Button
-          type="primary"
-          size="small"
-          onClick={() =>
-            navigate(`/contracts/${contractId}/milestones/${row.no}/decision`)
-          }
-        >
-          {t("detail.milestone.side.viewDecision")}
-        </Button>
-      );
-    case "AWAITING_APPROVAL":
-      return (
-        <span className={styles.sideMuted}>
-          {t("detail.milestone.side.awaitingApproval")}
-        </span>
-      );
-    case "AWAITING_EVIDENCE":
-    case "NOT_DUE":
-      return (
-        <span className={styles.sideMuted}>
-          {t("detail.milestone.side.waitingSubmitter", {
-            role: tc(`roles.${row.submitterRole}.name`),
-          })}
-        </span>
-      );
-    case "NOT_OPEN":
-      return (
-        <span className={styles.sideMuted}>
-          {t("detail.milestone.side.noTask")}
-        </span>
-      );
-  }
-}
-
 function PaymentOverview({ data }: { data: ContractOverview }) {
   const { t } = useTranslation("milestones");
-  const percent = (part: number) =>
-    `${Math.round((part / data.valueMillion) * 1000) / 10}%`;
+  const totals = data.totals;
+  const percent = (part: string) =>
+    Number(totals.valueMillion) > 0
+      ? `${Math.round((Number(part) / Number(totals.valueMillion)) * 1000) / 10}%`
+      : "0%";
+  const rows: Array<[string, string, string?]> = [
+    [t("detail.payment.contractValue"), totals.valueMillion],
+    [
+      t("detail.payment.eligible"),
+      totals.eligibleMillion,
+      styles.paymentSettled,
+    ],
+    [t("detail.payment.penalty"), totals.penaltyMillion, styles.paymentPenalty],
+    [t("detail.payment.held"), totals.heldMillion],
+    [t("detail.payment.rejected"), totals.rejectedMillion],
+    [t("detail.payment.transferred"), totals.paidMillion],
+  ];
   return (
     <Panel className={`${styles.sideCard} ${styles.payment}`}>
       <h2>{t("detail.payment.title")}</h2>
-      <div className={styles.paymentRow}>
-        <span className={styles.paymentLabel}>
-          {t("detail.payment.contractValue")}
-        </span>
-        <b className={styles.paymentValue}>
-          {formatMillionVnd(data.valueMillion)}
-        </b>
-      </div>
-      <div className={styles.paymentRow}>
-        <span className={styles.paymentLabel}>
-          {t("detail.payment.settled")}
-        </span>
-        <b className={`${styles.paymentValue} ${styles.paymentSettled}`}>
-          {formatMillionVnd(data.settledMillion)}
-        </b>
-      </div>
-      <div className={styles.paymentRow}>
-        <span className={styles.paymentLabel}>
-          {t("detail.payment.penalty")}
-        </span>
-        <b className={`${styles.paymentValue} ${styles.paymentPenalty}`}>
-          {formatMillionVnd(data.penaltyMillion)}
-        </b>
-      </div>
-      <div className={styles.paymentRow}>
-        <span className={styles.paymentLabel}>
-          {t("detail.payment.notDue")}
-        </span>
-        <b className={styles.paymentValue}>
-          {formatMillionVnd(data.notDueMillion)}
-        </b>
-      </div>
-      {data.inProgressMillion > 0 ? (
-        <div className={styles.paymentRow}>
-          <span className={styles.paymentLabel}>
-            {t("detail.payment.inProgress")}
-          </span>
-          <b className={styles.paymentValue}>
-            {formatMillionVnd(data.inProgressMillion)}
+      {rows.map(([label, value, className]) => (
+        <div key={label} className={styles.paymentRow}>
+          <span className={styles.paymentLabel}>{label}</span>
+          <b className={`${styles.paymentValue} ${className ?? ""}`}>
+            {formatDecimalString(value)}
           </b>
         </div>
-      ) : null}
+      ))}
       <div
         className={styles.bar}
         role="img"
@@ -433,11 +492,11 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
       >
         <span
           className={styles.barSettled}
-          style={{ width: percent(data.settledMillion) }}
+          style={{ width: percent(totals.eligibleMillion) }}
         />
         <span
           className={styles.barPenalty}
-          style={{ width: percent(data.penaltyMillion) }}
+          style={{ width: percent(totals.penaltyMillion) }}
         />
       </div>
       <div className={styles.unit}>{t("detail.payment.unit")}</div>
@@ -445,24 +504,265 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
   );
 }
 
-function ParticipantRows({ participants }: { participants: Participant[] }) {
+function EventsTable({
+  events,
+  milestones,
+}: {
+  events: EventRow[];
+  milestones: MilestoneRow[];
+}) {
   const { t } = useTranslation("milestones");
+  const { t: td } = useTranslation("domain");
+  const sequenceOf = new Map(milestones.map((m) => [m.id, m.sequence]));
+  const types = [...new Set(events.map((e) => e.type))];
+  return (
+    <Panel className={styles.tabPanel}>
+      <div className={styles.panelBody}>
+        <Table<EventRow>
+          size="small"
+          rowKey="id"
+          dataSource={[...events].reverse()}
+          pagination={{ pageSize: 10, hideOnSinglePage: true }}
+          scroll={{ x: "max-content" }}
+          columns={[
+            {
+              key: "at",
+              title: t("detail.events.at"),
+              render: (_, e) => formatDateTime(e.at),
+              sorter: (a, b) => a.at.localeCompare(b.at),
+            },
+            {
+              key: "type",
+              title: t("detail.events.type"),
+              filters: types.map((type) => ({
+                text: td(`eventType.${type}`),
+                value: type,
+              })),
+              onFilter: (value, e) => e.type === value,
+              render: (_, e) => (
+                <Space size={4} wrap>
+                  <Typography.Text strong>
+                    {td(`eventType.${e.type}`)}
+                  </Typography.Text>
+                  <Tag style={{ margin: 0 }}>
+                    {td(`eventStatus.${e.status}`)}
+                  </Tag>
+                </Space>
+              ),
+            },
+            {
+              key: "milestone",
+              title: t("detail.events.milestone"),
+              render: (_, e) =>
+                td("milestoneNo", { no: sequenceOf.get(e.milestoneId) ?? "?" }),
+            },
+            {
+              key: "actor",
+              title: t("detail.events.actor"),
+              render: (_, e) => (
+                <>
+                  <div>{e.actor.name}</div>
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {e.actor.partyId}
+                    {e.actor.type
+                      ? ` · ${td(`partyType.${e.actor.type}`)}`
+                      : ""}
+                    {e.recordedBy ? ` · ${e.recordedBy}` : ""}
+                  </Typography.Text>
+                </>
+              ),
+            },
+            {
+              key: "document",
+              title: t("detail.events.document"),
+              render: (_, e) => (
+                <>
+                  <Typography.Text code>{e.documentId}</Typography.Text>
+                  {e.fileName ? (
+                    <div style={{ fontSize: 12 }}>{e.fileName}</div>
+                  ) : null}
+                  {e.referenceEventId ? (
+                    <div style={{ fontSize: 12 }}>
+                      {t("detail.events.reference", { id: e.referenceEventId })}
+                    </div>
+                  ) : null}
+                </>
+              ),
+            },
+            {
+              key: "id",
+              title: "ID",
+              render: (_, e) => (
+                <Space size={4}>
+                  <Typography.Text code>{e.id}</Typography.Text>
+                  <OriginTag origin={e.origin} />
+                </Space>
+              ),
+            },
+          ]}
+        />
+      </div>
+    </Panel>
+  );
+}
+
+function HistoryTimeline({
+  entries,
+  milestones,
+}: {
+  entries: TimelineEntry[];
+  milestones: MilestoneRow[];
+}) {
+  const { t } = useTranslation("milestones");
+  const { t: td } = useTranslation("domain");
+  const sequenceOf = new Map(milestones.map((m) => [m.id, m.sequence]));
+  const sorted = [...entries].sort((a, b) => b.at.localeCompare(a.at));
+  return (
+    <Panel className={styles.tabPanel}>
+      <div className={styles.panelBody}>
+        <p>{t("detail.history.body")}</p>
+        <Timeline
+          items={sorted.slice(0, 200).map((entry) =>
+            entry.kind === "EVENT"
+              ? {
+                  key: entry.event.id,
+                  color: entry.event.origin === "DATA_PACK" ? "blue" : "green",
+                  children: (
+                    <>
+                      <Typography.Text type="secondary">
+                        {formatDateTime(entry.at)}
+                      </Typography.Text>{" "}
+                      <b>{td(`eventType.${entry.event.type}`)}</b>{" "}
+                      {t("detail.history.byParty", {
+                        actor: entry.event.recordedBy ?? entry.event.actor.name,
+                        milestone: td("milestoneNo", {
+                          no: sequenceOf.get(entry.event.milestoneId) ?? "?",
+                        }),
+                      })}{" "}
+                      <Typography.Text code>{entry.event.id}</Typography.Text>
+                    </>
+                  ),
+                }
+              : {
+                  key: entry.change.id,
+                  color:
+                    entry.change.to.decision === "REJECT"
+                      ? "red"
+                      : entry.change.to.decision === "HOLD"
+                        ? "orange"
+                        : "green",
+                  children: (
+                    <>
+                      <Typography.Text type="secondary">
+                        {formatDateTime(entry.at)}
+                      </Typography.Text>{" "}
+                      <b>
+                        {td("milestoneNo", {
+                          no: sequenceOf.get(entry.change.milestoneId) ?? "?",
+                        })}
+                      </b>
+                      :{" "}
+                      {entry.change.from
+                        ? `${td(`status.${entry.change.from.status}`)} → `
+                        : ""}
+                      <b>{td(`status.${entry.change.to.status}`)}</b> (
+                      {td(`reason.${entry.change.to.reasonCode}`)}) ·{" "}
+                      <Typography.Text type="secondary">
+                        {td(`trigger.${entry.change.trigger.kind}`)} ·{" "}
+                        {entry.change.runId}
+                      </Typography.Text>
+                    </>
+                  ),
+                },
+          )}
+        />
+      </div>
+    </Panel>
+  );
+}
+
+function SigningPanel({ data }: { data: ContractOverview }) {
+  const { t } = useTranslation("milestones");
+  const { t: td } = useTranslation("domain");
+  const { t: ts } = useTranslation("signing");
+  const signing = data.signing;
+  return (
+    <Panel className={styles.tabPanel}>
+      <div className={styles.panelBody}>
+        {signing ? (
+          <>
+            <Space size={8} style={{ marginBottom: 12 }}>
+              <h2 style={{ margin: 0 }}>
+                {t("detail.signing.title", {
+                  signed: signing.signed,
+                  total: signing.total,
+                })}
+              </h2>
+              <OriginTag origin={signing.origin} />
+            </Space>
+            <Typography.Paragraph type="secondary">
+              {t("detail.signing.note")}
+            </Typography.Paragraph>
+            {signing.steps.map((step) => (
+              <div key={step.stepNo} className={styles.person}>
+                <span className={styles.avatar}>{step.stepNo}</span>
+                <div className={styles.personInfo}>
+                  <b>{step.signerName}</b>
+                  <div className={styles.personRole}>
+                    {td(`side.${step.party}`)} · {step.organizationName}
+                    {step.signerTitle ? ` · ${step.signerTitle}` : ""}
+                    {step.isFinal ? ` · ${t("detail.signing.final")}` : ""}
+                  </div>
+                </div>
+                <Tag
+                  color={
+                    step.status === "SIGNED"
+                      ? "success"
+                      : step.status === "CURRENT"
+                        ? "processing"
+                        : "default"
+                  }
+                >
+                  {step.status === "SIGNED" && step.signedAt
+                    ? `${formatDateTime(step.signedAt)} · ${step.method ? ts(`method.${step.method}.name`) : ""}`
+                    : t(`detail.signing.state.${step.status}`)}
+                </Tag>
+              </div>
+            ))}
+          </>
+        ) : (
+          <p className={styles.empty}>{t("detail.signing.none")}</p>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
+function ParticipantRows({ participants }: { participants: Participant[] }) {
+  const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   return (
     <>
       {participants.map((person) => (
-        <div key={person.id} className={styles.person}>
-          <span className={styles.avatar}>{initialsOf(person.name)}</span>
+        <div key={`${person.kind}-${person.partyId}`} className={styles.person}>
+          <span className={styles.avatar}>
+            {initialsOf(person.personName ?? person.name)}
+          </span>
           <div className={styles.personInfo}>
-            <b>{person.name}</b>
+            <b>{person.personName ?? person.name}</b>
             <div className={styles.personRole}>
-              {person.side === "BUYER"
-                ? t("detail.participants.role", {
-                    role: t(`participantRole.${person.role}`),
-                    side: t(`side.${person.side}`),
-                  })
-                : t(`participantRole.${person.role}`)}
+              {person.approvalRole
+                ? td(`approvalRole.${person.approvalRole}`)
+                : person.role
+                  ? tc(`roles.${person.role}.name`)
+                  : td(`side.${person.side}`)}
+              {" · "}
+              {person.partyId}
+              {person.personName ? ` · ${person.name}` : ""}
+              {person.email ? ` · ${person.email}` : ""}
             </div>
           </div>
+          <OriginTag origin={person.origin} />
         </div>
       ))}
     </>

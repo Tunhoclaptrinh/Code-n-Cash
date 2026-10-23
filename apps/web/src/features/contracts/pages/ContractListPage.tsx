@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Trans, useTranslation } from "react-i18next";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -25,146 +24,178 @@ import {
   DataTable,
   IconButton,
   PageContainer,
-  exportToCSV,
-  exportToJSON,
   useAccess,
-  useFilters,
-  usePagination,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
-import type { ContractStatus } from "@/shared/api/types";
+import type { ContractStatus } from "@codecash/contracts";
+import { listContracts } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
-import { formatMillionVnd } from "@/shared/lib/format";
+import { describeNext } from "@/shared/lib/domain";
+import { formatDecimalString } from "@/shared/lib/format";
+import { useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
-import { getContractList } from "../api/contractList.api";
+import { ContractStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { ContractModal } from "../components/ContractModal";
 import type { ContractRow } from "../types";
 
 const STATUSES: ContractStatus[] = [
+  "PENDING_CONDITIONS",
+  "NEEDS_REVIEW",
   "AWAITING_SIGNATURE",
-  "DISPUTED",
-  "AWAITING_EVIDENCE",
-  "COMPLETED",
+  "DRAFT",
+  "ALL_MILESTONES_ELIGIBLE",
+  "CLOSED",
 ];
-const statusColor: Record<ContractStatus, string> = {
-  AWAITING_SIGNATURE: "processing",
-  DISPUTED: "error",
-  AWAITING_EVIDENCE: "warning",
-  COMPLETED: "success",
-};
-const tileStatus = {
-  signature: "AWAITING_SIGNATURE",
-  dispute: "DISPUTED",
-  evidence: "AWAITING_EVIDENCE",
-  completed: "COMPLETED",
-} as const;
-const tileColor = {
-  signature: { bg: "rgba(49, 91, 234, 0.08)", value: "#315bea" },
-  dispute: { bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
-  evidence: { bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
-  completed: { bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
-};
+type Tile = "YOUR_TURN" | ContractStatus;
+const tiles: Array<{
+  key: Tile;
+  statuses: ContractStatus[] | null;
+  bg: string;
+  value: string;
+}> = [
+  {
+    key: "YOUR_TURN",
+    statuses: null,
+    bg: "rgba(49, 91, 234, 0.08)",
+    value: "#315bea",
+  },
+  {
+    key: "PENDING_CONDITIONS",
+    statuses: ["PENDING_CONDITIONS"],
+    bg: "rgba(245, 158, 11, 0.08)",
+    value: "#F59E0B",
+  },
+  {
+    key: "NEEDS_REVIEW",
+    statuses: ["NEEDS_REVIEW"],
+    bg: "rgba(239, 68, 68, 0.08)",
+    value: "#EF4444",
+  },
+  {
+    key: "AWAITING_SIGNATURE",
+    statuses: ["AWAITING_SIGNATURE", "DRAFT"],
+    bg: "rgba(99, 102, 241, 0.08)",
+    value: "#6366F1",
+  },
+  {
+    key: "ALL_MILESTONES_ELIGIBLE",
+    statuses: ["ALL_MILESTONES_ELIGIBLE", "CLOSED"],
+    bg: "rgba(16, 185, 129, 0.08)",
+    value: "#10B981",
+  },
+];
 
-type Filters = { supplierName?: string; status?: ContractStatus };
+const sameSet = (a: readonly unknown[] = [], b: readonly unknown[] = []) =>
+  a.length === b.length && a.every((x) => b.includes(x));
 
+/**
+ * Contracts in the user's scope, read page by page from the API (spec 17). Search, the filter
+ * builder, the column filters, the tiles, the tabs and the sort are one query, so the rows, the
+ * total and the export always match what is on screen.
+ */
 export default function ContractListPage() {
   const { t } = useTranslation("contracts");
+  const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<ContractStatus | "ALL">("ALL");
   const [detail, setDetail] = useState<ContractRow>();
-  const { filters, updateFilter, clearFilters } = useFilters<Filters>({});
-  const { page, pageSize, goToPage, handleTableChange } = usePagination(1, 10);
-  const list = useQuery({
-    queryKey: ["contract-summaries", user.id],
-    queryFn: () =>
-      getContractList({
-        id: user.id,
-        role: user.role,
-        organizationId: user.organizationId,
-      }),
+  const list = useListQuery<
+    ContractRow,
+    Awaited<ReturnType<typeof listContracts>>
+  >({
+    key: ["contract-summaries", user.id],
+    fetch: listContracts,
+    sort: { by: "contract", order: "asc" },
   });
-  const contracts = useMemo(() => list.data?.contracts ?? [], [list.data]);
-  const visible = useMemo(
-    () =>
-      contracts.filter(
-        (c) =>
-          (tab === "ALL" || c.status === tab) &&
-          (!filters.status || c.status === filters.status) &&
-          (!filters.supplierName || c.supplierName === filters.supplierName),
-      ),
-    [contracts, tab, filters],
-  );
-  const perspective = user.role === "SUPPLIER" ? "supplier" : "buyer";
+  const { filters, setFilter } = list;
+  const facets = list.data?.facets ?? {};
+  const supplierView = user.role === "SUPPLIER";
+  // Controllers and auditors see every buyer, so the list gets a buyer column.
+  const admin = user.role === "ADMIN_AUDITOR" || user.role === "AUDITOR";
+  // The other party of the contract: the buyer for a supplier, the supplier for everyone else.
+  const partnerKey = supplierView ? "buyer" : "supplier";
+  const partnerOf = (c: ContractRow) =>
+    supplierView ? c.buyer.name : c.supplier.name;
   const { hasPermission } = useAccess(user);
   const canUpload = hasPermission("contracts:draft-write");
-  const canSign = (c: ContractRow) =>
-    user.role === "CONTRACT_OWNER" && c.waitingFor.kind === "OWNER_SIGNS_FIRST";
 
-  const changeTab = (key: string) => {
-    setTab(key as ContractStatus | "ALL");
-    goToPage(1);
-  };
-  const statistics: StatisticsItem[] = (
-    Object.keys(tileStatus) as (keyof typeof tileStatus)[]
-  ).map((key) => ({
-    title: t(`contractList.tiles.${perspective}.${key}`),
-    value:
-      key === "signature"
-        ? contracts.filter((c) => c.waitingFor.kind === "OWNER_SIGNS_FIRST")
-            .length
-        : contracts.filter((c) => c.status === tileStatus[key]).length,
-    backgroundColor: tileColor[key].bg,
-    valueColor: tileColor[key].value,
-    selected: tab === tileStatus[key],
-    onClick: () => changeTab(tab === tileStatus[key] ? "ALL" : tileStatus[key]),
+  const count = (key: string, value: string) =>
+    facets[key]?.find((f) => f.value === value)?.count ?? 0;
+  const tileSelected = (tile: (typeof tiles)[number]) =>
+    tile.statuses
+      ? sameSet(filters.status, tile.statuses)
+      : filters.yourTurn?.[0] === true;
+  const statistics: StatisticsItem[] = tiles.map((tile) => ({
+    title: t(`contractList.tiles.${tile.key}`),
+    value: tile.statuses
+      ? tile.statuses.reduce((sum, s) => sum + count("status", s), 0)
+      : count("yourTurn", "true"),
+    backgroundColor: tile.bg,
+    valueColor: tile.value,
+    selected: tileSelected(tile),
+    onClick: () =>
+      tile.statuses
+        ? setFilter("status", tileSelected(tile) ? undefined : tile.statuses)
+        : setFilter("yourTurn", tileSelected(tile) ? undefined : [true]),
   }));
-  const supplierOptions = [...new Set(contracts.map((c) => c.supplierName))]
-    .sort()
-    .map((value) => ({ value, label: value }));
+  const options = (key: string, label: (value: string) => string) =>
+    (facets[key] ?? []).map((f) => ({ value: f.value, label: label(f.value) }));
   const filterConfig: FilterConfig[] = [
     {
-      key: "supplierName",
-      label: t("contractList.table.columns.supplier"),
+      key: partnerKey,
+      label: t(`contractList.table.columns.${partnerKey}`),
       type: "select",
-      options: supplierOptions,
+      operators: ["eq"],
+      options: options(partnerKey, (v) => v),
     },
     {
-      key: "status",
-      label: t("contractList.filters.statusLabel"),
+      key: "type",
+      label: t("contractList.filters.typeLabel"),
       type: "select",
-      options: STATUSES.map((value) => ({
-        value,
-        label: t(`contractList.status.${value}`),
-      })),
+      operators: ["eq"],
+      options: options("type", (v) => td(`contractType.${v}`)),
+    },
+    {
+      key: "policy",
+      label: t("contractList.filters.policyLabel"),
+      type: "select",
+      operators: ["eq"],
+      options: options("policy", (v) => td(`policy.${v}`)),
+    },
+    {
+      key: "origin",
+      label: t("contractList.filters.originLabel"),
+      type: "select",
+      operators: ["eq"],
+      options: options("origin", (v) => td(`origin.${v}`)),
     },
   ];
 
   const waitingText = (c: ContractRow) => {
-    const { waitingFor } = c;
-    if (waitingFor.kind === "NOTHING") return t("contractList.waiting.NOTHING");
-    const self =
-      waitingFor.kind === "SUPPLIER_SUBMITS_EVIDENCE"
-        ? user.role === "SUPPLIER"
-        : user.role === "CONTRACT_OWNER";
-    return t(
-      `contractList.waiting.${waitingFor.kind}.${self ? "self" : "other"}`,
-      {
-        milestoneNo: "milestoneNo" in waitingFor ? waitingFor.milestoneNo : "",
-      },
-    ).replace(/<\/?b>/g, "");
+    if (c.status === "DRAFT") return t("contractList.waiting.draft");
+    if (c.signing && c.status === "AWAITING_SIGNATURE")
+      return t("contractList.waiting.signing", {
+        name: c.signing.currentSigner ?? "",
+        signed: c.signing.signed,
+        total: c.signing.total,
+      });
+    if (!c.next)
+      return td(
+        c.status === "NEEDS_REVIEW"
+          ? "next.OUTSIDE_SYSTEM"
+          : c.milestones.completed < c.milestones.eligible
+            ? "next.TRANSFER"
+            : "next.NONE",
+      );
+    return `${td("milestoneNo", { no: c.next.sequence })}: ${describeNext(td, c.next.step)}`;
   };
   const progressText = (c: ContractRow) =>
-    t(
-      `contractList.progress.${c.deductedMilestones ? "milestonesDeducted" : "milestones"}`,
-      {
-        done: c.milestonesDone,
-        total: c.milestonesTotal,
-        deducted: c.deductedMilestones,
-      },
-    );
+    t("contractList.progress.eligible", {
+      eligible: c.milestones.eligible,
+      total: c.milestones.total,
+    });
   const menuFor = (c: ContractRow): MenuProps["items"] => [
     {
       key: "detail",
@@ -176,116 +207,201 @@ export default function ContractListPage() {
       key: "open",
       icon: <FileSearchOutlined />,
       label: t("contractList.actions.open"),
-      onClick: () => navigate(`/contracts/${c.code}`),
+      onClick: () => navigate(`/contracts/${c.id}`),
     },
-    {
-      key: "verify",
-      icon: <SafetyCertificateOutlined />,
-      label: t("contractList.actions.verify"),
-      onClick: () => navigate(`/verify/${c.code}`),
-    },
-    ...(user.role === "SUPPLIER"
+    ...(c.signing
+      ? [
+          {
+            key: "verify",
+            icon: <SafetyCertificateOutlined />,
+            label: t("contractList.actions.verify"),
+            onClick: () => navigate(`/verify/${c.id}`),
+          },
+        ]
+      : []),
+    ...(supplierView
       ? []
       : [
           {
             key: "activity",
             icon: <AuditOutlined />,
             label: t("contractList.actions.activity"),
-            onClick: () => navigate("/activity-log"),
+            onClick: () => navigate(`/activity-log?contract=${c.id}`),
           },
         ]),
   ];
+  const primaryAction = (c: ContractRow) => {
+    if (c.status === "DRAFT" && c.yourTurn)
+      return {
+        label: t("contractList.actions.completeDraft"),
+        to: "/contracts/new",
+      };
+    if (c.status === "AWAITING_SIGNATURE" && c.yourTurn)
+      return {
+        label: t("contractList.actions.signNow"),
+        to: `/contracts/${c.id}/signing`,
+      };
+    if (c.yourTurn && c.next)
+      return {
+        label: t("contractList.actions.act"),
+        to: `/contracts/${c.id}/milestones/${c.next.sequence}/decision`,
+      };
+    return null;
+  };
 
   const columns = [
     {
-      key: "code",
-      dataIndex: "code",
+      ...list.column("contract"),
       title: t("contractList.table.columns.contract"),
-      sorter: (a: ContractRow, b: ContractRow) => a.code.localeCompare(b.code),
-      ...columnSearch<ContractRow>((c) => `${c.code} ${c.title}`),
+      sorter: true,
+      ...columnSearch(),
       render: (_: unknown, c: ContractRow) => (
         <div style={{ cursor: "pointer" }} onClick={() => setDetail(c)}>
           <Space size={6} wrap>
             <Typography.Text strong style={{ whiteSpace: "nowrap" }}>
-              {c.code}
+              {c.id}
             </Typography.Text>
-            {c.isNewlyDigitized ? (
-              <Tag color="blue" style={{ margin: 0 }}>
-                {t("contractList.newlyDigitized")}
+            <OriginTag origin={c.origin} />
+            {c.openDispute ? (
+              <Tag color="error" bordered={false} style={{ margin: 0 }}>
+                {t("contractList.disputeFlag")}
               </Tag>
             ) : null}
           </Space>
           <div>{c.title}</div>
+          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+            {td(`contractType.${c.type}`)} · {td(`policy.${c.approvalPolicy}`)}
+          </Typography.Text>
         </div>
       ),
     },
+    ...(admin
+      ? [
+          {
+            ...list.column("buyer"),
+            title: t("contractList.table.columns.buyer"),
+            sorter: true,
+            filters: options("buyer", (v) => v).map((o) => ({
+              text: o.label,
+              value: o.value,
+            })),
+            filterMultiple: false,
+            filterSearch: true,
+            render: (_: unknown, c: ContractRow) => c.buyer.name,
+          },
+        ]
+      : []),
     {
-      key: "supplierName",
-      dataIndex: "supplierName",
-      title: t("contractList.table.columns.supplier"),
-      sorter: (a: ContractRow, b: ContractRow) =>
-        a.supplierName.localeCompare(b.supplierName),
-      filters: supplierOptions.map((o) => ({ text: o.label, value: o.value })),
+      ...list.column(partnerKey),
+      title: t(`contractList.table.columns.${partnerKey}`),
+      sorter: true,
+      filters: options(partnerKey, (v) => v).map((o) => ({
+        text: o.label,
+        value: o.value,
+      })),
+      filterMultiple: false,
       filterSearch: true,
-      onFilter: (value: unknown, c: ContractRow) => c.supplierName === value,
+      render: (_: unknown, c: ContractRow) => partnerOf(c),
     },
     {
-      key: "valueMillion",
+      ...list.column("valueMillion"),
       dataIndex: "valueMillion",
       title: t("contractList.table.columns.value"),
       align: "right" as const,
-      sorter: (a: ContractRow, b: ContractRow) =>
-        a.valueMillion - b.valueMillion,
-      render: (v: number) => formatMillionVnd(v),
+      sorter: true,
+      render: (v: string) => formatDecimalString(v),
     },
     {
       key: "progress",
       title: t("contractList.table.columns.progress"),
       width: 200,
-      render: (_: unknown, c: ContractRow) => (
-        <>
-          <Progress
-            percent={Math.round((c.milestonesDone / c.milestonesTotal) * 100)}
-            size="small"
-          />
-          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-            {progressText(c)}
+      render: (_: unknown, c: ContractRow) =>
+        c.milestones.total ? (
+          <>
+            <Progress
+              percent={Math.round(
+                (c.milestones.eligible / c.milestones.total) * 100,
+              )}
+              success={{
+                percent: Math.round(
+                  (c.milestones.completed / c.milestones.total) * 100,
+                ),
+              }}
+              status={c.milestones.rejected ? "exception" : undefined}
+              size="small"
+            />
+            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+              {progressText(c)}
+              {c.milestones.hold
+                ? ` · ${t("contractList.progress.hold", { count: c.milestones.hold })}`
+                : ""}
+              {c.milestones.penalty
+                ? ` · ${t("contractList.progress.penalty", { count: c.milestones.penalty })}`
+                : ""}
+            </Typography.Text>
+          </>
+        ) : (
+          <Typography.Text type="secondary">
+            {t("contractList.progress.none")}
           </Typography.Text>
-        </>
-      ),
+        ),
     },
     {
-      key: "status",
+      ...list.column("status"),
       dataIndex: "status",
       title: t("contractList.table.columns.status"),
       filters: STATUSES.map((value) => ({
-        text: t(`contractList.status.${value}`),
+        text: td(`contractStatus.${value}`),
         value,
       })),
-      onFilter: (value: unknown, c: ContractRow) => c.status === value,
-      render: (s: ContractStatus) => (
-        <Tag color={statusColor[s]}>{t(`contractList.status.${s}`)}</Tag>
-      ),
+      render: (s: ContractStatus) => <ContractStatusTag status={s} />,
     },
     {
-      key: "waiting",
+      ...list.column("nextDue"),
       title: t("contractList.table.columns.waiting"),
-      render: (_: unknown, c: ContractRow) => <WaitingFor contract={c} />,
+      sorter: true,
+      render: (_: unknown, c: ContractRow) => (
+        <span>
+          {c.yourTurn ? (
+            <Typography.Text strong style={{ color: "var(--color-primary)" }}>
+              {t("contractList.waiting.you")}{" "}
+            </Typography.Text>
+          ) : null}
+          {waitingText(c)}
+        </span>
+      ),
     },
   ];
 
-  const exportRows = (rows: ContractRow[]) =>
-    rows.map((c) => ({
-      [t("contractList.table.columns.contract")]: c.code,
-      [t("contractList.detail.title")]: c.title,
-      [t("contractList.table.columns.supplier")]: c.supplierName,
-      [t("contractList.table.columns.value")]: c.valueMillion,
-      [t("contractList.table.columns.progress")]: progressText(c),
-      [t("contractList.table.columns.status")]: t(
-        `contractList.status.${c.status}`,
-      ),
-      [t("contractList.table.columns.waiting")]: waitingText(c),
-    }));
+  // Each table column exports what it shows; a column that bundles several facts exports each.
+  const onExport = list.exporter(
+    columns,
+    {
+      contract: (c) => ({
+        [t("contractList.table.columns.contract")]: c.id,
+        [t("contractList.detail.title")]: c.title,
+        [t("contractList.filters.typeLabel")]: td(`contractType.${c.type}`),
+        [t("contractList.filters.policyLabel")]: td(
+          `policy.${c.approvalPolicy}`,
+        ),
+        [t("contractList.filters.originLabel")]: td(`origin.${c.origin}`),
+      }),
+      buyer: (c) => c.buyer.name,
+      supplier: (c) => c.supplier.name,
+      valueMillion: (c) => ({
+        [t("contractList.table.columns.value")]: c.valueMillion,
+        [t("contractList.table.columns.payable")]: c.payableMillion,
+        [t("contractList.table.columns.penalty")]: c.penaltyMillion,
+      }),
+      progress: (c) => progressText(c),
+      status: (c) => td(`contractStatus.${c.status}`),
+      nextDue: (c) => waitingText(c),
+    },
+    "contracts",
+  );
+  const activeTab =
+    filters.status?.length === 1 ? String(filters.status[0]) : "ALL";
+  const presentTabs = STATUSES.filter((status) => count("status", status));
 
   return (
     <AppPage
@@ -295,52 +411,35 @@ export default function ContractListPage() {
       <PageContainer
         title={t("contractList.title")}
         subtitle={t("contractList.subtitle", {
-          count: contracts.length,
+          count: list.data?.scopeTotal ?? 0,
           organization: list.data?.organizationName ?? "",
         })}
+        tooltip={t("contractList.intro")}
       >
-        {list.isError ? (
-          <Alert type="error" showIcon title={String(list.error)} />
+        {list.result.isError ? (
+          <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}
         <DataTable<ContractRow>
-          rowKey="code"
-          dataSource={visible}
+          rowKey="id"
           columns={columns}
-          loading={list.isPending}
+          {...list.table}
           statisticsData={statistics}
           tabs={[
             { key: "ALL", label: t("contractList.tabs.ALL") },
-            ...STATUSES.map((key) => ({
+            ...presentTabs.map((key) => ({
               key,
-              label: t(`contractList.status.${key}`),
+              label: td(`contractStatus.${key}`),
             })),
           ]}
-          activeTab={tab}
-          onTabChange={changeTab}
+          activeTab={activeTab}
+          onTabChange={(key) =>
+            setFilter("status", key === "ALL" ? undefined : [key])
+          }
           searchPlaceholder={t("contractList.filters.searchPlaceholder")}
-          searchFields={["code", "title", "supplierName"]}
           filters={filterConfig}
-          filterValues={filters}
-          onFilterChange={(key, value) => {
-            updateFilter(key as keyof Filters, value || undefined);
-            goToPage(1);
-          }}
-          onClearFilters={clearFilters}
-          onRefresh={() => void list.refetch()}
-          pagination={{ current: page, pageSize }}
-          onPaginationChange={handleTableChange}
           exportable
-          onExport={(options) => {
-            const rows = exportRows(
-              options.scope === "page"
-                ? visible.slice((page - 1) * pageSize, page * pageSize)
-                : options.scope === "custom"
-                  ? visible.slice(0, options.limit)
-                  : visible,
-            );
-            if (options.format === "json") exportToJSON(rows, "contracts");
-            else exportToCSV(rows, "contracts");
-          }}
+          exportFilename="contracts"
+          onExport={(options) => void onExport(options)}
           extra={
             canUpload ? (
               <Button
@@ -354,70 +453,44 @@ export default function ContractListPage() {
               </Button>
             ) : null
           }
-          customActions={(c) => (
-            <Space size={4}>
-              {canSign(c) ? (
-                <IconButton
-                  icon={<EditOutlined />}
-                  tooltip={t("contractList.actions.signNow")}
-                  success
-                  onClick={() => navigate(`/contracts/${c.code}/signing`)}
-                />
-              ) : (
-                <IconButton
-                  icon={<FileSearchOutlined />}
-                  tooltip={t("contractList.actions.open")}
-                  onClick={() => navigate(`/contracts/${c.code}`)}
-                />
-              )}
-              <Dropdown
-                menu={{ items: menuFor(c) }}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <IconButton
-                  icon={<MenuOutlined />}
-                  tooltip={t("contractList.actions.more")}
-                />
-              </Dropdown>
-            </Space>
-          )}
+          customActions={(c) => {
+            const action = primaryAction(c);
+            return (
+              <Space size={4}>
+                {action ? (
+                  <IconButton
+                    icon={<EditOutlined />}
+                    tooltip={action.label}
+                    success
+                    onClick={() => navigate(action.to)}
+                  />
+                ) : (
+                  <IconButton
+                    icon={<FileSearchOutlined />}
+                    tooltip={t("contractList.actions.open")}
+                    onClick={() => navigate(`/contracts/${c.id}`)}
+                  />
+                )}
+                <Dropdown
+                  menu={{ items: menuFor(c) }}
+                  trigger={["click"]}
+                  placement="bottomRight"
+                >
+                  <IconButton
+                    icon={<MenuOutlined />}
+                    tooltip={t("contractList.actions.more")}
+                  />
+                </Dropdown>
+              </Space>
+            );
+          }}
         />
       </PageContainer>
       <ContractModal
         contract={detail}
-        statusTag={(c) => (
-          <Tag color={statusColor[c.status]} style={{ margin: 0 }}>
-            {t(`contractList.status.${c.status}`)}
-          </Tag>
-        )}
+        statusTag={(c) => <ContractStatusTag status={c.status} />}
         onClose={() => setDetail(undefined)}
       />
     </AppPage>
-  );
-}
-
-function WaitingFor({ contract }: { contract: ContractRow }) {
-  const { t } = useTranslation("contracts");
-  const { role } = useCurrentUser();
-  const { waitingFor } = contract;
-
-  if (waitingFor.kind === "NOTHING")
-    return <>{t("contractList.waiting.NOTHING")}</>;
-
-  const isSelf =
-    waitingFor.kind === "SUPPLIER_SUBMITS_EVIDENCE"
-      ? role === "SUPPLIER"
-      : role === "CONTRACT_OWNER";
-  const milestoneNo =
-    "milestoneNo" in waitingFor ? waitingFor.milestoneNo : undefined;
-
-  return (
-    <Trans
-      t={t}
-      i18nKey={`contractList.waiting.${waitingFor.kind}.${isSelf ? "self" : "other"}`}
-      values={{ milestoneNo }}
-      components={{ b: <b /> }}
-    />
   );
 }

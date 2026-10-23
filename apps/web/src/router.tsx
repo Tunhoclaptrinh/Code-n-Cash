@@ -122,6 +122,15 @@ function pages() {
       lazy: () => import("@/features/disputes/pages/DisputePage").then(asRoute),
     },
     {
+      path: "/exceptions",
+      lazy: () =>
+        import("@/features/audit/pages/ExceptionQueuePage").then(asRoute),
+    },
+    {
+      path: "/integrity",
+      lazy: () => import("@/features/audit/pages/IntegrityPage").then(asRoute),
+    },
+    {
       path: "/activity-log",
       lazy: () =>
         import("@/features/audit/pages/ActivityLogPage").then(asRoute),

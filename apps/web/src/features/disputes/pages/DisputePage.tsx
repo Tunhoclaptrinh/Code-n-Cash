@@ -1,64 +1,60 @@
 import { useParams } from "react-router-dom";
+import { Space } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@codecash/ui";
+import { getDispute } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
+import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
-import { ToneTag, type Tone } from "@/shared/ui/ToneTag";
-import { getDispute } from "../api/dispute.api";
 import { DecisionPanel } from "../components/DecisionPanel";
 import { SubmissionPanel } from "../components/SubmissionPanel";
-import type { DisputeStatus } from "../types";
 import styles from "./DisputePage.module.css";
-
-const STATUS_TONE: Record<DisputeStatus, Tone> = {
-  OPEN: "warning",
-  AWAITING_EVIDENCE: "warning",
-  RESOLVED: "success",
-};
-
-/** Milestone currently on HOLD while the dispute is unresolved. */
-const HELD_DECISION = "HOLD";
 
 export default function DisputePage() {
   const { t } = useTranslation("disputes");
+  const { t: td } = useTranslation("domain");
   const params = useParams();
-  const contractCode = params.contractId ?? "";
-  const milestoneNo = Number(params.milestoneNo);
-
+  const contractId = params.contractId ?? "";
+  const sequence = Number(params.milestoneNo);
   const dispute = useQuery({
-    queryKey: ["dispute", contractCode, milestoneNo],
-    queryFn: () => getDispute(contractCode, milestoneNo),
+    queryKey: ["dispute", contractId, sequence],
+    queryFn: () => getDispute(contractId, sequence),
   });
-
   const data = dispute.data;
-
   return (
     <AppPage
       active="contracts"
       breadcrumb={[
-        { label: contractCode, to: `/contracts/${contractCode}` },
-        { label: t("breadcrumb.dispute", { milestoneNo }) },
+        { label: contractId, to: `/contracts/${contractId}` },
+        { label: t("breadcrumb.dispute", { milestoneNo: sequence }) },
       ]}
     >
       {dispute.isPending ? <PageState kind="loading" /> : null}
-      {dispute.isError ? <PageState kind="notFound" /> : null}
+      {dispute.isError ? (
+        <PageState kind="error" onRetry={() => void dispute.refetch()} />
+      ) : null}
       {data ? (
         <>
           <PageHeader
             title={t("title", {
-              milestoneNo,
-              milestone: t(`milestones.${data.milestoneKind}`),
+              milestoneNo: sequence,
+              milestone: td(`milestoneType.${data.milestone.type}`),
             })}
+            subtitle={`${data.contract.id} · ${data.contract.title} · ${data.contract.buyer.name} ↔ ${data.contract.supplier.name}`}
             tags={
-              <ToneTag tone={STATUS_TONE[data.status]}>
-                {t(`status.${data.status}`, { decision: HELD_DECISION })}
-              </ToneTag>
+              <Space size={6}>
+                <MilestoneStatusTag status={data.milestone.status} />
+                <OriginTag origin={data.contract.origin} />
+              </Space>
             }
           />
           <div className={styles.columns}>
-            <SubmissionPanel dispute={data} />
-            <DecisionPanel dispute={data} />
+            <SubmissionPanel view={data} />
+            <DecisionPanel
+              key={`${data.evaluation.runId}-${data.disputes.length}`}
+              view={data}
+            />
           </div>
         </>
       ) : null}

@@ -12,28 +12,26 @@ import {
   DetailModal,
   IconButton,
   PageContainer,
-  exportToCSV,
-  exportToJSON,
-  useFilters,
-  usePagination,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
 import type {
   Entity,
+  ListSpec,
   PermissionMatrix,
   PermissionScope,
   Role,
 } from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
 import { AppPage } from "@/shared/layout/AppPage";
+import { localList, useListQuery } from "@/shared/lib/useListQuery";
+import { columnSearch } from "@/shared/ui/columnSearch";
 
 interface Row {
   key: string;
   module: string;
   grants: Partial<Record<Role, PermissionScope>>;
 }
-type Filters = { role?: Role; scope?: PermissionScope };
 
 const scopeColor: Record<PermissionScope, string> = {
   all: "purple",
@@ -45,7 +43,10 @@ const roleColor: Record<Role, { bg: string; value: string }> = {
   CONTRACT_OWNER: { bg: "rgba(49, 91, 234, 0.08)", value: "#315bea" },
   LEGAL_REVIEWER: { bg: "rgba(99, 102, 241, 0.08)", value: "#6366F1" },
   FINANCE_APPROVER: { bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
+  SECONDARY_APPROVER: { bg: "rgba(14, 165, 233, 0.08)", value: "#0EA5E9" },
   ADMIN_AUDITOR: { bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
+  SYSTEM_ADMIN: { bg: "rgba(249, 115, 22, 0.08)", value: "#F97316" },
+  AUDITOR: { bg: "rgba(139, 92, 246, 0.08)", value: "#8B5CF6" },
   SUPPLIER: { bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
 };
 
@@ -56,19 +57,27 @@ const roleColor: Record<Role, { bg: string; value: string }> = {
 export default function PermissionMatrixPage() {
   const { t } = useTranslation("platform");
   const { t: tc } = useTranslation("common");
-  const [tab, setTab] = useState("ALL");
   const [detail, setDetail] = useState<Row>();
-  const { filters, updateFilter, clearFilters } = useFilters<Filters>({});
-  const { page, pageSize, goToPage, handleTableChange } = usePagination(1, 20);
   const matrix = useQuery({
     queryKey: ["permissions"],
     queryFn: () => platform.get<PermissionMatrix>("/permissions"),
   });
+  // Every account, page by page (the API serves at most 100 per page), to count holders exactly.
   const users = useQuery({
     queryKey: ["resource", "users", "permission-holders"],
-    queryFn: () => platform.resource<Entity>("users").list({ limit: 100 }),
+    queryFn: async () => {
+      const all: Entity[] = [];
+      for (let page = 1; ; page++) {
+        const part = await platform
+          .resource<Entity>("users")
+          .list({ page, limit: 100 });
+        all.push(...part.items);
+        if (all.length >= part.total || !part.items.length) return all;
+      }
+    },
+    retry: false,
   });
-  const roles = matrix.data?.roles ?? [];
+  const roles = useMemo(() => matrix.data?.roles ?? [], [matrix.data]);
   const rows = useMemo<Row[]>(
     () =>
       (matrix.data?.modules ?? []).flatMap((module) =>
@@ -80,24 +89,62 @@ export default function PermissionMatrixPage() {
       ),
     [matrix.data],
   );
-  const visible = rows.filter(
-    (row) =>
-      (tab === "ALL" || row.module === tab) &&
-      (!filters.role || row.grants[filters.role]) &&
-      (!filters.scope || Object.values(row.grants).includes(filters.scope)),
-  );
   const holders = (row: Row) =>
-    (users.data?.items ?? []).filter(
+    (users.data ?? []).filter(
       (user) => row.grants[user.role as Role] && user.active !== false,
     );
   const name = (key: string) =>
     t(`permissions.items.${key}`, { defaultValue: key });
   const roleName = (role: Role) => tc(`roles.${role}.name`);
-
-  const changeTab = (key: string) => {
-    setTab(key);
-    goToPage(1);
-  };
+  // The matrix is one document; the list engine searches, filters and pages it in the browser.
+  const spec = useMemo<ListSpec<Row>>(
+    () => ({
+      fields: {
+        key: {
+          value: (r) =>
+            `${r.key} ${t(`permissions.items.${r.key}`, { defaultValue: r.key })}`,
+          filter: "contains",
+          sort: true,
+        },
+        module: { value: (r) => r.module, filter: "eq", facet: true },
+        role: {
+          value: (r) => Object.keys(r.grants),
+          filter: "eq",
+          facet: true,
+        },
+        scope: {
+          value: (r) => [...new Set(Object.values(r.grants))],
+          filter: "eq",
+        },
+        ...Object.fromEntries(
+          roles.map((role) => [
+            role,
+            {
+              value: (r: Row) => (r.grants[role] ? "granted" : "none"),
+              filter: "eq" as const,
+            },
+          ]),
+        ),
+      },
+      search: (r) => [
+        r.key,
+        t(`permissions.items.${r.key}`, { defaultValue: r.key }),
+        t(`permissions.modules.${r.module}`),
+      ],
+      defaultSort: { by: "key", order: "asc" },
+    }),
+    [roles, t],
+  );
+  const list = useListQuery<Row>({
+    key: ["permissions", "table", matrix.dataUpdatedAt],
+    fetch: localList(rows, spec),
+    pageSize: 20,
+    sort: { by: "key", order: "asc" },
+  });
+  const { filters, setFilter } = list;
+  const tab = filters.module?.length === 1 ? String(filters.module[0]) : "ALL";
+  const changeTab = (key: string) =>
+    setFilter("module", key === "ALL" ? undefined : [key]);
   const statistics: StatisticsItem[] = [
     {
       title: t("permissions.columns.permission"),
@@ -105,19 +152,18 @@ export default function PermissionMatrixPage() {
       backgroundColor: "var(--bg-surface-alt)",
       valueColor: "var(--text-primary)",
       colSpan: { xs: 12, md: 8, xl: 4 },
-      onClick: () => updateFilter("role", undefined),
+      selected: !filters.role,
+      onClick: () => setFilter("role", undefined),
     },
     ...roles.map((role) => ({
       title: roleName(role),
       value: rows.filter((row) => row.grants[role]).length,
       backgroundColor: roleColor[role].bg,
       valueColor: roleColor[role].value,
-      selected: filters.role === role,
+      selected: filters.role?.[0] === role,
       colSpan: { xs: 12, md: 8, xl: 4 },
-      onClick: () => {
-        updateFilter("role", filters.role === role ? undefined : role);
-        goToPage(1);
-      },
+      onClick: () =>
+        setFilter("role", filters.role?.[0] === role ? undefined : [role]),
     })),
   ];
   const filterConfig: FilterConfig[] = [
@@ -125,12 +171,14 @@ export default function PermissionMatrixPage() {
       key: "role",
       label: t("permissions.grantedTo"),
       type: "select",
+      operators: ["eq"],
       options: roles.map((role) => ({ value: role, label: roleName(role) })),
     },
     {
       key: "scope",
       label: t("permissions.scopeLabel"),
       type: "select",
+      operators: ["eq"],
       options: (["all", "org", "own", "assigned"] as const).map((scope) => ({
         value: scope,
         label: t(`permissions.scope.${scope}`),
@@ -156,11 +204,12 @@ export default function PermissionMatrixPage() {
 
   const columns = [
     {
-      key: "key",
+      ...list.column("key"),
       dataIndex: "key",
       title: t("permissions.columns.permission"),
       width: 280,
-      sorter: (a: Row, b: Row) => a.key.localeCompare(b.key),
+      sorter: true,
+      ...columnSearch(),
       render: (key: string, row: Row) => (
         <div style={{ cursor: "pointer" }} onClick={() => setDetail(row)}>
           <Typography.Text strong>{name(key)}</Typography.Text>
@@ -173,7 +222,7 @@ export default function PermissionMatrixPage() {
       ),
     },
     {
-      key: "module",
+      ...list.column("module"),
       dataIndex: "module",
       title: t("permissions.columns.module"),
       width: 150,
@@ -181,13 +230,13 @@ export default function PermissionMatrixPage() {
         text: t(`permissions.modules.${m.key}`),
         value: m.key,
       })),
-      onFilter: (value: unknown, row: Row) => row.module === value,
+      filterMultiple: false,
       render: (module: string) => (
         <Tag style={{ margin: 0 }}>{t(`permissions.modules.${module}`)}</Tag>
       ),
     },
     ...roles.map((role) => ({
-      key: role,
+      ...list.column(role),
       title: roleName(role),
       align: "center" as const,
       width: 140,
@@ -195,8 +244,7 @@ export default function PermissionMatrixPage() {
         { text: t("permissions.grantedTo"), value: "granted" },
         { text: t("permissions.notGranted"), value: "none" },
       ],
-      onFilter: (value: unknown, row: Row) =>
-        value === "granted" ? !!row.grants[role] : !row.grants[role],
+      filterMultiple: false,
       render: (_: unknown, row: Row) => grantCell(row.grants[role]),
     })),
     {
@@ -204,22 +252,30 @@ export default function PermissionMatrixPage() {
       title: t("permissions.columns.holders"),
       align: "right" as const,
       width: 120,
-      render: (_: unknown, row: Row) => holders(row).length,
+      render: (_: unknown, row: Row) =>
+        users.isSuccess ? holders(row).length : "—",
     },
   ];
 
-  const exportRows = (list: Row[]) =>
-    list.map((row) => ({
-      [t("permissions.columns.permission")]: name(row.key),
-      key: row.key,
-      [t("permissions.columns.module")]: t(`permissions.modules.${row.module}`),
+  const onExport = list.exporter(
+    columns,
+    {
+      key: (row) => ({
+        [t("permissions.columns.permission")]: name(row.key),
+        key: row.key,
+      }),
+      module: (row) => t(`permissions.modules.${row.module}`),
       ...Object.fromEntries(
         roles.map((role) => [
-          roleName(role),
-          row.grants[role] ? t(`permissions.scope.${row.grants[role]}`) : "",
+          role,
+          (row: Row) =>
+            row.grants[role] ? t(`permissions.scope.${row.grants[role]}`) : "",
         ]),
       ),
-    }));
+      holders: (row) => (users.isSuccess ? holders(row).length : ""),
+    },
+    "permission-matrix",
+  );
 
   return (
     <AppPage
@@ -239,9 +295,9 @@ export default function PermissionMatrixPage() {
         ) : null}
         <DataTable<Row>
           rowKey="key"
-          dataSource={visible}
           columns={columns}
-          loading={matrix.isPending}
+          {...list.table}
+          loading={list.table.loading || matrix.isPending}
           statisticsData={statistics}
           tabs={[
             { key: "ALL", label: t("permissions.allModules") },
@@ -252,33 +308,15 @@ export default function PermissionMatrixPage() {
           ]}
           activeTab={tab}
           onTabChange={changeTab}
-          searchFields={["key"]}
+          searchPlaceholder={t("permissions.searchPlaceholder")}
           filters={filterConfig}
-          filterValues={filters}
-          onFilterChange={(key, value) => {
-            updateFilter(key as keyof Filters, value || undefined);
-            goToPage(1);
-          }}
-          onClearFilters={clearFilters}
           onRefresh={() => {
             void matrix.refetch();
             void users.refetch();
           }}
-          pagination={{ current: page, pageSize }}
-          onPaginationChange={handleTableChange}
           exportable
-          onExport={(options) => {
-            const list = exportRows(
-              options.scope === "page"
-                ? visible.slice((page - 1) * pageSize, page * pageSize)
-                : options.scope === "custom"
-                  ? visible.slice(0, options.limit)
-                  : visible,
-            );
-            if (options.format === "json")
-              exportToJSON(list, "permission-matrix");
-            else exportToCSV(list, "permission-matrix");
-          }}
+          exportFilename="permission-matrix"
+          onExport={(options) => void onExport(options)}
           customActions={(row) => (
             <IconButton
               icon={<EyeOutlined />}

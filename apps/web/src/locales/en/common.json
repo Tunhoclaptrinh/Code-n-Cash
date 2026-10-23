@@ -18,7 +18,9 @@
       "data": "Data & administration",
       "monitoring": "Monitoring & audit"
     },
-    "home": "Home"
+    "home": "Home",
+    "exceptions": "Exceptions (BR-19)",
+    "integrity": "Integrity check"
   },
   "topbar": {
     "role": "Role",
@@ -47,8 +49,8 @@
       "short": "CO"
     },
     "LEGAL_REVIEWER": {
-      "name": "Legal / Contract BA",
-      "short": "PC"
+      "name": "Buyer contract officer",
+      "short": "CO"
     },
     "SUPPLIER": {
       "name": "Supplier",
@@ -59,8 +61,20 @@
       "short": "FA"
     },
     "ADMIN_AUDITOR": {
-      "name": "Admin / Auditor",
-      "short": "AD"
+      "name": "Controller",
+      "short": "CT"
+    },
+    "SECONDARY_APPROVER": {
+      "name": "Secondary approver",
+      "short": "SA"
+    },
+    "SYSTEM_ADMIN": {
+      "name": "System administrator",
+      "short": "SA"
+    },
+    "AUDITOR": {
+      "name": "Auditor",
+      "short": "AU"
     }
   },
   "login": {
@@ -73,13 +87,15 @@
       "UNKNOWN": "Could not sign in. Please try again."
     },
     "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
-    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
+    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly. People are seed data; organisations and approvers come from the Data Pack.",
     "highlights": {
       "sign": "Sequential digital signing, document locked after the first signature",
       "evidence": "Evidence submission, validation and two-person approval",
       "audit": "Append-only activity log for every action"
     },
-    "demoAccounts": "Demo accounts"
+    "demoAccounts": "Demo accounts",
+    "demoFeatured": "Suggested (Nova An · Phú Minh)",
+    "demoAll": "Every Data Pack organisation"
   },
   "common": {
     "loading": "Loading…",

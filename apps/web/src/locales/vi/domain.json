@@ -1,0 +1,202 @@
+{
+  "origin": {
+    "DATA_PACK": "Dữ liệu BTC",
+    "SEED": "Dữ liệu bổ sung",
+    "APP": "Tạo trong app",
+    "hint": {
+      "DATA_PACK": "Lấy nguyên từ Data Pack của Ban tổ chức (contracts, parties, milestones, events, payment_rules).",
+      "SEED": "Data Pack không có thông tin này (người dùng, thứ tự ký, hợp đồng demo...). Đội bổ sung để chạy đủ luồng và đánh dấu rõ.",
+      "APP": "Được tạo bởi thao tác của người dùng trong ứng dụng, ghi theo đúng schema của Data Pack."
+    }
+  },
+  "contractType": {
+    "GOODS_SUPPLY": "Cung cấp hàng hoá",
+    "SERVICES": "Dịch vụ",
+    "SOFTWARE_IMPLEMENTATION": "Triển khai phần mềm",
+    "MAINTENANCE": "Bảo trì"
+  },
+  "workflow": {
+    "WF_GOODS_4STAGE": "Hàng hoá · 4 mốc",
+    "WF_SERVICE_4STAGE": "Dịch vụ · 4 mốc",
+    "WF_SOFTWARE_5STAGE": "Phần mềm · 5 mốc",
+    "WF_MAINTENANCE_3STAGE": "Bảo trì · 3 mốc"
+  },
+  "policy": {
+    "AUTO_IF_ALL_CONDITIONS": "Tự động khi đủ điều kiện",
+    "SINGLE_BUYER_APPROVAL": "Chủ hợp đồng duyệt",
+    "DUAL_APPROVAL": "Chủ hợp đồng + duyệt cấp 2",
+    "FINANCE_PLUS_OWNER": "Tài chính + chủ hợp đồng"
+  },
+  "policyHint": {
+    "AUTO_IF_ALL_CONDITIONS": "Không cần phê duyệt; đủ chứng từ là đủ điều kiện chi.",
+    "SINGLE_BUYER_APPROVAL": "Cần 1 phê duyệt của chủ hợp đồng.",
+    "DUAL_APPROVAL": "Cần 2 vai trò: chủ hợp đồng và người duyệt cấp 2.",
+    "FINANCE_PLUS_OWNER": "Cần 2 vai trò: chủ hợp đồng và phê duyệt tài chính."
+  },
+  "milestoneType": {
+    "SIGNING": "Ký hợp đồng",
+    "DELIVERY": "Giao hàng",
+    "ACCEPTANCE": "Nghiệm thu",
+    "WARRANTY": "Bảo hành",
+    "KICKOFF": "Khởi động dịch vụ",
+    "INTERIM_DELIVERY": "Bàn giao giữa kỳ",
+    "FINAL_ACCEPTANCE": "Nghiệm thu cuối",
+    "WARRANTY_CLOSE": "Đóng bảo hành/hỗ trợ",
+    "REQUIREMENTS_APPROVAL": "Duyệt yêu cầu",
+    "UAT_PASS": "Đạt kiểm thử UAT",
+    "GO_LIVE_ACCEPTANCE": "Nghiệm thu vận hành",
+    "ACTIVATION": "Kích hoạt dịch vụ",
+    "SERVICE_COMPLETION": "Hoàn thành dịch vụ"
+  },
+  "eventType": {
+    "CONTRACT_SIGNED": "Hợp đồng đã ký",
+    "KICKOFF_CONFIRMED": "Xác nhận khởi động",
+    "REQUIREMENTS_APPROVED": "Biên bản duyệt yêu cầu",
+    "UAT_PASSED": "Biên bản UAT đạt",
+    "ACCEPTANCE": "Biên bản nghiệm thu",
+    "DELIVERY": "Biên bản giao hàng",
+    "INVOICE": "Hoá đơn",
+    "GO_LIVE": "Xác nhận go-live",
+    "SERVICE_ACTIVATED": "Xác nhận kích hoạt",
+    "SERVICE_COMPLETED": "Xác nhận hoàn thành dịch vụ",
+    "WARRANTY_COMPLETED": "Hoàn tất bảo hành",
+    "APPROVAL": "Phê duyệt chi",
+    "REJECTION": "Từ chối",
+    "DISPUTE_OPENED": "Mở tranh chấp",
+    "DISPUTE_RESOLVED": "Đóng tranh chấp",
+    "OTHER": "Tài liệu kèm theo"
+  },
+  "eventStatus": {
+    "CONFIRMED": "Đã xác nhận",
+    "APPROVED": "Đã duyệt",
+    "REJECTED": "Từ chối",
+    "OPEN": "Đang mở",
+    "RESOLVED": "Đã đóng"
+  },
+  "decisionHint": {
+    "RELEASE": "Đủ điều kiện chi toàn bộ",
+    "PENALTY": "Đủ điều kiện chi sau khi trừ phạt trễ hạn",
+    "HOLD": "Tạm giữ, chưa chi",
+    "REJECT": "Không chi: người có thẩm quyền đã từ chối"
+  },
+  "reason": {
+    "OPEN_DISPUTE": "Đang có tranh chấp chưa đóng",
+    "REJECTION_PRESENT": "Người phê duyệt đã từ chối",
+    "UNAUTHORIZED_EVENT": "Có chứng từ do bên không có thẩm quyền tạo",
+    "MISSING_REQUIRED_EVENT": "Còn thiếu chứng từ bắt buộc",
+    "APPROVAL_QUORUM_NOT_MET": "Chưa đủ vai trò phê duyệt",
+    "LATE_COMPLETION": "Hoàn thành sau hạn và ân hạn",
+    "ALL_CONDITIONS_MET": "Đủ mọi điều kiện",
+    "UNRESOLVED_CONDITION": "Không đánh giá tự động được, giữ để kiểm tra"
+  },
+  "status": {
+    "WAITING_EVIDENCE": "Chờ chứng từ",
+    "WAITING_APPROVAL": "Chờ phê duyệt",
+    "ON_HOLD": "Tạm giữ",
+    "REJECTED": "Bị từ chối",
+    "ELIGIBLE_FOR_PAYMENT": "Đủ điều kiện chi",
+    "PAID_WITH_PENALTY": "Chi sau khấu trừ",
+    "COMPLETED": "Đã chuyển chi",
+    "PLANNED": "Chưa bắt đầu",
+    "IN_PROGRESS": "Đang thực hiện"
+  },
+  "contractStatus": {
+    "DRAFT": "Bản nháp",
+    "AWAITING_SIGNATURE": "Đang ký",
+    "PENDING_CONDITIONS": "Chờ điều kiện",
+    "NEEDS_REVIEW": "Cần xem xét",
+    "ALL_MILESTONES_ELIGIBLE": "Mọi mốc đủ điều kiện",
+    "CLOSED": "Đã đóng"
+  },
+  "approvalRole": {
+    "CONTRACT_OWNER": "Chủ hợp đồng",
+    "FINANCE_APPROVER": "Phê duyệt tài chính",
+    "SECONDARY_APPROVER": "Phê duyệt cấp 2"
+  },
+  "side": {
+    "BUYER": "Bên mua",
+    "SUPPLIER": "Nhà cung cấp"
+  },
+  "partyType": {
+    "BUYER": "Bên mua",
+    "SUPPLIER": "Nhà cung cấp",
+    "APPROVER": "Người phê duyệt",
+    "SYSTEM": "Hệ thống"
+  },
+  "next": {
+    "SUBMIT": "{{side}} nộp {{events}}",
+    "APPROVE": "Chờ {{roles}} phê duyệt",
+    "RESOLVE_DISPUTE": "Chủ hợp đồng giải quyết tranh chấp",
+    "REVIEW_EXCEPTION": "Kiểm soát viên xem xét event sai thẩm quyền",
+    "MANUAL_REVIEW": "Kiểm tra thủ công (rule 80)",
+    "OUTSIDE_SYSTEM": "Đã từ chối, xử lý ngoài hệ thống",
+    "TRANSFER": "Kế toán chuyển chi",
+    "SIGN_CONTRACT": "Các bên ký hợp đồng",
+    "NONE": "Không còn việc"
+  },
+  "eventClass": {
+    "EVIDENCE": "Bằng chứng hợp lệ",
+    "ADDITIONAL": "Hợp lệ, đã có bản sớm hơn",
+    "APPROVAL": "Phê duyệt được tính",
+    "APPROVAL_NOT_COUNTED": "Phê duyệt không được tính",
+    "REJECTION": "Từ chối",
+    "OPEN_DISPUTE": "Tranh chấp đang mở",
+    "CLOSED_DISPUTE": "Tranh chấp đã đóng",
+    "RESOLUTION": "Đóng tranh chấp",
+    "DUPLICATE": "Bản lặp (bị loại)",
+    "UNAUTHORIZED": "Sai thẩm quyền",
+    "WRONG_STATUS": "Sai trạng thái",
+    "UNRELATED": "Không liên quan",
+    "VOIDED": "Đã vô hiệu (BR-19)"
+  },
+  "trigger": {
+    "IMPORT": "Nhập Data Pack",
+    "EVENTS": "Event mới",
+    "EXCEPTION": "Quyết định ngoại lệ",
+    "PAYMENT": "Chuyển chi",
+    "CONTRACT": "Cập nhật hợp đồng"
+  },
+  "ruleOutcome": {
+    "NOT_MATCHED": "Không khớp",
+    "MATCHED": "Khớp, áp dụng",
+    "NOT_EVALUATED": "Không xét (đã có rule khớp)"
+  },
+  "taskKind": {
+    "SUBMIT_EVIDENCE": "Nộp chứng từ",
+    "RESUBMIT_EVIDENCE": "Nộp lại chứng từ đúng thẩm quyền",
+    "APPROVE_PAYMENT": "Phê duyệt chi",
+    "RESOLVE_DISPUTE": "Giải quyết tranh chấp",
+    "SIGN_CONTRACT": "Ký hợp đồng",
+    "REVIEW_EXCEPTION": "Xem xét ngoại lệ (BR-19)",
+    "DECIDE_EXCEPTION": "Duyệt đề xuất ngoại lệ",
+    "COMPLETE_DRAFT": "Hoàn tất hồ sơ hợp đồng"
+  },
+  "errors": {
+    "NOT_YOUR_EVENT_TYPE": "Loại chứng từ này do bên kia tạo (ma trận thẩm quyền 4.2).",
+    "EVIDENCE_ALREADY_ATTACHED": "Đã đính kèm tệp cho chứng từ này.",
+    "EVIDENCE_INCOMPLETE": "Hãy đính kèm đủ mọi chứng từ của bên bạn trước khi nộp.",
+    "NOTHING_TO_SUBMIT": "Không còn chứng từ nào của bên bạn cần nộp.",
+    "MILESTONE_CLOSED": "Mốc đã chốt (bị từ chối hoặc đã chuyển chi), không ghi thêm event.",
+    "CONTRACT_NOT_SIGNED": "Hợp đồng chưa ký xong.",
+    "NOT_AN_APPROVER": "Bạn không phải người phê duyệt của bên mua hợp đồng này.",
+    "NOT_A_REQUIRED_APPROVER": "Vai trò của bạn không nằm trong vai trò phê duyệt bắt buộc của mốc.",
+    "APPROVAL_NOT_REQUIRED": "Mốc này không cần phê duyệt.",
+    "ALREADY_VOTED": "Bạn đã ghi ý kiến cho mốc này.",
+    "NOTE_REQUIRED": "Hãy ghi lý do.",
+    "CANNOT_OPEN_DISPUTE": "Bạn không thể mở tranh chấp cho hợp đồng này.",
+    "CANNOT_RESOLVE_DISPUTE": "Chỉ bên mua hoặc chủ hợp đồng được đóng tranh chấp.",
+    "DISPUTE_NOT_OPEN": "Không có tranh chấp đang mở.",
+    "NOT_PAYABLE": "Mốc chưa đủ điều kiện chi.",
+    "ALREADY_TRANSFERRED": "Mốc đã được chuyển chi (khoá idempotency).",
+    "NOT_FINANCE_APPROVER": "Chỉ phê duyệt tài chính của bên mua được chuyển chi.",
+    "EVENT_NOT_VOIDABLE": "Chỉ event sai thẩm quyền hoặc bất thường mới được đề xuất vô hiệu (BR-19).",
+    "SECOND_CONTROLLER_REQUIRED": "Người đề xuất không được tự duyệt; cần kiểm soát viên thứ hai (SoD-2).",
+    "EXCEPTION_ALREADY_DECIDED": "Đề xuất này đã được quyết định.",
+    "CONTROLLERS_ONLY": "Chỉ kiểm soát viên được thực hiện.",
+    "NO_OPEN_TASK": "Bạn không có việc nào loại này.",
+    "UNKNOWN": "Không thực hiện được. Thử lại sau."
+  },
+  "milestoneNo": "Mốc {{no}}",
+  "overdue_one": "Quá hạn {{count}} ngày",
+  "overdue_other": "Quá hạn {{count}} ngày"
+}

@@ -3,6 +3,7 @@ import {
   AuditOutlined,
   CloudUploadOutlined,
   DatabaseOutlined,
+  ExceptionOutlined,
   FileProtectOutlined,
   FileTextOutlined,
   InboxOutlined,
@@ -17,8 +18,8 @@ export type NavKey =
   | "upload"
   | "activity"
   | "verify"
-  | "submissions"
-  | "approvals"
+  | "exceptions"
+  | "integrity"
   | "data"
   | "platform";
 
@@ -131,57 +132,61 @@ const dataAndAdmin = (items: NavItem[]): NavSection => ({
   items,
 });
 
+const exceptions: NavItem = {
+  key: "exceptions",
+  to: "/exceptions",
+  icon: ExceptionOutlined,
+  labelKey: "nav.exceptions",
+};
+const integrity: NavItem = {
+  key: "integrity",
+  to: "/integrity",
+  icon: FileProtectOutlined,
+  labelKey: "nav.integrity",
+};
+
+/** Buyer-side roles share the same areas; what each may do inside them comes from permissions.json. */
+const buyer = (withUpload: boolean): NavSection[] => [
+  workflow(
+    withUpload
+      ? [tasks, contracts, upload, verify]
+      : [tasks, contracts, verify],
+  ),
+  monitoring([activity]),
+  dataAndAdmin([data]),
+];
+
 export const navByRole: Record<Role, NavSection[]> = {
-  CONTRACT_OWNER: [
-    workflow([tasks, contracts, upload, verify]),
-    monitoring([activity]),
-    dataAndAdmin([data]),
-  ],
-  LEGAL_REVIEWER: [
-    workflow([tasks, contracts, upload, verify]),
-    monitoring([activity]),
-    dataAndAdmin([data]),
-  ],
+  CONTRACT_OWNER: buyer(true),
+  LEGAL_REVIEWER: buyer(true),
+  FINANCE_APPROVER: buyer(false),
+  SECONDARY_APPROVER: buyer(false),
+  // SoD-1: the controller handles exceptions, the administrator configures, the auditor reads.
   ADMIN_AUDITOR: [
     workflow([tasks, contracts, verify]),
-    monitoring([activity]),
+    monitoring([exceptions, integrity, activity]),
+    dataAndAdmin([data]),
+  ],
+  SYSTEM_ADMIN: [dataAndAdmin([platform])],
+  AUDITOR: [
+    workflow([contracts, verify]),
+    monitoring([integrity, exceptions, activity]),
     dataAndAdmin([data, platform]),
   ],
   SUPPLIER: [
-    workflow([
-      tasks,
-      { ...contracts, labelKey: "nav.myContracts" },
-      {
-        key: "submissions",
-        to: "/submissions",
-        icon: FileProtectOutlined,
-        labelKey: "nav.submissions",
-      },
-      verify,
-    ]),
-  ],
-  FINANCE_APPROVER: [
-    workflow([
-      {
-        key: "approvals",
-        to: "/approvals",
-        icon: InboxOutlined,
-        labelKey: "nav.approvals",
-        badge: true,
-      },
-      contracts,
-      verify,
-    ]),
+    workflow([tasks, { ...contracts, labelKey: "nav.myContracts" }, verify]),
     monitoring([activity]),
-    dataAndAdmin([data]),
   ],
 };
 
-/** First screen after signing in. */
+/** First screen after signing in: the work waiting for the user. */
 export const homeByRole: Record<Role, string> = {
-  CONTRACT_OWNER: "/contracts",
-  LEGAL_REVIEWER: "/contracts",
-  ADMIN_AUDITOR: "/activity-log",
+  CONTRACT_OWNER: "/tasks",
+  LEGAL_REVIEWER: "/tasks",
+  FINANCE_APPROVER: "/tasks",
+  SECONDARY_APPROVER: "/tasks",
+  ADMIN_AUDITOR: "/exceptions",
+  SYSTEM_ADMIN: "/platform/organizations",
+  AUDITOR: "/integrity",
   SUPPLIER: "/tasks",
-  FINANCE_APPROVER: "/approvals",
 };

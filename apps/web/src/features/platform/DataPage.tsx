@@ -30,14 +30,14 @@ import {
   exportToCSV,
   exportToJSON,
   useAccess,
-  useFilters,
-  usePagination,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
 import { AppPage } from "@/shared/layout/AppPage";
 import { useCurrentUser } from "@/shared/auth/session";
+import type { ListSpec } from "@codecash/contracts";
 import { formatDecimalString } from "@/shared/lib/format";
+import { localList, useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
 import {
   OUTPUT_FILES,
@@ -50,7 +50,9 @@ import {
   type Decision,
   type EngineRow as Row,
   type EvaluationSummary,
+  type Kpi,
   type OutputFile,
+  type Share,
   type Trace,
 } from "./api/engine.api";
 import { DATA_PACK, DatasetPanel } from "./components/DatasetPanel";
@@ -65,10 +67,48 @@ const decisionColor: Record<
   HOLD: { tag: "warning", bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
   REJECT: { tag: "error", bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
 };
-type Filters = {
-  milestone_type?: string;
-  reason_code?: string;
-  contract_id?: string;
+/** The engine output is one document: it is searched, filtered and paged in the browser. */
+const ROWS: ListSpec<Row> = {
+  fields: {
+    contract_id: {
+      value: (r) => r.contract_id,
+      filter: "eq",
+      sort: true,
+      facet: true,
+    },
+    milestone_id: {
+      value: (r) => r.milestone_id,
+      filter: "contains",
+      sort: true,
+    },
+    milestone_type: {
+      value: (r) => r.milestone_type,
+      filter: "eq",
+      facet: true,
+    },
+    predicted_decision: {
+      value: (r) => r.predicted_decision,
+      filter: "eq",
+      facet: true,
+    },
+    // Decimal strings compare in numeric collation: no conversion to floating point.
+    payable_amount_vnd_mn: {
+      value: (r) => r.payable_amount_vnd_mn,
+      sort: true,
+    },
+    penalty_amount_vnd_mn: {
+      value: (r) => r.penalty_amount_vnd_mn,
+      sort: true,
+    },
+    reason_code: { value: (r) => r.reason_code, filter: "eq", facet: true },
+  },
+  search: (r) => [
+    r.contract_id,
+    r.milestone_id,
+    r.milestone_type,
+    r.reason_code,
+  ],
+  defaultSort: { by: "milestone_id", order: "asc" },
 };
 
 export default function DataPage() {
@@ -78,10 +118,7 @@ export default function DataPage() {
   const { hasPermission } = useAccess(user);
   const cache = useQueryClient();
   const [source, setSource] = useState(DATA_PACK);
-  const [tab, setTab] = useState<Decision | "ALL">("ALL");
   const [traceRow, setTraceRow] = useState<Row>();
-  const { filters, updateFilter, clearFilters } = useFilters<Filters>({});
-  const { page, pageSize, goToPage, handleTableChange } = usePagination(1, 10);
   const canManage = hasPermission("engine:datasets");
   const datasets = useQuery({
     queryKey: ["engine", "datasets", user.id],
@@ -108,9 +145,6 @@ export default function DataPage() {
   const summary = result.data?.summary;
   const changeSource = (next: string) => {
     setSource(next);
-    setTab("ALL");
-    clearFilters();
-    goToPage(1);
     evaluate.reset();
   };
   const download = async (file: OutputFile) => {
@@ -130,17 +164,25 @@ export default function DataPage() {
       );
   };
   const allRows = useMemo(() => result.data?.rows ?? [], [result.data]);
-  const rows = useMemo(
-    () =>
-      allRows.filter(
-        (row) =>
-          (tab === "ALL" || row.predicted_decision === tab) &&
-          (Object.keys(filters) as (keyof Filters)[]).every(
-            (key) => !filters[key] || row[key] === filters[key],
-          ),
-      ),
-    [allRows, tab, filters],
-  );
+  const list = useListQuery<Row>({
+    // A new run or another source is another document: the key changes with it.
+    key: [
+      "engine",
+      "table",
+      user.id,
+      source,
+      result.data?.runId ?? "",
+      result.dataUpdatedAt,
+    ],
+    fetch: localList(allRows, ROWS),
+    sort: ROWS.defaultSort,
+  });
+  const { filters, setFilter } = list;
+  const facets = list.data?.facets ?? {};
+  const tab =
+    filters.predicted_decision?.length === 1
+      ? String(filters.predicted_decision[0])
+      : "ALL";
   const trace = traceRow
     ? result.data?.traces.find((x) => x.id === traceRow.audit_trace_id)
     : undefined;
@@ -150,14 +192,10 @@ export default function DataPage() {
     </span>
   );
   const distinct = (key: string) =>
-    [...new Set(allRows.map((row) => row[key]))]
-      .sort()
-      .map((value) => ({ value, label: value }));
+    (facets[key] ?? []).map((f) => ({ value: f.value, label: f.value }));
 
-  const changeTab = (key: string) => {
-    setTab(key as Decision | "ALL");
-    goToPage(1);
-  };
+  const changeTab = (key: string) =>
+    setFilter("predicted_decision", key === "ALL" ? undefined : [key]);
   const statistics: StatisticsItem[] = DECISIONS.map((key) => ({
     title: (
       <Tooltip title={t(`data.decisionHint.${key}`)}>
@@ -175,44 +213,52 @@ export default function DataPage() {
       key: "milestone_type",
       label: t("data.columns.milestone_type"),
       type: "select",
+      operators: ["eq"],
       options: distinct("milestone_type"),
     },
     {
       key: "reason_code",
       label: t("data.columns.reason_code"),
       type: "select",
+      operators: ["eq"],
       options: distinct("reason_code"),
     },
     {
       key: "contract_id",
       label: t("data.columns.contract_id"),
       type: "select",
+      operators: ["eq"],
       options: distinct("contract_id"),
     },
   ];
 
   const columns = [
     {
-      key: "contract_id",
+      ...list.column("contract_id"),
       dataIndex: "contract_id",
       width: 140,
       title: t("data.columns.contract_id"),
-      sorter: (a: Row, b: Row) => a.contract_id.localeCompare(b.contract_id),
-      ...columnSearch<Row>((row) => row.contract_id),
+      sorter: true,
+      filters: distinct("contract_id").map(({ value }) => ({
+        text: value,
+        value,
+      })),
+      filterMultiple: false,
+      filterSearch: true,
       render: (value: string) => (
         <Typography.Text strong>{value}</Typography.Text>
       ),
     },
     {
-      key: "milestone_id",
+      ...list.column("milestone_id"),
       dataIndex: "milestone_id",
       width: 140,
       title: t("data.columns.milestone_id"),
-      sorter: (a: Row, b: Row) => a.milestone_id.localeCompare(b.milestone_id),
-      ...columnSearch<Row>((row) => row.milestone_id),
+      sorter: true,
+      ...columnSearch(),
     },
     {
-      key: "milestone_type",
+      ...list.column("milestone_type"),
       dataIndex: "milestone_type",
       width: 170,
       title: t("data.columns.milestone_type"),
@@ -220,16 +266,16 @@ export default function DataPage() {
         text: value,
         value,
       })),
+      filterMultiple: false,
       filterSearch: true,
-      onFilter: (value: unknown, row: Row) => row.milestone_type === value,
     },
     {
-      key: "predicted_decision",
+      ...list.column("predicted_decision"),
       dataIndex: "predicted_decision",
       width: 150,
       title: t("data.columns.predicted_decision"),
       filters: DECISIONS.map((value) => ({ text: value, value })),
-      onFilter: (value: unknown, row: Row) => row.predicted_decision === value,
+      filterMultiple: false,
       render: (value: Decision) => (
         <Tooltip title={t(`data.decisionHint.${value}`)}>
           <Tag color={decisionColor[value].tag}>{value}</Tag>
@@ -237,23 +283,25 @@ export default function DataPage() {
       ),
     },
     {
-      key: "payable_amount_vnd_mn",
+      ...list.column("payable_amount_vnd_mn"),
       dataIndex: "payable_amount_vnd_mn",
       width: 170,
       title: t("data.columns.payable_amount_vnd_mn"),
       align: "right" as const,
+      sorter: true,
       render: money,
     },
     {
-      key: "penalty_amount_vnd_mn",
+      ...list.column("penalty_amount_vnd_mn"),
       dataIndex: "penalty_amount_vnd_mn",
       width: 160,
       title: t("data.columns.penalty_amount_vnd_mn"),
       align: "right" as const,
+      sorter: true,
       render: money,
     },
     {
-      key: "reason_code",
+      ...list.column("reason_code"),
       dataIndex: "reason_code",
       width: 230,
       title: t("data.columns.reason_code"),
@@ -261,8 +309,8 @@ export default function DataPage() {
         text: value,
         value,
       })),
+      filterMultiple: false,
       filterSearch: true,
-      onFilter: (value: unknown, row: Row) => row.reason_code === value,
       render: (value: string) => (
         <Typography.Text code style={{ whiteSpace: "nowrap" }}>
           {value}
@@ -418,11 +466,13 @@ export default function DataPage() {
             />
           </BaseCard>
         ) : null}
+        {summary?.kpi ? <KpiCard summary={summary} kpi={summary.kpi} /> : null}
         <DataTable<Row>
           rowKey="milestone_id"
           columns={columns}
-          dataSource={rows}
-          loading={result.isPending || evaluate.isPending}
+          {...list.table}
+          loading={list.table.loading || result.isPending || evaluate.isPending}
+          onRefresh={() => void result.refetch()}
           statisticsData={statistics}
           tabs={[
             { key: "ALL", label: t("data.allDecisions") },
@@ -430,19 +480,22 @@ export default function DataPage() {
           ]}
           activeTab={tab}
           onTabChange={changeTab}
-          searchFields={["contract_id", "milestone_id", "reason_code"]}
+          searchPlaceholder={t("data.searchPlaceholder")}
           filters={filterConfig}
-          filterValues={filters}
-          onFilterChange={(key, value) => {
-            updateFilter(key as keyof Filters, value || undefined);
-            goToPage(1);
-          }}
-          onClearFilters={clearFilters}
-          onRefresh={() => void result.refetch()}
-          pagination={{ current: page, pageSize }}
-          onPaginationChange={handleTableChange}
           exportable
           exportFilename="data-pack-results"
+          onExport={(options) =>
+            void list.exporter(
+              columns,
+              Object.fromEntries(
+                columns.map((c) => [
+                  String(c.key),
+                  (r: Row) => r[String(c.key)],
+                ]),
+              ),
+              "data-pack-results",
+            )(options)
+          }
           onView={(row) => setTraceRow(row)}
           customActions={(row) => (
             <IconButton
@@ -516,6 +569,102 @@ function SourceNotes({ summary }: { summary: EvaluationSummary }) {
         />
       ) : null}
     </Space>
+  );
+}
+
+/** KPIs of spec section 15 as the engine measured them, each with the set it was measured on. */
+function KpiCard({ summary, kpi }: { summary: EvaluationSummary; kpi: Kpi }) {
+  const { t } = useTranslation("platform");
+  const ratio = (share: Share | null) =>
+    share ? (
+      `${share.count}/${share.total}`
+    ) : (
+      <Typography.Text type="secondary">
+        {t("data.summary.noLabels")}
+      </Typography.Text>
+    );
+  const label = (key: string) => (
+    <Space size={4}>
+      {t(`data.kpi.${key}`)}
+      <Tooltip title={t(`data.kpi.hint.${key}`)}>
+        <InfoCircleOutlined />
+      </Tooltip>
+    </Space>
+  );
+  const processing = kpi.processing;
+  return (
+    <BaseCard
+      title={t("data.kpi.title")}
+      subtitle={t("data.kpi.subtitle", {
+        labelled: kpi.labelled,
+        milestones: summary.milestones,
+      })}
+      bodyStyle={{ padding: 0 }}
+    >
+      <Descriptions
+        bordered
+        size="small"
+        layout="vertical"
+        column={{ xs: 1, sm: 2, lg: 4 }}
+        items={[
+          {
+            key: "decisionAccuracy",
+            label: label("decisionAccuracy"),
+            children: ratio(kpi.decisionAccuracy),
+          },
+          {
+            key: "macroF1",
+            label: label("macroF1"),
+            children: kpi.macroF1 ?? ratio(null),
+          },
+          {
+            key: "unauthorizedPayment",
+            label: label("unauthorizedPayment"),
+            children: ratio(kpi.unauthorizedPayment),
+          },
+          {
+            key: "overHold",
+            label: label("overHold"),
+            children: ratio(kpi.overHold),
+          },
+          {
+            key: "amountAccuracy",
+            label: label("amountAccuracy"),
+            children: kpi.amountAccuracy
+              ? t("data.kpi.amountValue", {
+                  ratio: `${kpi.amountAccuracy.count}/${kpi.amountAccuracy.total}`,
+                  error: formatDecimalString(kpi.amountAccuracy.maxAbsError),
+                })
+              : ratio(null),
+          },
+          {
+            key: "coverage",
+            label: label("coverage"),
+            children: ratio(kpi.coverage),
+          },
+          {
+            key: "traceability",
+            label: label("traceability"),
+            children: ratio(kpi.traceability),
+          },
+          {
+            key: "processing",
+            label: label("processing"),
+            children: (
+              <Tooltip title={processing.machine}>
+                <span>
+                  {t("data.kpi.processingValue", {
+                    total: formatDecimalString(processing.totalMs),
+                    median: processing.medianMs ?? "—",
+                    p95: processing.p95Ms ?? "—",
+                  })}
+                </span>
+              </Tooltip>
+            ),
+          },
+        ]}
+      />
+    </BaseCard>
   );
 }
 

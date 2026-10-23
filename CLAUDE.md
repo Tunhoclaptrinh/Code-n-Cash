@@ -5,7 +5,7 @@ Smart Contract Workflow, Case 4. The official brief and `docs/04_DAC_TA_NGHIEP_V
 ## Workspace
 
 - `apps/web`: React 19, Router 7, Ant Design 6, TanStack Query, i18next.
-- `apps/api`: NestJS API, resource CRUD, authentication, scoped workflow actions and persistence.
+- `apps/api`: NestJS API, resource CRUD, authentication, scoped workflow actions and persistence. `src/domain` imports the Data Pack as tables, adds marked seed data (origin `DATA_PACK` | `SEED` | `APP`), and re-runs the Python engine after every workflow action.
 - `apps/engine`: Python adapter around the tested Data Pack evaluator.
 - `packages/ui`: reusable components migrated from UniFlow and adapted for CodeCash.
 - `packages/contracts`: public types and resource definitions.
@@ -20,6 +20,8 @@ Smart Contract Workflow, Case 4. The official brief and `docs/04_DAC_TA_NGHIEP_V
 - The browser does not own business decisions. Keep business handlers in the API and Data Pack calculations in Python. Never use floats for Data Pack money.
 - Derive identity and scope from the authenticated actor. Never trust a client-supplied role, actor ID or tenant header.
 - Audit and decisions are not generic editable CRUD. Add explicit domain actions with permission checks.
+- The audit log is a hash chain sealed in `Repository.transact`; write audit entries only through it, never edit or delete them.
+- Keep SoD-1: the controller (`ADMIN_AUDITOR`) handles exceptions, `SYSTEM_ADMIN` manages accounts and configuration, `AUDITOR` only reads.
 - Preserve the official Data Pack and sample labels. Do not infer accuracy on all 405 milestones from 20 samples.
 - Do not copy credentials or .env files from the reference repository.
 - Work on a feature branch. Do not commit to main or push/merge without user instructions.

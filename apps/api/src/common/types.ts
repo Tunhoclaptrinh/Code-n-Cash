@@ -1,9 +1,5 @@
-export type Role =
-  | "CONTRACT_OWNER"
-  | "LEGAL_REVIEWER"
-  | "FINANCE_APPROVER"
-  | "ADMIN_AUDITOR"
-  | "SUPPLIER";
+import type { Role } from "../domain/types";
+export type { Role };
 export interface Actor {
   id: string;
   email: string;
@@ -11,6 +7,9 @@ export interface Actor {
   role: Role;
   organizationId: string;
   roleChipOrganization: string;
+  /** Data Pack party the user acts as: approver, buyer or supplier; null for internal staff. */
+  partyId: string | null;
+  title: string;
   permissions: string[];
   active?: boolean;
 }
@@ -34,6 +33,8 @@ export interface Resource {
   name: string;
   fields: Field[];
   readOnly?: boolean;
+  /** Records with these origins belong to the Data Pack or the workflow: CRUD may read, not change them. */
+  managedOrigins?: string[];
 }
 export interface SessionRequest {
   user: Actor;

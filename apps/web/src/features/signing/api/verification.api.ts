@@ -1,13 +1,8 @@
 import { ApiError } from "@/shared/api/client";
-import { workflowCall } from "@/shared/api/workflow";
-import type { FileCheckResult, VerificationResult } from "../types";
-export async function getVerification(
-  contractCode: string,
-): Promise<VerificationResult> {
-  return workflowCall("signing-verification", "getVerification", [
-    contractCode,
-  ]);
-}
+import type { FileCheckResult } from "../types";
+
+export { getVerification } from "@/shared/api/domain";
+
 /** A PDF marker is not cryptographic verification. A provider must verify the signed byte ranges. */
 export async function checkFile(
   _contractCode: string | null,

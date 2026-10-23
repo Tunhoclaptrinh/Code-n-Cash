@@ -4,11 +4,16 @@ import csv
 import hashlib
 import io
 import json
+import math
+import os
+import platform
+import statistics
 import sys
 import zipfile
 from collections import Counter
 from datetime import datetime, timezone
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
+from fractions import Fraction
 from pathlib import Path
 from time import perf_counter
 
@@ -19,10 +24,62 @@ import kiem_chung_nghiep_vu as spec
 import dataset
 
 
+PAID = ('RELEASE', 'PENALTY')
+# Cells the output checklist (spec 14.6) allows to be empty.
+OPTIONAL_CELLS = {'missing_conditions', 'evidence_event_ids'}
+
+
+def share(count, total):
+    return {'count': count, 'total': total}
+
+
+def kpi(pack, results, rows, traces, timings, matched, started):
+    """Spec section 15. Labelled metrics use decision_sample.csv only; coverage, trace and time cover every output row."""
+    labelled = [(d, results[d['milestone_id']]) for d in pack.decisions] if matched is not None else []
+    scores = []
+    for decision in sorted(spec.DECISIONS):
+        tp = sum(d['expected_decision'] == decision and r['decision'] == decision for d, r in labelled)
+        fp = sum(d['expected_decision'] != decision and r['decision'] == decision for d, r in labelled)
+        fn = sum(d['expected_decision'] == decision and r['decision'] != decision for d, r in labelled)
+        if tp + fp + fn:
+            scores.append(Fraction(2 * tp, 2 * tp + fp + fn))
+    macro = sum(scores) / len(scores) if scores else None
+    held = [r for d, r in labelled if d['expected_decision'] not in PAID]
+    paid = [r for d, r in labelled if d['expected_decision'] in PAID]
+    errors = [abs(Decimal(d[column]) - r[key]) for d, r in labelled
+              for column, key in (('payable_amount_vnd_mn', 'payable'), ('penalty_amount_vnd_mn', 'penalty'))]
+    trace_ids = {t['id'] for t in traces}
+    # A decision is traceable when every cell is filled and it cites its evidence or names what is missing.
+    traced = sum(all(v != '' for k, v in row.items() if k not in OPTIONAL_CELLS)
+                 and bool(row['evidence_event_ids'] or row['missing_conditions'])
+                 and row['audit_trace_id'] in trace_ids for row in rows)
+    expected = {t['milestone_id'] for t in pack.template}
+    once = sum(n == 1 for n in Counter(row['milestone_id'] for row in rows).values())
+    times = sorted(timings[mid] for mid in expected)
+    return {
+        'labelled': len(labelled),
+        'decisionAccuracy': share(sum(d['expected_decision'] == r['decision'] for d, r in labelled), len(labelled)) if labelled else None,
+        'scenarioAccuracy': share(matched, len(labelled)) if labelled else None,
+        'macroF1': str((Decimal(macro.numerator) / macro.denominator).quantize(Decimal('0.0001'), ROUND_HALF_UP)) if macro is not None else None,
+        'unauthorizedPayment': share(sum(r['decision'] in PAID for r in held), len(held)) if labelled else None,
+        'overHold': share(sum(r['decision'] not in PAID for r in paid), len(paid)) if labelled else None,
+        'amountAccuracy': dict(share(sum(Decimal(d['payable_amount_vnd_mn']) == r['payable'] and Decimal(d['penalty_amount_vnd_mn']) == r['penalty']
+                                         for d, r in labelled), len(labelled)), maxAbsError=str(max(errors))) if labelled else None,
+        'coverage': share(once, len(expected)),
+        'traceability': share(traced, len(rows)),
+        'processing': {'totalMs': f'{(perf_counter() - started) * 1000:.1f}',
+                       'medianMs': f'{statistics.median(times):.4f}' if times else None,
+                       'p95Ms': f'{times[math.ceil(0.95 * len(times)) - 1]:.4f}' if times else None,
+                       'machine': f'{platform.system()} {platform.machine()}, Python {platform.python_version()}, {os.cpu_count()} CPU'},
+    }
+
+
 def evaluate(as_of=None, data=None):
     """Official Data Pack by default. With `data`, an uploaded dataset: invariant breaks are reported, not raised."""
+    started = perf_counter()
+    voided = frozenset()
     if data:
-        pack, fingerprint, source = dataset.load(data)
+        pack, fingerprint, source, voided = dataset.load(data)
     else:
         pack = spec.Pack.load(spec.DEFAULT_DATA)
         fingerprint = hashlib.sha256(''.join(
@@ -33,7 +90,7 @@ def evaluate(as_of=None, data=None):
     for mid in pack.milestones:
         start = perf_counter()
         try:
-            results[mid] = spec.evaluate(pack, mid, as_of=as_of)
+            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided)
         except (KeyError, ValueError, ArithmeticError) as error:
             raise ValueError(f'EVALUATION_FAILED {mid}: {type(error).__name__} {error}') from error
         timings[mid] = (perf_counter() - start) * 1000
@@ -69,7 +126,29 @@ def evaluate(as_of=None, data=None):
                         'decisions': dict(Counter(r['decision'] for r in scored)),
                         'sampleMatched': matched, 'sampleTotal': len(pack.decisions), 'sampleMismatches': mismatches,
                         'invariantViolations': violations, 'payableMillion': str(sum(r['payable'] for r in scored)),
-                        'penaltyMillion': str(sum(r['penalty'] for r in scored))}}
+                        'penaltyMillion': str(sum(r['penalty'] for r in scored)),
+                        'kpi': kpi(pack, results, rows, traces, timings, matched, started)}}
+
+
+TIMELINE_FIELDS = ('decision', 'reason_code', 'rule_id', 'status', 'payable', 'penalty', 'days_late', 'missing',
+                   'valid_approval_count', 'quorum', 'open_dispute_ids')
+
+
+def timeline(milestone_id, data=None):
+    """Decision of one milestone right after each moment of its history (as-of, BR-16), oldest first."""
+    if data:
+        pack, _, _, voided = dataset.load(data)
+    else:
+        pack, voided = spec.Pack.load(spec.DEFAULT_DATA), frozenset()
+    if milestone_id not in pack.milestones:
+        raise ValueError(f'UNKNOWN_MILESTONE {milestone_id}')
+    events = pack.events_by_ms[milestone_id]
+    points = []
+    for at in sorted({e['event_timestamp'] for e in events}):
+        result = spec.evaluate(pack, milestone_id, as_of=at, voided=voided)
+        points.append({'at': at, 'eventIds': [e['event_id'] for e in events if e['event_timestamp'] == at],
+                       **{field: result[field] for field in TIMELINE_FIELDS}})
+    return points
 
 
 def encode(value):
@@ -85,10 +164,14 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path)
     parser.add_argument('--data', type=Path, help='uploaded dataset folder instead of the official Data Pack')
     parser.add_argument('--inspect', action='store_true', help='only report which files were found in --data')
+    parser.add_argument('--timeline', metavar='MILESTONE_ID', help='decision of one milestone after each of its events')
     args = parser.parse_args()
     try:
         if args.inspect:
             print(json.dumps(dataset.inspect(args.data or spec.DEFAULT_DATA), ensure_ascii=False))
+            sys.exit(0)
+        if args.timeline:
+            print(json.dumps(timeline(args.timeline, args.data), default=encode, ensure_ascii=False))
             sys.exit(0)
         result = evaluate(args.as_of, args.data)
     except (ValueError, zipfile.BadZipFile) as error:

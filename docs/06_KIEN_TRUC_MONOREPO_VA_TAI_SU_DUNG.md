@@ -23,7 +23,7 @@ Base UI được tách chuỗi hiển thị ra resource Việt/Anh; thương hi�
 
 - **Web:** trình bày, form, phân trang, lọc, gửi hành động, hiển thị kết quả. Không giữ bản dữ liệu nghiệp vụ có thể tự quyết định thay server.
 - **API nền:** auth, role/scope, dữ liệu quản trị, tài liệu, xử lý phiên bản, audit, Swagger và persistence.
-- **API workflow:** các hàm nghiệp vụ của bản UI trước đây được chuyển sang `apps/api/src/workflow`; web dùng client gọi API. Không còn hai bản handler chạy độc lập ở server và trình duyệt.
+- **API nghiệp vụ (`apps/api/src/domain`):** nạp Data Pack thành bảng, dữ liệu bổ sung, hành động có kiểm quyền (nộp chứng từ, phê duyệt, tranh chấp, ký, chuyển kế toán, ngoại lệ BR-19), màn xem và việc cần làm. Mọi quyết định lấy từ engine Python; web chỉ gọi `POST /workflow/:module/:action`.
 - **Engine Python:** đánh giá Data Pack dựa trên đặc tả/kiểm chứng hiện có. Adapter bổ sung định dạng nộp, trace, fingerprint và thời gian thực thi; không sửa các luật đã được duyệt bằng cách đổi UI.
 
 Kiểu dữ liệu trao đổi nằm trong `packages/contracts`. Resource CRUD khai báo ở `resources.json`; các field được dùng để dựng form và whitelist/validate ở API. TypeScript không tự chia sẻ kiểu trực tiếp với Python: adapter xuất schema CSV và có test hợp đồng đầu ra.
@@ -44,14 +44,18 @@ Kho file local có hàng đợi và ghi file tạm/rename, dùng cho một insta
 
 ## 5. Workflow và dữ liệu thật
 
-Các action được whitelist theo module, đối chiếu actor từ JWT, kiểm hợp đồng/đơn vị và role theo hành động. Người ký phải là signer được gán; nhà cung cấp không được tự nhận role phê duyệt. Khi gọi hành động, snapshot workflow được lưu ở backend để các vai cùng nhìn một trạng thái; lỗi được rollback trước khi lưu.
+Các action được whitelist theo module trong `workflow.controller.ts`, mỗi action ánh xạ tới một quyền; actor lấy từ JWT, phạm vi hợp đồng lấy từ tổ chức của actor. Người ký phải là signer được gán; người phê duyệt phải đúng bên mua và đúng vai trò còn thiếu; mỗi bên chỉ ghi loại sự kiện thuộc thẩm quyền của mình (ma trận 4.2).
 
-Bộ hợp đồng minh họa và Data Pack là hai luồng dữ liệu khác nhau:
+Một luồng dữ liệu duy nhất:
 
-1. Workflow UI dùng bộ mẫu ban đầu để trình diễn intake/ký/evidence/approval/dispute. Các hàm cũ được giữ để tránh đổi luật lẫn trong đợt đổi UI.
-2. Trang Data Pack gọi Python, xử lý 100 hợp đồng/405 mốc, bốn quyết định và tiền Decimal. CSV chuẩn có 22 cột và trace từng mốc.
+1. Lần khởi động đầu, `DomainService.bootstrap()` nạp contracts, parties, milestones, events, payment_rules của Data Pack (nguồn `DATA_PACK`) và dữ liệu bổ sung mà Data Pack không có: tài khoản, thứ tự ký, bốn hợp đồng demo CT0101–CT0104 (nguồn `SEED`).
+2. Mỗi hành động ghi sự kiện theo đúng schema `events.csv` (nguồn `APP`), rồi chạy engine trên toàn bộ dữ liệu: ghi bảng ra thư mục tạm, gọi `apps/engine/cli.py --data`, khoảng 0,1 giây. Kết quả, lịch sử trạng thái (mã lượt chạy, nguyên nhân) và audit lưu cùng một giao dịch (`Repository.transact`).
+3. Mốc bị từ chối hoặc đã chuyển kế toán bị khoá. Quyết định ngoại lệ BR-19 được duyệt chuyển thành `voided_events.csv` cho engine.
+4. Trang Data Pack vẫn chạy engine trên Data Pack gốc hoặc bộ dữ liệu tải lên để xuất CSV 22 cột, trace và KPI mục 15.
 
-Việc nhập Data Pack thành toàn bộ đối tượng workflow tương tác, làm đầy đủ validation theo từng hành động và đồng nhất mọi rule ở hai luồng là bước tích hợp tiếp theo; không gọi các thao tác ký mô phỏng là CA thật. Luật grace/penalty trong workflow minh họa vẫn cần đối chiếu với đặc tả trước khi dùng cho hồ sơ thực tế.
+Generic CRUD không sửa được bản ghi của Data Pack và của luồng nghiệp vụ: resource khai báo `managedOrigins` trong `resources.json`, API trả `MANAGED_RECORD`.
+
+Toàn vẹn: `Repository.transact` nối mọi bản ghi nhật ký vào hash chain (`common/audit-chain.ts`: `seq`, `prevHash`, `hash` = SHA-256 của JSON chuẩn hoá) và từ chối sửa, xoá bản ghi cũ (`APPEND_ONLY_RESOURCE`). Bản ghi đầu niêm phong mã băm từng bảng dữ liệu BTC lúc nhập; bản ghi của mỗi thao tác niêm phong mã băm các sự kiện nó tạo. Hành động `integrity.verifyIntegrity` kiểm lại chuỗi, các niêm phong và chạy lại engine để đối soát mọi quyết định đã lưu; `contracts.getMilestoneTimeline` phát lại một mốc theo từng sự kiện (`cli.py --timeline`, chế độ as-of BR-16). Ký số vẫn là mô phỏng, không gọi là CA thật. Tính năng theo vai trò và kịch bản demo ở [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md).
 
 ## 6. Cách thêm tính năng
 
@@ -63,6 +67,6 @@ Việc nhập Data Pack thành toàn bộ đối tượng workflow tương tác,
 
 ## 7. Kiểm tra và triển khai
 
-Theo README root: install → typecheck/lint → build → test → smoke HTTP. Bộ nghiệp vụ Python cũ được giữ; adapter CSV có test schema, tiền và trace; nền API có test scope/version/import/persistence; workflow có test giả actor và lưu bền.
+Theo README root: install → typecheck/lint → build → test → smoke HTTP. Bộ nghiệp vụ Python cũ được giữ; adapter CSV có test schema, tiền, trace, BR-19 và KPI; nền API có test scope/version/import/persistence; workflow có test trên Data Pack thật: phạm vi, việc theo vai trò, thẩm quyền, tranh chấp, BR-19, chuyển kế toán, ký theo thứ tự, hợp đồng mới, bản ghi được bảo vệ và lưu bền.
 
 CI build image `api`/`web` và chạy stack `infra/compose.prod.yaml` với smoke qua nginx, nhưng không tự deploy. Cách dựng môi trường ở [07 — Triển khai](07_HUONG_DAN_TRIEN_KHAI.md). CA, email và object storage bên ngoài cần cấu hình/kiểm thử riêng. Không có tác vụ tự gửi email hoặc thanh toán thật trong base này.

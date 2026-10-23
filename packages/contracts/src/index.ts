@@ -1,10 +1,6 @@
-export type Decision = "RELEASE" | "HOLD" | "REJECT" | "PENALTY";
-export type Role =
-  | "CONTRACT_OWNER"
-  | "LEGAL_REVIEWER"
-  | "FINANCE_APPROVER"
-  | "ADMIN_AUDITOR"
-  | "SUPPLIER";
+import type { Decision, Role } from "./workflow";
+export * from "./workflow";
+export * from "./listing";
 export interface PageQuery {
   page?: number;
   limit?: number;
@@ -45,6 +41,9 @@ export interface Actor {
   role: Role;
   organizationId: string;
   roleChipOrganization: string;
+  /** Data Pack party the user acts as; null for internal staff. */
+  partyId: string | null;
+  title: string;
   permissions: string[];
 }
 export interface AuthResult {
@@ -63,12 +62,17 @@ export interface ResourceDefinition {
   name: string;
   fields: ResourceField[];
   readOnly?: boolean;
+  /** Records with these origins belong to the Data Pack or the workflow: CRUD may read, not change them. */
+  managedOrigins?: string[];
 }
 export const roles: Role[] = [
   "CONTRACT_OWNER",
-  "LEGAL_REVIEWER",
   "FINANCE_APPROVER",
+  "SECONDARY_APPROVER",
+  "LEGAL_REVIEWER",
   "ADMIN_AUDITOR",
+  "SYSTEM_ADMIN",
+  "AUDITOR",
   "SUPPLIER",
 ];
 export const decisions: Decision[] = ["RELEASE", "HOLD", "REJECT", "PENALTY"];

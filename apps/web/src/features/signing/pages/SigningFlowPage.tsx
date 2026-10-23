@@ -2,7 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppPage } from "@/shared/layout/AppPage";
-import { formatDateTime, formatMillionVnd } from "@/shared/lib/format";
+import { useAccess } from "@codecash/ui";
+import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
+import { OriginTag } from "@/shared/ui/DomainTags";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import { cancelSigning } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
@@ -15,7 +17,6 @@ import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SigningFlowPage.module.css";
 
-const DEFAULT_CONTRACT = "CT0101";
 const RULES = ["turn", "lock", "cancel"] as const;
 
 type StepState = "MINE" | "CURRENT" | "WAITING" | "SIGNED";
@@ -28,7 +29,7 @@ function stepState(step: SignStepView, overview: SigningOverview): StepState {
 
 export default function SigningFlowPage() {
   const { t } = useTranslation("signing");
-  const contractId = useParams().contractId ?? DEFAULT_CONTRACT;
+  const contractId = useParams().contractId ?? "";
   const user = useCurrentUser();
   const overview = useQuery({
     queryKey: signingKeys.overview(contractId, user.id),
@@ -62,13 +63,14 @@ function Flow({
   const { t } = useTranslation("signing");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const user = useCurrentUser();
+  const { hasPermission } = useAccess(user);
   const { steps } = overview;
   const allSigned = steps.every((step) => step.status === "SIGNED");
   const myTurn =
     overview.currentStepNo !== null &&
     overview.currentStepNo === overview.myStepNo;
-  const canCancel =
-    !overview.anySigned && overview.myStepNo === steps[0]?.stepNo;
+  const canCancel = !overview.anySigned && hasPermission("signing:cancel");
   const signaturePage = overview.previewPages.find(
     (page) => page.hasSignatureBlock,
   );
@@ -77,7 +79,7 @@ function Flow({
     mutationFn: () => cancelSigning(contractId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["signing"] });
-      void navigate(`/contracts/${contractId}/sign-positions`);
+      void navigate("/contracts/new");
     },
   });
 
@@ -98,12 +100,13 @@ function Flow({
             >
               {t(`flow.status.${allSigned ? "SIGNED" : "WAITING"}`)}
             </span>
+            <OriginTag origin={overview.origin} />
           </div>
           <div className={styles.meta}>
             {t("flow.meta", {
               code: overview.contractCode,
               supplier: overview.supplierName,
-              value: formatMillionVnd(overview.valueMillion),
+              value: formatDecimalString(overview.valueMillion),
               count: overview.pageCount,
             })}
           </div>

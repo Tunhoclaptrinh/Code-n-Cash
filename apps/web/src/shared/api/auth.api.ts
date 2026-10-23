@@ -16,18 +16,30 @@ export interface DemoAccount {
   displayName: string;
   role: Role;
   organization: string;
+  organizationId: string;
+  partyId: string | null;
+}
+
+export interface DemoDirectory {
+  /** Accounts of the demo buyer and supplier, plus the two controllers. */
+  featured: DemoAccount[];
+  /** Every other seeded account, by Data Pack organisation. */
+  organizations: { id: string; name: string; accounts: DemoAccount[] }[];
 }
 
 /** Sample accounts offered on the sign-in page; empty when the API has demo sign-in off. */
-export async function listDemoAccounts(): Promise<DemoAccount[]> {
+export async function listDemoAccounts(): Promise<DemoDirectory> {
   try {
     const result = await platform.get<{
       enabled: boolean;
       accounts: DemoAccount[];
+      organizations: DemoDirectory["organizations"];
     }>("/auth/demo-accounts");
-    return result.enabled ? result.accounts : [];
+    return result.enabled
+      ? { featured: result.accounts, organizations: result.organizations ?? [] }
+      : { featured: [], organizations: [] };
   } catch {
-    return [];
+    return { featured: [], organizations: [] };
   }
 }
 

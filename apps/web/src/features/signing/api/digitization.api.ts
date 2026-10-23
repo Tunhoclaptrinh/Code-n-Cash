@@ -1,23 +1,6 @@
-import { workflowCall } from "@/shared/api/workflow";
-import type { Digitization } from "../types";
-export async function getDigitization(
-  contractCode: string,
-): Promise<Digitization> {
-  return workflowCall("signing-digitization", "getDigitization", [
-    contractCode,
-  ]);
-}
+export { confirmDigitization, getDigitization } from "@/shared/api/domain";
+
 export interface ConfirmDigitizationInput {
-  /** Due date (ISO) for the milestone that needed confirmation; null leaves it open, so the milestone stays on HOLD. */
+  /** Due date (ISO) of the milestone that needed confirmation; null keeps it open and the engine holds it (rule 80). */
   dueDate: string | null;
-}
-/** Locks the digitised terms. Changing them afterwards needs a new version and new signatures. */
-export async function confirmDigitization(
-  contractCode: string,
-  input: ConfirmDigitizationInput,
-): Promise<Digitization> {
-  return workflowCall("signing-digitization", "confirmDigitization", [
-    contractCode,
-    input,
-  ]);
 }

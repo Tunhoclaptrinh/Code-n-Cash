@@ -15,11 +15,22 @@ async function request(path, method = "GET", body, token) {
 }
 assert.equal((await request("/resources/users")).status, 401);
 const login = await request("/auth/login", "POST", {
-  email: "admin@novaan.vn",
+  email: "admin@codecash.vn",
   password: "Passw0rd!",
 });
 assert.equal(login.status, 201);
 const admin = login.body.data.token;
+// Accounts and configuration belong to the system administrator, not the controller (SoD-1).
+const sysadmin = (
+  await request("/auth/login", "POST", {
+    email: "sysadmin@codecash.vn",
+    password: "Passw0rd!",
+  })
+).body.data.token;
+assert.equal(
+  (await request("/resources/users", "GET", undefined, admin)).status,
+  403,
+);
 const owner = (
   await request("/auth/login", "POST", {
     email: "owner@novaan.vn",
@@ -52,7 +63,8 @@ assert.equal(
   403,
 );
 assert.equal(
-  (await request("/resources/users?limit=999", "GET", undefined, admin)).status,
+  (await request("/resources/users?limit=999", "GET", undefined, sysadmin))
+    .status,
   400,
 );
 const created = await request(
@@ -61,7 +73,7 @@ const created = await request(
   {
     code: `SMOKE-${Date.now()}`,
     title: "Smoke draft",
-    supplierId: "org-phu-minh",
+    supplierId: "S015",
     contractType: "GOODS_SUPPLY",
   },
   owner,
@@ -108,6 +120,118 @@ assert.equal(
     )
   ).status,
   200,
+);
+// Data Pack and workflow records change only through their own actions (managedOrigins).
+const dataPackBuyer = (
+  await request("/resources/organizations/B010", "GET", undefined, sysadmin)
+).body.data;
+const renamed = await request(
+  "/resources/organizations/B010",
+  "PATCH",
+  { name: "Renamed", version: dataPackBuyer.version },
+  sysadmin,
+);
+assert.equal(renamed.status, 403);
+assert.equal(renamed.body.code, "MANAGED_RECORD");
+// Workflow over the Data Pack: the API decides nothing itself, the engine does.
+const workflow = (module, action, args, token) =>
+  request(`/workflow/${module}/${action}`, "POST", { args }, token);
+const finance = (
+  await request("/auth/demo-login", "POST", { email: "finance@novaan.vn" })
+).body.data.token;
+const ownerList = await workflow("contracts", "getContractList", [], owner);
+assert.equal(ownerList.status, 201);
+assert.ok(ownerList.body.data.contracts.some((c) => c.id === "CT0019"));
+assert.ok(ownerList.body.data.contracts.every((c) => c.buyer.id === "B010"));
+const supplierList = await workflow(
+  "contracts",
+  "getContractList",
+  [],
+  supplier,
+);
+assert.ok(
+  supplierList.body.data.contracts.every((c) => c.supplier.id === "S015"),
+);
+assert.equal(
+  (await workflow("contracts", "getContractOverview", ["CT0001"], supplier))
+    .status,
+  403,
+);
+const tasks = await workflow("tasks", "getTaskInbox", [], finance);
+assert.ok(
+  tasks.body.data.some(
+    (t) => t.kind === "APPROVE_PAYMENT" && t.contractId === "CT0103",
+  ),
+);
+const vote = await workflow(
+  "approvals",
+  "castVote",
+  [{ contractId: "CT0103", sequence: 2, choice: "APPROVE" }],
+  finance,
+);
+assert.equal(vote.status, 201);
+assert.equal(vote.body.data.evaluation.decision, "PENALTY");
+assert.equal(
+  (
+    await workflow(
+      "approvals",
+      "castVote",
+      [{ contractId: "CT0103", sequence: 2, choice: "APPROVE" }],
+      supplier,
+    )
+  ).status,
+  403,
+);
+
+// Lists are read page by page; search ignores accents, the total covers every page.
+const paged = await workflow(
+  "contracts",
+  "listContracts",
+  [
+    {
+      page: 1,
+      limit: 5,
+      search: "thiet bi",
+      sortBy: "valueMillion",
+      sortOrder: "desc",
+    },
+  ],
+  owner,
+);
+assert.equal(paged.status, 201);
+assert.ok(paged.body.data.items.length <= 5);
+assert.ok(paged.body.data.total >= paged.body.data.items.length);
+assert.ok(paged.body.data.items.every((c) => /thiết bị/i.test(c.title)));
+assert.equal(
+  (
+    await workflow(
+      "contracts",
+      "listContracts",
+      [{ filters: { secret: ["x"] } }],
+      owner,
+    )
+  ).status,
+  400,
+);
+// Replay of one milestone, and the integrity check over the audit chain, evidence and decisions.
+const timeline = await workflow(
+  "contracts",
+  "getMilestoneTimeline",
+  ["CT0103", 2],
+  owner,
+);
+assert.equal(timeline.status, 201);
+assert.ok(timeline.body.data.length >= 2);
+const integrity = await workflow("integrity", "verifyIntegrity", [], admin);
+assert.equal(integrity.status, 201);
+assert.equal(integrity.body.data.chain.ok, true);
+assert.equal(
+  integrity.body.data.decisions.matched,
+  integrity.body.data.decisions.checked,
+);
+assert.equal(
+  (await workflow("integrity", "verifyIntegrity", [], supplier)).status,
+  403,
 );
 const engine = await request("/engine/evaluate", "POST", {}, admin);
 assert.equal(engine.status, 201);
@@ -169,5 +293,5 @@ assert.equal(
   200,
 );
 console.log(
-  "API smoke passed: auth, RBAC, scope, CRUD, stale versions, pagination, append-only audit, engine/schema, dataset upload/run/download.",
+  "API smoke passed: auth, RBAC, scope, CRUD, stale versions, pagination, append-only audit, workflow on the Data Pack (scope, paged lists, tasks, approval → engine, replay, integrity), engine/schema, dataset upload/run/download.",
 );

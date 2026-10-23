@@ -24,6 +24,7 @@ import { Repository } from "./common/repository";
 import { BaseService } from "./common/services/base.service";
 import type { RecordEntity, SessionRequest } from "./common/types";
 import { RequirePermission } from "./common/permissions";
+import { repoRoot } from "./common/paths";
 
 /** Files the engine writes for a dataset run (cli.py --output). */
 const OUTPUTS: Record<string, string> = {
@@ -41,7 +42,7 @@ function python(args: string[], timeoutMs: number): Promise<string> {
     const child = spawn(
       process.env.PYTHON ?? "python3",
       ["apps/engine/cli.py", ...args],
-      { cwd: process.env.REPO_ROOT ?? process.cwd(), env: process.env },
+      { cwd: repoRoot(), env: process.env },
     );
     let out = "",
       err = "";
@@ -84,12 +85,7 @@ export class EngineController {
   private folder(id: string) {
     if (!/^[a-f0-9-]{36}$/.test(id))
       throw new BadRequestException("INVALID_DATASET");
-    return resolve(
-      process.env.REPO_ROOT ?? process.cwd(),
-      process.env.DATA_DIR ?? ".data",
-      "datasets",
-      id,
-    );
+    return resolve(repoRoot(), process.env.DATA_DIR ?? ".data", "datasets", id);
   }
   /** Datasets belong to the uploader's organization. */
   private async dataset(id: string, req: SessionRequest) {

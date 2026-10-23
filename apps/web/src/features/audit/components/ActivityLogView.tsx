@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Tag, Typography } from "antd";
@@ -8,26 +8,21 @@ import {
   DetailModal,
   IconButton,
   PageContainer,
-  exportToCSV,
-  exportToJSON,
-  useFilters,
-  usePagination,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
+import { listActivity } from "@/shared/api/domain";
+import { useCurrentUser } from "@/shared/auth/session";
 import { formatDateTime } from "@/shared/lib/format";
-import { columnSearch } from "@/shared/ui/columnSearch";
+import { useListQuery } from "@/shared/lib/useListQuery";
+import { OriginTag } from "@/shared/ui/DomainTags";
 import {
+  actionLabel,
   actorName,
   contractReference,
   describeAction,
-  filterActivity,
 } from "../lib/activityText";
-import type {
-  ActivityCategory,
-  ActivityEntry,
-  ActivityFilters,
-} from "../types";
+import type { ActivityCategory, ActivityEntry } from "../types";
 
 const categories: ActivityCategory[] = [
   "SIGN",
@@ -54,60 +49,48 @@ const categoryColor: Record<
     value: "var(--text-primary)",
   },
 };
-const EMPTY: ActivityFilters = {
-  contractCode: "",
-  actorId: "",
-  category: "",
-  from: "",
-  to: "",
-};
-
-/** Append-only audit trail: list, filter, inspect and export. There is no edit or delete. */
+/**
+ * Append-only audit trail: list, filter, inspect and export; there is no edit or delete. Entries
+ * are read page by page from the API, newest first; every filter and the search are part of the
+ * request, so the total and the export are exactly the matching entries.
+ */
 export function ActivityLogView({
-  entries,
-  loading,
-  onRefresh,
+  initialContract = "",
 }: {
-  entries: ActivityEntry[];
-  loading: boolean;
-  onRefresh: () => void;
+  /** Contract to filter on when the page opens (`?contract=` in the URL). */
+  initialContract?: string;
 }) {
   const { t } = useTranslation("audit");
-  const [tab, setTab] = useState<ActivityCategory | "ALL">("ALL");
-  const [search, setSearch] = useState("");
+  const user = useCurrentUser();
   const [detail, setDetail] = useState<ActivityEntry>();
-  const { filters, updateFilter, clearFilters } =
-    useFilters<ActivityFilters>(EMPTY);
-  const { page, pageSize, goToPage, handleTableChange } = usePagination(1, 10);
-
-  const visible = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return filterActivity(entries, {
-      ...filters,
-      category: tab === "ALL" ? filters.category : tab,
-    })
-      .filter(
-        (e) =>
-          !query ||
-          [
-            describeAction(t, e.action),
-            actorName(t, e),
-            contractReference(t, e),
-          ].some((text) => text.toLowerCase().includes(query)),
-      )
-      .sort((a, b) => b.at.localeCompare(a.at));
-  }, [entries, filters, tab, search, t]);
-
-  const changeTab = (key: string) => {
-    setTab(key as ActivityCategory | "ALL");
-    goToPage(1);
-  };
+  const list = useListQuery<
+    ActivityEntry,
+    Awaited<ReturnType<typeof listActivity>>
+  >({
+    key: ["activity-log", user.id],
+    fetch: listActivity,
+    sort: { by: "at", order: "desc" },
+    filters: initialContract ? { contractCode: [initialContract] } : {},
+  });
+  const { filters, setFilter } = list;
+  const facets = list.data?.facets ?? {};
+  const actorNames = list.data?.actorNames ?? {};
+  const count = (key: string, value: string) =>
+    facets[key]?.find((f) => f.value === value)?.count ?? 0;
+  const tab =
+    filters.category?.length === 1 ? String(filters.category[0]) : "ALL";
+  const changeTab = (key: string) =>
+    setFilter("category", key === "ALL" ? undefined : [key]);
+  const options = (key: string, label: (value: string) => string) =>
+    (facets[key] ?? []).map((f) => ({ value: f.value, label: label(f.value) }));
+  const columnFilters = (key: string, label: (value: string) => string) =>
+    options(key, label).map((o) => ({ text: o.label, value: o.value }));
   // System entries are automatic; the pills cover the four human activity types.
   const statistics: StatisticsItem[] = categories
     .filter((category) => category !== "SYSTEM")
     .map((category) => ({
       title: t(`categories.${category}`),
-      value: entries.filter((e) => e.category === category).length,
+      value: count("category", category),
       backgroundColor: categoryColor[category].bg,
       valueColor: categoryColor[category].value,
       selected: tab === category,
@@ -118,43 +101,48 @@ export function ActivityLogView({
       key: "contractCode",
       label: t("filters.contract"),
       type: "select",
-      options: [...new Set(entries.map((x) => x.contractCode))]
-        .sort()
-        .map((value) => ({ value, label: value })),
+      operators: ["eq"],
+      options: options("contractCode", (v) => v),
     },
     {
       key: "actorId",
       label: t("filters.actor"),
       type: "select",
-      options: [
-        ...new Map(
-          entries.map((x) => [
-            x.actor.id,
-            { value: x.actor.id, label: actorName(t, x) },
-          ]),
-        ).values(),
-      ],
+      operators: ["eq"],
+      options: options(
+        "actorId",
+        (v) => actorNames[v] || t("actorNames.SYSTEM"),
+      ),
     },
-    { key: "from", label: t("filters.from"), type: "date" },
-    { key: "to", label: t("filters.to"), type: "date" },
+    {
+      key: "from",
+      label: t("filters.from"),
+      type: "date",
+      operators: ["gte"],
+      defaultOperator: "gte",
+    },
+    {
+      key: "to",
+      label: t("filters.to"),
+      type: "date",
+      operators: ["lte"],
+      defaultOperator: "lte",
+    },
   ];
 
   const columns = [
     {
-      key: "at",
+      ...list.column("at"),
       dataIndex: "at",
       title: t("table.columns.time"),
-      sorter: (a: ActivityEntry, b: ActivityEntry) => a.at.localeCompare(b.at),
+      sorter: true,
       render: formatDateTime,
     },
     {
-      key: "actor",
+      ...list.column("actorRole"),
       title: t("table.columns.actor"),
-      filters: [...new Set(entries.map((e) => e.actor.role))].map((role) => ({
-        text: t(`actorRoles.${role}`),
-        value: role,
-      })),
-      onFilter: (value: unknown, e: ActivityEntry) => e.actor.role === value,
+      filters: columnFilters("actorRole", (v) => t(`actorRoles.${v}`)),
+      filterMultiple: false,
       render: (_: unknown, e: ActivityEntry) => (
         <>
           {actorName(t, e)}
@@ -167,49 +155,65 @@ export function ActivityLogView({
       ),
     },
     {
-      key: "category",
+      ...list.column("category"),
       dataIndex: "category",
       title: t("table.columns.category"),
       filters: categories.map((value) => ({
         text: t(`categories.${value}`),
         value,
       })),
-      onFilter: (value: unknown, e: ActivityEntry) => e.category === value,
+      filterMultiple: false,
       render: (c: ActivityCategory) => (
         <Tag color={categoryColor[c].tag}>{t(`categories.${c}`)}</Tag>
       ),
     },
     {
-      key: "action",
+      ...list.column("action"),
       title: t("table.columns.action"),
-      ...columnSearch<ActivityEntry>((e) => describeAction(t, e.action)),
+      filters: columnFilters("action", (v) => actionLabel(t, v)),
+      filterMultiple: false,
+      filterSearch: true,
       render: (_: unknown, e: ActivityEntry) => describeAction(t, e.action),
     },
     {
-      key: "contract",
+      ...list.column("contractCode"),
       title: t("table.columns.contract"),
-      filters: [...new Set(entries.map((e) => e.contractCode))]
-        .sort()
-        .map((value) => ({ text: value, value })),
+      filters: columnFilters("contractCode", (v) => v),
+      filterMultiple: false,
       filterSearch: true,
-      onFilter: (value: unknown, e: ActivityEntry) => e.contractCode === value,
       render: (_: unknown, e: ActivityEntry) => (
         <Link to={`/contracts/${e.contractCode}`}>
           {contractReference(t, e)}
         </Link>
       ),
     },
+    {
+      ...list.column("origin"),
+      title: t("table.columns.origin"),
+      filters: (["DATA_PACK", "SEED", "APP"] as const).map((value) => ({
+        text: t(`domain:origin.${value}`),
+        value,
+      })),
+      filterMultiple: false,
+      render: (_: unknown, e: ActivityEntry) => <OriginTag origin={e.origin} />,
+    },
   ];
 
-  const exportRows = (list: ActivityEntry[]) =>
-    list.map((e) => ({
-      [t("table.columns.time")]: formatDateTime(e.at),
-      [t("table.columns.actor")]: actorName(t, e),
-      [t("table.actorRoleColumn")]: t(`actorRoles.${e.actor.role}`),
-      [t("table.columns.category")]: t(`categories.${e.category}`),
-      [t("table.columns.action")]: describeAction(t, e.action),
-      [t("table.columns.contract")]: contractReference(t, e),
-    }));
+  const onExport = list.exporter(
+    columns,
+    {
+      at: (e) => formatDateTime(e.at),
+      actorRole: (e) => ({
+        [t("table.columns.actor")]: actorName(t, e),
+        [t("table.actorRoleColumn")]: t(`actorRoles.${e.actor.role}`),
+      }),
+      category: (e) => t(`categories.${e.category}`),
+      action: (e) => describeAction(t, e.action),
+      contractCode: (e) => contractReference(t, e),
+      origin: (e) => t(`domain:origin.${e.origin}`),
+    },
+    t("export.fileName").replace(/\.csv$/, ""),
+  );
 
   return (
     <PageContainer
@@ -219,9 +223,8 @@ export function ActivityLogView({
     >
       <DataTable<ActivityEntry>
         rowKey="id"
-        dataSource={visible}
         columns={columns}
-        loading={loading}
+        {...list.table}
         emptyText={t("table.empty")}
         statisticsData={statistics}
         tabs={[
@@ -233,36 +236,17 @@ export function ActivityLogView({
         ]}
         activeTab={tab}
         onTabChange={changeTab}
-        searchValue={search}
-        onSearch={(value) => {
-          setSearch(value);
-          goToPage(1);
+        // The filter builder reads a "from"/"to" condition under its operator suffix.
+        filterValues={{
+          ...list.table.filterValues,
+          from_gte: list.table.filterValues.from,
+          to_lte: list.table.filterValues.to,
         }}
         searchPlaceholder={t("filters.searchPlaceholder")}
         filters={filterConfig}
-        filterValues={filters}
-        onFilterChange={(key, value) => {
-          updateFilter(key as keyof ActivityFilters, value ?? "");
-          goToPage(1);
-        }}
-        onClearFilters={clearFilters}
-        onRefresh={onRefresh}
-        pagination={{ current: page, pageSize, total: visible.length }}
-        onPaginationChange={handleTableChange}
         exportable
         exportFilename={t("export.fileName")}
-        onExport={(options) => {
-          const rows = exportRows(
-            options.scope === "page"
-              ? visible.slice((page - 1) * pageSize, page * pageSize)
-              : options.scope === "custom"
-                ? visible.slice(0, options.limit)
-                : visible,
-          );
-          const name = t("export.fileName").replace(/\.csv$/, "");
-          if (options.format === "json") exportToJSON(rows, name);
-          else exportToCSV(rows, name);
-        }}
+        onExport={(options) => void onExport(options)}
         onView={(e) => setDetail(e)}
         customActions={(e) => (
           <IconButton

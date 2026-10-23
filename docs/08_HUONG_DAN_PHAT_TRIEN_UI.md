@@ -19,8 +19,8 @@ apps/web/src/
     onboarding/         Màn chào lần đầu (chọn ngôn ngữ, giao diện) và gợi ý trên header
     pages/              NotFoundPage, RouteErrorPage
     ui/                 PageState, Panel, ToneTag, BrandMark, ExpandableModal,
-                        ImportPreviewModal, columnSearch
-    api/ auth/ lib/     Client có xác thực, phiên đăng nhập, định dạng
+                        ImportPreviewModal, columnSearch, DomainTags
+    api/ auth/ lib/     Client có xác thực, lệnh nghiệp vụ (domain.ts), phiên đăng nhập, định dạng
   features/<miền>/      api/ components/ pages/ lib/ types.ts
   locales/{vi,en}/      Một namespace cho mỗi miền + common
 ```
@@ -29,25 +29,36 @@ apps/web/src/
 
 ## 3. Mẫu trang danh sách (theo `SkuMappingTable` của UniFlow)
 
-Mọi trang danh sách dùng đủ các phần sau của base. Trang mẫu: [ContractListPage](../apps/web/src/features/contracts/pages/ContractListPage.tsx) (lọc phía client), [ResourcePage](../apps/web/src/features/platform/ResourcePage.tsx) (CRUD phía server).
+Mọi trang danh sách dùng đủ các phần sau của base. Trạng thái bảng (trang, cỡ trang, tìm kiếm, bộ lọc, lọc theo cột, sắp xếp) nằm ở **một chỗ** và đi kèm mỗi lần đọc dữ liệu, nên dòng hiển thị, ô "Tổng", menu lọc và tệp xuất luôn khớp nhau.
+
+- **Danh sách nghiệp vụ** (hợp đồng, việc cần làm, ngoại lệ, nhật ký): đọc từng trang từ API (`contracts.listContracts`, `tasks.listTasks`, `exceptions.listExceptions`, `activity.listActivity`). Trang mẫu: [ContractListPage](../apps/web/src/features/contracts/pages/ContractListPage.tsx).
+- **Một tài liệu đã có trong trình duyệt** (kết quả engine, ma trận quyền): cùng bộ máy, chạy tại chỗ qua `localList(rows, spec)`. Trang mẫu: [DataPage](../apps/web/src/features/platform/DataPage.tsx).
+- **Tài nguyên CRUD**: `useResource` của base, đọc từng trang qua `/resources/:r`. Trang mẫu: [ResourcePage](../apps/web/src/features/platform/ResourcePage.tsx).
+
+Bộ máy danh sách: [`apps/api/src/domain/listing.ts`](../apps/api/src/domain/listing.ts), bản sao đúng từng chữ ở `packages/contracts/src/listing.ts` (có test so khớp). Mỗi danh sách khai báo các trường (`ListSpec`): trường nào lọc được (`eq` một trong các giá trị, `contains` chứa chuỗi, `gte`/`lte` so từ đầu chuỗi như ngày ISO), trường nào sắp xếp được, trường nào có `facet` (giá trị riêng kèm số đếm trên toàn phạm vi, dùng cho thẻ thống kê và menu lọc). Tham số sai (trường lạ, cỡ trang > 100, thứ tự sắp xếp lạ) bị từ chối `INVALID_FILTER` / `INVALID_PAGINATION` / `INVALID_SORT`.
 
 | Phần | Cách dùng |
 | --- | --- |
 | Khung | `PageContainer` (tiêu đề, `subtitle`, `tooltip`, `extra`) bọc `DataTable` |
-| Thống kê | `statisticsData`: thẻ pill có `backgroundColor`/`valueColor`, bấm để chuyển tab |
-| Tab nhanh | `tabs`, `activeTab`, `onTabChange` theo trạng thái |
-| Tìm kiếm | Lọc client: `searchFields`; lọc server hoặc tìm theo chữ đã dịch: `searchValue` + `onSearch` |
-| Bộ lọc | `filters` (`FilterConfig`: `select`, `input`, `date`) + `useFilters` → `filterValues`, `onFilterChange`, `onClearFilters` |
-| Lọc theo cột | Cột liệt kê được: `filters` + `onFilter` của Ant Design (thêm `filterSearch` khi nhiều giá trị). Cột chữ: `...columnSearch((row) => text)` từ `shared/ui/columnSearch`. Lọc phía server (ResourcePage): `filteredValue` + `filterMultiple: false`, đổi thành `params.filters` trong `onPaginationChange` |
-| Chọn bản ghi liên kết | Trường có `ref` trong `resources.json`: `DebounceSelect` tìm từ xa, lưu id, hiển thị tên; bảng và tệp xuất có cột `<field>_name` |
-| Tải lại | `onRefresh={() => query.refetch()}` |
-| Phân trang | Client: `usePagination` → `pagination={{ current, pageSize }}`, `onPaginationChange={handleTableChange}`; server: `useResource` |
-| Xuất/nhập | Lọc client: `exportable` + `onExport` (dữ liệu đã làm phẳng, nhãn đã dịch). Tài nguyên CRUD (theo Base): xuất phía server `GET /resources/:r/export?format&columns&filters…`; nhập qua `GET …/template` → `POST …/import/validate` → `ImportPreviewModal` (báo lỗi từng dòng) → chỉ nhập dòng hợp lệ |
+| Trạng thái bảng | `const list = useListQuery({ key, fetch, sort })` ([`shared/lib/useListQuery.ts`](../apps/web/src/shared/lib/useListQuery.ts)) rồi `<DataTable {...list.table} />`: tự có `dataSource`, `pagination` (tổng từ server), `onPaginationChange`, `searchValue`/`onSearch`, `filterValues`/`onFilterChange`/`onClearFilters`, `onRefresh`, `loading`, `exportLoading` |
+| Thống kê | `statisticsData` tính từ `list.data.facets` (số trên toàn phạm vi); bấm thẻ gọi `list.setFilter(key, values)` |
+| Tab nhanh | `activeTab` suy từ `list.filters`, `onTabChange` gọi `list.setFilter` (tab chính là một bộ lọc) |
+| Tìm kiếm | Gửi lên cùng truy vấn sau 300 ms ngừng gõ; không phân biệt hoa thường và dấu ("thiet bi" tìm ra "thiết bị"); mọi từ đều phải có. Ghi `searchPlaceholder` nói rõ tìm trong cột nào |
+| Bộ lọc | `filters` (`FilterConfig`) với **`operators: ["eq"]`** (bộ lọc ngày dùng `["gte"]`/`["lte"]`): trang chỉ nhận giá trị, nên không bày toán tử mà trang không áp dụng. Lựa chọn lấy từ `facets` |
+| Lọc theo cột | `...list.column(key)` (điều khiển `filteredValue` và `sortOrder`), thêm `filters` + `filterMultiple: false`, cột chữ thêm `...columnSearch()`. **Không** dùng `onFilter` hay hàm `sorter`: lọc và sắp xếp ở nơi đọc dữ liệu. Khoá cột trùng tên trường của spec; bộ lọc và lọc theo cột cùng một trạng thái |
+| Sắp xếp | `sorter: true` trên cột có trường `sort`; bấm lần ba trở về thứ tự mặc định |
+| Chọn bản ghi liên kết | Trường có `ref` trong `resources.json`: `DebounceSelect` tìm từ xa, lưu id, hiển thị tên; bảng và tệp xuất có cột `<field>_name`; tìm kiếm khớp cả tên bản ghi được tham chiếu |
+| Tải lại | `onRefresh` (có sẵn trong `list.table`) |
+| Phân trang | Có sẵn: đổi bộ lọc, tìm kiếm, sắp xếp hay cỡ trang thì về trang 1; trang không còn tồn tại thì server trả trang cuối |
+| Xuất | `onExport={(o) => void list.exporter(columns, values, tên)(o)}`: phạm vi trang hiện tại, tất cả (đọc lần lượt từng trang 100 dòng) hoặc N dòng đầu, đúng thứ tự đang xem; chỉ các cột đã chọn, mỗi cột ghi đúng điều cột đó hiển thị (một cột có thể ghi nhiều ô, ví dụ mã + tiêu đề). Tài nguyên CRUD xuất phía server `GET /resources/:r/export?format&columns&filters…` |
+| Nhập | Chỉ tài nguyên CRUD: `GET …/template` → `POST …/import/validate` → `ImportPreviewModal` (báo lỗi từng dòng) → chỉ nhập dòng hợp lệ; `importColumns` là các trường của resource |
 | Quyền | `useAccess(user).hasPermission("module:action")`; ẩn nút khi không có quyền, API vẫn kiểm lại |
 | Thao tác hàng | `customActions` **thay thế** nút mặc định: một `IconButton` chính + `Dropdown` chứa Xem chi tiết/Sửa/Xóa… |
 | Xem chi tiết | `DetailModal` với `items`, có `onEdit`/`onDelete` nếu được sửa. Bản ghi dài (tab, bảng con): `ExpandableModal` có nút phóng toàn màn hình, ví dụ [ContractModal](../apps/web/src/features/contracts/components/ContractModal.tsx) |
 | Thêm/sửa | `onAdd` (nút "Thêm mới") + `FormModal` với `Form.Item` có `rules` |
 | Xóa | `ConfirmModal` (`danger`); xóa nhiều: `batchOperations` + `onBatchDelete` |
+
+Hai giới hạn của base UniFlow (không sửa theo quy tắc mục 1): ô tích bật/tắt từng điều kiện trong hộp Bộ lọc chỉ đổi giao diện, muốn bỏ điều kiện thì bấm nút xoá của điều kiện đó; nhãn "Trang hiện tại (10 bản ghi)" trong hộp Xuất luôn ghi 10, còn tệp xuất ra đúng cỡ trang đang chọn.
 
 Nhật ký kiểm toán chỉ có xem, lọc, xuất: không có sửa/xóa (CLAUDE.md).
 
@@ -73,24 +84,29 @@ Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) d
 - Chọn xong, ba nút Hướng dẫn, Ngôn ngữ, Sáng/tối trên header cùng nhấp nháy và một thẻ gợi ý giải thích; bấm "Đã hiểu" hoặc ra ngoài để đóng.
 - Trạng thái lưu ở `localStorage["codecash.onboarding"] = "done"`; xóa khóa này để xem lại từ đầu. Nút Hướng dẫn trên header mở lại thẻ gợi ý bất cứ lúc nào.
 - Mã: [`shared/onboarding`](../apps/web/src/shared/onboarding/), [`PreferenceControls`](../apps/web/src/shared/layout/PreferenceControls.tsx).
-- Khi API bật `DEMO_LOGIN` (mặc định ngoài production), góc phải trang đăng nhập có menu "Tài khoản demo" lấy từ `GET /auth/demo-accounts`; chọn một tài khoản là điền email và đăng nhập ngay (`POST /auth/demo-login`). API chỉ nhận 5 tài khoản mẫu còn hoạt động và ghi `LOGIN_DEMO` vào nhật ký.
+- Khi API bật `DEMO_LOGIN` (mặc định ngoài production), góc phải trang đăng nhập có menu "Tài khoản demo" lấy từ `GET /auth/demo-accounts`; chọn một tài khoản là điền email và đăng nhập ngay (`POST /auth/demo-login`). Menu có nhóm gợi ý (chín tài khoản: Nova An, Phú Minh và bốn người nội bộ) và nhóm "Tất cả tổ chức trong Data Pack". API chỉ nhận tài khoản mẫu (nguồn `SEED`) còn hoạt động và ghi `LOGIN_DEMO` vào nhật ký.
 
 ## 6. Phân quyền
 
 - Nguồn duy nhất: [`packages/contracts/permissions.json`](../packages/contracts/permissions.json), khóa dạng `module:action` (Base), mỗi vai trò có phạm vi `own`/`org`/`all`.
 - API: `@RequirePermission("engine:evaluate")` trên route; `BaseService` kiểm `<resource>:<read|create|update|delete|import|export>`; mỗi hành động workflow ánh xạ tới một quyền trong `workflow.controller.ts` (thiếu ánh xạ là bị từ chối).
 - Web: `user.permissions` (API tính từ vai trò) → `useAccess(user)`. Trang **Ma trận phân quyền** (`/platform/permissions`) chỉ đọc: đổi quyền cần người thứ hai duyệt (SoD-3, SoD-4) nên đi qua review mã.
+- Tám vai trò, 61 quyền; ba vai trò nội bộ tách nhau (kiểm soát viên, quản trị hệ thống, kiểm toán, SoD-1); vai trò nào làm gì xem [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Thẩm quyền nghiệp vụ (bên nào ghi loại sự kiện nào, ai được duyệt) do API và engine kiểm thêm, không suy từ quyền giao diện.
+- Resource có `managedOrigins` trong `resources.json`: bản ghi có nguồn tương ứng chỉ xem và xuất ở `ResourcePage` (ẩn sửa/xóa, API trả `MANAGED_RECORD`); bảng có cột **Nguồn** khi bản ghi mang `origin`.
 
 ## 7. Trang Data Pack và bộ dữ liệu tải lên
 
 - Nguồn dữ liệu: Data Pack chính thức hoặc bộ dữ liệu người dùng tải lên ([DatasetPanel](../apps/web/src/features/platform/components/DatasetPanel.tsx)). Tải lên nhận CSV rời hoặc ZIP của cả thư mục; engine tìm tệp theo tên và báo tệp nào đủ, thiếu, thiếu cột trước khi chạy.
 - Không có `submission_output_template.csv` thì engine dựng 22 cột theo thứ tự `milestones.csv`. Có `*test_ids*.csv` (ví dụ `hidden_test_ids_Case4.csv`) thì chỉ xuất các mốc trong danh sách; engine vẫn đọc toàn bộ dữ liệu.
 - "Tải kết quả": `submission_output.csv`, `audit.json`, `metrics.json` do engine ghi (`GET /engine/datasets/:id/files/:file`). Quyền `engine:datasets`.
+- Khối **Chỉ số KPI** hiện `summary.kpi` của engine (đặc tả mục 15): độ chính xác, Macro-F1, UPR, giữ thừa, khớp tiền trên mẫu có nhãn; độ phủ, truy vết, thời gian trên mọi mốc. Không có nhãn thì các ô theo nhãn ghi "Không kèm nhãn mẫu".
 
 ## 8. Dữ liệu, nghiệp vụ, i18n
 
 - Đọc/ghi qua module trong `features/<miền>/api/` hoặc `shared/api`; TanStack Query với `queryKey` chứa `user.id`. Trình duyệt không quyết định nghiệp vụ; ESLint chặn import mã server.
-- Tiền Data Pack là chuỗi thập phân: `formatDecimalString`. Tiền workflow (triệu VND): `formatMillionVnd`. Ngày giờ: `formatDate`, `formatDateTime`.
+- Nghiệp vụ hợp đồng gọi qua [`shared/api/domain.ts`](../apps/web/src/shared/api/domain.ts) (`POST /workflow/:module/:action`). Mọi lệnh ghi phát sự kiện `codecash:workflow-changed`, phiên đăng nhập làm mới các khóa trong `WORKFLOW_KEYS`. Kiểu dữ liệu ở `packages/contracts/src/workflow.ts`, bản sao đúng từng chữ của `apps/api/src/domain/types.ts` (có test so khớp).
+- Nhãn nguồn, trạng thái, quyết định: `OriginTag`, `MilestoneStatusTag`, `ContractStatusTag`, `DecisionTag` trong [`shared/ui/DomainTags.tsx`](../apps/web/src/shared/ui/DomainTags.tsx); tông màu và câu "ai làm tiếp" ở `shared/lib/domain.ts`; chuỗi ở namespace `domain`.
+- Mọi số tiền là chuỗi thập phân (triệu VND): hiển thị bằng `formatDecimalString`, cộng bằng `sumDecimalStrings`; không đổi sang số thực. Ngày giờ: `formatDate`, `formatDateTime`.
 - Mọi chuỗi hiển thị, gồm `aria-label`, `placeholder`, tooltip, qua i18n; số đếm dùng `key_one`/`key_other`.
 
 ## 9. Kiểm tra trước khi mở PR
@@ -98,9 +114,13 @@ Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) d
 ```bash
 pnpm check              # typecheck, lint (0 warning), format:check, build, test
 pnpm dev                # rồi, ở terminal khác:
-pnpm test:browser       # đăng nhập demo, màn chào sau đăng nhập, 27 màn desktop/mobile, modal toàn màn,
-                        # tải và chạy bộ dữ liệu, tạo/xóa qua base; ảnh ở artifacts/browser
+pnpm test:browser       # đăng nhập demo theo vai trò, màn chào, 32 màn desktop/mobile, hàng đợi ngoại lệ, kiểm tra toàn vẹn, phát lại,
+                        # phê duyệt → PENALTY, modal toàn màn, tải và chạy bộ dữ liệu, tạo/xóa qua base;
+                        # ảnh ở artifacts/browser
+pnpm test:e2e           # smoke HTTP: quyền, phạm vi, CRUD, workflow, engine
 ```
+
+Hai lệnh smoke cần API chạy trên dữ liệu vừa khởi tạo (kịch bản phê duyệt chỉ chạy được một lần). Đổi địa chỉ bằng `WEB_URL` và `API_BASE_URL`, ví dụ API thử ở cổng khác với `DATA_DIR` riêng.
 
 ## 10. Không tạo lại
 

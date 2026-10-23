@@ -130,20 +130,13 @@
       "badge": "Read from the PDF content",
       "location": "Article {{article}}, page {{page}}",
       "hint": "Yellow areas are where the system read out figures. Click a row on the right to see where it came from.",
-      "vnd": "{{value}} VND",
+      "vnd": "{{value}} million VND",
       "clause": {
         "TOTAL_VALUE": "The total contract value is <mark>{{value}}</mark>, paid in {{milestones}} milestones.",
         "DELIVERY": "Delivery milestone: <mark>{{value}}</mark>, delivery due <mark>{{date}}</mark>. Documents: {{documents}}.",
         "LATE_PENALTY": "Late delivery is penalised at <mark>{{rate}}% of the milestone value per day</mark>, with a total penalty of no more than <mark>{{cap}}% of the milestone value</mark>.",
-        "APPROVALS": "Every payment needs <mark>{{approvers}} approvers</mark> from the Buyer."
+        "APPROVALS": "Each payment needs the approval of <mark>{{approvers}} buyer role(s)</mark>."
       }
-    },
-    "numberWords": {
-      "1": "one",
-      "2": "two",
-      "3": "three",
-      "4": "four",
-      "5": "five"
     },
     "result": {
       "title_one": "Digitised terms: {{count}} payment milestone",
@@ -160,23 +153,10 @@
         "source": "Source"
       },
       "milestoneCode": "MS{{no}}",
-      "milestoneKind": {
-        "SIGNING": "Contract signing",
-        "DELIVERY": "Delivery",
-        "ACCEPTANCE": "Acceptance",
-        "WARRANTY": "Warranty"
-      },
       "dueUnknown": "Unknown",
-      "documents": {
-        "SIGNED_CONTRACT": "signed contract",
-        "DELIVERY_NOTE": "delivery note",
-        "INVOICE": "invoice",
-        "ACCEPTANCE_REPORT": "acceptance report",
-        "WARRANTY_END_REPORT": "warranty end report"
-      },
       "penalty": {
         "NONE": "None",
-        "RATE": "{{rate}}%/day, up to {{cap}}%"
+        "RATE": "{{rate}}%/day, cap {{cap}}%"
       },
       "sourceStatus": {
         "MATCH": "Matches",
@@ -192,12 +172,9 @@
     },
     "approvers": {
       "title": "Approvers named in the contract",
-      "role": {
-        "CONTRACT_OWNER": "Contract owner",
-        "FINANCE_APPROVER": "Finance approver",
-        "SECOND_APPROVER": "Second approver"
-      },
-      "note": "Approvals needed before a decision is made: {{number}}."
+      "none": "No approval needed",
+      "note_one": "{{count}} approval role is needed per milestone.",
+      "note_other": "{{count}} approval roles are needed per milestone."
     },
     "total": {
       "title": "Sum of milestones",
@@ -403,6 +380,7 @@
         "CERT_REVOKED": "The certificate was revoked, or expired before the signing time."
       },
       "exceptions": "See the screen for each exception"
-    }
+    },
+    "pick": "Contract:"
   }
 }

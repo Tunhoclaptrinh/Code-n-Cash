@@ -4,10 +4,11 @@ import type { FilterDropdownProps } from "antd/es/table/interface";
 import i18n from "@/i18n";
 
 /**
- * Text search inside one column (Base DataTable "searchable" column), for client-side tables.
- * `text` returns what the row shows in that column, so translated labels are searchable too.
+ * Text search inside one column (Base DataTable "searchable" column). With a list query the typed
+ * text becomes a "contains" filter of that column's field, applied where the rows are read; give
+ * `text` only for a table that filters its rows in the browser itself.
  */
-export function columnSearch<T>(text: (row: T) => string) {
+export function columnSearch<T>(text?: (row: T) => string) {
   const t = (key: string) => i18n.t(key, { ns: "common" });
   return {
     filterDropdown: ({
@@ -57,7 +58,11 @@ export function columnSearch<T>(text: (row: T) => string) {
         style={{ color: filtered ? "var(--color-primary)" : undefined }}
       />
     ),
-    onFilter: (value: unknown, row: T) =>
-      text(row).toLowerCase().includes(String(value).toLowerCase()),
+    ...(text
+      ? {
+          onFilter: (value: unknown, row: T) =>
+            text(row).toLowerCase().includes(String(value).toLowerCase()),
+        }
+      : {}),
   };
 }

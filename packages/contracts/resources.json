@@ -1,6 +1,7 @@
 [
   {
     "name": "organizations",
+    "managedOrigins": ["DATA_PACK", "SEED"],
     "fields": [
       {
         "key": "name",
@@ -16,7 +17,7 @@
         "key": "kind",
         "type": "select",
         "required": true,
-        "options": ["BUYER", "SUPPLIER"]
+        "options": ["BUYER", "SUPPLIER", "INTERNAL"]
       },
       {
         "key": "email",
@@ -38,14 +39,21 @@
         "required": true
       },
       {
+        "key": "title",
+        "type": "string"
+      },
+      {
         "key": "role",
         "type": "select",
         "required": true,
         "options": [
           "CONTRACT_OWNER",
-          "LEGAL_REVIEWER",
           "FINANCE_APPROVER",
+          "SECONDARY_APPROVER",
+          "LEGAL_REVIEWER",
           "ADMIN_AUDITOR",
+          "SYSTEM_ADMIN",
+          "AUDITOR",
           "SUPPLIER"
         ]
       },
@@ -56,6 +64,10 @@
         "ref": "organizations"
       },
       {
+        "key": "partyId",
+        "type": "string"
+      },
+      {
         "key": "active",
         "type": "boolean"
       }
@@ -63,6 +75,7 @@
   },
   {
     "name": "contract-drafts",
+    "managedOrigins": ["DATA_PACK", "SEED", "APP"],
     "fields": [
       {
         "key": "code",
@@ -95,10 +108,27 @@
   },
   {
     "name": "milestone-templates",
+    "managedOrigins": ["DATA_PACK"],
     "fields": [
       {
         "key": "name",
         "type": "string",
+        "required": true
+      },
+      {
+        "key": "workflowTemplate",
+        "type": "select",
+        "required": true,
+        "options": [
+          "WF_GOODS_4STAGE",
+          "WF_SERVICE_4STAGE",
+          "WF_SOFTWARE_5STAGE",
+          "WF_MAINTENANCE_3STAGE"
+        ]
+      },
+      {
+        "key": "sequence",
+        "type": "number",
         "required": true
       },
       {
@@ -112,7 +142,16 @@
         "required": true
       },
       {
-        "key": "approvalQuorum",
+        "key": "paymentPercent",
+        "type": "string",
+        "required": true
+      },
+      {
+        "key": "latePenalty",
+        "type": "boolean"
+      },
+      {
+        "key": "offsetDays",
         "type": "number",
         "required": true
       }
@@ -120,6 +159,7 @@
   },
   {
     "name": "settings",
+    "managedOrigins": ["DATA_PACK"],
     "fields": [
       {
         "key": "name",

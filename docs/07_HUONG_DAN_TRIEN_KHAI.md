@@ -46,10 +46,10 @@ Sửa `.env.production`:
 | --- | --- | --- |
 | `JWT_SECRET` | Có | Chuỗi ngẫu nhiên ≥ 48 byte. API từ chối khởi động nếu trống |
 | `WEB_ORIGIN` | Có | Origin công khai, ví dụ `https://codecash.example.com` |
-| `SEED_PASSWORD` | Lần đầu | Mật khẩu cho 5 tài khoản mẫu; xóa sau lần khởi động đầu (mục 4) |
+| `SEED_PASSWORD` | Lần đầu | Mật khẩu cho 69 tài khoản mẫu (mỗi bên trong Data Pack một người, cộng bốn người nội bộ: hai kiểm soát viên, quản trị hệ thống, kiểm toán); xóa sau lần khởi động đầu (mục 4) |
 | `MONGO_URI` | Không | Để trống dùng container `mongo`; điền URI cluster quản lý (Atlas…) nếu có |
 | `ENGINE_URL` | Không | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image. Bộ dữ liệu tải lên luôn chạy bằng CLI trong image |
-| `DEMO_LOGIN` | Không | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng 5 tài khoản mẫu). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo |
+| `DEMO_LOGIN` | Không | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng mọi tài khoản mẫu còn hoạt động). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo |
 | `WEB_BIND`, `WEB_PORT` | Không | Mặc định `127.0.0.1:8080`, chỉ reverse proxy trên host truy cập được |
 | `IMAGE_PREFIX`, `IMAGE_TAG` | Không | Tên image khi đẩy lên registry (mục 7) |
 
@@ -71,12 +71,14 @@ curl -s http://127.0.0.1:8080/api/v1/health           # "storage":"mongo"
 
 ## 4. Sau lần khởi động đầu
 
-1. Đăng nhập `admin@novaan.vn` bằng `SEED_PASSWORD`.
-2. **Quản trị hệ thống → Người dùng**: bấm biểu tượng chìa khóa ở từng tài khoản để đặt mật khẩu riêng (≥ 12 ký tự). Mật khẩu đổi xong thì token cũ hết hiệu lực.
+Lần khởi động đầu, API tự nạp Data Pack (100 hợp đồng, 405 mốc) cùng dữ liệu bổ sung vào MongoDB và chạy engine một lượt. Các lần sau dữ liệu đã có nên không nạp lại.
+
+1. Đăng nhập `sysadmin@codecash.vn` (Quản trị hệ thống) bằng `SEED_PASSWORD`.
+2. **Quản trị hệ thống → Người dùng**: bấm biểu tượng chìa khóa ở các tài khoản sẽ dùng để đặt mật khẩu riêng (≥ 12 ký tự); tắt "Hoạt động" ở các tài khoản không dùng. Mật khẩu đổi xong thì token cũ hết hiệu lực.
 3. Xóa giá trị `SEED_PASSWORD` trong `.env.production`, rồi áp dụng:
    `docker compose -f infra/compose.prod.yaml --env-file .env.production up -d --wait api`
 
-Seed chỉ chạy khi bảng người dùng trống, nên giữ hay xóa biến không ghi đè tài khoản đã có; xóa để tránh lộ mật khẩu mặc định.
+Seed chỉ thêm tài khoản còn thiếu và không đổi mật khẩu của tài khoản đã có. Ở production seed chỉ chạy khi có `SEED_PASSWORD`; xóa biến để tránh lộ mật khẩu mặc định. Danh sách tài khoản và vai trò: [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md) mục 4.
 
 ## 5. HTTPS
 
@@ -144,7 +146,7 @@ docker run --rm -v codecash_uploads:/data -v "$PWD/backup":/backup alpine \
   sh -c "cd /data && tar xzf /backup/uploads-YYYY-MM-DD.tgz"
 ```
 
-Đặt hai lệnh sao lưu vào cron hằng ngày và chép bản sao ra ngoài máy chủ. Lệnh `down -v` **xóa volume**; chỉ dùng khi muốn làm sạch hoàn toàn.
+Đặt hai lệnh sao lưu vào cron hằng ngày và chép bản sao ra ngoài máy chủ. Sau mỗi lần sao lưu, chép **mã đầu chuỗi** ở trang Kiểm tra toàn vẹn ra ngoài (biên bản, email): khi khôi phục hay nghi dữ liệu bị sửa, dán mã đó vào trang để biết nhật ký có bị viết lại không. Lệnh `down -v` **xóa volume**; chỉ dùng khi muốn làm sạch hoàn toàn.
 
 ## 9. Nhật ký và theo dõi
 
@@ -195,7 +197,7 @@ Bản này đủ cho demo, staging và thử nghiệm nội bộ. Còn các đi�
 
 - MongoDB trong compose **không bật xác thực**; an toàn dựa vào việc không publish cổng. Dữ liệu thật nên dùng cluster quản lý (mục 10) hoặc bật `--auth` kèm keyFile.
 - Luồng ký số là **mô phỏng**, chưa tích hợp CA; nút tải bản đã ký đang tắt.
-- Dữ liệu workflow là bộ hợp đồng mẫu; Data Pack 100 hợp đồng/405 mốc chỉ được đánh giá ở trang Data Pack, chưa nhập thành hợp đồng thao tác được.
+- Dữ liệu là Data Pack giả lập của BTC cộng dữ liệu bổ sung có đánh dấu; không dùng cho hợp đồng hay giải ngân thật.
 - Swagger `/api/docs` mở công khai qua nginx; chặn ở reverse proxy nếu không cần.
 - `DEMO_LOGIN` phải để `false`: khi bật, ai mở trang đăng nhập cũng vào được bằng tài khoản mẫu.
 - Ma trận phân quyền nằm trong `packages/contracts/permissions.json` và được đóng vào image; đổi quyền là đổi mã, cần review hai người (SoD-4), không sửa trên giao diện.

@@ -3,7 +3,7 @@
     "activityLog": "Activity log"
   },
   "title": "Activity log",
-  "subtitle": "Append-only, nothing is edited or deleted",
+  "subtitle": "Data Pack events, in-app events and every status change by the engine; append-only",
   "export": {
     "button": "Export CSV",
     "fileName": "activity-log.csv"
@@ -18,7 +18,7 @@
     "to": "To date",
     "rowCount_one": "{{count}} row",
     "rowCount_other": "{{count}} rows",
-    "searchPlaceholder": "Search action, actor, contract…"
+    "searchPlaceholder": "Search actor, contract, milestone or event ID"
   },
   "table": {
     "columns": {
@@ -26,7 +26,8 @@
       "actor": "Performed by",
       "category": "Type",
       "action": "Action",
-      "contract": "Contract · milestone"
+      "contract": "Contract · milestone",
+      "origin": "Source"
     },
     "actorRoleColumn": "Role",
     "empty": "No activity matches the filters"
@@ -38,12 +39,17 @@
     "SYSTEM": "System"
   },
   "actorRoles": {
-    "SYSTEM": "Automatic",
+    "SYSTEM": "Engine (automatic)",
+    "BUYER": "Buyer",
+    "SUPPLIER": "Supplier",
+    "APPROVER": "Approver",
     "CONTRACT_OWNER": "Contract owner",
     "FINANCE_APPROVER": "Finance approver",
-    "SUPPLIER": "Supplier",
-    "LEGAL": "Legal",
-    "ADMIN_AUDITOR": "Admin / Auditor"
+    "SECONDARY_APPROVER": "Secondary approver",
+    "LEGAL_REVIEWER": "Contract officer",
+    "ADMIN_AUDITOR": "Controller",
+    "SYSTEM_ADMIN": "System administrator",
+    "AUDITOR": "Auditor"
   },
   "categories": {
     "SYSTEM": "System",
@@ -52,45 +58,161 @@
     "DISPUTE": "Dispute",
     "SIGN": "Signature"
   },
-  "documents": {
-    "INVOICE": "Invoice",
-    "DELIVERY_RECORD": "Delivery record"
-  },
-  "milestoneNames": {
-    "DELIVERY": "delivery"
-  },
   "actions": {
-    "DECISION_FINALIZED": "Finalized {{decision}}, payable {{amount}} million VND",
-    "DECISION_APPROVED_AND_SIGNED": "Approved and digitally signed the decision record",
-    "EVIDENCE_CHECKED": "Received evidence, validated it, proposed {{decision}} {{amount}}",
-    "EVIDENCE_SUBMITTED": "Signed and submitted {{document}}",
-    "DISPUTE_OPENED": "Opened a dispute on the {{milestone}} milestone",
-    "CONTRACT_SIGNED": "Signed the contract, step {{step}}/{{total}}",
-    "CONTRACT_SIGNED_FINAL": "Signed the contract, step {{step}}/{{total}}; the contract is in force",
-    "DIGITIZATION_CONFIRMED_one": "Confirmed the digitized copy with {{count}} milestone",
-    "DIGITIZATION_CONFIRMED_other": "Confirmed the digitized copy with {{count}} milestones",
+    "EVENT": "Recorded {{event}} ({{status}}) · {{id}}",
+    "DECISION": "Engine re-evaluated: {{from}} → {{to}} ({{reason}})",
+    "DECISION_FIRST": "Engine evaluated: {{to}} ({{reason}})",
+    "SIGNATURE": "Signed the contract, step {{step}}/{{total}}",
+    "SIGNATURE_FINAL": "Signed the contract, step {{step}}/{{total}}; CONTRACT_SIGNED recorded, contract effective",
+    "DIGITIZATION_CONFIRMED_one": "Locked the digitised terms, {{count}} milestone created",
+    "DIGITIZATION_CONFIRMED_other": "Locked the digitised terms, {{count}} milestones created",
+    "EXCEPTION_PROPOSED": "Proposed to void event {{id}} (BR-19)",
+    "EXCEPTION_APPROVED": "Second controller approved voiding {{id}}; the engine re-evaluated",
+    "EXCEPTION_REJECTED": "Rejected the proposal to void {{id}}",
+    "PAYMENT": "Simulated payment of {{amount}} million VND (idempotency key)",
+    "REQUEST_INFO": "Requested more information: {{text}}",
     "WORKFLOW_ACTION": "{{action}}"
   },
   "workflowActions": {
-    "saveContractDraft": "Saved contract draft",
+    "saveContractDraft": "Saved the contract file",
     "saveSignatureSlots": "Saved signature positions",
-    "confirmDigitization": "Confirmed digitized terms",
-    "sendSigningRequest": "Sent signing request",
-    "confirmSigningRequest": "Confirmed signing",
-    "rejectSigningRequest": "Rejected signing",
-    "cancelSigningRequest": "Cancelled signing request",
-    "cancelSigning": "Cancelled signing sequence",
+    "confirmDigitization": "Locked the digitised terms",
+    "sendSigningRequest": "Sent a signing request",
+    "confirmSigningRequest": "Confirmed a signature",
+    "rejectSigningRequest": "Rejected a signature",
+    "cancelSigningRequest": "Cancelled a signing request",
+    "cancelSigning": "Cancelled the signing order",
     "attachEvidenceFile": "Attached evidence",
     "removeEvidenceFile": "Removed evidence",
-    "signAndSubmitEvidence": "Signed and submitted evidence",
-    "markDocumentViewed": "Viewed document",
-    "castVote": "Recorded approval decision",
-    "transferToAccounting": "Transferred to accounting",
-    "resolveDispute": "Resolved dispute"
+    "submitEvidence": "Submitted evidence",
+    "castVote": "Recorded an approval decision",
+    "openDispute": "Opened a dispute",
+    "resolveDispute": "Closed a dispute",
+    "transferToAccounting": "Transferred a payment",
+    "proposeException": "Proposed an exception",
+    "decideException": "Decided an exception",
+    "getSigningRequest": "Signing request updated"
   },
   "appendOnly": "Append-only log: entries cannot be edited or deleted.",
   "detail": {
     "view": "View details",
     "entryId": "Entry ID"
+  },
+  "exceptions": {
+    "title": "BR-19 exceptions",
+    "subtitle": "Milestones held by an unauthorised event or a data anomaly",
+    "intro": "The controllers' queue (spec 9.5). One proposes to void an unauthorised event, a second approves (SoD-2). Nobody forces a decision or an amount; the engine re-evaluates after each decision.",
+    "tiles": {
+      "OPEN": "No proposal yet",
+      "PROPOSED": "Waiting for a second controller",
+      "DECIDED": "Decided"
+    },
+    "columns": {
+      "milestone": "Milestone",
+      "reason": "Why held",
+      "events": "Voidable events",
+      "requests": "Proposals",
+      "amount": "Milestone value (million VND)",
+      "buyer": "Buyer",
+      "supplier": "Supplier",
+      "contract": "Contract"
+    },
+    "state": {
+      "PROPOSED": "Waiting",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "none": "None",
+    "open": "Open the trace and act",
+    "searchPlaceholder": "Search contract, milestone, buyer or event ID"
+  },
+  "integrity": {
+    "title": "Integrity check",
+    "subtitle": "Whether the log, the evidence or the decisions were changed outside the application",
+    "rerun": "Check again",
+    "checkedAt": "Checked at {{time}}. Read-only: nothing is written.",
+    "ok": "Intact",
+    "broken": "Tampered",
+    "chain": {
+      "title": "Audit log chain",
+      "subtitle": "Each entry carries the SHA-256 hash of the previous one",
+      "sealed": "Sealed entries",
+      "unsealed": "Older entries, before the chain",
+      "head": "Chain head",
+      "firstBroken": "First break",
+      "none": "None",
+      "problems": {
+        "SEQUENCE_GAP": "Entry removed or inserted",
+        "LINK_BROKEN": "Link to the previous entry broken",
+        "CONTENT_CHANGED": "Content edited"
+      },
+      "anchor": {
+        "label": "Saved chain head",
+        "placeholder": "Paste the saved head, as number:hash",
+        "check": "Compare with saved head",
+        "clear": "Clear saved head",
+        "result": "Against the saved head",
+        "hint": "Copy the chain head somewhere else (minutes, email, submission). Paste it here later: if the whole log was rewritten or truncated, it will not match.",
+        "MATCH": "Matches",
+        "MISMATCH": "Does not match: the log was rewritten",
+        "NOT_FOUND": "Entry not found: the log was truncated"
+      }
+    },
+    "evidence": {
+      "title": "Evidence recorded in the app",
+      "subtitle": "Each event is sealed with a hash in its audit entry when it is recorded",
+      "sealed": "Sealed events",
+      "unsealed": "Older events, before sealing",
+      "columns": {
+        "event": "Event",
+        "contract": "Contract",
+        "problem": "Problem"
+      },
+      "problems": {
+        "CHANGED": "Edited after it was recorded",
+        "MISSING": "Deleted"
+      }
+    },
+    "decisions": {
+      "title": "Decision reconciliation",
+      "subtitle": "Runs the engine again on the current data and compares every stored decision",
+      "matched": "Matching",
+      "run": "Run",
+      "fingerprint": "Input SHA-256",
+      "columns": {
+        "milestone": "Milestone",
+        "stored": "Stored",
+        "fresh": "Engine now",
+        "frozen": "Locked"
+      },
+      "frozen": "Paid or rejected",
+      "missing": "No longer in the data"
+    },
+    "note": "The check finds entries edited, deleted or inserted when the data is touched outside the application. It does not replace backups or access control on the data store; someone able to rewrite the whole log is caught only against a chain head saved elsewhere.",
+    "errors": {
+      "INVALID_ANCHOR": "The saved head must be number:hash (64 hex characters).",
+      "UNKNOWN": "The check failed. Try again later."
+    },
+    "dataPack": {
+      "title": "Organiser's original data",
+      "subtitle": "Data Pack rows against the hash sealed at import",
+      "sealedAt": "Sealed when the data was imported, {{time}}.",
+      "columns": {
+        "table": "Table",
+        "rows": "Rows",
+        "result": "Result"
+      },
+      "same": "Unchanged",
+      "changed": "Edited",
+      "none": "This data was imported before sealing existed, so it cannot be compared."
+    }
+  },
+  "actionCodes": {
+    "DECISION": "Engine decided {{decision}}",
+    "SIGNATURE": "Contract signature",
+    "DIGITIZATION_CONFIRMED": "Digitised terms locked",
+    "EXCEPTION": "BR-19 exception",
+    "PAYMENT": "Payment transfer",
+    "REQUEST_INFO": "Information request"
   }
 }

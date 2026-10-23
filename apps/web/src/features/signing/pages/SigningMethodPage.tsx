@@ -33,12 +33,10 @@ import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SigningMethodPage.module.css";
 
-const DEFAULT_CONTRACT = "CT0101";
-
 export default function SigningMethodPage() {
   const { t } = useTranslation("signing");
   const params = useParams();
-  const contractId = params.contractId ?? DEFAULT_CONTRACT;
+  const contractId = params.contractId ?? "";
   const stepNo = Number(params.stepNo);
   const user = useCurrentUser();
   const overview = useQuery({

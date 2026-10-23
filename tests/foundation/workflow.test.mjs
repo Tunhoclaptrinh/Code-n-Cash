@@ -1,111 +1,659 @@
-import { test } from "node:test";
+import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { Repository } from "../../apps/api/dist/common/repository.js";
-import { BaseService } from "../../apps/api/dist/common/services/base.service.js";
-import { WorkflowService } from "../../apps/api/dist/workflow.controller.js";
-const owner = {
-  id: "u-owner",
-  email: "owner@novaan.vn",
-  displayName: "Owner",
-  role: "CONTRACT_OWNER",
-  organizationId: "org-nova-an",
-  roleChipOrganization: "Nova An",
-  permissions: [],
-};
-const supplier = {
-  ...owner,
-  id: "u-supplier",
-  role: "SUPPLIER",
-  organizationId: "org-phu-minh",
-};
-test("workflow uses authenticated actors, scopes direct IDs and persists across service instances", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "codecash-workflow-"));
+
+// Workflow over the organiser's Data Pack: every decision comes from the Python evaluator, every
+// action is an event in the Data Pack schema, and access follows the authenticated actor.
+let dir, repo, domain, service, auth, users;
+const actor = (id) => auth.actor(users.find((u) => u.id === id));
+const call = (id, module, action, ...args) =>
+  service.call(module, action, { args }, actor(id));
+const evaluationOf = async (milestoneId) =>
+  (await repo.list("evaluations")).find((e) => e.milestoneId === milestoneId);
+
+before(async () => {
+  dir = await mkdtemp(join(tmpdir(), "codecash-workflow-"));
   process.env.REPO_ROOT = process.cwd();
   process.env.DATA_DIR = dir;
   process.env.STORAGE_DRIVER = "file";
-  const repo = new Repository();
+  const { Repository } =
+    await import("../../apps/api/dist/common/repository.js");
+  const { BaseService } =
+    await import("../../apps/api/dist/common/services/base.service.js");
+  const { AuthService } = await import("../../apps/api/dist/auth.js");
+  const { DomainService } =
+    await import("../../apps/api/dist/domain/service.js");
+  const { WorkflowService } =
+    await import("../../apps/api/dist/workflow.controller.js");
+  repo = new Repository();
   await repo.init();
-  const base = new BaseService(repo);
-  const service = new WorkflowService(repo, base);
-  try {
-    await assert.rejects(
-      service.call("constructor", "constructor", { args: ["return 1"] }, owner),
+  domain = new DomainService(repo, new BaseService(repo));
+  await domain.bootstrap();
+  auth = new AuthService(repo);
+  await auth.seed();
+  users = await repo.list("users");
+  service = new WorkflowService(domain);
+});
+after(async () => {
+  await repo.onModuleDestroy();
+  await rm(dir, { recursive: true, force: true });
+});
+
+test("the Data Pack is imported as tables and evaluated by the specification engine", async () => {
+  const contracts = await repo.list("contracts");
+  const milestones = await repo.list("milestones");
+  const events = await repo.list("events");
+  const official = (rows) => rows.filter((r) => r.origin === "DATA_PACK");
+  assert.equal(official(contracts).length, 100);
+  assert.equal(official(milestones).length, 405);
+  assert.equal(official(events).length, 1134);
+  assert.equal((await repo.list("parties")).length, 65);
+  assert.equal((await repo.list("payment-rules")).length, 128);
+  const ids = new Set(official(milestones).map((m) => m.milestone_id));
+  const counts = {};
+  for (const e of await repo.list("evaluations"))
+    if (ids.has(e.milestoneId))
+      counts[e.decision] = (counts[e.decision] ?? 0) + 1;
+  assert.deepEqual(counts, { RELEASE: 348, PENALTY: 15, HOLD: 36, REJECT: 6 });
+  // Seed rows are marked, and every account is linked to a Data Pack party or the internal team.
+  assert.ok(contracts.some((c) => c.origin === "SEED"));
+  assert.ok(
+    users.every(
+      (u) => u.origin === "SEED" && (u.partyId || u.organizationId === "OPS"),
+    ),
+  );
+});
+
+test("each organisation sees only its contracts; direct ids of others are refused", async () => {
+  const supplier = await call("u-supplier", "contracts", "getContractList");
+  assert.ok(supplier.contracts.length > 0);
+  assert.ok(supplier.contracts.every((c) => c.supplier.id === "S015"));
+  assert.ok(supplier.contracts.every((c) => c.status !== "DRAFT"));
+  const owner = await call("u-owner", "contracts", "getContractList");
+  assert.ok(owner.contracts.every((c) => c.buyer.id === "B010"));
+  const admin = await call("u-admin", "contracts", "getContractList");
+  assert.equal(admin.contracts.length, (await repo.list("contracts")).length);
+  await assert.rejects(
+    call("u-supplier", "contracts", "getContractOverview", "CT0014"),
+  );
+  await assert.rejects(
+    call("u-owner", "contracts", "getContractOverview", "CT0001"),
+  );
+  await assert.rejects(
+    call("u-supplier", "approvals", "castVote", {
+      contractId: "CT0103",
+      sequence: 2,
+      choice: "APPROVE",
+    }),
+  );
+  await assert.rejects(
+    call("u-supplier", "nope", "constructor"),
+    /ACTION_NOT_FOUND/,
+  );
+});
+
+test("tasks come from the engine's reasons and match each role", async () => {
+  const kinds = async (id) =>
+    (await call(id, "tasks", "getTaskInbox")).map(
+      (t) => `${t.kind}:${t.contractId}`,
     );
-    const list = await service.call(
-      "contracts-contractList",
-      "getContractList",
-      { args: [{ ...owner, role: "ADMIN_AUDITOR" }] },
-      supplier,
+  assert.ok((await kinds("u-owner")).includes("RESOLVE_DISPUTE:CT0019"));
+  assert.ok((await kinds("u-legal")).includes("SUBMIT_EVIDENCE:CT0084"));
+  assert.ok((await kinds("u-finance")).includes("APPROVE_PAYMENT:CT0103"));
+  assert.ok((await kinds("u-supplier")).includes("SIGN_CONTRACT:CT0102"));
+  assert.equal(
+    (await kinds("u-admin")).filter((k) => k.startsWith("REVIEW_EXCEPTION"))
+      .length,
+    6,
+  );
+});
+
+test("an approval is an APPROVAL event; the engine then decides, with the late penalty", async () => {
+  const view = await call(
+    "u-finance",
+    "approvals",
+    "getApprovalView",
+    "CT0103",
+    2,
+  );
+  assert.equal(view.canApprove, true);
+  assert.equal(view.preview.decision, "PENALTY");
+  const before = await evaluationOf(view.milestone.id);
+  assert.equal(before.reasonCode, "APPROVAL_QUORUM_NOT_MET");
+  const result = await call("u-finance", "approvals", "castVote", {
+    contractId: "CT0103",
+    sequence: 2,
+    choice: "APPROVE",
+  });
+  assert.equal(result.evaluation.decision, "PENALTY");
+  assert.equal(result.evaluation.payableMillion, view.preview.payableMillion);
+  const event = (await repo.list("events")).find(
+    (e) => e.event_id === result.eventIds[0],
+  );
+  assert.equal(event.event_type, "APPROVAL");
+  assert.equal(event.actor_party_id, "A029");
+  assert.equal(event.origin, "APP");
+  const history = (await repo.list("status-history")).filter(
+    (h) => h.milestoneId === view.milestone.id,
+  );
+  assert.equal(history.at(-1).to.status, "PAID_WITH_PENALTY");
+  assert.equal(history.at(-1).trigger.kind, "EVENTS");
+  await assert.rejects(
+    call("u-finance", "approvals", "castVote", {
+      contractId: "CT0103",
+      sequence: 2,
+      choice: "APPROVE",
+    }),
+    /MILESTONE_CLOSED|ALREADY_VOTED/,
+  );
+  const audit = await repo.list("audit");
+  assert.ok(
+    audit.some((a) => a.action === "castVote" && a.actorId === "u-finance"),
+  );
+});
+
+test("users record only the events of their own side (spec 4.2 and 17)", async () => {
+  await assert.rejects(
+    call("u-legal", "evidence", "attachEvidenceFile", {
+      contractId: "CT0104",
+      sequence: 2,
+      eventType: "INVOICE",
+      fileName: "x.pdf",
+      sizeMb: 1,
+    }),
+    /NOT_YOUR_EVENT_TYPE/,
+  );
+  for (const eventType of ["SERVICE_COMPLETED", "INVOICE"])
+    await call("u-supplier", "evidence", "attachEvidenceFile", {
+      contractId: "CT0104",
+      sequence: 2,
+      eventType,
+      fileName: `${eventType}.pdf`,
+      sizeMb: 1,
+    });
+  const workspace = await call(
+    "u-supplier",
+    "evidence",
+    "getEvidenceWorkspace",
+    "CT0104",
+    2,
+  );
+  assert.equal(workspace.canSubmit, true);
+  assert.equal(workspace.preview.reasonCode, "APPROVAL_QUORUM_NOT_MET");
+  const result = await call("u-supplier", "evidence", "submitEvidence", {
+    contractId: "CT0104",
+    sequence: 2,
+  });
+  assert.equal(result.eventIds.length, 2);
+  assert.equal(result.evaluation.status, "WAITING_APPROVAL");
+  assert.ok(
+    (await call("u-owner", "tasks", "getTaskInbox")).some(
+      (t) => t.kind === "APPROVE_PAYMENT" && t.contractId === "CT0104",
+    ),
+  );
+});
+
+test("a dispute is closed only by a buyer-side DISPUTE_RESOLVED that references it", async () => {
+  await assert.rejects(
+    call("u-supplier", "disputes", "resolveDispute", {
+      contractId: "CT0019",
+      sequence: 3,
+      option: "RESOLVE",
+      note: "x",
+    }),
+  );
+  const view = await call("u-owner", "disputes", "getDispute", "CT0019", 3);
+  assert.equal(view.canResolve, true);
+  assert.ok(view.preview);
+  const result = await call("u-owner", "disputes", "resolveDispute", {
+    contractId: "CT0019",
+    sequence: 3,
+    option: "RESOLVE",
+    note: "Đã thống nhất",
+  });
+  assert.notEqual(result.evaluation.reasonCode, "OPEN_DISPUTE");
+  assert.equal(result.evaluation.decision, view.preview.decision);
+  const resolution = (await repo.list("events")).find(
+    (e) => e.event_id === result.eventIds[0],
+  );
+  assert.equal(resolution.event_type, "DISPUTE_RESOLVED");
+  assert.equal(resolution.reference_event_id, view.disputes[0].opened.id);
+});
+
+test("BR-19 voids an unauthorised event only with two different controllers", async () => {
+  const [row] = await call("u-admin", "exceptions", "listExceptionQueue");
+  const eventId = row.candidates[0].id;
+  const ref = { contractId: row.contract.id, sequence: row.milestone.sequence };
+  await assert.rejects(
+    call("u-owner", "exceptions", "proposeException", {
+      ...ref,
+      eventId,
+      reason: "x",
+    }),
+  );
+  const { id } = await call("u-admin", "exceptions", "proposeException", {
+    ...ref,
+    eventId,
+    reason: "Nhập nhầm kênh",
+  });
+  await assert.rejects(
+    call("u-admin", "exceptions", "decideException", {
+      exceptionId: id,
+      approve: true,
+    }),
+    /SECOND_CONTROLLER_REQUIRED/,
+  );
+  const decided = await call("u-controller", "exceptions", "decideException", {
+    exceptionId: id,
+    approve: true,
+  });
+  assert.equal(decided.status, "APPROVED");
+  assert.ok(decided.evaluation.voided.includes(eventId));
+  assert.notEqual(decided.evaluation.reasonCode, "UNAUTHORIZED_EVENT");
+});
+
+test("a payment is transferred once per decision, then the milestone is final", async () => {
+  const detail = await call(
+    "u-finance",
+    "contracts",
+    "getMilestoneDetail",
+    "CT0103",
+    1,
+  );
+  assert.equal(detail.actions.transfer, true);
+  await call("u-finance", "payments", "transferToAccounting", {
+    contractId: "CT0103",
+    sequence: 1,
+  });
+  await assert.rejects(
+    call("u-finance", "payments", "transferToAccounting", {
+      contractId: "CT0103",
+      sequence: 1,
+    }),
+    /ALREADY_TRANSFERRED/,
+  );
+  const after = await call(
+    "u-finance",
+    "contracts",
+    "getMilestoneDetail",
+    "CT0103",
+    1,
+  );
+  assert.equal(after.milestone.status, "COMPLETED");
+  assert.ok(after.payment.id.startsWith("PAY-"));
+});
+
+test("signers sign in order; the last signature records the buyer's CONTRACT_SIGNED", async () => {
+  await assert.rejects(
+    call(
+      "u-secondary",
+      "signing",
+      "sendSigningRequest",
+      "CT0102",
+      3,
+      "VNPT_SMARTCA",
+    ),
+    /NOT_YOUR_TURN/,
+  );
+  for (const [user, step] of [
+    ["u-supplier", 2],
+    ["u-secondary", 3],
+  ]) {
+    await call(
+      user,
+      "signing",
+      "sendSigningRequest",
+      "CT0102",
+      step,
+      "VNPT_SMARTCA",
     );
-    assert.equal(list.contracts.length, 2);
-    await assert.rejects(
-      service.call(
-        "milestones-contracts",
-        "getContractOverview",
-        { args: ["CT0014"] },
-        supplier,
-      ),
-    );
-    await assert.rejects(
-      service.call(
-        "milestones-approvals",
-        "castVote",
-        {
-          args: [
-            {
-              contractId: "CT0101",
-              milestoneNo: 2,
-              role: "FINANCE_APPROVER",
-              userId: "u-finance",
-              choice: "APPROVE",
-            },
-          ],
-        },
-        supplier,
-      ),
-    );
-    const draft = await service.call(
-      "contracts-contractDraft",
-      "getContractDraft",
-      { args: [] },
-      owner,
-    );
-    const next = { ...draft, title: "Persisted workflow draft" };
-    await service.call(
-      "contracts-contractDraft",
-      "saveContractDraft",
-      { args: [next] },
-      owner,
-    );
-    const restarted = new WorkflowService(repo, base);
-    const restored = await restarted.call(
-      "contracts-contractDraft",
-      "getContractDraft",
-      { args: [] },
-      owner,
-    );
-    assert.equal(restored.title, next.title);
-    const activity = await restarted.call(
-      "audit-activity",
-      "listActivityEntries",
-      { args: [] },
-      owner,
-    );
-    assert.ok(
-      activity.some(
-        (entry) =>
-          entry.action.kind === "WORKFLOW_ACTION" &&
-          entry.action.code === "saveContractDraft",
-      ),
-    );
-    const log = await repo.list("audit");
-    assert.equal(log.at(-1).action, "saveContractDraft");
-    assert.equal(log.at(-1).actorId, "u-owner");
-  } finally {
-    await repo.onModuleDestroy();
-    await rm(dir, { recursive: true, force: true });
+    await call(user, "signing", "confirmSigningRequest", "CT0102", step);
   }
+  const contract = (await repo.list("contracts")).find(
+    (c) => c.contract_id === "CT0102",
+  );
+  assert.equal(contract.lifecycle, "ACTIVE");
+  const signed = (await repo.list("events")).filter(
+    (e) => e.contract_id === "CT0102" && e.event_type === "CONTRACT_SIGNED",
+  );
+  assert.equal(signed.length, 1);
+  assert.equal(signed[0].actor_party_id, "B010");
+  const verification = await call(
+    "u-owner",
+    "signing",
+    "getVerification",
+    "CT0102",
+  );
+  assert.equal(verification.signatures.length, 3);
+  assert.ok(verification.effectiveAt);
+});
+
+test("a new contract is cut into Data Pack milestones and evaluated by the same rules", async () => {
+  const draft = await call("u-legal", "drafts", "getContractDraft");
+  const options = await call("u-legal", "drafts", "getUploadFormOptions");
+  const supplier = options.suppliers.find((s) => s.id === "S015");
+  const saved = await call("u-legal", "drafts", "saveContractDraft", {
+    ...(draft.code === "CT0101" ? draft : { ...draft }),
+    title: draft.title || "Hợp đồng kiểm thử",
+    supplierId: supplier.id,
+    type: "SERVICES",
+    approvalPolicy: "FINANCE_PLUS_OWNER",
+    signers: [
+      { party: "SUPPLIER", userId: options.supplierSigners.S015[0].userId },
+      { party: "BUYER", userId: "u-finance" },
+      { party: "BUYER", userId: "u-owner" },
+    ],
+    file: draft.file.name
+      ? draft.file
+      : { name: "HopDong.pdf", sizeBytes: 1000, kind: "PDF", pages: 14 },
+  });
+  const digitized = await call(
+    "u-legal",
+    "drafts",
+    "getDigitization",
+    saved.code,
+  );
+  assert.deepEqual(
+    digitized.milestones.map((m) => m.type),
+    ["KICKOFF", "INTERIM_DELIVERY", "FINAL_ACCEPTANCE", "WARRANTY_CLOSE"],
+  );
+  await call("u-legal", "drafts", "confirmDigitization", saved.code, {
+    dueDate: "2027-12-31",
+  });
+  const overview = await call(
+    "u-owner",
+    "contracts",
+    "getContractOverview",
+    saved.code,
+  );
+  assert.equal(overview.contract.status, "AWAITING_SIGNATURE");
+  assert.equal(overview.milestones.length, 4);
+  assert.ok(
+    overview.milestones.every((m) =>
+      m.releaseRuleCode.startsWith("R_SERVICE_STD:"),
+    ),
+  );
+  assert.equal(overview.signing.total, 3);
+});
+
+test("the timeline replays a milestone after each of its events (as-of, BR-16)", async () => {
+  const points = await call(
+    "u-owner",
+    "contracts",
+    "getMilestoneTimeline",
+    "CT0103",
+    2,
+  );
+  assert.ok(points.length >= 2);
+  assert.deepEqual(
+    points.map((p) => p.at),
+    points.map((p) => p.at).sort(),
+  );
+  assert.ok(points.every((p) => p.events.length > 0));
+  assert.equal(points.at(-1).decision, (await evaluationOf("MS0412")).decision);
+  await assert.rejects(
+    call("u-supplier", "contracts", "getMilestoneTimeline", "CT0014", 2),
+    /CONTRACT_ACCESS_DENIED/,
+  );
+});
+
+test("the integrity check finds an edited audit entry, event or stored decision", async () => {
+  const check = (anchor) =>
+    call("u-controller", "integrity", "verifyIntegrity", anchor);
+  const clean = await check();
+  assert.equal(clean.chain.ok, true);
+  assert.ok(clean.chain.sealed > 0);
+  assert.ok(clean.evidence.sealed > 0);
+  assert.deepEqual(clean.evidence.problems, []);
+  assert.equal(clean.decisions.matched, clean.decisions.checked);
+  assert.deepEqual(
+    clean.dataPack.tables.map((x) => [x.name, x.ok]),
+    [
+      ["contracts", true],
+      ["parties", true],
+      ["milestones", true],
+      ["events", true],
+      ["payment-rules", true],
+    ],
+  );
+  const { seq, hash } = clean.chain.head;
+  assert.equal((await check(`${seq}:${hash}`)).chain.anchor, "MATCH");
+  assert.equal(
+    (await check(`${seq}:${"0".repeat(64)}`)).chain.anchor,
+    "MISMATCH",
+  );
+  assert.equal(
+    (await check(`${seq + 1000}:${hash}`)).chain.anchor,
+    "NOT_FOUND",
+  );
+  await assert.rejects(check("nope"), /INVALID_ANCHOR/);
+  await assert.rejects(call("u-supplier", "integrity", "verifyIntegrity"));
+  // The log is append-only even for code that writes the table directly.
+  await assert.rejects(
+    repo.mutate("audit", (items) => {
+      items[0].action = "EDITED";
+    }),
+    /APPEND_ONLY_RESOURCE/,
+  );
+  // Someone edits the stored data behind the application's back.
+  const backup = structuredClone(repo.data);
+  repo.data.audit.find((e) => e.hash && e.seq === 2).actorId = "someone-else";
+  const sealedEvent = Object.keys(
+    repo.data.audit.find(
+      (e) => e.eventHashes && Object.keys(e.eventHashes).length,
+    ).eventHashes,
+  )[0];
+  repo.data.events.find((e) => e.event_id === sealedEvent).event_timestamp =
+    "2026-01-01T00:00:00";
+  repo.data.evaluations.find((e) => e.milestoneId === "MS0001").decision =
+    "REJECT";
+  repo.data.events.find((e) => e.event_id === "EV00001").event_note = "edited";
+  const tampered = await check();
+  repo.data = backup;
+  assert.deepEqual(tampered.chain.firstBroken, {
+    seq: 2,
+    id: tampered.chain.firstBroken.id,
+    problem: "CONTENT_CHANGED",
+  });
+  assert.deepEqual(
+    tampered.evidence.problems.map((p) => [p.eventId, p.problem]),
+    [[sealedEvent, "CHANGED"]],
+  );
+  assert.ok(
+    tampered.decisions.mismatches.some(
+      (m) => m.milestoneId === "MS0001" && m.stored.decision === "REJECT",
+    ),
+  );
+  assert.deepEqual(
+    tampered.dataPack.tables.filter((x) => !x.ok).map((x) => x.name),
+    ["events"],
+  );
+});
+
+test("generic CRUD cannot change Data Pack or workflow records; its drafts stay outside the workflow", async () => {
+  const { BaseService } =
+    await import("../../apps/api/dist/common/services/base.service.js");
+  const crud = new BaseService(repo);
+  const legal = actor("u-legal");
+  const workflowDraft = (await repo.list("contract-drafts")).find(
+    (d) => d.code === "CT0101",
+  );
+  await assert.rejects(
+    crud.update(
+      "contract-drafts",
+      workflowDraft.id,
+      { supplierId: "S001", version: workflowDraft.version },
+      legal,
+    ),
+    /MANAGED_RECORD/,
+  );
+  await assert.rejects(
+    crud.remove("contract-drafts", workflowDraft.id, legal),
+    /MANAGED_RECORD/,
+  );
+  const buyer = (await repo.list("organizations")).find((o) => o.id === "B010");
+  await assert.rejects(
+    crud.update(
+      "organizations",
+      buyer.id,
+      { name: "Renamed", version: buyer.version },
+      actor("u-sysadmin"),
+    ),
+    /MANAGED_RECORD/,
+  );
+  const added = await crud.create(
+    "contract-drafts",
+    {
+      code: "CT0999",
+      title: "CRUD row",
+      supplierId: "S015",
+      contractType: "GOODS_SUPPLY",
+    },
+    legal,
+  );
+  await assert.rejects(
+    call("u-legal", "drafts", "getContractDraft", "CT0999"),
+    /DRAFT_NOT_FOUND/,
+  );
+  assert.notEqual(
+    (await call("u-legal", "drafts", "getContractDraft")).code,
+    "CT0999",
+  );
+  await crud.remove("contract-drafts", added.id, legal);
+});
+
+test("internal roles are separated (SoD-1): controller, administrator, auditor", async () => {
+  const { BaseService } =
+    await import("../../apps/api/dist/common/services/base.service.js");
+  const crud = new BaseService(repo);
+  // The controller handles exceptions but manages no account or configuration.
+  await assert.rejects(
+    crud.list("users", {}, actor("u-admin")),
+    /PERMISSION_DENIED/,
+  );
+  // The administrator manages accounts, sees no contract and decides nothing.
+  assert.ok((await crud.list("users", {}, actor("u-sysadmin"))).total >= 69);
+  await assert.rejects(
+    call("u-sysadmin", "contracts", "getContractList"),
+    /ACTION_FORBIDDEN/,
+  );
+  await assert.rejects(
+    call("u-sysadmin", "exceptions", "listExceptionQueue"),
+    /ACTION_FORBIDDEN/,
+  );
+  // The auditor reads every contract, the queue and the integrity check, and changes nothing.
+  assert.equal(
+    (await call("u-auditor", "contracts", "getContractList")).contracts.length,
+    (await call("u-admin", "contracts", "getContractList")).contracts.length,
+  );
+  assert.ok(
+    (await call("u-auditor", "exceptions", "listExceptionQueue")).length > 0,
+  );
+  assert.equal(
+    (await call("u-auditor", "integrity", "verifyIntegrity")).chain.ok,
+    true,
+  );
+  await assert.rejects(
+    call("u-auditor", "exceptions", "proposeException", {
+      contractId: "CT0017",
+      sequence: 3,
+      eventId: "x",
+      reason: "x",
+    }),
+    /ACTION_FORBIDDEN/,
+  );
+  const owner = (await repo.list("users")).find((u) => u.id === "u-owner");
+  await assert.rejects(
+    crud.update(
+      "users",
+      owner.id,
+      { title: "x", version: owner.version },
+      actor("u-auditor"),
+    ),
+    /PERMISSION_DENIED/,
+  );
+});
+
+test("workflow lists are read page by page with search, filters and sort on the server", async () => {
+  const contracts = (query) =>
+    call("u-owner", "contracts", "listContracts", query);
+  const first = await contracts({ page: 1, limit: 5 });
+  assert.equal(first.items.length, 5);
+  assert.equal(first.total, 16);
+  assert.equal(first.totalPages, 4);
+  assert.ok(first.items.every((c) => c.buyer.id === "B010"));
+  // Accents are optional: "thiet bi" finds "thiết bị".
+  const found = await contracts({ search: "thiet bi" });
+  assert.ok(found.items.some((c) => c.id === "CT0101"));
+  assert.ok(found.items.every((c) => /thiết bị/i.test(c.title)));
+  const drafts = await contracts({ filters: { status: ["DRAFT"] } });
+  assert.ok(drafts.items.every((c) => c.status === "DRAFT"));
+  // Facets cover the scope whatever the filters, so the menus keep every option.
+  assert.equal(
+    drafts.facets.status.reduce((sum, f) => sum + f.count, 0),
+    16,
+  );
+  const sorted = await contracts({ sortBy: "valueMillion", sortOrder: "desc" });
+  const values = sorted.items.map((c) => Number(c.valueMillion));
+  assert.deepEqual(
+    values,
+    [...values].sort((a, b) => b - a),
+  );
+  await assert.rejects(
+    contracts({ filters: { secret: ["x"] } }),
+    /INVALID_FILTER/,
+  );
+  await assert.rejects(contracts({ limit: 1000 }), /INVALID_PAGINATION/);
+  // Same scope as the unpaged view, for every role.
+  assert.equal(
+    (await call("u-supplier", "contracts", "listContracts", {})).total,
+    (await call("u-supplier", "contracts", "getContractList")).contracts.length,
+  );
+  assert.equal(
+    (await call("u-legal", "tasks", "listTasks", {})).total,
+    (await call("u-legal", "tasks", "getTaskInbox")).length,
+  );
+  const queue = await call("u-admin", "exceptions", "listExceptions", {
+    limit: 2,
+  });
+  assert.equal(queue.items.length, 2);
+  assert.ok(queue.total >= queue.items.length);
+  const activity = await call("u-owner", "activity", "listActivity", {
+    filters: { contractCode: ["CT0103"], from: ["2026-08-01"] },
+    limit: 100,
+  });
+  assert.ok(activity.total > 0);
+  assert.ok(
+    activity.items.every(
+      (e) => e.contractCode === "CT0103" && e.at.slice(0, 10) >= "2026-08-01",
+    ),
+  );
+  const times = activity.items.map((e) => e.at);
+  assert.deepEqual(times, [...times].sort().reverse());
+});
+
+test("the state survives a restart of the service", async () => {
+  const { WorkflowService } =
+    await import("../../apps/api/dist/workflow.controller.js");
+  const restarted = new WorkflowService(domain);
+  const view = await restarted.call(
+    "contracts",
+    "getMilestoneDetail",
+    { args: ["CT0103", 2] },
+    actor("u-owner"),
+  );
+  assert.equal(view.evaluation.decision, "PENALTY");
+  const activity = await restarted.call(
+    "activity",
+    "listActivityEntries",
+    { args: [] },
+    actor("u-owner"),
+  );
+  assert.ok(
+    activity.some(
+      (e) => e.action.kind === "DECISION" && e.contractCode === "CT0103",
+    ),
+  );
 });

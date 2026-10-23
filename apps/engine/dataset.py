@@ -22,6 +22,8 @@ TEMPLATE_COLUMNS = ['contract_id', 'milestone_id', 'contract_type', 'milestone_s
                     'missing_conditions', 'payable_amount_vnd_mn', 'penalty_amount_vnd_mn', 'reason_code',
                     'decision_reason', 'evidence_event_ids', 'rule_id_applied', 'confidence_score',
                     'processing_time_ms', 'evaluated_at', 'engine_name', 'audit_trace_id', 'notes']
+# Exception decisions approved by two controllers (BR-19): one event_id per row. Not part of the Data Pack.
+VOIDED = 'voided_events.csv'
 MAX_UNZIPPED = 200 * 1024 * 1024
 UNZIPPED = '_unzipped'
 
@@ -137,13 +139,18 @@ def load(base):
         unknown_scope = sorted(scope_ids - known)
         template = [t for t in template if t['milestone_id'] in scope_ids]
     samples = [d for d in rows.get('decision_sample', []) if d['milestone_id'] in known]
+    voided_paths = locate(base).get(VOIDED, [])
+    if len(voided_paths) > 1:
+        raise ValueError(f'DATASET_INVALID {VOIDED}:ambiguous')
+    voided = frozenset(r['event_id'] for p in voided_paths for r in spec.read(p.parent, p.name) if r.get('event_id'))
     pack = spec.Pack(rows['contracts'], rows['parties'], milestones, rows['events'], rows['payment_rules'],
                      samples, template, base)
     # The scoring list changes the output, so it is part of the run identity.
-    hashed = [paths[role] for role in sorted(paths)] + ([base / report['scope']['path']] if report['scope'] else [])
+    hashed = [paths[role] for role in sorted(paths)] + ([base / report['scope']['path']] if report['scope'] else []) \
+        + voided_paths
     digest = hashlib.sha256(''.join(hashlib.sha256(p.read_bytes()).hexdigest() for p in hashed).encode()).hexdigest()
     source = {'kind': 'dataset', 'files': {role: str(path.relative_to(base)) for role, path in paths.items()},
               'generatedTemplate': 'template' not in paths, 'scopeRows': len(scope_ids) if scope_ids else None,
-              'unknownScopeIds': unknown_scope[:50]}
-    return pack, digest, source
+              'unknownScopeIds': unknown_scope[:50], 'voided': sorted(voided)}
+    return pack, digest, source, voided
 

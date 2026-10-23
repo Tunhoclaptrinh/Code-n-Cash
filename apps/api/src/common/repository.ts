@@ -1,8 +1,15 @@
-import { Injectable, OnModuleDestroy, ConflictException } from "@nestjs/common";
+import {
+  Injectable,
+  OnModuleDestroy,
+  ConflictException,
+  ForbiddenException,
+} from "@nestjs/common";
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import mongoose from "mongoose";
 import type { RecordEntity } from "./types";
+import { chainHead, seal } from "./audit-chain";
+import { repoRoot } from "./paths";
 /** Adapted from UniFlow's repository/service boundary. Application writes include their audit entry. */
 @Injectable()
 export class Repository implements OnModuleDestroy {
@@ -11,7 +18,7 @@ export class Repository implements OnModuleDestroy {
   private db?: mongoose.Connection;
   readonly driver = process.env.STORAGE_DRIVER ?? "file";
   readonly path = resolve(
-    process.env.REPO_ROOT ?? process.cwd(),
+    repoRoot(),
     process.env.DATA_DIR ?? ".data",
     "records.json",
   );
@@ -30,13 +37,30 @@ export class Repository implements OnModuleDestroy {
         "documents",
         "datasets",
         "audit",
-        "workflow-state",
+        // Workflow database (apps/api/src/domain/records.ts).
+        "parties",
+        "contracts",
+        "milestones",
+        "events",
+        "payment-rules",
+        "evaluations",
+        "status-history",
+        "engine-runs",
+        "signing",
+        "signing-requests",
+        "signing-profiles",
+        "attachments",
+        "notes",
+        "exceptions",
+        "payments",
       ])
         await this.db.collection(name).createIndex({ id: 1 }, { unique: true });
       for (const [name, field] of [
         ["users", "email"],
         ["organizations", "code"],
         ["contract-drafts", "code"],
+        // One entry per position in the audit chain, even with several API instances.
+        ["audit", "seq"],
       ])
         await this.db
           .collection(name)
@@ -65,48 +89,97 @@ export class Repository implements OnModuleDestroy {
     fn: (items: RecordEntity[]) => T | Promise<T>,
     audit?: RecordEntity,
   ): Promise<T> {
+    return this.transact(
+      [resource],
+      (tables) => fn(tables[resource]),
+      audit ? [audit] : [],
+    );
+  }
+  /**
+   * Runs `fn` on several collections at once and writes every change, plus the audit entries,
+   * atomically: a MongoDB transaction, or a single file write. Calls are queued, so a handler
+   * always sees the result of the previous one.
+   */
+  async transact<T>(
+    resources: string[],
+    fn: (tables: Record<string, RecordEntity[]>) => T | Promise<T>,
+    audit: RecordEntity[] | ((result: T) => RecordEntity[]) = [],
+  ): Promise<T> {
+    const auditFor = (result: T) =>
+      typeof audit === "function" ? audit(result) : audit;
+    const names = [...new Set(resources)];
     const task = this.queue.then(async () => {
       if (this.db) {
         const session = await this.db.startSession();
         let result!: T;
         try {
           await session.withTransaction(async () => {
-            const collection = this.db!.collection(resource);
-            const original = (await collection
-              .find({}, { projection: { _id: 0 }, session })
-              .toArray()) as unknown as RecordEntity[];
-            const items = structuredClone(original);
-            result = await fn(items);
-            const old = new Map(original.map((x) => [x.id, x])),
-              current = new Set(items.map((x) => x.id));
-            for (const item of items) {
-              const previous = old.get(item.id);
-              if (!previous) await collection.insertOne(item, { session });
-              else if (JSON.stringify(previous) !== JSON.stringify(item))
-                await collection.replaceOne(
-                  { id: item.id, version: previous.version },
-                  item,
-                  { session },
-                );
+            const originals: Record<string, RecordEntity[]> = {};
+            const tables: Record<string, RecordEntity[]> = {};
+            for (const name of names) {
+              originals[name] = (await this.db!.collection(name)
+                .find({}, { projection: { _id: 0 }, session })
+                .toArray()) as unknown as RecordEntity[];
+              tables[name] = structuredClone(originals[name]);
             }
-            for (const item of original)
-              if (!current.has(item.id))
-                await collection.deleteOne(
-                  { id: item.id, version: item.version },
-                  { session },
-                );
-            if (audit)
-              await this.db!.collection("audit").insertOne(audit, { session });
+            result = await fn(tables);
+            const added = names.includes("audit")
+              ? appendedTo(originals.audit, tables.audit)
+              : [];
+            const [head] = (await this.db!.collection("audit")
+              .find(
+                { hash: { $exists: true } },
+                { projection: { _id: 0 }, session },
+              )
+              .sort({ seq: -1 })
+              .limit(1)
+              .toArray()) as unknown as RecordEntity[];
+            const entries = seal([...added, ...auditFor(result)], head);
+            for (const name of names.filter((n) => n !== "audit")) {
+              const collection = this.db!.collection(name);
+              const old = new Map(originals[name].map((x) => [x.id, x])),
+                current = new Set(tables[name].map((x) => x.id));
+              const inserts: RecordEntity[] = [];
+              for (const item of tables[name]) {
+                const previous = old.get(item.id);
+                if (!previous) inserts.push(item);
+                else if (JSON.stringify(previous) !== JSON.stringify(item))
+                  await collection.replaceOne(
+                    { id: item.id, version: previous.version },
+                    item,
+                    { session },
+                  );
+              }
+              if (inserts.length)
+                await collection.insertMany(inserts, { session });
+              for (const item of originals[name])
+                if (!current.has(item.id))
+                  await collection.deleteOne(
+                    { id: item.id, version: item.version },
+                    { session },
+                  );
+            }
+            if (entries.length)
+              await this.db!.collection("audit").insertMany(entries, {
+                session,
+              });
           });
         } finally {
           await session.endSession();
         }
         return result;
       }
-      const items = await this.list(resource);
-      const result = await fn(items);
-      const next = { ...this.data, [resource]: items };
-      if (audit) next.audit = [...(next.audit ?? []), audit];
+      const tables: Record<string, RecordEntity[]> = {};
+      for (const name of names) tables[name] = await this.list(name);
+      const result = await fn(tables);
+      const before = this.data.audit ?? [];
+      const added = names.includes("audit")
+        ? appendedTo(before, tables.audit)
+        : [];
+      const entries = seal([...added, ...auditFor(result)], chainHead(before));
+      const next = { ...this.data, ...tables };
+      if (names.includes("audit") || entries.length)
+        next.audit = [...before, ...entries];
       await mkdir(dirname(this.path), { recursive: true });
       await writeFile(this.path + ".tmp", JSON.stringify(next));
       await rename(this.path + ".tmp", this.path);
@@ -125,4 +198,15 @@ export class Repository implements OnModuleDestroy {
     await this.queue;
     await this.db?.close();
   }
+}
+
+/** Rows a handler appended to the audit log; editing or removing an existing row is refused. */
+function appendedTo(before: RecordEntity[], after: RecordEntity[]) {
+  const kept = after.slice(0, before.length);
+  if (
+    kept.length !== before.length ||
+    kept.some((row, i) => JSON.stringify(row) !== JSON.stringify(before[i]))
+  )
+    throw new ForbiddenException("APPEND_ONLY_RESOURCE");
+  return after.slice(before.length);
 }

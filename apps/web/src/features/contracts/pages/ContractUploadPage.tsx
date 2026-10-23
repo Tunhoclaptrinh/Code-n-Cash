@@ -1,13 +1,12 @@
 import { PageContainer, BaseCard, LoadingState } from "@codecash/ui";
 import { Alert } from "antd";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { ApiError } from "@/shared/api/client";
+import { getContractDraft, getUploadFormOptions } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
-import {
-  getContractDraft,
-  getUploadFormOptions,
-} from "../api/contractDraft.api";
 import { ContractUploadForm } from "../components/ContractUploadForm";
 import { FileChecksPanel } from "../components/FileChecksPanel";
 import { PagePreviewPanel } from "../components/PagePreviewPanel";
@@ -17,22 +16,18 @@ import styles from "./ContractUploadPage.module.css";
 export default function ContractUploadPage() {
   const { t } = useTranslation("contracts");
   const { t: tc } = useTranslation("common");
+  const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
-
   const draft = useQuery({
-    queryKey: ["contract-draft"],
-    queryFn: getContractDraft,
+    queryKey: ["contract-draft", user.organizationId],
+    queryFn: () => getContractDraft(),
   });
   const options = useQuery({
-    queryKey: ["upload-form-options", user.organizationId],
-    queryFn: () => getUploadFormOptions(user.organizationId),
+    queryKey: ["contract-draft", "options", user.organizationId],
+    queryFn: getUploadFormOptions,
   });
-
-  const template = draft.data
-    ? options.data?.signingTemplates.find(
-        (candidate) => candidate.id === draft.data.signingTemplateId,
-      )
-    : undefined;
+  const [signers, setSigners] = useState<number>();
+  const failure = draft.error ?? options.error;
 
   return (
     <AppPage
@@ -42,9 +37,22 @@ export default function ContractUploadPage() {
         { label: t("breadcrumb.upload") },
       ]}
     >
-      <PageContainer title={t("contractUpload.title")}>
-        {draft.isError || options.isError ? (
-          <Alert type="error" showIcon title={tc("common.loadError")} />
+      <PageContainer
+        title={t("contractUpload.title")}
+        tooltip={t("contractUpload.intro")}
+      >
+        {failure ? (
+          <Alert
+            type="error"
+            showIcon
+            title={
+              failure instanceof ApiError
+                ? td(`errors.${failure.code}`, {
+                    defaultValue: tc("common.loadError"),
+                  })
+                : tc("common.loadError")
+            }
+          />
         ) : null}
         {draft.isPending || options.isPending ? (
           <LoadingState tip={tc("common.loading")} />
@@ -55,11 +63,16 @@ export default function ContractUploadPage() {
               <WizardStepper current={1} />
             </BaseCard>
             <div className={styles.columns}>
-              <ContractUploadForm draft={draft.data} options={options.data} />
+              <ContractUploadForm
+                key={draft.data.code}
+                draft={draft.data}
+                options={options.data}
+                onSignersChange={setSigners}
+              />
               <div className={styles.side}>
                 <FileChecksPanel
                   pages={draft.data.file.pages ?? 0}
-                  signingSteps={template?.steps.length ?? 0}
+                  signingSteps={signers ?? draft.data.signers.length}
                 />
                 <PagePreviewPanel
                   page={draft.data.file.pages ?? 0}

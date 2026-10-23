@@ -19,6 +19,7 @@ import { Repository } from "./common/repository";
 import { BaseService } from "./common/services/base.service";
 import { RequirePermission } from "./common/permissions";
 import type { SessionRequest, RecordEntity } from "./common/types";
+import { repoRoot } from "./common/paths";
 @Controller("documents")
 export class DocumentsController {
   constructor(
@@ -26,11 +27,7 @@ export class DocumentsController {
     @Inject(BaseService) private base: BaseService,
   ) {}
   private folder() {
-    return resolve(
-      process.env.REPO_ROOT ?? process.cwd(),
-      process.env.DATA_DIR ?? ".data",
-      "uploads",
-    );
+    return resolve(repoRoot(), process.env.DATA_DIR ?? ".data", "uploads");
   }
   @RequirePermission("documents:upload")
   @Post(":draftId")

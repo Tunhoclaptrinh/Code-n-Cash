@@ -21,25 +21,20 @@ export function NotificationDrawer({
   onClose: () => void;
 }) {
   const { t } = useTranslation("common");
-  const { t: tm, i18n } = useTranslation("milestones");
+  const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
   const tasks = useQuery({
     queryKey: ["pending-tasks", userId],
-    queryFn: () => listPendingTasks(userId),
+    queryFn: listPendingTasks,
   });
   const go = (path: string) => {
     onClose();
     navigate(path);
   };
-  const title = (task: PendingTask) => {
-    const name =
-      task.heading.kind === "MILESTONE"
-        ? tm(`milestoneKind.${task.heading.milestoneKind}`)
-        : "";
-    return tm(`inbox.task.${task.kind}`, {
-      milestone: name.toLocaleLowerCase(i18n.language),
-    });
-  };
+  const title = (task: PendingTask) =>
+    task.milestoneType
+      ? `${td(`taskKind.${task.kind}`)} · ${td(`milestoneType.${task.milestoneType}`)}`
+      : td(`taskKind.${task.kind}`);
   return (
     <Drawer
       open={open}
@@ -73,16 +68,18 @@ export function NotificationDrawer({
               <span className={styles.itemTitle}>{title(task)}</span>
               <span className={styles.itemMeta}>
                 <Typography.Text type="secondary">
-                  {task.heading.kind === "MILESTONE"
-                    ? `${task.contractId} · MS${task.heading.no}`
+                  {task.sequence
+                    ? `${task.contractId} · ${td("milestoneNo", { no: task.sequence })}`
                     : task.contractId}
                 </Typography.Text>
-                <Typography.Text type="secondary">
-                  <ClockCircleOutlined /> {formatDate(task.dueDate)}
-                </Typography.Text>
+                {task.dueDate ? (
+                  <Typography.Text type="secondary">
+                    <ClockCircleOutlined /> {formatDate(task.dueDate)}
+                  </Typography.Text>
+                ) : null}
                 {task.overdueDays > 0 ? (
                   <Tag color="error" style={{ margin: 0 }}>
-                    {tm("inbox.overdue", { count: task.overdueDays })}
+                    {td("overdue", { count: task.overdueDays })}
                   </Tag>
                 ) : null}
               </span>

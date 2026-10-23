@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { SetMetadata } from "@nestjs/common";
 import type { Role } from "./types";
+import { repoRoot } from "./paths";
 
 export type PermissionScope = "all" | "org" | "own" | "assigned";
 export interface PermissionMatrix {
@@ -18,10 +19,7 @@ export interface PermissionMatrix {
 /** The matrix in packages/contracts/permissions.json is the only place roles get rights. */
 export const matrix: PermissionMatrix = JSON.parse(
   readFileSync(
-    resolve(
-      process.env.REPO_ROOT ?? process.cwd(),
-      "packages/contracts/permissions.json",
-    ),
+    resolve(repoRoot(), "packages/contracts/permissions.json"),
     "utf8",
   ),
 );

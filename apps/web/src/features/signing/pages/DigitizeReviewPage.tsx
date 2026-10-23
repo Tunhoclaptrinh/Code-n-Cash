@@ -1,13 +1,14 @@
-import { Button, Input, Table, Tag } from "antd";
+import { Alert, Button, Input, Table, Tag } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { ApiError } from "@/shared/api/client";
 import { AppPage } from "@/shared/layout/AppPage";
 import {
   formatDate,
-  formatMillionVnd,
-  formatNumber,
+  formatDecimalString,
+  sumDecimalStrings,
 } from "@/shared/lib/format";
 import { confirmDigitization, getDigitization } from "../api/digitization.api";
 import { signingKeys } from "../api/signingConfig.api";
@@ -30,17 +31,17 @@ import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./DigitizeReviewPage.module.css";
 
-const DEFAULT_CONTRACT = "CT0101";
-const MILLION = 1_000_000;
-
+/**
+ * Step 3 of the wizard: the terms read from the contract, cut into the milestones of the Data Pack
+ * workflow of its type. Confirming locks them, creates the milestones and starts the signing order.
+ */
 export default function DigitizeReviewPage() {
   const { t } = useTranslation("signing");
-  const contractId = useParams().contractId ?? DEFAULT_CONTRACT;
+  const contractId = useParams().contractId ?? "";
   const digitization = useQuery({
     queryKey: signingKeys.digitization(contractId),
     queryFn: () => getDigitization(contractId),
   });
-
   return (
     <AppPage
       active="upload"
@@ -69,40 +70,34 @@ function Review({
   data: Digitization;
 }) {
   const { t } = useTranslation("signing");
+  const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pending = data.milestones.find(
-    (milestone) => milestone.source === "NEEDS_CONFIRMATION",
+    (m) => m.source === "NEEDS_CONFIRMATION",
   );
   const pendingCount = data.milestones.filter(
-    (milestone) => milestone.source === "NEEDS_CONFIRMATION",
+    (m) => m.source === "NEEDS_CONFIRMATION",
   ).length;
   const [deadlineText, setDeadlineText] = useState(
     dateToInputText(pending?.dueDate ?? data.suggestedDueDate),
   );
   const [deadlineInvalid, setDeadlineInvalid] = useState(false);
   const [highlighted, setHighlighted] = useState<SourceClauseKind | null>(null);
-
   const confirm = useMutation({
     mutationFn: (dueDate: string | null) =>
       confirmDigitization(contractId, { dueDate }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: signingKeys.digitization(contractId),
-      });
+      await queryClient.invalidateQueries({ queryKey: ["signing"] });
+      await queryClient.invalidateQueries({ queryKey: ["contract-summaries"] });
       void navigate(`/contracts/${contractId}/signing`);
     },
   });
-
-  const total = data.milestones.reduce(
-    (sum, milestone) => sum + milestone.valueMillion,
-    0,
-  );
-  const totalMatches = Math.abs(total - data.contractValueMillion) < 0.005;
+  const total = sumDecimalStrings(data.milestones.map((m) => m.valueMillion));
+  const totalMatches = total === sumDecimalStrings([data.contractValueMillion]);
   const totalClause = data.clauses.find(
     (clause) => clause.kind === "TOTAL_VALUE",
   );
-
   const onConfirm = () => {
     if (data.locked) {
       void navigate(`/contracts/${contractId}/signing`);
@@ -114,13 +109,14 @@ function Review({
       return;
     }
     setDeadlineInvalid(false);
-    confirm.mutate(dueDate);
+    confirm.mutate(dueDate ? dueDate.slice(0, 10) : null);
   };
+  const errorCode =
+    confirm.error instanceof ApiError ? confirm.error.code : null;
 
   return (
     <>
       <WizardStepper current="REVIEW" />
-
       <div className={styles.layout}>
         <section className={cx(shared.card, styles.panel)}>
           <div className={styles.panelHeader}>
@@ -159,18 +155,16 @@ function Review({
                 : t("digitize.result.reviewedBadge")}
             </span>
           </div>
-
           <Table<DigitizedMilestone>
-            rowKey="no"
+            rowKey="sequence"
             dataSource={data.milestones}
             pagination={false}
             scroll={{ x: "max-content" }}
-            onRow={(milestone) => ({
+            onRow={(m) => ({
               tabIndex: 0,
-              onClick: () => setHighlighted(milestone.sourceClause),
+              onClick: () => setHighlighted(m.sourceClause),
               onKeyDown: (event) => {
-                if (event.key === "Enter")
-                  setHighlighted(milestone.sourceClause);
+                if (event.key === "Enter") setHighlighted(m.sourceClause);
               },
             })}
             columns={[
@@ -179,15 +173,18 @@ function Review({
                 title: t("digitize.result.columns.milestone"),
                 render: (_, m) => (
                   <>
-                    <b>{t("digitize.result.milestoneCode", { no: m.no })}</b>{" "}
-                    {t(`digitize.result.milestoneKind.${m.kind}`)}
+                    <b>
+                      {t("digitize.result.milestoneCode", { no: m.sequence })}
+                    </b>{" "}
+                    {td(`milestoneType.${m.type}`)}
                   </>
                 ),
               },
               {
                 key: "value",
                 title: t("digitize.result.columns.value"),
-                render: (_, m) => formatMillionVnd(m.valueMillion),
+                render: (_, m) =>
+                  `${formatDecimalString(m.valueMillion)} (${m.paymentPercent}%)`,
               },
               {
                 key: "due",
@@ -202,8 +199,8 @@ function Review({
                 title: t("digitize.result.columns.documents"),
                 render: (_, m) =>
                   capitalize(
-                    m.documents
-                      .map((d) => t(`digitize.result.documents.${d}`))
+                    m.eventTypes
+                      .map((type) => td(`eventType.${type}`))
                       .join(", "),
                   ),
               },
@@ -213,8 +210,8 @@ function Review({
                 render: (_, m) =>
                   m.penalty
                     ? t("digitize.result.penalty.RATE", {
-                        rate: formatNumber(m.penalty.ratePerDay, 2),
-                        cap: formatNumber(m.penalty.capPercent),
+                        rate: m.penalty.ratePct,
+                        cap: m.penalty.capPct,
                       })
                     : t("digitize.result.penalty.NONE"),
               },
@@ -233,12 +230,11 @@ function Review({
               },
             ]}
           />
-
           {pending ? (
             <div className={cx(shared.notice, styles.ambiguity)}>
               <b className={shared.noticeTitle}>
                 {t("digitize.ambiguity.title", {
-                  no: pending.no,
+                  no: pending.sequence,
                   months: pending.relativeTermMonths ?? 0,
                 })}
               </b>
@@ -248,7 +244,7 @@ function Review({
                   htmlFor="milestone-deadline"
                   className={styles.deadlineLabel}
                 >
-                  {t("digitize.ambiguity.label", { no: pending.no })}
+                  {t("digitize.ambiguity.label", { no: pending.sequence })}
                 </label>
                 <Input
                   id="milestone-deadline"
@@ -265,20 +261,21 @@ function Review({
               </div>
             </div>
           ) : null}
-
           <div className={styles.summary}>
             <div className={styles.summaryBox}>
               <div className={styles.summaryLabel}>
                 {t("digitize.approvers.title")}
               </div>
               <b>
-                {data.approvers
-                  .map((role) => t(`digitize.approvers.role.${role}`))
-                  .join(", ")}
+                {data.approvers.length
+                  ? data.approvers
+                      .map((role) => td(`approvalRole.${role}`))
+                      .join(", ")
+                  : t("digitize.approvers.none")}
               </b>
               <div className={styles.summaryLabel}>
                 {t("digitize.approvers.note", {
-                  number: numberWord(t, data.requiredApprovals),
+                  count: data.requiredApprovals,
                 })}
               </div>
             </div>
@@ -287,7 +284,9 @@ function Review({
                 {t("digitize.total.title")}
               </div>
               <b className={styles.tabular}>
-                {t("digitize.total.value", { value: formatMillionVnd(total) })}
+                {t("digitize.total.value", {
+                  value: formatDecimalString(total),
+                })}
               </b>
               <div
                 className={
@@ -299,12 +298,20 @@ function Review({
                       article: totalClause?.article ?? "",
                     })
                   : t("digitize.total.mismatch", {
-                      value: formatMillionVnd(data.contractValueMillion),
+                      value: formatDecimalString(data.contractValueMillion),
                     })}
               </div>
             </div>
           </div>
-
+          {confirm.isError ? (
+            <Alert
+              type="error"
+              showIcon
+              title={td(`errors.${errorCode ?? "UNKNOWN"}`, {
+                defaultValue: errorCode ?? td("errors.UNKNOWN"),
+              })}
+            />
+          ) : null}
           <div className={styles.footer}>
             <span className={styles.footerNote}>
               {data.locked
@@ -322,6 +329,7 @@ function Review({
               size="large"
               disabled={confirm.isPending}
               onClick={onConfirm}
+              data-testid="digitize-confirm"
             >
               {data.locked
                 ? t("digitize.footer.continue")
@@ -334,13 +342,6 @@ function Review({
   );
 }
 
-function numberWord(
-  t: (key: string, options?: Record<string, unknown>) => string,
-  count: number,
-): string {
-  return t(`digitize.numberWords.${count}`, { defaultValue: String(count) });
-}
-
 function SourceClauseText({
   clause,
   data,
@@ -351,13 +352,11 @@ function SourceClauseText({
   highlighted: boolean;
 }) {
   const { t } = useTranslation("signing");
-  const vnd = (million: number) =>
-    t("digitize.source.vnd", { value: formatNumber(million * MILLION) });
-  const delivery = data.milestones.find(
-    (milestone) => milestone.kind === "DELIVERY",
-  );
-  const penalised = data.milestones.find((milestone) => milestone.penalty);
-
+  const { t: td } = useTranslation("domain");
+  const vnd = (million: string) =>
+    t("digitize.source.vnd", { value: formatDecimalString(million) });
+  const delivery = data.milestones.find((m) => m.sourceClause === "DELIVERY");
+  const penalised = data.milestones.find((m) => m.penalty);
   let values: Record<string, string | number> | null = null;
   switch (clause.kind) {
     case "TOTAL_VALUE":
@@ -367,34 +366,29 @@ function SourceClauseText({
       };
       break;
     case "DELIVERY":
-      if (delivery) {
+      if (delivery)
         values = {
           value: vnd(delivery.valueMillion),
           date: delivery.dueDate
             ? formatDate(delivery.dueDate)
             : t("digitize.result.dueUnknown"),
           documents: formatList(
-            delivery.documents.map((document) =>
-              t(`digitize.result.documents.${document}`),
-            ),
+            delivery.eventTypes.map((type) => td(`eventType.${type}`)),
           ),
         };
-      }
       break;
     case "LATE_PENALTY":
-      if (penalised?.penalty) {
+      if (penalised?.penalty)
         values = {
-          rate: formatNumber(penalised.penalty.ratePerDay, 2),
-          cap: formatNumber(penalised.penalty.capPercent),
+          rate: penalised.penalty.ratePct,
+          cap: penalised.penalty.capPct,
         };
-      }
       break;
     case "APPROVALS":
-      values = { approvers: numberWord(t, data.requiredApprovals) };
+      values = { approvers: data.requiredApprovals };
       break;
   }
   if (!values) return null;
-
   return (
     <div className={highlighted ? styles.clauseOn : styles.clause}>
       <div className={styles.clauseLocation}>

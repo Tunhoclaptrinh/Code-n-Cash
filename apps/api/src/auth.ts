@@ -21,14 +21,8 @@ import { Repository } from "./common/repository";
 import { Public } from "./common/decorators/roles.decorator";
 import { RequirePermission, permissionsFor } from "./common/permissions";
 import type { Actor, SessionRequest, Role, RecordEntity } from "./common/types";
-/** Accounts created by `seed()`; the demo sign-in menu lists only these. */
-const DEMO_ACCOUNT_IDS = [
-  "u-owner",
-  "u-legal",
-  "u-finance",
-  "u-admin",
-  "u-supplier",
-];
+import { buildDirectory, FEATURED_ACCOUNTS } from "./domain/accounts";
+import { loadDataPack } from "./domain/datapack";
 /**
  * One-click demo sign-in: on by default in development, off in production unless DEMO_LOGIN=true.
  * Never enable it on a deployment that holds real data.
@@ -55,6 +49,8 @@ export class AuthService {
       roleChipOrganization: String(
         record.roleChipOrganization ?? record.organizationId,
       ),
+      partyId: record.partyId ? String(record.partyId) : null,
+      title: String(record.title ?? ""),
       permissions: permissionsFor(record.role as Role),
       active: record.active !== false,
     };
@@ -95,18 +91,39 @@ export class AuthService {
       user: this.actor(user),
     };
   }
+  /** Seeded accounts: the featured ones first, then every organisation of the Data Pack. */
   async demoAccounts() {
-    if (!demoLoginEnabled()) return { enabled: false, accounts: [] };
-    const users = await this.repo.list("users");
+    if (!demoLoginEnabled())
+      return { enabled: false, accounts: [], organizations: [] };
+    const users = (await this.repo.list("users")).filter(
+      (u) => u.origin === "SEED" && u.active !== false,
+    );
+    const view = (u: RecordEntity) => ({
+      email: String(u.email),
+      displayName: String(u.displayName),
+      role: u.role as Role,
+      organization: String(u.roleChipOrganization ?? ""),
+      organizationId: String(u.organizationId),
+      partyId: u.partyId ? String(u.partyId) : null,
+    });
+    const groups = new Map<string, ReturnType<typeof view>[]>();
+    for (const user of users) {
+      if (FEATURED_ACCOUNTS.includes(user.id)) continue;
+      const list = groups.get(String(user.organizationId)) ?? [];
+      list.push(view(user));
+      groups.set(String(user.organizationId), list);
+    }
     return {
       enabled: true,
-      accounts: DEMO_ACCOUNT_IDS.map((id) => users.find((u) => u.id === id))
-        .filter((u): u is RecordEntity => !!u && u.active !== false)
-        .map((u) => ({
-          email: String(u.email),
-          displayName: String(u.displayName),
-          role: u.role as Role,
-          organization: String(u.roleChipOrganization ?? ""),
+      accounts: FEATURED_ACCOUNTS.map((id) => users.find((u) => u.id === id))
+        .filter((u): u is RecordEntity => !!u)
+        .map(view),
+      organizations: [...groups]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([id, accounts]) => ({
+          id,
+          name: accounts[0].organization,
+          accounts,
         })),
     };
   }
@@ -117,7 +134,7 @@ export class AuthService {
       .toLowerCase();
     const user = (await this.repo.list("users")).find(
       (x) =>
-        DEMO_ACCOUNT_IDS.includes(x.id) &&
+        x.origin === "SEED" &&
         String(x.email).toLowerCase() === email &&
         x.active !== false,
     );
@@ -197,40 +214,56 @@ export class AuthService {
     });
     return { loggedOut: true };
   }
+  /**
+   * Creates the seed accounts of buildDirectory (one person per Data Pack party, plus two internal
+   * controllers). Existing passwords are kept; accounts created before the Data Pack import are
+   * relinked to their party.
+   */
   async seed() {
-    if ((await this.repo.list("users")).length) return;
+    // The parties table is filled by the Data Pack import; read the file when it is not there yet.
+    const stored = await this.repo.list("parties");
+    const parties = stored.length ? stored : (await loadDataPack()).parties;
+    const { accounts } = buildDirectory(parties as never);
     const passwordHash = await bcrypt.hash(
       process.env.SEED_PASSWORD ?? "Passw0rd!",
       12,
     );
     const now = new Date().toISOString();
-    const accounts = [
-      ["owner", "owner@novaan.vn", "Nguyễn Văn An", "CONTRACT_OWNER"],
-      ["legal", "legal@novaan.vn", "Trần Thị Mai", "LEGAL_REVIEWER"],
-      ["finance", "finance@novaan.vn", "Lê Quốc Dũng", "FINANCE_APPROVER"],
-      ["admin", "admin@novaan.vn", "Phạm Hoàng Nam", "ADMIN_AUDITOR"],
-      ["supplier", "supplier@phuminh.vn", "Vũ Thanh Hà", "SUPPLIER"],
-    ];
-    await this.repo.mutate("users", (items) =>
-      items.push(
-        ...accounts.map(([id, email, displayName, role]) => ({
-          id: "u-" + id,
-          email,
-          displayName,
-          role,
-          passwordHash,
-          active: true,
-          organizationId: role === "SUPPLIER" ? "org-phu-minh" : "org-nova-an",
-          roleChipOrganization:
-            role === "SUPPLIER"
-              ? "Phú Minh Technology JSC"
-              : "Nova An Business JSC",
-          version: 1,
-          createdAt: now,
-          updatedAt: now,
-        })),
-      ),
-    );
+    await this.repo.mutate("users", (items) => {
+      for (const account of accounts) {
+        const fields = {
+          email: account.email,
+          displayName: account.displayName,
+          title: account.title,
+          role: account.role,
+          organizationId: account.organizationId,
+          roleChipOrganization: account.organizationName,
+          partyId: account.partyId,
+          origin: account.origin,
+        };
+        const existing = items.find(
+          (u) =>
+            u.id === account.id ||
+            String(u.email).toLowerCase() === account.email,
+        );
+        if (existing && existing.partyId !== undefined) continue;
+        if (existing)
+          Object.assign(existing, fields, {
+            version: existing.version + 1,
+            updatedAt: now,
+          });
+        else
+          items.push({
+            id: account.id,
+            ...fields,
+            passwordHash,
+            active: true,
+            version: 1,
+            createdAt: now,
+            updatedAt: now,
+          });
+      }
+    });
   }
 }
 @Injectable()

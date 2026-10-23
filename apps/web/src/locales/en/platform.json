@@ -44,7 +44,14 @@
     "recordId": "Record ID",
     "updatedAt": "Updated",
     "version": "Version",
-    "createdAt": "Created"
+    "createdAt": "Created",
+    "partyId": "Data Pack party ID",
+    "workflowTemplate": "Workflow",
+    "sequence": "Sequence",
+    "paymentPercent": "Payment share (%)",
+    "latePenalty": "Late penalty applies",
+    "offsetDays": "Due (days after start)",
+    "origin": "Source"
   },
   "data": {
     "title": "Data Pack results",
@@ -137,7 +144,32 @@
       "chooseFiles": "Choose at least one file",
       "done": "Dataset uploaded",
       "incomplete": "Uploaded, but a required file or column is missing"
-    }
+    },
+    "kpi": {
+      "title": "KPIs (spec section 15)",
+      "subtitle": "{{labelled}} publicly labelled milestones; coverage, trace and time on {{milestones}} milestones",
+      "decisionAccuracy": "Decision accuracy",
+      "macroF1": "Macro-F1 (4 classes)",
+      "unauthorizedPayment": "Unauthorized payment (UPR)",
+      "overHold": "Over-hold",
+      "amountAccuracy": "Amount match",
+      "coverage": "Output coverage",
+      "traceability": "Complete audit trace",
+      "processing": "Processing time",
+      "amountValue": "{{ratio}} · max error {{error}}",
+      "processingValue": "{{total}} ms · median {{median}} ms · p95 {{p95}} ms",
+      "hint": {
+        "decisionAccuracy": "Milestones whose RELEASE/HOLD/REJECT/PENALTY decision matches the label, counted on the publicly labelled milestones only.",
+        "macroF1": "Mean F1 of the four decision classes, so rare classes (REJECT, PENALTY) are not drowned out by frequent ones.",
+        "unauthorizedPayment": "Milestones released or paid with penalty while the label is HOLD/REJECT, over the milestones labelled HOLD/REJECT. Target: 0.",
+        "overHold": "Milestones held or rejected while the label is RELEASE/PENALTY: shows the system is not safe merely by holding every payment.",
+        "amountAccuracy": "Milestones whose payable and penalty amounts both match exactly, with the largest absolute error (million VND).",
+        "coverage": "Milestones with exactly one output row, over the milestones to export.",
+        "traceability": "Decisions that trace back to their events (or missing conditions), rule, amounts, time and audit id.",
+        "processing": "Total time of one run, median and p95 per milestone. Hover the value for the machine configuration."
+      }
+    },
+    "searchPlaceholder": "Search contract, milestone, type or reason code"
   },
   "resetPassword": "Reset password",
   "newPassword": "New password (at least 12 characters)",
@@ -157,13 +189,20 @@
   "options": {
     "kind": {
       "BUYER": "Buyer",
-      "SUPPLIER": "Supplier"
+      "SUPPLIER": "Supplier",
+      "INTERNAL": "Internal"
     },
     "contractType": {
       "GOODS_SUPPLY": "Goods supply",
       "SERVICES": "Services",
       "SOFTWARE_IMPLEMENTATION": "Software implementation",
       "MAINTENANCE": "Maintenance"
+    },
+    "workflowTemplate": {
+      "WF_GOODS_4STAGE": "Goods · 4 milestones",
+      "WF_SERVICE_4STAGE": "Services · 4 milestones",
+      "WF_SOFTWARE_5STAGE": "Software · 5 milestones",
+      "WF_MAINTENANCE_3STAGE": "Maintenance · 3 milestones"
     }
   },
   "passwordTooShort": "The password needs at least 12 characters.",
@@ -273,9 +312,14 @@
       "settings:import": "Import settings from a file",
       "settings:export": "Export settings"
     },
-    "scopeLabel": "Scope"
+    "scopeLabel": "Scope",
+    "searchPlaceholder": "Search permission name, key or module"
   },
   "searchToPick": "Type to search",
   "imported_one": "{{count}} record imported",
-  "imported_other": "{{count}} records imported"
+  "imported_other": "{{count}} records imported",
+  "errors": {
+    "MANAGED_RECORD": "This record belongs to the Data Pack or the workflow, so it cannot be edited or deleted here. Edit contract drafts on the Upload contract screen."
+  },
+  "searchPlaceholder": "Search every column, organisation names included"
 }

@@ -44,7 +44,14 @@
     "recordId": "Mã bản ghi",
     "updatedAt": "Cập nhật",
     "version": "Phiên bản",
-    "createdAt": "Tạo lúc"
+    "createdAt": "Tạo lúc",
+    "partyId": "Mã bên trong Data Pack",
+    "workflowTemplate": "Quy trình",
+    "sequence": "Thứ tự",
+    "paymentPercent": "Tỷ lệ thanh toán (%)",
+    "latePenalty": "Áp dụng phạt trễ",
+    "offsetDays": "Hạn (ngày sau khi bắt đầu)",
+    "origin": "Nguồn"
   },
   "data": {
     "title": "Kết quả Data Pack",
@@ -137,7 +144,32 @@
       "chooseFiles": "Chọn ít nhất một tệp",
       "done": "Đã tải lên bộ dữ liệu",
       "incomplete": "Đã tải lên nhưng còn thiếu tệp hoặc cột bắt buộc"
-    }
+    },
+    "kpi": {
+      "title": "Chỉ số KPI (đặc tả mục 15)",
+      "subtitle": "Trên {{labelled}} mốc có nhãn công khai; độ phủ, truy vết, thời gian trên {{milestones}} mốc",
+      "decisionAccuracy": "Độ chính xác quyết định",
+      "macroF1": "Macro-F1 (4 lớp)",
+      "unauthorizedPayment": "Chi sai (UPR)",
+      "overHold": "Giữ thừa",
+      "amountAccuracy": "Khớp số tiền",
+      "coverage": "Độ phủ đầu ra",
+      "traceability": "Truy vết đầy đủ",
+      "processing": "Thời gian xử lý",
+      "amountValue": "{{ratio}} · sai số lớn nhất {{error}}",
+      "processingValue": "{{total}} ms · trung vị {{median}} ms · p95 {{p95}} ms",
+      "hint": {
+        "decisionAccuracy": "Số mốc có quyết định RELEASE/HOLD/REJECT/PENALTY đúng với nhãn, chỉ tính trên các mốc có nhãn công khai.",
+        "macroF1": "Trung bình F1 của bốn lớp quyết định, để lớp ít gặp (REJECT, PENALTY) không bị lớp đông lấn át.",
+        "unauthorizedPayment": "Mốc bị RELEASE/PENALTY trong khi nhãn là HOLD/REJECT, chia cho số mốc có nhãn HOLD/REJECT. Mục tiêu là 0.",
+        "overHold": "Mốc bị HOLD/REJECT trong khi nhãn là RELEASE/PENALTY: cho thấy hệ thống không đạt an toàn bằng cách giữ lại mọi khoản chi.",
+        "amountAccuracy": "Mốc khớp tuyệt đối cả số tiền được trả lẫn tiền phạt, kèm sai số tuyệt đối lớn nhất (triệu VND).",
+        "coverage": "Số mốc có đúng một dòng kết quả, trên số mốc phải xuất.",
+        "traceability": "Quyết định truy được về sự kiện (hoặc điều kiện còn thiếu), rule, số tiền, thời điểm và mã audit.",
+        "processing": "Tổng thời gian một lượt chạy, trung vị và p95 cho mỗi mốc. Di chuột vào giá trị để xem cấu hình máy."
+      }
+    },
+    "searchPlaceholder": "Tìm theo mã hợp đồng, mã mốc, loại mốc, mã lý do"
   },
   "resetPassword": "Đặt lại mật khẩu",
   "newPassword": "Mật khẩu mới (ít nhất 12 ký tự)",
@@ -157,13 +189,20 @@
   "options": {
     "kind": {
       "BUYER": "Bên mua",
-      "SUPPLIER": "Nhà cung cấp"
+      "SUPPLIER": "Nhà cung cấp",
+      "INTERNAL": "Nội bộ"
     },
     "contractType": {
       "GOODS_SUPPLY": "Cung cấp hàng hóa",
       "SERVICES": "Dịch vụ",
       "SOFTWARE_IMPLEMENTATION": "Triển khai phần mềm",
       "MAINTENANCE": "Bảo trì"
+    },
+    "workflowTemplate": {
+      "WF_GOODS_4STAGE": "Hàng hoá · 4 mốc",
+      "WF_SERVICE_4STAGE": "Dịch vụ · 4 mốc",
+      "WF_SOFTWARE_5STAGE": "Phần mềm · 5 mốc",
+      "WF_MAINTENANCE_3STAGE": "Bảo trì · 3 mốc"
     }
   },
   "passwordTooShort": "Mật khẩu cần ít nhất 12 ký tự.",
@@ -273,9 +312,14 @@
       "settings:import": "Nhập cấu hình từ tệp",
       "settings:export": "Xuất cấu hình"
     },
-    "scopeLabel": "Phạm vi"
+    "scopeLabel": "Phạm vi",
+    "searchPlaceholder": "Tìm theo tên quyền, mã quyền, nhóm (không cần dấu)"
   },
   "searchToPick": "Gõ để tìm và chọn",
   "imported_one": "Đã nhập {{count}} bản ghi",
-  "imported_other": "Đã nhập {{count}} bản ghi"
+  "imported_other": "Đã nhập {{count}} bản ghi",
+  "errors": {
+    "MANAGED_RECORD": "Bản ghi này thuộc Data Pack hoặc luồng nghiệp vụ nên không sửa, xoá ở đây. Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên."
+  },
+  "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)"
 }

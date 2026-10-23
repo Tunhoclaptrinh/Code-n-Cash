@@ -1,7 +1,11 @@
 import { useState, type DragEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { Select, Space, Typography } from "antd";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { getContractList } from "@/shared/api/domain";
+import { useCurrentUser } from "@/shared/auth/session";
+import { OriginTag } from "@/shared/ui/DomainTags";
 import { ApiError } from "@/shared/api/client";
 import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime } from "@/shared/lib/format";
@@ -19,7 +23,6 @@ import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SignatureVerificationPage.module.css";
 
-const DEFAULT_CONTRACT = "CT0101";
 const INVALID_REASONS = [
   "CONTENT_EDITED",
   "WRONG_SIGNER",
@@ -28,11 +31,26 @@ const INVALID_REASONS = [
 
 export default function SignatureVerificationPage() {
   const { t } = useTranslation("signing");
-  const contractId = useParams().contractId ?? DEFAULT_CONTRACT;
+  const user = useCurrentUser();
+  const navigate = useNavigate();
+  const routeId = useParams().contractId;
+  const contractId = routeId ?? "";
+  // Contracts with a signing record, so the page can switch between them.
+  const list = useQuery({
+    queryKey: ["contract-summaries", user.id],
+    queryFn: getContractList,
+  });
+  const signed = (list.data?.contracts ?? []).filter((c) => c.signing);
   const verification = useQuery({
     queryKey: signingKeys.verification(contractId),
     queryFn: () => getVerification(contractId),
+    enabled: !!routeId,
   });
+  if (!routeId && list.data) {
+    const first =
+      signed.find((c) => c.signing && c.signing.signed > 0) ?? signed[0];
+    if (first) return <Navigate to={`/verify/${first.id}`} replace />;
+  }
 
   return (
     <AppPage
@@ -42,10 +60,32 @@ export default function SignatureVerificationPage() {
         { label: t("verify.breadcrumb.current", { code: contractId }) },
       ]}
     >
+      <Space wrap style={{ marginBottom: 16 }}>
+        <Typography.Text strong>{t("verify.pick")}</Typography.Text>
+        <Select
+          showSearch
+          optionFilterProp="label"
+          style={{ minWidth: 320 }}
+          value={routeId}
+          onChange={(id: string) => navigate(`/verify/${id}`)}
+          options={signed.map((c) => ({
+            value: c.id,
+            label: `${c.id} · ${c.title} (${c.signing?.signed}/${c.signing?.total})`,
+          }))}
+          data-testid="verify-contract"
+        />
+        {verification.data ? (
+          <OriginTag origin={verification.data.origin} />
+        ) : null}
+      </Space>
       {verification.data ? (
         <Verification contractId={contractId} result={verification.data} />
-      ) : (
+      ) : routeId ? (
         <PageState kind={verification.isError ? "error" : "loading"} />
+      ) : (
+        <PageState
+          kind={list.isError ? "error" : list.data ? "notFound" : "loading"}
+        />
       )}
     </AppPage>
   );

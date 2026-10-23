@@ -18,6 +18,7 @@ import { TransformInterceptor } from "./common/interceptors/transform.intercepto
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { EngineController } from "./engine";
 import { PermissionsController } from "./permissions.controller";
+import { DomainService } from "./domain/service";
 process.env.REPO_ROOT ??= resolve(__dirname, "../../..");
 loadEnv({ path: resolve(process.env.REPO_ROOT, ".env") });
 process.chdir(process.env.REPO_ROOT);
@@ -43,6 +44,7 @@ class HealthController {
     BaseService,
     AuthService,
     WorkflowService,
+    DomainService,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
@@ -51,8 +53,6 @@ class ApplicationModule {}
 async function main() {
   const app = await NestFactory.create(ApplicationModule);
   await app.get(Repository).init();
-  if (process.env.NODE_ENV !== "production" || process.env.SEED_PASSWORD)
-    await app.get(AuthService).seed();
   app.setGlobalPrefix("api/v1");
   app.enableCors({
     origin: (
@@ -69,33 +69,10 @@ async function main() {
     new LoggingInterceptor(),
     new TransformInterceptor(),
   );
-  const now = new Date().toISOString();
-  const repo = app.get(Repository);
-  if (!(await repo.list("organizations")).length)
-    await repo.mutate("organizations", (items) =>
-      items.push(
-        ...[
-          {
-            id: "org-nova-an",
-            name: "Nova An Business JSC",
-            code: "NOVA",
-            kind: "BUYER",
-          },
-          {
-            id: "org-phu-minh",
-            name: "Phú Minh Technology JSC",
-            code: "PHUMINH",
-            kind: "SUPPLIER",
-          },
-        ].map((x) => ({
-          ...x,
-          organizationId: "org-nova-an",
-          version: 1,
-          createdAt: now,
-          updatedAt: now,
-        })),
-      ),
-    );
+  // The Data Pack is the base data of every deployment; seed accounts need a seed password.
+  await app.get(DomainService).bootstrap();
+  if (process.env.NODE_ENV !== "production" || process.env.SEED_PASSWORD)
+    await app.get(AuthService).seed();
   const config = new DocumentBuilder()
     .setTitle("CodeCash API")
     .setVersion("1.0")

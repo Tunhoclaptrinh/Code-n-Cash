@@ -64,7 +64,29 @@ export default function LoginPage() {
       setBusy(false);
     }
   };
-  const demoAccounts = demo.data ?? [];
+  const featured = demo.data?.featured ?? [];
+  const organizations = demo.data?.organizations ?? [];
+  const accountItem = (account: DemoAccount) => ({
+    key: account.email,
+    onClick: () => void signInWithDemo(account),
+    label: (
+      <span className={styles.demoItem} data-testid="demo-account">
+        <Avatar size={32} className={styles.demoAvatar}>
+          {initialsOf(account.displayName)}
+        </Avatar>
+        <span className={styles.demoText}>
+          <b>{account.displayName}</b>
+          <small>
+            {account.email}
+            {account.partyId ? ` · ${account.partyId}` : ""}
+          </small>
+        </span>
+        <Tag color="blue" style={{ margin: 0 }}>
+          {t(`roles.${account.role}.name`)}
+        </Tag>
+      </span>
+    ),
+  });
   return (
     <div className={styles.page}>
       <aside className={styles.brandPanel}>
@@ -90,32 +112,30 @@ export default function LoginPage() {
           className={styles.toolbar}
           style={phase === "tips" ? { zIndex: 1002 } : undefined}
         >
-          {demoAccounts.length ? (
+          {featured.length ? (
             <Dropdown
               trigger={["click"]}
               placement="bottomRight"
               menu={{
-                items: demoAccounts.map((account) => ({
-                  key: account.email,
-                  onClick: () => void signInWithDemo(account),
-                  label: (
-                    <span
-                      className={styles.demoItem}
-                      data-testid="demo-account"
-                    >
-                      <Avatar size={32} className={styles.demoAvatar}>
-                        {initialsOf(account.displayName)}
-                      </Avatar>
-                      <span className={styles.demoText}>
-                        <b>{account.displayName}</b>
-                        <small>{account.email}</small>
-                      </span>
-                      <Tag color="blue" style={{ margin: 0 }}>
-                        {t(`roles.${account.role}.name`)}
-                      </Tag>
-                    </span>
-                  ),
-                })),
+                style: { maxHeight: "70vh", overflowY: "auto" },
+                items: [
+                  {
+                    type: "group",
+                    key: "featured",
+                    label: t("login.demoFeatured"),
+                    children: featured.map(accountItem),
+                  },
+                  { type: "divider" },
+                  {
+                    key: "all",
+                    label: t("login.demoAll"),
+                    children: organizations.map((org) => ({
+                      key: org.id,
+                      label: `${org.id} · ${org.name}`,
+                      children: org.accounts.map(accountItem),
+                    })),
+                  },
+                ],
               }}
             >
               <Button
@@ -187,7 +207,7 @@ export default function LoginPage() {
               {t("login.submit")}
             </Button>
           </Form>
-          {demoAccounts.length ? (
+          {featured.length ? (
             <Typography.Paragraph type="secondary" className={styles.hint}>
               {t("login.demoHint")}
             </Typography.Paragraph>

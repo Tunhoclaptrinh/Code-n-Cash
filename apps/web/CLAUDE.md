@@ -2,7 +2,7 @@
 
 Read the root CLAUDE.md and docs/08_HUONG_DAN_PHAT_TRIEN_UI.md. Use Ant Design 6 and `@codecash/ui`, keep React 19/Router 7/TanStack Query/i18next.
 
-All feature reads/writes go through API modules and the shared authenticated client. Keep query keys scoped by actor. Do not import fixture stores or calculate decisions in pages. Business handlers and initial fixture data live in apps/api/src/workflow.
+All feature reads/writes go through API modules and the shared authenticated client. Keep query keys scoped by actor. Do not import fixture stores or calculate decisions in pages. Business handlers, the Data Pack import and seed data live in apps/api/src/domain; workflow calls go through `src/shared/api/domain.ts`. Show where a record comes from with `OriginTag` (`src/shared/ui/DomainTags.tsx`); workflow labels live in the `domain` namespace.
 
 Base: `packages/ui` mirrors UniFlow's base; never edit it to suit a page. List pages use `PageContainer` + `DataTable` with statistics, tabs, `filters` (`useFilters`), search, `onRefresh`, pagination (`usePagination` or `useResource`), export, `customActions` (IconButton + Dropdown; it replaces the default buttons), `DetailModal`, `FormModal`, `ConfirmModal`.
 

@@ -1,400 +1,382 @@
 {
-  "status": {
-    "NOT_OPEN": "Not open yet",
-    "NOT_DUE": "Not due yet",
-    "AWAITING_EVIDENCE": "Awaiting evidence",
-    "AWAITING_APPROVAL": "Awaiting approval",
-    "RELEASE": "RELEASE",
-    "PENALTY": "PENALTY",
-    "HOLD": "HOLD",
-    "REJECT": "REJECT"
-  },
-  "decisionCode": {
-    "RELEASE": "RELEASE",
-    "HOLD": "HOLD",
-    "REJECT": "REJECT",
-    "PENALTY": "PENALTY"
-  },
-  "milestoneKind": {
-    "SIGNING": "Contract signing",
-    "DELIVERY": "Delivery",
-    "ACCEPTANCE": "Acceptance",
-    "WARRANTY": "Warranty"
-  },
-  "evidenceType": {
-    "DELIVERY_REPORT": "Delivery report",
-    "INVOICE": "Invoice",
-    "ACCEPTANCE_REPORT": "Acceptance report",
-    "ACCEPTANCE_REPORT_REVISED": "Revised acceptance report",
-    "WARRANTY_END_REPORT": "Warranty completion report",
-    "OTHER": "Other document",
-    "OWN_DIGITAL_SIGNATURE": "Your digital signature"
-  },
-  "participantRole": {
-    "CONTRACT_OWNER": "Contract owner",
-    "FINANCE_APPROVER": "Finance approver",
-    "SECOND_APPROVER": "Second approver",
-    "SUPPLIER_REPRESENTATIVE": "Supplier representative"
-  },
-  "side": {
-    "BUYER": "Buyer",
-    "SUPPLIER": "Seller"
-  },
-  "contractKind": {
-    "GOODS_SUPPLY": "Goods supply contract"
-  },
-  "numberWord": {
-    "1": "One",
-    "2": "Two",
-    "3": "Three",
-    "4": "Four"
-  },
   "common": {
     "pdf": "PDF",
-    "millionUnit": "million",
-    "millionVnd": "{{amount}} million VND",
-    "milestoneRef": "MS{{no}} {{name}}",
-    "signatureValid": "Valid signature",
-    "signatureInvalid": "Invalid signature",
-    "notFound": "We could not find this record.",
-    "view": "View"
+    "millionUnit": "million"
   },
   "inbox": {
-    "title": "Your tasks",
-    "subtitle_one": "{{count}} task, nearest deadline first",
-    "subtitle_other": "{{count}} tasks, nearest deadline first",
-    "intro": "Once you submit every required document with a digital signature, the system passes them to the buyer's approvers.",
-    "empty": "You have no tasks to do.",
-    "footer": "You only see tasks for contracts that name your company. You cannot approve payments or change amounts.",
-    "columns": {
-      "task": "Task",
-      "contractAndMilestone": "Contract and milestone",
-      "due": "Due",
-      "required": "To submit",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "task": {
-      "SUBMIT_EVIDENCE": "Submit {{milestone}} documents",
-      "SIGN_CONTRACT": "Sign new contract",
-      "RESUBMIT_EVIDENCE": "Add missing documents",
-      "APPROVE_PAYMENT": "Approve payment"
-    },
-    "headingMilestone": "{{contractId}} · MS{{no}} {{name}}",
-    "headingTitle": "{{contractId}} · {{title}}",
-    "contractAmount": "{{title}} · {{amount}} million VND",
-    "buyerSigned": "Buyer signed at {{time}}",
-    "requestReason": "Contract owner asked: \"{{reason}}\"",
-    "overdue_one": "{{count}} day overdue",
-    "overdue_other": "{{count}} days overdue",
-    "badge": {
-      "LATE_PENALTY_RISK": "Late, penalty possible",
-      "YOUR_TURN": "Your turn",
-      "MILESTONE_ON_HOLD": "Milestone on HOLD",
-      "ON_TIME": "On time"
-    },
-    "action": {
-      "SUBMIT_EVIDENCE": "Submit and sign",
-      "SIGN_CONTRACT": "Sign now",
-      "RESUBMIT_EVIDENCE": "Resubmit",
-      "APPROVE_PAYMENT": "Approve"
-    },
+    "title": "My tasks",
+    "subtitle_one": "{{count}} task waiting for you",
+    "subtitle_other": "{{count}} tasks waiting for you",
+    "intro": "Each task comes from the engine's latest decision: evidence your side still owes, approval roles not complete, an open dispute, an unauthorised event, or your turn to sign. Once done, the engine re-evaluates and the task goes away.",
+    "empty": "Nothing is waiting for you",
+    "footer": "Other parties' tasks are not shown here; the contract page shows the full status.",
     "tabs": {
       "ALL": "All"
     },
-    "detail": {
-      "context": "Context"
+    "badge": {
+      "LATE_PENALTY_RISK": "Late, penalty applies",
+      "YOUR_TURN": "Your turn",
+      "MILESTONE_ON_HOLD": "Milestone on hold",
+      "ON_TIME": "On time"
+    },
+    "columns": {
+      "task": "Task",
+      "contract": "Contract",
+      "milestone": "Milestone",
+      "amount": "Milestone value (million VND)",
+      "due": "Due",
+      "status": "Status",
+      "required": "Needed"
     },
     "actions": {
       "detail": "View details",
       "openContract": "Open contract",
+      "openDecision": "Open decision trace",
       "more": "More actions"
-    }
-  },
-  "submit": {
-    "breadcrumb": "{{contractId}} · MS{{no}} · Submit documents",
-    "title": "MS{{no}} {{name}}: submit documents",
-    "overdue_one": "{{count}} day overdue",
-    "overdue_other": "{{count}} days overdue",
-    "required": {
-      "title": "Documents required for this milestone"
     },
-    "file": {
-      "meta_one": "{{fileName}} · {{size}} MB · {{count}} page",
-      "meta_other": "{{fileName}} · {{size}} MB · {{count}} pages",
-      "metaNoPages": "{{fileName}} · {{size}} MB",
-      "signed": "Signed and valid",
-      "unsigned": "Not signed",
-      "signer": "{{name}}, {{at}}",
-      "empty": "No file for this document yet",
-      "choose": "Choose file",
-      "chooseAria": "Choose a file for {{document}}",
-      "remove": "Remove",
-      "removeAria": "Remove file {{fileName}}",
-      "extraTitle": "Additional document"
+    "action": {
+      "SUBMIT_EVIDENCE": "Submit evidence",
+      "RESUBMIT_EVIDENCE": "Resubmit evidence",
+      "APPROVE_PAYMENT": "Approve",
+      "RESOLVE_DISPUTE": "Handle dispute",
+      "SIGN_CONTRACT": "Sign the contract",
+      "COMPLETE_DRAFT": "Continue the file",
+      "REVIEW_EXCEPTION": "Review exception",
+      "DECIDE_EXCEPTION": "Decide proposal"
     },
-    "signingMethod": {
-      "label": "Signing method",
-      "VIETTEL_MYSIGN": "Viettel MySign"
+    "detail": {
+      "reason": "Why the engine holds it",
+      "origin": "Data source"
     },
-    "position": {
-      "label": "Signature box on the {{document}}",
-      "value": "Page {{page}}, {{corner}}.",
-      "reassign": "Reassign",
-      "corner": {
-        "BOTTOM_RIGHT": "bottom right corner"
-      }
-    },
-    "dropzone": "Add other documents (optional): drag and drop or choose files",
-    "dropzoneAria": "Add other documents",
-    "lockNote": "Once signed, a document is locked. You can only submit a new version.",
-    "later": "Later",
-    "signAndSubmit": "Sign the {{document}} and submit",
-    "submit": "Submit documents",
-    "submitting": "Submitting…",
-    "error": {
-      "EVIDENCE_INCOMPLETE": "Some required documents are missing.",
-      "UNKNOWN": "We could not submit the documents. Please try again."
-    },
-    "aftermath": {
-      "title": "What happens after you submit",
-      "actor": {
-        "SYSTEM": "System",
-        "HUMAN": "People"
-      },
-      "validate": "<b>Document check.</b> Documents only count if you are the contract's supplier and the signatures are valid.",
-      "match": "<b>Match against the milestone.</b> With all documents in, the milestone moves to approval. If something is missing, you are told straight away.",
-      "approve": "<b>{{quorumWord}} approvers on the buyer side</b> review the file and sign digitally before the payment is settled.",
-      "result": "<b>You get the result</b>: the amount paid, any penalty and the reason."
-    },
-    "penalty": {
-      "title": "About the penalty",
-      "late_one": "Delivery {{count}} day late at {{rate}}% per day on {{value}} million VND is {{penalty}} million VND. You will see this calculation in the result step, and you may open a dispute if you disagree.",
-      "late_other": "Delivery {{count}} days late at {{rate}}% per day on {{value}} million VND is {{penalty}} million VND. You will see this calculation in the result step, and you may open a dispute if you disagree.",
-      "onTime": "You are on time, so no penalty applies."
-    },
-    "submitted": "Submitted, awaiting approval"
-  },
-  "approve": {
-    "breadcrumb": "{{contractId}} · MS{{no}} {{name}}",
-    "title": "Approve payment for MS{{no}} {{name}}",
-    "state": {
-      "OPEN": "Awaiting approval",
-      "CLOSED": "Decision made"
-    },
-    "proposal": {
-      "title": "System proposal",
-      "milestoneValue": "Milestone value",
-      "penalty": "Penalty",
-      "payable": "Payable",
-      "explainLate_one": "<b>{{count}} day</b> late × <b>{{rate}}%</b> per day × {{value}} = {{penalty}}. The {{cap}}% cap is {{capAmount}}, not reached.",
-      "explainLate_other": "<b>{{count}} days</b> late × <b>{{rate}}%</b> per day × {{value}} = {{penalty}}. The {{cap}}% cap is {{capAmount}}, not reached.",
-      "explainCapped_one": "<b>{{count}} day</b> late × <b>{{rate}}%</b> per day × {{value}} exceeds the cap. The {{cap}}% cap is {{capAmount}}, so the penalty is {{penalty}}.",
-      "explainCapped_other": "<b>{{count}} days</b> late × <b>{{rate}}%</b> per day × {{value}} exceeds the cap. The {{cap}}% cap is {{capAmount}}, so the penalty is {{penalty}}.",
-      "explainOnTime": "Delivered on time, so no penalty applies.",
-      "reason": "Reason: <b>{{reason}}</b>. No dispute, documents complete and signatures valid.",
-      "reasonCode": {
-        "ALL_CONDITIONS_MET": "all conditions met",
-        "LATE_DELIVERY": "late delivery",
-        "APPROVAL_QUORUM_NOT_MET": "approval quorum not met",
-        "HELD_BY_APPROVER": "held by an approver",
-        "REJECTED_BY_APPROVER": "rejected by an approver"
-      }
-    },
-    "documents": {
-      "title": "Submitted documents",
-      "signedBy": "Signed by {{name}}, {{at}}",
-      "viewAria": "View {{document}}",
-      "note_one": "Read this {{countWord}} document before you approve. The system records whether you opened it.",
-      "note_other": "Read these {{countWord}} documents before you approve. The system records whether you opened them."
-    },
-    "progress": {
-      "title": "Approval progress: {{quorum}} people needed, {{roles}} different roles",
-      "heading": "<b>{{role}}</b> · {{person}}",
-      "headingNoPerson": "<b>{{role}}</b>",
-      "headingOptional": "<b>{{role}}</b> · optional",
-      "you": "you",
-      "state": {
-        "APPROVED": "Approved and signed at {{time}}",
-        "HELD": "Put on hold at {{time}}",
-        "REJECTED": "Rejected at {{time}}",
-        "CURRENT_YOU": "Your turn",
-        "CURRENT_OTHER": "Waiting for approval",
-        "PENDING": "Not their turn yet",
-        "PENDING_OPTIONAL": "Only needed if one of the two above rejects"
-      }
-    },
-    "consequences": {
-      "title": "What happens with each choice",
-      "approve": "<b>Approve and sign:</b> once both roles have signed, the system fixes the penalty and sends the payment order for {{payable}} million.",
-      "hold": "<b>Hold (HOLD):</b> the milestone stops, you record a reason, and it goes back to the contract owner.",
-      "reject": "<b>Reject (REJECT):</b> a reason is required and this milestone is not paid."
-    },
-    "note": {
-      "label": "Note or reason",
-      "hint": "required when holding or rejecting",
-      "required": "Please give a reason when holding or rejecting."
-    },
-    "actions": {
-      "reject": "Reject",
-      "hold": "Hold",
-      "approve": "Approve and sign"
-    },
-    "confirm": {
-      "title": "Confirm digital signature",
-      "body": "You are about to sign and approve a payment of {{payable}} million VND for MS{{no}} {{name}}. This signature cannot be withdrawn.",
-      "cancel": "Cancel",
-      "submit": "Sign",
-      "submitting": "Signing…"
-    },
-    "error": {
-      "ALREADY_VOTED": "Your role has already voted on this milestone.",
-      "NOT_AN_APPROVER": "You are not one of the approvers for this milestone.",
-      "APPROVAL_CLOSED": "This milestone already has a decision.",
-      "UNKNOWN": "We could not record your vote. Please try again."
-    }
-  },
-  "decision": {
-    "breadcrumb": "MS{{no}} {{name}}: decision",
-    "meta": "{{contractId}} · {{title}} · {{supplier}}",
-    "headline": {
-      "RELEASE": "MS{{no}} {{name}} is paid {{amount}} million VND",
-      "PENALTY": "MS{{no}} {{name}} is paid {{amount}} million VND",
-      "HOLD": "MS{{no}} {{name}} is on hold",
-      "REJECT": "MS{{no}} {{name}} was rejected and is not paid"
-    },
-    "summary": {
-      "RELEASE": "All conditions are met. {{approvers}} approvers signed digitally at {{time}} on {{date}}.",
-      "PENALTY_one": "Delivered {{count}} day late, so a penalty of {{penalty}} million VND is deducted. {{approvers}} approvers signed digitally at {{time}} on {{date}}.",
-      "PENALTY_other": "Delivered {{count}} days late, so a penalty of {{penalty}} million VND is deducted. {{approvers}} approvers signed digitally at {{time}} on {{date}}.",
-      "HOLD": "The milestone is stopped and unpaid. Decision recorded at {{time}} on {{date}}.",
-      "REJECT": "The milestone was rejected and is not paid. Decision recorded at {{time}} on {{date}}."
-    },
-    "actions": {
-      "export": "Export PDF file",
-      "transfer": "Send payment order to accounting",
-      "transferred": "Sent to accounting",
-      "transferring": "Sending…"
-    },
-    "amounts": {
-      "title": "Amounts (million VND)",
-      "milestoneValue": "Milestone value",
-      "lateDays": "Days late",
-      "lateDaysValue_one": "{{count}} day",
-      "lateDaysValue_other": "{{count}} days",
-      "rate": "Penalty rate",
-      "rateValue": "{{rate}}% per day",
-      "cap": "{{cap}}% penalty cap",
-      "penalty": "Penalty = the smaller of {{calculated}} and {{cap}}",
-      "payableFormula": "Payable = {{value}} − {{penalty}}",
-      "payableNone": "This milestone is not paid",
-      "note": "Unit: million VND. The supplier sees this exact calculation."
-    },
-    "reasons": {
-      "title": "Why this decision",
-      "NO_OPEN_DISPUTE": "No open dispute or rejection.",
-      "AUTHORIZED_SUBMITTER_AND_VALID_SIGNATURES_one": "The submitter is authorised; the document has a valid signature.",
-      "AUTHORIZED_SUBMITTER_AND_VALID_SIGNATURES_other": "The submitter is authorised; all {{count}} documents have valid signatures.",
-      "APPROVAL_QUORUM_MET_one": "{{count}} approver signed, once per role.",
-      "APPROVAL_QUORUM_MET_other": "{{count}} approvers signed, once per role.",
-      "LATE_DELIVERY_one": "<b>Delivered {{count}} day late</b> against the {{due}} deadline, so a penalty applies.",
-      "LATE_DELIVERY_other": "<b>Delivered {{count}} days late</b> against the {{due}} deadline, so a penalty applies.",
-      "HELD_BY_APPROVER": "<b>An approver put this milestone on hold</b> and recorded a reason.",
-      "REJECTED_BY_APPROVER": "<b>An approver rejected this milestone</b> and recorded a reason.",
-      "relatedDocuments": "Related documents"
-    },
-    "history": {
-      "title": "Processing history",
-      "note": "History is append-only: nothing is edited or deleted.",
-      "category": {
-        "SIGNATURE": "Signature",
-        "SYSTEM": "System",
-        "HUMAN": "People"
-      },
-      "event": {
-        "DOCUMENT_SIGNED": "{{actor}} signed the {{document}}",
-        "DOCUMENT_SIGNED_WITH_ROLE": "{{actor}} ({{role}}) signed the {{document}}",
-        "EVIDENCE_RECEIVED": "Received the documents, validated them, proposed {{code}} and sent for approval",
-        "EVIDENCE_RECEIVED_PENALTY": "Received the documents, validated them, proposed {{code}} {{penalty}} and sent for approval",
-        "APPROVED_AND_SIGNED": "{{actor}} ({{role}}) approved and signed",
-        "HELD": "{{actor}} ({{role}}) put the milestone on hold",
-        "REJECTED": "{{actor}} ({{role}}) rejected the milestone",
-        "DECISION_FINALIZED": "Finalised {{code}}; all parties notified",
-        "DECISION_FINALIZED_PAYABLE": "Finalised {{code}}, payable {{payable}}; all parties notified"
-      }
-    },
-    "dispute": {
-      "title": "Supplier disagrees?",
-      "body_one": "They can open a dispute within {{count}} day. The milestone then goes to HOLD until someone resolves it.",
-      "body_other": "They can open a dispute within {{count}} days. The milestone then goes to HOLD until someone resolves it.",
-      "link": "Open the dispute screen"
-    }
+    "searchPlaceholder": "Search contract code, title or milestone ID"
   },
   "detail": {
     "breadcrumb": "{{contractId}}",
-    "meta": "{{kind}} · {{supplier}}",
-    "phase": {
-      "IN_PROGRESS": "In progress",
-      "COMPLETED": "Completed"
-    },
+    "meta": "{{id}} · {{kind}} · {{buyer}} → {{supplier}}",
+    "disputeFlag": "Open dispute",
     "actions": {
-      "download": "Download signed copy",
+      "signing": "Open signing order",
       "verify": "Verify signatures",
-      "downloadUnavailable": "The signed copy becomes downloadable once a certificate authority is integrated."
+      "activity": "Contract activity"
     },
     "tabs": {
-      "label": "Contract content",
-      "milestones": "Milestones",
-      "documents": "Documents",
-      "participants": "Participants",
-      "history": "History"
+      "milestones_one": "Milestones ({{count}})",
+      "milestones_other": "Milestones ({{count}})",
+      "events_one": "Events ({{count}})",
+      "events_other": "Events ({{count}})",
+      "history": "Status history",
+      "signing": "Signing",
+      "participants": "Participants"
+    },
+    "noMilestones": "No milestones yet. They are created when the digitised terms are locked.",
+    "terms": {
+      "title": "Terms",
+      "policy": "Approval policy",
+      "period": "Term",
+      "penalty": "Late penalty",
+      "penaltyValue": "Grace {{grace}} days · {{rate}}%/day · cap {{cap}}%"
+    },
+    "requirement": {
+      "VALID": "Valid: {{id}} at {{at}}",
+      "MISSING": "Missing; the {{side}} submits it",
+      "UNAUTHORIZED": "Unauthorised event {{id}}; the {{side}} resubmits and controllers handle it (BR-19)"
     },
     "milestone": {
-      "name": "MS{{no}} · {{name}}",
-      "due": "Due {{due}}",
-      "dueDelivered": "Due {{due}}, delivered {{delivered}}",
       "amountUnit": "million VND",
-      "fact": {
-        "completed": "Completed:",
-        "paid": "Payable:",
-        "penalty": "Penalty:",
-        "required": "To submit:",
-        "submitter": "Submitted by:",
-        "opensWhen": "Opens when:",
-        "submittedOn": "Submitted:"
+      "due": "Due {{due}} · {{grace}} days grace",
+      "noDue": "No due date (held under rule 80)",
+      "completed": "completed {{at}}",
+      "approvals": "Approvals {{done}}/{{quorum}}",
+      "noApproval": "No approval needed",
+      "reason": "Reason:",
+      "payable": "Eligible:",
+      "penalty": "penalty {{penalty}} ({{days}} days late)",
+      "next": "Next:",
+      "action": {
+        "submit": "Submit evidence",
+        "approve": "Approve",
+        "dispute": "Handle dispute",
+        "transfer": "Transfer",
+        "exception": "Review exception"
       },
-      "opensWhenValue": "MS{{no}} is complete",
-      "side": {
-        "transferred": "Sent to accounting",
-        "notTransferred": "Not sent to accounting",
-        "viewDecision": "View decision",
-        "waitingSubmitter": "Waiting for {{role}} to submit documents",
-        "awaitingApproval": "Waiting for approvers",
-        "noTask": "No task yet"
-      }
+      "trace": "Decision trace"
     },
     "payment": {
       "title": "Payment overview",
       "contractValue": "Contract value",
-      "settled": "Payment settled",
+      "eligible": "Eligible",
       "penalty": "Penalty deducted",
-      "notDue": "Not due yet",
-      "inProgress": "In progress",
-      "unit": "Unit: million VND",
-      "progressAria": "Share of the contract value with payment settled"
+      "held": "Held",
+      "rejected": "Rejected",
+      "transferred": "Transferred",
+      "progressAria": "Eligible and penalty share of the contract value",
+      "unit": "Unit: million VND"
     },
-    "participants": {
-      "title": "Participants",
-      "role": "{{role}}, {{side}}"
-    },
-    "documents": {
-      "title": "Contract documents",
-      "empty": "No documents yet.",
-      "meta": "MS{{no}} · {{type}}"
+    "events": {
+      "at": "Time",
+      "type": "Event",
+      "milestone": "Milestone",
+      "actor": "Created by",
+      "document": "Document",
+      "reference": "Refers to {{id}}"
     },
     "history": {
-      "body": "Every action on this contract is recorded in the activity log.",
-      "link": "Open the activity log"
+      "body": "Events and every status change by the engine, newest first (up to 200 rows).",
+      "byParty": "by {{actor}} · {{milestone}}"
+    },
+    "signing": {
+      "title": "Signing order ({{signed}}/{{total}} signed)",
+      "note": "Signers and their order are seed data (the Data Pack only has the CONTRACT_SIGNED event). When the last one signs, the buyer's CONTRACT_SIGNED event is recorded.",
+      "final": "last step, digital signature required",
+      "state": {
+        "WAITING": "Waiting",
+        "CURRENT": "Their turn",
+        "SIGNED": "Signed"
+      },
+      "none": "This contract has no signing order."
+    },
+    "participants": {
+      "title": "Parties and people"
+    }
+  },
+  "decision": {
+    "breadcrumb": "Milestone {{no}} · {{name}}",
+    "meta": "{{contractId}} · {{title}} · {{supplier}}",
+    "summaryLine": "Rule {{rule}} · eligible {{payable}} · penalty {{penalty}} (million VND)",
+    "runLine": "Run {{run}} · {{at}} · spec v{{spec}} · confidence {{confidence}}",
+    "next": "Next step:",
+    "actions": {
+      "submit": "Submit evidence",
+      "approve": "Open approval",
+      "resolveDispute": "Handle dispute",
+      "openDispute": "Open a dispute",
+      "transfer": "Transfer (simulated)",
+      "export": "Print / save as PDF"
+    },
+    "transferred": "Simulated payment recorded; the milestone is now Payment transferred.",
+    "payment": {
+      "title": "{{amount}} million VND transferred by {{by}} at {{at}}",
+      "body": "Idempotency key {{id}}: one payment per milestone and decision version. The milestone is final; new events are only recorded."
+    },
+    "issues": "Engine notes",
+    "conditions": {
+      "title": "Milestone conditions"
+    },
+    "tokens": {
+      "quorum_one": "{{count}} approval role complete",
+      "quorum_other": "{{count}} approval roles complete",
+      "NO_OPEN_DISPUTE": "No open dispute"
+    },
+    "facts": {
+      "requiredEvents": "Valid required evidence",
+      "missing": "Missing",
+      "unauthorized": "Unauthorised events",
+      "duplicates": "Duplicates excluded",
+      "openDispute": "Open disputes",
+      "none": "None",
+      "rejections": "Valid rejections",
+      "approvals": "Approvals",
+      "approvalValue": "{{done}}/{{quorum}} roles ({{roles}})",
+      "noApproval": "No approval needed",
+      "voided": "Voided events (BR-19)"
+    },
+    "amounts": {
+      "title": "Amounts",
+      "milestoneValue": "Milestone value (P)",
+      "deadline": "Last day without penalty",
+      "deadlineValue": "{{due}} + {{grace}} days = {{deadline}}",
+      "noDue": "Unreadable due date: held under rule 80",
+      "completed": "Actual completion (BR-11)",
+      "notCompleted": "Evidence incomplete",
+      "lateDays": "Days late after grace",
+      "lateDaysValue_one": "{{count}} day",
+      "lateDaysValue_other": "{{count}} days",
+      "rate": "Penalty rate",
+      "rateValue": "{{rate}}%/day, cap {{cap}}% = {{capAmount}}",
+      "noPenalty": "No late penalty on this milestone",
+      "raw": "Raw penalty before rounding",
+      "penalty": "Penalty F (ROUND_HALF_UP)",
+      "payable": "Eligible amount",
+      "note": "The engine computes with Decimal, never floats. Eligible is not the amount paid."
+    },
+    "rules": {
+      "title": "The 8 rules of scope {{scope}} (first match)",
+      "priority": "Priority",
+      "condition": "Condition",
+      "decision": "Decision",
+      "reason": "Reason",
+      "formula": "Payable / penalty formula",
+      "outcome": "Outcome"
+    },
+    "events": {
+      "title_one": "{{count}} event of the milestone and how the engine classified it",
+      "title_other": "{{count}} events of the milestone and how the engine classified them",
+      "classification": "Classification",
+      "inEvidence": "evidence"
+    },
+    "history": {
+      "title": "Status history",
+      "note": "Every evaluation has a run id; the same data and version always give the same result."
+    },
+    "exceptions": {
+      "title": "BR-19 exceptions",
+      "body": "Only unauthorised or anomalous events can be voided. One controller proposes, a second approves; the original event is never edited or deleted, and voiding never creates evidence.",
+      "state": {
+        "PROPOSED": "Waiting",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      },
+      "voidEvent": "void {{id}}",
+      "proposedBy": "Proposed: {{name}}, {{at}}",
+      "decidedBy": "Decided: {{name}}, {{at}}",
+      "waitSecond": "Waiting for a second controller.",
+      "approve": "Approve voiding",
+      "reject": "Reject",
+      "none": "No proposal yet.",
+      "pick": "Pick the unauthorised event",
+      "reason": "Reason (required), e.g. the supplier used the wrong channel and the buyer resubmitted",
+      "propose": "Propose voiding",
+      "proposed": "Proposal sent; a second controller decides.",
+      "decided": "Decision recorded; the engine re-evaluated."
+    },
+    "dispute": {
+      "title": "Disagree with the decision?",
+      "body": "The buyer or the supplier opens a dispute; the milestone is held (rule 10) until the buyer closes it validly.",
+      "link": "Open the dispute page"
+    },
+    "replay": {
+      "title": "History, event by event",
+      "run": "Replay each event",
+      "again": "Run again",
+      "body": "The engine re-evaluates the milestone right after each of its events, using only the data known at that moment (as-of mode, BR-16). Use it to explain how the milestone reached its current decision.",
+      "columns": {
+        "at": "Time",
+        "events": "Events",
+        "decision": "Decision",
+        "status": "Status · reason",
+        "approvals": "Approvals",
+        "missing": "Missing",
+        "amounts": "Payable / penalty"
+      },
+      "empty": "The milestone has no events yet.",
+      "error": "The replay failed. Try again later.",
+      "note": "Before the due date, a milestone still missing evidence shows as Planned or In progress. Replaying writes nothing."
+    }
+  },
+  "submit": {
+    "breadcrumb": "{{contractId}} · Milestone {{no}}",
+    "title": "Submit evidence · Milestone {{no}} · {{name}}",
+    "done": "Event recorded. The engine re-evaluated: {{status}} ({{reason}}).",
+    "required": {
+      "title": "Required evidence of the milestone"
+    },
+    "dropzone": "Drop supporting files (optional)",
+    "dropzoneAria": "Choose supporting files",
+    "nothingLeft": "Your side has submitted everything for this milestone.",
+    "lockNote": "Each file becomes an event in the Data Pack schema; it cannot be edited or deleted after submission.",
+    "later": "Later",
+    "submit_one": "Submit {{count}} document",
+    "submit_other": "Submit {{count}} documents",
+    "aftermath": {
+      "title": "After you submit",
+      "actor": {
+        "SYSTEM": "System",
+        "HUMAN": "People"
+      },
+      "validate": "Authority check against matrix 4.2 and deduplication (BR-03, BR-04).",
+      "match": "The Python engine runs the 8 rules in priority order and computes the amounts.",
+      "approve": "Payment approval: {{roles}}.",
+      "result": "Decision, status history and audit are recorded.",
+      "noApproval": "none; the contract releases automatically when conditions are met"
+    },
+    "preview": {
+      "title": "If you submit now (engine dry run)",
+      "amounts_one": "Eligible {{payable}} · penalty {{penalty}} · {{count}} day late",
+      "amounts_other": "Eligible {{payable}} · penalty {{penalty}} · {{count}} days late",
+      "empty": "Attach the documents to see the expected result."
+    },
+    "penalty": {
+      "title": "Penalty terms",
+      "terms": "Due {{due}}, {{grace}} days grace (until {{deadline}}). After that {{rate}}%/day, at most {{cap}}% of the milestone value, from the actual completion date.",
+      "none": "This milestone has no late penalty."
+    },
+    "file": {
+      "recorded": "{{id}} · {{by}} · {{at}}",
+      "valid": "Valid",
+      "otherUnauthorized": "A copy was created by a party without authority; the {{side}} must submit a valid one.",
+      "otherSide": "Submitted by the {{side}}.",
+      "waiting": "Other side",
+      "meta": "{{fileName}} · {{size}} MB",
+      "ready": "Ready",
+      "remove": "Remove",
+      "replacesUnauthorized": "A valid copy; the old unauthorised event keeps the milestone on hold until controllers void it (BR-19).",
+      "unauthorizedMine": "an unauthorised copy exists; submit a valid one",
+      "empty": "no file yet",
+      "choose": "Choose a file",
+      "chooseAria": "Choose a file for {{document}}",
+      "extraTitle": "Supporting file"
+    }
+  },
+  "approve": {
+    "breadcrumb": "{{contractId}} · Milestone {{no}} · {{name}}",
+    "title": "Payment approval · Milestone {{no}} · {{name}}",
+    "requested": "Request recorded; the milestone keeps waiting.",
+    "done": "Event recorded. The engine re-evaluated: {{status}} ({{reason}}).",
+    "blocked": {
+      "MILESTONE_CLOSED": "The milestone is final; no more decisions.",
+      "NOT_APPROVER": "You are not an approver of this contract's buyer; view only.",
+      "APPROVAL_NOT_REQUIRED": "This milestone needs no approval (automatic policy).",
+      "NOT_REQUIRED_ROLE": "Your role is not one of the milestone's required roles; you may still reject with grounds.",
+      "ALREADY_APPROVED": "You already approved; each person counts once (BR-10)."
+    },
+    "proposal": {
+      "title": "Result if you approve",
+      "milestoneValue": "Milestone value",
+      "penalty": "Penalty",
+      "payable": "Eligible",
+      "preview_one": "Engine dry run with your approval: {{decision}} · {{reason}} · {{count}} day late.",
+      "preview_other": "Engine dry run with your approval: {{decision}} · {{reason}} · {{count}} days late.",
+      "current": "Now: {{reason}}.",
+      "trace": "Open the decision trace",
+      "currentTitle": "Current result of the milestone"
+    },
+    "documents": {
+      "title": "Valid evidence",
+      "recorded": "{{id}} · {{by}} · {{at}}",
+      "missing": "No valid evidence yet; the {{side}} must submit it.",
+      "note": "An approval does not replace missing evidence: the milestone is eligible only with both the evidence and the approval roles."
+    },
+    "progress": {
+      "title": "Approval roles ({{quorum}}/{{roles}} required)",
+      "you": "You",
+      "state": {
+        "CURRENT_YOU": "Waiting for you",
+        "WAITING": "Not approved yet",
+        "APPROVED": "Approved {{time}}",
+        "REJECTED": "Rejected {{time}}"
+      }
+    },
+    "consequences": {
+      "title": "What each choice does",
+      "approve": "Approve: records an APPROVAL event; the engine re-evaluates at once.",
+      "requestInfo": "Request info: a note to the parties, no event; the milestone keeps waiting.",
+      "reject": "Reject: records a REJECTION event; the milestone becomes REJECT (rule 20) and cannot be undone in the system."
+    },
+    "note": {
+      "label": "Note",
+      "hint": "required to reject or request info",
+      "required": "Write a note."
+    },
+    "actions": {
+      "reject": "Reject",
+      "requestInfo": "Request info",
+      "approve": "Approve"
+    },
+    "confirm": {
+      "title": "Confirm approval",
+      "submit": "Approve",
+      "cancel": "Back",
+      "body": "Record your approval of milestone {{no}} · {{name}}. Expected: {{decision}}, eligible {{payable}} million VND."
     }
   }
 }

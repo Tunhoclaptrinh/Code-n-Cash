@@ -203,3 +203,9 @@ p {
   .ant-menu-item-group-title {
   padding-top: 4px !important;
 }
+
+/* Row of a rule trace table that decided the milestone. */
+.codecash-row-selected > td {
+  background: var(--color-success-soft, rgba(16, 185, 129, 0.08)) !important;
+  font-weight: 600;
+}

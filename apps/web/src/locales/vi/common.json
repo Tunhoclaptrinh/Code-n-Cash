@@ -18,7 +18,9 @@
       "data": "Dữ liệu & quản trị",
       "monitoring": "Theo dõi & kiểm toán"
     },
-    "home": "Trang chủ"
+    "home": "Trang chủ",
+    "exceptions": "Ngoại lệ BR-19",
+    "integrity": "Kiểm tra toàn vẹn"
   },
   "topbar": {
     "role": "Vai trò",
@@ -47,8 +49,8 @@
       "short": "CO"
     },
     "LEGAL_REVIEWER": {
-      "name": "Pháp chế / BA hợp đồng",
-      "short": "PC"
+      "name": "Cán bộ hợp đồng bên mua",
+      "short": "CB"
     },
     "SUPPLIER": {
       "name": "Nhà cung cấp",
@@ -59,8 +61,20 @@
       "short": "PD"
     },
     "ADMIN_AUDITOR": {
-      "name": "Quản trị / Kiểm toán",
+      "name": "Kiểm soát viên",
+      "short": "KS"
+    },
+    "SECONDARY_APPROVER": {
+      "name": "Phê duyệt cấp 2",
+      "short": "P2"
+    },
+    "SYSTEM_ADMIN": {
+      "name": "Quản trị hệ thống",
       "short": "QT"
+    },
+    "AUDITOR": {
+      "name": "Kiểm toán",
+      "short": "KT"
     }
   },
   "login": {
@@ -73,13 +87,15 @@
       "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
     },
     "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
-    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
+    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh. Người dùng là dữ liệu bổ sung; tổ chức và người phê duyệt lấy từ Data Pack.",
     "highlights": {
       "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
       "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
       "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
     },
-    "demoAccounts": "Tài khoản demo"
+    "demoAccounts": "Tài khoản demo",
+    "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
+    "demoAll": "Tất cả tổ chức trong Data Pack"
   },
   "common": {
     "loading": "Đang tải…",

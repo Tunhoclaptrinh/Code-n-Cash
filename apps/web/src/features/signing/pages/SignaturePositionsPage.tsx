@@ -32,7 +32,6 @@ import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SignaturePositionsPage.module.css";
 
-const DEFAULT_CONTRACT = "CT0101";
 const PAGE_WIDTH = 520;
 const PAGE_HEIGHT = 620;
 const PAGE_WIDTH_MM = 210;
@@ -113,7 +112,7 @@ function mergeSlots(
 
 export default function SignaturePositionsPage() {
   const { t } = useTranslation("signing");
-  const contractId = useParams().contractId ?? DEFAULT_CONTRACT;
+  const contractId = useParams().contractId ?? "";
   const config = useQuery({
     queryKey: signingKeys.config(contractId),
     queryFn: () => getSigningConfig(contractId),
@@ -459,13 +458,20 @@ function Editor({ contractId, config }: EditorProps) {
                       ),
                     )}
                     {pageData.hasSignatureBlock
-                      ? steps.map((step, index) => (
-                          <SignatureBlock
-                            key={step.stepNo}
-                            step={step}
-                            left={36 + index * 234}
-                          />
-                        ))
+                      ? steps.map((step) => {
+                          const block = pageData.blocks.find(
+                            (candidate) => candidate.stepNo === step.stepNo,
+                          );
+                          return block ? (
+                            <SignatureBlock
+                              key={step.stepNo}
+                              step={step}
+                              left={block.x}
+                              headingTop={block.headingY + 2}
+                              nameTop={block.nameY + 2}
+                            />
+                          ) : null;
+                        })
                       : null}
                   </>
                 ) : null}
@@ -747,14 +753,24 @@ function Editor({ contractId, config }: EditorProps) {
   );
 }
 
-function SignatureBlock({ step, left }: { step: SignStepView; left: number }) {
+function SignatureBlock({
+  step,
+  left,
+  headingTop,
+  nameTop,
+}: {
+  step: SignStepView;
+  left: number;
+  headingTop: number;
+  nameTop: number;
+}) {
   const { t } = useTranslation("signing");
   return (
     <>
-      <div className={styles.blockHeading} style={{ left }}>
+      <div className={styles.blockHeading} style={{ left, top: headingTop }}>
         {t(`document.representative.${step.party}`)}
       </div>
-      <div className={styles.blockSigner} style={{ left }}>
+      <div className={styles.blockSigner} style={{ left, top: nameTop }}>
         <div className={styles.blockName}>{step.signerName}</div>
         <div className={styles.blockTitle}>{step.signerTitle}</div>
       </div>

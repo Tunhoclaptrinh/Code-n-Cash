@@ -7,6 +7,7 @@ import {
   FileProtectOutlined,
   FileTextOutlined,
   InboxOutlined,
+  ReadOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
@@ -20,6 +21,7 @@ export type NavKey =
   | "verify"
   | "exceptions"
   | "integrity"
+  | "guide"
   | "data"
   | "platform";
 
@@ -138,6 +140,13 @@ const exceptions: NavItem = {
   icon: ExceptionOutlined,
   labelKey: "nav.exceptions",
 };
+const guide: NavItem = {
+  key: "guide",
+  to: "/guide",
+  icon: ReadOutlined,
+  labelKey: "nav.guide",
+};
+const help: NavSection = { labelKey: "nav.groups.help", items: [guide] };
 const integrity: NavItem = {
   key: "integrity",
   to: "/integrity",
@@ -156,7 +165,7 @@ const buyer = (withUpload: boolean): NavSection[] => [
   dataAndAdmin([data]),
 ];
 
-export const navByRole: Record<Role, NavSection[]> = {
+const byRole: Record<Role, NavSection[]> = {
   CONTRACT_OWNER: buyer(true),
   LEGAL_REVIEWER: buyer(true),
   FINANCE_APPROVER: buyer(false),
@@ -178,6 +187,11 @@ export const navByRole: Record<Role, NavSection[]> = {
     monitoring([activity]),
   ],
 };
+
+/** Every role ends with the user guide. */
+export const navByRole = Object.fromEntries(
+  Object.entries(byRole).map(([role, sections]) => [role, [...sections, help]]),
+) as Record<Role, NavSection[]>;
 
 /** First screen after signing in: the work waiting for the user. */
 export const homeByRole: Record<Role, string> = {

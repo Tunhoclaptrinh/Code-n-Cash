@@ -45,21 +45,22 @@ export default function IntegrityPage() {
   const errorCode =
     report.error instanceof ApiError ? report.error.code : undefined;
   return (
-    <AppPage active="integrity" breadcrumb={[{ label: t("integrity.title") }]}>
-      <PageContainer
-        title={t("integrity.title")}
-        subtitle={t("integrity.subtitle")}
-        extra={
-          <Button
-            icon={<ReloadOutlined />}
-            loading={report.isFetching}
-            onClick={() => void report.refetch()}
-            data-testid="integrity-rerun"
-          >
-            {t("integrity.rerun")}
-          </Button>
-        }
-      >
+    <AppPage
+      guide="integrity"
+      active="integrity"
+      breadcrumb={[{ label: t("integrity.title") }]}
+      extra={
+        <Button
+          icon={<ReloadOutlined />}
+          loading={report.isFetching}
+          onClick={() => void report.refetch()}
+          data-testid="integrity-rerun"
+        >
+          {t("integrity.rerun")}
+        </Button>
+      }
+    >
+      <PageContainer>
         {report.isError ? (
           <Alert
             type="error"
@@ -427,9 +428,7 @@ function Report({
           </BaseCard>
         </Col>
       </Row>
-      <Typography.Paragraph type="secondary">
-        {t("integrity.note")}
-      </Typography.Paragraph>
+      <Alert type="info" showIcon title={t("integrity.note")} />
     </Space>
   );
 }

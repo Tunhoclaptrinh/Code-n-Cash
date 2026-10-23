@@ -36,7 +36,7 @@ try {
   }
   if (!port) throw new Error("CHROME_START_FAILED");
   const tab = await (
-    await fetch(`http://127.0.0.1:${port}/json/new?${base}/login`, {
+    await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, {
       method: "PUT",
     })
   ).json();
@@ -87,6 +87,27 @@ try {
   }
   await send("Runtime.enable");
   await send("Page.enable");
+  await send("Network.enable");
+  // A temporary directory outage must not hide demo sign-in or cache an empty success forever.
+  await send("Network.setBlockedURLs", { urls: ["*auth/demo-accounts*"] });
+  await send("Page.navigate", { url: base + "/login" });
+  await until("!!document.querySelector('[data-testid=demo-accounts-error]')");
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=demo-accounts]').getBoundingClientRect().width > 0",
+    ),
+    "demo account entry remains visible while the API is unavailable",
+  );
+  await send("Network.setBlockedURLs", { urls: [] });
+  await until("!document.querySelector('[data-testid=demo-accounts-error]')");
+  await evaluate(
+    "document.querySelector('[data-testid=demo-accounts]').click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=demo-account]').length >= 9",
+  );
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape" });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape" });
   await send("Emulation.setDeviceMetricsOverride", {
     width: 1440,
     height: 1000,
@@ -115,6 +136,24 @@ try {
     await evaluate("!!document.querySelector('[data-testid=welcome-start]')"),
     false,
   );
+  // Login help is available before choosing an account, including screenshot zoom.
+  await evaluate(
+    "document.querySelector('[data-testid=header-guide]').click()",
+  );
+  await until("!!document.querySelector('.ant-drawer-body article h2')");
+  await until("!!document.querySelector('.ant-drawer-body img')?.complete");
+  assert.ok(
+    await evaluate(
+      "document.querySelector('.ant-drawer-body img').naturalWidth > 0",
+    ),
+  );
+  await evaluate("document.querySelector('.ant-drawer-body img').click()");
+  await until("!!document.querySelector('.ant-image-preview')");
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape" });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape" });
+  await pause(400);
+  await evaluate("document.querySelector('.ant-drawer-close')?.click()");
+  await until("!document.querySelector('.ant-drawer-open')");
   await loginAs("admin@codecash.vn");
   assert.equal(await evaluate("location.pathname"), "/exceptions");
   // First visit after login: language and theme must be chosen, then the header tips show once.
@@ -188,6 +227,13 @@ try {
         "document.documentElement.scrollWidth>innerWidth",
       );
       assert.equal(overflow, false, `mobile: ${route}`);
+      if (route.startsWith("/guide/"))
+        assert.ok(
+          await evaluate(
+            "document.querySelector('article h2').getBoundingClientRect().top < 500",
+          ),
+          `mobile guide content visible without scrolling past navigation: ${route}`,
+        );
       screens.push({ route, width: 390, overflow });
       const screenshot = await send("Page.captureScreenshot", {
         format: "png",
@@ -223,6 +269,50 @@ try {
     "/data",
   ])
     await visit(route);
+  // Each language must load every guide, with real screenshot assets rather than broken images.
+  const guideTopics = [
+    "start",
+    "roles",
+    "tables",
+    "tasks",
+    "contracts",
+    "decision",
+    "evidence",
+    "approval",
+    "dispute",
+    "signing",
+    "exceptions",
+    "integrity",
+    "activity",
+    "data",
+    "admin",
+  ];
+  let guidesValidated = 0;
+  for (const language of ["en", "vi"]) {
+    await evaluate(`localStorage.setItem('scw.language', '${language}')`);
+    for (const topic of guideTopics) {
+      const markdown = await readFile(
+        `apps/web/src/guide/${language}/${topic}.md`,
+        "utf8",
+      );
+      const title = markdown.split("\n")[0].replace(/^# /, "");
+      await send("Page.navigate", { url: `${base}/guide/${topic}` });
+      await until(
+        `document.querySelector('article h2')?.textContent === ${JSON.stringify(title)}`,
+      );
+      await until(
+        "[...document.querySelectorAll('article img')].length > 0 && [...document.querySelectorAll('article img')].every(img => img.complete && img.naturalWidth > 0)",
+      );
+      assert.equal(
+        await evaluate("document.documentElement.scrollWidth > innerWidth"),
+        false,
+        `${language}/${topic}`,
+      );
+      guidesValidated++;
+    }
+  }
+  await visitMobile(["/guide/start", "/guide/decision"]);
+  await evaluate("localStorage.setItem('scw.language', 'en')");
   // Integrity check: audit chain, sealed evidence and every decision re-run are intact.
   await send("Page.navigate", { url: base + "/integrity" });
   await until(
@@ -490,10 +580,20 @@ try {
   assert.deepEqual(errors, []);
   await writeFile(
     "artifacts/browser/report.json",
-    JSON.stringify({ screens, errors, signatureCheck: fake }, null, 2),
+    JSON.stringify(
+      {
+        screens,
+        guidesValidated,
+        screenshotZoom: true,
+        errors,
+        signatureCheck: fake,
+      },
+      null,
+      2,
+    ),
   );
   console.log(
-    `Browser smoke passed: demo login per role, onboarding after login, ${screens.length} screens, desktop/mobile layout, exception queue, server-side search, integrity check, replay, separated internal roles, approval → engine PENALTY, upload validation, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
+    `Browser smoke passed: demo directory outage/recovery, demo login per role, onboarding after login, ${screens.length} screens, desktop/mobile layout, exception queue, server-side search, integrity check, replay, separated internal roles, approval → engine PENALTY, upload validation, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
   );
 } finally {
   ws?.close();

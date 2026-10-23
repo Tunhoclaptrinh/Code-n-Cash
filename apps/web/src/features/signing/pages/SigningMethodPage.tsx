@@ -46,6 +46,7 @@ export default function SigningMethodPage() {
 
   return (
     <AppPage
+      guide="signing"
       active="tasks"
       breadcrumb={[
         {

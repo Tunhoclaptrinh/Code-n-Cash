@@ -46,6 +46,7 @@ export default function PaymentApprovalPage() {
   const data = view.data;
   return (
     <AppPage
+      guide="approval"
       active="tasks"
       breadcrumb={[
         { label: tc("nav.tasks"), to: "/tasks" },

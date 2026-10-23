@@ -27,6 +27,8 @@ apps/web/src/
 
 `AppLayout` theo `MainLayout` của UniFlow: header cao 56 px (logo bên trái; hướng dẫn, ngôn ngữ, sáng/tối, thông báo, tài khoản bên phải), sidebar 240/70 px bên dưới header với nút thu gọn tròn, khối "Môi trường" ở chân sidebar. Dưới 992 px sidebar thành drawer. Layout được mount một lần cho mọi route; mỗi trang bọc nội dung bằng `AppPage` để khai báo mục menu và breadcrumb.
 
+**Hàng tiêu đề.** `AppPage` vẽ breadcrumb làm tiêu đề trang: mục cuối là `<h1>` (22 px, 18 px trên điện thoại), các mục trước là đường dẫn; `tags` (nhãn trạng thái) đứng sau tiêu đề, `extra` (nút thao tác của trang) ở bên phải; tên tab trình duyệt theo mục cuối. Trang **không** đặt thêm `title`, `subtitle` hay `tooltip` cho `PageContainer` (trùng với breadcrumb). Chú thích quan trọng hiện bằng `<Alert type="info" showIcon />` ở đầu nội dung; chú thích không quan trọng thì bỏ. Tab chuyển giữa các danh sách đặt trong bảng (`DataTable` `tabs`), không tách thành thẻ riêng; tab của trang chi tiết (nội dung không phải bảng) vẫn dùng `PageContainer` `tabs`.
+
 ## 3. Mẫu trang danh sách (theo `SkuMappingTable` của UniFlow)
 
 Mọi trang danh sách dùng đủ các phần sau của base. Trạng thái bảng (trang, cỡ trang, tìm kiếm, bộ lọc, lọc theo cột, sắp xếp) nằm ở **một chỗ** và đi kèm mỗi lần đọc dữ liệu, nên dòng hiển thị, ô "Tổng", menu lọc và tệp xuất luôn khớp nhau.
@@ -39,7 +41,7 @@ Bộ máy danh sách: [`apps/api/src/domain/listing.ts`](../apps/api/src/domain/
 
 | Phần | Cách dùng |
 | --- | --- |
-| Khung | `PageContainer` (tiêu đề, `subtitle`, `tooltip`, `extra`) bọc `DataTable` |
+| Khung | `AppPage` (breadcrumb là tiêu đề, `extra` là nút của trang) → `PageContainer` không tiêu đề → `DataTable` |
 | Trạng thái bảng | `const list = useListQuery({ key, fetch, sort })` ([`shared/lib/useListQuery.ts`](../apps/web/src/shared/lib/useListQuery.ts)) rồi `<DataTable {...list.table} />`: tự có `dataSource`, `pagination` (tổng từ server), `onPaginationChange`, `searchValue`/`onSearch`, `filterValues`/`onFilterChange`/`onClearFilters`, `onRefresh`, `loading`, `exportLoading` |
 | Thống kê | `statisticsData` tính từ `list.data.facets` (số trên toàn phạm vi); bấm thẻ gọi `list.setFilter(key, values)` |
 | Tab nhanh | `activeTab` suy từ `list.filters`, `onTabChange` gọi `list.setFilter` (tab chính là một bộ lọc) |
@@ -67,8 +69,12 @@ Nhật ký kiểm toán chỉ có xem, lọc, xuất: không có sửa/xóa (CLA
 1. Tạo `features/<miền>/pages/TenPage.tsx`, `export default`, bọc bằng `AppPage`:
 
    ```tsx
-   <AppPage active="contracts" breadcrumb={[{ label: t("list.title") }]}>
-     <PageContainer title={t("list.title")}>…</PageContainer>
+   <AppPage
+     active="contracts"
+     breadcrumb={[{ label: t("list.title") }]}
+     extra={<Button>…</Button>}
+   >
+     <PageContainer>…</PageContainer>
    </AppPage>
    ```
 
@@ -76,7 +82,7 @@ Nhật ký kiểm toán chỉ có xem, lọc, xuất: không có sửa/xóa (CLA
 3. Mục menu mới: thêm vào `navConfig.ts`. Menu chia theo khu vực nghiệp vụ (`workflow()`, `monitoring()`, `dataAndAdmin()`, mỗi khu có `labelKey` làm tiêu đề nhóm); mục con (như Quản trị hệ thống) khai báo `children`, khóa của mục con là đường dẫn. Khi sidebar thu gọn, tiêu đề nhóm thành đường kẻ.
 4. Thêm chuỗi vào **cả** `locales/vi/<ns>.json` và `locales/en/<ns>.json`.
 
-Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) dùng `PageHeader` hoặc `PageContainer` cho tiêu đề, `Panel` cho khối nội dung tự quản padding, `ToneTag` cho trạng thái, `PageState` cho đang tải/lỗi.
+Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) lấy tiêu đề từ breadcrumb của `AppPage`, dùng `Panel` cho khối nội dung tự quản padding, `ToneTag` cho trạng thái, `PageState` cho đang tải/lỗi.
 
 ## 5. Màn chào lần đầu và đăng nhập demo
 

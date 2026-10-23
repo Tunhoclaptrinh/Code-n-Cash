@@ -16,11 +16,13 @@
     "groups": {
       "workflow": "Contract workflow",
       "data": "Data & administration",
-      "monitoring": "Monitoring & audit"
+      "monitoring": "Monitoring & audit",
+      "help": "Help"
     },
     "home": "Home",
     "exceptions": "Exceptions (BR-19)",
-    "integrity": "Integrity check"
+    "integrity": "Integrity check",
+    "guide": "User guide"
   },
   "topbar": {
     "role": "Role",
@@ -94,6 +96,8 @@
       "audit": "Append-only activity log for every action"
     },
     "demoAccounts": "Demo accounts",
+    "demoUnavailable": "Could not connect to load demo accounts.",
+    "demoEmpty": "No demo accounts are currently available.",
     "demoFeatured": "Suggested (Nova An · Phú Minh)",
     "demoAll": "Every Data Pack organisation"
   },
@@ -188,5 +192,27 @@
     "placeholder": "Search this column…",
     "search": "Search",
     "reset": "Reset"
+  },
+  "guide": {
+    "title": "User guide",
+    "button": "Guide",
+    "openFull": "Open the guide",
+    "topics": {
+      "start": "Getting started",
+      "roles": "Roles and permissions",
+      "tables": "Working with lists",
+      "tasks": "My tasks",
+      "contracts": "Contracts",
+      "decision": "Milestone decision",
+      "evidence": "Submitting evidence",
+      "approval": "Payment approval",
+      "dispute": "Disputes",
+      "signing": "Uploading and signing",
+      "exceptions": "BR-19 exceptions",
+      "integrity": "Integrity check",
+      "activity": "Activity log",
+      "data": "Data Pack results",
+      "admin": "Administration"
+    }
   }
 }

@@ -54,6 +54,7 @@ export default function SignatureVerificationPage() {
 
   return (
     <AppPage
+      guide="signing"
       active="verify"
       breadcrumb={[
         { label: t("verify.breadcrumb.parent"), to: "/contracts" },

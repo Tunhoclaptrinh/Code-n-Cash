@@ -105,11 +105,53 @@ export default function ContractDetailPage() {
 
   return (
     <AppPage
+      guide="contracts"
       active="contracts"
       breadcrumb={[
         { label: tc("nav.contracts"), to: "/contracts" },
-        { label: t("detail.breadcrumb", { contractId }) },
+        {
+          label: contract
+            ? `${contract.id} · ${contract.title}`
+            : t("detail.breadcrumb", { contractId }),
+        },
       ]}
+      tags={
+        contract ? (
+          <>
+            <ContractStatusTag status={contract.status} />
+            <OriginTag origin={contract.origin} />
+            {contract.openDispute ? (
+              <Tag color="error" style={{ margin: 0 }}>
+                {t("detail.disputeFlag")}
+              </Tag>
+            ) : null}
+          </>
+        ) : undefined
+      }
+      extra={
+        contract ? (
+          <Space wrap>
+            {contract.status === "AWAITING_SIGNATURE" ? (
+              <Button
+                type="primary"
+                onClick={() => navigate(`/contracts/${contract.id}/signing`)}
+              >
+                {t("detail.actions.signing")}
+              </Button>
+            ) : null}
+            {contract.signing ? (
+              <Button onClick={() => navigate(`/verify/${contract.id}`)}>
+                {t("detail.actions.verify")}
+              </Button>
+            ) : null}
+            <Button
+              onClick={() => navigate(`/activity-log?contract=${contract.id}`)}
+            >
+              {t("detail.actions.activity")}
+            </Button>
+          </Space>
+        ) : undefined
+      }
       contentClassName={styles.page}
     >
       {overview.isPending ? <PageState kind="loading" /> : null}
@@ -118,46 +160,6 @@ export default function ContractDetailPage() {
       ) : null}
       {data && contract ? (
         <PageContainer
-          title={contract.title}
-          subtitle={t("detail.meta", {
-            id: contract.id,
-            kind: td(`contractType.${contract.type}`),
-            buyer: contract.buyer.name,
-            supplier: contract.supplier.name,
-          })}
-          tags={
-            <Space size={6}>
-              <ContractStatusTag status={contract.status} />
-              <OriginTag origin={contract.origin} />
-              {contract.openDispute ? (
-                <Tag color="error">{t("detail.disputeFlag")}</Tag>
-              ) : null}
-            </Space>
-          }
-          extra={
-            <Space wrap>
-              {contract.status === "AWAITING_SIGNATURE" ? (
-                <Button
-                  type="primary"
-                  onClick={() => navigate(`/contracts/${contract.id}/signing`)}
-                >
-                  {t("detail.actions.signing")}
-                </Button>
-              ) : null}
-              {contract.signing ? (
-                <Button onClick={() => navigate(`/verify/${contract.id}`)}>
-                  {t("detail.actions.verify")}
-                </Button>
-              ) : null}
-              <Button
-                onClick={() =>
-                  navigate(`/activity-log?contract=${contract.id}`)
-                }
-              >
-                {t("detail.actions.activity")}
-              </Button>
-            </Space>
-          }
           tabs={(
             [
               "milestones",

@@ -340,6 +340,9 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     supplierId: supplier.id,
     type: "SERVICES",
     approvalPolicy: "FINANCE_PLUS_OWNER",
+    graceDays: 9,
+    penaltyRatePct: "0.23",
+    maxPenaltyPct: "6.50",
     signers: [
       { party: "SUPPLIER", userId: options.supplierSigners.S015[0].userId },
       { party: "BUYER", userId: "u-finance" },
@@ -376,6 +379,35 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     ),
   );
   assert.equal(overview.signing.total, 3);
+  // Terms entered in the draft must reach the persisted dataset consumed by Python.
+  const created = (await repo.list("milestones")).filter(
+    (m) => m.contract_id === saved.code,
+  );
+  assert.equal(created.length, 4);
+  for (const milestone of created) {
+    assert.equal(milestone.grace_period_days, "9");
+    const penalized = milestone.late_penalty_applicable === "TRUE";
+    assert.equal(
+      milestone.penalty_rate_pct_per_day,
+      penalized ? "0.23" : "0.00",
+    );
+    assert.equal(milestone.max_penalty_pct, penalized ? "6.50" : "0.00");
+    assert.equal(milestone.required_approval_quorum, "2");
+    assert.deepEqual(
+      milestone.required_approval_roles.split(";").sort(),
+      ["CONTRACT_OWNER", "FINANCE_APPROVER"],
+    );
+    assert.ok(await evaluationOf(milestone.milestone_id));
+  }
+  assert.equal(
+    created.find((m) => m.milestone_type === "WARRANTY_CLOSE").due_date,
+    "2027-12-31",
+  );
+  const unchanged = (await repo.list("milestones")).find(
+    (m) => m.milestone_id === "MS0412",
+  );
+  assert.equal(unchanged.penalty_rate_pct_per_day, "0.15");
+  assert.equal(unchanged.grace_period_days, "2");
 });
 
 test("the timeline replays a milestone after each of its events (as-of, BR-16)", async () => {

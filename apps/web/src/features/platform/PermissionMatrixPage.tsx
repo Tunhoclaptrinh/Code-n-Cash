@@ -279,16 +279,14 @@ export default function PermissionMatrixPage() {
 
   return (
     <AppPage
+      guide="admin"
       active="platform"
       breadcrumb={[
         { label: t("title"), to: "/platform/organizations" },
         { label: t("permissions.title") },
       ]}
     >
-      <PageContainer
-        title={t("permissions.title")}
-        subtitle={t("permissions.subtitle", { count: rows.length })}
-      >
+      <PageContainer>
         <Alert type="info" showIcon title={t("permissions.source")} />
         {matrix.isError ? (
           <Alert type="error" showIcon title={matrix.error.message} />

@@ -21,6 +21,7 @@ export interface DemoAccount {
 }
 
 export interface DemoDirectory {
+  enabled: boolean;
   /** Accounts of the demo buyer and supplier, plus the two controllers. */
   featured: DemoAccount[];
   /** Every other seeded account, by Data Pack organisation. */
@@ -29,18 +30,16 @@ export interface DemoDirectory {
 
 /** Sample accounts offered on the sign-in page; empty when the API has demo sign-in off. */
 export async function listDemoAccounts(): Promise<DemoDirectory> {
-  try {
-    const result = await platform.get<{
-      enabled: boolean;
-      accounts: DemoAccount[];
-      organizations: DemoDirectory["organizations"];
-    }>("/auth/demo-accounts");
-    return result.enabled
-      ? { featured: result.accounts, organizations: result.organizations ?? [] }
-      : { featured: [], organizations: [] };
-  } catch {
-    return { featured: [], organizations: [] };
-  }
+  const result = await platform.get<{
+    enabled: boolean;
+    accounts: DemoAccount[];
+    organizations: DemoDirectory["organizations"];
+  }>("/auth/demo-accounts");
+  return {
+    enabled: result.enabled,
+    featured: result.enabled ? result.accounts : [],
+    organizations: result.enabled ? (result.organizations ?? []) : [],
+  };
 }
 
 export async function signInDemo(email: string): Promise<User> {

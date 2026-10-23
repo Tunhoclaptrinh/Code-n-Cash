@@ -447,41 +447,53 @@ function ResourceView({ resource }: { resource: string }) {
 
   return (
     <AppPage
+      guide="admin"
       active="platform"
       breadcrumb={[
         { label: t("title"), to: "/platform/organizations" },
         { label: t(`resources.${resource}`) },
       ]}
     >
-      <PageContainer
-        title={t("title")}
-        subtitle={t(`descriptions.${resource}`, { defaultValue: "" })}
-        tabs={definitions.data?.map((d) => ({
-          key: d.name,
-          tab: t(`resources.${d.name}`),
-        }))}
-        activeTabKey={resource}
-        onTabChange={(key) => {
-          setSelectedKeys([]);
-          setEditor(undefined);
-          navigate(`/platform/${key}`);
-        }}
-        extra={
-          resource === "documents" && hasPermission("documents:upload") ? (
-            <BaseButton
-              variant="primary"
-              icon={<CloudUploadOutlined />}
-              onClick={() => setUploadOpen(true)}
-            >
-              {t("upload")}
-            </BaseButton>
-          ) : undefined
-        }
-      >
+      <PageContainer>
         {state.query.isError ? (
           <Alert type="error" showIcon title={state.query.error.message} />
         ) : null}
+        {definition?.managedOrigins &&
+        !readOnly &&
+        (can("update") || can("delete")) ? (
+          <Alert
+            type="info"
+            showIcon
+            title={[
+              t("managedNote", {
+                origins: definition.managedOrigins
+                  .map((origin) => t(`domain:origin.${origin}`))
+                  .join(", "),
+              }),
+              resource === "contract-drafts" ? t("managedDraftsNote") : "",
+            ].join(" ")}
+          />
+        ) : null}
         <DataTable<Entity>
+          // The resources are tabs of one table: each tab is a different list, read from the server.
+          tabs={definitions.data?.map((d) => ({
+            key: d.name,
+            label: t(`resources.${d.name}`),
+          }))}
+          activeTab={resource}
+          onTabChange={(key) => navigate(`/platform/${key}`)}
+          extra={
+            resource === "documents" && hasPermission("documents:upload") ? (
+              <BaseButton
+                variant="primary"
+                size="small"
+                icon={<CloudUploadOutlined />}
+                onClick={() => setUploadOpen(true)}
+              >
+                {t("upload")}
+              </BaseButton>
+            ) : undefined
+          }
           rowKey="id"
           dataSource={items}
           columns={columns}

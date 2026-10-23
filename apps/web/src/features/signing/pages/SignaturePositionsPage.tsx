@@ -120,6 +120,7 @@ export default function SignaturePositionsPage() {
 
   return (
     <AppPage
+      guide="signing"
       active="upload"
       breadcrumb={[
         { label: t("positions.breadcrumb.parent"), to: "/contracts/new" },

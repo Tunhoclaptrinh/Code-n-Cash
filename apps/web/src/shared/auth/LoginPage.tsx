@@ -47,7 +47,11 @@ export default function LoginPage() {
   const demo = useQuery({
     queryKey: ["demo-accounts"],
     queryFn: listDemoAccounts,
-    staleTime: Infinity,
+    staleTime: 30_000,
+    retry: 1,
+    refetchOnWindowFocus: "always",
+    refetchInterval: (query) =>
+      query.state.status === "error" ? 5_000 : false,
   });
   if (user) return <Navigate to={homeByRole[user.role]} replace />;
 
@@ -66,6 +70,7 @@ export default function LoginPage() {
   };
   const featured = demo.data?.featured ?? [];
   const organizations = demo.data?.organizations ?? [];
+  const demoEnabled = demo.data?.enabled !== false;
   const accountItem = (account: DemoAccount) => ({
     key: account.email,
     onClick: () => void signInWithDemo(account),
@@ -112,36 +117,57 @@ export default function LoginPage() {
           className={styles.toolbar}
           style={phase === "tips" ? { zIndex: 1002 } : undefined}
         >
-          {featured.length ? (
+          {demoEnabled ? (
             <Dropdown
               trigger={["click"]}
               placement="bottomRight"
               menu={{
                 style: { maxHeight: "70vh", overflowY: "auto" },
-                items: [
-                  {
-                    type: "group",
-                    key: "featured",
-                    label: t("login.demoFeatured"),
-                    children: featured.map(accountItem),
-                  },
-                  { type: "divider" },
-                  {
-                    key: "all",
-                    label: t("login.demoAll"),
-                    children: organizations.map((org) => ({
-                      key: org.id,
-                      label: `${org.id} · ${org.name}`,
-                      children: org.accounts.map(accountItem),
-                    })),
-                  },
-                ],
+                items:
+                  featured.length || organizations.length
+                    ? [
+                        {
+                          type: "group",
+                          key: "featured",
+                          label: t("login.demoFeatured"),
+                          children: featured.map(accountItem),
+                        },
+                        { type: "divider" },
+                        {
+                          key: "all",
+                          label: t("login.demoAll"),
+                          children: organizations.map((org) => ({
+                            key: org.id,
+                            label: `${org.id} · ${org.name}`,
+                            children: org.accounts.map(accountItem),
+                          })),
+                        },
+                      ]
+                    : [
+                        {
+                          key: "status",
+                          disabled: true,
+                          label: t(
+                            demo.isError
+                              ? "login.demoUnavailable"
+                              : demo.isPending
+                                ? "common.loading"
+                                : "login.demoEmpty",
+                          ),
+                        },
+                        {
+                          key: "retry",
+                          label: t("common.retry"),
+                          onClick: () => void demo.refetch(),
+                        },
+                      ],
               }}
             >
               <Button
                 type="text"
                 icon={<UserSwitchOutlined />}
                 data-testid="demo-accounts"
+                loading={demo.isFetching}
               >
                 {t("login.demoAccounts")} <DownOutlined />
               </Button>
@@ -166,6 +192,24 @@ export default function LoginPage() {
               showIcon
               title={t("login.errors.INVALID_CREDENTIALS")}
               style={{ marginBottom: 16 }}
+            />
+          ) : null}
+          {demo.isError ? (
+            <Alert
+              type="warning"
+              showIcon
+              title={t("login.demoUnavailable")}
+              action={
+                <Button
+                  size="small"
+                  loading={demo.isFetching}
+                  onClick={() => void demo.refetch()}
+                >
+                  {t("common.retry")}
+                </Button>
+              }
+              style={{ marginBottom: 16 }}
+              data-testid="demo-accounts-error"
             />
           ) : null}
           <Form
@@ -207,7 +251,7 @@ export default function LoginPage() {
               {t("login.submit")}
             </Button>
           </Form>
-          {featured.length ? (
+          {demoEnabled ? (
             <Typography.Paragraph type="secondary" className={styles.hint}>
               {t("login.demoHint")}
             </Typography.Paragraph>

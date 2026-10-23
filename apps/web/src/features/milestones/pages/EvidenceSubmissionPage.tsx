@@ -106,6 +106,7 @@ export default function EvidenceSubmissionPage() {
 
   return (
     <AppPage
+      guide="evidence"
       active="tasks"
       breadcrumb={[
         { label: tc("nav.tasks"), to: "/tasks" },

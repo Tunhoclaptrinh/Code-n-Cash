@@ -320,55 +320,48 @@ export default function DataPage() {
   ];
 
   return (
-    <AppPage active="data" breadcrumb={[{ label: t("data.title") }]}>
-      <PageContainer
-        title={t("data.title")}
-        subtitle={
-          summary
-            ? t(dataset ? "data.subtitleDataset" : "data.subtitle", {
-                name: dataset?.name,
-                milestones: summary.milestones,
-                contracts: summary.contracts,
-              })
-            : undefined
-        }
-        extra={
-          <Space wrap>
+    <AppPage
+      guide="data"
+      active="data"
+      breadcrumb={[{ label: t("data.title") }]}
+      extra={
+        <Space wrap>
+          <BaseButton
+            variant="primary"
+            icon={<PlayCircleOutlined />}
+            loading={evaluate.isPending}
+            disabled={!canEvaluate}
+            tooltip={canEvaluate ? undefined : t("data.evaluateForbidden")}
+            onClick={() => evaluate.mutate()}
+            data-testid="data-evaluate"
+          >
+            {t("data.evaluate")}
+          </BaseButton>
+          <Dropdown
+            disabled={!result.data}
+            trigger={["click"]}
+            menu={{
+              items: OUTPUT_FILES.map((file) => ({
+                key: file,
+                icon: <DownloadOutlined />,
+                label: t(`data.downloadItems.${file}`),
+                onClick: () => void download(file),
+              })),
+            }}
+          >
             <BaseButton
-              variant="primary"
-              icon={<PlayCircleOutlined />}
-              loading={evaluate.isPending}
-              disabled={!canEvaluate}
-              tooltip={canEvaluate ? undefined : t("data.evaluateForbidden")}
-              onClick={() => evaluate.mutate()}
-              data-testid="data-evaluate"
-            >
-              {t("data.evaluate")}
-            </BaseButton>
-            <Dropdown
+              variant="secondary"
+              icon={<DownloadOutlined />}
               disabled={!result.data}
-              trigger={["click"]}
-              menu={{
-                items: OUTPUT_FILES.map((file) => ({
-                  key: file,
-                  icon: <DownloadOutlined />,
-                  label: t(`data.downloadItems.${file}`),
-                  onClick: () => void download(file),
-                })),
-              }}
+              data-testid="data-download"
             >
-              <BaseButton
-                variant="secondary"
-                icon={<DownloadOutlined />}
-                disabled={!result.data}
-                data-testid="data-download"
-              >
-                {t("data.download")}
-              </BaseButton>
-            </Dropdown>
-          </Space>
-        }
-      >
+              {t("data.download")}
+            </BaseButton>
+          </Dropdown>
+        </Space>
+      }
+    >
+      <PageContainer>
         {canManage ? (
           <DatasetPanel
             source={source}

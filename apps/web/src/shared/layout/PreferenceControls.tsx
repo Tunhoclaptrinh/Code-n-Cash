@@ -1,4 +1,5 @@
-import { Button, Dropdown, Popover, Tooltip } from "antd";
+import { useState } from "react";
+import { Button, Drawer, Dropdown, Popover, Tooltip } from "antd";
 import {
   CheckOutlined,
   GlobalOutlined,
@@ -8,6 +9,9 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useAppConfig } from "@codecash/ui";
+import { Link } from "react-router-dom";
+import { GuideContent } from "@/guide/GuideContent";
+import { useSession } from "../auth/session";
 import { useOnboarding } from "../onboarding/OnboardingContext";
 import styles from "../onboarding/Onboarding.module.css";
 
@@ -18,7 +22,9 @@ import styles from "../onboarding/Onboarding.module.css";
 export function PreferenceControls({ compact = false }: { compact?: boolean }) {
   const { t, i18n } = useTranslation("common");
   const { themeMode, toggleTheme } = useAppConfig();
-  const { phase, finishTips, showTips } = useOnboarding();
+  const { phase, finishTips } = useOnboarding();
+  const { user } = useSession();
+  const [guideOpen, setGuideOpen] = useState(false);
   const tips = phase === "tips";
   const language = i18n.language?.startsWith("vi") ? "vi" : "en";
   const isLight = themeMode === "light";
@@ -80,7 +86,10 @@ export function PreferenceControls({ compact = false }: { compact?: boolean }) {
               shape="circle"
               className={pulse}
               icon={<QuestionCircleOutlined />}
-              onClick={showTips}
+              onClick={() => {
+                if (tips) finishTips();
+                setGuideOpen(true);
+              }}
               aria-label={t("topbar.guide")}
               data-testid="header-guide"
             />
@@ -126,6 +135,22 @@ export function PreferenceControls({ compact = false }: { compact?: boolean }) {
           </Tooltip>
         </span>
       </Popover>
+      <Drawer
+        open={guideOpen}
+        onClose={() => setGuideOpen(false)}
+        title={t("guide.topics.start")}
+        size="large"
+        extra={
+          user ? (
+            <Link to="/guide/start" onClick={() => setGuideOpen(false)}>
+              {t("guide.openFull")}
+            </Link>
+          ) : undefined
+        }
+        destroyOnHidden
+      >
+        <GuideContent topic="start" />
+      </Drawer>
     </>
   );
 }

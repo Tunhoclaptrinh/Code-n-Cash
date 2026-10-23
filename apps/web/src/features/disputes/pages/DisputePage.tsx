@@ -24,6 +24,7 @@ export default function DisputePage() {
   const data = dispute.data;
   return (
     <AppPage
+      guide="dispute"
       active="contracts"
       breadcrumb={[
         { label: contractId, to: `/contracts/${contractId}` },

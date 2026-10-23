@@ -252,12 +252,12 @@ export default function TaskInboxPage() {
   );
 
   return (
-    <AppPage active="tasks" breadcrumb={[{ label: tc("nav.tasks") }]}>
-      <PageContainer
-        title={t("inbox.title")}
-        subtitle={t("inbox.subtitle", { count: list.data?.scopeTotal ?? 0 })}
-        tooltip={t("inbox.intro")}
-      >
+    <AppPage
+      guide="tasks"
+      active="tasks"
+      breadcrumb={[{ label: tc("nav.tasks") }]}
+    >
+      <PageContainer>
         {list.result.isError ? (
           <Alert type="error" showIcon title={tc("common.loadError")} />
         ) : null}

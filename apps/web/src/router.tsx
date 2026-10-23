@@ -127,6 +127,10 @@ function pages() {
         import("@/features/audit/pages/ExceptionQueuePage").then(asRoute),
     },
     {
+      path: "/guide/:topic?",
+      lazy: () => import("@/guide/GuidePage").then(asRoute),
+    },
+    {
       path: "/integrity",
       lazy: () => import("@/features/audit/pages/IntegrityPage").then(asRoute),
     },

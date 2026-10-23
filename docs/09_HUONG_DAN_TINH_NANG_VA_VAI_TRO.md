@@ -4,6 +4,20 @@ Tài liệu cho cả đội: người demo, người viết proposal/slide và n
 
 Mọi con số trong tài liệu đo trên dữ liệu vừa khởi tạo, ngày 23/10/2026. Khi demo vào ngày khác, chỉ số ngày trễ (và tiền phạt) của sự kiện tạo mới trong app thay đổi; số liệu Data Pack không đổi.
 
+## Hướng dẫn thao tác có ảnh
+
+Trong app, nút **?** mở hướng dẫn bắt đầu, kể cả ở trang đăng nhập; nút **Hướng dẫn** cạnh tiêu đề từng trang mở đúng chủ đề trong ngăn bên. Menu **Hướng dẫn sử dụng** có 15 chủ đề, tiếng Việt và tiếng Anh. Bấm ảnh để phóng lớn. Bản Markdown: [Bắt đầu](../apps/web/src/guide/vi/start.md), [Vai trò](../apps/web/src/guide/vi/roles.md), [Bảng](../apps/web/src/guide/vi/tables.md), [Việc](../apps/web/src/guide/vi/tasks.md), [Hợp đồng](../apps/web/src/guide/vi/contracts.md), [Quyết định](../apps/web/src/guide/vi/decision.md), [Chứng từ](../apps/web/src/guide/vi/evidence.md), [Phê duyệt](../apps/web/src/guide/vi/approval.md), [Tranh chấp](../apps/web/src/guide/vi/dispute.md), [Ký](../apps/web/src/guide/vi/signing.md), [Ngoại lệ](../apps/web/src/guide/vi/exceptions.md), [Toàn vẹn](../apps/web/src/guide/vi/integrity.md), [Nhật ký](../apps/web/src/guide/vi/activity.md), [Data Pack](../apps/web/src/guide/vi/data.md), [Quản trị](../apps/web/src/guide/vi/admin.md).
+
+![Đăng nhập và chọn tài khoản demo](../apps/web/public/guide/images/login-demo-menu.webp)
+
+![Quyết định và tính tiền sau phê duyệt](../apps/web/public/guide/images/decision.webp)
+
+![Kiểm tra toàn vẹn](../apps/web/public/guide/images/integrity.webp)
+
+Ảnh được chụp từ trình duyệt thật trên stack riêng, bằng Chrome DevTools Protocol. Có thể tái tạo bằng `WEB_URL=http://127.0.0.1:<cổng-web-thử> pnpm guide:screenshots`; API phải dùng thư mục DATA_DIR mới, web trỏ về API đó. Script có thao tác phê duyệt, số hoá và ngoại lệ, nên mỗi lượt phải dùng dữ liệu sạch và không trỏ vào stack đang dùng. Kết quả gồm ảnh WebP và `manifest.json` tại `apps/web/public/guide/images`, báo cáo xem ảnh tại `playwright-report/guide/index.html` (đây là báo cáo của script CDP, không phải Playwright Test).
+
+Phần rà rules động, OCR/NLP/LLM, ký số và neo blockchain/TSA xem [tài liệu 10](10_RULES_AI_KY_SO_VA_NIEM_PHONG.md). Hướng dẫn đánh dấu rõ số hoá/ký hiện là mô phỏng; chưa nối dịch vụ bên ngoài.
+
 ## 1. Tóm tắt 30 giây
 
 CodeCash quản lý hợp đồng mua sắm theo mốc thanh toán. Mỗi bên chỉ ghi nhận sự kiện thuộc thẩm quyền của mình: bên mua nghiệm thu, nhà cung cấp giao hàng và xuất hoá đơn, người phê duyệt duyệt chi. Sau mỗi sự kiện, engine Python theo đặc tả v1.0 đánh giá lại và trả một trong bốn quyết định **RELEASE, HOLD, REJECT, PENALTY**, kèm số tiền được trả, tiền phạt, lý do và rule áp dụng.

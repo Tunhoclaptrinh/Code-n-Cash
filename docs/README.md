@@ -15,6 +15,8 @@
 | [07 — Triển khai](07_HUONG_DAN_TRIEN_KHAI.md) | Docker Compose production, HTTPS, sao lưu, cập nhật/quay lui, xử lý sự cố |
 | [08 — Phát triển giao diện](08_HUONG_DAN_PHAT_TRIEN_UI.md) | Layout, thêm màn hình, chọn thành phần, token màu/dark mode, i18n, kiểm tra trước PR |
 | [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md) | App làm gì, từng vai trò thấy và làm gì, tài khoản demo, kịch bản demo đã chạy thử, KPI đo được, giới hạn, đề xuất để thắng, câu hỏi 30 giây |
+| [Hướng dẫn có ảnh](../apps/web/src/guide/vi/start.md) | 15 chủ đề Việt/Anh, đăng nhập, vai trò và từng màn; đọc trong app hoặc Markdown, ảnh bấm phóng lớn trong app |
+| [10 — Rules, AI, ký số và niêm phong](10_RULES_AI_KY_SO_VA_NIEM_PHONG.md) | Hiện trạng theo mã nguồn, đường tham số xuống engine, thiết kế extractor/provider ký/TSA/blockchain và cách demo đúng phạm vi |
 | [Proposal outline](templates/PROPOSAL_OUTLINE.md) | Khung proposal 5–10 trang |
 | [Slide structure](templates/SLIDE_STRUCTURE.md) | Khung slide tối đa 15 trang |
 

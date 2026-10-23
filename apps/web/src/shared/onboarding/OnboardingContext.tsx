@@ -14,7 +14,7 @@ const STORAGE_KEY = "codecash.onboarding";
 /**
  * First-run flow, shown on the main screen after the first sign-in: `welcome` asks for language
  * and theme, `tips` points at the header controls where both can be changed later. Finishing the
- * tips stores `done`, so the flow never repeats on this browser. The help button reopens the tips.
+ * tips stores `done`, so the flow never repeats on this browser. Header help opens the user guide.
  */
 export type OnboardingPhase = "welcome" | "tips" | "done";
 

@@ -82,6 +82,7 @@ export default function MilestoneDecisionPage() {
   const data = view.data;
   return (
     <AppPage
+      guide="decision"
       active="contracts"
       breadcrumb={[
         { label: contractId, to: `/contracts/${contractId}` },

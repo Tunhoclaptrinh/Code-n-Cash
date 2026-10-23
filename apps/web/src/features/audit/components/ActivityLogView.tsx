@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Tag, Typography } from "antd";
+import { Alert, Tag, Typography } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import {
   DataTable,
@@ -216,11 +216,8 @@ export function ActivityLogView({
   );
 
   return (
-    <PageContainer
-      title={t("title")}
-      subtitle={t("subtitle")}
-      tooltip={t("appendOnly")}
-    >
+    <PageContainer>
+      <Alert type="info" showIcon title={t("appendOnly")} />
       <DataTable<ActivityEntry>
         rowKey="id"
         columns={columns}

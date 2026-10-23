@@ -232,7 +232,8 @@
       "activity": "Nhật ký",
       "engine": "Engine Data Pack",
       "documents": "Tài liệu",
-      "administration": "Quản trị"
+      "administration": "Quản trị",
+      "controls": "Kiểm soát ngoại lệ"
     },
     "scope": {
       "all": "Tất cả",
@@ -310,7 +311,11 @@
       "settings:update": "Sửa cấu hình",
       "settings:delete": "Xóa cấu hình",
       "settings:import": "Nhập cấu hình từ tệp",
-      "settings:export": "Xuất cấu hình"
+      "settings:export": "Xuất cấu hình",
+      "disputes:open": "Mở tranh chấp",
+      "exceptions:read": "Xem hàng đợi ngoại lệ BR-19",
+      "exceptions:propose": "Đề xuất vô hiệu sự kiện sai thẩm quyền",
+      "exceptions:decide": "Duyệt hoặc bác đề xuất ngoại lệ (người thứ hai)"
     },
     "scopeLabel": "Phạm vi",
     "searchPlaceholder": "Tìm theo tên quyền, mã quyền, nhóm (không cần dấu)"
@@ -321,5 +326,7 @@
   "errors": {
     "MANAGED_RECORD": "Bản ghi này thuộc Data Pack hoặc luồng nghiệp vụ nên không sửa, xoá ở đây. Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên."
   },
-  "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)"
+  "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)",
+  "managedNote": "Bản ghi nguồn {{origins}} chỉ xem và xuất được; bản ghi tạo thêm thì sửa, xoá bình thường.",
+  "managedDraftsNote": "Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên."
 }

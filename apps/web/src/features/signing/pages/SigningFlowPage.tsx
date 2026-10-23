@@ -38,6 +38,7 @@ export default function SigningFlowPage() {
 
   return (
     <AppPage
+      guide="signing"
       active="tasks"
       breadcrumb={[
         { label: t("flow.breadcrumb.parent"), to: "/contracts" },

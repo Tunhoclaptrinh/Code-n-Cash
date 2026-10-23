@@ -44,6 +44,7 @@ export default function DigitizeReviewPage() {
   });
   return (
     <AppPage
+      guide="signing"
       active="upload"
       breadcrumb={[
         {

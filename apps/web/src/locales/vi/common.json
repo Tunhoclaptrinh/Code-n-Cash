@@ -16,11 +16,13 @@
     "groups": {
       "workflow": "Nghiệp vụ hợp đồng",
       "data": "Dữ liệu & quản trị",
-      "monitoring": "Theo dõi & kiểm toán"
+      "monitoring": "Theo dõi & kiểm toán",
+      "help": "Trợ giúp"
     },
     "home": "Trang chủ",
     "exceptions": "Ngoại lệ BR-19",
-    "integrity": "Kiểm tra toàn vẹn"
+    "integrity": "Kiểm tra toàn vẹn",
+    "guide": "Hướng dẫn sử dụng"
   },
   "topbar": {
     "role": "Vai trò",
@@ -94,6 +96,8 @@
       "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
     },
     "demoAccounts": "Tài khoản demo",
+    "demoUnavailable": "Không kết nối được để tải tài khoản demo.",
+    "demoEmpty": "Chưa có tài khoản demo khả dụng.",
     "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
     "demoAll": "Tất cả tổ chức trong Data Pack"
   },
@@ -188,5 +192,27 @@
     "placeholder": "Tìm trong cột…",
     "search": "Tìm",
     "reset": "Xóa"
+  },
+  "guide": {
+    "title": "Hướng dẫn sử dụng",
+    "button": "Hướng dẫn",
+    "openFull": "Mở trang hướng dẫn",
+    "topics": {
+      "start": "Bắt đầu",
+      "roles": "Vai trò và quyền",
+      "tables": "Dùng bảng danh sách",
+      "tasks": "Việc cần làm",
+      "contracts": "Hợp đồng",
+      "decision": "Quyết định của mốc",
+      "evidence": "Nộp chứng từ",
+      "approval": "Phê duyệt chi",
+      "dispute": "Tranh chấp",
+      "signing": "Tải hợp đồng lên và ký",
+      "exceptions": "Ngoại lệ BR-19",
+      "integrity": "Kiểm tra toàn vẹn",
+      "activity": "Nhật ký hoạt động",
+      "data": "Kết quả Data Pack",
+      "admin": "Quản trị hệ thống"
+    }
   }
 }

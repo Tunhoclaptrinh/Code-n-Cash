@@ -8,6 +8,7 @@ export default function ActivityLogPage() {
   const [params] = useSearchParams();
   return (
     <AppPage
+      guide="activity"
       active="activity"
       breadcrumb={[{ label: t("breadcrumb.activityLog") }]}
     >

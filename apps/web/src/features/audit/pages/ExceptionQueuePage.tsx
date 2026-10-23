@@ -199,14 +199,12 @@ export default function ExceptionQueuePage() {
 
   return (
     <AppPage
+      guide="exceptions"
       active="exceptions"
       breadcrumb={[{ label: t("exceptions.title") }]}
     >
-      <PageContainer
-        title={t("exceptions.title")}
-        subtitle={t("exceptions.subtitle")}
-        tooltip={t("exceptions.intro")}
-      >
+      <PageContainer>
+        <Alert type="info" showIcon title={t("exceptions.intro")} />
         {list.result.isError ? (
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}

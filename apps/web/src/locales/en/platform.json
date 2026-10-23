@@ -232,7 +232,8 @@
       "activity": "Activity",
       "engine": "Data Pack engine",
       "documents": "Documents",
-      "administration": "Administration"
+      "administration": "Administration",
+      "controls": "Exception control"
     },
     "scope": {
       "all": "All",
@@ -310,7 +311,11 @@
       "settings:update": "Edit settings",
       "settings:delete": "Delete settings",
       "settings:import": "Import settings from a file",
-      "settings:export": "Export settings"
+      "settings:export": "Export settings",
+      "disputes:open": "Open a dispute",
+      "exceptions:read": "View the BR-19 exception queue",
+      "exceptions:propose": "Propose voiding an unauthorised event",
+      "exceptions:decide": "Approve or reject an exception (second controller)"
     },
     "scopeLabel": "Scope",
     "searchPlaceholder": "Search permission name, key or module"
@@ -321,5 +326,7 @@
   "errors": {
     "MANAGED_RECORD": "This record belongs to the Data Pack or the workflow, so it cannot be edited or deleted here. Edit contract drafts on the Upload contract screen."
   },
-  "searchPlaceholder": "Search every column, organisation names included"
+  "searchPlaceholder": "Search every column, organisation names included",
+  "managedNote": "Records from {{origins}} can only be viewed and exported; records added here can be edited and deleted.",
+  "managedDraftsNote": "Contract drafts are edited on the Upload contract screen."
 }

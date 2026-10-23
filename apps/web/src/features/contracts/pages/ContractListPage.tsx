@@ -405,17 +405,11 @@ export default function ContractListPage() {
 
   return (
     <AppPage
+      guide="contracts"
       active="contracts"
       breadcrumb={[{ label: t("breadcrumb.contracts") }]}
     >
-      <PageContainer
-        title={t("contractList.title")}
-        subtitle={t("contractList.subtitle", {
-          count: list.data?.scopeTotal ?? 0,
-          organization: list.data?.organizationName ?? "",
-        })}
-        tooltip={t("contractList.intro")}
-      >
+      <PageContainer>
         {list.result.isError ? (
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}

@@ -31,16 +31,14 @@ export default function ContractUploadPage() {
 
   return (
     <AppPage
+      guide="signing"
       active="upload"
       breadcrumb={[
         { label: t("breadcrumb.contracts"), to: "/contracts" },
         { label: t("breadcrumb.upload") },
       ]}
     >
-      <PageContainer
-        title={t("contractUpload.title")}
-        tooltip={t("contractUpload.intro")}
-      >
+      <PageContainer>
         {failure ? (
           <Alert
             type="error"

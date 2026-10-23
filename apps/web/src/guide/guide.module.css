@@ -1,0 +1,170 @@
+.article {
+  color: var(--text-primary);
+  font-size: 14.5px;
+  line-height: 1.7;
+  max-width: 980px;
+}
+
+.heading {
+  margin: 28px 0 10px;
+  line-height: 1.3;
+  scroll-margin-top: 72px;
+}
+
+.article > .heading:first-child {
+  margin-top: 0;
+}
+
+h2.heading {
+  font-size: 22px;
+}
+
+h3.heading {
+  font-size: 18px;
+}
+
+h4.heading {
+  font-size: 15.5px;
+}
+
+.paragraph {
+  margin: 0 0 12px;
+}
+
+.list {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.list li {
+  margin: 4px 0;
+}
+
+.code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--bg-surface-alt);
+  font-size: 13px;
+}
+
+.pre {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--bg-surface-alt);
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+.figure {
+  margin: 8px 0 20px;
+}
+
+/* Screenshots: framed, full width, a zoom cursor; the preview opens on click. */
+.figure :global(.ant-image) {
+  display: block;
+  width: 100%;
+}
+
+.figure :global(.ant-image-img) {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  cursor: zoom-in;
+}
+
+.figure figcaption {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.inlineImage {
+  max-height: 28px;
+  vertical-align: middle;
+}
+
+.tableWrap {
+  margin: 0 0 16px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  vertical-align: top;
+  text-align: left;
+}
+
+.table th {
+  background: var(--bg-surface-alt);
+  font-weight: 600;
+}
+
+.note {
+  margin: 0 0 14px;
+}
+
+.note .paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid var(--border-divider);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.menu {
+  position: sticky;
+  top: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.topicPicker {
+  display: none;
+}
+
+.content {
+  min-width: 0;
+  padding: 24px 28px;
+  border-radius: 12px;
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-card);
+}
+
+@media (max-width: 991px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .topicPicker {
+    display: block;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

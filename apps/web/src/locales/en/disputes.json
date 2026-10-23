@@ -1,0 +1,64 @@
+{
+  "breadcrumb": {
+    "dispute": "Dispute, milestone {{milestoneNo}}"
+  },
+  "title": "Dispute · Milestone {{milestoneNo}} · {{milestone}}",
+  "submission": {
+    "title_one": "{{count}} dispute on this milestone",
+    "title_other": "{{count}} disputes on this milestone",
+    "none": "No dispute on this milestone.",
+    "author": "{{name}} · {{organization}}",
+    "quote": "\"{{message}}\"",
+    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+  },
+  "state": {
+    "OPEN": "Open",
+    "RESOLVED": "Validly closed"
+  },
+  "notes": {
+    "title": "Notes from the parties",
+    "kind": {
+      "REQUEST_INFO": "Request for info",
+      "DISPUTE_NOTE": "Note"
+    }
+  },
+  "impact": {
+    "title": "Effect on payment",
+    "now": "Now",
+    "afterResolve": "If every dispute is closed (engine dry run)",
+    "unit": "million",
+    "penalty": "penalty {{penalty}}",
+    "noPreview": "Only the buyer or contract owner sees the dry run while a dispute is open.",
+    "footnote": "While a dispute is open the milestone is held (rule 10). Nobody edits the penalty by hand: the engine recomputes the amount after the dispute closes."
+  },
+  "decision": {
+    "title": "Handle the dispute",
+    "options": {
+      "RESOLVE": {
+        "name": "Close the dispute",
+        "description": "Records DISPUTE_RESOLVED referencing each open dispute (BR-08). The engine re-evaluates at once."
+      },
+      "REQUEST_INFO": {
+        "name": "Request info",
+        "description": "A note to the party who opened it; the dispute stays open and the milestone held."
+      },
+      "OPEN": {
+        "name": "Open a new dispute",
+        "description": "Records DISPUTE_OPENED. The milestone is held until the buyer closes it validly."
+      }
+    },
+    "note": {
+      "label": "Reason",
+      "required": "Write a reason.",
+      "placeholder": "Describe the issue, supporting evidence and resolution (up to 2,000 characters)."
+    },
+    "readOnly": "You can only view the disputes of this milestone.",
+    "rule": "\"Easy to open, hard to close\": every DISPUTE_OPENED blocks payment; only a DISPUTE_RESOLVED by the buyer (or its contract owner), referencing that dispute and not earlier than it, lifts the block.",
+    "done": "Event recorded. The engine re-evaluated: {{status}} ({{reason}}).",
+    "noted": "Note recorded.",
+    "actions": {
+      "trace": "Open the decision trace",
+      "confirm": "Confirm"
+    }
+  }
+}

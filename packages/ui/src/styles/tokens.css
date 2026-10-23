@@ -1,0 +1,114 @@
+/*
+ * CSS variables in two groups:
+ *  1. UniFlow base variables (--bg-*, --border-*, --text-*) read by packages/ui components.
+ *  2. CodeCash feature tokens (--color-*) read by feature CSS modules.
+ * Neutral values follow `src/theme.ts`; keep both files in step.
+ */
+:root {
+  color-scheme: light;
+
+  /* 1. Base (UniFlow) */
+  --bg-root: #f8fafc;
+  --bg-surface-card: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-alt: #f1f5f9;
+  --bg-surface-subtle: #f8fafc;
+  --border-subtle: #e5e7eb;
+  --border-card: #e2e8f0;
+  --border-divider: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --color-primary-subtle: rgba(49, 91, 234, 0.08);
+  --font-family-sans:
+    "Plus Jakarta Sans Variable", "Plus Jakarta Sans", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+  /* 2. Feature tokens */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-text: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #4b5563;
+  --color-text-faint: #9ca3af;
+
+  --color-border: #e5e7eb;
+  --color-border-input: #d1d5db;
+  --color-border-strong: #b8c3db;
+
+  --color-primary: #315bea;
+  --color-primary-dark: #2849bd;
+  --color-primary-deep: #1e3a8a;
+  --color-primary-soft: #eaf0ff;
+  --color-primary-soft-border: #c9d6fa;
+  --color-avatar-bg: #e4ebff;
+
+  --color-success: #0f6a3c;
+  --color-success-strong: #14804a;
+  --color-success-soft: #e4f6ec;
+  --color-danger: #a8231f;
+  --color-danger-strong: #b02a25;
+  --color-danger-soft: #fdebea;
+  --color-warning: #7a4b00;
+  --color-warning-soft: #fff1d6;
+  --color-neutral-badge: #2e3a7c;
+  --color-neutral-badge-soft: #eef0fb;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 99px;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-root: #0b0f19;
+  --bg-surface-card: #111827;
+  --bg-surface-elevated: #1f2937;
+  --bg-surface-alt: #1e293b;
+  --bg-surface-subtle: #0f172a;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-divider: rgba(255, 255, 255, 0.05);
+  --text-primary: #f9fafb;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --color-primary-subtle: rgba(49, 91, 234, 0.18);
+
+  --color-bg: #0b0f19;
+  --color-surface: #111827;
+  --color-surface-muted: #1f2937;
+  --color-text: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
+  --color-text-faint: #6b7280;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-input: rgba(255, 255, 255, 0.16);
+  --color-border-strong: rgba(255, 255, 255, 0.28);
+  --color-primary: #6f8ff5;
+  --color-primary-dark: #a6bdff;
+  --color-primary-deep: #bbcdff;
+  --color-primary-soft: #1e315a;
+  --color-primary-soft-border: #34508f;
+  --color-avatar-bg: #24345e;
+  --color-success: #80d9a8;
+  --color-success-strong: #3fae73;
+  --color-success-soft: #173b2b;
+  --color-danger: #ffaaa6;
+  --color-danger-strong: #e5534b;
+  --color-danger-soft: #4c2225;
+  --color-warning: #ffe09a;
+  --color-warning-soft: #43381f;
+  --color-neutral-badge: #c8d2ff;
+  --color-neutral-badge-soft: #2c3352;
+
+  --shadow-card: none;
+}

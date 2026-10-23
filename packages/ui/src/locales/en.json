@@ -1,0 +1,138 @@
+{
+  "action": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "create": "Create",
+    "delete": "Delete",
+    "edit": "Edit",
+    "refresh": "Refresh",
+    "retry": "Try again",
+    "save": "Save",
+    "saveSettings": "Save configuration"
+  },
+  "clipboard": {
+    "copied": "Copied to clipboard.",
+    "failed": "Unable to copy text. Please try again.",
+    "failedTitle": "Copy failed"
+  },
+  "detail": {
+    "defaultEntity": "records",
+    "delete": "Delete {{name}}",
+    "title": "Details: {{name}}"
+  },
+  "empty": {
+    "description": "The list is empty or no matching records were found.",
+    "noData": "No data",
+    "noItems": "There are no items in this list",
+    "title": "No data"
+  },
+  "error": {
+    "hint": "Reload the page to try again.",
+    "title": "Unable to display this page"
+  },
+  "export": {
+    "columns": "3. Select columns",
+    "format": "2. File format",
+    "formatCsv": "CSV (.csv)",
+    "formatJson": "Raw JSON (.json)",
+    "scope": "1. Export scope",
+    "scopeAll": "All records ({{count}})",
+    "scopeLimit": "Limit records:",
+    "scopePage": "Current page ({{count}} records)",
+    "start": "Start export",
+    "title": "Advanced export"
+  },
+  "filter": {
+    "add": "Add condition",
+    "apply": "Apply filters",
+    "clear": "Clear filters",
+    "empty": "No filter conditions selected.",
+    "enterValue": "Enter a value…",
+    "fixed": "Fixed condition",
+    "operator": {
+      "eq": "Equals (=)",
+      "gt": "Greater than (>)",
+      "gte": "Greater than or equal (>=)",
+      "ilike": "Contains, case insensitive",
+      "in": "In list",
+      "like": "Contains",
+      "lt": "Less than (<)",
+      "lte": "Less than or equal (<=)",
+      "ne": "Not equal (!=)",
+      "notIn": "Not in list",
+      "notLike": "Does not contain"
+    },
+    "remove": "Remove this condition",
+    "selectDate": "Select date",
+    "selectValue": "Select a value…",
+    "title": "Custom data filters"
+  },
+  "form": {
+    "createTitle": "Create {{name}}",
+    "defaultEntity": "Form",
+    "editTitle": "Edit {{name}}"
+  },
+  "import": {
+    "chooseFile": "Choose a file to upload.",
+    "defaultEntity": "data",
+    "downloadTemplate": "Download template (.csv)",
+    "dropzone": "Drag a file here or click to select",
+    "formats": "Supported formats: .csv, .json (up to 10 MB)",
+    "submit": "Import",
+    "templateHint": "Download a template to fill in your data:",
+    "title": "Import CSV / JSON ({{name}})"
+  },
+  "loading": {
+    "data": "Loading data…",
+    "list": "Loading list…"
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "search": {
+    "placeholder": "Search data…"
+  },
+  "status": {
+    "aiApproved": "AI approved",
+    "aiRecovered": "AI recovered",
+    "awaiting": "Awaiting confirmation",
+    "failed": "Failed",
+    "manualRequired": "Manual matching required",
+    "processing": "Processing",
+    "success": "Success"
+  },
+  "storage": {
+    "clearLocal": "Unable to clear localStorage:",
+    "readLocal": "Unable to read localStorage [{{key}}]:",
+    "readSession": "Unable to read sessionStorage [{{key}}]:",
+    "removeLocal": "Unable to remove localStorage [{{key}}]:",
+    "removeSession": "Unable to remove sessionStorage [{{key}}]:",
+    "writeLocal": "Unable to write localStorage [{{key}}]:",
+    "writeSession": "Unable to write sessionStorage [{{key}}]:"
+  },
+  "table": {
+    "actions": "Actions",
+    "bulkActions": "Bulk actions",
+    "delete": "Delete record",
+    "deleteSelected": "Delete {{count}} selected records",
+    "emptyHint": "Try a different search or filter",
+    "emptyTitle": "No matching records",
+    "export": "Export",
+    "filters": "Filters",
+    "import": "Import",
+    "search": "Search…",
+    "total": "Total:",
+    "totalRecords": "Total {{count}} records",
+    "view": "View details"
+  },
+  "validation": {
+    "code": "Use uppercase letters, digits, underscores or hyphens.",
+    "email": "Invalid email address.",
+    "maxLength": "At most {{count}} characters.",
+    "minLength": "At least {{count}} characters.",
+    "phone": "Invalid Vietnamese phone number.",
+    "required": "This field is required.",
+    "url": "Invalid URL."
+  }
+}

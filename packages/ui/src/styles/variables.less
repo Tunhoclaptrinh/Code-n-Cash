@@ -1,0 +1,78 @@
+// ==============================================================================
+// UNIFLOW AI - LESS DESIGN SYSTEM TOKENS & VARIABLES
+// ==============================================================================
+
+// --- [BRAND COLORS (PTIT_Aka)] ---
+@primary-aka-red: #315bea;
+@primary-hover-red: #d6141b;
+@primary-glow-red: rgba(49, 91, 234, 0.35);
+
+@secondary-solar-gold: #fcc20f;
+@secondary-hover-gold: #e5ad08;
+@secondary-glow-gold: rgba(252, 194, 15, 0.35);
+
+// Brand Gradient (Flame Infinity Ribbon)
+@brand-gradient: linear-gradient(
+  135deg,
+  @primary-aka-red 0%,
+  @secondary-solar-gold 100%
+);
+@brand-gradient-hover: linear-gradient(
+  135deg,
+  @primary-hover-red 0%,
+  @secondary-hover-gold 100%
+);
+@brand-gradient-glow: linear-gradient(
+  135deg,
+  rgba(49, 91, 234, 0.2) 0%,
+  rgba(252, 194, 15, 0.2) 100%
+);
+
+// --- [ACCENT & FUNCTIONAL COLORS] ---
+@accent-ai-purple: #8b5cf6;
+@accent-ai-glow: rgba(139, 92, 246, 0.3);
+
+@color-success: #10b981;
+@color-warning: #f59e0b;
+@color-danger: #ef4444;
+@color-info: #3b82f6;
+
+// --- [DARK MODE SLATE PALETTE] ---
+@bg-dark-900: #0b0f19;
+@surface-dark-800: #111827;
+@surface-dark-700: #1f2937;
+@surface-dark-600: #374151;
+
+@border-dark: rgba(255, 255, 255, 0.08);
+@border-dark-highlight: rgba(49, 91, 234, 0.4);
+
+@text-dark-primary: #f9fafb;
+@text-dark-secondary: #9ca3af;
+@text-dark-muted: #6b7280;
+
+// --- [TYPOGRAPHY] ---
+@font-sans:
+  "Plus Jakarta Sans",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  Roboto,
+  sans-serif;
+@font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+// --- [MIXINS & UTILITIES] ---
+.glass-panel() {
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid @border-dark;
+  border-radius: 12px;
+}
+
+.brand-glow-effect() {
+  box-shadow: 0 0 20px @primary-glow-red;
+}
+
+.ai-glow-effect() {
+  box-shadow: 0 0 20px @accent-ai-glow;
+}

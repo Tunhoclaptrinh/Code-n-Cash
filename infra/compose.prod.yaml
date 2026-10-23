@@ -1,0 +1,58 @@
+# Single-host production stack: nginx (web) -> NestJS API (+ Python engine) -> MongoDB replica set.
+# Usage from the repository root:
+#   cp .env.production.example .env.production   # then fill in the secrets
+#   pnpm docker:up                                # build images and start in the background
+name: codecash
+
+services:
+  mongo:
+    image: mongo:7.0
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    # Not published on the host: only the API reaches it over the internal network.
+    volumes: ["mongo-data:/data/db"]
+    healthcheck:
+      # Initiates the one-node replica set on first start; transactions need a replica set.
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}).ok }"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      target: api
+    image: ${IMAGE_PREFIX:-codecash}/api:${IMAGE_TAG:-latest}
+    env_file: ../.env.production
+    environment:
+      STORAGE_DRIVER: mongo
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/codecash?replicaSet=rs0}
+      DATA_DIR: /data
+    volumes: ["uploads:/data"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      target: web
+    image: ${IMAGE_PREFIX:-codecash}/web:${IMAGE_TAG:-latest}
+    environment:
+      API_UPSTREAM: http://api:3000
+    ports: ["${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:80"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  uploads:

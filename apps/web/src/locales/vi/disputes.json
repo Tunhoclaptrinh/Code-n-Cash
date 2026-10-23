@@ -1,0 +1,64 @@
+{
+  "breadcrumb": {
+    "dispute": "Tranh chấp mốc {{milestoneNo}}"
+  },
+  "title": "Tranh chấp · Mốc {{milestoneNo}} · {{milestone}}",
+  "submission": {
+    "title_one": "{{count}} tranh chấp của mốc",
+    "title_other": "{{count}} tranh chấp của mốc",
+    "none": "Mốc chưa có tranh chấp nào.",
+    "author": "{{name}} · {{organization}}",
+    "quote": "\"{{message}}\"",
+    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+  },
+  "state": {
+    "OPEN": "Đang mở",
+    "RESOLVED": "Đã đóng hợp lệ"
+  },
+  "notes": {
+    "title": "Ghi chú của các bên",
+    "kind": {
+      "REQUEST_INFO": "Yêu cầu bổ sung",
+      "DISPUTE_NOTE": "Ghi chú"
+    }
+  },
+  "impact": {
+    "title": "Tác động đến thanh toán",
+    "now": "Hiện tại",
+    "afterResolve": "Nếu đóng mọi tranh chấp (engine chạy thử)",
+    "unit": "triệu",
+    "penalty": "phạt {{penalty}}",
+    "noPreview": "Chỉ bên mua hoặc chủ hợp đồng xem được kết quả chạy thử khi có tranh chấp mở.",
+    "footnote": "Trong lúc tranh chấp mở, mốc bị giữ (rule 10). Không ai sửa tay tiền phạt: số tiền luôn do engine tính lại sau khi đóng tranh chấp."
+  },
+  "decision": {
+    "title": "Xử lý tranh chấp",
+    "options": {
+      "RESOLVE": {
+        "name": "Đóng tranh chấp",
+        "description": "Ghi DISPUTE_RESOLVED tham chiếu từng tranh chấp đang mở (BR-08). Engine đánh giá lại mốc ngay."
+      },
+      "REQUEST_INFO": {
+        "name": "Yêu cầu bổ sung",
+        "description": "Ghi chú cho bên mở tranh chấp; tranh chấp vẫn mở và mốc vẫn bị giữ."
+      },
+      "OPEN": {
+        "name": "Mở tranh chấp mới",
+        "description": "Ghi DISPUTE_OPENED. Mốc bị giữ cho đến khi bên mua đóng tranh chấp hợp lệ."
+      }
+    },
+    "note": {
+      "label": "Lý do",
+      "required": "Nhập lý do.",
+      "placeholder": "Nêu vấn đề, chứng từ liên quan và kết luận xử lý (tối đa 2.000 ký tự)."
+    },
+    "readOnly": "Bạn chỉ xem được tranh chấp của mốc này.",
+    "rule": "Nguyên tắc \"mở dễ, đóng khó\": mọi DISPUTE_OPENED đều chặn chi; chỉ DISPUTE_RESOLVED do bên mua (hoặc chủ hợp đồng) tạo, tham chiếu đúng tranh chấp và không sớm hơn lúc mở mới gỡ được chặn.",
+    "done": "Đã ghi event. Engine đánh giá lại: {{status}} ({{reason}}).",
+    "noted": "Đã ghi chú.",
+    "actions": {
+      "trace": "Xem truy vết quyết định",
+      "confirm": "Xác nhận"
+    }
+  }
+}

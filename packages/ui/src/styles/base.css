@@ -1,0 +1,156 @@
+.data-table-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.data-table-wrapper .ant-card {
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle, #e5e7eb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: var(--bg-surface-card, #ffffff);
+  overflow: hidden;
+}
+.data-table-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.data-table-title h2 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-primary, #111827);
+}
+.data-table-header-content {
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+}
+.data-table-header-content .ant-tabs-nav {
+  margin-bottom: 0 !important;
+}
+.data-table-header-content .ant-tabs-tab {
+  padding: 10px 0 !important;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+.data-table-header-content .ant-tabs-tab:hover {
+  color: #315bea;
+}
+.data-table-header-content .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #315bea !important;
+  font-weight: 700;
+}
+.data-table-header-content .ant-tabs-ink-bar {
+  background: #315bea;
+  height: 2px !important;
+  border-radius: 2px 2px 0 0;
+}
+.data-table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px 0 20px;
+}
+.data-table-toolbar .right-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.total-count-badge {
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: var(--bg-surface-alt, #f8fafc);
+  border: 1px solid var(--border-subtle, #e5e7eb);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary, #4b5563);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.total-count-badge span {
+  color: #315bea;
+  font-weight: 800;
+}
+.main-table {
+  padding: 12px 20px 20px 20px;
+}
+.main-table .ant-table {
+  background: transparent;
+  font-size: 13px;
+}
+.main-table .ant-table-thead > tr > th {
+  background: var(--bg-surface-alt, #f9fafb);
+  font-weight: 700;
+  color: var(--text-secondary, #4b5563);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+}
+.main-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-divider, #f3f4f6);
+  padding: 14px 16px;
+  color: var(--text-primary, #111827);
+}
+.main-table .ant-table-tbody > tr:hover > td {
+  background: rgba(49, 91, 234, 0.04) !important;
+}
+/* Action Buttons Standard (Chuẩn G:\Base) */
+.action-btn-standard {
+  min-width: 30px;
+  width: 30px;
+  height: 30px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle, #e5e7eb);
+  background: var(--bg-surface-card, #ffffff);
+  color: var(--text-muted, #6b7280);
+  transition: all 0.2s ease;
+}
+.action-btn-standard:hover {
+  border-color: #315bea;
+  color: #315bea;
+  background: rgba(49, 91, 234, 0.08) !important;
+}
+/* Filter Builder Styles (Chuẩn G:\Base) */
+.filter-builder-container {
+  display: flex;
+  flex-direction: column;
+}
+.active-filters-section {
+  flex: 1;
+  padding: 16px;
+  background: var(--bg-surface-alt, #f9fafb);
+  border-radius: 8px;
+}
+.filter-condition-item {
+  background: var(--bg-surface-card, #ffffff);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle, #e5e7eb);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  transition: opacity 0.2s ease;
+}
+.filter-condition-item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.filter-builder-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-subtle, #e5e7eb);
+}

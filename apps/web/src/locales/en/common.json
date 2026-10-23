@@ -1,0 +1,226 @@
+{
+  "brand": {
+    "name": "CodeCash",
+    "product": "Smart Contract Workflow"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "tasks": "My tasks",
+    "contracts": "Contracts",
+    "myContracts": "My contracts",
+    "upload": "Upload contract",
+    "activity": "Activity log",
+    "verify": "Verify signature",
+    "submissions": "Submitted documents",
+    "approvals": "Awaiting my approval",
+    "groups": {
+      "workflow": "Contract workflow",
+      "data": "Data & administration",
+      "monitoring": "Monitoring & audit",
+      "help": "Help"
+    },
+    "home": "Home",
+    "exceptions": "Exceptions (BR-19)",
+    "integrity": "Integrity check",
+    "guide": "User guide"
+  },
+  "topbar": {
+    "role": "Role",
+    "notifications": "Notifications",
+    "account": "Account menu",
+    "language": "Language",
+    "signOut": "Sign out",
+    "openMenu": "Open navigation",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "pendingTasks_one": "{{count}} task waiting for you",
+    "pendingTasks_other": "{{count}} tasks waiting for you",
+    "noPendingTasks": "No pending tasks",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme",
+    "guide": "Quick guide",
+    "openInbox": "Open my tasks"
+  },
+  "languages": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "roles": {
+    "CONTRACT_OWNER": {
+      "name": "Contract owner",
+      "short": "CO"
+    },
+    "LEGAL_REVIEWER": {
+      "name": "Buyer contract officer",
+      "short": "CO"
+    },
+    "SUPPLIER": {
+      "name": "Supplier",
+      "short": "SUP"
+    },
+    "FINANCE_APPROVER": {
+      "name": "Finance approver",
+      "short": "FA"
+    },
+    "ADMIN_AUDITOR": {
+      "name": "Controller",
+      "short": "CT"
+    },
+    "SECONDARY_APPROVER": {
+      "name": "Secondary approver",
+      "short": "SA"
+    },
+    "SYSTEM_ADMIN": {
+      "name": "System administrator",
+      "short": "SA"
+    },
+    "AUDITOR": {
+      "name": "Auditor",
+      "short": "AU"
+    }
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "errors": {
+      "INVALID_CREDENTIALS": "Email or password is incorrect.",
+      "UNKNOWN": "Could not sign in. Please try again."
+    },
+    "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
+    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly. People are seed data; organisations and approvers come from the Data Pack.",
+    "highlights": {
+      "sign": "Sequential digital signing, document locked after the first signature",
+      "evidence": "Evidence submission, validation and two-person approval",
+      "audit": "Append-only activity log for every action"
+    },
+    "demoAccounts": "Demo accounts",
+    "demoUnavailable": "Could not connect to load demo accounts.",
+    "demoEmpty": "No demo accounts are currently available.",
+    "demoFeatured": "Suggested (Nova An · Phú Minh)",
+    "demoAll": "Every Data Pack organisation",
+    "emailPlaceholder": "name@example.com"
+  },
+  "common": {
+    "loading": "Loading…",
+    "loadError": "Could not load this page. Please try again.",
+    "retry": "Try again",
+    "notFound": "Nothing to show here."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "body": "This address does not exist or you are not allowed to view it.",
+      "back": "Back to home"
+    },
+    "route": {
+      "title": "Unable to display this page",
+      "body": "Something went wrong while loading this screen. Reload the page; if it keeps happening, tell an administrator.",
+      "reload": "Reload page"
+    }
+  },
+  "sider": {
+    "environment": "Environment",
+    "demoShort": "Demo",
+    "demoBody": "Demo build: sample data, simulated signing."
+  },
+  "onboarding": {
+    "title": "Welcome to CodeCash",
+    "subtitle": "Pick a language and a theme to get started.",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "suggested": "Suggested",
+    "start": "Get started",
+    "footnote": "You can change both at any time from the header.",
+    "tips": {
+      "done": "Got it",
+      "guide": {
+        "title": "Quick guide",
+        "body": "Click here to see these tips again."
+      },
+      "language": {
+        "title": "Language",
+        "body": "Switch between Vietnamese and English."
+      },
+      "theme": {
+        "title": "Light or dark",
+        "body": "Change the theme to whatever is easier on your eyes."
+      },
+      "title": "Quick tips for the header"
+    }
+  },
+  "importPreview": {
+    "title": "Check import data",
+    "confirm_one": "Import {{count}} valid row",
+    "confirm_other": "Import {{count}} valid rows",
+    "cancel": "Cancel",
+    "total_one": "Total: {{count}}",
+    "total_other": "Total: {{count}}",
+    "valid_one": "Valid: {{count}}",
+    "valid_other": "Valid: {{count}}",
+    "invalid_one": "Errors: {{count}}",
+    "invalid_other": "Errors: {{count}}",
+    "errorsOnly": "Show only rows with errors",
+    "partial": "{{error}} rows are invalid. Import to add the {{valid}} valid rows and skip the rest, or fix the file and import again.",
+    "none": "No row is valid. Fix the file using the errors below and import again.",
+    "allValid_one": "The {{count}} row is valid.",
+    "allValid_other": "All {{count}} rows are valid.",
+    "status": "Status",
+    "rowValid": "Valid",
+    "rowInvalid": "Error",
+    "errorsColumn": "Problems found",
+    "errors": {
+      "REQUIRED": "Required field missing",
+      "INVALID_OPTION": "Value not in the allowed list",
+      "INVALID_REFERENCE": "Referenced record not found",
+      "DUPLICATE_RECORD": "Duplicate code or email",
+      "UNKNOWN_FIELD": "Unsupported column",
+      "INVALID_EMAIL": "Invalid email",
+      "INVALID_NUMBER": "Must be a non-negative number",
+      "INVALID_BOOLEAN": "Must be true or false",
+      "INVALID_STRING": "Invalid text value",
+      "INVALID_BODY": "Invalid row"
+    }
+  },
+  "modal": {
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
+  },
+  "columnSearch": {
+    "placeholder": "Search this column…",
+    "search": "Search",
+    "reset": "Reset"
+  },
+  "guide": {
+    "title": "User guide",
+    "button": "Guide",
+    "openFull": "Open the guide",
+    "topics": {
+      "start": "Getting started",
+      "roles": "Roles and permissions",
+      "tables": "Working with lists",
+      "tasks": "My tasks",
+      "contracts": "Contracts",
+      "decision": "Milestone decision",
+      "evidence": "Submitting evidence",
+      "approval": "Payment approval",
+      "dispute": "Disputes",
+      "signing": "Uploading and signing",
+      "exceptions": "BR-19 exceptions",
+      "integrity": "Integrity check",
+      "activity": "Activity log",
+      "data": "Data Pack results",
+      "admin": "Administration"
+    }
+  },
+  "forms": {
+    "required": "Please enter {{field}}.",
+    "email": "Enter a valid email address.",
+    "invalid": "{{field}} has an invalid format or is outside the allowed range.",
+    "enter": "Enter {{field}}",
+    "choose": "Choose {{field}}"
+  }
+}

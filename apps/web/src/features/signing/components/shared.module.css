@@ -1,0 +1,82 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Links that act as buttons; sized like Ant Design `size="large"` buttons next to them. */
+.btnPrimary,
+.btnSecondary,
+.btnDanger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.btnPrimary {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: color-mix(in srgb, var(--color-primary) 85%, white);
+  color: #fff;
+}
+
+.btnSecondary {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.btnSecondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btnDanger {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-danger-strong);
+}
+
+.pill {
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+}
+
+.notice {
+  background: var(--signing-notice-bg);
+  border: 1px solid var(--signing-notice-border);
+  border-radius: var(--radius-md);
+  color: var(--signing-notice-text);
+}
+
+.noticeTitle {
+  color: var(--color-warning);
+}
+
+.tone1 {
+  --tone: var(--signing-tone-1);
+  --tone-bg: var(--signing-tone-1-bg);
+  --tone-ink: var(--signing-tone-1-ink);
+}
+
+.tone2 {
+  --tone: var(--signing-tone-2);
+  --tone-bg: var(--signing-tone-2-bg);
+  --tone-ink: var(--signing-tone-2-ink);
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@codecash/ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles/base.css",
+    "./tokens.css": "./src/styles/tokens.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.104.5",
+    "@ant-design/icons": "^6.0.0",
+    "antd": "^6.6.1",
+    "i18next": "^26.5.3",
+    "react-i18next": "^17.1.0",
+    "papaparse": "^5.5.3",
+    "dayjs": "^1.11.11",
+    "@codecash/api-client": "workspace:*",
+    "@codecash/contracts": "workspace:*",
+    "react-router-dom": "^7.18.4"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/papaparse": "^5.3.16"
+  }
+}

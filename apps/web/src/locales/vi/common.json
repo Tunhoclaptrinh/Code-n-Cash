@@ -1,0 +1,226 @@
+{
+  "brand": {
+    "name": "CodeCash",
+    "product": "Smart Contract Workflow"
+  },
+  "nav": {
+    "label": "Điều hướng chính",
+    "tasks": "Việc cần làm",
+    "contracts": "Hợp đồng",
+    "myContracts": "Hợp đồng của tôi",
+    "upload": "Tải hợp đồng lên",
+    "activity": "Nhật ký hoạt động",
+    "verify": "Kiểm tra chữ ký",
+    "submissions": "Chứng từ đã nộp",
+    "approvals": "Chờ tôi phê duyệt",
+    "groups": {
+      "workflow": "Nghiệp vụ hợp đồng",
+      "data": "Dữ liệu & quản trị",
+      "monitoring": "Theo dõi & kiểm toán",
+      "help": "Trợ giúp"
+    },
+    "home": "Trang chủ",
+    "exceptions": "Ngoại lệ BR-19",
+    "integrity": "Kiểm tra toàn vẹn",
+    "guide": "Hướng dẫn sử dụng"
+  },
+  "topbar": {
+    "role": "Vai trò",
+    "notifications": "Thông báo",
+    "account": "Menu tài khoản",
+    "language": "Ngôn ngữ",
+    "signOut": "Đăng xuất",
+    "openMenu": "Mở điều hướng",
+    "collapse": "Thu gọn thanh bên",
+    "expand": "Mở rộng thanh bên",
+    "pendingTasks_one": "{{count}} việc đang chờ bạn",
+    "pendingTasks_other": "{{count}} việc đang chờ bạn",
+    "noPendingTasks": "Không có việc đang chờ",
+    "themeLight": "Chuyển sang giao diện sáng",
+    "themeDark": "Chuyển sang giao diện tối",
+    "guide": "Hướng dẫn nhanh",
+    "openInbox": "Mở danh sách việc cần làm"
+  },
+  "languages": {
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "roles": {
+    "CONTRACT_OWNER": {
+      "name": "Chủ hợp đồng",
+      "short": "CO"
+    },
+    "LEGAL_REVIEWER": {
+      "name": "Cán bộ hợp đồng bên mua",
+      "short": "CB"
+    },
+    "SUPPLIER": {
+      "name": "Nhà cung cấp",
+      "short": "NCC"
+    },
+    "FINANCE_APPROVER": {
+      "name": "Phê duyệt tài chính",
+      "short": "PD"
+    },
+    "ADMIN_AUDITOR": {
+      "name": "Kiểm soát viên",
+      "short": "KS"
+    },
+    "SECONDARY_APPROVER": {
+      "name": "Phê duyệt cấp 2",
+      "short": "P2"
+    },
+    "SYSTEM_ADMIN": {
+      "name": "Quản trị hệ thống",
+      "short": "QT"
+    },
+    "AUDITOR": {
+      "name": "Kiểm toán",
+      "short": "KT"
+    }
+  },
+  "login": {
+    "title": "Đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "errors": {
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
+      "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
+    },
+    "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
+    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh. Người dùng là dữ liệu bổ sung; tổ chức và người phê duyệt lấy từ Data Pack.",
+    "highlights": {
+      "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
+      "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
+      "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
+    },
+    "demoAccounts": "Tài khoản demo",
+    "demoUnavailable": "Không kết nối được để tải tài khoản demo.",
+    "demoEmpty": "Chưa có tài khoản demo khả dụng.",
+    "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
+    "demoAll": "Tất cả tổ chức trong Data Pack",
+    "emailPlaceholder": "name@example.com"
+  },
+  "common": {
+    "loading": "Đang tải…",
+    "loadError": "Không tải được trang này. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "notFound": "Không có gì để hiển thị."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "body": "Đường dẫn không tồn tại hoặc bạn không có quyền xem trang này.",
+      "back": "Về trang chính"
+    },
+    "route": {
+      "title": "Không hiển thị được trang này",
+      "body": "Đã có lỗi khi tải màn hình. Hãy tải lại trang; nếu lỗi lặp lại, hãy báo cho quản trị viên.",
+      "reload": "Tải lại trang"
+    }
+  },
+  "sider": {
+    "environment": "Môi trường",
+    "demoShort": "Demo",
+    "demoBody": "Bản demo: dữ liệu mẫu, luồng ký mô phỏng."
+  },
+  "onboarding": {
+    "title": "Chào mừng đến với CodeCash",
+    "subtitle": "Chọn ngôn ngữ và giao diện trước khi bắt đầu.",
+    "language": "Ngôn ngữ",
+    "theme": "Giao diện",
+    "light": "Sáng",
+    "dark": "Tối",
+    "suggested": "Đề xuất",
+    "start": "Bắt đầu sử dụng",
+    "footnote": "Bạn có thể đổi lại bất cứ lúc nào trên thanh tiêu đề.",
+    "tips": {
+      "done": "Đã hiểu",
+      "guide": {
+        "title": "Hướng dẫn nhanh",
+        "body": "Bấm vào đây để xem lại các gợi ý này."
+      },
+      "language": {
+        "title": "Ngôn ngữ",
+        "body": "Chuyển giữa tiếng Việt và tiếng Anh."
+      },
+      "theme": {
+        "title": "Giao diện sáng/tối",
+        "body": "Đổi giao diện cho dễ nhìn hơn."
+      },
+      "title": "Mẹo nhanh trên thanh tiêu đề"
+    }
+  },
+  "importPreview": {
+    "title": "Xác minh dữ liệu nhập",
+    "confirm_one": "Nhập {{count}} hàng hợp lệ",
+    "confirm_other": "Nhập {{count}} hàng hợp lệ",
+    "cancel": "Hủy",
+    "total_one": "Tổng: {{count}}",
+    "total_other": "Tổng: {{count}}",
+    "valid_one": "Hợp lệ: {{count}}",
+    "valid_other": "Hợp lệ: {{count}}",
+    "invalid_one": "Lỗi: {{count}}",
+    "invalid_other": "Lỗi: {{count}}",
+    "errorsOnly": "Chỉ hiện hàng lỗi",
+    "partial": "Có {{error}} hàng không hợp lệ. Bấm Nhập để nhập {{valid}} hàng hợp lệ và bỏ qua hàng lỗi, hoặc sửa tệp rồi nhập lại.",
+    "none": "Không có hàng hợp lệ. Sửa tệp theo lỗi bên dưới rồi nhập lại.",
+    "allValid_one": "Tất cả {{count}} hàng hợp lệ.",
+    "allValid_other": "Tất cả {{count}} hàng hợp lệ.",
+    "status": "Trạng thái",
+    "rowValid": "Hợp lệ",
+    "rowInvalid": "Lỗi",
+    "errorsColumn": "Lỗi phát hiện",
+    "errors": {
+      "REQUIRED": "Thiếu trường bắt buộc",
+      "INVALID_OPTION": "Giá trị không thuộc danh sách",
+      "INVALID_REFERENCE": "Không tìm thấy bản ghi tham chiếu",
+      "DUPLICATE_RECORD": "Trùng mã hoặc email",
+      "UNKNOWN_FIELD": "Có cột không được hỗ trợ",
+      "INVALID_EMAIL": "Email không hợp lệ",
+      "INVALID_NUMBER": "Phải là số không âm",
+      "INVALID_BOOLEAN": "Phải là true/false",
+      "INVALID_STRING": "Giá trị chữ không hợp lệ",
+      "INVALID_BODY": "Hàng không hợp lệ"
+    }
+  },
+  "modal": {
+    "fullscreen": "Mở toàn màn hình",
+    "exitFullscreen": "Thu nhỏ"
+  },
+  "columnSearch": {
+    "placeholder": "Tìm trong cột…",
+    "search": "Tìm",
+    "reset": "Xóa"
+  },
+  "guide": {
+    "title": "Hướng dẫn sử dụng",
+    "button": "Hướng dẫn",
+    "openFull": "Mở trang hướng dẫn",
+    "topics": {
+      "start": "Bắt đầu",
+      "roles": "Vai trò và quyền",
+      "tables": "Dùng bảng danh sách",
+      "tasks": "Việc cần làm",
+      "contracts": "Hợp đồng",
+      "decision": "Quyết định của mốc",
+      "evidence": "Nộp chứng từ",
+      "approval": "Phê duyệt chi",
+      "dispute": "Tranh chấp",
+      "signing": "Tải hợp đồng lên và ký",
+      "exceptions": "Ngoại lệ BR-19",
+      "integrity": "Kiểm tra toàn vẹn",
+      "activity": "Nhật ký hoạt động",
+      "data": "Kết quả Data Pack",
+      "admin": "Quản trị hệ thống"
+    }
+  },
+  "forms": {
+    "required": "Vui lòng nhập {{field}}.",
+    "email": "Nhập địa chỉ email hợp lệ.",
+    "invalid": "{{field}} chưa đúng định dạng hoặc giới hạn cho phép.",
+    "enter": "Nhập {{field}}",
+    "choose": "Chọn {{field}}"
+  }
+}

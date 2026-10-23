@@ -1,0 +1,138 @@
+{
+  "action": {
+    "cancel": "Hủy bỏ",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "create": "Thêm mới",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "refresh": "Làm mới",
+    "retry": "Thử lại",
+    "save": "Lưu lại",
+    "saveSettings": "Lưu cấu hình"
+  },
+  "clipboard": {
+    "copied": "Đã sao chép.",
+    "failed": "Không sao chép được, vui lòng thử lại.",
+    "failedTitle": "Sao chép thất bại"
+  },
+  "detail": {
+    "defaultEntity": "bản ghi",
+    "delete": "Xóa {{name}}",
+    "title": "Chi tiết {{name}}"
+  },
+  "empty": {
+    "description": "Hiện tại danh sách đang trống hoặc chưa có bản ghi nào phù hợp.",
+    "noData": "Không có dữ liệu",
+    "noItems": "Hiện chưa có mục nào trong danh sách",
+    "title": "Chưa có dữ liệu"
+  },
+  "error": {
+    "hint": "Tải lại trang để thử lại.",
+    "title": "Không hiển thị được trang này"
+  },
+  "export": {
+    "columns": "3. Chọn cột hiển thị",
+    "format": "2. Định dạng tập tin",
+    "formatCsv": "CSV (.csv)",
+    "formatJson": "JSON (.json)",
+    "scope": "1. Phạm vi xuất dữ liệu",
+    "scopeAll": "Tất cả dữ liệu ({{count}} bản ghi)",
+    "scopeLimit": "Giới hạn số lượng:",
+    "scopePage": "Trang hiện tại ({{count}} bản ghi)",
+    "start": "Bắt đầu xuất file",
+    "title": "Xuất dữ liệu"
+  },
+  "filter": {
+    "add": "Thêm điều kiện lọc",
+    "apply": "Áp dụng bộ lọc",
+    "clear": "Bỏ lọc",
+    "empty": "Chưa có điều kiện lọc nào được chọn.",
+    "enterValue": "Nhập giá trị…",
+    "fixed": "Điều kiện cố định",
+    "operator": {
+      "eq": "Bằng (=)",
+      "gt": "Lớn hơn (>)",
+      "gte": "Lớn hơn hoặc bằng (>=)",
+      "ilike": "Chứa không phân biệt hoa/thường",
+      "in": "Thuộc danh sách",
+      "like": "Chứa (like)",
+      "lt": "Nhỏ hơn (<)",
+      "lte": "Nhỏ hơn hoặc bằng (<=)",
+      "ne": "Khác (!=)",
+      "notIn": "Không thuộc danh sách",
+      "notLike": "Không chứa"
+    },
+    "remove": "Xóa điều kiện này",
+    "selectDate": "Chọn ngày",
+    "selectValue": "Chọn giá trị…",
+    "title": "Bộ lọc dữ liệu tùy chỉnh"
+  },
+  "form": {
+    "createTitle": "Thêm mới {{name}}",
+    "defaultEntity": "biểu mẫu",
+    "editTitle": "Chỉnh sửa {{name}}"
+  },
+  "import": {
+    "chooseFile": "Vui lòng chọn tệp để tải lên.",
+    "defaultEntity": "dữ liệu",
+    "downloadTemplate": "Tải tệp mẫu (.csv)",
+    "dropzone": "Kéo thả tệp vào đây hoặc bấm để chọn",
+    "formats": "Hỗ trợ .csv, .json (tối đa 10 MB)",
+    "submit": "Nhập dữ liệu",
+    "templateHint": "Tải tệp mẫu để điền dữ liệu:",
+    "title": "Nhập CSV / JSON ({{name}})"
+  },
+  "loading": {
+    "data": "Đang tải dữ liệu…",
+    "list": "Đang tải danh sách…"
+  },
+  "nav": {
+    "home": "Trang chủ"
+  },
+  "search": {
+    "placeholder": "Tìm kiếm dữ liệu…"
+  },
+  "status": {
+    "aiApproved": "AI đã duyệt",
+    "aiRecovered": "AI tự phục hồi",
+    "awaiting": "Chờ xác nhận",
+    "failed": "Thất bại",
+    "manualRequired": "Cần ghép thủ công",
+    "processing": "Đang xử lý",
+    "success": "Thành công"
+  },
+  "storage": {
+    "clearLocal": "Không xóa sạch được localStorage:",
+    "readLocal": "Không đọc được localStorage [{{key}}]:",
+    "readSession": "Không đọc được sessionStorage [{{key}}]:",
+    "removeLocal": "Không xóa được localStorage [{{key}}]:",
+    "removeSession": "Không xóa được sessionStorage [{{key}}]:",
+    "writeLocal": "Không ghi được localStorage [{{key}}]:",
+    "writeSession": "Không ghi được sessionStorage [{{key}}]:"
+  },
+  "table": {
+    "actions": "Thao tác",
+    "bulkActions": "Thao tác hàng loạt",
+    "delete": "Xóa bản ghi",
+    "deleteSelected": "Xóa {{count}} bản ghi đã chọn",
+    "emptyHint": "Thử thay đổi từ khóa tìm kiếm hoặc lọc dữ liệu",
+    "emptyTitle": "Không tìm thấy bản ghi phù hợp",
+    "export": "Xuất",
+    "filters": "Bộ lọc",
+    "import": "Nhập",
+    "search": "Tìm kiếm…",
+    "total": "Tổng:",
+    "totalRecords": "Tổng số {{count}} bản ghi",
+    "view": "Xem chi tiết"
+  },
+  "validation": {
+    "code": "Chỉ dùng chữ in hoa, chữ số, gạch dưới hoặc gạch nối.",
+    "email": "Email không hợp lệ.",
+    "maxLength": "Tối đa {{count}} ký tự.",
+    "minLength": "Tối thiểu {{count}} ký tự.",
+    "phone": "Số điện thoại Việt Nam không hợp lệ.",
+    "required": "Trường này là bắt buộc.",
+    "url": "Địa chỉ URL không hợp lệ."
+  }
+}

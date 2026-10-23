@@ -1,0 +1,16 @@
+**/node_modules
+**/dist
+**/__pycache__
+**/*.pyc
+**/*.tsbuildinfo
+.git
+.github
+.claude
+.data
+artifacts
+docs
+tests
+.env
+.env.*
+!.env.example
+BangD-Case4/*.pdf

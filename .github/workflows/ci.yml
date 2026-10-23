@@ -1,0 +1,60 @@
+name: Verify monorepo
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm build
+      - run: pnpm test
+      - name: API smoke
+        run: |
+          DATA_DIR=/tmp/codecash-ci node apps/api/dist/main.js > /tmp/codecash-api.log 2>&1 &
+          API_PID=$!
+          trap 'kill "$API_PID" || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3000/api/v1/health; then break; fi
+            sleep 1
+          done
+          pnpm test:e2e
+
+  # Builds both production images and runs the compose stack end to end (nginx -> API -> MongoDB).
+  docker:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Start production stack
+        run: |
+          printf 'JWT_SECRET=%s\nSEED_PASSWORD=Passw0rd!\nWEB_ORIGIN=http://127.0.0.1:8080\n' "$(openssl rand -hex 48)" > .env.production
+          docker compose -f infra/compose.prod.yaml --env-file .env.production up -d --build --wait --wait-timeout 300
+      - name: Smoke through nginx
+        run: |
+          curl -sf http://127.0.0.1:8080/healthz
+          curl -sf http://127.0.0.1:8080/api/v1/health | grep -q '"storage":"mongo"'
+          curl -sf http://127.0.0.1:8080/contracts | grep -q 'id="root"'
+          API_BASE_URL=http://127.0.0.1:8080/api/v1 node scripts/smoke.mjs
+      - name: Logs on failure
+        if: failure()
+        run: docker compose -f infra/compose.prod.yaml --env-file .env.production logs --no-color
+      - name: Stop stack
+        if: always()
+        run: docker compose -f infra/compose.prod.yaml --env-file .env.production down -v

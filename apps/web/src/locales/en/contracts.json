@@ -1,0 +1,259 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "contracts": "Contracts",
+    "upload": "Upload contract"
+  },
+  "contractList": {
+    "title": "Contracts",
+    "subtitle_one": "{{count}} contract · {{organization}}",
+    "subtitle_other": "{{count}} contracts · {{organization}}",
+    "intro": "The organiser's Data Pack (100 contracts) plus demo seed contracts. A contract's status aggregates the engine's decision on each milestone (spec section 9.3).",
+    "upload": "Upload a contract",
+    "disputeFlag": "Dispute",
+    "tiles": {
+      "YOUR_TURN": "My turn",
+      "PENDING_CONDITIONS": "Pending conditions",
+      "NEEDS_REVIEW": "A milestone was rejected",
+      "AWAITING_SIGNATURE": "Drafts and signing",
+      "ALL_MILESTONES_ELIGIBLE": "All milestones eligible"
+    },
+    "filters": {
+      "searchPlaceholder": "Search code, title, buyer or supplier",
+      "typeLabel": "Contract type",
+      "policyLabel": "Approval policy",
+      "originLabel": "Data source",
+      "statusLabel": "Status"
+    },
+    "table": {
+      "columns": {
+        "contract": "Contract",
+        "buyer": "Buyer",
+        "supplier": "Supplier",
+        "value": "Value (million VND)",
+        "payable": "Eligible (million VND)",
+        "penalty": "Penalty (million VND)",
+        "progress": "Milestones",
+        "status": "Status",
+        "waiting": "Waiting for",
+        "actions": "Actions"
+      },
+      "empty": "No matching contracts"
+    },
+    "progress": {
+      "eligible": "{{eligible}}/{{total}} milestones eligible",
+      "hold_one": "{{count}} held",
+      "hold_other": "{{count}} held",
+      "penalty_one": "{{count}} penalty",
+      "penalty_other": "{{count}} penalties",
+      "none": "No milestones yet"
+    },
+    "waiting": {
+      "you": "You:",
+      "draft": "Complete the file and digitise the terms",
+      "signing": "Waiting for {{name}} to sign ({{signed}}/{{total}})"
+    },
+    "actions": {
+      "signNow": "Sign now",
+      "completeDraft": "Continue the file",
+      "act": "Act now",
+      "open": "Open contract",
+      "detail": "Quick view",
+      "verify": "Verify signatures",
+      "activity": "View activity",
+      "more": "More actions"
+    },
+    "tabs": {
+      "ALL": "All"
+    },
+    "detail": {
+      "title": "Contract title"
+    },
+    "modal": {
+      "overview": "Overview",
+      "kind": "Type and workflow",
+      "term": "Term",
+      "penaltyTerms": "Penalty terms",
+      "penaltyValue": "Grace {{grace}} days · {{rate}}%/day · cap {{cap}}%",
+      "ruleSet": "Rule set",
+      "payment": "Payment per the engine's decisions",
+      "eligible": "Eligible",
+      "penalty": "Penalty",
+      "held": "Held",
+      "rejected": "Rejected",
+      "transferred": "Transferred",
+      "milestone": "Milestone",
+      "milestones_one": "{{count}} milestone",
+      "milestones_other": "{{count}} milestones",
+      "participants": "Participants",
+      "events_one": "{{count}} event",
+      "events_other": "{{count}} events",
+      "at": "Time",
+      "event": "Event",
+      "actor": "By",
+      "due": "Due",
+      "paid": "Eligible",
+      "discard": "Close",
+      "cancelSigning": "Cancel signing",
+      "cancelBody": "Cancel the signing of {{code}} and return it to draft. Only possible while nobody has signed; the action is logged.",
+      "cancelled": "Signing cancelled; the contract is a draft again",
+      "openPage": "Open the detail page"
+    }
+  },
+  "contractUpload": {
+    "steps": {
+      "label": "Contract registration steps",
+      "upload": "Upload",
+      "positions": "Signature positions",
+      "review": "Clause review",
+      "sign": "Digital signing",
+      "effective": "In force"
+    },
+    "title": "Register a new contract",
+    "form": {
+      "type": {
+        "label": "Contract type",
+        "stages": "Milestones of the workflow:"
+      },
+      "code": {
+        "label": "Contract code",
+        "value": "{{code}} (assigned by the system)"
+      },
+      "title": {
+        "label": "Contract title",
+        "counter": "{{count}}/{{max}} characters",
+        "errors": {
+          "required": "Enter a contract title."
+        }
+      },
+      "supplier": {
+        "label": "Supplier"
+      },
+      "reviewer": {
+        "label": "Digitization reviewer",
+        "option": "{{role}}, {{organization}}"
+      },
+      "positionsNotice": {
+        "title": "Signature positions are assigned in the next step",
+        "body": "Positions are not detected automatically. Next, you place one slot on the PDF page for each signer, in the order above."
+      },
+      "file": {
+        "label": "Contract file",
+        "constraint": "PDF or DOCX, up to 20 MB",
+        "meta": "{{size}} MB · {{pages}} pages · upload complete",
+        "metaNoPages": "{{size}} MB · upload complete",
+        "replace": "Replace file",
+        "replaceHint": "Replacing the file after configuration forces a new check of the signature positions and the digitized copy, so that no signature lands in the wrong place.",
+        "errors": {
+          "type": "Only PDF or DOCX files are accepted.",
+          "size": "The file is larger than 20 MB.",
+          "required": "Choose the contract file."
+        },
+        "empty": "No file chosen",
+        "choose": "Choose a file"
+      },
+      "appendix": {
+        "label": "Attached appendices",
+        "optional": "optional",
+        "drop": "Drag and drop or choose appendix files",
+        "remove": "Remove file {{name}}"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "continue": "Continue: assign signature positions"
+      },
+      "value": {
+        "label": "Contract value",
+        "unit": "million VND"
+      },
+      "start": {
+        "label": "Start date"
+      },
+      "end": {
+        "label": "End date"
+      },
+      "policy": {
+        "label": "Payment approval policy"
+      },
+      "penalty": {
+        "grace": "Grace (days)",
+        "rate": "Penalty / day",
+        "cap": "Penalty cap"
+      },
+      "signers": {
+        "label": "Signers and signing order",
+        "hint": "Two to four people, at least one per side. They sign top to bottom; the last must use a digital signature. When the last one signs, the buyer's CONTRACT_SIGNED event is recorded (matrix 4.2).",
+        "presetLabel": "Presets:",
+        "presets": {
+          "BUYER_FIRST": "Buyer signs first",
+          "SUPPLIER_FIRST": "Supplier signs first",
+          "THREE_PARTY": "3 people: supplier → finance → owner"
+        },
+        "person": "Pick the signer",
+        "up": "Up",
+        "down": "Down",
+        "remove": "Remove",
+        "add": "Add a signer",
+        "errors": {
+          "count": "Two to four signers are needed.",
+          "missing": "Pick a person for every step.",
+          "duplicate": "A person signs only once.",
+          "bothSides": "At least one signer per side is needed."
+        }
+      },
+      "errors": {
+        "TITLE_REQUIRED": "Enter the contract title.",
+        "INVALID_TYPE": "Invalid contract type.",
+        "INVALID_POLICY": "Invalid approval policy.",
+        "INVALID_VALUE": "The value must be positive with at most two decimals.",
+        "INVALID_DATES": "The start date must not be after the end date.",
+        "INVALID_PENALTY": "Invalid penalty terms (grace 0–60 days, 0–5%/day, cap 0–100%).",
+        "INVALID_SUPPLIER": "Pick a supplier of the Data Pack.",
+        "SIGNER_COUNT": "Two to four signers are needed.",
+        "INVALID_SIGNER": "Signers must belong to their side and not repeat.",
+        "SIGNERS_BOTH_SIDES": "At least one signer per side is needed.",
+        "INVALID_REVIEWER": "The reviewer must be a buyer contract officer.",
+        "FILE_REQUIRED": "Choose the contract file.",
+        "DRAFT_LOCKED": "The terms are locked; cancel the signing to edit.",
+        "INVALID_CODE": "The contract code changed; reload the page.",
+        "BUYER_EDITORS_ONLY": "Only buyer contract officers and owners can create a file.",
+        "UNKNOWN": "The file could not be saved."
+      },
+      "placeholders": {
+        "type": "Choose contract type",
+        "title": "e.g. Supply equipment for the practice lab",
+        "supplier": "Find and choose a supplier",
+        "reviewer": "Choose the buyer's contract officer",
+        "value": "0.01–1000000.00",
+        "date": "YYYY-MM-DD",
+        "policy": "Choose approval policy",
+        "grace": "0–60",
+        "rate": "0.00–5.00",
+        "cap": "0.00–100.00"
+      },
+      "ruleVersion": "Pinned rule version: {{id}}. Later configuration changes do not replace this draft’s version."
+    },
+    "checks": {
+      "title": "Checks on the uploaded file",
+      "readable": {
+        "title": "Content is readable.",
+        "detail": "{{pages}} pages, not a scan."
+      },
+      "ready": {
+        "title": "Ready to assign signature positions.",
+        "detail": "The signing flow has {{steps}} steps, each needing a signature box on the PDF page."
+      },
+      "unsigned": {
+        "title": "No digital signature yet",
+        "detail": "in the file: expected for a new contract."
+      }
+    },
+    "preview": {
+      "title": "Preview",
+      "page": "Page {{page}} / {{total}}",
+      "partyA": "PARTY A REPRESENTATIVE",
+      "partyB": "PARTY B REPRESENTATIVE"
+    },
+    "intro": "Step 1/5. A new contract is cut into milestones by the Data Pack workflow of its type, so the same rules as the organiser's 405 milestones apply."
+  }
+}

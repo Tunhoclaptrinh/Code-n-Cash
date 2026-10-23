@@ -1,0 +1,255 @@
+[
+  {
+    "name": "organizations",
+    "managedOrigins": ["DATA_PACK", "SEED"],
+    "fields": [
+      {
+        "key": "name",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "code",
+        "type": "string",
+        "required": true,
+        "maxLength": 40,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+      },
+      {
+        "key": "kind",
+        "type": "select",
+        "required": true,
+        "options": ["BUYER", "SUPPLIER", "INTERNAL"]
+      },
+      {
+        "key": "email",
+        "type": "email",
+        "maxLength": 254
+      }
+    ]
+  },
+  {
+    "name": "users",
+    "fields": [
+      {
+        "key": "displayName",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "email",
+        "type": "email",
+        "required": true,
+        "maxLength": 254
+      },
+      {
+        "key": "title",
+        "type": "string",
+        "maxLength": 250
+      },
+      {
+        "key": "role",
+        "type": "select",
+        "required": true,
+        "options": [
+          "CONTRACT_OWNER",
+          "FINANCE_APPROVER",
+          "SECONDARY_APPROVER",
+          "LEGAL_REVIEWER",
+          "ADMIN_AUDITOR",
+          "SYSTEM_ADMIN",
+          "AUDITOR",
+          "SUPPLIER"
+        ]
+      },
+      {
+        "key": "organizationId",
+        "type": "string",
+        "required": true,
+        "ref": "organizations",
+        "maxLength": 250
+      },
+      {
+        "key": "partyId",
+        "type": "string",
+        "maxLength": 250
+      },
+      {
+        "key": "active",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "name": "contract-drafts",
+    "managedOrigins": ["DATA_PACK", "SEED", "APP"],
+    "fields": [
+      {
+        "key": "code",
+        "type": "string",
+        "required": true,
+        "maxLength": 40,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+      },
+      {
+        "key": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "supplierId",
+        "type": "string",
+        "required": true,
+        "ref": "organizations",
+        "maxLength": 250
+      },
+      {
+        "key": "contractType",
+        "type": "select",
+        "required": true,
+        "options": [
+          "GOODS_SUPPLY",
+          "SERVICES",
+          "SOFTWARE_IMPLEMENTATION",
+          "MAINTENANCE"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "milestone-templates",
+    "managedOrigins": ["DATA_PACK"],
+    "fields": [
+      {
+        "key": "name",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "workflowTemplate",
+        "type": "select",
+        "required": true,
+        "options": [
+          "WF_GOODS_4STAGE",
+          "WF_SERVICE_4STAGE",
+          "WF_SOFTWARE_5STAGE",
+          "WF_MAINTENANCE_3STAGE"
+        ]
+      },
+      {
+        "key": "sequence",
+        "type": "number",
+        "required": true,
+        "min": 1,
+        "max": 20,
+        "integer": true
+      },
+      {
+        "key": "milestoneType",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "requiredEvents",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "paymentPercent",
+        "type": "string",
+        "required": true,
+        "maxLength": 250,
+        "pattern": "^(?:100(?:\\.0{1,2})?|\\d{1,2}(?:\\.\\d{1,2})?)$"
+      },
+      {
+        "key": "latePenalty",
+        "type": "boolean"
+      },
+      {
+        "key": "offsetDays",
+        "type": "number",
+        "required": true,
+        "min": 0,
+        "max": 36500,
+        "integer": true
+      }
+    ]
+  },
+  {
+    "name": "settings",
+    "managedOrigins": ["DATA_PACK"],
+    "fields": [
+      {
+        "key": "name",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "value",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      }
+    ]
+  },
+  {
+    "name": "documents",
+    "readOnly": true,
+    "fields": [
+      {
+        "key": "name",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "contractId",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "sha256",
+        "type": "string",
+        "maxLength": 250
+      },
+      {
+        "key": "size",
+        "type": "number"
+      }
+    ]
+  },
+  {
+    "name": "audit",
+    "readOnly": true,
+    "fields": [
+      {
+        "key": "action",
+        "type": "string",
+        "maxLength": 250
+      },
+      {
+        "key": "resource",
+        "type": "string",
+        "maxLength": 250
+      },
+      {
+        "key": "actorId",
+        "type": "string",
+        "maxLength": 250
+      },
+      {
+        "key": "recordId",
+        "type": "string",
+        "maxLength": 250
+      }
+    ]
+  }
+]

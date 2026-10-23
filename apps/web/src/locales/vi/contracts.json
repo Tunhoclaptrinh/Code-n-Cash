@@ -1,0 +1,259 @@
+{
+  "breadcrumb": {
+    "home": "Trang chủ",
+    "contracts": "Hợp đồng",
+    "upload": "Tải hợp đồng lên"
+  },
+  "contractList": {
+    "title": "Hợp đồng",
+    "subtitle_one": "{{count}} hợp đồng · {{organization}}",
+    "subtitle_other": "{{count}} hợp đồng · {{organization}}",
+    "intro": "Danh sách lấy từ Data Pack của BTC (100 hợp đồng) cùng các hợp đồng bổ sung để demo. Trạng thái hợp đồng được tổng hợp từ quyết định của engine trên từng mốc (đặc tả mục 9.3).",
+    "upload": "Tải hợp đồng lên",
+    "disputeFlag": "Có tranh chấp",
+    "tiles": {
+      "YOUR_TURN": "Đến lượt tôi",
+      "PENDING_CONDITIONS": "Đang chờ điều kiện",
+      "NEEDS_REVIEW": "Có mốc bị từ chối",
+      "AWAITING_SIGNATURE": "Nháp và đang ký",
+      "ALL_MILESTONES_ELIGIBLE": "Mọi mốc đủ điều kiện"
+    },
+    "filters": {
+      "searchPlaceholder": "Tìm theo mã, tên hợp đồng, bên mua, nhà cung cấp (không cần dấu)",
+      "typeLabel": "Loại hợp đồng",
+      "policyLabel": "Chính sách phê duyệt",
+      "originLabel": "Nguồn dữ liệu",
+      "statusLabel": "Trạng thái"
+    },
+    "table": {
+      "columns": {
+        "contract": "Hợp đồng",
+        "buyer": "Bên mua",
+        "supplier": "Nhà cung cấp",
+        "value": "Giá trị (triệu VND)",
+        "payable": "Đủ điều kiện chi (triệu VND)",
+        "penalty": "Tiền phạt (triệu VND)",
+        "progress": "Tiến độ các mốc",
+        "status": "Trạng thái",
+        "waiting": "Đang chờ",
+        "actions": "Thao tác"
+      },
+      "empty": "Không có hợp đồng phù hợp"
+    },
+    "progress": {
+      "eligible": "{{eligible}}/{{total}} mốc đủ điều kiện",
+      "hold_one": "{{count}} giữ",
+      "hold_other": "{{count}} giữ",
+      "penalty_one": "{{count}} phạt",
+      "penalty_other": "{{count}} phạt",
+      "none": "Chưa có mốc"
+    },
+    "waiting": {
+      "you": "Bạn:",
+      "draft": "Hoàn tất hồ sơ và số hoá điều khoản",
+      "signing": "Chờ {{name}} ký ({{signed}}/{{total}})"
+    },
+    "actions": {
+      "signNow": "Ký ngay",
+      "completeDraft": "Tiếp tục hồ sơ",
+      "act": "Xử lý ngay",
+      "open": "Mở hợp đồng",
+      "detail": "Xem nhanh",
+      "verify": "Kiểm tra chữ ký",
+      "activity": "Xem nhật ký",
+      "more": "Thao tác khác"
+    },
+    "tabs": {
+      "ALL": "Tất cả"
+    },
+    "detail": {
+      "title": "Tên hợp đồng"
+    },
+    "modal": {
+      "overview": "Tổng quan",
+      "kind": "Loại và workflow",
+      "term": "Thời hạn",
+      "penaltyTerms": "Điều khoản phạt",
+      "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
+      "ruleSet": "Bộ rule",
+      "payment": "Thanh toán theo quyết định của engine",
+      "eligible": "Đủ điều kiện chi",
+      "penalty": "Phạt",
+      "held": "Đang giữ",
+      "rejected": "Bị từ chối",
+      "transferred": "Đã chuyển chi",
+      "milestone": "Mốc",
+      "milestones_one": "{{count}} mốc",
+      "milestones_other": "{{count}} mốc",
+      "participants": "Người tham gia",
+      "events_one": "{{count}} event",
+      "events_other": "{{count}} event",
+      "at": "Thời điểm",
+      "event": "Event",
+      "actor": "Người thực hiện",
+      "due": "Hạn",
+      "paid": "Đủ điều kiện chi",
+      "discard": "Đóng",
+      "cancelSigning": "Hủy luồng ký",
+      "cancelBody": "Hủy luồng ký của {{code}} và đưa hợp đồng về bản nháp. Chỉ làm được khi chưa ai ký; thao tác được ghi nhật ký.",
+      "cancelled": "Đã hủy luồng ký, hợp đồng về bản nháp",
+      "openPage": "Mở trang chi tiết"
+    }
+  },
+  "contractUpload": {
+    "steps": {
+      "label": "Các bước đăng ký hợp đồng",
+      "upload": "Tải lên",
+      "positions": "Vị trí ký",
+      "review": "Rà soát điều khoản",
+      "sign": "Ký số",
+      "effective": "Có hiệu lực"
+    },
+    "title": "Đăng ký hợp đồng mới",
+    "form": {
+      "type": {
+        "label": "Loại hợp đồng",
+        "stages": "Các mốc theo workflow:"
+      },
+      "code": {
+        "label": "Mã hợp đồng",
+        "value": "{{code}} (hệ thống cấp)"
+      },
+      "title": {
+        "label": "Tên hợp đồng",
+        "counter": "{{count}}/{{max}} ký tự",
+        "errors": {
+          "required": "Nhập tên hợp đồng."
+        }
+      },
+      "supplier": {
+        "label": "Nhà cung cấp"
+      },
+      "reviewer": {
+        "label": "Người rà soát bản số hóa",
+        "option": "{{role}}, {{organization}}"
+      },
+      "positionsNotice": {
+        "title": "Vị trí ký được gán ở bước sau",
+        "body": "Hệ thống không tự nhận diện vị trí ký. Bước sau, bạn gán một ô ký trên trang PDF cho từng người ký theo đúng thứ tự trên."
+      },
+      "file": {
+        "label": "Tệp hợp đồng",
+        "constraint": "PDF hoặc DOCX, tối đa 20 MB",
+        "meta": "{{size}} MB · {{pages}} trang · tải lên xong",
+        "metaNoPages": "{{size}} MB · tải lên xong",
+        "replace": "Thay tệp",
+        "replaceHint": "Thay tệp sau khi đã cấu hình sẽ buộc kiểm tra lại vị trí ký và bản số hóa, để chữ ký không rơi sai chỗ.",
+        "errors": {
+          "type": "Chỉ chấp nhận tệp PDF hoặc DOCX.",
+          "size": "Tệp vượt quá 20 MB.",
+          "required": "Chọn tệp hợp đồng."
+        },
+        "empty": "Chưa chọn tệp",
+        "choose": "Chọn tệp"
+      },
+      "appendix": {
+        "label": "Phụ lục đính kèm",
+        "optional": "không bắt buộc",
+        "drop": "Kéo thả hoặc chọn tệp phụ lục",
+        "remove": "Bỏ tệp {{name}}"
+      },
+      "actions": {
+        "cancel": "Hủy",
+        "continue": "Tiếp tục: gán vị trí ký"
+      },
+      "value": {
+        "label": "Giá trị hợp đồng",
+        "unit": "triệu VND"
+      },
+      "start": {
+        "label": "Ngày bắt đầu"
+      },
+      "end": {
+        "label": "Ngày kết thúc"
+      },
+      "policy": {
+        "label": "Chính sách phê duyệt chi"
+      },
+      "penalty": {
+        "grace": "Ân hạn (ngày)",
+        "rate": "Phạt / ngày",
+        "cap": "Trần phạt"
+      },
+      "signers": {
+        "label": "Người ký và thứ tự ký",
+        "hint": "Từ 2 đến 4 người, có ít nhất một người mỗi bên. Ký lần lượt từ trên xuống; người cuối cùng bắt buộc dùng chữ ký số. Khi người cuối ký xong, hệ thống ghi event CONTRACT_SIGNED của bên mua (ma trận 4.2).",
+        "presetLabel": "Mẫu nhanh:",
+        "presets": {
+          "BUYER_FIRST": "Bên mua ký trước",
+          "SUPPLIER_FIRST": "Nhà cung cấp ký trước",
+          "THREE_PARTY": "3 người: NCC → Tài chính → Chủ HĐ"
+        },
+        "person": "Chọn người ký",
+        "up": "Lên",
+        "down": "Xuống",
+        "remove": "Bỏ người này",
+        "add": "Thêm người ký",
+        "errors": {
+          "count": "Cần từ 2 đến 4 người ký.",
+          "missing": "Chọn người cho mọi bước ký.",
+          "duplicate": "Một người chỉ ký một lần.",
+          "bothSides": "Cần ít nhất một người ký của mỗi bên."
+        }
+      },
+      "errors": {
+        "TITLE_REQUIRED": "Nhập tên hợp đồng.",
+        "INVALID_TYPE": "Loại hợp đồng không hợp lệ.",
+        "INVALID_POLICY": "Chính sách phê duyệt không hợp lệ.",
+        "INVALID_VALUE": "Giá trị phải là số dương, tối đa 2 chữ số thập phân.",
+        "INVALID_DATES": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.",
+        "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–100%).",
+        "INVALID_SUPPLIER": "Chọn nhà cung cấp trong Data Pack.",
+        "SIGNER_COUNT": "Cần từ 2 đến 4 người ký.",
+        "INVALID_SIGNER": "Người ký phải thuộc đúng bên và không trùng nhau.",
+        "SIGNERS_BOTH_SIDES": "Cần ít nhất một người ký mỗi bên.",
+        "INVALID_REVIEWER": "Người rà soát phải là cán bộ hợp đồng của bên mua.",
+        "FILE_REQUIRED": "Chọn tệp hợp đồng.",
+        "DRAFT_LOCKED": "Hợp đồng đã khoá điều khoản; hủy luồng ký để sửa.",
+        "INVALID_CODE": "Mã hợp đồng đã đổi, tải lại trang.",
+        "BUYER_EDITORS_ONLY": "Chỉ cán bộ hợp đồng hoặc chủ hợp đồng bên mua được tạo hồ sơ.",
+        "UNKNOWN": "Không lưu được hồ sơ."
+      },
+      "placeholders": {
+        "type": "Chọn loại hợp đồng",
+        "title": "VD: Cung cấp thiết bị phòng thực hành",
+        "supplier": "Tìm và chọn nhà cung cấp",
+        "reviewer": "Chọn cán bộ hợp đồng bên mua",
+        "value": "0.01–1000000.00",
+        "date": "YYYY-MM-DD",
+        "policy": "Chọn chính sách phê duyệt",
+        "grace": "0–60",
+        "rate": "0.00–5.00",
+        "cap": "0.00–100.00"
+      },
+      "ruleVersion": "Phiên bản quy tắc đã gắn: {{id}}. Thay đổi cấu hình sau này không thay phiên bản của hồ sơ này."
+    },
+    "checks": {
+      "title": "Kiểm tra tệp vừa tải lên",
+      "readable": {
+        "title": "Đọc được nội dung.",
+        "detail": "{{pages}} trang, không phải bản scan."
+      },
+      "ready": {
+        "title": "Sẵn sàng gán vị trí ký.",
+        "detail": "Trình tự ký có {{steps}} bước, mỗi bước cần một ô ký trên trang PDF."
+      },
+      "unsigned": {
+        "title": "Chưa có chữ ký số nào",
+        "detail": "trong tệp: đúng với hợp đồng mới."
+      }
+    },
+    "preview": {
+      "title": "Xem trước",
+      "page": "Trang {{page}} / {{total}}",
+      "partyA": "ĐẠI DIỆN BÊN A",
+      "partyB": "ĐẠI DIỆN BÊN B"
+    },
+    "intro": "Bước 1/5. Hợp đồng mới được cắt thành mốc theo đúng workflow của loại hợp đồng trong Data Pack, nên được đánh giá bằng cùng bộ rule với 405 mốc của BTC."
+  }
+}

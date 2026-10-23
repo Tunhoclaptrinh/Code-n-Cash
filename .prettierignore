@@ -1,0 +1,7 @@
+dist
+node_modules
+pnpm-lock.yaml
+BangD-Case4
+artifacts
+.data
+docs/archive

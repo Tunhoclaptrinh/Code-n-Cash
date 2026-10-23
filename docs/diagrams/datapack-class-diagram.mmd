@@ -1,0 +1,295 @@
+classDiagram
+direction TB
+%% All 10 present CSVs; no invented tables.
+%% PK = dictionary; UK/CK = verified candidate keys; ? = dictionary nullable YES.
+%% Solid = row reference. Dashed = group join / list / generated output / metadata / comparison.
+class parties {
+  <<CORE>>
+  %% PK
+  +string party_id
+  +string party_name
+  +category party_type
+  %% FK
+  +string parent_party_id
+  +category organization_category
+  +category region
+  +category country
+  +category approval_role
+  +integer approval_level
+  +decimal approval_limit_vnd_mn
+  +string_list allowed_event_types
+  +boolean can_approve_payment
+  +boolean can_raise_dispute
+  +category status
+  +boolean data_is_synthetic
+}
+note for parties "65 rows / 15 columns<br/>PK: party_id; parent_party_id tự tham chiếu.<br/>BUYER / SUPPLIER / APPROVER cùng một bảng."
+class contracts {
+  <<CORE>>
+  %% PK
+  +string contract_id
+  +string contract_title
+  +category contract_type
+  %% FK
+  +string buyer_id
+  %% FK
+  +string supplier_id
+  +decimal contract_value_vnd_mn
+  +category currency
+  +date signing_date
+  +date start_date
+  +date end_date
+  +category workflow_template
+  %% JOIN
+  +category rule_set_id
+  +category approval_policy
+  +integer approval_quorum
+  +boolean auto_release_allowed
+  +integer grace_period_days
+  +decimal penalty_rate_pct_per_day
+  +decimal max_penalty_pct
+  +category initial_contract_status
+  +boolean data_is_synthetic
+}
+note for contracts "100 rows / 20 columns<br/>PK: contract_id; buyer_id và supplier_id → parties.<br/>UK quan sát: (contract_id) = 100 giá trị duy nhất."
+class payment_rules {
+  <<CORE>>
+  %% PK
+  +string rule_id
+  %% JOIN
+  +category rule_set_id
+  %% JOIN
+  +string release_rule_code
+  +category workflow_template
+  +category contract_type
+  +category applies_to_milestone_type
+  +integer priority
+  +category evaluation_order
+  +string rule_name
+  +category rule_group
+  +string condition_expression
+  +category decision
+  +category reason_code
+  +boolean stop_processing
+  +string payable_amount_formula
+  +string penalty_amount_formula
+  +string parameter_source
+  +string rule_description_vi
+  +boolean active
+  +boolean data_is_synthetic
+}
+note for payment_rules "128 rows / 20 columns<br/>PK: rule_id; UK quan sát: (release_rule_code, priority).<br/>16 scope × 8 rule; 4 rule_set_id. JOIN ≠ FK tới rule_id."
+class data_dictionary {
+  <<META>>
+  +integer field_order
+  %% CK
+  +string file_name
+  %% CK
+  +string field_name
+  +string data_type
+  +string nullable
+  +string unit
+  +string description
+  +string allowed_values_or_format
+  +string example_value
+  +string usage_note
+}
+note for data_dictionary "131 rows / 10 columns<br/>CK quan sát: (file_name, field_name).<br/>131 mô tả cột cho 7 CSV; field_order lặp theo file."
+class dataset_manifest_final {
+  <<META>>
+  %% UK
+  +string manifest_order
+  +string dataset_name
+  +string dataset_version
+  +date snapshot_date
+  +integer generation_seed
+  +category artifact_group
+  %% UK
+  +string file_name
+  +category file_format
+  +boolean public_release
+  +boolean required_for_teams
+  +boolean data_is_synthetic
+  +integer row_count
+  +integer column_count
+  +integer line_count
+  +string_list columns
+  +integer size_bytes
+  +string sha256
+  +string source_path_internal
+  +category status
+}
+note for dataset_manifest_final "16 rows / 19 columns<br/>UK quan sát: manifest_order và file_name.<br/>16 artifact được kê khai; không phải 16 CSV hiện có."
+class events {
+  <<CORE>>
+  %% PK
+  +string event_id
+  %% FK
+  +string contract_id
+  %% FK
+  +string milestone_id
+  +integer contract_event_sequence
+  +datetime event_timestamp
+  +category event_type
+  +category event_status
+  %% FK
+  +string actor_party_id
+  +category actor_party_type
+  +category actor_role
+  +category event_source
+  +string document_id
+  +decimal amount_vnd_mn
+  %% FK
+  +string reference_event_id
+  +string event_note
+  +boolean data_is_synthetic
+}
+note for events "1134 rows / 16 columns<br/>PK: event_id; reference_event_id → events.event_id.<br/>UK quan sát: (contract_id, contract_event_sequence)."
+class milestones {
+  <<CORE>>
+  %% PK
+  +string milestone_id
+  %% FK
+  +string contract_id
+  +integer milestone_sequence
+  +category milestone_type
+  +string milestone_name
+  +date due_date
+  +decimal payment_percent
+  +decimal planned_payment_vnd_mn
+  +category condition_logic
+  +string_list required_event_types
+  +string required_condition
+  +boolean invoice_required
+  +boolean approval_required
+  +integer required_approval_quorum
+  +string_list required_approval_roles
+  +boolean hold_on_open_dispute
+  +boolean late_penalty_applicable
+  +integer grace_period_days
+  +decimal penalty_rate_pct_per_day
+  +decimal max_penalty_pct
+  %% JOIN
+  +string release_rule_code
+  +category initial_milestone_status
+  +boolean data_is_synthetic
+}
+note for milestones "405 rows / 23 columns<br/>PK: milestone_id; UK quan sát: (contract_id, milestone_sequence).<br/>release_rule_code chọn nhóm 8 rule, không chọn 1 rule."
+class submission_output_template {
+  <<OUTPUT>>
+  %% FK
+  +string contract_id
+  %% UK/FK
+  +string milestone_id
+  +category contract_type
+  +integer milestone_sequence
+  +category milestone_type
+  +decimal planned_payment_vnd_mn
+  %% OUT
+  +category predicted_decision
+  %% OUT
+  +category predicted_milestone_status
+  %% OUT
+  +string_list conditions_met
+  %% OUT
+  +string_list missing_conditions
+  %% OUT
+  +decimal payable_amount_vnd_mn
+  %% OUT
+  +decimal penalty_amount_vnd_mn
+  %% OUT
+  +category reason_code
+  %% OUT
+  +string decision_reason
+  %% LIST
+  +string_list evidence_event_ids
+  %% OUT
+  +string rule_id_applied
+  %% OUT
+  +decimal confidence_score
+  %% OUT
+  +decimal processing_time_ms
+  %% OUT
+  +datetime evaluated_at
+  %% OUT
+  +string engine_name
+  %% OUT
+  +string audit_trace_id
+  %% OUT
+  +string notes
+}
+note for submission_output_template "405 rows / 22 columns<br/>UK: milestone_id trong một file nộp (405 dòng).<br/>6 cột có sẵn; 16 cột OUT chờ engine sinh kết quả."
+class scenario_labels_sample {
+  <<SAMPLE>>
+  %% PK
+  +string scenario_id
+  %% FK
+  +string contract_id
+  %% FK
+  +string milestone_id
+  +category contract_type
+  +category workflow_template
+  +category scenario_type
+  +category scenario_family
+  +category difficulty
+  +category primary_signal
+  +category expected_action_category
+  +string scenario_description_vi
+  +boolean is_public_sample
+  +boolean data_is_synthetic
+}
+note for scenario_labels_sample "20 rows / 13 columns<br/>PK: scenario_id; mỗi scenario gắn đúng 1 milestone.<br/>Mẫu công khai: 20 dòng; không phủ toàn bộ 405 mốc."
+class decision_sample {
+  <<SAMPLE>>
+  %% UK/FK
+  +string scenario_id
+  %% FK
+  +string contract_id
+  %% FK
+  +string milestone_id
+  +category scenario_type
+  +category expected_decision
+  +category reason_code
+  +decimal planned_payment_vnd_mn
+  +decimal penalty_amount_vnd_mn
+  +decimal payable_amount_vnd_mn
+  +integer required_event_count
+  +integer valid_required_event_count
+  +string_list missing_required_events
+  +integer unauthorized_required_event_count
+  +integer duplicate_event_count
+  +boolean open_dispute
+  +integer valid_rejection_count
+  +boolean approval_required
+  +integer valid_approval_count
+  +integer required_approval_quorum
+  +integer days_late_after_grace
+  %% LIST
+  +string_list evidence_event_ids
+  +string reference_reason_vi
+  +boolean is_public_sample
+  +boolean data_is_synthetic
+}
+note for decision_sample "20 rows / 24 columns<br/>UK quan sát: scenario_id; FK → scenario_labels_sample.<br/>20/20 scenario có đúng 1 đáp án trong pack hiện tại."
+parties "1" -- "0..*" contracts : R01 buyer_id
+parties "1" -- "0..*" contracts : R02 supplier_id
+parties "0..1" -- "0..*" parties : R03 parent_party_id
+contracts "1" -- "0..*" milestones : R04 contract_id
+contracts "1" -- "0..*" events : R05 contract_id
+milestones "1" -- "0..*" events : R06 milestone_id
+parties "1" -- "0..*" events : R07 actor_party_id
+events "0..1" -- "0..*" events : R08 reference_event_id
+contracts "0..*" .. "0..*" payment_rules : R09 rule_set_id (nhóm)
+payment_rules "0..*" .. "0..*" milestones : R10 release_rule_code (scope)
+contracts "1" -- "0..*" scenario_labels_sample : R11 contract_id
+milestones "1" -- "0..*" scenario_labels_sample : R12 milestone_id
+contracts "1" -- "0..*" decision_sample : R13 contract_id
+milestones "1" -- "0..*" decision_sample : R14 milestone_id
+scenario_labels_sample "1" -- "1" decision_sample : R15 scenario_id
+decision_sample "0..*" .. "0..*" events : R16 evidence_event_ids (tách ;)
+contracts "1" -- "0..*" submission_output_template : R17 contract_id
+milestones "1" -- "1" submission_output_template : R18 milestone_id
+payment_rules "0..1" .. "0..*" submission_output_template : R19 rule_id_applied (OUT)
+submission_output_template "0..*" .. "0..*" events : R20 evidence_event_ids (OUT; tách ;)
+dataset_manifest_final "1" .. "0..*" data_dictionary : R21 file_name (metadata)
+submission_output_template "1" .. "0..1" decision_sample : R22 milestone_id (đối chiếu mẫu)

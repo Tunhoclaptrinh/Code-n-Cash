@@ -1,0 +1,2824 @@
+{
+  "dataset": "CASE4_SMART_CONTRACT_WORKFLOW",
+  "version": "1.0-final",
+  "snapshot": "2026-10-18",
+  "tableCount": 10,
+  "fieldCount": 182,
+  "relationshipCount": 22,
+  "checks": [
+    {
+      "name": "csv_coverage",
+      "passed": true,
+      "detail": [
+        "contracts.csv",
+        "data_dictionary.csv",
+        "dataset_manifest_final.csv",
+        "decision_sample.csv",
+        "events.csv",
+        "milestones.csv",
+        "parties.csv",
+        "payment_rules.csv",
+        "scenario_labels_sample.csv",
+        "submission_output_template.csv"
+      ]
+    },
+    {
+      "name": "field_coverage",
+      "passed": true,
+      "detail": 182
+    },
+    {
+      "name": "unique:contracts:contract_id",
+      "passed": true,
+      "detail": 100
+    },
+    {
+      "name": "unique:parties:party_id",
+      "passed": true,
+      "detail": 65
+    },
+    {
+      "name": "unique:milestones:milestone_id",
+      "passed": true,
+      "detail": 405
+    },
+    {
+      "name": "unique:events:event_id",
+      "passed": true,
+      "detail": 1134
+    },
+    {
+      "name": "unique:payment_rules:rule_id",
+      "passed": true,
+      "detail": 128
+    },
+    {
+      "name": "unique:scenario_labels_sample:scenario_id",
+      "passed": true,
+      "detail": 20
+    },
+    {
+      "name": "unique:milestones:contract_id,milestone_sequence",
+      "passed": true,
+      "detail": 405
+    },
+    {
+      "name": "unique:events:contract_id,contract_event_sequence",
+      "passed": true,
+      "detail": 1134
+    },
+    {
+      "name": "unique:payment_rules:release_rule_code,priority",
+      "passed": true,
+      "detail": 128
+    },
+    {
+      "name": "unique:decision_sample:scenario_id",
+      "passed": true,
+      "detail": 20
+    },
+    {
+      "name": "unique:submission_output_template:milestone_id",
+      "passed": true,
+      "detail": 405
+    },
+    {
+      "name": "unique:data_dictionary:file_name,field_name",
+      "passed": true,
+      "detail": 131
+    },
+    {
+      "name": "unique:dataset_manifest_final:manifest_order",
+      "passed": true,
+      "detail": 16
+    },
+    {
+      "name": "unique:dataset_manifest_final:file_name",
+      "passed": true,
+      "detail": 16
+    },
+    {
+      "name": "dictionary_columns:contracts",
+      "passed": true,
+      "detail": 20
+    },
+    {
+      "name": "dictionary_columns:parties",
+      "passed": true,
+      "detail": 15
+    },
+    {
+      "name": "dictionary_columns:events",
+      "passed": true,
+      "detail": 16
+    },
+    {
+      "name": "dictionary_columns:payment_rules",
+      "passed": true,
+      "detail": 20
+    },
+    {
+      "name": "dictionary_columns:scenario_labels_sample",
+      "passed": true,
+      "detail": 13
+    },
+    {
+      "name": "dictionary_columns:decision_sample",
+      "passed": true,
+      "detail": 24
+    },
+    {
+      "name": "dictionary_columns:milestones",
+      "passed": true,
+      "detail": 23
+    },
+    {
+      "name": "reference:contracts.buyer_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:contracts.supplier_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:parties.parent_party_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:milestones.contract_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:events.contract_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:events.milestone_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:events.actor_party_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:events.reference_event_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:scenario_labels_sample.contract_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:scenario_labels_sample.milestone_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:decision_sample.contract_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:decision_sample.milestone_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:decision_sample.scenario_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:decision_sample.evidence_event_ids",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:submission_output_template.contract_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:submission_output_template.milestone_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:data_dictionary.file_name",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:contracts.rule_set_id",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reference:milestones.release_rule_code",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "buyer_supplier_types",
+      "passed": true,
+      "detail": "100 contracts"
+    },
+    {
+      "name": "approver_parent",
+      "passed": true,
+      "detail": "30 approvers; 35 roots"
+    },
+    {
+      "name": "rules_per_scope",
+      "passed": true,
+      "detail": "16 scopes × 8 rules"
+    },
+    {
+      "name": "milestone_scope",
+      "passed": true,
+      "detail": "405 milestones"
+    },
+    {
+      "name": "contract_milestone_consistency:events",
+      "passed": true,
+      "detail": 1134
+    },
+    {
+      "name": "contract_milestone_consistency:scenario_labels_sample",
+      "passed": true,
+      "detail": 20
+    },
+    {
+      "name": "contract_milestone_consistency:decision_sample",
+      "passed": true,
+      "detail": 20
+    },
+    {
+      "name": "contract_milestone_consistency:submission_output_template",
+      "passed": true,
+      "detail": 405
+    },
+    {
+      "name": "sample_scenario_consistency",
+      "passed": true,
+      "detail": "20 samples"
+    },
+    {
+      "name": "sample_one_to_one",
+      "passed": true,
+      "detail": "one decision per public scenario"
+    },
+    {
+      "name": "sample_evidence_same_milestone",
+      "passed": true,
+      "detail": "semicolon-separated ids"
+    },
+    {
+      "name": "event_references",
+      "passed": true,
+      "detail": "8 nonempty references"
+    },
+    {
+      "name": "output_coverage",
+      "passed": true,
+      "detail": "405 rows, each milestone once"
+    },
+    {
+      "name": "output_pending",
+      "passed": true,
+      "detail": "all 16 generated columns are blank in the source template"
+    },
+    {
+      "name": "manifest_schema:contracts.csv",
+      "passed": true,
+      "detail": "100 rows, 20 columns"
+    },
+    {
+      "name": "manifest_schema:events.csv",
+      "passed": true,
+      "detail": "1134 rows, 16 columns"
+    },
+    {
+      "name": "manifest_schema:milestones.csv",
+      "passed": true,
+      "detail": "405 rows, 23 columns"
+    },
+    {
+      "name": "manifest_schema:parties.csv",
+      "passed": true,
+      "detail": "65 rows, 15 columns"
+    },
+    {
+      "name": "manifest_schema:payment_rules.csv",
+      "passed": true,
+      "detail": "128 rows, 20 columns"
+    },
+    {
+      "name": "manifest_schema:data_dictionary.csv",
+      "passed": true,
+      "detail": "131 rows, 10 columns"
+    },
+    {
+      "name": "manifest_schema:decision_sample.csv",
+      "passed": true,
+      "detail": "20 rows, 24 columns"
+    },
+    {
+      "name": "manifest_schema:scenario_labels_sample.csv",
+      "passed": true,
+      "detail": "20 rows, 13 columns"
+    },
+    {
+      "name": "manifest_schema:submission_output_template.csv",
+      "passed": true,
+      "detail": "405 rows, 22 columns"
+    }
+  ],
+  "tables": {
+    "parties": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/01_data/parties.csv",
+      "rows": 65,
+      "sha256": "0a8ae13facd64750e57de7a7a7862716ba9c4ba9eb9fc22509817719df153fb9",
+      "fields": [
+        {
+          "name": "party_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "PK",
+          "blank_count": 0,
+          "description": "Mã duy nhất của một bên hoặc vai trò tham gia workflow.",
+          "unit": "",
+          "format": "Bddd;Sddd;Addd",
+          "usage_note": "Primary key."
+        },
+        {
+          "name": "party_name",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tên giả lập của tổ chức/vai trò.",
+          "unit": "",
+          "format": "",
+          "usage_note": "Dữ liệu giả lập."
+        },
+        {
+          "name": "party_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại bên tham gia.",
+          "unit": "",
+          "format": "BUYER;SUPPLIER;APPROVER",
+          "usage_note": "Dùng để kiểm tra quyền tạo event."
+        },
+        {
+          "name": "parent_party_id",
+          "type": "string",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 35,
+          "description": "Mã tổ chức mẹ đối với APPROVER.",
+          "unit": "",
+          "format": "Bddd hoặc blank",
+          "usage_note": "Blank cho BUYER/SUPPLIER; foreign key tới BUYER đối với APPROVER."
+        },
+        {
+          "name": "organization_category",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Nhóm hoạt động/tổ chức.",
+          "unit": "",
+          "format": "",
+          "usage_note": "Chủ yếu phục vụ metadata và mở rộng scenario."
+        },
+        {
+          "name": "region",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Khu vực giả lập của party.",
+          "unit": "",
+          "format": "HANOI;HO_CHI_MINH_CITY;DA_NANG;HAI_PHONG;CAN_THO",
+          "usage_note": ""
+        },
+        {
+          "name": "country",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mã quốc gia.",
+          "unit": "",
+          "format": "VN",
+          "usage_note": ""
+        },
+        {
+          "name": "approval_role",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Vai trò phê duyệt.",
+          "unit": "",
+          "format": "NONE;CONTRACT_OWNER;FINANCE_APPROVER;SECONDARY_APPROVER",
+          "usage_note": "BUYER/SUPPLIER có giá trị NONE."
+        },
+        {
+          "name": "approval_level",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cấp phê duyệt tương đối.",
+          "unit": "level",
+          "format": "0;1;2",
+          "usage_note": "0 cho party không phải approver."
+        },
+        {
+          "name": "approval_limit_vnd_mn",
+          "type": "decimal",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 35,
+          "description": "Hạn mức phê duyệt tham chiếu của approver.",
+          "unit": "VND_million",
+          "format": ">=0 hoặc blank",
+          "usage_note": "Có thể dùng ở Silver/Gold để kiểm tra approval nâng cao."
+        },
+        {
+          "name": "allowed_event_types",
+          "type": "string_list",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Danh sách event type party được phép tạo.",
+          "unit": "",
+          "format": "semicolon-separated",
+          "usage_note": "Dùng dấu ';' để phân tách."
+        },
+        {
+          "name": "can_approve_payment",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Party có quyền tạo approval thanh toán hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "can_raise_dispute",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Party có quyền tạo tranh chấp hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "status",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Trạng thái hoạt động của party.",
+          "unit": "",
+          "format": "ACTIVE",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ xác nhận dữ liệu là giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        }
+      ]
+    },
+    "contracts": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/01_data/contracts.csv",
+      "rows": 100,
+      "sha256": "53c40ecb4363b2b88f86cc6c07924d1713997455194f215ebc1e6b4ca986e805",
+      "fields": [
+        {
+          "name": "contract_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "PK",
+          "blank_count": 0,
+          "description": "Mã hợp đồng duy nhất.",
+          "unit": "",
+          "format": "CTdddd",
+          "usage_note": "Primary key; join sang milestones.csv và events.csv."
+        },
+        {
+          "name": "contract_title",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tên/mô tả ngắn của hợp đồng giả lập.",
+          "unit": "",
+          "format": "",
+          "usage_note": "Chỉ phục vụ hiển thị; không phải tên hợp đồng thực tế."
+        },
+        {
+          "name": "contract_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Nhóm nghiệp vụ chính của hợp đồng.",
+          "unit": "",
+          "format": "GOODS_SUPPLY;SERVICES;SOFTWARE_IMPLEMENTATION;MAINTENANCE",
+          "usage_note": "Quyết định workflow template và cấu trúc milestone."
+        },
+        {
+          "name": "buyer_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Mã bên mua/đơn vị đặt hàng.",
+          "unit": "",
+          "format": "Bddd",
+          "usage_note": "Foreign key tới parties.csv với party_type=BUYER."
+        },
+        {
+          "name": "supplier_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Mã nhà cung cấp.",
+          "unit": "",
+          "format": "Sddd",
+          "usage_note": "Foreign key tới parties.csv với party_type=SUPPLIER."
+        },
+        {
+          "name": "contract_value_vnd_mn",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tổng giá trị hợp đồng.",
+          "unit": "VND_million",
+          "format": ">=0",
+          "usage_note": "Tổng planned_payment_vnd_mn của các milestone phải bằng giá trị này."
+        },
+        {
+          "name": "currency",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Đồng tiền của hợp đồng.",
+          "unit": "",
+          "format": "VND",
+          "usage_note": "Các trường *_vnd_mn dùng đơn vị triệu VND."
+        },
+        {
+          "name": "signing_date",
+          "type": "date",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Ngày ký hợp đồng.",
+          "unit": "",
+          "format": "YYYY-MM-DD",
+          "usage_note": ""
+        },
+        {
+          "name": "start_date",
+          "type": "date",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Ngày bắt đầu thực hiện hợp đồng.",
+          "unit": "",
+          "format": "YYYY-MM-DD",
+          "usage_note": "Không sớm hơn signing_date."
+        },
+        {
+          "name": "end_date",
+          "type": "date",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Ngày kết thúc theo kế hoạch.",
+          "unit": "",
+          "format": "YYYY-MM-DD",
+          "usage_note": "Không sớm hơn start_date."
+        },
+        {
+          "name": "workflow_template",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mẫu workflow áp dụng cho hợp đồng.",
+          "unit": "",
+          "format": "WF_GOODS_4STAGE;WF_SERVICE_4STAGE;WF_SOFTWARE_5STAGE;WF_MAINTENANCE_3STAGE",
+          "usage_note": "Dùng để xác định số lượng và loại milestone."
+        },
+        {
+          "name": "rule_set_id",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "JOIN",
+          "blank_count": 0,
+          "description": "Mã bộ quy tắc thanh toán áp dụng.",
+          "unit": "",
+          "format": "R_GOODS_STD;R_SERVICE_STD;R_SOFTWARE_STD;R_MAINTENANCE_STD",
+          "usage_note": "Join logic sang payment_rules.csv."
+        },
+        {
+          "name": "approval_policy",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Chính sách phê duyệt thanh toán ở cấp hợp đồng.",
+          "unit": "",
+          "format": "AUTO_IF_ALL_CONDITIONS;SINGLE_BUYER_APPROVAL;DUAL_APPROVAL;FINANCE_PLUS_OWNER",
+          "usage_note": "Được cụ thể hóa tại milestone."
+        },
+        {
+          "name": "approval_quorum",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số phê duyệt hợp lệ tối thiểu khi policy yêu cầu approval.",
+          "unit": "count",
+          "format": "0;1;2",
+          "usage_note": "AUTO_IF_ALL_CONDITIONS có quorum=0."
+        },
+        {
+          "name": "auto_release_allowed",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cho biết có được tự động RELEASE khi đủ điều kiện mà không cần approval thủ công hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "grace_period_days",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số ngày gia hạn sau due_date trước khi tính phạt chậm.",
+          "unit": "day",
+          "format": ">=0",
+          "usage_note": "Được kế thừa vào milestones.csv."
+        },
+        {
+          "name": "penalty_rate_pct_per_day",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tỷ lệ phạt mỗi ngày trễ sau grace period.",
+          "unit": "percent_per_day",
+          "format": ">=0",
+          "usage_note": "Tính trên planned_payment_vnd_mn của milestone có áp dụng phạt."
+        },
+        {
+          "name": "max_penalty_pct",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Trần tỷ lệ phạt tối đa của milestone.",
+          "unit": "percent",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "initial_contract_status",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Trạng thái khởi tạo của hợp đồng.",
+          "unit": "",
+          "format": "ACTIVE",
+          "usage_note": "Trạng thái workflow về sau phải được suy ra từ events/rules, không hard-code."
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ xác nhận dữ liệu là giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": "Không đại diện cho hợp đồng/doanh nghiệp thực tế."
+        }
+      ]
+    },
+    "payment_rules": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/01_data/payment_rules.csv",
+      "rows": 128,
+      "sha256": "1b7c40ea9d18da8d9e1bc74365ae356fa50af36bb9898eaf4563f90e2d915d8b",
+      "fields": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "PK",
+          "blank_count": 0,
+          "description": "Mã rule duy nhất.",
+          "unit": "",
+          "format": "PRdddd",
+          "usage_note": "Primary key."
+        },
+        {
+          "name": "rule_set_id",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "JOIN",
+          "blank_count": 0,
+          "description": "Bộ quy tắc chứa rule.",
+          "unit": "",
+          "format": "R_GOODS_STD;R_SERVICE_STD;R_SOFTWARE_STD;R_MAINTENANCE_STD",
+          "usage_note": ""
+        },
+        {
+          "name": "release_rule_code",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "JOIN",
+          "blank_count": 0,
+          "description": "Mã rule scope theo milestone type.",
+          "unit": "",
+          "format": "rule_set_id:milestone_type",
+          "usage_note": "Join từ milestones.csv."
+        },
+        {
+          "name": "workflow_template",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Workflow mà rule áp dụng.",
+          "unit": "",
+          "format": "WF_*",
+          "usage_note": ""
+        },
+        {
+          "name": "contract_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại hợp đồng mà rule áp dụng.",
+          "unit": "",
+          "format": "GOODS_SUPPLY;SERVICES;SOFTWARE_IMPLEMENTATION;MAINTENANCE",
+          "usage_note": ""
+        },
+        {
+          "name": "applies_to_milestone_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại milestone mà rule áp dụng.",
+          "unit": "",
+          "format": "Theo workflow",
+          "usage_note": ""
+        },
+        {
+          "name": "priority",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Độ ưu tiên đánh giá rule.",
+          "unit": "priority",
+          "format": "10;20;30;40;50;60;70;80",
+          "usage_note": "Số nhỏ hơn được đánh giá trước."
+        },
+        {
+          "name": "evaluation_order",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Quy ước thứ tự đánh giá.",
+          "unit": "",
+          "format": "ASCENDING_PRIORITY",
+          "usage_note": ""
+        },
+        {
+          "name": "rule_name",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tên ngắn của rule.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "rule_group",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Nhóm chức năng của rule.",
+          "unit": "",
+          "format": "BLOCKING;VALIDATION;PENALTY;RELEASE;FALLBACK",
+          "usage_note": ""
+        },
+        {
+          "name": "condition_expression",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Biểu thức điều kiện của rule.",
+          "unit": "",
+          "format": "Simple rule DSL",
+          "usage_note": "Có thể triển khai bằng Python/JS/low-code; không yêu cầu parser chuyên dụng."
+        },
+        {
+          "name": "decision",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Quyết định khi rule khớp.",
+          "unit": "",
+          "format": "RELEASE;HOLD;REJECT;PENALTY",
+          "usage_note": ""
+        },
+        {
+          "name": "reason_code",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mã nguyên nhân chuẩn hóa.",
+          "unit": "",
+          "format": "OPEN_DISPUTE;REJECTION_PRESENT;UNAUTHORIZED_EVENT;MISSING_REQUIRED_EVENT;APPROVAL_QUORUM_NOT_MET;LATE_COMPLETION;ALL_CONDITIONS_MET;UNRESOLVED_CONDITION",
+          "usage_note": ""
+        },
+        {
+          "name": "stop_processing",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Dừng đánh giá các rule phía sau khi rule khớp.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": "Rule engine dùng first-match theo priority."
+        },
+        {
+          "name": "payable_amount_formula",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Công thức tính số tiền được phép thanh toán.",
+          "unit": "",
+          "format": "Rule expression",
+          "usage_note": "Đơn vị kết quả: VND_million."
+        },
+        {
+          "name": "penalty_amount_formula",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Công thức tính tiền phạt.",
+          "unit": "",
+          "format": "Rule expression",
+          "usage_note": "Đơn vị kết quả: VND_million."
+        },
+        {
+          "name": "parameter_source",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Nguồn trường dữ liệu cần cho rule.",
+          "unit": "",
+          "format": "file:field list",
+          "usage_note": "Hỗ trợ traceability."
+        },
+        {
+          "name": "rule_description_vi",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mô tả rule bằng tiếng Việt.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Rule đang được kích hoạt.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ dữ liệu giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        }
+      ]
+    },
+    "data_dictionary": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/02_metadata/data_dictionary.csv",
+      "rows": 131,
+      "sha256": "1aba8caf9938031ad5e6ded646421ed7373fdb216f687af58c952a8664e594fa",
+      "fields": [
+        {
+          "name": "field_order",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "file_name",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "CK",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "field_name",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "CK",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "data_type",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "nullable",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 103,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "allowed_values_or_format",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 11,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "example_value",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "usage_note",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 67,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        }
+      ]
+    },
+    "dataset_manifest_final": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/02_metadata/dataset_manifest_final.csv",
+      "rows": 16,
+      "sha256": "98078b423c0007c4e271e7431242ff13364868856432b0be45f7492e333d2e70",
+      "fields": [
+        {
+          "name": "manifest_order",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "UK",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "dataset_name",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "dataset_version",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "snapshot_date",
+          "type": "date",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "generation_seed",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "artifact_group",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "file_name",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "UK",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "file_format",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "public_release",
+          "type": "boolean",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "required_for_teams",
+          "type": "boolean",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "row_count",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 2,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "column_count",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 2,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "line_count",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 14,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "columns",
+          "type": "string_list",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 2,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "size_bytes",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "sha256",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "source_path_internal",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "status",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        }
+      ]
+    },
+    "events": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/01_data/events.csv",
+      "rows": 1134,
+      "sha256": "09756ac62889121c70c69fc809e8426af6990c6a391c849a570f6f7b4969696e",
+      "fields": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "PK",
+          "blank_count": 0,
+          "description": "Mã event duy nhất.",
+          "unit": "",
+          "format": "EVddddd",
+          "usage_note": "Primary key."
+        },
+        {
+          "name": "contract_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Hợp đồng liên quan.",
+          "unit": "",
+          "format": "CTdddd",
+          "usage_note": "Foreign key tới contracts.csv."
+        },
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Milestone liên quan.",
+          "unit": "",
+          "format": "MSdddd",
+          "usage_note": "Foreign key tới milestones.csv."
+        },
+        {
+          "name": "contract_event_sequence",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Thứ tự event trong hợp đồng sau khi sắp theo thời gian.",
+          "unit": "sequence",
+          "format": "1..N",
+          "usage_note": "Liên tục theo contract_id."
+        },
+        {
+          "name": "event_timestamp",
+          "type": "datetime",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Thời điểm phát sinh event.",
+          "unit": "",
+          "format": "YYYY-MM-DDTHH:MM:SS",
+          "usage_note": ""
+        },
+        {
+          "name": "event_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại sự kiện workflow.",
+          "unit": "",
+          "format": "CONTRACT_SIGNED;DELIVERY;INVOICE;ACCEPTANCE;APPROVAL;REJECTION;DISPUTE_OPENED;DISPUTE_RESOLVED;REQUIREMENTS_APPROVED;UAT_PASSED;GO_LIVE;KICKOFF_CONFIRMED;WARRANTY_COMPLETED;SERVICE_ACTIVATED;SERVICE_COMPLETED",
+          "usage_note": "Một số event có thể xuất hiện lặp; cần xử lý duplicate."
+        },
+        {
+          "name": "event_status",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Trạng thái của event.",
+          "unit": "",
+          "format": "CONFIRMED;APPROVED;REJECTED;OPEN;RESOLVED",
+          "usage_note": ""
+        },
+        {
+          "name": "actor_party_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Party tạo/xác nhận event.",
+          "unit": "",
+          "format": "Bddd;Sddd;Addd",
+          "usage_note": "Foreign key tới parties.csv."
+        },
+        {
+          "name": "actor_party_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại party của actor.",
+          "unit": "",
+          "format": "BUYER;SUPPLIER;APPROVER",
+          "usage_note": "Dùng kiểm tra quyền của required event."
+        },
+        {
+          "name": "actor_role",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Vai trò của actor tại thời điểm event.",
+          "unit": "",
+          "format": "BUYER;SUPPLIER;CONTRACT_OWNER;FINANCE_APPROVER;SECONDARY_APPROVER",
+          "usage_note": ""
+        },
+        {
+          "name": "event_source",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Kênh sinh event.",
+          "unit": "",
+          "format": "PORTAL;API;WORKFLOW_ENGINE;MANUAL_ENTRY",
+          "usage_note": ""
+        },
+        {
+          "name": "document_id",
+          "type": "string",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mã chứng từ/tài liệu gắn với event.",
+          "unit": "",
+          "format": "",
+          "usage_note": "Có thể dùng kết hợp event_type để phát hiện duplicate."
+        },
+        {
+          "name": "amount_vnd_mn",
+          "type": "decimal",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 491,
+          "description": "Số tiền gắn với event khi phù hợp, ví dụ invoice/approval.",
+          "unit": "VND_million",
+          "format": ">=0 hoặc blank",
+          "usage_note": ""
+        },
+        {
+          "name": "reference_event_id",
+          "type": "string",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 1126,
+          "description": "Event được tham chiếu, ví dụ dispute resolved tham chiếu dispute opened.",
+          "unit": "",
+          "format": "EVddddd hoặc blank",
+          "usage_note": "Self-reference trong events.csv."
+        },
+        {
+          "name": "event_note",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mô tả ngắn của event.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ dữ liệu giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        }
+      ]
+    },
+    "milestones": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/01_data/milestones.csv",
+      "rows": 405,
+      "sha256": "427064354f8c20d21fb61880227c13ced7df043f64aa7fdeeb6a31239d9333ab",
+      "fields": [
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "PK",
+          "blank_count": 0,
+          "description": "Mã milestone duy nhất.",
+          "unit": "",
+          "format": "MSdddd",
+          "usage_note": "Primary key."
+        },
+        {
+          "name": "contract_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Hợp đồng chứa milestone.",
+          "unit": "",
+          "format": "CTdddd",
+          "usage_note": "Foreign key tới contracts.csv."
+        },
+        {
+          "name": "milestone_sequence",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Thứ tự milestone trong hợp đồng.",
+          "unit": "sequence",
+          "format": "1..N",
+          "usage_note": "Tăng dần trong mỗi contract_id."
+        },
+        {
+          "name": "milestone_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại milestone nghiệp vụ.",
+          "unit": "",
+          "format": "Theo workflow_template",
+          "usage_note": "Ví dụ SIGNING, DELIVERY, ACCEPTANCE, UAT_PASS..."
+        },
+        {
+          "name": "milestone_name",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tên hiển thị của milestone.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "due_date",
+          "type": "date",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Hạn hoàn thành milestone.",
+          "unit": "",
+          "format": "YYYY-MM-DD",
+          "usage_note": "Nằm trong khoảng start_date..end_date của hợp đồng."
+        },
+        {
+          "name": "payment_percent",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tỷ lệ giá trị hợp đồng gắn với milestone.",
+          "unit": "percent",
+          "format": "0..100",
+          "usage_note": "Tổng theo contract_id = 100%."
+        },
+        {
+          "name": "planned_payment_vnd_mn",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Giá trị thanh toán kế hoạch của milestone.",
+          "unit": "VND_million",
+          "format": ">=0",
+          "usage_note": "Tổng theo hợp đồng = contract_value_vnd_mn."
+        },
+        {
+          "name": "condition_logic",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cách kết hợp các điều kiện bắt buộc.",
+          "unit": "",
+          "format": "ALL",
+          "usage_note": "ALL nghĩa là tất cả điều kiện phải hợp lệ."
+        },
+        {
+          "name": "required_event_types",
+          "type": "string_list",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Danh sách loại event bắt buộc.",
+          "unit": "",
+          "format": "semicolon-separated",
+          "usage_note": "Mỗi loại cần ít nhất một event hợp lệ sau khử trùng lặp."
+        },
+        {
+          "name": "required_condition",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Biểu thức mô tả tổng hợp điều kiện release.",
+          "unit": "",
+          "format": "Human-readable DSL",
+          "usage_note": "Phục vụ minh họa; rule chính thức nằm trong payment_rules.csv."
+        },
+        {
+          "name": "invoice_required",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Milestone có yêu cầu hóa đơn hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "approval_required",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Milestone có yêu cầu approval thủ công hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "required_approval_quorum",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số approval hợp lệ tối thiểu.",
+          "unit": "count",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "required_approval_roles",
+          "type": "string_list",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 66,
+          "description": "Các vai trò được chấp nhận để đạt quorum.",
+          "unit": "",
+          "format": "semicolon-separated hoặc blank",
+          "usage_note": "Blank khi approval_required=FALSE."
+        },
+        {
+          "name": "hold_on_open_dispute",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Có HOLD thanh toán khi có dispute đang mở hay không.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        },
+        {
+          "name": "late_penalty_applicable",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Milestone có áp dụng phạt chậm hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "grace_period_days",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số ngày grace sau due_date.",
+          "unit": "day",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "penalty_rate_pct_per_day",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tỷ lệ phạt mỗi ngày sau grace period.",
+          "unit": "percent_per_day",
+          "format": ">=0",
+          "usage_note": "0 khi milestone không áp dụng phạt."
+        },
+        {
+          "name": "max_penalty_pct",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Trần tỷ lệ phạt.",
+          "unit": "percent",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "release_rule_code",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "JOIN",
+          "blank_count": 0,
+          "description": "Mã rule áp dụng cho đúng loại milestone.",
+          "unit": "",
+          "format": "rule_set_id:milestone_type",
+          "usage_note": "Join sang payment_rules.csv."
+        },
+        {
+          "name": "initial_milestone_status",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Trạng thái khởi tạo.",
+          "unit": "",
+          "format": "PLANNED",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ dữ liệu giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        }
+      ]
+    },
+    "submission_output_template": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/04_output_templates/submission_output_template.csv",
+      "rows": 405,
+      "sha256": "6b259efae5aa60b04c305784bccc98c646815a555783e13dbe5c778164fd0c32",
+      "fields": [
+        {
+          "name": "contract_id",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "UK/FK",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "contract_type",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "milestone_sequence",
+          "type": "integer",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "milestone_type",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "planned_payment_vnd_mn",
+          "type": "decimal",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "",
+          "blank_count": 0,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "predicted_decision",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "predicted_milestone_status",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "conditions_met",
+          "type": "string_list",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "missing_conditions",
+          "type": "string_list",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "payable_amount_vnd_mn",
+          "type": "decimal",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "penalty_amount_vnd_mn",
+          "type": "decimal",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "reason_code",
+          "type": "category",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "decision_reason",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "evidence_event_ids",
+          "type": "string_list",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "LIST",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "rule_id_applied",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "confidence_score",
+          "type": "decimal",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "processing_time_ms",
+          "type": "decimal",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "evaluated_at",
+          "type": "datetime",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "engine_name",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "audit_trace_id",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "nullable": null,
+          "source": "inferred",
+          "marks": "OUT",
+          "blank_count": 405,
+          "description": "",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        }
+      ]
+    },
+    "scenario_labels_sample": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/03_labels_sample/scenario_labels_sample.csv",
+      "rows": 20,
+      "sha256": "4f4a41e8f6eae2e4c5f05abc3dcce9f997101f8f0aea9c0a47f9afd4565eab19",
+      "fields": [
+        {
+          "name": "scenario_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "PK",
+          "blank_count": 0,
+          "description": "Mã scenario mẫu công khai.",
+          "unit": "",
+          "format": "SCddd",
+          "usage_note": "Primary key của bộ sample."
+        },
+        {
+          "name": "contract_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Hợp đồng của scenario.",
+          "unit": "",
+          "format": "CTdddd",
+          "usage_note": "Foreign key tới contracts.csv."
+        },
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Milestone đại diện cho scenario.",
+          "unit": "",
+          "format": "MSdddd",
+          "usage_note": "Foreign key tới milestones.csv."
+        },
+        {
+          "name": "contract_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại hợp đồng.",
+          "unit": "",
+          "format": "GOODS_SUPPLY;SERVICES;SOFTWARE_IMPLEMENTATION;MAINTENANCE",
+          "usage_note": ""
+        },
+        {
+          "name": "workflow_template",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Workflow áp dụng.",
+          "unit": "",
+          "format": "WF_*",
+          "usage_note": ""
+        },
+        {
+          "name": "scenario_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại tình huống mẫu.",
+          "unit": "",
+          "format": "CLEAN_RELEASE;LATE_PENALTY;OPEN_DISPUTE_HOLD;RESOLVED_DISPUTE_RELEASE;MISSING_EVENT_HOLD;APPROVAL_PENDING_HOLD;REJECTION;UNAUTHORIZED_EVENT_HOLD;DUPLICATE_EVENT_RELEASE",
+          "usage_note": "Chỉ là một phần nhãn công khai; không dùng để suy ra toàn bộ ground truth."
+        },
+        {
+          "name": "scenario_family",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Nhóm nghiệp vụ cấp cao của scenario.",
+          "unit": "",
+          "format": "NORMAL_FLOW;DELAY;DISPUTE;MISSING_EVIDENCE;APPROVAL;REJECTION;AUTHORIZATION;DATA_QUALITY",
+          "usage_note": ""
+        },
+        {
+          "name": "difficulty",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mức độ scenario mẫu.",
+          "unit": "",
+          "format": "EASY;MEDIUM;HARD",
+          "usage_note": ""
+        },
+        {
+          "name": "primary_signal",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tín hiệu chính cần nhận diện.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "expected_action_category",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Nhóm quyết định tham chiếu.",
+          "unit": "",
+          "format": "RELEASE;HOLD;REJECT;PENALTY",
+          "usage_note": ""
+        },
+        {
+          "name": "scenario_description_vi",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mô tả scenario bằng tiếng Việt.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "is_public_sample",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Đánh dấu đây là nhãn mẫu công khai.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ dữ liệu giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        }
+      ]
+    },
+    "decision_sample": {
+      "path": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow/03_labels_sample/decision_sample.csv",
+      "rows": 20,
+      "sha256": "47cea2a002023bfa71338a4e29aa832f8a274af69eee542b5075a1498e4b88bc",
+      "fields": [
+        {
+          "name": "scenario_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "UK/FK",
+          "blank_count": 0,
+          "description": "Mã scenario mẫu.",
+          "unit": "",
+          "format": "SCddd",
+          "usage_note": "Join với scenario_labels_sample.csv."
+        },
+        {
+          "name": "contract_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Mã hợp đồng.",
+          "unit": "",
+          "format": "CTdddd",
+          "usage_note": ""
+        },
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "FK",
+          "blank_count": 0,
+          "description": "Mã milestone được đánh giá.",
+          "unit": "",
+          "format": "MSdddd",
+          "usage_note": ""
+        },
+        {
+          "name": "scenario_type",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Loại scenario.",
+          "unit": "",
+          "format": "Xem scenario_labels_sample.csv",
+          "usage_note": ""
+        },
+        {
+          "name": "expected_decision",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Quyết định ground truth mẫu.",
+          "unit": "",
+          "format": "RELEASE;HOLD;REJECT;PENALTY",
+          "usage_note": ""
+        },
+        {
+          "name": "reason_code",
+          "type": "category",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Mã nguyên nhân của quyết định.",
+          "unit": "",
+          "format": "ALL_CONDITIONS_MET;LATE_COMPLETION;OPEN_DISPUTE;MISSING_REQUIRED_EVENT;APPROVAL_QUORUM_NOT_MET;REJECTION_PRESENT;UNAUTHORIZED_EVENT",
+          "usage_note": ""
+        },
+        {
+          "name": "planned_payment_vnd_mn",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Giá trị thanh toán kế hoạch của milestone.",
+          "unit": "VND_million",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "penalty_amount_vnd_mn",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Tiền phạt tham chiếu.",
+          "unit": "VND_million",
+          "format": ">=0",
+          "usage_note": "Bằng 0 nếu quyết định không phải PENALTY."
+        },
+        {
+          "name": "payable_amount_vnd_mn",
+          "type": "decimal",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số tiền đủ điều kiện thanh toán theo rule.",
+          "unit": "VND_million",
+          "format": ">=0",
+          "usage_note": "RELEASE: bằng planned; HOLD/REJECT: 0; PENALTY: planned - penalty."
+        },
+        {
+          "name": "required_event_count",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số loại required event của milestone.",
+          "unit": "count",
+          "format": ">=1",
+          "usage_note": ""
+        },
+        {
+          "name": "valid_required_event_count",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số required event hợp lệ sau kiểm tra quyền và khử trùng lặp.",
+          "unit": "count",
+          "format": "0..required_event_count",
+          "usage_note": ""
+        },
+        {
+          "name": "missing_required_events",
+          "type": "string_list",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 16,
+          "description": "Danh sách required event còn thiếu.",
+          "unit": "",
+          "format": "semicolon-separated hoặc blank",
+          "usage_note": ""
+        },
+        {
+          "name": "unauthorized_required_event_count",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số required event do party không có thẩm quyền tạo.",
+          "unit": "count",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "duplicate_event_count",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số event lặp được phát hiện theo event_type/document/actor.",
+          "unit": "count",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "open_dispute",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Có dispute chưa được resolve tại thời điểm đánh giá hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "valid_rejection_count",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số rejection hợp lệ.",
+          "unit": "count",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "approval_required",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Milestone có yêu cầu approval hay không.",
+          "unit": "",
+          "format": "TRUE;FALSE",
+          "usage_note": ""
+        },
+        {
+          "name": "valid_approval_count",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số approval hợp lệ, khác actor và đúng role.",
+          "unit": "count",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "required_approval_quorum",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Quorum approval cần đạt.",
+          "unit": "count",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "days_late_after_grace",
+          "type": "integer",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Số ngày trễ vượt quá grace period.",
+          "unit": "day",
+          "format": ">=0",
+          "usage_note": ""
+        },
+        {
+          "name": "evidence_event_ids",
+          "type": "string_list",
+          "nullable": "YES",
+          "source": "dictionary",
+          "marks": "LIST",
+          "blank_count": 0,
+          "description": "Danh sách event_id được dùng làm bằng chứng cho quyết định mẫu.",
+          "unit": "",
+          "format": "semicolon-separated",
+          "usage_note": "Phục vụ traceability."
+        },
+        {
+          "name": "reference_reason_vi",
+          "type": "string",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Giải thích tham chiếu bằng tiếng Việt.",
+          "unit": "",
+          "format": "",
+          "usage_note": ""
+        },
+        {
+          "name": "is_public_sample",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Đánh dấu dữ liệu mẫu công khai.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        },
+        {
+          "name": "data_is_synthetic",
+          "type": "boolean",
+          "nullable": "NO",
+          "source": "dictionary",
+          "marks": "",
+          "blank_count": 0,
+          "description": "Cờ dữ liệu giả lập.",
+          "unit": "",
+          "format": "TRUE",
+          "usage_note": ""
+        }
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "id": "R01",
+      "a": "parties",
+      "b": "contracts",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "buyer_id",
+      "kind": "FK",
+      "detail": "contracts.buyer_id → parties.party_id; party_type phải là BUYER."
+    },
+    {
+      "id": "R02",
+      "a": "parties",
+      "b": "contracts",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "supplier_id",
+      "kind": "FK",
+      "detail": "contracts.supplier_id → parties.party_id; party_type phải là SUPPLIER."
+    },
+    {
+      "id": "R03",
+      "a": "parties",
+      "b": "parties",
+      "ca": "0..1",
+      "cb": "0..*",
+      "label": "parent_party_id",
+      "kind": "FK",
+      "detail": "parties.parent_party_id → parties.party_id; APPROVER thuộc BUYER; BUYER/SUPPLIER để trống."
+    },
+    {
+      "id": "R04",
+      "a": "contracts",
+      "b": "milestones",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "contract_id",
+      "kind": "FK",
+      "detail": "milestones.contract_id → contracts.contract_id. Pack này có 3–5 milestone/hợp đồng."
+    },
+    {
+      "id": "R05",
+      "a": "contracts",
+      "b": "events",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "contract_id",
+      "kind": "FK",
+      "detail": "events.contract_id → contracts.contract_id; phải bằng contract_id của milestone tương ứng."
+    },
+    {
+      "id": "R06",
+      "a": "milestones",
+      "b": "events",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "milestone_id",
+      "kind": "FK",
+      "detail": "events.milestone_id → milestones.milestone_id; không suy ra rằng mỗi milestone luôn có event."
+    },
+    {
+      "id": "R07",
+      "a": "parties",
+      "b": "events",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "actor_party_id",
+      "kind": "FK",
+      "detail": "events.actor_party_id → parties.party_id. actor_party_type/actor_role là dữ liệu lặp, không phải FK."
+    },
+    {
+      "id": "R08",
+      "a": "events",
+      "b": "events",
+      "ca": "0..1",
+      "cb": "0..*",
+      "label": "reference_event_id",
+      "kind": "FK",
+      "detail": "events.reference_event_id → events.event_id khi có giá trị; 8 tham chiếu trong pack là RESOLVED → OPENED."
+    },
+    {
+      "id": "R09",
+      "a": "contracts",
+      "b": "payment_rules",
+      "ca": "0..*",
+      "cb": "0..*",
+      "label": "rule_set_id (nhóm)",
+      "kind": "JOIN",
+      "detail": "contracts.rule_set_id = payment_rules.rule_set_id; mỗi rule_set_id có nhiều rule, không phải khóa duy nhất."
+    },
+    {
+      "id": "R10",
+      "a": "payment_rules",
+      "b": "milestones",
+      "ca": "0..*",
+      "cb": "0..*",
+      "label": "release_rule_code (scope)",
+      "kind": "JOIN",
+      "detail": "milestones.release_rule_code = payment_rules.release_rule_code; N:M theo giá trị nhóm; mỗi mốc khớp 8 rule trong pack."
+    },
+    {
+      "id": "R11",
+      "a": "contracts",
+      "b": "scenario_labels_sample",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "contract_id",
+      "kind": "FK",
+      "detail": "scenario_labels_sample.contract_id → contracts.contract_id; nhất quán với milestone được gắn."
+    },
+    {
+      "id": "R12",
+      "a": "milestones",
+      "b": "scenario_labels_sample",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "milestone_id",
+      "kind": "FK",
+      "detail": "scenario_labels_sample.milestone_id → milestones.milestone_id; hiện 20 mốc có mẫu, mỗi mốc 1 mẫu."
+    },
+    {
+      "id": "R13",
+      "a": "contracts",
+      "b": "decision_sample",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "contract_id",
+      "kind": "FK",
+      "detail": "decision_sample.contract_id → contracts.contract_id; phải khớp scenario và milestone."
+    },
+    {
+      "id": "R14",
+      "a": "milestones",
+      "b": "decision_sample",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "milestone_id",
+      "kind": "FK",
+      "detail": "decision_sample.milestone_id → milestones.milestone_id; phải khớp scenario_id tương ứng."
+    },
+    {
+      "id": "R15",
+      "a": "scenario_labels_sample",
+      "b": "decision_sample",
+      "ca": "1",
+      "cb": "1",
+      "label": "scenario_id",
+      "kind": "FK",
+      "detail": "decision_sample.scenario_id → scenario_labels_sample.scenario_id; 1:1 được kiểm trên 20 mẫu hiện tại."
+    },
+    {
+      "id": "R16",
+      "a": "decision_sample",
+      "b": "events",
+      "ca": "0..*",
+      "cb": "0..*",
+      "label": "evidence_event_ids (tách ;)",
+      "kind": "LIST",
+      "detail": "Mỗi token trong decision_sample.evidence_event_ids → events.event_id; cùng milestone; không có bảng nối vật lý."
+    },
+    {
+      "id": "R17",
+      "a": "contracts",
+      "b": "submission_output_template",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "contract_id",
+      "kind": "FK",
+      "detail": "submission_output_template.contract_id → contracts.contract_id; cùng contract với milestone."
+    },
+    {
+      "id": "R18",
+      "a": "milestones",
+      "b": "submission_output_template",
+      "ca": "1",
+      "cb": "1",
+      "label": "milestone_id",
+      "kind": "FK",
+      "detail": "submission_output_template.milestone_id → milestones.milestone_id; đúng 1 dòng/mốc trong template 405 dòng."
+    },
+    {
+      "id": "R19",
+      "a": "payment_rules",
+      "b": "submission_output_template",
+      "ca": "0..1",
+      "cb": "0..*",
+      "label": "rule_id_applied (OUT)",
+      "kind": "OUT",
+      "detail": "Sau khi đánh giá: rule_id_applied → payment_rules.rule_id, rule thắng phải thuộc scope của milestone. Template gốc để trống."
+    },
+    {
+      "id": "R20",
+      "a": "submission_output_template",
+      "b": "events",
+      "ca": "0..*",
+      "cb": "0..*",
+      "label": "evidence_event_ids (OUT; tách ;)",
+      "kind": "LIST",
+      "detail": "Sau khi sinh kết quả: mỗi token evidence_event_ids → events.event_id, cùng milestone. Template gốc để trống."
+    },
+    {
+      "id": "R21",
+      "a": "dataset_manifest_final",
+      "b": "data_dictionary",
+      "ca": "1",
+      "cb": "0..*",
+      "label": "file_name (metadata)",
+      "kind": "META",
+      "detail": "data_dictionary.file_name = dataset_manifest_final.file_name. Liên kết metadata ở cấp file; không phải FK nghiệp vụ."
+    },
+    {
+      "id": "R22",
+      "a": "submission_output_template",
+      "b": "decision_sample",
+      "ca": "1",
+      "cb": "0..1",
+      "label": "milestone_id (đối chiếu mẫu)",
+      "kind": "COMPARE",
+      "detail": "Join đối chiếu kết quả theo milestone_id trên 20 mốc có sample; không phải khóa ngoại. Bội số chỉ đúng với pack này."
+    }
+  ]
+}

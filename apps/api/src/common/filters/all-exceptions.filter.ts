@@ -5,10 +5,13 @@ import {
   HttpException,
   Logger,
 } from "@nestjs/common";
+import { randomUUID, createHash } from "node:crypto";
+import { Repository } from "../repository";
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  constructor(private repo: Repository) {}
   private log = new Logger("HTTP");
-  catch(error: unknown, host: ArgumentsHost) {
+  async catch(error: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp(),
       res = ctx.getResponse(),
       req = ctx.getRequest();
@@ -19,6 +22,39 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? detail
         : ((detail as { message?: unknown })?.message ?? "INTERNAL_ERROR");
     if (status === 500) this.log.error(error);
+    if (status >= 400 && status !== 404) {
+      try {
+        const now = new Date().toISOString();
+        await this.repo.mutate("audit", (entries) =>
+          entries.push({
+            id: randomUUID(),
+            version: 1,
+            createdAt: now,
+            updatedAt: now,
+            organizationId: req.user?.organizationId ?? "OPS",
+            actorId: req.user?.id ?? "anonymous",
+            actorName: req.user?.displayName ?? "anonymous",
+            actorRole: req.user?.role ?? "SYSTEM",
+            action: "REQUEST_FAILED",
+            resource: req.params?.resource ?? req.params?.module ?? "auth",
+            recordId: req.params?.id ?? "",
+            outcome: "FAILED",
+            statusCode: status,
+            errorCode:
+              typeof message === "string" ? message : "VALIDATION_ERROR",
+            ...(req.body?.email && typeof req.body.email === "string"
+              ? {
+                  subjectHash: createHash("sha256")
+                    .update(req.body.email.trim().toLowerCase())
+                    .digest("hex"),
+                }
+              : {}),
+          }),
+        );
+      } catch (auditError) {
+        this.log.error("Could not record failed request", auditError);
+      }
+    }
     res.status(status).json({
       statusCode: status,
       code: typeof message === "string" ? message : "VALIDATION_ERROR",

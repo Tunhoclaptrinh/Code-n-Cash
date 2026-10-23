@@ -124,6 +124,10 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
             className={styles.note}
             rows={3}
             value={note}
+            placeholder={t("decision.note.placeholder")}
+            maxLength={2000}
+            showCount
+            onBlur={() => setNoteMissing(!note.trim())}
             aria-invalid={noteMissing}
             onChange={(event) => {
               setNote(event.target.value);

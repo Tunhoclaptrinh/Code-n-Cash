@@ -24,7 +24,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { ApprovalPolicy, ContractType, Side } from "@codecash/contracts";
+import { draftProblems } from "@codecash/contracts";
 import { ApiError } from "@/shared/api/client";
+import { platform } from "@/shared/api/platform";
 import { saveContractDraft } from "@/shared/api/domain";
 import { formatNumber } from "@/shared/lib/format";
 import { OriginTag } from "@/shared/ui/DomainTags";
@@ -87,10 +89,30 @@ export function ContractUploadForm({
   const [titleError, setTitleError] = useState(false);
   const [fileError, setFileError] = useState<"type" | "size" | null>(null);
   const [touched, setTouched] = useState(false);
+  const [dirty, setDirty] = useState<Record<string, boolean>>({});
   const fileInput = useRef<HTMLInputElement>(null);
   const appendixInput = useRef<HTMLInputElement>(null);
-  const set = <K extends keyof ContractDraft>(key: K, next: ContractDraft[K]) =>
+  const pendingFile = useRef<File | null>(null);
+  const set = <K extends keyof ContractDraft>(
+    key: K,
+    next: ContractDraft[K],
+  ) => {
+    setDirty((current) => ({ ...current, [key]: true }));
     setValue((current) => ({ ...current, [key]: next }));
+  };
+  const problems = draftProblems(value);
+  if (!value.supplierId) problems.supplierId = "INVALID_SUPPLIER";
+  if (!value.reviewerId) problems.reviewerId = "INVALID_REVIEWER";
+  const feedback = (key: string) => ({
+    validateStatus:
+      (touched || dirty[key]) && problems[key] ? ("error" as const) : undefined,
+    help:
+      (touched || dirty[key]) && problems[key]
+        ? td(`errors.${problems[key]}`)
+        : undefined,
+  });
+  const placeholder = (key: string) =>
+    t(`contractUpload.form.placeholders.${key}`);
   const setSigners = (signers: DraftSigner[]) => {
     set("signers", signers);
     onSignersChange?.(signers.length);
@@ -104,7 +126,19 @@ export function ContractUploadForm({
   const problem = signerProblem(value.signers);
 
   const save = useMutation({
-    mutationFn: saveContractDraft,
+    mutationFn: async (input: ContractDraft) => {
+      const saved = await saveContractDraft(input);
+      if (pendingFile.current) {
+        const upload = new FormData();
+        upload.append("file", pendingFile.current);
+        await platform.request(`/documents/${encodeURIComponent(saved.code)}`, {
+          method: "POST",
+          body: upload,
+        });
+        pendingFile.current = null;
+      }
+      return saved;
+    },
     onSuccess: async (saved) => {
       queryClient.setQueryData(["contract-draft"], saved);
       await queryClient.invalidateQueries({ queryKey: ["contract-summaries"] });
@@ -120,6 +154,7 @@ export function ContractUploadForm({
     if (!kind) return setFileError("type");
     if (chosen.size > FILE_MAX_BYTES) return setFileError("size");
     setFileError(null);
+    pendingFile.current = chosen;
     set("file", {
       name: chosen.name,
       sizeBytes: chosen.size,
@@ -173,7 +208,7 @@ export function ContractUploadForm({
       setTitleError(true);
       return;
     }
-    if (problem || !value.file.name) return;
+    if (Object.keys(problems).length || problem || !value.file.name) return;
     save.mutate({ ...value, title: value.title.trim() });
   }
 
@@ -183,11 +218,22 @@ export function ContractUploadForm({
 
   return (
     <BaseCard>
+      {value.ruleVersion ? (
+        <Alert
+          type="info"
+          showIcon
+          title={t("contractUpload.form.ruleVersion", {
+            id: value.ruleVersion.id.slice(0, 8),
+          })}
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
       <Form layout="vertical" onFinish={onContinue}>
         <Row gutter={16}>
           <Col xs={24} md={12}>
             <Form.Item label={t("contractUpload.form.type.label")} required>
               <Select<ContractType>
+                placeholder={placeholder("type")}
                 value={value.type}
                 onChange={(type) => set("type", type)}
                 options={options.types.map((type) => ({
@@ -227,15 +273,11 @@ export function ContractUploadForm({
           label={t("contractUpload.form.title.label")}
           htmlFor="contract-title"
           required
-          validateStatus={titleError ? "error" : undefined}
-          help={
-            titleError
-              ? t("contractUpload.form.title.errors.required")
-              : undefined
-          }
+          {...feedback("title")}
         >
           <Input
             id="contract-title"
+            placeholder={placeholder("title")}
             value={value.title}
             maxLength={TITLE_MAX_LENGTH}
             showCount
@@ -248,9 +290,14 @@ export function ContractUploadForm({
         </Form.Item>
         <Row gutter={16}>
           <Col xs={24} md={12}>
-            <Form.Item label={t("contractUpload.form.supplier.label")} required>
+            <Form.Item
+              label={t("contractUpload.form.supplier.label")}
+              required
+              {...feedback("supplierId")}
+            >
               <Select
                 showSearch
+                placeholder={placeholder("supplier")}
                 optionFilterProp="label"
                 value={value.supplierId}
                 onChange={changeSupplier}
@@ -262,9 +309,14 @@ export function ContractUploadForm({
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label={t("contractUpload.form.reviewer.label")} required>
+            <Form.Item
+              label={t("contractUpload.form.reviewer.label")}
+              required
+              {...feedback("reviewerId")}
+            >
               <Select
                 value={value.reviewerId}
+                placeholder={placeholder("reviewer")}
                 onChange={(reviewerId) => set("reviewerId", reviewerId)}
                 options={options.reviewers.map((reviewer) => ({
                   value: reviewer.userId,
@@ -279,9 +331,14 @@ export function ContractUploadForm({
         </Row>
         <Row gutter={16}>
           <Col xs={24} md={8}>
-            <Form.Item label={t("contractUpload.form.value.label")} required>
+            <Form.Item
+              label={t("contractUpload.form.value.label")}
+              required
+              {...feedback("valueMillion")}
+            >
               <Input
                 id="contract-value"
+                placeholder={placeholder("value")}
                 value={value.valueMillion}
                 inputMode="decimal"
                 suffix={t("contractUpload.form.value.unit")}
@@ -290,19 +347,32 @@ export function ContractUploadForm({
             </Form.Item>
           </Col>
           <Col xs={12} md={8}>
-            <Form.Item label={t("contractUpload.form.start.label")} required>
+            <Form.Item
+              label={t("contractUpload.form.start.label")}
+              required
+              {...feedback("startDate")}
+            >
               <Input
                 type="date"
+                placeholder={placeholder("date")}
+                aria-label={t("contractUpload.form.start.label")}
                 value={value.startDate}
                 onChange={(event) => set("startDate", event.target.value)}
               />
             </Form.Item>
           </Col>
           <Col xs={12} md={8}>
-            <Form.Item label={t("contractUpload.form.end.label")} required>
+            <Form.Item
+              label={t("contractUpload.form.end.label")}
+              required
+              {...feedback("endDate")}
+            >
               <Input
                 type="date"
                 value={value.endDate}
+                min={value.startDate || undefined}
+                placeholder={placeholder("date")}
+                aria-label={t("contractUpload.form.end.label")}
                 onChange={(event) => set("endDate", event.target.value)}
               />
             </Form.Item>
@@ -316,6 +386,7 @@ export function ContractUploadForm({
               extra={td(`policyHint.${value.approvalPolicy}`)}
             >
               <Select<ApprovalPolicy>
+                placeholder={placeholder("policy")}
                 value={value.approvalPolicy}
                 onChange={(policy) => set("approvalPolicy", policy)}
                 options={options.policies.map((policy) => ({
@@ -326,9 +397,14 @@ export function ContractUploadForm({
             </Form.Item>
           </Col>
           <Col xs={8} md={4}>
-            <Form.Item label={t("contractUpload.form.penalty.grace")}>
+            <Form.Item
+              label={t("contractUpload.form.penalty.grace")}
+              {...feedback("graceDays")}
+            >
               <InputNumber
                 min={0}
+                precision={0}
+                placeholder={placeholder("grace")}
                 max={60}
                 value={value.graceDays}
                 style={{ width: "100%" }}
@@ -337,9 +413,13 @@ export function ContractUploadForm({
             </Form.Item>
           </Col>
           <Col xs={8} md={4}>
-            <Form.Item label={t("contractUpload.form.penalty.rate")}>
+            <Form.Item
+              label={t("contractUpload.form.penalty.rate")}
+              {...feedback("penaltyRatePct")}
+            >
               <Input
                 value={value.penaltyRatePct}
+                placeholder={placeholder("rate")}
                 inputMode="decimal"
                 suffix="%"
                 onChange={(event) => set("penaltyRatePct", event.target.value)}
@@ -347,9 +427,13 @@ export function ContractUploadForm({
             </Form.Item>
           </Col>
           <Col xs={8} md={4}>
-            <Form.Item label={t("contractUpload.form.penalty.cap")}>
+            <Form.Item
+              label={t("contractUpload.form.penalty.cap")}
+              {...feedback("maxPenaltyPct")}
+            >
               <Input
                 value={value.maxPenaltyPct}
+                placeholder={placeholder("cap")}
                 inputMode="decimal"
                 suffix="%"
                 onChange={(event) => set("maxPenaltyPct", event.target.value)}

@@ -105,6 +105,7 @@ export default function ContractListPage() {
     ContractRow,
     Awaited<ReturnType<typeof listContracts>>
   >({
+    auditExport: "contracts",
     key: ["contract-summaries", user.id],
     fetch: listContracts,
     sort: { by: "contract", order: "asc" },

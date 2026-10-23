@@ -42,8 +42,21 @@ export class DocumentsController {
     file: { buffer: Buffer; originalname: string; size: number },
     @Req() req: SessionRequest,
   ) {
-    const draft = await this.base.get("contract-drafts", draftId, req.user);
-    if (!file || file.buffer.subarray(0, 5).toString() !== "%PDF-")
+    const candidate = (await this.repo.list("contract-drafts")).find(
+      (entry) => entry.id === draftId || entry.code === draftId,
+    );
+    const draft = await this.base.get(
+      "contract-drafts",
+      candidate?.id ?? draftId,
+      req.user,
+    );
+    if (draft.state && draft.state !== "DRAFT")
+      throw new BadRequestException("DRAFT_LOCKED");
+    const pdf = file?.buffer.subarray(0, 5).toString() === "%PDF-";
+    const docx =
+      file?.originalname.toLowerCase().endsWith(".docx") &&
+      file.buffer.subarray(0, 2).toString() === "PK";
+    if (!file || !file.size || (!pdf && !docx))
       throw new BadRequestException("PDF_REQUIRED");
     const now = new Date().toISOString(),
       id = randomUUID();
@@ -54,6 +67,7 @@ export class DocumentsController {
       organizationId: String(draft.organizationId),
       sha256: createHash("sha256").update(file.buffer).digest("hex"),
       size: file.size,
+      kind: pdf ? "PDF" : "DOCX",
       version: 1,
       createdAt: now,
       updatedAt: now,
@@ -62,10 +76,36 @@ export class DocumentsController {
     const target = resolve(this.folder(), id);
     await writeFile(target, file.buffer, { flag: "wx" });
     try {
-      await this.repo.mutate(
-        "documents",
-        (items) => items.push(record),
-        this.base.auditRecord("UPLOAD", "documents", id, req.user),
+      await this.repo.transact(
+        ["documents", "contract-drafts", "signing"],
+        (tables) => {
+          const current = tables["contract-drafts"].find(
+            (entry) => entry.id === draft.id,
+          )!;
+          if (current.state && current.state !== "DRAFT")
+            throw new BadRequestException("DRAFT_LOCKED");
+          tables.documents.push(record);
+          current.file = {
+            ...((current.file as object) ?? {}),
+            name: record.name,
+            sizeBytes: file.size,
+            kind: record.kind,
+            documentId: id,
+            sha256: record.sha256,
+          };
+          current.digitization = null;
+          current.version++;
+          current.updatedAt = now;
+          const signing = tables.signing.find(
+            (entry) => entry.contractCode === current.code,
+          );
+          if (signing) {
+            signing.fileName = record.name;
+            signing.version++;
+            signing.updatedAt = now;
+          }
+        },
+        [this.base.auditRecord("UPLOAD", "documents", id, req.user)],
       );
     } catch (error) {
       await unlink(target);
@@ -84,7 +124,12 @@ export class DocumentsController {
     if (!/^[a-f0-9-]{36}$/.test(id))
       throw new BadRequestException("INVALID_DOCUMENT");
     const bytes = await readFile(resolve(this.folder(), id));
-    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Type",
+      record.kind === "DOCX"
+        ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        : "application/pdf",
+    );
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader(
       "Content-Disposition",

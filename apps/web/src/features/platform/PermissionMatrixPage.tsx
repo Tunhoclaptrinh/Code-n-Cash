@@ -23,6 +23,7 @@ import type {
   Role,
 } from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
+import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { localList, useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
@@ -55,16 +56,17 @@ const roleColor: Record<Role, { bg: string; value: string }> = {
  * change with a second approver (SoD-4), so there are no edit controls here.
  */
 export default function PermissionMatrixPage() {
+  const user = useCurrentUser();
   const { t } = useTranslation("platform");
   const { t: tc } = useTranslation("common");
   const [detail, setDetail] = useState<Row>();
   const matrix = useQuery({
-    queryKey: ["permissions"],
+    queryKey: ["permissions", user.id],
     queryFn: () => platform.get<PermissionMatrix>("/permissions"),
   });
   // Every account, page by page (the API serves at most 100 per page), to count holders exactly.
   const users = useQuery({
-    queryKey: ["resource", "users", "permission-holders"],
+    queryKey: ["resource", "users", user.id, "permission-holders"],
     queryFn: async () => {
       const all: Entity[] = [];
       for (let page = 1; ; page++) {
@@ -136,7 +138,8 @@ export default function PermissionMatrixPage() {
     [roles, t],
   );
   const list = useListQuery<Row>({
-    key: ["permissions", "table", matrix.dataUpdatedAt],
+    auditExport: "permissions",
+    key: ["permissions", "table", user.id, matrix.dataUpdatedAt],
     fetch: localList(rows, spec),
     pageSize: 20,
     sort: { by: "key", order: "asc" },

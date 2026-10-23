@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import type { RecordEntity } from "./types";
 import { chainHead, seal } from "./audit-chain";
 import { repoRoot } from "./paths";
+import { auditChanges, enrichAudit } from "./audit-events";
 /** Adapted from UniFlow's repository/service boundary. Application writes include their audit entry. */
 @Injectable()
 export class Repository implements OnModuleDestroy {
@@ -53,6 +54,9 @@ export class Repository implements OnModuleDestroy {
         "notes",
         "exceptions",
         "payments",
+        "anchor-jobs",
+        "extraction-proposals",
+        "rule-versions",
       ])
         await this.db.collection(name).createIndex({ id: 1 }, { unique: true });
       for (const [name, field] of [
@@ -134,7 +138,13 @@ export class Repository implements OnModuleDestroy {
               .sort({ seq: -1 })
               .limit(1)
               .toArray()) as unknown as RecordEntity[];
-            const entries = seal([...added, ...auditFor(result)], head);
+            const entries = seal(
+              enrichAudit(
+                [...added, ...auditFor(result)],
+                auditChanges(originals, tables),
+              ),
+              head,
+            );
             for (const name of names.filter((n) => n !== "audit")) {
               const collection = this.db!.collection(name);
               const old = new Map(originals[name].map((x) => [x.id, x])),
@@ -176,7 +186,16 @@ export class Repository implements OnModuleDestroy {
       const added = names.includes("audit")
         ? appendedTo(before, tables.audit)
         : [];
-      const entries = seal([...added, ...auditFor(result)], chainHead(before));
+      const originals = Object.fromEntries(
+        names.map((name) => [name, this.data[name] ?? []]),
+      );
+      const entries = seal(
+        enrichAudit(
+          [...added, ...auditFor(result)],
+          auditChanges(originals, tables),
+        ),
+        chainHead(before),
+      );
       const next = { ...this.data, ...tables };
       if (names.includes("audit") || entries.length)
         next.audit = [...before, ...entries];

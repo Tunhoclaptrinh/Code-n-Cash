@@ -365,7 +365,8 @@
     "note": {
       "label": "Ghi chú",
       "hint": "bắt buộc khi từ chối hoặc yêu cầu bổ sung",
-      "required": "Nhập ghi chú."
+      "required": "Nhập ghi chú.",
+      "placeholder": "Nêu căn cứ phê duyệt, từ chối hoặc tài liệu cần bổ sung (tối đa 2.000 ký tự)."
     },
     "actions": {
       "reject": "Từ chối",

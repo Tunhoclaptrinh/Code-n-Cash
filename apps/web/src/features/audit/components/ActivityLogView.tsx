@@ -16,6 +16,7 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { formatDateTime } from "@/shared/lib/format";
 import { useListQuery } from "@/shared/lib/useListQuery";
 import { OriginTag } from "@/shared/ui/DomainTags";
+import { AuditDetails } from "@/shared/ui/AuditDetails";
 import {
   actionLabel,
   actorName,
@@ -67,6 +68,7 @@ export function ActivityLogView({
     ActivityEntry,
     Awaited<ReturnType<typeof listActivity>>
   >({
+    auditExport: "activity",
     key: ["activity-log", user.id],
     fetch: listActivity,
     sort: { by: "at", order: "desc" },
@@ -261,6 +263,15 @@ export function ActivityLogView({
         items={
           detail
             ? [
+                ...(detail.audit
+                  ? [
+                      {
+                        key: "audit",
+                        label: t("detail.view"),
+                        value: <AuditDetails entry={detail.audit} />,
+                      },
+                    ]
+                  : []),
                 {
                   key: "at",
                   label: t("table.columns.time"),

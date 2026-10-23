@@ -33,6 +33,7 @@ import {
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
+import { platform } from "@/shared/api/platform";
 import { AppPage } from "@/shared/layout/AppPage";
 import { useCurrentUser } from "@/shared/auth/session";
 import type { ListSpec } from "@codecash/contracts";
@@ -155,17 +156,23 @@ export default function DataPage() {
       } catch (error) {
         message.error(error instanceof Error ? error.message : String(error));
       }
-    } else if (file === "submission_output.csv")
+    } else {
+      try {
+        await platform.post("/exports", {source: "engine", count: result.data.rows.length, format: file.endsWith(".csv") ? "csv" : "json", scope: "all", columns: [file]});
+      } catch {void message.error(t("error")); return;}
+      if (file === "submission_output.csv")
       exportToCSV(result.data.rows, file);
     else
       exportToJSON(
         file === "audit.json" ? result.data.traces : result.data.summary,
         file,
       );
+    }
   };
   const allRows = useMemo(() => result.data?.rows ?? [], [result.data]);
   const list = useListQuery<Row>({
     // A new run or another source is another document: the key changes with it.
+    auditExport: "engine",
     key: [
       "engine",
       "table",

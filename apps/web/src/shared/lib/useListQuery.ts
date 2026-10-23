@@ -13,6 +13,9 @@ import {
   type ListSpec,
 } from "@codecash/contracts";
 import { exportToCSV, exportToJSON, useDebounce } from "@codecash/ui";
+import { App } from "antd";
+import { useTranslation } from "react-i18next";
+import { platform } from "@/shared/api/platform";
 
 type Filters = Record<string, FilterValue[]>;
 
@@ -58,8 +61,17 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
   pageSize?: number;
   sort: { by: string; order: "asc" | "desc" };
   filters?: Filters;
+  auditExport?:
+    | "contracts"
+    | "tasks"
+    | "activity"
+    | "exceptions"
+    | "permissions"
+    | "engine";
 }) {
   const { fetch, sort } = options;
+  const {message} = App.useApp();
+  const {t} = useTranslation("platform");
   const [query, setQuery] = useState<ListQuery>({
     page: 1,
     limit: options.pageSize ?? 10,
@@ -152,8 +164,18 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
           }
           return record;
         });
+        if (options.auditExport)
+          await platform.post("/exports", {
+            source: options.auditExport,
+            count: rows.length,
+            format: opt.format,
+            scope: opt.scope,
+            columns: keys,
+          });
         if (opt.format === "json") exportToJSON(records, filename);
         else exportToCSV(records, filename);
+      } catch {
+        void message.error(t("error"));
       } finally {
         setExporting(false);
       }

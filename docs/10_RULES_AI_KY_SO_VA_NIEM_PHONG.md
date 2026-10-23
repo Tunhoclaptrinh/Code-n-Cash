@@ -1,159 +1,101 @@
-# 10 — Rules, AI, ký số và niêm phong độc lập
+# Quy tắc, trích xuất điều khoản, ký và niêm phong
 
-Rà theo mã nguồn ngày 23/10/2026. Tài liệu phân biệt phần đang chạy và phương án phát triển tiếp; các interface bên dưới là thiết kế đề xuất, chưa phải provider đã tích hợp. Nguồn nghiệp vụ vẫn là [đặc tả 04](04_DAC_TA_NGHIEP_VU.md).
+Bản triển khai theo lựa chọn **demo cục bộ, có adapter nối dịch vụ thật sau**. Tài liệu này phân biệt chức năng chạy được với phần tích hợp chưa làm. Hướng dẫn trên ứng dụng có cả tiếng Việt và tiếng Anh; mở nút Hướng dẫn tại trang liên quan.
 
-## 1. Hiện trạng đã đối chiếu
+## 1. Trạng thái triển khai
 
-| Thành phần | Đang thực hiện | Phần còn thiếu |
+| Hạng mục | Đã thực hiện trong demo | Chưa thực hiện |
 | --- | --- | --- |
-| Quy tắc quyết định | Đọc `payment_rules.csv`, chọn phạm vi và xét 8 ưu tiên theo first-match | Chưa có giao diện soạn, duyệt và phát hành phiên bản rule |
-| Tham số hợp đồng | Form nhận ân hạn, tỷ lệ/trần phạt, chính sách duyệt; tạo mốc và chạy Python bằng các giá trị đó | Chưa trích các giá trị từ nội dung PDF |
-| Mẫu quy trình | Mốc đọc từ bảng `milestone-templates`, khởi tạo từ Data Pack | Chưa có quy trình phê duyệt phiên bản template cho hợp đồng mới |
-| Số hoá | Dựng mốc theo loại hợp đồng; người dùng xác nhận ngày mơ hồ | Chưa OCR, NLP hoặc LLM; vị trí điều khoản minh hoạ |
-| Ký | Đúng người, đúng lượt, bước cuối yêu cầu phương thức số; chữ ký cuối tạo `CONTRACT_SIGNED` | Provider và kết quả chữ ký đang mô phỏng; chưa ký mật mã lên PDF |
-| Kiểm chữ ký | Đọc trạng thái chữ ký trong app; PDF ngoài chỉ dò cấu trúc rồi báo chưa xác minh | Chưa kiểm mật mã, trust chain, thu hồi hay dấu thời gian |
-| Toàn vẹn | Hash chain, seal dữ liệu BTC/sự kiện app, chạy lại đối soát quyết định, so anchor nhập tay | Chưa niêm phong tới TSA hoặc blockchain độc lập |
-| Chuyển kế toán | Ghi khoản bàn giao và khoá mốc, chống chuyển lần hai | Chưa kết nối ERP hoặc ngân hàng |
+| Biểu mẫu | Placeholder và lỗi tại trường; bộ kiểm tra dùng chung API/web; ngày lịch hợp lệ, khoảng ngày, tiền tối đa hai chữ số thập phân, tỷ lệ, ngày ân hạn, email, mã và trường tham chiếu | Kiểm tra chữ nghĩa trong hợp đồng ngoài sáu trường trích xuất |
+| Audit | Ghi nguyên tử với thay đổi; snapshot tên/vai trò; requestId/transactionId; trước/sau đã loại thông tin xác thực; đăng nhập/đăng xuất, lỗi HTTP, xem chi tiết, tải và yêu cầu xuất | Thu thập truy cập mạng/hệ điều hành; quan sát việc người dùng thực sự lưu/mở tệp trên máy |
+| Phiên bản rule | DRAFT → REVIEW → PUBLISHED → RETIRED; editor biểu thức/mẫu; kiểm AST, 20 nhãn mẫu và 405 mốc; người thứ hai phát hành; hash; hợp đồng gắn phiên bản bất biến | Tập nhãn độc lập ngoài 20 mẫu; chính sách ngoại lệ khi chủ đích thay kết quả chuẩn |
+| Trích xuất | Tải/lưu bytes PDF/DOCX, SHA-256; PDF có lớp chữ qua pdftotext, DOCX qua XML; sáu trường với đoạn nguồn/trang; người dùng xác nhận trước khi khoá | OCR ảnh scan, LLM ngoài hệ thống, bảng biểu phức tạp và phân tích pháp lý |
+| Ký | Adapter ký cục bộ Ed25519; bằng chứng rời gắn hash bytes + điều khoản + thứ tự + người ký; chặn hết hạn, đổi tài liệu, lặp xác nhận; xuất/xác minh offline | Ký nhúng PDF/PAdES, CA thật, OCSP/CRL, HSM và webhook nhà cung cấp |
+| Neo hash | Outbox bền PENDING/FAILED/CONFIRMED; idempotency key, thử lại; manifest snapshot; biên nhận ký được lưu ngoài records.json; xuất gói và kiểm offline | Blockchain/TSA ngoài máy, xác nhận giao dịch mạng, chứng thực thời gian độc lập |
 
-Mã cần đọc: [`drafts.ts`](../apps/api/src/domain/drafts.ts), [`factory.ts`](../apps/api/src/domain/factory.ts), [`templates.ts`](../apps/api/src/domain/templates.ts), [`engine.ts`](../apps/api/src/domain/engine.ts), [`signing.ts`](../apps/api/src/domain/signing.ts), [`audit-chain.ts`](../apps/api/src/common/audit-chain.ts), [`evaluator`](../tools/kiem_chung_nghiep_vu.py).
+Không công bố chính xác trên cả 405 mốc từ 20 nhãn. 405 là số mốc chạy kiểm tra cấu trúc/bất biến; 20 là số trường hợp có nhãn mẫu so được kết quả và tiền.
 
-## 2. Rules có động không, có sinh từ hợp đồng không?
+## 2. Form và tham số nghiệp vụ
 
-### 2.1. Đường dữ liệu thật
+Các giới hạn của hồ sơ hợp đồng: tên 1–250 ký tự sau trim; giá trị lớn hơn 0 và không quá 1.000.000 triệu VND; tối đa hai chữ số thập phân; ngày ISO có thật và bắt đầu không sau kết thúc; ân hạn nguyên 0–60; phạt mỗi ngày 0–5%; trần phạt 0–100%. Chấp nhận dấu phẩy thập phân rồi chuẩn hoá. Tiền dùng BigInt theo phần trăm triệu, không tính bằng float.
 
-```text
-Form hồ sơ: loại, giá trị, startDate, approvalPolicy, graceDays, penaltyRatePct, maxPenaltyPct
-  → saveDraft kiểm quyền, chuẩn hoá và lưu ContractRecord + DraftRecord
-  → stagesOf đọc mẫu mốc của loại hợp đồng
-  → digitization dựng bản xem trước, cần người xác nhận hạn còn mơ hồ
-  → confirmDigitization khoá điều khoản, gọi milestonesFor
-  → mốc nhận due_date, required_event_types, approval quorum/roles, ân hạn và phạt
-  → release_rule_code = rule_set_id + ':' + milestone_type
-  → runEngine xuất dataset cho Python, tìm rules_by_scope và xét ưu tiên 10..80
-  → lưu đánh giá, lịch sử và audit
+Bảng quản trị đọc quy tắc từ resources.json: mã chỉ chữ/số/gạch dưới/gạch nối, email đúng định dạng, độ dài và khoảng số theo loại trường; trường tham chiếu được kiểm lại trong API. Việc gõ đúng không thay thế kiểm quyền, phạm vi hay version khi lưu.
+
+Hồ sơ đưa chính sách phê duyệt, quorum, ân hạn và phạt xuống các mốc thực sự. Dòng tham số tuỳ ý ở bảng quản trị vẫn không tự thay engine.
+
+## 3. Phiên bản rule và mẫu mốc
+
+Mở **Quản trị → Phiên bản quy tắc** bằng SYSTEM_ADMIN. Tạo tên và lý do; sửa biểu thức trong DSL cho phép và tỷ lệ/hạn/chứng từ/phạt của mẫu mốc. Tổng tỷ lệ mỗi workflow phải bằng 100%. Cấu trúc, mã, độ ưu tiên và phạm vi rule chuẩn không đổi qua editor này.
+
+Lưu có optimistic version. **Kiểm thử và gửi duyệt** kiểm mọi nhánh biểu thức bằng AST allowlist, sau đó chạy evaluator chuẩn trên Data Pack nguyên bản và so 20 nhãn (decision, reason, payable, penalty). Không khớp hoặc vi phạm bất biến thì không sang REVIEW. REVIEW khoá nội dung. Một SYSTEM_ADMIN khác mới được phát hành; tài khoản tác giả không được tự duyệt. Có thể tạo tài khoản quản trị thứ hai ở Người dùng cho demo; không dùng kiểm soát viên thay vai quản trị.
+
+Phát hành không sửa 128 rule gốc. Rule mới có namespace phiên bản; hồ sơ mới/lần lưu đầu của hồ sơ chưa gắn phiên bản nhận bản đang phát hành. Hồ sơ đã gắn bản cũ tiếp tục dùng bản đó, kể cả khi RETIRED. Hash nội dung được kiểm trước khi áp dụng; thay đổi cấu hình sau này không ngầm đổi hợp đồng cũ.
+
+Nguồn: apps/api/src/trust/rules-service.ts, domain/rule-versions.ts, apps/engine/validate_rules.py. Ma trận quyền vẫn phải thay bằng review mã, không có editor bật/tắt quyền trực tiếp.
+
+## 4. Trích xuất có nguồn và xác nhận
+
+Tải hợp đồng lưu bytes vào DATA_DIR/uploads và gắn documentId/hash phía server. Tên tệp/metadata do trình duyệt gửi không đủ để chứng minh đã có tài liệu. Hồ sơ seed có thể chỉ có tên: màn hình ghi rõ dùng mẫu minh hoạ.
+
+Tại rà soát, **Đọc điều khoản từ tệp** tạo proposal có documentId/hash, draftVersion, loại/phiên bản extractor, giá trị đề xuất, đoạn trích nguyên văn, trang và trạng thái cần rà soát. Các trường: giá trị triệu VND, ân hạn, phạt/ngày, trần phạt, ngày bắt đầu/kết thúc. Nhiều giá trị mâu thuẫn hoặc không đọc được thì để trống đề xuất, không tự đoán. DOCX được chuẩn hoá thành văn bản một trang; đây không phải số trang của bản Word được dàn trang.
+
+Người dùng xem tệp gốc, sửa giá trị xác nhận và bấm **Xác nhận giá trị vào hồ sơ**. Audit giữ cả đề xuất và giá trị xác nhận, không ghi đè nguồn. Bản xác nhận gắn với revision hồ sơ sau khi áp dụng; sửa/tải lại hồ sơ phải trích xuất/rà soát lại. PDF scan hoặc thiếu pdftotext được báo rõ để nhập tay và xác nhận. Các mốc tiếp tục được dựng bằng mẫu quy trình; vị trí điều khoản trên bản preview minh hoạ không trở thành bằng chứng trích xuất thật.
+
+TermExtractor và LocalTermExtractor là điểm thay provider; chưa có LLM/OCR. Khi nối dịch vụ thật vẫn phải giữ schema, nguồn, hash, kiểm giới hạn và bước xác nhận; provider không tự phê duyệt thanh toán hoặc sửa rule.
+
+## 5. Ký cục bộ có bằng chứng mật mã
+
+SigningProvider/LocalSigningProvider tạo Ed25519 detached proof. Payload gồm hợp đồng, request, bước/người ký, phương thức được chọn, hash tài liệu, hash điều khoản và vị trí/thứ tự ký, thời điểm do máy ghi, hash chữ ký trước. Khóa riêng lưu TRUST_DIR/keys, không xuất trong API, audit hoặc gói bằng chứng.
+
+Yêu cầu có hạn 5 phút. Chỉ người được gán đang đến lượt được đọc/xác nhận request; request cũ bị huỷ khi gửi request mới. Xác nhận kiểm lại trạng thái, hạn và hash; lặp không tạo chữ ký/sự kiện lần hai. Chữ ký cuối tạo CONTRACT_SIGNED đúng bên mua. Bộ kiểm đối chiếu chữ ký với khóa cục bộ đã biết và hash hiện tại; chữ ký seed chỉ có trạng thái cũ hiển thị **Chưa xác minh**.
+
+Mọi lựa chọn USB/SmartCA/MySign trong demo đều dùng adapter cục bộ. Đây không phải chữ ký PDF của CA. Bằng chứng bytes và điều khoản được phân biệt; hồ sơ seed không có bytes chỉ ký snapshot điều khoản. CertificateTrusted luôn false; thời gian máy không phải timestamp của TSA. Giao diện và hướng dẫn hiển thị giới hạn này.
+
+Xuất JSON tại trang Kiểm tra chữ ký. Kiểm bên ngoài API:
+
+```bash
+node scripts/verify-trust.mjs signatures.json --document original.pdf
+node scripts/verify-trust.mjs signatures.json --document original.pdf --fingerprint <SHA256_khoa_nguoi_ky>
 ```
 
-`milestonesFor` lấy ân hạn từ hợp đồng cho các mốc; tỷ lệ và trần phạt chỉ được chép vào mốc có `latePenalty`, mốc khác nhận 0. Tiền là chuỗi thập phân và tính phân bổ bằng số nguyên; mốc cuối nhận phần dư để tổng khớp giá trị hợp đồng. Chính sách quyết định các vai trò phê duyệt, không lấy người bất kỳ cho đủ số lượng.
+Lặp --fingerprint cho từng người ký. Không truyền fingerprint chỉ kiểm đúng phép ký với khóa nhúng, kết quả CRYPTO_VALID_UNTRUSTED_KEY. VERIFIED_LOCAL_KEY chỉ có nghĩa khớp khóa cục bộ đã lưu độc lập, không có nghĩa CA/pháp lý. Chuỗi có chữ ký seed thiếu proof không được công cụ offline chứng nhận đầy đủ. PDF ngoài hệ thống vẫn chỉ kiểm cấu trúc và ghi chưa xác minh.
 
-Engine đọc biểu thức điều kiện từ bảng rule và dùng AST giới hạn; không chạy mã tùy ý bằng `eval`. Phạm vi phải đủ các ưu tiên dự kiến. Bộ dữ liệu tải lên trang Data Pack có thể chứa rule riêng, được kiểm cấu trúc và chạy đánh giá tách khỏi dữ liệu nghiệp vụ sống.
+## 6. Nhật ký và neo hash
 
-Vì vậy cấu hình hiện tại **động theo tham số và bảng dữ liệu**, còn ngữ nghĩa thẩm quyền, trạng thái và biểu thức được giới hạn bởi đặc tả. Không phải hệ thống tự hiểu điều khoản tự do và tạo luật thanh toán mới. Tạo dòng “tham số” bất kỳ ở Quản trị không khiến engine tự sử dụng giá trị đó.
+Audit ghi thêm trong cùng Repository.transact với dữ liệu nghiệp vụ. Một giao dịch có thể có dòng kỹ thuật và dòng hoạt động; dùng transactionId để liên kết, không đếm dòng thành số lần thanh toán. Dòng đầu chứa changes trước/sau, dòng liên quan dùng cùng mã giao dịch. Dữ liệu nhập khởi tạo lớn có summary/count/digest. Không ghi password/hash mật khẩu, token, OTP, khoá riêng; thất bại đăng nhập chỉ lưu hash email cùng loại lỗi.
 
-### 2.2. Muốn phát hành rule động cho production
+Nhật ký hoạt động phục vụ phạm vi hợp đồng; chi tiết chỉ lấy thay đổi của chính hợp đồng đó. Nhật ký quản trị tại /platform/audit dành cho ba vai trò nội bộ, có cả auth/CRUD/lỗi. Lượt xem chi tiết, tải tệp và yêu cầu xuất được ghi; tải danh sách, notification poll, signing poll không thay trạng thái không tạo thêm log. Yêu cầu xuất từ trình duyệt là bản khai yêu cầu, không chứng minh file đã được lưu. Xem ma trận và ca kiểm ở tests/foundation/trust.test.mjs cùng scripts/smoke.mjs.
 
-Đề xuất một `RuleSetVersion` bất biến gồm ID, phiên bản, thời gian hiệu lực, hash bộ rule, template, schema và trạng thái `DRAFT → REVIEW → PUBLISHED → RETIRED`. Người soạn không tự duyệt bản của mình. Chạy lại 20 sample và bộ ca cạnh riêng trước phát hành; lưu so sánh quyết định, lý do và tiền giữa hai phiên bản.
+Chuỗi SHA-256 phát hiện chỉnh sửa, thiếu số thứ tự hoặc mất liên kết. Nó không tự chống người có thể sửa toàn DB và tính lại cả chuỗi. Blockchain phù hợp làm **nơi neo digest lịch sử**, không cần đưa toàn bộ audit hay dữ liệu cá nhân lên chuỗi.
 
-Hợp đồng gắn phiên bản lúc xác nhận điều khoản. Sửa template không tự đổi hợp đồng đã khoá; thay đổi hợp đồng phải tạo bản sửa đổi có phê duyệt, không tính lại hồi tố rồi ghi đè lịch sử. API kiểm tổng tỷ lệ, thứ tự mốc, loại sự kiện/thẩm quyền, scope rule và biến biểu thức trước xuất bản. Chưa đưa màn soạn rule vào phạm vi lần nối tiếp này vì sẽ thay đổi cơ chế quản trị nghiệp vụ.
+Mở **Neo hash kiểm toán** hoặc cuối trang Toàn vẹn. Bấm tạo mốc: API chụp seq/head, genesis định danh hệ thống, manifest số dòng/hash từng bảng và snapshotHash; lưu job PENDING trước khi gọi adapter. LocalWitnessProvider ký biên nhận, lưu bản sao ở TRUST_DIR/receipts rồi mới CONFIRMED. Lỗi ghi FAILED; nút thử lại dùng cùng job/payload, không chạy lại nghiệp vụ. Sau restart, PENDING/FAILED còn trong danh sách để thử lại; chưa có worker tự retry theo lịch.
 
-## 3. Áp dụng NLP/LLM ở bước nào?
+Tải gói JSON về nơi độc lập. Nhập lại để kiểm receipt, chữ ký, bản witness đã lưu, đúng hệ thống và chuỗi tại seq cũ. Snapshot hiện tại thay đổi hợp lệ có thể khác mốc chụp; màn hình báo riêng, không coi cập nhật hợp lệ là receipt sai.
 
-Điểm phù hợp là **giữa tải tài liệu và xác nhận điều khoản**: OCR lấy văn bản và tọa độ trang; bộ trích xuất đề xuất giá trị, hạn, tỷ lệ, bên, điều kiện chứng từ; người dùng so văn bản gốc và xác nhận. Engine tiếp tục là nguồn quyết định và phép tính tiền.
-
-### 3.1. Hợp đồng dữ liệu cho bộ trích xuất
-
-Thiết kế đề xuất:
-
-```ts
-interface ExtractionProposal {
-  documentId: string;
-  documentSha256: string;
-  extractor: { kind: 'TEMPLATE' | 'OCR_RULES' | 'LLM'; version: string };
-  fields: Array<{
-    path: string;
-    value: string | null;
-    evidence: { page: number; quote: string; bounds?: number[] } | null;
-    state: 'SUGGESTED' | 'NEEDS_REVIEW';
-  }>;
-  warnings: string[];
-}
+```bash
+node scripts/verify-trust.mjs audit-anchor.json --fingerprint <SHA256_khoa_witness>
+node scripts/verify-trust.mjs audit-anchor.json --fingerprint <SHA256_khoa_witness> --records backup-records.json
 ```
 
-Tách `extract(document)` khỏi `confirm(proposal, edits)`. Không tự biến xác suất model thành phê duyệt. Không tìm thấy nguồn thì trả `null`, không đoán. Trường hạn tương đối luôn cần người duyệt; quote và page phải kiểm lại với văn bản OCR. Đầu vào hợp đồng là dữ liệu, không phải chỉ dẫn cho công cụ hoặc model. Provider không có quyền gọi nghiệp vụ thanh toán.
+Lệnh đầu kiểm chữ ký/manifest; thêm records mới kiểm được chuỗi trong bản sao và snapshot. Không có records thì chainMatched=null; không được suy rằng đã kiểm DB. Lưu fingerprint bằng kênh độc lập trước khi dùng. TRUST_DIR mặc định là DATA_DIR thêm hậu tố -trust, ngoài records.json; cùng máy/quyền quản trị vẫn cùng miền tin cậy. Bị chiếm cả khoá và receipt thì demo không tạo được bằng chứng độc lập. Adapter thật phải lưu/kiểm receipt từ TSA hoặc ledger ngoài hệ thống trước khi công bố CONFIRMED.
 
-### 3.2. Demo có thể làm tiếp bằng cùng ranh giới
+## 7. Chạy và kiểm thử
 
-1. Giữ bộ dựng template hiện tại làm fallback, gắn rõ nguồn `TEMPLATE` thay vì tuyên bố AI.
-2. Thêm extractor quy tắc cho tập PDF demo có văn bản: tìm ngày, số tiền và tỷ lệ, trả vị trí nguồn và trường thiếu. PDF ảnh cần OCR riêng.
-3. Thêm provider LLM sau khi thống nhất dịch vụ, quyền gửi tài liệu và cấu hình server; validate đầu ra bằng schema và ràng buộc nghiệp vụ.
-4. Màn rà soát hiện song song bản gốc và đề xuất; lưu người xác nhận, sửa đổi, hash tài liệu và phiên bản extractor.
+Cần Node 22+, Python 3, pnpm và pdftotext (gói poppler-utils; Dockerfile đã cài). DOCX dùng thư viện chuẩn Python. Có thể cấu hình TRUST_DIR để giữ key/receipt qua restart; sao lưu có kiểm soát cùng dữ liệu nhưng không đưa khoá riêng vào git hoặc gói xuất. .data-trust đã được ignore.
 
-Đánh giá bằng bộ hợp đồng có nhãn riêng, đo đúng từng trường và độ khớp nguồn, không dùng KPI 20 sample thanh toán để tuyên bố chất lượng trích xuất. Những lỗi cần thử: tài liệu không ghi phạt, nhiều phụ lục mâu thuẫn, OCR nhầm dấu thập phân, thay tài liệu sau khi trích, ngày tương đối và timeout provider.
-
-Giải thích quyết định hiện đã có facts, rule và replay. LLM có thể diễn đạt lại những facts này, nhưng phải trỏ lại nguồn và không được tạo quyết định hay tính số tiền thay engine.
-
-## 4. Ký số thật: thay mô phỏng ở đâu?
-
-### 4.1. Adapter server đề xuất
-
-```ts
-interface SigningProvider {
-  begin(input: {
-    requestId: string;
-    signerUserId: string;
-    documentVersion: string;
-    digest: string;
-    credentialId: string;
-  }): Promise<{ providerRequestId: string; expiresAt: string }>;
-  status(providerRequestId: string): Promise<{
-    state: 'PENDING' | 'SIGNED' | 'DECLINED' | 'EXPIRED' | 'FAILED';
-    artifactId?: string;
-  }>;
-}
+```bash
+pnpm check
+API_PORT=3219 DATA_DIR=/tmp/codecash-demo-review TRUST_DIR=/tmp/codecash-demo-witness pnpm start:api
+VITE_API_PROXY=http://127.0.0.1:3219 pnpm --filter @codecash/web exec vite --host 127.0.0.1 --port 5291 --strictPort
+API_BASE_URL=http://127.0.0.1:3219/api/v1 pnpm test:e2e
+WEB_URL=http://127.0.0.1:5291 pnpm test:browser
 ```
 
-Đây là interface ứng dụng đề xuất; payload thật cần theo tài liệu và tài khoản đối tác của từng nhà cung cấp. VNPT công bố các hướng tích hợp và Viettel MySign có tài liệu API/SDK; cần nhận môi trường thử và credential để triển khai provider thật. [VNPT SmartCA for Developers](https://doitac-smartca.vnpt.vn/help/docs/tai-lieu-tich-hop-ky-so/), [MySign API/SDK](https://mysign.com.vn/docs/model/sign-3rd-party/).
+Smoke thay đổi workflow; mỗi kịch bản phê duyệt/chụp hướng dẫn dùng DATA_DIR mới. Không chạy trên dữ liệu demo người khác. Ca kiểm gồm hết hạn/lặp/đổi bytes khi ký, proof giả, văn bản thiếu/mâu thuẫn, scope và audit redaction, rule độc hại ở nhánh không chạy, tự duyệt, giữ phiên bản cũ, receipt giả, chuỗi bị sửa, witness lỗi và retry idempotent.
 
-CSC cung cấp đặc tả giao thức ký từ xa để tham khảo thiết kế adapter; không suy rằng mọi endpoint VNPT/Viettel đều tương thích CSC. [Cloud Signature Consortium](https://cloudsignatureconsortium.org/resources/).
+## 8. Phần còn lại để nối thật
 
-### 4.2. Luồng cần thực hiện khi nối provider
-
-1. API kiểm người ký, tổ chức, lượt hiện tại và phiên bản tài liệu; tạo request với khoá chống lặp.
-2. Chuẩn bị PDF và digest cho phiên bản đó, gửi yêu cầu ký. Người dùng xác nhận với provider; bí mật ký không lưu trong trình duyệt ứng dụng.
-3. Poll hoặc nhận webhook có xác thực. Kiểm lại request, người ký, hash, phiên bản tài liệu, trạng thái chờ và hạn yêu cầu.
-4. Lấy artifact, xác minh mật mã và lưu phiên bản đã ký bất biến. Với nhiều chữ ký PDF, bước sau phải ký bản đã có chữ ký trước theo incremental update thích hợp.
-5. Chỉ khi bằng chứng ký đã xác minh mới gọi phần hoàn tất lượt, tạo audit và chuyển người tiếp theo. Webhook trùng không hoàn tất hai lần; callback cũ sau huỷ không được kích hoạt lại hợp đồng.
-
-Không coi ảnh chữ ký, việc có `/ByteRange`, response HTTP 200 hoặc người dùng bấm “đã ký” là bằng chứng ký mật mã. PAdES xác định cấu trúc chữ ký PDF và các baseline; chọn thư viện hỗ trợ chuẩn rồi xây ca kiểm tệp thay đổi, chứng thư hết hạn/thu hồi và nhiều chữ ký. [ETSI EN 319 142-1](https://www.etsi.org/deliver/etsi_EN/319100_319199/31914201/01.02.01_60/en_31914201v010201p.pdf).
-
-Đầu ra xác minh nên tách `cryptoValid`, `documentIntact`, `certificateTrusted`, `revocationStatus`, `timestampStatus` và kết luận `VALID | INVALID | INDETERMINATE`. Không gộp trường “chưa kiểm” thành “hợp lệ”. Mức tin cậy phụ thuộc trust store, dữ liệu thu hồi và thời điểm được xác minh.
-
-### 4.3. Phương án demo trước khi có tài khoản CA
-
-Giữ provider mô phỏng và ghi nhãn rõ. Bổ sung một kịch bản ký mật mã cục bộ bằng chứng thư thử để kiểm tài liệu bị sửa, nhưng đánh dấu chứng thư **không được tin cậy**; không trình bày như đã nối VNPT hoặc Viettel. Dùng cùng interface, trạng thái chờ/thành công/hết hạn và khoá chống lặp; sau này thay provider mà giữ luồng nghiệp vụ.
-
-Hiện tại chưa thêm provider thật, chưa sinh chứng thư thử và chưa gửi tài liệu ra ngoài. Hướng dẫn trong app đã ghi rõ giới hạn chữ ký và số hoá để người demo không hiểu sai kết quả.
-
-## 5. Blockchain hoặc TSA: chỉ neo dấu, giữ dữ liệu nghiệp vụ trong app
-
-### 5.1. Gói niêm phong đề xuất
-
-Tạo payload canonical có `schemaVersion`, định danh hệ thống/chuỗi, `sequence`, `headHash`, `snapshotHash`, `createdAt` và thuật toán. Các trường này ngăn nhầm dấu giữa môi trường, chuỗi và snapshot. Băm payload rồi gửi tới một nơi độc lập; lưu cả payload và biên nhận để xác minh lại.
-
-`snapshotHash` phải gắn đúng snapshot và manifest tệp, không chỉ tên thư mục. Biên nhận neo ngoài cơ sở dữ liệu đang kiểm tra giúp phát hiện trường hợp người có quyền viết lại toàn bộ chuỗi.
-
-### 5.2. Ba mức triển khai
-
-| Mức | Cách demo | Điều chứng minh được |
-| --- | --- | --- |
-| Lưu độc lập | Xuất cặp seq/hash và manifest vào kho hoặc máy người kiểm soát riêng | So lần sau với dấu đã giữ; chưa có thời gian đáng tin cậy |
-| TSA | Gửi digest tới dịch vụ RFC 3161 và kiểm token trả về | Có xác nhận của TSA về imprint và thời điểm theo chính sách tin cậy |
-| Blockchain thử nghiệm | Ghi digest/payload hash lên mạng thử, lưu chainId, txHash, block và receipt | Đối chiếu dấu với bản ghi mạng thử; không chứng minh sự kiện kinh doanh là thật |
-
-RFC 3161 mô tả yêu cầu dấu thời gian trên hash và kiểm phản hồi; adapter phải kiểm imprint, nonce, chữ ký và chứng thư TSA. Một chuỗi JSON tự ghi ngày giờ chưa phải token TSA. [RFC 3161](https://www.rfc-editor.org/rfc/rfc3161.html).
-
-Với blockchain, chỉ ghi digest và định danh tối thiểu; không ghi PDF, email, tên hoặc số tiền lên chuỗi. Không phát hành token và không để smart contract chi tiền thay engine trong demo này. Bản đề xuất không phụ thuộc một mạng cụ thể; chọn môi trường và chính sách xác nhận khi triển khai.
-
-Adapter neo nhận yêu cầu qua outbox sau giao dịch nghiệp vụ: `PENDING → SUBMITTED → CONFIRMED` hoặc `FAILED`. Nhà cung cấp ngừng đáp ứng không làm mất audit hoặc làm lại phê duyệt; thử lại phải chống lặp. Xác minh độc lập đọc receipt/token từ bên ngoài, so lại hash và chỉ công bố đã neo khi xác nhận hoàn tất.
-
-### 5.3. Demo rõ ràng với hiện trạng
-
-Trên môi trường thử riêng, lưu seq/hash ra ngoài, ghi thêm thao tác và kiểm lại mốc cũ: MATCH. Dùng bản sao dữ liệu, sửa một sự kiện: khối seal báo lỗi. Nếu viết lại được cả chuỗi, chỉ dấu độc lập mới giúp phát hiện thay lịch sử. Không dùng dữ liệu đang demo của người khác và không sửa trên môi trường thật.
-
-## 6. Thứ tự làm tiếp và tiêu chí nghiệm thu
-
-1. **Đang có:** hướng dẫn có ảnh và giới hạn rõ; rules/tham số đi xuống engine; workflow ký demo và toàn vẹn nội bộ.
-2. **Ưu tiên kế tiếp:** provenance trích xuất + ca đánh giá trường; adapter ký với tài liệu bất biến và webhook chống lặp; xuất gói anchor độc lập.
-3. **Khi có môi trường đối tác:** provider ký thử và xác minh artifact, TSA hoặc mạng thử, lưu receipt và kiểm lại độc lập.
-4. **Trước vận hành:** phiên bản rule và duyệt cấu hình hai người, ca lỗi provider, backup/restore, trust store, kiểm tệp lớn, giám sát và chạy trên kho dữ liệu production đã kiểm thử.
-
-Ca nghiệm thu bắt buộc cho phần phát triển tiếp: đổi tỷ lệ phạt tạo mốc đúng nhưng không đổi hợp đồng cũ; người khác vai trò không duyệt; tài liệu đổi sau yêu cầu ký thì yêu cầu cũ hết hiệu lực; callback trùng không sinh hai sự kiện; chữ ký PDF sai không kích hoạt hợp đồng; receipt sai hash bị từ chối; timeout provider không mất thao tác nghiệp vụ.
+- LLM/OCR: adapter HTTP, schema và nguồn, đánh giá field-level trên tài liệu có nhãn, timeout và xử lý dữ liệu riêng tư.
+- CA/PAdES: khóa tài liệu bất biến, signature artifact, chain/trust store, OCSP/CRL/TSA, webhook có xác thực/idempotency/expiry và ca lỗi đối tác.
+- Blockchain/TSA: provider bên ngoài, digest-only payload, transaction receipt và độ sâu xác nhận, retry theo lịch, kiểm độc lập từ endpoint khác. Không có token hoặc smart contract chi tiền trong demo.
+- Vận hành: kiểm thử Mongo replica set thực, worker nhiều instance, backup/restore khoá/receipt, xoay/thu hồi khoá, parser tài liệu lớn, quan sát tải và kết nối ERP thật. Phần này chưa được xác nhận chỉ từ kiểm thử file-storage cục bộ.

@@ -19,6 +19,13 @@ import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { EngineController } from "./engine";
 import { PermissionsController } from "./permissions.controller";
 import { DomainService } from "./domain/service";
+import { auditContext } from "./common/audit-events";
+import { AuditReadsInterceptor } from "./common/audit-http";
+import { TrustService } from "./trust/service";
+import { TrustController } from "./trust/controller";
+import { ExtractionService } from "./trust/extraction-service";
+import { RulesService } from "./trust/rules-service";
+import { AuditExportController } from "./common/audit-export";
 process.env.REPO_ROOT ??= resolve(__dirname, "../../..");
 loadEnv({ path: resolve(process.env.REPO_ROOT, ".env") });
 process.chdir(process.env.REPO_ROOT);
@@ -31,6 +38,8 @@ class HealthController {
 }
 @Module({
   controllers: [
+    AuditExportController,
+    TrustController,
     HealthController,
     AuthController,
     BaseController,
@@ -40,6 +49,9 @@ class HealthController {
     PermissionsController,
   ],
   providers: [
+    TrustService,
+    ExtractionService,
+    RulesService,
     Repository,
     BaseService,
     AuthService,
@@ -62,12 +74,16 @@ async function main() {
   app.use((req: any, res: any, next: () => void) => {
     req.requestId = randomUUID();
     res.setHeader("x-request-id", req.requestId);
-    next();
+    auditContext.run(
+      { requestId: req.requestId, method: req.method, path: req.path },
+      next,
+    );
   });
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(Repository)));
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
     new TransformInterceptor(),
+    new AuditReadsInterceptor(app.get(Repository), app.get(BaseService)),
   );
   // The Data Pack is the base data of every deployment; seed accounts need a seed password.
   await app.get(DomainService).bootstrap();

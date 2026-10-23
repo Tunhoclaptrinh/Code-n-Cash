@@ -6,12 +6,15 @@
       {
         "key": "name",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "code",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 40,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
       },
       {
         "key": "kind",
@@ -21,7 +24,8 @@
       },
       {
         "key": "email",
-        "type": "email"
+        "type": "email",
+        "maxLength": 254
       }
     ]
   },
@@ -31,16 +35,19 @@
       {
         "key": "displayName",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "email",
         "type": "email",
-        "required": true
+        "required": true,
+        "maxLength": 254
       },
       {
         "key": "title",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       {
         "key": "role",
@@ -61,11 +68,13 @@
         "key": "organizationId",
         "type": "string",
         "required": true,
-        "ref": "organizations"
+        "ref": "organizations",
+        "maxLength": 250
       },
       {
         "key": "partyId",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       {
         "key": "active",
@@ -80,18 +89,22 @@
       {
         "key": "code",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 40,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
       },
       {
         "key": "title",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "supplierId",
         "type": "string",
         "required": true,
-        "ref": "organizations"
+        "ref": "organizations",
+        "maxLength": 250
       },
       {
         "key": "contractType",
@@ -113,7 +126,8 @@
       {
         "key": "name",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "workflowTemplate",
@@ -129,22 +143,29 @@
       {
         "key": "sequence",
         "type": "number",
-        "required": true
+        "required": true,
+        "min": 1,
+        "max": 20,
+        "integer": true
       },
       {
         "key": "milestoneType",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "requiredEvents",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "paymentPercent",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250,
+        "pattern": "^(?:100(?:\\.0{1,2})?|\\d{1,2}(?:\\.\\d{1,2})?)$"
       },
       {
         "key": "latePenalty",
@@ -153,7 +174,10 @@
       {
         "key": "offsetDays",
         "type": "number",
-        "required": true
+        "required": true,
+        "min": 0,
+        "max": 36500,
+        "integer": true
       }
     ]
   },
@@ -164,12 +188,14 @@
       {
         "key": "name",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "value",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       }
     ]
   },
@@ -180,16 +206,19 @@
       {
         "key": "name",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "contractId",
         "type": "string",
-        "required": true
+        "required": true,
+        "maxLength": 250
       },
       {
         "key": "sha256",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       {
         "key": "size",
@@ -203,19 +232,23 @@
     "fields": [
       {
         "key": "action",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       {
         "key": "resource",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       {
         "key": "actorId",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       {
         "key": "recordId",
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       }
     ]
   }

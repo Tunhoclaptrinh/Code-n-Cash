@@ -57,7 +57,7 @@ const write = (
 ): Handler => ({
   permission,
   run: (domain, actor, args) =>
-    domain.write(actor, name, (ctx) => fn(ctx as never, args)),
+    domain.write(actor, name, (ctx) => fn(ctx as never, args), typeof args[0] === "string" ? args[0] : str((args[0] as {contractId?: unknown; code?: unknown} | null)?.contractId ?? (args[0] as {code?: unknown} | null)?.code)),
 });
 
 /**

@@ -99,7 +99,8 @@
     "demoUnavailable": "Could not connect to load demo accounts.",
     "demoEmpty": "No demo accounts are currently available.",
     "demoFeatured": "Suggested (Nova An · Phú Minh)",
-    "demoAll": "Every Data Pack organisation"
+    "demoAll": "Every Data Pack organisation",
+    "emailPlaceholder": "name@example.com"
   },
   "common": {
     "loading": "Loading…",
@@ -214,5 +215,12 @@
       "data": "Data Pack results",
       "admin": "Administration"
     }
+  },
+  "forms": {
+    "required": "Please enter {{field}}.",
+    "email": "Enter a valid email address.",
+    "invalid": "{{field}} has an invalid format or is outside the allowed range.",
+    "enter": "Enter {{field}}",
+    "choose": "Choose {{field}}"
   }
 }

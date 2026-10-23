@@ -49,7 +49,8 @@
     },
     "note": {
       "label": "Lý do",
-      "required": "Nhập lý do."
+      "required": "Nhập lý do.",
+      "placeholder": "Nêu vấn đề, chứng từ liên quan và kết luận xử lý (tối đa 2.000 ký tự)."
     },
     "readOnly": "Bạn chỉ xem được tranh chấp của mốc này.",
     "rule": "Nguyên tắc \"mở dễ, đóng khó\": mọi DISPUTE_OPENED đều chặn chi; chỉ DISPUTE_RESOLVED do bên mua (hoặc chủ hợp đồng) tạo, tham chiếu đúng tranh chấp và không sớm hơn lúc mở mới gỡ được chặn.",

@@ -49,7 +49,8 @@
     },
     "note": {
       "label": "Reason",
-      "required": "Write a reason."
+      "required": "Write a reason.",
+      "placeholder": "Describe the issue, supporting evidence and resolution (up to 2,000 characters)."
     },
     "readOnly": "You can only view the disputes of this milestone.",
     "rule": "\"Easy to open, hard to close\": every DISPUTE_OPENED blocks payment; only a DISPUTE_RESOLVED by the buyer (or its contract owner), referencing that dispute and not earlier than it, lifts the block.",

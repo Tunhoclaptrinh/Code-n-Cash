@@ -30,6 +30,7 @@ import type {
 import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./DigitizeReviewPage.module.css";
+import { ExtractionPanel } from "../components/ExtractionPanel";
 
 /**
  * Step 3 of the wizard: the terms read from the contract, cut into the milestones of the Data Pack
@@ -118,6 +119,7 @@ function Review({
   return (
     <>
       <WizardStepper current="REVIEW" />
+      <ExtractionPanel code={contractId} />
       <div className={styles.layout}>
         <section className={cx(shared.card, styles.panel)}>
           <div className={styles.panelHeader}>

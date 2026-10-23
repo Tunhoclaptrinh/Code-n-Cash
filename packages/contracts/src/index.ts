@@ -1,6 +1,7 @@
 import type { Decision, Role } from "./workflow";
 export * from "./workflow";
 export * from "./listing";
+export * from "./field-validation";
 export interface PageQuery {
   page?: number;
   limit?: number;
@@ -57,6 +58,11 @@ export interface ResourceField {
   options?: string[];
   /** Resource this field references by id; forms populate it and the API checks it exists. */
   ref?: string;
+  min?: number;
+  max?: number;
+  integer?: boolean;
+  maxLength?: number;
+  pattern?: string;
 }
 export interface ResourceDefinition {
   name: string;
@@ -108,3 +114,5 @@ export interface ImportValidationReport {
     errors: string[];
   }[];
 }
+
+export * from "./trust";

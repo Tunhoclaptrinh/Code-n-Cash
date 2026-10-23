@@ -18,6 +18,7 @@ import { can, scopeOf } from "../permissions";
 import type { Actor, Field, Resource, RecordEntity } from "../types";
 import { repoRoot } from "../paths";
 import { fold } from "../../domain/listing";
+import { fieldProblem, normalizeField } from "../field-validation";
 
 /** Each operation maps to `<resource>:<operation>` in packages/contracts/permissions.json. */
 type Operation = "read" | "create" | "update" | "delete" | "import" | "export";
@@ -71,7 +72,7 @@ export class BaseService {
       errors.push("UNKNOWN_FIELD");
     const data: Record<string, unknown> = {};
     for (const f of def.fields) {
-      const value = input[f.key];
+      const value = normalizeField(f, input[f.key]);
       if (value === undefined) {
         if (f.required && !partial) errors.push(`REQUIRED:${f.key}`);
         continue;
@@ -91,27 +92,7 @@ export class BaseService {
     return { errors, data };
   }
   private valueError(f: Field, value: unknown): string | undefined {
-    if (
-      f.type === "number" &&
-      (typeof value !== "number" || !Number.isFinite(value) || value < 0)
-    )
-      return `INVALID_NUMBER:${f.key}`;
-    if (f.type === "boolean" && typeof value !== "boolean")
-      return `INVALID_BOOLEAN:${f.key}`;
-    if (
-      ["string", "email", "select"].includes(f.type) &&
-      (typeof value !== "string" || value.length > 2000)
-    )
-      return `INVALID_STRING:${f.key}`;
-    if (
-      f.type === "email" &&
-      value &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))
-    )
-      return "INVALID_EMAIL";
-    if (f.options && !f.options.includes(String(value)))
-      return `INVALID_OPTION:${f.key}`;
-    return undefined;
+    return fieldProblem(f, value) ?? undefined;
   }
   private validate(def: Resource, body: unknown, partial = false) {
     const { errors, data } = this.fieldErrors(def, body, partial);
@@ -535,6 +516,8 @@ export class BaseService {
       resource,
       recordId,
       actorId: actor.id,
+      actorName: actor.displayName,
+      actorRole: actor.role,
     };
   }
   async audit(

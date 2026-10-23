@@ -23,6 +23,7 @@ import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { DecisionTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
+import { AnchorPanel } from "../components/AnchorPanel";
 
 type Mismatch = IntegrityReport["decisions"]["mismatches"][number];
 type EvidenceProblem = IntegrityReport["evidence"]["problems"][number];
@@ -98,6 +99,7 @@ export default function IntegrityPage() {
           />
         ) : null}
       </PageContainer>
+      <AnchorPanel />
     </AppPage>
   );
 }

@@ -99,7 +99,8 @@
     "demoUnavailable": "Không kết nối được để tải tài khoản demo.",
     "demoEmpty": "Chưa có tài khoản demo khả dụng.",
     "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
-    "demoAll": "Tất cả tổ chức trong Data Pack"
+    "demoAll": "Tất cả tổ chức trong Data Pack",
+    "emailPlaceholder": "name@example.com"
   },
   "common": {
     "loading": "Đang tải…",
@@ -214,5 +215,12 @@
       "data": "Kết quả Data Pack",
       "admin": "Quản trị hệ thống"
     }
+  },
+  "forms": {
+    "required": "Vui lòng nhập {{field}}.",
+    "email": "Nhập địa chỉ email hợp lệ.",
+    "invalid": "{{field}} chưa đúng định dạng hoặc giới hạn cho phép.",
+    "enter": "Nhập {{field}}",
+    "choose": "Chọn {{field}}"
   }
 }

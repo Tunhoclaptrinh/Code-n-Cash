@@ -73,6 +73,7 @@ export default function TaskInboxPage() {
   const [detail, setDetail] = useState<TaskRow>();
   // One page at a time from the API; the inbox order (most urgent first) is the default sort.
   const list = useListQuery<TaskRow>({
+    auditExport: "tasks",
     key: ["pending-tasks", user.id],
     fetch: listTasks,
     sort: { by: "rank", order: "asc" },

@@ -30,6 +30,14 @@ export const router = createBrowserRouter([
 function pages() {
   return [
     { path: "/", element: <HomeRedirect /> },
+    {
+      path: "/platform/anchors",
+      lazy: () => import("@/features/platform/AnchorsPage").then(asRoute),
+    },
+    {
+      path: "/platform/rule-versions",
+      lazy: () => import("@/features/platform/RuleVersionsPage").then(asRoute),
+    },
 
     {
       path: "/platform/permissions",

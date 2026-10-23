@@ -213,6 +213,37 @@
     "DIGITIZATION_CONFIRMED": "Khoá điều khoản số hoá",
     "EXCEPTION": "Ngoại lệ BR-19",
     "PAYMENT": "Chuyển chi",
-    "REQUEST_INFO": "Yêu cầu bổ sung"
+    "REQUEST_INFO": "Yêu cầu bổ sung",
+    "EXTRACT_TERMS": "Trích xuất điều khoản",
+    "CONFIRM_EXTRACTION": "Xác nhận điều khoản trích xuất",
+    "LOGIN": "Đăng nhập",
+    "LOGOUT": "Đăng xuất",
+    "VIEW": "Xem hồ sơ",
+    "DOWNLOAD": "Tải tài liệu",
+    "REQUEST_FAILED": "Thao tác thất bại",
+    "ANCHOR_REQUEST": "Yêu cầu niêm phong",
+    "ANCHOR_CONFIRMED": "Niêm phong đã đối chiếu",
+    "ANCHOR_FAILED": "Niêm phong thất bại",
+    "RULE_VERSION_CREATE": "Soạn phiên bản quy tắc",
+    "RULE_VERSION_SAVE": "Lưu phiên bản quy tắc",
+    "RULE_VERSION_SUBMIT": "Kiểm tra và gửi duyệt quy tắc",
+    "RULE_VERSION_PUBLISH": "Phát hành quy tắc",
+    "EXPORT_REQUEST": "Yêu cầu xuất danh sách",
+    "SIGNATURE_EXPORT": "Xuất bằng chứng chữ ký",
+    "ANCHOR_EXPORT": "Xuất gói neo hash",
+    "SYSTEM_WRITE": "Ghi dữ liệu hệ thống"
+  },
+  "auditDetail": {
+    "transactionId": "Mã giao dịch",
+    "requestId": "Mã yêu cầu",
+    "seq": "Thứ tự niêm phong",
+    "hash": "Hash bản ghi",
+    "outcome": "Kết quả",
+    "errorCode": "Lý do lỗi",
+    "record": "Bản ghi",
+    "field": "Trường thay đổi",
+    "before": "Trước",
+    "after": "Sau",
+    "noChanges": "Thao tác không đổi dữ liệu hoặc bản ghi cũ chưa có chi tiết trước/sau."
   }
 }

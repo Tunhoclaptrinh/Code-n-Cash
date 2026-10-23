@@ -694,6 +694,19 @@ export interface ActivityEntry {
   milestoneId: string | null;
   milestoneNo: number | null;
   origin: Origin;
+  audit?: {
+    seq?: number;
+    hash?: string;
+    transactionId?: string;
+    requestId?: string;
+    outcome?: string;
+    changes?: Array<{
+      resource: string;
+      recordId: string;
+      operation: string;
+      fields: Record<string, { before: unknown; after: unknown }>;
+    }>;
+  };
 }
 
 export interface ActivityFilters {
@@ -723,6 +736,13 @@ export interface SignStep {
   status: SignStepStatus;
   signedAt: string | null;
   method: SignMethod | null;
+  localProof?: {
+    provider: "LOCAL_ED25519";
+    payload: Record<string, unknown>;
+    publicKey: string;
+    keyFingerprint: string;
+    signature: string;
+  };
 }
 
 export interface SignStepView extends SignStep {
@@ -795,6 +815,8 @@ export interface SigningRequest {
   sentAt: string;
   expiresAt: string;
   autoConfirmAt: string | null;
+  documentDigest?: string;
+  termsDigest?: string;
 }
 
 export interface SignerCertificate {
@@ -811,7 +833,7 @@ export interface SigningOverview extends SigningConfig {
   anySigned: boolean;
 }
 
-export type SignatureCheck = "VALID" | "INVALID";
+export type SignatureCheck = "VALID" | "INVALID" | "UNVERIFIED";
 
 export interface VerifiedSignature {
   stepNo: number;
@@ -823,6 +845,10 @@ export interface VerifiedSignature {
   certExpiryYear: number;
   status: SignatureCheck;
   contentIntact: boolean;
+  cryptoValid?: boolean;
+  certificateTrusted?: boolean;
+  proofBasis?: "DOCUMENT_BYTES" | "TERMS_SNAPSHOT";
+  keyFingerprint?: string;
 }
 
 export interface VerificationResult {
@@ -843,6 +869,8 @@ export interface ContractFile {
   sizeBytes: number;
   kind: ContractFileKind;
   pages?: number;
+  documentId?: string;
+  sha256?: string;
 }
 
 export interface DraftSigner {
@@ -853,6 +881,7 @@ export interface DraftSigner {
 export type DraftState = "DRAFT" | "DIGITIZED" | "SIGNING" | "ACTIVE";
 
 export interface ContractDraft {
+  ruleVersion?: { id: string; hash: string };
   code: string;
   state: DraftState;
   origin: Origin;

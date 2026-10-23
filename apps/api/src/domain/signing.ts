@@ -4,6 +4,15 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { randomInt } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { canonical, sha256 } from "../common/audit-chain";
+import { repoRoot } from "../common/paths";
+import { digestBytes } from "../trust/crypto";
+import {
+  LocalSigningProvider,
+  type SigningProvider,
+} from "../trust/signing-provider";
 import { outcome, newEvent, type Outcome } from "./actions";
 import type { Ctx } from "./context";
 import { businessNow, entity, nextId } from "./factory";
@@ -24,6 +33,7 @@ import type {
   VerificationResult,
 } from "./types";
 
+const signingProvider: SigningProvider = new LocalSigningProvider();
 const REQUEST_LIFETIME_MS = 5 * 60 * 1000;
 /** The simulated signer confirms on the phone a few seconds after the request is sent. */
 const SIMULATED_CONFIRM_DELAY_MS = 7000;
@@ -33,6 +43,60 @@ const METHODS: SignMethod[] = [
   "VIETTEL_MYSIGN",
   "IMAGE",
 ];
+
+/** Bind signatures to immutable document bytes, or explicitly to seed/demo terms when no file exists. */
+export function signingDigest(ctx: Ctx, code: string) {
+  const contract = ctx.contract(code);
+  const signing = ctx.signing(code)!;
+  const draft = ctx.draft(code);
+  const terms = Object.fromEntries(
+    [
+      "contract_id",
+      "contract_title",
+      "contract_type",
+      "buyer_id",
+      "supplier_id",
+      "contract_value_vnd_mn",
+      "start_date",
+      "end_date",
+      "approval_policy",
+      "grace_period_days",
+      "penalty_rate_pct_per_day",
+      "max_penalty_pct",
+      "rule_set_id",
+    ].map((key) => [key, contract[key]]),
+  );
+  const termsDigest = sha256(
+    canonical({
+      terms,
+      fileName: signing.fileName,
+      slots: signing.slots,
+      signers: signing.steps.map((step) => ({
+        stepNo: step.stepNo,
+        userId: step.signerUserId,
+        party: step.party,
+      })),
+    }),
+  );
+  const documentId = draft?.file.documentId;
+  if (documentId) {
+    if (!/^[a-f0-9-]{36}$/.test(documentId))
+      throw new BadRequestException("INVALID_DOCUMENT");
+    const bytes = readFileSync(
+      resolve(
+        repoRoot(),
+        process.env.DATA_DIR ?? ".data",
+        "uploads",
+        documentId,
+      ),
+    );
+    const digest = digestBytes(bytes);
+    if (digest !== draft.file.sha256)
+      throw new BadRequestException("DOCUMENT_CHANGED");
+    return { digest, termsDigest, basis: "DOCUMENT_BYTES" as const };
+  }
+  return { digest: termsDigest, termsDigest, basis: "TERMS_SNAPSHOT" as const };
+}
 
 function stored(ctx: Ctx, contractCode: string): SigningRecord {
   ctx.contract(contractCode);
@@ -157,8 +221,38 @@ function assertSigner(ctx: Ctx, contractCode: string, stepNo: number) {
 function complete(ctx: Ctx, request: SigningRequestRecord): Outcome {
   const record = stored(ctx, request.contractCode);
   const step = record.steps.find((s) => s.stepNo === request.stepNo)!;
-  request.status = "COMPLETED";
+  if (request.status !== "PENDING" || step.status !== "CURRENT")
+    throw new BadRequestException("REQUEST_NOT_PENDING");
+  if (Date.parse(request.expiresAt) <= Date.now())
+    throw new BadRequestException("REQUEST_EXPIRED");
+  const document = signingDigest(ctx, request.contractCode);
+  if (
+    request.documentDigest !== document.digest ||
+    request.termsDigest !== document.termsDigest
+  )
+    throw new BadRequestException("DOCUMENT_CHANGED");
   const signedAt = businessNow();
+  const previous = record.steps.find(
+    (s) => s.stepNo === step.stepNo - 1,
+  )?.localProof;
+  const proof = signingProvider.sign(`signer:${step.signerUserId}`, {
+    kind: "CONTRACT_SIGNATURE",
+    contractCode: request.contractCode,
+    requestId: request.id,
+    stepNo: step.stepNo,
+    signerUserId: step.signerUserId,
+    declaredMethod: request.method,
+    documentDigest: document.digest,
+    basis: document.basis,
+    signedAt,
+    termsDigest: document.termsDigest,
+    previousSignatureHash: previous ? sha256(canonical(previous)) : null,
+    certificateTrusted: false,
+  });
+  if (!signingProvider.verify(`signer:${step.signerUserId}`, proof))
+    throw new BadRequestException("INVALID_SIGNATURE_PROOF");
+  step.localProof = proof;
+  request.status = "COMPLETED";
   step.status = "SIGNED";
   step.signedAt = signedAt;
   step.method = request.method;
@@ -236,7 +330,7 @@ export function readRequest(
   contractCode: string,
   stepNo: number,
 ): Outcome<SigningRequest | null> {
-  stored(ctx, contractCode);
+  assertSigner(ctx, contractCode, stepNo);
   const request = latestRequest(ctx, contractCode, stepNo);
   if (request?.status === "PENDING") {
     const now = Date.now();
@@ -282,6 +376,8 @@ export function sendRequest(
       sentAt: new Date(now).toISOString(),
       expiresAt: new Date(now + REQUEST_LIFETIME_MS).toISOString(),
       autoConfirmAt: new Date(now + SIMULATED_CONFIRM_DELAY_MS).toISOString(),
+      documentDigest: signingDigest(ctx, contractCode).digest,
+      termsDigest: signingDigest(ctx, contractCode).termsDigest,
       organizationId: step.organizationId,
     },
   ) as SigningRequestRecord;
@@ -367,6 +463,12 @@ export function verification(
   contractCode: string,
 ): VerificationResult {
   const record = stored(ctx, contractCode);
+  let document: ReturnType<typeof signingDigest> | null = null;
+  try {
+    document = signingDigest(ctx, contractCode);
+  } catch {
+    /* changed or missing stored document */
+  }
   const signatures = record.steps
     .filter((s) => s.status === "SIGNED" && s.signedAt && s.method)
     .map((s) => {
@@ -376,6 +478,25 @@ export function verification(
       const certificate = profile?.certificates[s.method!];
       const expiry = new Date(`${s.signedAt}Z`);
       expiry.setUTCFullYear(expiry.getUTCFullYear() + 2);
+      const proof = s.localProof;
+      const previous = record.steps.find(
+        (step) => step.stepNo === s.stepNo - 1,
+      )?.localProof;
+      const cryptoValid =
+        !!proof &&
+        signingProvider.verify(`signer:${s.signerUserId}`, proof) &&
+        proof.payload.contractCode === contractCode &&
+        proof.payload.signerUserId === s.signerUserId &&
+        proof.payload.stepNo === s.stepNo &&
+        proof.payload.signedAt === s.signedAt &&
+        proof.payload.declaredMethod === s.method &&
+        proof.payload.previousSignatureHash ===
+          (previous ? sha256(canonical(previous)) : null);
+      const contentIntact =
+        !!proof &&
+        !!document &&
+        proof.payload.documentDigest === document.digest &&
+        proof.payload.termsDigest === document.termsDigest;
       return {
         stepNo: s.stepNo,
         party: s.party,
@@ -384,8 +505,16 @@ export function verification(
         method: s.method!,
         certExpiryMonth: certificate?.expiryMonth ?? expiry.getUTCMonth() + 1,
         certExpiryYear: certificate?.expiryYear ?? expiry.getUTCFullYear(),
-        status: "VALID" as const,
-        contentIntact: true,
+        status: !proof
+          ? ("UNVERIFIED" as const)
+          : cryptoValid && contentIntact
+            ? ("VALID" as const)
+            : ("INVALID" as const),
+        contentIntact,
+        cryptoValid,
+        certificateTrusted: false,
+        proofBasis: document?.basis,
+        keyFingerprint: proof?.keyFingerprint,
       };
     });
   const complete = signatures.length === record.steps.length;

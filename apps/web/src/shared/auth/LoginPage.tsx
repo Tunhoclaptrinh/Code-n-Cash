@@ -233,18 +233,43 @@ export default function LoginPage() {
             <Form.Item
               name="email"
               label={t("login.email")}
-              rules={[{ required: true, type: "email" }]}
+              rules={[
+                {
+                  required: true,
+                  message: t("forms.required", { field: t("login.email") }),
+                },
+                {
+                  type: "email",
+                  message: t("forms.email", { field: t("login.email") }),
+                },
+                {
+                  max: 254,
+                  message: t("forms.invalid", { field: t("login.email") }),
+                },
+              ]}
             >
-              <Input prefix={<MailOutlined />} autoComplete="username" />
+              <Input
+                placeholder={t("login.emailPlaceholder")}
+                maxLength={254}
+                prefix={<MailOutlined />}
+                autoComplete="username"
+              />
             </Form.Item>
             <Form.Item
               name="password"
               label={t("login.password")}
-              rules={[{ required: true }]}
+              rules={[
+                {
+                  required: true,
+                  message: t("forms.required", { field: t("login.password") }),
+                },
+              ]}
             >
               <Input.Password
                 prefix={<LockOutlined />}
                 autoComplete="current-password"
+                placeholder={t("forms.enter", { field: t("login.password") })}
+                maxLength={1024}
               />
             </Form.Item>
             <Button type="primary" htmlType="submit" loading={busy} block>

@@ -1,7 +1,8 @@
 import { useState, type DragEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Select, Space, Typography } from "antd";
+import { Alert, Button, Select, Space, Typography } from "antd";
+import { downloadBlob } from "@codecash/ui";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { getContractList } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
@@ -22,6 +23,7 @@ import type {
 import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SignatureVerificationPage.module.css";
+import { trustApi } from "@/shared/api/trust";
 
 const INVALID_REASONS = [
   "CONTENT_EDITED",
@@ -100,6 +102,15 @@ function Verification({
   result: VerificationResult;
 }) {
   const { t } = useTranslation("signing");
+  const { t: td } = useTranslation("domain");
+  const download = useMutation({
+    mutationFn: () => trustApi.signatureBundle(contractId),
+    onSuccess: (data) =>
+      downloadBlob(
+        new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
+        `signatures-${contractId}.json`,
+      ),
+  });
   const validCount = result.signatures.filter(
     (signature) => signature.status === "VALID",
   ).length;
@@ -107,6 +118,23 @@ function Verification({
 
   return (
     <>
+      <Alert
+        type="info"
+        showIcon
+        title={t("localProof.notice")}
+        action={
+          <Button
+            onClick={() => download.mutate()}
+            loading={download.isPending}
+          >
+            {t("localProof.export")}
+          </Button>
+        }
+        style={{ marginBottom: 16 }}
+      />
+      {download.isError ? (
+        <Alert type="error" title={td("errors.UNKNOWN")} />
+      ) : null}
       <div className={cx(styles.banner, !effective && styles.bannerOpen)}>
         <span className={styles.bannerIcon} aria-hidden="true">
           {effective ? "✓" : "!"}
@@ -229,12 +257,14 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
           </span>
           <br />
           <b className={expired ? styles.bad : undefined}>
-            {t(
-              expired
-                ? "verify.signatures.certificateExpired"
-                : "verify.signatures.certificateValid",
-              { expiry },
-            )}
+            {signature.certificateTrusted === false
+              ? t("localProof.untrusted")
+              : t(
+                  expired
+                    ? "verify.signatures.certificateExpired"
+                    : "verify.signatures.certificateValid",
+                  { expiry },
+                )}
           </b>
         </div>
         <div>
@@ -243,14 +273,25 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
           </span>
           <br />
           <b className={signature.contentIntact ? styles.good : styles.bad}>
-            {t(
-              signature.contentIntact
-                ? "verify.signatures.contentIntact"
-                : "verify.signatures.contentChanged",
-            )}
+            {signature.status === "UNVERIFIED"
+              ? t("localProof.unverifiedContent")
+              : t(
+                  signature.contentIntact
+                    ? "verify.signatures.contentIntact"
+                    : "verify.signatures.contentChanged",
+                )}
           </b>
         </div>
       </div>
+      {signature.keyFingerprint ? (
+        <Typography.Paragraph
+          copyable
+          style={{ marginTop: 8, overflowWrap: "anywhere" }}
+        >
+          {t("localProof.key")}: {signature.keyFingerprint} ·{" "}
+          {t(`localProof.basis.${signature.proofBasis ?? "TERMS_SNAPSHOT"}`)}
+        </Typography.Paragraph>
+      ) : null}
     </div>
   );
 }

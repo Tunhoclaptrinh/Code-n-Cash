@@ -307,6 +307,12 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               rows={2}
               className={`${styles.noteInput} ${noteMissing ? styles.noteInputInvalid : ""}`}
               value={note}
+              placeholder={t("approve.note.placeholder")}
+              maxLength={2000}
+              showCount
+              onBlur={() => {
+                if (note && !note.trim()) setNoteMissing(true);
+              }}
               aria-invalid={noteMissing}
               onChange={(event) => {
                 setNote(event.target.value);

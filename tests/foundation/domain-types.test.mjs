@@ -26,3 +26,9 @@ test("API and web share one list engine (search, filters, sort, paging)", async 
     "copy apps/api/src/domain/listing.ts to packages/contracts/src/listing.ts",
   );
 });
+
+for (const [apiFile, sharedFile] of [["common/field-validation", "field-validation"], ["trust/types", "trust"]]) {
+  test(`${sharedFile} stays identical between API and browser`, async () => {
+    assert.equal(await readFile(`apps/api/src/${apiFile}.ts`, "utf8"), await readFile(`packages/contracts/src/${sharedFile}.ts`, "utf8"));
+  });
+}

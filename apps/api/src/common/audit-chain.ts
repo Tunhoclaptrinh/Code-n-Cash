@@ -97,7 +97,7 @@ export function verifyChain(
     ? sealed.find((entry) => Number(entry.seq) === anchor.seq)
     : undefined;
   return {
-    ok: !firstBroken,
+    ok: !firstBroken && sealed.length === entries.length,
     sealed: sealed.length,
     unsealed: entries.length - sealed.length,
     head: last ? { seq: Number(last.seq), hash: String(last.hash) } : null,

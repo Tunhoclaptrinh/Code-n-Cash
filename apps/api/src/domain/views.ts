@@ -953,31 +953,83 @@ export function activity(ctx: Ctx): ActivityEntry[] {
     });
   }
   const users = new Map(ctx.users().map((u) => [u.id, u]));
-  for (const entry of (ctx.t.audit ?? []) as RecordEntity[]) {
+  const auditEntries = (ctx.t.audit ?? []) as RecordEntity[];
+  const detailed = new Set(
+    auditEntries
+      .filter((entry) => entry.detail)
+      .map((entry) => entry.transactionId),
+  );
+  const primaryByTransaction = new Map(
+    auditEntries
+      .filter((entry) => entry.changes)
+      .map((entry) => [entry.transactionId, entry]),
+  );
+  for (const entry of auditEntries) {
     const contractCode = String(entry.contractId ?? "");
     if (
       entry.resource !== "workflow" ||
       !visible.has(contractCode) ||
-      !entry.detail
+      (!entry.detail && detailed.has(entry.transactionId))
     )
       continue;
     const user = users.get(String(entry.actorId));
     entries.push({
       id: entry.id,
-      at: String(entry.at ?? entry.createdAt).slice(0, 19),
+      at: String(
+        entry.at ??
+          new Date(
+            Date.parse(String(entry.createdAt)) + 7 * 3_600_000,
+          ).toISOString(),
+      ).slice(0, 19),
       actor: {
         id: String(entry.actorId),
-        displayName: user ? String(user.displayName) : String(entry.actorId),
-        role: (user?.role as ActivityEntry["actor"]["role"]) ?? "SYSTEM",
+        displayName: String(
+          entry.actorName ?? user?.displayName ?? entry.actorId,
+        ),
+        role:
+          ((entry.actorRole ?? user?.role) as ActivityEntry["actor"]["role"]) ??
+          "SYSTEM",
       },
       category: (entry.category as ActivityCategory) ?? "SYSTEM",
-      action: entry.detail as ActivityAction,
+      action: (entry.detail as ActivityAction) ?? {
+        kind: "WORKFLOW_ACTION",
+        code: String(entry.action),
+      },
       contractCode,
       milestoneId: (entry.milestoneId as string) ?? null,
       milestoneNo: entry.milestoneId
         ? (sequenceOf.get(String(entry.milestoneId)) ?? null)
         : null,
       origin: "APP",
+      audit: (() => {
+        const primary = primaryByTransaction.get(entry.transactionId) ?? entry;
+        const changes = (primary.changes ?? []) as NonNullable<
+          ActivityEntry["audit"]
+        >["changes"];
+        return {
+          seq: Number(entry.seq),
+          hash: String(entry.hash),
+          transactionId: entry.transactionId as string,
+          requestId: entry.requestId as string,
+          outcome: entry.outcome as string,
+          changes: changes?.filter((change) => {
+            const row = ctx.t[change.resource]?.find(
+              (item) => item.id === change.recordId,
+            );
+            const reference =
+              row?.contract_id ??
+              row?.contractCode ??
+              row?.contractId ??
+              change.fields.contract_id?.before ??
+              change.fields.contractCode?.before;
+            return (
+              reference === contractCode ||
+              change.recordId === contractCode ||
+              change.recordId === `draft-${contractCode}`
+            );
+          }),
+        };
+      })(),
     });
   }
   return entries.sort(

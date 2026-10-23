@@ -50,12 +50,14 @@ import type {
   ResourceDefinition,
   ResourceField,
 } from "@codecash/contracts";
+import { fieldProblem } from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime, formatNumber } from "@/shared/lib/format";
 import { OriginTag } from "@/shared/ui/DomainTags";
 import { ImportPreviewModal } from "@/shared/ui/ImportPreviewModal";
+import { AuditDetails } from "@/shared/ui/AuditDetails";
 
 type Filters = NonNullable<PageQuery["filters"]>;
 type Option = { value: string; label: string };
@@ -618,10 +620,19 @@ function ResourceView({ resource }: { resource: string }) {
             name={field.key}
             label={fieldLabel(field.key)}
             valuePropName={field.type === "boolean" ? "checked" : "value"}
+            validateTrigger={["onChange", "onBlur"]}
             rules={[
               {
-                required: field.required,
-                ...(field.type === "email" ? { type: "email" as const } : {}),
+                validator: async (_, value: unknown) => {
+                  const code = fieldProblem(field, value);
+                  if (code)
+                    throw new Error(
+                      tc(
+                        `forms.${code.startsWith("REQUIRED") ? "required" : field.type === "email" ? "email" : "invalid"}`,
+                        { field: fieldLabel(field.key) },
+                      ),
+                    );
+                },
               },
             ]}
           >
@@ -634,6 +645,9 @@ function ResourceView({ resource }: { resource: string }) {
               />
             ) : field.type === "select" ? (
               <Select
+                placeholder={tc("forms.choose", {
+                  field: fieldLabel(field.key),
+                })}
                 options={field.options?.map((value) => ({
                   label: optionLabel(field, value),
                   value,
@@ -642,9 +656,24 @@ function ResourceView({ resource }: { resource: string }) {
             ) : field.type === "boolean" ? (
               <Switch />
             ) : field.type === "number" ? (
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <InputNumber
+                min={field.min ?? 0}
+                max={field.max}
+                precision={field.integer ? 0 : undefined}
+                placeholder={tc("forms.enter", {
+                  field: fieldLabel(field.key),
+                })}
+                style={{ width: "100%" }}
+              />
             ) : (
-              <Input />
+              <Input
+                placeholder={t(`placeholders.${field.key}`, {
+                  defaultValue: tc("forms.enter", {
+                    field: fieldLabel(field.key),
+                  }),
+                })}
+                maxLength={field.maxLength ?? 2000}
+              />
             )}
           </Form.Item>
         ))}
@@ -680,9 +709,15 @@ function ResourceView({ resource }: { resource: string }) {
         <Form.Item
           name="draftId"
           label={t("draftId")}
-          rules={[{ required: true }]}
+          rules={[
+            {
+              required: true,
+              whitespace: true,
+              message: tc("forms.required", { field: t("draftId") }),
+            },
+          ]}
         >
-          <Input />
+          <Input placeholder={t("placeholders.draftId")} maxLength={80} />
         </Form.Item>
         <Upload.Dragger
           accept="application/pdf"
@@ -723,7 +758,11 @@ function ResourceView({ resource }: { resource: string }) {
             { min: 12, max: 128, message: t("passwordTooShort") },
           ]}
         >
-          <Input.Password autoComplete="new-password" />
+          <Input.Password
+            placeholder={t("placeholders.password")}
+            maxLength={128}
+            autoComplete="new-password"
+          />
         </Form.Item>
       </FormModal>
       <DetailModal
@@ -744,6 +783,15 @@ function ResourceView({ resource }: { resource: string }) {
         items={
           viewing
             ? [
+                ...(resource === "audit"
+                  ? [
+                      {
+                        key: "auditDetails",
+                        label: t("detail"),
+                        value: <AuditDetails entry={viewing} />,
+                      },
+                    ]
+                  : []),
                 ...fields.map((field) => ({
                   key: field.key,
                   label: fieldLabel(field.key),

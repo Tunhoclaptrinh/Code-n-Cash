@@ -8,6 +8,7 @@ __pycache__/
 !.env.example
 !.env.production.example
 .data/
+.data-trust/
 artifacts/
 playwright-report/
 test-results/

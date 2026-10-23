@@ -29,6 +29,8 @@ import type {
   UploadFormOptions,
 } from "./types";
 import { CONTRACT_TYPES, WORKFLOW_BY_TYPE } from "./vocabulary";
+import { draftProblems, validIsoDate } from "../common/field-validation";
+import { pinnedVersion, versionRuleSet } from "./rule-versions";
 
 const POLICIES = Object.keys(APPROVAL_ROLES_BY_POLICY) as ApprovalPolicy[];
 const BUYER_SIGNER_ROLES = [
@@ -45,9 +47,16 @@ function assertEditor(ctx: Ctx) {
 }
 
 /** Workflow stages, read from the Milestone templates table (built from the Data Pack). */
-export function stagesOf(ctx: Ctx, type: ContractType): StageTemplate[] {
+export function stagesOf(
+  ctx: Ctx,
+  type: ContractType,
+  versionId?: string,
+): StageTemplate[] {
   const template = WORKFLOW_BY_TYPE[type].template;
-  return ((ctx.t["milestone-templates"] ?? []) as RecordEntity[])
+  const version = versionId ? pinnedVersion(ctx.t, versionId) : undefined;
+  return (
+    (version?.templates ?? ctx.t["milestone-templates"] ?? []) as RecordEntity[]
+  )
     .filter((row) => row.workflowTemplate === template)
     .map((row) => ({
       sequence: Number(row.sequence),
@@ -165,6 +174,9 @@ const toDraft = (d: DraftRecord): ContractDraft => ({
   signers: d.signers,
   file: d.file,
   appendixNames: d.appendixNames,
+  ruleVersion: d.ruleVersionId
+    ? { id: String(d.ruleVersionId), hash: String(d.ruleVersionHash) }
+    : undefined,
 });
 
 /** The organisation's open draft, or a new one with the next contract code (not saved yet). */
@@ -216,17 +228,14 @@ export function currentDraft(ctx: Ctx, code?: string): ContractDraft {
 }
 
 const decimal = (value: unknown, max: number) => {
-  const text = String(value ?? "").trim();
+  const text = String(value ?? "")
+    .trim()
+    .replace(",", ".");
   if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
   const normalized = fromCents(toCents(text));
   return toCents(normalized) > toCents(String(max)) ? null : normalized;
 };
-const isoDate = (value: unknown) =>
-  typeof value === "string" &&
-  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-  !Number.isNaN(Date.parse(value))
-    ? value
-    : null;
+const isoDate = (value: unknown) => (validIsoDate(value) ? value : null);
 
 /** Validates and stores step 1 of the upload wizard: draft, contract row and signing order. */
 export function saveDraft(
@@ -234,6 +243,9 @@ export function saveDraft(
   input: ContractDraft,
 ): Outcome<ContractDraft> {
   assertEditor(ctx);
+  const problems = draftProblems(input ?? ({} as ContractDraft));
+  if (Object.keys(problems).length)
+    throw new BadRequestException(Object.values(problems)[0]);
   const buyer = ctx.actor.organizationId;
   const existing = ctx.contracts.find((c) => c.contract_id === input?.code);
   if (
@@ -298,6 +310,7 @@ export function saveDraft(
   const reviewer = ctx.user(String(input.reviewerId));
   if (
     !reviewer ||
+    reviewer.active === false ||
     reviewer.organizationId !== buyer ||
     reviewer.role !== "LEGAL_REVIEWER"
   )
@@ -312,6 +325,10 @@ export function saveDraft(
     throw new BadRequestException("FILE_REQUIRED");
 
   const workflow = WORKFLOW_BY_TYPE[input.type];
+  const version = pinnedVersion(
+    ctx.t,
+    existing?.ruleVersionId as string | undefined,
+  );
   const roles = APPROVAL_ROLES_BY_POLICY[input.approvalPolicy];
   const fields = {
     contract_id: expectedCode,
@@ -325,7 +342,11 @@ export function saveDraft(
     start_date: start,
     end_date: end,
     workflow_template: workflow.template,
-    rule_set_id: workflow.ruleSetId,
+    rule_set_id: version
+      ? versionRuleSet(workflow.ruleSetId, version.id)
+      : workflow.ruleSetId,
+    ruleVersionId: version?.id,
+    ruleVersionHash: version?.hash,
     approval_policy: input.approvalPolicy,
     approval_quorum: String(roles.length),
     auto_release_allowed: roles.length ? "FALSE" : "TRUE",
@@ -350,6 +371,8 @@ export function saveDraft(
     );
 
   const draftFields = {
+    ruleVersionId: version?.id,
+    ruleVersionHash: version?.hash,
     code: expectedCode,
     title,
     supplierId: supplier.party_id,
@@ -369,6 +392,14 @@ export function saveDraft(
       sizeBytes: Number(file.sizeBytes) || 0,
       kind: file.kind,
       pages: file.pages,
+      documentId:
+        ctx.draft(expectedCode)?.file.name === file.name
+          ? ctx.draft(expectedCode)?.file.documentId
+          : undefined,
+      sha256:
+        ctx.draft(expectedCode)?.file.name === file.name
+          ? ctx.draft(expectedCode)?.file.sha256
+          : undefined,
     },
     appendixNames: (input.appendixNames ?? [])
       .map((name) => String(name).slice(0, 255))
@@ -465,7 +496,11 @@ export function digitization(ctx: Ctx, code: string): Digitization {
   const draft = ctx.draft(code);
   if (!draft) throw new NotFoundException("DRAFT_NOT_FOUND");
   if (draft.digitization) return draft.digitization;
-  const stages = stagesOf(ctx, draft.contractType);
+  const stages = stagesOf(
+    ctx,
+    draft.contractType,
+    draft.ruleVersionId as string | undefined,
+  );
   let allocated = 0n;
   const milestones: DigitizedMilestone[] = stages.map((stage, i) => {
     const last = i === stages.length - 1;
@@ -524,6 +559,17 @@ export function confirmDigitization(
   const draft = ctx.draft(code);
   if (!draft || contract.lifecycle !== "DRAFT" || draft.state !== "DRAFT")
     throw new BadRequestException("DRAFT_LOCKED");
+  if (
+    draft.file.documentId &&
+    !ctx.t["extraction-proposals"].some(
+      (proposal) =>
+        proposal.contractCode === code &&
+        proposal.documentSha256 === draft.file.sha256 &&
+        proposal.confirmedDraftVersion === draft.version &&
+        proposal.confirmedBy,
+    )
+  )
+    throw new BadRequestException("EXTRACTION_REVIEW_REQUIRED");
   const result = digitization(ctx, code);
   const dueDate = input?.dueDate
     ? isoDate(String(input.dueDate).slice(0, 10))
@@ -545,7 +591,11 @@ export function confirmDigitization(
     ) + 1;
   const created = milestonesFor(
     contract,
-    stagesOf(ctx, draft.contractType),
+    stagesOf(
+      ctx,
+      draft.contractType,
+      draft.ruleVersionId as string | undefined,
+    ),
     first,
     Object.fromEntries(
       result.milestones.map((m) => [m.sequence, m.dueDate ?? ""]),

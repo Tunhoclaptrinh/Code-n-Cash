@@ -28,6 +28,11 @@ export interface Field {
   options?: string[];
   /** Name of the resource this field points to (by id). */
   ref?: string;
+  min?: number;
+  max?: number;
+  integer?: boolean;
+  maxLength?: number;
+  pattern?: string;
 }
 export interface Resource {
   name: string;

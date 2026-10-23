@@ -365,7 +365,8 @@
     "note": {
       "label": "Note",
       "hint": "required to reject or request info",
-      "required": "Write a note."
+      "required": "Write a note.",
+      "placeholder": "Explain the decision or requested documents (up to 2,000 characters)."
     },
     "actions": {
       "reject": "Reject",

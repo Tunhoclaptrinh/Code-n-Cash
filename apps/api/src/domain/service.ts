@@ -113,6 +113,7 @@ export class DomainService {
     actor: Actor,
     action: string,
     fn: (ctx: Ctx) => Outcome<T> | Promise<Outcome<T>>,
+    contractReference = "",
   ): Promise<T & { evaluation?: Evaluation | null }> {
     let done!: Outcome<T>;
     let evaluation: Evaluation | null = null;
@@ -134,7 +135,7 @@ export class DomainService {
           result.audit[0]?.contractId ??
           result.events[0]?.contract_id ??
           result.milestoneId ??
-          "";
+          contractReference;
         const entries = [
           {
             ...this.base.auditRecord(

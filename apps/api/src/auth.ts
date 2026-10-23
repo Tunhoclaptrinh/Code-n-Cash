@@ -23,6 +23,7 @@ import { RequirePermission, permissionsFor } from "./common/permissions";
 import type { Actor, SessionRequest, Role, RecordEntity } from "./common/types";
 import { buildDirectory, FEATURED_ACCOUNTS } from "./domain/accounts";
 import { loadDataPack } from "./domain/datapack";
+import { auditContext } from "./common/audit-events";
 /**
  * One-click demo sign-in: on by default in development, off in production unless DEMO_LOGIN=true.
  * Never enable it on a deployment that holds real data.
@@ -75,6 +76,7 @@ export class AuthService {
       !(await bcrypt.compare(password, String(user.passwordHash)))
     )
       throw new UnauthorizedException("INVALID_CREDENTIALS");
+    await this.recordAccess("LOGIN", user);
     return this.session(user);
   }
   private session(user: RecordEntity) {
@@ -90,6 +92,24 @@ export class AuthService {
       ),
       user: this.actor(user),
     };
+  }
+  private async recordAccess(action: string, user: RecordEntity) {
+    const now = new Date().toISOString();
+    await this.repo.mutate("audit", (entries) =>
+      entries.push({
+        id: randomBytes(16).toString("hex"),
+        version: 1,
+        createdAt: now,
+        updatedAt: now,
+        organizationId: user.organizationId,
+        actorId: user.id,
+        actorName: user.displayName,
+        actorRole: user.role,
+        action,
+        resource: "users",
+        recordId: user.id,
+      }),
+    );
   }
   /** Seeded accounts: the featured ones first, then every organisation of the Data Pack. */
   async demoAccounts() {
@@ -148,6 +168,8 @@ export class AuthService {
         updatedAt: now,
         organizationId: String(user.organizationId),
         actorId: user.id,
+        actorName: user.displayName,
+        actorRole: user.role,
         action: "LOGIN_DEMO",
         resource: "users",
         recordId: user.id,
@@ -208,10 +230,29 @@ export class AuthService {
     return { updated: true };
   }
   async logout(actor: Actor) {
-    await this.repo.mutate("users", (items) => {
-      const user = items.find((x) => x.id === actor.id);
-      if (user) user.tokenVersion = Number(user.tokenVersion ?? 0) + 1;
-    });
+    await this.repo.transact(
+      ["users"],
+      (tables) => {
+        const items = tables.users;
+        const user = items.find((x) => x.id === actor.id);
+        if (user) user.tokenVersion = Number(user.tokenVersion ?? 0) + 1;
+      },
+      () => [
+        {
+          id: randomBytes(16).toString("hex"),
+          version: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          organizationId: actor.organizationId,
+          actorId: actor.id,
+          actorName: actor.displayName,
+          actorRole: actor.role,
+          action: "LOGOUT",
+          resource: "users",
+          recordId: actor.id,
+        },
+      ],
+    );
     return { loggedOut: true };
   }
   /**
@@ -285,6 +326,8 @@ export class AuthGuard implements CanActivate {
     if (!header?.startsWith("Bearer "))
       throw new UnauthorizedException("AUTHENTICATION_REQUIRED");
     req.user = await this.auth.authenticate(header.slice(7));
+    const context = auditContext.getStore();
+    if (context) context.actor = req.user;
     return true;
   }
 }

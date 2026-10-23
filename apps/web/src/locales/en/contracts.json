@@ -218,7 +218,20 @@
         "INVALID_CODE": "The contract code changed; reload the page.",
         "BUYER_EDITORS_ONLY": "Only buyer contract officers and owners can create a file.",
         "UNKNOWN": "The file could not be saved."
-      }
+      },
+      "placeholders": {
+        "type": "Choose contract type",
+        "title": "e.g. Supply equipment for the practice lab",
+        "supplier": "Find and choose a supplier",
+        "reviewer": "Choose the buyer's contract officer",
+        "value": "0.01–1000000.00",
+        "date": "YYYY-MM-DD",
+        "policy": "Choose approval policy",
+        "grace": "0–60",
+        "rate": "0.00–5.00",
+        "cap": "0.00–100.00"
+      },
+      "ruleVersion": "Pinned rule version: {{id}}. Later configuration changes do not replace this draft’s version."
     },
     "checks": {
       "title": "Checks on the uploaded file",

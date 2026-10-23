@@ -233,7 +233,8 @@
       "engine": "Engine Data Pack",
       "documents": "Tài liệu",
       "administration": "Quản trị",
-      "controls": "Kiểm soát ngoại lệ"
+      "controls": "Kiểm soát ngoại lệ",
+      "trust": "Niêm phong và phiên bản luật"
     },
     "scope": {
       "all": "Tất cả",
@@ -315,7 +316,12 @@
       "disputes:open": "Mở tranh chấp",
       "exceptions:read": "Xem hàng đợi ngoại lệ BR-19",
       "exceptions:propose": "Đề xuất vô hiệu sự kiện sai thẩm quyền",
-      "exceptions:decide": "Duyệt hoặc bác đề xuất ngoại lệ (người thứ hai)"
+      "exceptions:decide": "Duyệt hoặc bác đề xuất ngoại lệ (người thứ hai)",
+      "anchors:read": "Xem và kiểm niêm phong",
+      "anchors:write": "Tạo và thử lại niêm phong",
+      "rules:read": "Xem phiên bản quy tắc",
+      "rules:write": "Soạn phiên bản quy tắc",
+      "rules:publish": "Duyệt phiên bản của người khác"
     },
     "scopeLabel": "Phạm vi",
     "searchPlaceholder": "Tìm theo tên quyền, mã quyền, nhóm (không cần dấu)"
@@ -328,5 +334,15 @@
   },
   "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)",
   "managedNote": "Bản ghi nguồn {{origins}} chỉ xem và xuất được; bản ghi tạo thêm thì sửa, xoá bình thường.",
-  "managedDraftsNote": "Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên."
+  "managedDraftsNote": "Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên.",
+  "placeholders": {
+    "code": "VD: ORG_NEW",
+    "paymentPercent": "VD: 20.00 (0–100)",
+    "requiredEvents": "VD: DELIVERY;INVOICE",
+    "partyId": "VD: B010, S015, A028",
+    "draftId": "Mã hồ sơ đã lưu",
+    "password": "12–128 ký tự"
+  },
+  "anchorsTitle": "Niêm phong độc lập",
+  "rulesTitle": "Phiên bản quy tắc và mẫu mốc"
 }

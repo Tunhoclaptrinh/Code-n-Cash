@@ -27,7 +27,7 @@ beforeEach(async () => {
   repo = new Repository();
   await repo.init();
   service = new BaseService(repo);
-  // Drafts reference their supplier; the fixture supplier must exist (no audit entry).
+  // Bootstrap the referenced supplier. System writes are sealed as well.
   await repo.mutate("organizations", (items) =>
     items.push({
       id: "supplier",
@@ -88,7 +88,7 @@ test("optimistic versions reject stale writes and updates are audited atomically
   const log = await repo.list("audit");
   assert.deepEqual(
     log.map((x) => x.action),
-    ["CREATE", "UPDATE"],
+    ["SYSTEM_WRITE", "CREATE", "UPDATE"],
   );
 });
 test("pagination, sorting and search are applied to the whole filtered dataset", async () => {
@@ -134,7 +134,7 @@ test("persistent storage survives reinitialization and concurrent creates", asyn
   const restored = new Repository();
   await restored.init();
   assert.equal((await restored.list("contract-drafts")).length, 3);
-  assert.equal((await restored.list("audit")).length, 3);
+  assert.equal((await restored.list("audit")).length, 4);
   await restored.onModuleDestroy();
 });
 test("password hashes are never returned and disabled accounts invalidate tokens", async () => {
@@ -164,7 +164,7 @@ test("bulk import is all-or-nothing and bulk delete remains tenant-scoped", asyn
     ),
   );
   assert.equal((await repo.list("contract-drafts")).length, 0);
-  assert.equal((await repo.list("audit")).length, 0);
+  assert.equal((await repo.list("audit")).length, 1);
   await service.import(
     "contract-drafts",
     { items: [draft("A"), draft("B")] },
@@ -243,8 +243,8 @@ test("reset password and logout invalidate prior tokens without exposing secrets
   });
   await auth.logout(next.user);
   await assert.rejects(auth.authenticate(next.token));
-  const audit = (await repo.list("audit")).at(-1);
-  assert.equal(audit.action, "RESET_PASSWORD");
+  const audit = await repo.list("audit");
+  assert.deepEqual(audit.filter((row) => ["LOGIN", "RESET_PASSWORD", "LOGOUT"].includes(row.action)).map((row) => row.action), ["LOGIN", "RESET_PASSWORD", "LOGIN", "LOGOUT"]);
   assert.equal(JSON.stringify(audit).includes("ChangedPassword123!"), false);
 });
 

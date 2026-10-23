@@ -108,6 +108,8 @@ const platform: NavItem = {
   labelKey: "title",
   ns: "platform",
   children: [
+    { to: "/platform/anchors", labelKey: "anchorsTitle", ns: "platform" },
+    { to: "/platform/rule-versions", labelKey: "rulesTitle", ns: "platform" },
     ...PLATFORM_RESOURCES.map((name) => ({
       to: `/platform/${name}`,
       labelKey: `resources.${name}`,

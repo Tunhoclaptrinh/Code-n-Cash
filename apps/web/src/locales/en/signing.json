@@ -127,7 +127,7 @@
     },
     "source": {
       "title": "Source text in the PDF",
-      "badge": "Read from the PDF content",
+      "badge": "Workflow template illustration",
       "location": "Article {{article}}, page {{page}}",
       "hint": "Yellow areas are where the system read out figures. Click a row on the right to see where it came from.",
       "vnd": "{{value}} million VND",
@@ -347,7 +347,8 @@
       "signer": "{{person}} · {{party}}",
       "status": {
         "VALID": "Valid",
-        "INVALID": "Invalid"
+        "INVALID": "Invalid",
+        "UNVERIFIED": "Unverified"
       },
       "signedAt": "Signing time",
       "method": "Method",
@@ -382,5 +383,16 @@
       "exceptions": "See the screen for each exception"
     },
     "pick": "Contract:"
+  },
+  "localProof": {
+    "notice": "The demo creates local Ed25519 proofs bound to document bytes or a terms snapshot and signer order. VNPT/Viettel methods remain simulated; test keys are not CA-trusted.",
+    "export": "Export signature proofs",
+    "untrusted": "Local test key, not CA-trusted",
+    "unverifiedContent": "No cryptographic proof available",
+    "key": "Key fingerprint",
+    "basis": {
+      "DOCUMENT_BYTES": "Bound to document bytes",
+      "TERMS_SNAPSHOT": "Bound to terms snapshot"
+    }
   }
 }

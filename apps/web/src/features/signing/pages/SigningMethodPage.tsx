@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Alert, Button } from "antd";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
@@ -56,6 +56,12 @@ export default function SigningMethodPage() {
         { label: t("signMethod.breadcrumb.current", { stepNo }) },
       ]}
     >
+      <Alert
+        type="info"
+        showIcon
+        title={t("localProof.notice")}
+        style={{ marginBottom: 16 }}
+      />
       {overview.data ? (
         <MethodSelection
           contractId={contractId}

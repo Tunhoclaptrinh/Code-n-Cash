@@ -53,6 +53,9 @@ export const READ_TABLES = [
   "users",
   "organizations",
   "milestone-templates",
+  "documents",
+  "extraction-proposals",
+  "rule-versions",
 ];
 
 const BUYER_ROLES = new Set([

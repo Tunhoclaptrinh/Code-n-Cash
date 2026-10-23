@@ -925,6 +925,8 @@ function ExceptionPanel({
           <Input.TextArea
             rows={2}
             value={reason}
+            maxLength={2000}
+            showCount
             placeholder={t("decision.exceptions.reason")}
             onChange={(event) => setReason(event.target.value)}
             data-testid="exception-reason"

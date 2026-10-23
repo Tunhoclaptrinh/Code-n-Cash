@@ -218,7 +218,20 @@
         "INVALID_CODE": "Mã hợp đồng đã đổi, tải lại trang.",
         "BUYER_EDITORS_ONLY": "Chỉ cán bộ hợp đồng hoặc chủ hợp đồng bên mua được tạo hồ sơ.",
         "UNKNOWN": "Không lưu được hồ sơ."
-      }
+      },
+      "placeholders": {
+        "type": "Chọn loại hợp đồng",
+        "title": "VD: Cung cấp thiết bị phòng thực hành",
+        "supplier": "Tìm và chọn nhà cung cấp",
+        "reviewer": "Chọn cán bộ hợp đồng bên mua",
+        "value": "0.01–1000000.00",
+        "date": "YYYY-MM-DD",
+        "policy": "Chọn chính sách phê duyệt",
+        "grace": "0–60",
+        "rate": "0.00–5.00",
+        "cap": "0.00–100.00"
+      },
+      "ruleVersion": "Phiên bản quy tắc đã gắn: {{id}}. Thay đổi cấu hình sau này không thay phiên bản của hồ sơ này."
     },
     "checks": {
       "title": "Kiểm tra tệp vừa tải lên",

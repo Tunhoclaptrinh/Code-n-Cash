@@ -28,6 +28,9 @@ import { workflowCall } from "./workflow";
 
 /** Query keys of the workflow; every write invalidates them (shared/auth/session.tsx). */
 export const WORKFLOW_KEYS = [
+  "anchors",
+  "rule-versions",
+  "extraction",
   "contract-summaries",
   "milestones",
   "pending-task-count",

@@ -536,6 +536,46 @@
           }
         }
       ]
+    },
+    {
+      "key": "trust",
+      "permissions": [
+        {
+          "key": "anchors:read",
+          "grants": {
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
+          }
+        },
+        {
+          "key": "anchors:write",
+          "grants": {
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
+          "key": "rules:read",
+          "grants": {
+            "ADMIN_AUDITOR": "all",
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all"
+          }
+        },
+        {
+          "key": "rules:write",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
+          "key": "rules:publish",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        }
+      ]
     }
   ]
 }

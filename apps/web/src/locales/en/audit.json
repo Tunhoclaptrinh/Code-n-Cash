@@ -213,6 +213,37 @@
     "DIGITIZATION_CONFIRMED": "Digitised terms locked",
     "EXCEPTION": "BR-19 exception",
     "PAYMENT": "Payment transfer",
-    "REQUEST_INFO": "Information request"
+    "REQUEST_INFO": "Information request",
+    "EXTRACT_TERMS": "Extract terms",
+    "CONFIRM_EXTRACTION": "Confirm extracted terms",
+    "LOGIN": "Sign in",
+    "LOGOUT": "Sign out",
+    "VIEW": "Inspect record",
+    "DOWNLOAD": "Download document",
+    "REQUEST_FAILED": "Failed request",
+    "ANCHOR_REQUEST": "Request anchor",
+    "ANCHOR_CONFIRMED": "Anchor confirmed",
+    "ANCHOR_FAILED": "Anchor failed",
+    "RULE_VERSION_CREATE": "Draft rule version",
+    "RULE_VERSION_SAVE": "Save rule version",
+    "RULE_VERSION_SUBMIT": "Validate and submit rules",
+    "RULE_VERSION_PUBLISH": "Publish rules",
+    "EXPORT_REQUEST": "List export requested",
+    "SIGNATURE_EXPORT": "Signature proofs exported",
+    "ANCHOR_EXPORT": "Anchor bundle exported",
+    "SYSTEM_WRITE": "System data written"
+  },
+  "auditDetail": {
+    "transactionId": "Transaction ID",
+    "requestId": "Request ID",
+    "seq": "Sealed sequence",
+    "hash": "Entry hash",
+    "outcome": "Outcome",
+    "errorCode": "Error code",
+    "record": "Record",
+    "field": "Changed field",
+    "before": "Before",
+    "after": "After",
+    "noChanges": "No data changed, or this older entry predates detailed change capture."
   }
 }

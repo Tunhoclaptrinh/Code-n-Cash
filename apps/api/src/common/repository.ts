@@ -80,6 +80,20 @@ export class Repository implements OnModuleDestroy {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     }
   }
+  async reset(): Promise<void> {
+    if (this.db) {
+      await this.db.dropDatabase();
+      await this.init();
+    } else {
+      this.data = {};
+      try {
+        const { unlink } = await import("node:fs/promises");
+        await unlink(this.path);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      }
+    }
+  }
   async list(resource: string): Promise<RecordEntity[]> {
     if (this.db)
       return (await this.db

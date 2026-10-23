@@ -23,6 +23,7 @@ import { RequirePermission, permissionsFor } from "./common/permissions";
 import type { Actor, SessionRequest, Role, RecordEntity } from "./common/types";
 import { buildDirectory, FEATURED_ACCOUNTS } from "./domain/accounts";
 import { loadDataPack } from "./domain/datapack";
+import { DomainService } from "./domain/service";
 import { auditContext } from "./common/audit-events";
 /**
  * One-click demo sign-in: on by default in development, off in production unless DEMO_LOGIN=true.
@@ -333,7 +334,10 @@ export class AuthGuard implements CanActivate {
 }
 @Controller("auth")
 export class AuthController {
-  constructor(@Inject(AuthService) private auth: AuthService) {}
+  constructor(
+    @Inject(AuthService) private auth: AuthService,
+    @Inject(DomainService) private domain: DomainService,
+  ) {}
   @Public() @Post("login") login(@Body() body: unknown) {
     return this.auth.login(body);
   }
@@ -342,6 +346,12 @@ export class AuthController {
   }
   @Public() @Post("demo-login") demoLogin(@Body() body: unknown) {
     return this.auth.demoLogin(body);
+  }
+  @Public() @Post("reset-demo") async resetDemo() {
+    if (!demoLoginEnabled()) throw new NotFoundException("DEMO_LOGIN_DISABLED");
+    await this.domain.resetDemo();
+    await this.auth.seed();
+    return { ok: true, message: "Demo data reset successfully" };
   }
   @Post("logout") logout(@Req() req: SessionRequest) {
     return this.auth.logout(req.user);

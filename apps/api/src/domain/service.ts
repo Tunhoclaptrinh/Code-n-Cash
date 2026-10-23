@@ -81,6 +81,11 @@ export class DomainService {
     return seed.accounts;
   }
 
+  async resetDemo(): Promise<AccountSpec[]> {
+    await this.repo.reset();
+    return this.bootstrap();
+  }
+
   private async load(names: string[]): Promise<Tables> {
     const tables: Tables = {};
     for (const name of names) tables[name] = await this.repo.list(name);

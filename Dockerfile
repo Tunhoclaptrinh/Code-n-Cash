@@ -47,6 +47,7 @@ WORKDIR /app
 COPY --from=api-deps /app/node_modules ./node_modules
 COPY --from=api-deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/apps/web/dist ./apps/web/dist
 COPY apps/api/package.json ./apps/api/
 # Runtime files the API reads relative to REPO_ROOT: resource definitions and the engine.
 COPY packages/contracts/resources.json packages/contracts/permissions.json ./packages/contracts/

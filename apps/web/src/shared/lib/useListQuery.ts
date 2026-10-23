@@ -70,8 +70,8 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
     | "engine";
 }) {
   const { fetch, sort } = options;
-  const {message} = App.useApp();
-  const {t} = useTranslation("platform");
+  const { message } = App.useApp();
+  const { t } = useTranslation("platform");
   const [query, setQuery] = useState<ListQuery>({
     page: 1,
     limit: options.pageSize ?? 10,

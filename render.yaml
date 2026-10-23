@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: codecash-demo
+    runtime: docker
+    dockerfilePath: ./Dockerfile.standalone
+    plan: free
+    region: singapore
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: STORAGE_DRIVER
+        value: mongo
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEMO_LOGIN
+        value: "true"
+      - key: SEED_PASSWORD
+        value: "Passw0rd!"
+

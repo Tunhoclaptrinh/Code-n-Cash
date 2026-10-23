@@ -158,15 +158,23 @@ export default function DataPage() {
       }
     } else {
       try {
-        await platform.post("/exports", {source: "engine", count: result.data.rows.length, format: file.endsWith(".csv") ? "csv" : "json", scope: "all", columns: [file]});
-      } catch {void message.error(t("error")); return;}
-      if (file === "submission_output.csv")
-      exportToCSV(result.data.rows, file);
-    else
-      exportToJSON(
-        file === "audit.json" ? result.data.traces : result.data.summary,
-        file,
-      );
+        await platform.post("/exports", {
+          source: "engine",
+          count: result.data.rows.length,
+          format: file.endsWith(".csv") ? "csv" : "json",
+          scope: "all",
+          columns: [file],
+        });
+      } catch {
+        void message.error(t("error"));
+        return;
+      }
+      if (file === "submission_output.csv") exportToCSV(result.data.rows, file);
+      else
+        exportToJSON(
+          file === "audit.json" ? result.data.traces : result.data.summary,
+          file,
+        );
     }
   };
   const allRows = useMemo(() => result.data?.rows ?? [], [result.data]);

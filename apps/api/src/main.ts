@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentsController } from "./documents";
 import "reflect-metadata";
 import { WorkflowController, WorkflowService } from "./workflow.controller";
@@ -63,15 +65,18 @@ class HealthController {
 })
 class ApplicationModule {}
 async function main() {
-  const app = await NestFactory.create(ApplicationModule);
+  const app =
+    await NestFactory.create<NestExpressApplication>(ApplicationModule);
   await app.get(Repository).init();
   app.setGlobalPrefix("api/v1");
   app.enableCors({
-    origin: (
-      process.env.WEB_ORIGIN ?? "http://127.0.0.1:5173,http://localhost:5173"
-    ).split(","),
+    origin: process.env.WEB_ORIGIN ? process.env.WEB_ORIGIN.split(",") : true,
   });
   app.use((req: any, res: any, next: () => void) => {
+    if (req.path === "/healthz") {
+      res.status(200).send("ok\n");
+      return;
+    }
     req.requestId = randomUUID();
     res.setHeader("x-request-id", req.requestId);
     auditContext.run(
@@ -100,10 +105,37 @@ async function main() {
     SwaggerModule.createDocument(app, config),
   );
   app.enableShutdownHooks();
-  // Loopback by default; containers set API_HOST=0.0.0.0 behind the reverse proxy.
-  await app.listen(
-    Number(process.env.API_PORT ?? 3000),
-    process.env.API_HOST ?? "127.0.0.1",
+
+  // If the web build is present, serve it directly so single-container deployments require zero setup.
+  const staticDir = resolve(
+    process.env.REPO_ROOT ?? resolve(__dirname, "../../.."),
+    "apps/web/dist",
   );
+  if (existsSync(staticDir)) {
+    app.useStaticAssets(staticDir, {
+      setHeaders: (res: any, path: string) => {
+        if (path.includes("/assets/")) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    });
+    app.use((req: any, res: any, next: () => void) => {
+      if (
+        req.method === "GET" &&
+        !req.path.startsWith("/api") &&
+        !req.path.startsWith("/healthz")
+      ) {
+        res.sendFile(resolve(staticDir, "index.html"));
+        return;
+      }
+      next();
+    });
+  }
+
+  // Cloud PaaS (Render, Koyeb, Railway, Cloud Run) supply PORT and expect 0.0.0.0.
+  const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3000);
+  const host =
+    process.env.API_HOST ?? (process.env.PORT ? "0.0.0.0" : "127.0.0.1");
+  await app.listen(port, host);
 }
 void main();

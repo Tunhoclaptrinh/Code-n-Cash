@@ -23,7 +23,7 @@ import {
   type SigningRecord,
   type SigningRequestRecord,
 } from "./records";
-import { defaultSlots } from "./signing-layout";
+import { defaultSlots, documentSlots, assertSlots } from "./signing-layout";
 import type {
   SignMethod,
   SigningConfig,
@@ -132,6 +132,13 @@ export function signingConfig(ctx: Ctx, contractCode: string): SigningConfig {
   const contract = ctx.contract(contractCode);
   return {
     contractCode,
+    ...(record.layoutDocumentId
+      ? {
+          documentId: String(record.layoutDocumentId),
+          documentSha256: String(record.layoutDocumentSha256),
+          layoutVersion: Number(record.layoutVersion),
+        }
+      : {}),
     title: contract.contract_title,
     supplierName: ctx.partyName(contract.supplier_id),
     valueMillion: contract.contract_value_vnd_mn,
@@ -170,6 +177,7 @@ export function saveSlots(
   ctx: Ctx,
   contractCode: string,
   slots: SlotMap,
+  layout?: { documentSha256?: string; version?: number },
 ): Outcome {
   const record = stored(ctx, contractCode);
   const contract = ctx.contract(contractCode);
@@ -177,7 +185,22 @@ export function saveSlots(
     throw new ForbiddenException("BUYER_ONLY");
   if (record.steps.some((s) => s.status === "SIGNED"))
     throw new BadRequestException("SIGNING_ALREADY_STARTED");
+  if (
+    record.layoutDocumentId &&
+    (layout?.documentSha256 !== record.layoutDocumentSha256 ||
+      layout?.version !== record.layoutVersion)
+  )
+    throw new BadRequestException("DOCUMENT_CHANGED");
   const next: SlotMap = {};
+  if (
+    !slots ||
+    typeof slots !== "object" ||
+    Array.isArray(slots) ||
+    Object.keys(slots).some(
+      (key) => !record.steps.some((step) => String(step.stepNo) === key),
+    )
+  )
+    throw new BadRequestException("INVALID_SLOT");
   for (const step of record.steps) {
     const slot = slots?.[step.stepNo];
     if (slot === null || slot === undefined) {
@@ -199,13 +222,18 @@ export function saveSlots(
       look: slot.look,
     };
   }
+  assertSlots(next, record.previewPages, record.steps.length);
   record.slots = next;
   record.version += 1;
   return outcome(ctx, next);
 }
 
-export const defaultSignatureSlots = (ctx: Ctx, contractCode: string) =>
-  defaultSlots(stored(ctx, contractCode).steps.length);
+export const defaultSignatureSlots = (ctx: Ctx, contractCode: string) => {
+  const record = stored(ctx, contractCode);
+  return record.layoutDocumentId
+    ? documentSlots(record.previewPages, record.steps.length)
+    : defaultSlots(record.steps.length);
+};
 
 const requestsOf = (ctx: Ctx) =>
   ctx.t[TABLE.requests] as SigningRequestRecord[];

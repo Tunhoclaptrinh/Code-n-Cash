@@ -1,3 +1,4 @@
+import { SignaturePlacementPreview } from "@/shared/ui/SignaturePlacementPreview";
 import { ContractDocumentPanel } from "@/shared/ui/ContractDocumentPanel";
 import { Alert, Button } from "antd";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -217,6 +218,7 @@ function MethodSelection({
               {t(`errors.${errorCode}`, { defaultValue: t("errors.UNKNOWN") })}
             </p>
           ) : null}
+          <SignaturePlacementPreview config={overview} stepNo={step.stepNo} />
           <div className={styles.footer}>
             <Link
               to={`/contracts/${contractId}/signing`}
@@ -226,7 +228,7 @@ function MethodSelection({
             </Link>
             <Button
               type="primary"
-              size="large"
+              size="small"
               disabled={send.isPending || selectedKind === "IMAGE"}
               onClick={() => send.mutate()}
             >
@@ -276,7 +278,7 @@ function MethodSelection({
               <div className={styles.progressFooter}>
                 <Button
                   danger
-                  size="large"
+                  size="small"
                   disabled={cancel.isPending}
                   onClick={() => cancel.mutate()}
                 >

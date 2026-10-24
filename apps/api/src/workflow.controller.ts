@@ -213,7 +213,13 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     saveSignatureSlots: write(
       "contracts:signature-slots",
       "saveSignatureSlots",
-      (ctx, [code, slots]) => signing.saveSlots(ctx, str(code), input(slots)),
+      (ctx, [code, slots, layout]) =>
+        signing.saveSlots(
+          ctx,
+          str(code),
+          input(slots),
+          layout ? input(layout) : undefined,
+        ),
     ),
     getSigningRequest: write(
       "contracts:read",

@@ -12,7 +12,7 @@ Luồng gồm **Tải lên → Vị trí ký → Rà soát điều khoản → K
 4. Tải tệp hợp đồng; xem tên tệp và chờ tải xong trước khi lưu.
 5. Chọn từ 1–4 người ký. Một người ký hoàn tất toàn bộ lượt ký; từ 2 người phải có đại diện cả hai bên. Chọn mẫu hợp đồng từ danh sách do quản trị cấu hình; có thể thêm/bớt người ký và chỉnh nội dung riêng. Bấm **Tạo hợp đồng mẫu** để sinh DOCX, xem trước và tải về. Sửa dữ liệu sau khi sinh tệp thì phải tạo lại hoặc tải tệp thay thế.
 
-![Danh sách người ký và mẫu nhanh](../../../public/guide/images/upload-signers.webp)
+![Người ký: 1 — chọn mẫu; 2 — chuyển xuống; 3 — bỏ người ký](../../../public/guide/images/upload-signers.webp)
 
 Người ký và vai trò phê duyệt thanh toán là hai cấu hình khác nhau. Ký hợp đồng không tự tạo phê duyệt chi cho mốc.
 
@@ -20,7 +20,7 @@ Người ký và vai trò phê duyệt thanh toán là hai cấu hình khác nha
 
 ![Vị trí các chữ ký trên tài liệu](../../../public/guide/images/upload-positions.webp)
 
-Chọn từng người ký, đặt ô chữ ký ở trang cho phép và kiểm tra không chồng lên vùng nội dung bị chặn hoặc chữ ký khác. Lưu vị trí rồi sang bước rà soát. Nếu hồ sơ chưa đủ dữ liệu hoặc vị trí chưa hợp lệ, sửa tại bước tương ứng trước khi tiếp tục.
+Ảnh nền là từng trang PDF thật của tài liệu đã tải lên. Bấm **Điền vị trí ký mẫu** để gợi ý vùng ký in sẵn, rồi chọn từng người ký và đối chiếu lại. Có thể chuyển trang, phóng to, kéo hoặc đổi kích thước ô ký. Hệ thống chặn ô nằm ngoài trang, đè lên chữ nhận diện được hoặc chồng với ô khác. Lưu vị trí rồi sang bước rà soát. Nếu hồ sơ chưa đủ dữ liệu hoặc vị trí chưa hợp lệ, sửa tại bước tương ứng trước khi tiếp tục.
 
 ## 3. Rà soát điều khoản và khoá
 
@@ -28,7 +28,7 @@ Chọn từng người ký, đặt ô chữ ký ở trang cho phép và kiểm t
 
 Đối chiếu tổng giá trị, tỷ lệ và số tiền từng mốc, loại chứng từ, chính sách phê duyệt, phạt và ngày đến hạn. Mốc có thuật ngữ tương đối như “12 tháng” cần nhập ngày cụ thể. Nếu để trống hạn được phép thiếu, mốc có thể bị HOLD vì thiếu cấu trúc; không tự suy ra ngày để hoàn tất demo.
 
-> **Phạm vi hiện tại:** trích xuất đọc text từ PDF/DOCX thật và yêu cầu người dùng kiểm tra, chỉnh và xác nhận. Bản scan cần OCR chưa được kết nối. Mốc nghiệp vụ vẫn lấy từ mẫu quy trình Data Pack. Canvas vị trí ký là sơ đồ quy ước, chưa phải vị trí chữ ký PAdES trên PDF.
+> **Trích xuất:** nếu được quản trị bật Gemini, hệ thống gửi bản PDF đến Google để đề xuất sáu điều khoản kèm trang và đoạn trích. Với PDF có text, đoạn trích được kiểm lại trên đúng trang; điều này không thay việc xác nhận ý nghĩa và giá trị. Bản scan cần người dùng đối chiếu thủ công. Chế độ local đọc text, không gọi AI. Mốc nghiệp vụ vẫn lấy từ mẫu quy trình Data Pack. Vị trí ký gắn với trang PDF thật; chữ ký demo vẫn là bằng chứng tách rời, chưa nhúng chữ ký PAdES vào PDF.
 
 Bấm **Xác nhận** tạo các mốc thật và khoá điều khoản, chuyển hợp đồng sang **Đang ký**. Số tiền các mốc cộng đúng giá trị hợp đồng; mốc cuối nhận phần dư làm tròn.
 
@@ -39,7 +39,7 @@ Bấm **Xác nhận** tạo các mốc thật và khoá điều khoản, chuyể
 ![CT0102 đang chờ nhà cung cấp ký](../../../public/guide/images/signing-turn.webp)
 
 1. Đăng nhập người đang có nhãn đến lượt; người khác chỉ xem tiến trình.
-2. Mở bước ký của mình, đọc tài liệu và chọn phương thức phù hợp. Bước cuối yêu cầu chữ ký số, không chỉ ảnh chữ ký.
+2. Mở bước ký của mình, đọc tài liệu, bấm **Xem vị trí ký** để đối chiếu ô ký trên trang PDF rồi chọn phương thức phù hợp. Bước cuối yêu cầu chữ ký số, không chỉ ảnh chữ ký.
 3. Gửi yêu cầu, thực hiện xác nhận mô phỏng theo màn hình; kiểm tra trạng thái hoàn tất trước khi đổi tài khoản.
 4. Người tiếp theo nhận lượt. Chữ ký cuối kích hoạt hợp đồng và tạo sự kiện `CONTRACT_SIGNED` đúng bên mua.
 
@@ -71,7 +71,7 @@ Sau khi hợp đồng có hiệu lực, quay lại [Việc cần làm](/guide/ta
 
 ![Dữ liệu mẫu đã điền vào form, chưa được lưu](../../../public/guide/images/upload-demo-filled.webp)
 
-Màn **Tải hợp đồng lên** mới bắt đầu trống; mã hồ sơ và dữ liệu hệ thống là trường chỉ đọc. Bấm nút **Điền mẫu toàn bộ** duy nhất ở đầu form để điền tất cả ô còn trống, kể cả người ký chưa chọn. Nội dung đã nhập được giữ nguyên; thao tác không lưu/gửi. Trong danh sách người ký, mở **Thao tác** để chuyển lên, chuyển xuống hoặc bỏ người ký; thứ tự được đánh số từ trên xuống. Hồ sơ mở từ việc cần làm hoặc **Hoàn tất bản nháp** giữ dữ liệu đã lưu.
+Màn **Tải hợp đồng lên** mới bắt đầu trống; mã hồ sơ và dữ liệu hệ thống là trường chỉ đọc. Bấm nút **Điền mẫu toàn bộ** duy nhất ở đầu form để điền tất cả ô còn trống, kể cả người ký chưa chọn. Nội dung đã nhập được giữ nguyên; thao tác không lưu/gửi. Trong danh sách người ký, bấm trực tiếp mũi tên lên/xuống để đổi thứ tự; icon thùng rác đỏ dạng link để bỏ người ký. Rê chuột hoặc dùng Tab để xem tên thao tác. Thứ tự được đánh số từ trên xuống. Hồ sơ mở từ việc cần làm hoặc **Hoàn tất bản nháp** giữ dữ liệu đã lưu.
 
 Sau khi tải tài liệu, **Nạp đề xuất** dùng giá trị trích xuất thực để bạn rà soát; đây không phải dữ liệu demo. Ngày chưa xác nhận có nút nạp ngày gợi ý. Vị trí ký mới để trống, dùng **Điền vị trí ký mẫu** hoặc đặt thủ công trước khi lưu.
 

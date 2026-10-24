@@ -16,7 +16,7 @@ import {
   type SigningRecord,
   type StageTemplate,
 } from "./records";
-import { MAX_SIGNERS, previewPagesFor } from "./signing-layout";
+import { MAX_SIGNERS, previewPagesFor, assertSlots } from "./signing-layout";
 import { addDays, fromCents, shareOf, toCents } from "./templates";
 import type {
   ApprovalPolicy,
@@ -396,7 +396,11 @@ export function saveDraft(
       name: file.name.slice(0, 255),
       sizeBytes: Number(file.sizeBytes) || 0,
       kind: file.kind,
-      pages: file.pages,
+      pages:
+        ctx.draft(expectedCode)?.file.documentId &&
+        ctx.draft(expectedCode)?.file.name === file.name
+          ? ctx.draft(expectedCode)?.file.pages
+          : file.pages,
       documentId:
         ctx.draft(expectedCode)?.file.name === file.name
           ? ctx.draft(expectedCode)?.file.documentId
@@ -458,7 +462,8 @@ export function saveDraft(
       signing.slots = Object.fromEntries(
         steps.map((step) => [step.stepNo, null]),
       );
-      signing.previewPages = previewPagesFor(steps.length);
+      if (!signing.layoutDocumentId)
+        signing.previewPages = previewPagesFor(steps.length);
     }
     Object.assign(signing, {
       steps,
@@ -591,6 +596,15 @@ export function confirmDigitization(
     )
   )
     throw new BadRequestException("EXTRACTION_REVIEW_REQUIRED");
+  const layout = ctx.signing(code);
+  if (layout?.layoutDocumentId) {
+    if (
+      layout.layoutDocumentSha256 !== draft.file.sha256 ||
+      layout.layoutDocumentId !== draft.file.documentId
+    )
+      throw new BadRequestException("DOCUMENT_CHANGED");
+    assertSlots(layout.slots, layout.previewPages, layout.steps.length, true);
+  }
   const result = digitization(ctx, code);
   const dueDate = input?.dueDate
     ? isoDate(String(input.dueDate).slice(0, 10))

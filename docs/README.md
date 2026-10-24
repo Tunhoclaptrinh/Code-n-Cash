@@ -46,3 +46,8 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [20 — Kiểm chứng công thức, biến và tham số thực thi](20_KIEM_CHUNG_CONG_THUC_VA_THAM_SO.md)
 
 - [21 — Hợp nhất tính năng và rà soát nút](21_HOP_NHAT_TINH_NANG_VA_RA_SOAT_NUT.md)
+
+- [22 — Đồng bộ nút và mật độ giao diện](22_DONG_BO_NUT_VA_MAT_DO_GIAO_DIEN.md)
+- [23 — Đề xuất ứng dụng Gemini](23_DE_XUAT_UNG_DUNG_GEMINI.md)
+
+- [24 — PDF thật, vị trí ký và tích hợp Gemini](24_PDF_THAT_VI_TRI_KY_VA_GEMINI.md)

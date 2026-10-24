@@ -25,11 +25,11 @@
   },
   "extraction": {
     "title": "Trích xuất và đối chiếu điều khoản",
-    "notice": "Bộ trích xuất cục bộ chỉ đề xuất giá trị có dòng văn bản làm nguồn. Bạn phải đối chiếu tài liệu, sửa giá trị chưa rõ và xác nhận trước khi khóa điều khoản.",
+    "notice": "Kết quả đọc tài liệu chỉ là đề xuất. Đối chiếu giá trị, trang và đoạn trích; sửa hoặc bổ sung trước khi xác nhận và khóa điều khoản.",
     "extract": "Đọc và trích xuất tệp",
     "document": "Tải tài liệu gốc",
     "noDocument": "Hồ sơ demo chỉ có tên tệp, chưa có tệp gốc. Dữ liệu dưới đây cần xác nhận thủ công.",
-    "noText": "Chưa đọc được văn bản rõ ràng. PDF ảnh hoặc tệp mã hóa cần OCR/xử lý riêng; hãy mở tài liệu để xác nhận các giá trị.",
+    "noText": "Tệp chưa có văn bản để đối chiếu tự động. Với bản scan, hãy kiểm tra giá trị và đoạn trích trên ảnh trang.",
     "field": "Trường",
     "suggestion": "Đề xuất",
     "source": "Nguồn trong tệp",
@@ -40,9 +40,13 @@
     "confirmed": "Đã được {{actor}} xác nhận.",
     "kinds": {
       "TEMPLATE": "Mẫu quy trình",
-      "TEXT_RULES": "Trích xuất văn bản cục bộ"
+      "TEXT_RULES": "Trích xuất văn bản cục bộ",
+      "GEMINI": "Gemini AI"
     },
-    "loadSuggestions": "Nạp đề xuất"
+    "loadSuggestions": "Nạp đề xuất",
+    "quoteVerified": "Đã tìm thấy đoạn trích trên trang",
+    "scanReview": "Cần đối chiếu ảnh trang",
+    "aiNotice": "AI đề xuất; người rà soát xác nhận. Không tự phê duyệt hoặc thay đổi quyết định thanh toán."
   },
   "rules": {
     "title": "Phiên bản quy tắc và mẫu mốc",

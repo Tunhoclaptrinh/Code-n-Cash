@@ -54,10 +54,33 @@ jobs:
           curl -sf http://127.0.0.1:8080/healthz
           curl -sf http://127.0.0.1:8080/api/v1/health | grep -q '"storage":"mongo"'
           curl -sf http://127.0.0.1:8080/contracts | grep -q 'id="root"'
-          API_BASE_URL=http://127.0.0.1:8080/api/v1 node scripts/smoke.mjs
+          SMOKE_STORAGE_DRIVER=mongo API_BASE_URL=http://127.0.0.1:8080/api/v1 node scripts/smoke.mjs
       - name: Logs on failure
         if: failure()
         run: docker compose -f infra/compose.prod.yaml --env-file .env.production logs --no-color
+      - name: Build Render standalone image
+        run: docker build -f Dockerfile.standalone -t codecash/standalone:ci .
+      - name: Smoke Render standalone image
+        run: |
+          docker run -d --name codecash-standalone-ci -p 127.0.0.1:18080:10000 \
+            -e STORAGE_DRIVER=file -e JWT_SECRET="$(openssl rand -hex 48)" \
+            -e SEED_PASSWORD=Passw0rd! -e DEMO_LOGIN=true -e EXTRACTION_PROVIDER=local \
+            codecash/standalone:ci
+          for attempt in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:18080/healthz; then break; fi
+            sleep 2
+          done
+          curl -sf http://127.0.0.1:18080/api/v1/health
+          curl -sf http://127.0.0.1:18080/contracts | grep -q 'id="root"'
+          docker exec codecash-standalone-ci sh -c 'command -v libreoffice && command -v pdftoppm && test -f apps/engine/pdf_geometry.py && test -f apps/engine/rule_language.json && test -f apps/engine/templates/sample-vi.json'
+          API_BASE_URL=http://127.0.0.1:18080/api/v1 node scripts/smoke.mjs
+          API_BASE_URL=http://127.0.0.1:18080/api/v1 node scripts/real-contract-smoke.mjs
+      - name: Standalone logs on failure
+        if: failure()
+        run: docker logs codecash-standalone-ci || true
+      - name: Stop standalone
+        if: always()
+        run: docker rm -f codecash-standalone-ci || true
       - name: Stop stack
         if: always()
         run: docker compose -f infra/compose.prod.yaml --env-file .env.production down -v

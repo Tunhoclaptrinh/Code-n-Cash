@@ -41,6 +41,11 @@ import { RulesService } from "./trust/rules-service";
 import { AuditExportController } from "./common/audit-export";
 process.env.REPO_ROOT ??= resolve(__dirname, "../../..");
 loadEnv({ path: resolve(process.env.REPO_ROOT, ".env") });
+if (process.env.NODE_ENV !== "production")
+  loadEnv({
+    path: resolve(process.env.REPO_ROOT, ".env.gemini.local"),
+    quiet: true,
+  });
 process.chdir(process.env.REPO_ROOT);
 @Controller("health")
 class HealthController {

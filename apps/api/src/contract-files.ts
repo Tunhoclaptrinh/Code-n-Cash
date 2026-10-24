@@ -18,6 +18,7 @@ import { Repository } from "./common/repository";
 import { DomainService } from "./domain/service";
 import { repoRoot } from "./common/paths";
 import { previewPdf } from "./document-preview";
+import { renderPdfPage } from "./pdf-layout";
 /** Contract participants may view their own files without global document-library privileges. */
 @Controller("contract-files")
 export class ContractFilesController {
@@ -94,6 +95,49 @@ export class ContractFilesController {
   ) {
     const { file, bytes } = await this.original(code, id, req);
     res.type("application/pdf").setHeader("Cache-Control", "no-store");
-    res.send(await previewPdf(bytes, String(file.kind)));
+    if (file.pdfSha256) {
+      const pdf = await readFile(
+        resolve(
+          repoRoot(),
+          process.env.DATA_DIR ?? ".data",
+          "uploads",
+          id + ".preview.pdf",
+        ),
+      );
+      if (createHash("sha256").update(pdf).digest("hex") !== file.pdfSha256)
+        throw new BadRequestException("DOCUMENT_CHANGED");
+      res.send(pdf);
+    } else res.send(await previewPdf(bytes, String(file.kind)));
+  }
+  @Get(":code/:id/pages/:page/image")
+  @RequirePermission("contracts:read")
+  async pageImage(
+    @Param("code") code: string,
+    @Param("id") id: string,
+    @Param("page") pageText: string,
+    @Req() req: SessionRequest,
+    @Res() res: Response,
+  ) {
+    const { file } = await this.original(code, id, req);
+    if (
+      !/^[1-9]\d{0,2}$/.test(pageText) ||
+      !(file.pdfPages as Array<{ pageNo: number }> | undefined)?.some(
+        (p) => p.pageNo === Number(pageText),
+      )
+    )
+      throw new BadRequestException("INVALID_DOCUMENT");
+    const pdf = await readFile(
+      resolve(
+        repoRoot(),
+        process.env.DATA_DIR ?? ".data",
+        "uploads",
+        id + ".preview.pdf",
+      ),
+    );
+    if (createHash("sha256").update(pdf).digest("hex") !== file.pdfSha256)
+      throw new BadRequestException("DOCUMENT_CHANGED");
+    res.type("image/png").setHeader("Cache-Control", "no-store");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.send(await renderPdfPage(pdf, Number(pageText)));
   }
 }

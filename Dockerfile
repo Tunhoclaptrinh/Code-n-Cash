@@ -53,6 +53,7 @@ COPY apps/api/package.json ./apps/api/
 COPY packages/contracts/resources.json packages/contracts/permissions.json ./packages/contracts/
 COPY apps/engine/cli.py apps/engine/dataset.py apps/engine/server.py ./apps/engine/
 COPY apps/engine/validate_rules.py apps/engine/rule_language.json apps/engine/sample_contract.py ./apps/engine/
+COPY apps/engine/pdf_geometry.py ./apps/engine/
 COPY apps/engine/templates ./apps/engine/templates
 COPY tools/kiem_chung_nghiep_vu.py ./tools/
 COPY BangD-Case4/DataPack-CASE4_SmartContractWorkflow ./BangD-Case4/DataPack-CASE4_SmartContractWorkflow

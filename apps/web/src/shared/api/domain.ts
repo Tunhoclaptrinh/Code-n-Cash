@@ -190,8 +190,16 @@ export const getSigningConfig = (contractCode: string) =>
   workflowCall<SigningConfig>("signing", "getSigningConfig", [contractCode]);
 export const getDefaultSignatureSlots = (contractCode: string) =>
   workflowCall<SlotMap>("signing", "getDefaultSignatureSlots", [contractCode]);
-export const saveSignatureSlots = (contractCode: string, slots: SlotMap) =>
-  workflowCall<SlotMap>("signing", "saveSignatureSlots", [contractCode, slots]);
+export const saveSignatureSlots = (
+  contractCode: string,
+  slots: SlotMap,
+  layout?: { documentSha256?: string; version?: number },
+) =>
+  workflowCall<SlotMap>("signing", "saveSignatureSlots", [
+    contractCode,
+    slots,
+    layout,
+  ]);
 export const getSigningOverview = (contractCode: string) =>
   workflowCall<SigningOverview>("signing", "getSigningOverview", [
     contractCode,

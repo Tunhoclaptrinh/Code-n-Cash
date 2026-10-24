@@ -1,4 +1,88 @@
 import type { PdfPagePreview, SlotMap } from "./types";
+import { BadRequestException } from "@nestjs/common";
+
+export const rectanglesOverlap = (
+  a: { x: number; y: number; w: number; h: number },
+  b: { x: number; y: number; w: number; h: number },
+) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+/** The server validates the exact same page geometry as the image shown to the signer. */
+export function assertSlots(
+  slots: SlotMap,
+  pages: PdfPagePreview[],
+  count: number,
+  required = false,
+) {
+  const assigned: NonNullable<SlotMap[number]>[] = [];
+  for (let step = 1; step <= count; step++) {
+    const slot = slots[step];
+    if (!slot) {
+      if (required) throw new BadRequestException("SLOT_REQUIRED");
+      continue;
+    }
+    const page = pages.find((p) => p.pageNo === slot.page);
+    if (
+      !page ||
+      !Number.isInteger(slot.page) ||
+      [slot.x, slot.y, slot.w, slot.h].some((v) => !Number.isFinite(v)) ||
+      slot.x < 0 ||
+      slot.y < 0 ||
+      slot.w < 80 ||
+      slot.h < 40 ||
+      slot.x + slot.w > (page.width ?? 520) + 0.01 ||
+      slot.y + slot.h > (page.height ?? 620) + 0.01
+    )
+      throw new BadRequestException("SLOT_OUT_OF_BOUNDS");
+    if (page.blockedZones.some((zone) => rectanglesOverlap(slot, zone)))
+      throw new BadRequestException("SLOT_OVER_TEXT");
+    if (
+      assigned.some(
+        (other) => other.page === slot.page && rectanglesOverlap(slot, other),
+      )
+    )
+      throw new BadRequestException("SLOT_OVERLAP");
+    assigned.push(slot);
+  }
+}
+
+/** Printed anchors first; otherwise find free rectangles. Suggestions always need review. */
+export function documentSlots(pages: PdfPagePreview[], count: number): SlotMap {
+  const result: SlotMap = {};
+  for (let step = 1; step <= count; step++) {
+    result[step] = null;
+    const anchored = pages.filter((page) =>
+      page.anchors?.some((anchor) => anchor.stepNo === step),
+    );
+    const candidates = (
+      anchored.length ? anchored : [...pages].reverse()
+    ).flatMap((page) => {
+      const anchor = page.anchors?.find((a) => a.stepNo === step);
+      const points = anchor
+        ? [{ x: anchor.x, y: anchor.y }]
+        : Array.from({ length: 10 }, (_, i) => ({
+            x: i % 2 ? 270 : 36,
+            y: (page.height ?? 620) - 140 - Math.floor(i / 2) * 115,
+          }));
+      return points.map((point) => ({
+        page: page.pageNo,
+        ...point,
+        w: 190,
+        h: 88,
+        look: "NAME_AND_TIME" as const,
+      }));
+    });
+    for (const candidate of candidates) {
+      try {
+        assertSlots({ ...result, [step]: candidate }, pages, count);
+        result[step] = candidate;
+        break;
+      } catch {
+        /* Try another blank area. */
+      }
+    }
+  }
+  return result;
+}
 
 /** One to four configured signers, laid out two per row on the last page. */
 export const MAX_SIGNERS = 4;

@@ -11,7 +11,7 @@ export const auditContext = new AsyncLocalStorage<{
 }>();
 
 const SECRET =
-  /^(password|passwordHash|tokenVersion|token|accessToken|refreshToken|authorization|privateKey|clientSecret|secret|pin|otp)$/i;
+  /^(password|passwordHash|tokenVersion|token|accessToken|refreshToken|authorization|privateKey|clientSecret|secret|pin|otp|apiKey|geminiApiKey|GEMINI_API_KEY|x-goog-api-key)$/i;
 export function auditSafe(value: unknown, resource = ""): unknown {
   if (Array.isArray(value)) return value.map((v) => auditSafe(v, resource));
   if (value && typeof value === "object")

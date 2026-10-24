@@ -340,7 +340,7 @@ function Review({
             </Link>
             <Button
               type="primary"
-              size="large"
+              size="small"
               disabled={confirm.isPending}
               onClick={onConfirm}
               data-testid="digitize-confirm"

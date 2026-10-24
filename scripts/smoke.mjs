@@ -15,8 +15,8 @@ async function request(path, method = "GET", body, token) {
 }
 assert.equal(
   (await request("/health")).body.data.storage,
-  "file",
-  "Run against an isolated file fixture",
+  process.env.SMOKE_STORAGE_DRIVER ?? "file",
+  "Run against an isolated fixture; Mongo CI must opt in with SMOKE_STORAGE_DRIVER=mongo",
 );
 assert.equal((await request("/resources/users")).status, 401);
 const login = await request("/auth/login", "POST", {

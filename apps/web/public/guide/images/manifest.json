@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-24T18:31:02.875Z",
-  "base": "http://127.0.0.1:5351",
+  "capturedAt": "2026-10-24T22:32:24.209Z",
+  "base": "http://127.0.0.1:3296",
   "screenshots": [
     "login",
     "login-demo-menu",
@@ -76,18 +76,5 @@
     "mobile-tasks"
   ],
   "missingMarks": [],
-  "failures": [],
-  "updatedAt": "2026-10-24T18:34:54.055Z",
-  "updatedScreenshots": [
-    "login",
-    "login-demo-menu",
-    "welcome",
-    "header-tips",
-    "nav-legal",
-    "upload-form",
-    "upload-demo-filled",
-    "upload-real-preview",
-    "upload-document",
-    "upload-signers"
-  ]
+  "failures": []
 }

@@ -31,6 +31,8 @@ import type {
 import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SignaturePositionsPage.module.css";
+import { PdfPageImage } from "@/shared/ui/PdfPageImage";
+import { Alert } from "antd";
 
 const PAGE_WIDTH = 520;
 const PAGE_HEIGHT = 620;
@@ -65,12 +67,14 @@ type DragState =
 
 const clamp = (value: number, low: number, high: number) =>
   Math.max(low, Math.min(high, value));
-const toMm = (value: number) =>
-  Math.round((value * PAGE_WIDTH_MM) / PAGE_WIDTH);
+const toMm = (value: number, widthPt?: number) =>
+  Math.round(
+    (value * (widthPt ? (widthPt * 25.4) / 72 : PAGE_WIDTH_MM)) / PAGE_WIDTH,
+  );
 const overlaps = (a: Rect, b: Rect) =>
   a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-function fit(box: Box): Box {
+function fit(box: Box, height = PAGE_HEIGHT): Box {
   const w = clamp(Math.round(box.w), 80, 320);
   const h = clamp(Math.round(box.h), 40, 200);
   return {
@@ -78,7 +82,7 @@ function fit(box: Box): Box {
     w,
     h,
     x: clamp(Math.round(box.x), 0, PAGE_WIDTH - w),
-    y: clamp(Math.round(box.y), 0, PAGE_HEIGHT - h),
+    y: clamp(Math.round(box.y), 0, height - h),
   };
 }
 
@@ -131,7 +135,11 @@ export default function SignaturePositionsPage() {
       ]}
     >
       {config.data ? (
-        <Editor contractId={contractId} config={config.data} />
+        <Editor
+          key={`${config.data.documentId ?? "seed"}:${config.data.layoutVersion ?? 0}`}
+          contractId={contractId}
+          config={config.data}
+        />
       ) : (
         <PageState kind={config.isError ? "error" : "loading"} />
       )}
@@ -149,6 +157,7 @@ function Editor({ contractId, config }: EditorProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { steps, previewPages } = config;
+  const { t: td } = useTranslation("domain");
   const lastPage =
     previewPages[previewPages.length - 1]?.pageNo ?? config.pageCount;
   const firstPage = previewPages[0]?.pageNo ?? lastPage;
@@ -161,11 +170,23 @@ function Editor({ contractId, config }: EditorProps) {
     initial.boxes[steps[0]?.stepNo ?? 1]?.page ?? lastPage,
   );
   const [zoom, setZoom] = useState(100);
+  const [imageReady, setImageReady] = useState(false);
+  const pageHeight = (number: number) =>
+    previewPages.find((p) => p.pageNo === number)?.height ?? PAGE_HEIGHT;
   const drag = useRef<DragState | null>(null);
 
   const save = useMutation({
     mutationFn: () =>
-      saveSignatureSlots(contractId, mergeSlots(steps, boxes, looks)),
+      saveSignatureSlots(
+        contractId,
+        mergeSlots(steps, boxes, looks),
+        config.documentId
+          ? {
+              documentSha256: config.documentSha256,
+              version: config.layoutVersion,
+            }
+          : undefined,
+      ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["signing"] });
       void navigate(`/contracts/${contractId}/digitize`);
@@ -177,7 +198,7 @@ function Editor({ contractId, config }: EditorProps) {
       const next = splitSlots(slots);
       setBoxes(next.boxes);
       setLooks(next.looks);
-      setPage(lastPage);
+      setPage(Object.values(next.boxes).find(Boolean)?.page ?? lastPage);
       setActiveStep(steps[0]?.stepNo ?? 1);
     },
   });
@@ -192,7 +213,10 @@ function Editor({ contractId, config }: EditorProps) {
   }, []);
 
   const put = (stepNo: number, box: Box | null) => {
-    setBoxes((current) => ({ ...current, [stepNo]: box ? fit(box) : null }));
+    setBoxes((current) => ({
+      ...current,
+      [stepNo]: box ? fit(box, pageHeight(box.page)) : null,
+    }));
   };
 
   const pointOnPage = (event: PointerEvent, el: HTMLElement) => {
@@ -205,6 +229,7 @@ function Editor({ contractId, config }: EditorProps) {
   };
 
   const onPageDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (config.documentId && !imageReady) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
     if ((event.target as HTMLElement).closest("[data-box]")) return;
     const el = event.currentTarget;
@@ -230,6 +255,7 @@ function Editor({ contractId, config }: EditorProps) {
     stepNo: number,
     mode: "move" | "resize",
   ) => {
+    if (config.documentId && !imageReady) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
     const box = boxes[stepNo];
     const el = event.currentTarget.closest<HTMLElement>("[data-pagearea]");
@@ -282,7 +308,7 @@ function Editor({ contractId, config }: EditorProps) {
         x: start.x,
         y: start.y,
         w: Math.min(point.x - start.x, PAGE_WIDTH - start.x),
-        h: Math.min(point.y - start.y, PAGE_HEIGHT - start.y),
+        h: Math.min(point.y - start.y, pageHeight(start.page) - start.y),
       });
     }
   };
@@ -376,7 +402,11 @@ function Editor({ contractId, config }: EditorProps) {
       pending: assigned.length === 0,
     },
   ];
-  const canContinue = allAssigned && !anyOver && !anyOverlap;
+  const canContinue =
+    allAssigned &&
+    !anyOver &&
+    !anyOverlap &&
+    (!config.documentId || imageReady);
 
   const pageData = previewPages.find((candidate) => candidate.pageNo === page);
   const scale = zoom / 100;
@@ -387,6 +417,35 @@ function Editor({ contractId, config }: EditorProps) {
   return (
     <>
       <WizardStepper current="SIGN_POSITIONS" />
+      {save.error || reset.error ? (
+        <Alert
+          type="error"
+          showIcon
+          title={td(
+            `errors.${((save.error ?? reset.error) as { code?: string })?.code ?? "UNKNOWN"}`,
+            { defaultValue: td("errors.UNKNOWN") },
+          )}
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
+      <Alert
+        type={config.documentId ? "info" : "warning"}
+        showIcon
+        title={t(
+          config.documentId
+            ? "positions.realDocumentNotice"
+            : "positions.seedDocumentNotice",
+        )}
+        style={{ marginBottom: 12 }}
+      />
+      {pageData?.contentCheck === "MANUAL" ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={t("positions.scanNotice")}
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
 
       <div className={styles.layout}>
         <section className={cx(shared.card, styles.canvasCard)}>
@@ -428,20 +487,30 @@ function Editor({ contractId, config }: EditorProps) {
             <div
               style={{
                 width: Math.round(PAGE_WIDTH * scale),
-                height: Math.round(PAGE_HEIGHT * scale),
+                height: Math.round(pageHeight(page) * scale),
               }}
               className={styles.pageBox}
             >
               <div
                 data-pagearea="1"
                 className={styles.page}
-                style={{ transform: `scale(${scale})` }}
+                style={{
+                  transform: `scale(${scale})`,
+                  height: pageHeight(page),
+                }}
                 onPointerDown={onPageDown}
                 onPointerMove={onPageMove}
                 onPointerUp={onPageUp}
                 onPointerCancel={onPageUp}
               >
-                {pageData ? (
+                {config.documentId ? (
+                  <PdfPageImage
+                    contractId={contractId}
+                    documentId={config.documentId}
+                    page={page}
+                    onReady={setImageReady}
+                  />
+                ) : pageData ? (
                   <>
                     <div className={styles.pageHeading}>
                       {t(`document.article.${pageData.heading}`)}
@@ -553,7 +622,7 @@ function Editor({ contractId, config }: EditorProps) {
               className={styles.pagerButton}
               aria-label={t("positions.pager.previous")}
               disabled={page <= firstPage}
-              onClick={() => setPage(firstPage)}
+              onClick={() => setPage((value) => Math.max(firstPage, value - 1))}
             >
               ◀
             </button>
@@ -570,7 +639,7 @@ function Editor({ contractId, config }: EditorProps) {
               className={styles.pagerButton}
               aria-label={t("positions.pager.next")}
               disabled={page >= lastPage}
-              onClick={() => setPage(lastPage)}
+              onClick={() => setPage((value) => Math.min(lastPage, value + 1))}
             >
               ▶
             </button>
@@ -609,6 +678,7 @@ function Editor({ contractId, config }: EditorProps) {
                 type="button"
                 className={styles.resetButton}
                 onClick={() => reset.mutate()}
+                data-testid="positions-suggest"
               >
                 {t("positions.list.reset")}
               </button>
@@ -655,10 +725,26 @@ function Editor({ contractId, config }: EditorProps) {
                     {box
                       ? t("positions.list.position", {
                           page: box.page,
-                          top: toMm(box.y),
-                          left: toMm(box.x),
-                          width: toMm(box.w),
-                          height: toMm(box.h),
+                          top: toMm(
+                            box.y,
+                            previewPages.find((p) => p.pageNo === box.page)
+                              ?.widthPt,
+                          ),
+                          left: toMm(
+                            box.x,
+                            previewPages.find((p) => p.pageNo === box.page)
+                              ?.widthPt,
+                          ),
+                          width: toMm(
+                            box.w,
+                            previewPages.find((p) => p.pageNo === box.page)
+                              ?.widthPt,
+                          ),
+                          height: toMm(
+                            box.h,
+                            previewPages.find((p) => p.pageNo === box.page)
+                              ?.widthPt,
+                          ),
                         })
                       : t("positions.list.empty")}
                   </div>
@@ -742,9 +828,10 @@ function Editor({ contractId, config }: EditorProps) {
             {canContinue ? (
               <Button
                 type="primary"
-                size="large"
+                size="small"
                 disabled={save.isPending}
                 onClick={() => save.mutate()}
+                data-testid="positions-save"
               >
                 {t("positions.actions.continue")}
               </Button>

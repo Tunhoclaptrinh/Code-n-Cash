@@ -10,7 +10,7 @@ Nhánh `feat/monorepo-antd-foundation` có commit local `6de989e` chưa vào nh�
 | Hồ sơ/tài liệu | Nhập form trống, một nút điền mẫu các ô trống, hợp đồng 1–4 người ký, sinh DOCX/PDF thật, lưu bytes/hash, preview thật và bằng chứng ký. |
 | Bảng thao tác | Giữ cụm icon nhỏ cùng hàng, tooltip/aria-label; menu hamburger. Không thêm các nhãn dài vào từng hàng. |
 | Thanh công cụ/form | Giữ nhãn chữ của Thêm mới, Nhập, Xuất, Lưu, Tải lên. Không chuyển đồng loạt thành nút chỉ icon. |
-| Menu người ký | Giữ nút **Thao tác** có chữ; đổi icon ba chấm còn sót thành hamburger. |
+| Thao tác người ký | Theo điều chỉnh sau merge: đưa icon lên/xuống ra trực tiếp trên dòng; xóa dùng icon đỏ kiểu link, không khung. Các icon có tooltip và aria-label. |
 | Trình soạn rule | Giữ bố cục chọn phạm vi → thứ tự rule → biểu thức/công thức, từ điển biến và bảng tác động dễ đọc hiện tại; nhập thêm nút điền mẫu cho form tạo phiên bản. |
 | Kiểm tra công thức | Giữ bộ kiểm kiểu/đơn vị/phần trăm/ngày nguyên, Decimal, runtime và rollback mới hơn. Nhập policy `BTC_FULL_PACK_V1` và đối chiếu hash cấu hình trước khi phát hành; giữ kiểm đủ 405 mốc, mẫu, trạng thái, lý do và số tiền. |
 | Hướng dẫn | Kết hợp hướng dẫn mẫu động với phần công thức mới; ảnh chụp từ bản hợp nhất, có ảnh gốc và khoanh vùng. |
@@ -26,10 +26,10 @@ Không sửa component base trong `packages/ui`. Thay đổi mở rộng đặt 
 ## Kết quả kiểm chứng
 
 - Typecheck, lint, format và build đạt; **140 test** đạt (77 Python + 63 foundation/API). Có kiểm tạo mẫu, pin phiên bản, xóa mẫu, DOCX/PDF, ký tuần tự 1–4 người, quyền, rollback và công thức.
-- Browser smoke: **36 màn/kịch bản**, desktop/mobile; **52 ngữ cảnh sáng/tối**, tổng **907 lượt quan sát nút**, 0 lỗi theo bộ kiểm trên. Đây là số lượt quan sát, không phải 907 nút khác nhau. Kiểm riêng trình soạn rule cũng đạt.
+- Browser smoke: **36 màn/kịch bản**, desktop/mobile; **54 ngữ cảnh sáng/tối**, tổng **949 lượt quan sát nút**, 0 lỗi theo bộ kiểm trên. Đây là số lượt quan sát, không phải 949 nút khác nhau. Kiểm riêng trình soạn rule cũng đạt.
 - HTTP smoke đạt: quyền, CRUD, mẫu động, version cũ, payload rule đầy đủ, preview và nghiệp vụ. Kiểm bổ sung giới hạn JSON 4 MB và JSON sai trả mã lỗi đúng.
 - Rà Data Pack: đủ **405 mốc**, **22 cột**, khớp **20/20 mẫu**, 0 lỗi bất biến; 348 RELEASE, 15 PENALTY, 36 HOLD, 6 REJECT. Hash nguồn khớp manifest BTC. [Báo cáo](../artifacts/integration-review/btc-review.json).
-- Hướng dẫn có **72 ảnh**, 0 bước lỗi, 0 đánh dấu thiếu. [Gallery theo vai trò](../playwright-report/guide/roles/index.html), [manifest](../apps/web/public/guide/images/manifest.json). Ảnh có thay đổi menu người ký được chụp lại sau khi đổi icon.
+- Hướng dẫn có **72 ảnh**, 0 bước lỗi, 0 đánh dấu thiếu. [Gallery theo vai trò](../playwright-report/guide/roles/index.html), [manifest](../apps/web/public/guide/images/manifest.json). Ảnh có thay đổi thao tác người ký được chụp lại sau khi cập nhật.
 - Bộ mẫu đã sinh lại: [PDF 1 người](../artifacts/contract-samples/CodeCash-1-signers.pdf), [2 người](../artifacts/contract-samples/CodeCash-2-signers.pdf), [3 người](../artifacts/contract-samples/CodeCash-3-signers.pdf), [4 người](../artifacts/contract-samples/CodeCash-4-signers.pdf), [ZIP](../artifacts/contract-samples/CodeCash-PDF-1-4-nguoi-ky.zip). Tệp chưa ký, là dữ liệu dùng thử của đội.
 
 Các kiểm thử ghi dữ liệu dùng API `STORAGE_DRIVER=file` và kho mới trong `/tmp`; không chạy vào Mongo hay hồ sơ người dùng. Script browser chọn trực tiếp nội dung textarea trước khi nhập để tránh Ctrl+A chọn sai vùng và báo lỗi cú pháp không đúng kịch bản kiểm.

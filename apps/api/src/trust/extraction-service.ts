@@ -15,6 +15,9 @@ import { outcome } from "../domain/actions";
 import { repoRoot } from "../common/paths";
 import { digestBytes } from "./crypto";
 import { documentText, LocalTermExtractor } from "./extraction";
+import { extractionProvider, geminiExtract } from "./gemini-extractor";
+import { can } from "../common/permissions";
+import { ForbiddenException } from "@nestjs/common";
 import type { ExtractionProposal } from "./types";
 
 @Injectable()
@@ -36,14 +39,34 @@ export class ExtractionService {
     });
   }
   async extract(code: string, actor: Actor) {
+    if (!can(actor.role, "contracts:digitize"))
+      throw new ForbiddenException("PERMISSION_DENIED");
+    const provider = extractionProvider();
     const snapshot = await this.domain.read(actor, (ctx) => {
       ctx.contract(code);
+      drafts.currentDraft(ctx, code); // Check buyer editor/organisation before any external request.
       return ctx.draft(code);
     });
     if (!snapshot || snapshot.state !== "DRAFT")
       throw new BadRequestException("DRAFT_LOCKED");
+    const identity = {
+      kind: provider.kind === "gemini" ? "GEMINI" : "TEXT_RULES",
+      version: provider.version,
+      ...(provider.kind === "gemini" ? { model: provider.model } : {}),
+    };
+    const existing = (await this.repo.list("extraction-proposals")).find(
+      (row) =>
+        row.contractCode === code &&
+        row.draftVersion === snapshot.version &&
+        row.documentSha256 === (snapshot.file.sha256 ?? null) &&
+        (row.extractor as typeof identity)?.kind === identity.kind &&
+        (row.extractor as typeof identity)?.version === identity.version &&
+        (row.extractor as typeof identity)?.model === identity.model,
+    );
     const extractor = new LocalTermExtractor();
-    let text = "";
+    let text = "",
+      pdf: Buffer | undefined,
+      pageCount = 1;
     const warnings: string[] = [];
     if (snapshot.file.documentId) {
       if (!/^[a-f0-9-]{36}$/.test(snapshot.file.documentId))
@@ -56,18 +79,50 @@ export class ExtractionService {
       );
       if (digestBytes(await readFile(path)) !== snapshot.file.sha256)
         throw new BadRequestException("DOCUMENT_CHANGED");
-      try {
-        text = await documentText(path, snapshot.file.kind);
-      } catch {
-        warnings.push("EXTRACTION_UNAVAILABLE");
+      const document = (await this.repo.list("documents")).find(
+        (row) => row.id === snapshot.file.documentId,
+      );
+      if (document?.pdfSha256) {
+        pdf = await readFile(path + ".preview.pdf");
+        if (digestBytes(pdf) !== document.pdfSha256)
+          throw new BadRequestException("DOCUMENT_CHANGED");
+        pageCount = (document.pdfPages as unknown[]).length;
+        text = await documentText(path + ".preview.pdf", "PDF");
+      } else {
+        try {
+          text = await documentText(path, snapshot.file.kind);
+        } catch {
+          warnings.push("EXTRACTION_UNAVAILABLE");
+        }
       }
     } else warnings.push("TEMPLATE_FALLBACK");
     if (!text.trim()) warnings.push("NO_TEXT");
-    const fields = extractor.extract(text);
+    if (existing) return existing;
+    if (provider.kind === "gemini" && !pdf)
+      throw new BadRequestException("GEMINI_DOCUMENT_REQUIRED");
+    const ai =
+      provider.kind === "gemini"
+        ? await geminiExtract({
+            pdf: pdf!,
+            text,
+            pageCount,
+            jobKey: [
+              actor.organizationId,
+              code,
+              snapshot.file.sha256,
+              snapshot.version,
+              provider.model,
+              provider.version,
+            ].join(":"),
+          })
+        : undefined;
+    const fields = ai?.fields ?? extractor.extract(text);
+    warnings.push(...(ai?.warnings ?? []));
     for (const field of fields)
       if (field.value === null) warnings.push(`NEEDS_REVIEW:${field.path}`);
     return this.domain.write(actor, "EXTRACT_TERMS", (ctx) => {
       ctx.contract(code);
+      drafts.currentDraft(ctx, code);
       const current = ctx.draft(code)!;
       if (
         current.version !== snapshot.version ||
@@ -80,7 +135,11 @@ export class ExtractionService {
           (proposal) =>
             proposal.contractCode === code &&
             proposal.draftVersion === current.version &&
-            proposal.documentSha256 === (current.file.sha256 ?? null),
+            proposal.documentSha256 === (current.file.sha256 ?? null) &&
+            (proposal.extractor as typeof identity)?.kind === identity.kind &&
+            (proposal.extractor as typeof identity)?.version ===
+              identity.version &&
+            (proposal.extractor as typeof identity)?.model === identity.model,
         );
       if (old) return outcome(ctx, old);
       const now = new Date().toISOString();
@@ -91,9 +150,10 @@ export class ExtractionService {
         documentSha256: current.file.sha256 ?? null,
         draftVersion: current.version,
         extractor: {
-          kind: text.trim() ? "TEXT_RULES" : "TEMPLATE",
-          version: extractor.version,
+          ...identity,
+          kind: ai ? "GEMINI" : text.trim() ? "TEXT_RULES" : "TEMPLATE",
         },
+        ...(ai ? { usage: ai.usage } : {}),
         fields,
         warnings,
         confirmedBy: null,

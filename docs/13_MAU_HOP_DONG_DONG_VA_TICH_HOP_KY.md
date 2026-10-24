@@ -1,5 +1,8 @@
 # Mẫu hợp đồng động và luồng tài liệu thực
 
+Cập nhật mới hơn: [24 — PDF thật, vị trí ký và Gemini](24_PDF_THAT_VI_TRI_KY_VA_GEMINI.md); ảnh nền và tọa độ ký hiện lấy từ PDF thật khi hồ sơ có tệp đã tải lên.
+
+
 ## Đường đi của hồ sơ
 
 1. `SYSTEM_ADMIN` mở **Quản trị → Mẫu hợp đồng**. Thêm/sửa/xóa, bật/tắt mẫu; tìm kiếm, phân trang, nhập/xuất dùng CRUD base. Cấu hình loại hợp đồng, chính sách phê duyệt, giá trị, phạt, thứ tự 1–4 vai trò ký và nội dung riêng. Với nhiều người ký phải có hai bên. Mẫu không gán cứng người ký hay tổ chức.

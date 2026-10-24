@@ -4,18 +4,19 @@
   border-radius: var(--radius-lg);
 }
 
-/* Links that act as buttons; sized like Ant Design `size="large"` buttons next to them. */
+/* Navigation actions match the compact Ant Design buttons next to them. */
 .btnPrimary,
 .btnSecondary,
 .btnDanger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: var(--radius-sm);
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
   font: inherit;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;

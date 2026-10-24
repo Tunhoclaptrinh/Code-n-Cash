@@ -4,7 +4,6 @@ import {
   Button,
   Col,
   Divider,
-  Dropdown,
   Form,
   Input,
   InputNumber,
@@ -16,14 +15,10 @@ import {
   Typography,
 } from "antd";
 import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-  DeleteOutlined,
   PlusOutlined,
   DownloadOutlined,
   FileAddOutlined,
   InfoCircleOutlined,
-  MenuOutlined,
   PaperClipOutlined,
 } from "@ant-design/icons";
 import { BaseCard, FormFooter, downloadBlob } from "@codecash/ui";
@@ -46,6 +41,7 @@ import type {
   UploadFormOptions,
 } from "../types";
 import styles from "./ContractUploadForm.module.css";
+import { SignerOrderActions } from "@/shared/ui/SignerOrderActions";
 
 const contentKey = (draft: DraftInput) =>
   JSON.stringify([
@@ -873,52 +869,16 @@ export function ContractUploadForm({
                       }))}
                     />
                   </div>
-                  <Dropdown
-                    trigger={["click"]}
-                    menu={{
-                      items: [
-                        {
-                          key: "up",
-                          label: t("contractUpload.form.signers.up"),
-                          icon: <ArrowUpOutlined />,
-                          disabled: index === 0,
-                        },
-                        {
-                          key: "down",
-                          label: t("contractUpload.form.signers.down"),
-                          icon: <ArrowDownOutlined />,
-                          disabled: index === value.signers.length - 1,
-                        },
-                        { type: "divider" },
-                        {
-                          key: "remove",
-                          label: t("contractUpload.form.signers.remove"),
-                          icon: <DeleteOutlined />,
-                          danger: true,
-                        },
-                      ],
-                      onClick: ({ key }) => {
-                        if (key === "up" && index > 0) move(index, -1);
-                        if (key === "down" && index < value.signers.length - 1)
-                          move(index, 1);
-                        if (key === "remove")
-                          setSigners(
-                            value.signers.filter((_, i) => i !== index),
-                          );
-                      },
-                    }}
-                  >
-                    <Button
-                      className={styles.signerActions}
-                      size="small"
-                      icon={<MenuOutlined />}
-                      aria-label={t("contractUpload.form.signers.actionsAt", {
-                        index: index + 1,
-                      })}
-                    >
-                      {t("contractUpload.form.signers.actions")}
-                    </Button>
-                  </Dropdown>
+                  <SignerOrderActions
+                    className={styles.signerActions}
+                    first={index === 0}
+                    last={index === value.signers.length - 1}
+                    onUp={() => move(index, -1)}
+                    onDown={() => move(index, 1)}
+                    onRemove={() =>
+                      setSigners(value.signers.filter((_, i) => i !== index))
+                    }
+                  />
                 </div>
               ))}
             </div>

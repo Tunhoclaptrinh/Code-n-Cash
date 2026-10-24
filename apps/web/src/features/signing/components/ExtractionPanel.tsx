@@ -1,4 +1,5 @@
-import { DemoFillButton, fillEmptyInputs } from "@/shared/ui/DemoFillButton";
+import { fillEmptyInputs } from "@/shared/lib/form-input";
+import { ImportOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -120,7 +121,12 @@ export function ExtractionPanel({ code }: { code: string }) {
           </Button>
         ) : null}
         {proposal.data && !proposal.data.confirmedBy ? (
-          <DemoFillButton
+          <Button
+            size="small"
+            icon={<ImportOutlined />}
+            disabled={
+              !proposal.data.fields.some((field) => field.value !== null)
+            }
             onClick={() =>
               setValues((current) =>
                 fillEmptyInputs(
@@ -134,10 +140,10 @@ export function ExtractionPanel({ code }: { code: string }) {
                 ),
               )
             }
-            testId="extraction-load-suggestions"
+            data-testid="extraction-load-suggestions"
           >
             {t("extraction.loadSuggestions")}
-          </DemoFillButton>
+          </Button>
         ) : null}
         {proposal.data ? (
           <Tag>
@@ -158,6 +164,14 @@ export function ExtractionPanel({ code }: { code: string }) {
       ) : null}
       {proposal.data ? (
         <>
+          {proposal.data.extractor.kind === "GEMINI" ? (
+            <Alert
+              type="info"
+              showIcon
+              title={t("extraction.aiNotice")}
+              style={{ marginBottom: 12 }}
+            />
+          ) : null}
           {proposal.data.documentSha256 ? (
             <Typography.Paragraph copyable code>
               {proposal.data.documentSha256}
@@ -197,6 +211,17 @@ export function ExtractionPanel({ code }: { code: string }) {
                       <Typography.Text strong>
                         {t("extraction.page", { page: row.evidence.page })}
                       </Typography.Text>
+                      {proposal.data?.extractor.kind === "GEMINI" ? (
+                        <Tag
+                          color={row.evidence.verified ? "green" : "warning"}
+                        >
+                          {t(
+                            row.evidence.verified
+                              ? "extraction.quoteVerified"
+                              : "extraction.scanReview",
+                          )}
+                        </Tag>
+                      ) : null}
                       <Typography.Paragraph
                         style={{ maxWidth: 400, whiteSpace: "pre-wrap" }}
                       >

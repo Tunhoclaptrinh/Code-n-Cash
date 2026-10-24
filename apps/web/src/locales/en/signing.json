@@ -61,7 +61,20 @@
     "IMAGE_NOT_ALLOWED": "This contract requires a digital signature; a signature image cannot be used.",
     "SIGNING_ALREADY_STARTED": "Someone has already signed, so this can no longer be changed.",
     "UNKNOWN": "That did not work. Please try again.",
-    "SIGNATURE_PROVIDER_ERROR": "The signing provider has not returned valid evidence. Signing remains incomplete."
+    "SIGNATURE_PROVIDER_ERROR": "The signing provider has not returned valid evidence. Signing remains incomplete.",
+    "EXTRACTION_CONFIG_INVALID": "Invalid extraction configuration. Check the server provider, model and key.",
+    "GEMINI_UNAVAILABLE": "Document reading did not respond. Retry; your contract has not changed.",
+    "GEMINI_RATE_LIMIT": "Gemini quota reached. Wait or check the project quota and retry.",
+    "GEMINI_AUTH_FAILED": "Google denied server access. Check the API key and project permissions.",
+    "GEMINI_MODEL_UNAVAILABLE": "The configured Gemini model is unavailable. Select an accessible model on the server.",
+    "GEMINI_INVALID_RESPONSE": "AI output is incomplete or invalid. Retry or review the document.",
+    "GEMINI_DOCUMENT_LIMIT": "AI currently accepts PDF files up to 10 MB and 40 pages.",
+    "GEMINI_DOCUMENT_REQUIRED": "Upload and save an actual contract file before using AI.",
+    "GEMINI_BUSY": "Too many documents are being read. Retry shortly.",
+    "SLOT_REQUIRED": "Every signer needs a valid signature area on the document.",
+    "SLOT_OUT_OF_BOUNDS": "A signature area is outside its page or has invalid dimensions.",
+    "SLOT_OVER_TEXT": "A signature area covers contract text. Move it to blank space.",
+    "SLOT_OVERLAP": "Signature areas overlap. Give each signer a separate area."
   },
   "positions": {
     "breadcrumb": {
@@ -119,7 +132,16 @@
       "back": "Back",
       "continue": "Save positions and continue",
       "blocked": "Complete the checks to continue"
-    }
+    },
+    "pdfPage": "PDF page {{page}}",
+    "pdfError": "Page image could not load. Reload before placing signature areas.",
+    "realDocumentNotice": "Place signature areas on the actual document. Check the signer, page and blank space before saving.",
+    "seedDocumentNotice": "This seeded record has no original file: the layout is illustrative. Upload an actual contract to position signatures on its PDF.",
+    "scanNotice": "Text could not be detected on this page. Manually check that signatures do not cover the page content.",
+    "reviewPlacement": "Review signature placement on page {{page}}",
+    "reviewTitle": "Your signature placement",
+    "reviewNotice": "Review the document and signature area before sending the signing request.",
+    "coordinateInfo": "520-unit page coordinates: x={{x}}, y={{y}}, width={{w}}, height={{h}}."
   },
   "digitize": {
     "breadcrumb": {

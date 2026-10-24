@@ -26,7 +26,7 @@ export interface AnchorJob {
 export interface ExtractionField {
   path: string;
   value: string | null;
-  evidence: { page: number; quote: string } | null;
+  evidence: { page: number; quote: string; verified?: boolean } | null;
   state: "SUGGESTED" | "NEEDS_REVIEW";
 }
 export interface ExtractionProposal {
@@ -35,7 +35,12 @@ export interface ExtractionProposal {
   documentId: string | null;
   documentSha256: string | null;
   draftVersion: number;
-  extractor: { kind: "TEMPLATE" | "TEXT_RULES"; version: string };
+  extractor: {
+    kind: "TEMPLATE" | "TEXT_RULES" | "GEMINI";
+    version: string;
+    model?: string;
+  };
+  usage?: { inputTokens: number; outputTokens: number; totalTokens: number };
   fields: ExtractionField[];
   warnings: string[];
   confirmedBy: string | null;

@@ -47,10 +47,18 @@ export function inspectButtons() {
       const contrast = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
       const glyph = !!el.querySelector("svg, img, .anticon");
       const label = el.getAttribute("aria-label") || el.title || text;
+      const height = el.getBoundingClientRect().height;
+      const expectedHeight = el.classList.contains("codecash-icon-btn")
+        ? 30
+        : el.classList.contains("ant-btn-lg")
+          ? 44
+          : 32;
       return {
         label,
         text,
         glyph,
+        height: +height.toFixed(2),
+        expectedHeight,
         contrast: +contrast.toFixed(2),
         testId: el.dataset.testid ?? null,
         issue:
@@ -58,9 +66,11 @@ export function inspectButtons() {
             ? "BLANK_BUTTON"
             : contrast < 1.5
               ? "INVISIBLE_CONTENT"
-              : el.closest("[data-testid=table-row-actions]") && !label
-                ? "MISSING_ACTION_LABEL"
-                : null,
+              : Math.abs(height - expectedHeight) > 0.75
+                ? "INCONSISTENT_BUTTON_HEIGHT"
+                : el.closest("[data-testid=table-row-actions]") && !label
+                  ? "MISSING_ACTION_LABEL"
+                  : null,
       };
     });
 }

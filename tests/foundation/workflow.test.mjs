@@ -41,6 +41,24 @@ after(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
+async function placeActualSignatures(code) {
+  const config = await call("u-legal", "signing", "getSigningConfig", code);
+  const slots = await call(
+    "u-legal",
+    "signing",
+    "getDefaultSignatureSlots",
+    code,
+  );
+  assert.ok(
+    Object.values(slots).every(Boolean),
+    JSON.stringify({ slots, pages: config.previewPages }),
+  );
+  await call("u-legal", "signing", "saveSignatureSlots", code, slots, {
+    documentSha256: config.documentSha256,
+    version: config.layoutVersion,
+  });
+}
+
 test("the Data Pack is imported as tables and evaluated by the specification engine", async () => {
   const contracts = await repo.list("contracts");
   const milestones = await repo.list("milestones");
@@ -411,6 +429,7 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     digitized.milestones.map((m) => m.type),
     ["KICKOFF", "INTERIM_DELIVERY", "FINAL_ACCEPTANCE", "WARRANTY_CLOSE"],
   );
+  await placeActualSignatures(saved.code);
   await call("u-legal", "drafts", "confirmDigitization", saved.code, {
     dueDate: "2027-12-31",
   });
@@ -888,19 +907,58 @@ test("live workflow rolls back business changes and success audit when engine in
 });
 
 test("an invalid rule result rolls back workflow changes and cannot enter a live or hypothetical payment decision", async () => {
-  const original = structuredClone((await repo.list("payment-rules")).find(row => row.rule_id === "PR0007"));
-  const names = ["notes", "evaluations", "status-history", "engine-runs", "audit"];
+  const original = structuredClone(
+    (await repo.list("payment-rules")).find((row) => row.rule_id === "PR0007"),
+  );
+  const names = [
+    "notes",
+    "evaluations",
+    "status-history",
+    "engine-runs",
+    "audit",
+  ];
   try {
-    await repo.mutate("payment-rules", rows => {rows.find(row => row.rule_id === "PR0007").payable_amount_formula = "planned_payment_vnd_mn + 1";});
+    await repo.mutate("payment-rules", (rows) => {
+      rows.find((row) => row.rule_id === "PR0007").payable_amount_formula =
+        "planned_payment_vnd_mn + 1";
+    });
     // Fixture setup itself appends SYSTEM_WRITE; snapshot after that legitimate audit entry.
-    const before = Object.fromEntries(await Promise.all(names.map(async name => [name, JSON.stringify(await repo.list(name))])));
-    await assert.rejects(domain.write(actor("u-owner"), "INVALID_RULE_TEST", ctx => {
-      ctx.t.notes.push({id: "must-rollback", version: 1, text: "Never persist invalid pricing"});
-      return {result: {}, evaluate: true, trigger: {kind: "EVENT"}, audit: []};
-    }), /ENGINE_INVARIANT_VIOLATION/);
-    await assert.rejects(domain.read(actor("u-owner"), (_, dryRun) => dryRun([])), /ENGINE_INVARIANT_VIOLATION/);
-    for (const name of names) assert.equal(JSON.stringify(await repo.list(name)), before[name], name);
+    const before = Object.fromEntries(
+      await Promise.all(
+        names.map(async (name) => [
+          name,
+          JSON.stringify(await repo.list(name)),
+        ]),
+      ),
+    );
+    await assert.rejects(
+      domain.write(actor("u-owner"), "INVALID_RULE_TEST", (ctx) => {
+        ctx.t.notes.push({
+          id: "must-rollback",
+          version: 1,
+          text: "Never persist invalid pricing",
+        });
+        return {
+          result: {},
+          evaluate: true,
+          trigger: { kind: "EVENT" },
+          audit: [],
+        };
+      }),
+      /ENGINE_INVARIANT_VIOLATION/,
+    );
+    await assert.rejects(
+      domain.read(actor("u-owner"), (_, dryRun) => dryRun([])),
+      /ENGINE_INVARIANT_VIOLATION/,
+    );
+    for (const name of names)
+      assert.equal(JSON.stringify(await repo.list(name)), before[name], name);
   } finally {
-    await repo.mutate("payment-rules", rows => {Object.assign(rows.find(row => row.rule_id === "PR0007"), original);});
+    await repo.mutate("payment-rules", (rows) => {
+      Object.assign(
+        rows.find((row) => row.rule_id === "PR0007"),
+        original,
+      );
+    });
   }
 });

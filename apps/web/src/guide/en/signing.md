@@ -10,17 +10,17 @@ Enter title, parties, contract type, value in million VND and dates. Select appr
 
 Choose one to four signers. A single signer completes the configured signing flow; two or more signers must include both parties. Presets help arrange order but still require review. Signing roles and payment-approval roles are separate.
 
-![Signer selection and presets](../../../public/guide/images/upload-signers.webp)
+![Signers: 1 — select template; 2 — move down; 3 — remove signer](../../../public/guide/images/upload-signers.webp)
 
 ## Position signatures and review terms
 
 ![Signature positioning](../../../public/guide/images/upload-positions.webp)
 
-Select each signer and place a signature box on an allowed page, avoiding blocked content and other signatures. Save, then review milestone amounts, percentages, evidence types, approvals, penalties and dates. A relative warranty term needs an explicit confirmed deadline.
+The background displays the actual uploaded PDF pages. Suggest signature areas, then review every signer, page and rectangle. Move or resize boxes; the server rejects page overflow, detected-text coverage and overlapping signatures. Save, then review milestone amounts, percentages, evidence types, approvals, penalties and dates. A relative warranty term needs an explicit confirmed deadline.
 
 ![Digitization review and deadline confirmation](../../../public/guide/images/upload-digitize.webp)
 
-> Extraction reads real PDF/DOCX text using rules and requires explicit review. Scans need an OCR integration. Milestone templates still come from the Data Pack; the signature placement canvas remains a schematic rather than PAdES page coordinates.
+> When Gemini is enabled, the API sends the rendered PDF to Google and suggests six terms with page quotations. Quotes are checked against text on the claimed page; values still require human review. Scan quotations require manual checking. Local mode extracts text without AI. Milestone templates still come from the Data Pack. Placement uses actual PDF page coordinates; simulated signatures remain detached proofs rather than embedded PAdES signatures.
 
 Confirmation creates milestones, locks terms and starts signing. The final milestone absorbs rounding remainder so amounts add to the contract value. An unresolved structural gap can leave a milestone on HOLD.
 
@@ -56,7 +56,7 @@ Compare signer, method, time and effective date. External PDF structural detecti
 
 Select a template in the upload form, then adjust terms, signer count/order and additional text for this contract. **Generate sample contract** produces a real DOCX. If you edit those fields afterwards, regenerate or upload a replacement before continuing. Saved drafts preserve the applied template version even if an administrator edits or deletes it.
 
-Original files can be opened during review, signing and contract details. The current file appears before previous uploads; download the original separately from the rendered preview PDF. Text extraction requires explicit review; scan OCR and PAdES positioning are not connected. Local signing creates actual Ed25519 proofs with test keys; VNPT/Viettel method flows remain simulated.
+Original files can be opened during review, signing and contract details. The current file appears before previous uploads; download the original separately from the rendered preview PDF. Extraction requires explicit review, including manual checks for scans. Review the actual signature placement before consent. Embedded PAdES signing is not connected. Local signing creates actual Ed25519 proofs with test keys; VNPT/Viettel method flows remain simulated.
 
 ## Quick input stays under your control
 
@@ -64,7 +64,7 @@ Original files can be opened during review, signing and contract details. The cu
 
 ![Sample input is filled but has not been saved](../../../public/guide/images/upload-demo-filled.webp)
 
-New upload forms start empty; generated IDs and system fields remain read-only. Use the single **Fill sample data** button at the top to fill every empty field, including unselected signers. Existing text, zero and false values stay unchanged; the action does not save or submit. Open **Actions** on a signer row to move it up, move it down or remove it. Signing order runs from top to bottom. Completing an existing draft preserves its stored data.
+New upload forms start empty; generated IDs and system fields remain read-only. Use the single **Fill sample data** button at the top to fill every empty field, including unselected signers. Existing text, zero and false values stay unchanged; the action does not save or submit. Use the up/down arrows directly on each signer row to reorder it, or the red trash link button to remove it. Hover or focus a button to read its tooltip. Signing order runs from top to bottom. Completing an existing draft preserves its stored data.
 
 **Load suggestions** uses values actually extracted from the file for review. Unconfirmed dates and new signature positions also start empty and have explicit suggestion/sample actions.
 

@@ -25,11 +25,11 @@
   },
   "extraction": {
     "title": "Extract and review terms",
-    "notice": "The local extractor suggests values backed by source lines. Review the document, correct unclear fields and confirm before locking terms.",
+    "notice": "Document reading produces suggestions. Review values, pages and quotes; correct or complete them before confirming and locking terms.",
     "extract": "Extract document terms",
     "document": "Download source document",
     "noDocument": "This demo record has a filename but no original bytes. Review the values manually.",
-    "noText": "Readable text is unavailable. Scanned or encrypted documents need OCR or other processing; review the original and confirm values.",
+    "noText": "No readable text is available for automatic quote matching. For a scan, check the proposed value and quote against the page image.",
     "field": "Field",
     "suggestion": "Suggestion",
     "source": "Document source",
@@ -40,9 +40,13 @@
     "confirmed": "Confirmed by {{actor}}.",
     "kinds": {
       "TEMPLATE": "Workflow template",
-      "TEXT_RULES": "Local text extraction"
+      "TEXT_RULES": "Local text extraction",
+      "GEMINI": "Gemini AI"
     },
-    "loadSuggestions": "Load suggestions"
+    "loadSuggestions": "Load suggestions",
+    "quoteVerified": "Quote found on the page",
+    "scanReview": "Review against the page image",
+    "aiNotice": "AI suggests; the reviewer confirms. AI does not approve or change payment decisions."
   },
   "rules": {
     "title": "Rule and template versions",

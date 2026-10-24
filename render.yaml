@@ -5,6 +5,7 @@ services:
     dockerfilePath: ./Dockerfile.standalone
     plan: free
     region: singapore
+    healthCheckPath: /healthz
     envVars:
       - key: NODE_ENV
         value: production
@@ -18,4 +19,8 @@ services:
         value: "true"
       - key: SEED_PASSWORD
         value: "Passw0rd!"
+      - key: EXTRACTION_PROVIDER
+        value: local
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
 

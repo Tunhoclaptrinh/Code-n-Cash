@@ -1,9 +1,9 @@
 {
-  "sample": "MẪU KIỂM THỬ CODECASH — CHƯA KÝ",
+  "sample": "TÀI LIỆU MẪU DÙNG THỬ — CHƯA KÝ",
   "sections": [
     {
       "title": "Chủ thể và mục đích",
-      "body": "Bên mua: {buyer}. Nhà cung cấp: {supplier}. Mã tham chiếu: {code}. Đây là dữ liệu kiểm thử được tạo từ biểu mẫu, không phải tư vấn pháp lý."
+      "body": "Bên mua: {buyer}. Nhà cung cấp: {supplier}. Số hợp đồng: {code}. Các bên thống nhất thực hiện nội dung công việc và trách nhiệm theo các điều khoản dưới đây."
     },
     {
       "title": "Phạm vi công việc",
@@ -11,7 +11,7 @@
     },
     {
       "title": "Giá trị hợp đồng",
-      "body": "Giá trị được khai báo bằng triệu VND, chính xác đến hai chữ số thập phân. Khoản thanh toán được xác định bằng bộ quy tắc được ghim cho hợp đồng."
+      "body": "Giá trị hợp đồng: {valueMillion} triệu VND. Các khoản thanh toán được phân bổ theo tiến độ tại Điều 4. Việc thanh toán căn cứ hồ sơ bàn giao, nghiệm thu và phê duyệt theo thỏa thuận."
     },
     {
       "title": "Tiến độ và mốc thanh toán",
@@ -19,15 +19,15 @@
     },
     {
       "title": "Chứng từ nghiệm thu",
-      "body": "Người cung cấp chứng từ phải thuộc nhà cung cấp của hợp đồng. Chứng từ chưa đủ hoặc chữ ký chưa hợp lệ không tự động làm phát sinh thanh toán."
+      "body": "Nhà cung cấp giao đủ hồ sơ, hóa đơn và biên bản theo từng mốc. Bên mua kiểm tra, phản hồi yêu cầu bổ sung hoặc xác nhận nghiệm thu bằng văn bản."
     },
     {
       "title": "Chính sách phê duyệt",
-      "body": "Chính sách phê duyệt: {approvalPolicy}. Chỉ người có đúng vai trò và đúng bên mới được biểu quyết. Việc ký hợp đồng không thay cho phê duyệt thanh toán."
+      "body": "Các bên chỉ định người có thẩm quyền phê duyệt từng khoản thanh toán. Việc ký hợp đồng không thay thế việc kiểm tra chứng từ và phê duyệt thanh toán."
     },
     {
       "title": "Người ký và thứ tự ký",
-      "body": "Chữ ký được thực hiện theo đúng thứ tự dưới đây. Lượt cuối phải dùng phương thức ký số. Một người không được xuất hiện hai lần."
+      "body": "Đại diện được chỉ định dưới đây ký lần lượt. Mỗi chữ ký gắn với tài liệu, danh tính người ký và thời gian xác nhận. Mọi thay đổi nội dung sau khi ký cần được các bên chấp thuận lại."
     },
     {
       "title": "Phạt chậm và ân hạn",
@@ -35,23 +35,23 @@
     },
     {
       "title": "Giới hạn trách nhiệm",
-      "body": "Mức phạt tối đa là {maxPenaltyPct}%. Hệ thống áp dụng công thức trên số thập phân chính xác và ghi lý do quyết định vào dấu vết kiểm toán."
+      "body": "Trần phạt: {maxPenaltyPct}%. Tổng tiền phạt chậm không vượt mức thỏa thuận. Tiền thanh toán sau điều chỉnh không âm; chênh lệch cần được đối chiếu trong hồ sơ thanh toán."
     },
     {
       "title": "Bảo hành và hỗ trợ",
-      "body": "Mốc bảo hành chỉ mở khi mốc tiền nhiệm hoàn tất. Hồ sơ cần có sự kiện bảo hành phù hợp với loại hợp đồng."
+      "body": "Nhà cung cấp tiếp nhận yêu cầu hỗ trợ và thực hiện bảo hành theo phạm vi công việc. Thời hạn và hồ sơ xác nhận hoàn tất được các bên đối chiếu ở từng mốc."
     },
     {
       "title": "Tranh chấp",
-      "body": "Tranh chấp đang mở giữ việc giải ngân. Tổ kiểm soát xử lý ngoại lệ; tài khoản quản trị hệ thống không thay vai trò nghiệp vụ."
+      "body": "Khi có tranh chấp, các bên lập biên bản và tạm giữ khoản thanh toán liên quan. Khi có xác nhận giải quyết, các bên tiếp tục kiểm tra các điều kiện thanh toán còn lại."
     },
     {
       "title": "Quản lý thay đổi",
-      "body": "Thay đổi cấu hình quy tắc phải có phiên bản, lý do, kiểm thử và người duyệt độc lập. Không tự động thay quy tắc đã ghim của hợp đồng cũ."
+      "body": "Thay đổi phạm vi, giá trị hoặc tiến độ phải được lập thành phụ lục, xác định người có thẩm quyền và lưu cùng bản hợp đồng được các bên xác nhận."
     },
     {
       "title": "Hiệu lực và lưu trữ",
-      "body": "Hợp đồng có hiệu lực khi hoàn tất các lượt ký được cấu hình. Tệp kiểm thử chưa có chữ ký; chứng minh LOCAL_ED25519 của demo không phải chứng thư CA/PAdES được công nhận bên ngoài."
+      "body": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Tài liệu này được tạo cho thử nghiệm, chưa ký và không dùng thay hợp đồng đã được rà soát."
     }
   ],
   "fields": {

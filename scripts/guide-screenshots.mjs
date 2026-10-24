@@ -759,19 +759,47 @@ try {
     await shot("upload-signers", {
       clip: "[data-testid=template-and-signers]",
       margin: 16,
-      marks: [{ n: 1, target: "[data-testid=contract-template-picker]" }],
+      marks: [
+        { n: 1, target: "[data-testid=contract-template-picker]" },
+        { n: 2, target: "[data-testid=signer-down]", pad: 0 },
+        { n: 3, target: "[data-testid=signer-remove]", pad: 0, badge: "right" },
+      ],
     });
   });
   await attempt("positions and digitize", async () => {
+    // Attach a real document to this isolated fixture before capturing page geometry.
+    await evaluate(`(async () => {
+      const headers = {'Content-Type':'application/json', Authorization:'Bearer '+localStorage.getItem('codecash.accessToken')};
+      const post = async(path, body) => {
+        const response = await fetch('/api/v1'+path,{method:'POST',headers,body:JSON.stringify(body)});
+        const json = await response.json(); if(!response.ok) throw new Error(json.code || json.message); return json.data;
+      };
+      const draft = await post('/workflow/drafts/getContractDraft',{args:['CT0101']});
+      const sample = await post('/contract-samples',{draft,language:'vi'});
+      const bytes = Uint8Array.from(atob(sample.base64),c=>c.charCodeAt(0));
+      const body = new FormData(); body.append('file',new Blob([bytes],{type:sample.mimeType}),sample.fileName);
+      const uploaded = await fetch('/api/v1/documents/CT0101',{method:'POST',headers:{Authorization:headers.Authorization},body});
+      if(!uploaded.ok) throw new Error('GUIDE_REAL_UPLOAD_FAILED');
+      const proposal = await post('/trust/contracts/CT0101/extraction');
+      await post('/trust/contracts/CT0101/extraction/'+proposal.id+'/confirm', {values:Object.fromEntries(proposal.fields.map(field=>[field.path,field.value]))});
+    })()`);
     await go(
       "/contracts/CT0101/sign-positions",
       "document.querySelectorAll('button[aria-pressed]').length >= 4",
     );
-    await shot("upload-positions");
-    await go(
-      "/contracts/CT0101/digitize",
-      "!!document.querySelector('[data-testid=digitize-confirm]')",
+    await until(
+      "!!document.querySelector('[data-testid=real-pdf-page]')?.naturalWidth",
     );
+    await click("[data-testid=positions-suggest]");
+    await until("!!document.querySelector('[data-testid=positions-save]')");
+    await shot("upload-positions", {
+      marks: [
+        { n: 1, target: "[data-testid=real-pdf-page]" },
+        { n: 2, target: "[data-testid=positions-suggest]", badge: "right" },
+      ],
+    });
+    await click("[data-testid=positions-save]");
+    await until("!!document.querySelector('[data-testid=digitize-confirm]')");
     await shot("upload-digitize", {
       marks: [
         { n: 1, target: "#milestone-deadline" },

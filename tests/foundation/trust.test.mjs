@@ -62,6 +62,24 @@ after(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
+async function placeActualSignatures(code) {
+  const config = await call("u-legal", "signing", "getSigningConfig", code);
+  const slots = await call(
+    "u-legal",
+    "signing",
+    "getDefaultSignatureSlots",
+    code,
+  );
+  assert.ok(
+    Object.values(slots).every(Boolean),
+    JSON.stringify({ slots, pages: config.previewPages }),
+  );
+  await call("u-legal", "signing", "saveSignatureSlots", code, slots, {
+    documentSha256: config.documentSha256,
+    version: config.layoutVersion,
+  });
+}
+
 test("shared form rules reject whitespace, impossible dates, fractional days and excess money precision", () => {
   assert.equal(
     fieldProblem({ key: "name", type: "string", required: true }, "  "),
@@ -181,16 +199,24 @@ test("uploaded DOCX is bound to the draft, extracted with provenance and needs e
     title: "Extracted contract",
     file: { name: "terms.docx", kind: "DOCX", sizeBytes: 1000 },
   });
-  const path = join(dir, "fixture.docx");
-  const text =
-    "Contract value: 1250.50 million\nGrace period: 5 days\nPenalty rate: 0.25% per day\nPenalty cap: 8%\nStart date: 2026-12-01\nEnd date: 2027-12-01";
-  await execute("python3", [
-    "-c",
-    "import zipfile,sys,xml.sax.saxutils as x\nwith zipfile.ZipFile(sys.argv[1],'w') as z: z.writestr('word/document.xml','<w:document xmlns:w=\"urn:word\"><w:body>'+''.join('<w:p><w:r><w:t>'+x.escape(s)+'</w:t></w:r></w:p>' for s in sys.argv[2].splitlines())+'</w:body></w:document>')",
-    path,
-    text,
-  ]);
-  const bytes = await readFile(path);
+  const { SampleDocumentsController } =
+    await import("../../apps/api/dist/sample-documents.js");
+  const sample = await new SampleDocumentsController(domain).create(
+    {
+      draft: {
+        ...saved,
+        valueMillion: "1250.50",
+        graceDays: 5,
+        penaltyRatePct: "0.25",
+        maxPenaltyPct: "8.00",
+        startDate: "2026-12-01",
+        endDate: "2027-12-01",
+      },
+      language: "en",
+    },
+    { user: actors["u-legal"] },
+  );
+  const bytes = Buffer.from(sample.base64, "base64");
   const document = await docs.upload(
     saved.code,
     { buffer: bytes, size: bytes.length, originalname: "terms.docx" },
@@ -228,6 +254,7 @@ test("uploaded DOCX is bound to the draft, extracted with provenance and needs e
   );
   assert.equal(current.valueMillion, "1250.50");
   assert.equal(current.penaltyRatePct, "0.25");
+  await placeActualSignatures(saved.code);
   await call("u-legal", "drafts", "confirmDigitization", saved.code, {
     dueDate: "2028-12-01",
   });
@@ -693,6 +720,7 @@ test("real sample DOCX supports 1–4 signers through upload, extraction, sequen
       ),
       actors["u-legal"],
     );
+    await placeActualSignatures(saved.code);
     await call("u-legal", "drafts", "confirmDigitization", saved.code, {
       dueDate: input.endDate,
     });
@@ -936,33 +964,100 @@ test("rule language catalog and diagnostics share the engine vocabulary without 
 
 test("rule diagnostics are read-only; full-pack preview catches regressions outside the 20 samples", async () => {
   const author = actors["u-sysadmin"];
-  const version = await rules.create({name: "Explain rule language", reason: "Test all branches and full-pack gate"}, author);
+  const version = await rules.create(
+    {
+      name: "Explain rule language",
+      reason: "Test all branches and full-pack gate",
+    },
+    author,
+  );
   const before = (await repo.list("audit")).length;
   assert.equal((await rules.language()).variables.length, 17);
-  assert.deepEqual(await rules.checkExpressions({rules: version.rules}), {valid: true, checked: 384, issues: []});
-  const invalid = structuredClone(version.rules); invalid[0].condition_expression = "open_dispute == 1";
-  const result = await rules.checkExpressions({rules: invalid});
-  assert.equal(result.valid, false); assert.equal(result.issues[0].code, "TYPE_MISMATCH");
+  assert.deepEqual(await rules.checkExpressions({ rules: version.rules }), {
+    valid: true,
+    checked: 384,
+    issues: [],
+  });
+  const invalid = structuredClone(version.rules);
+  invalid[0].condition_expression = "open_dispute == 1";
+  const result = await rules.checkExpressions({ rules: invalid });
+  assert.equal(result.valid, false);
+  assert.equal(result.issues[0].code, "TYPE_MISMATCH");
   assert.equal(result.issues[0].field, "condition_expression");
-  await assert.rejects(rules.checkExpressions({rules: []}), /RULE_VERSION_INVALID/);
-  const wrongUnit = structuredClone(version.rules); wrongUnit[0].payable_amount_formula = "planned_payment_vnd_mn + grace_period_days";
-  const unitResult = await rules.checkExpressions({rules: wrongUnit});
-  assert.equal(unitResult.valid, false); assert.equal(unitResult.issues[0].code, "UNIT_MISMATCH");
-  const noPercentConversion = structuredClone(version.rules); noPercentConversion.find(row => row.rule_id === "PR0006").penalty_amount_formula = "days_late_after_grace * penalty_rate_pct_per_day * planned_payment_vnd_mn";
-  assert.equal((await rules.checkExpressions({rules: noPercentConversion})).issues[0].code, "PERCENT_CONVERSION_REQUIRED");
-  const zeroDenominator = structuredClone(version.rules); zeroDenominator.find(row => row.rule_id === "PR0023").payable_amount_formula = "planned_payment_vnd_mn / (required_event_completion_rate - required_event_completion_rate)";
-  assert.equal((await rules.checkExpressions({rules: zeroDenominator})).valid, true);
-  await assert.rejects(rules.preview(version.id, {version: version.version, rules: zeroDenominator, templates: version.templates}), /RULE_EVALUATION_FAILED/);
-  const baseline = await rules.preview(version.id, {version: version.version, rules: version.rules, templates: version.templates});
-  assert.equal(baseline.evaluated, 405); assert.equal(baseline.matched, 20); assert.equal(baseline.changed, 0); assert.equal(baseline.canSubmit, true);
+  await assert.rejects(
+    rules.checkExpressions({ rules: [] }),
+    /RULE_VERSION_INVALID/,
+  );
+  const wrongUnit = structuredClone(version.rules);
+  wrongUnit[0].payable_amount_formula =
+    "planned_payment_vnd_mn + grace_period_days";
+  const unitResult = await rules.checkExpressions({ rules: wrongUnit });
+  assert.equal(unitResult.valid, false);
+  assert.equal(unitResult.issues[0].code, "UNIT_MISMATCH");
+  const noPercentConversion = structuredClone(version.rules);
+  noPercentConversion.find(
+    (row) => row.rule_id === "PR0006",
+  ).penalty_amount_formula =
+    "days_late_after_grace * penalty_rate_pct_per_day * planned_payment_vnd_mn";
+  assert.equal(
+    (await rules.checkExpressions({ rules: noPercentConversion })).issues[0]
+      .code,
+    "PERCENT_CONVERSION_REQUIRED",
+  );
+  const zeroDenominator = structuredClone(version.rules);
+  zeroDenominator.find(
+    (row) => row.rule_id === "PR0023",
+  ).payable_amount_formula =
+    "planned_payment_vnd_mn / (required_event_completion_rate - required_event_completion_rate)";
+  assert.equal(
+    (await rules.checkExpressions({ rules: zeroDenominator })).valid,
+    true,
+  );
+  await assert.rejects(
+    rules.preview(version.id, {
+      version: version.version,
+      rules: zeroDenominator,
+      templates: version.templates,
+    }),
+    /RULE_EVALUATION_FAILED/,
+  );
+  const baseline = await rules.preview(version.id, {
+    version: version.version,
+    rules: version.rules,
+    templates: version.templates,
+  });
+  assert.equal(baseline.evaluated, 405);
+  assert.equal(baseline.matched, 20);
+  assert.equal(baseline.changed, 0);
+  assert.equal(baseline.canSubmit, true);
   const modified = structuredClone(version.rules);
-  const target = modified.find(row => row.rule_id === "PR0023");
+  const target = modified.find((row) => row.rule_id === "PR0023");
   target.condition_expression += " AND planned_payment_vnd_mn != 258.00";
-  const preview = await rules.preview(version.id, {version: version.version, rules: modified, templates: version.templates});
-  assert.equal(preview.matched, 20, "public examples alone cannot protect the full pack");
-  assert.ok(preview.changed > 0); assert.equal(preview.canSubmit, false);
-  assert.ok(preview.changes.some(row => row.milestoneId === "MS0001"));
-  assert.equal((await repo.list("audit")).length, before, "diagnostics and preview do not write business state");
-  const saved = await rules.save(version.id, {version: version.version, rules: modified, templates: version.templates}, author);
-  await assert.rejects(rules.submit(saved.id, saved.version, author), /RULE_VERSION_REGRESSION/);
+  const preview = await rules.preview(version.id, {
+    version: version.version,
+    rules: modified,
+    templates: version.templates,
+  });
+  assert.equal(
+    preview.matched,
+    20,
+    "public examples alone cannot protect the full pack",
+  );
+  assert.ok(preview.changed > 0);
+  assert.equal(preview.canSubmit, false);
+  assert.ok(preview.changes.some((row) => row.milestoneId === "MS0001"));
+  assert.equal(
+    (await repo.list("audit")).length,
+    before,
+    "diagnostics and preview do not write business state",
+  );
+  const saved = await rules.save(
+    version.id,
+    { version: version.version, rules: modified, templates: version.templates },
+    author,
+  );
+  await assert.rejects(
+    rules.submit(saved.id, saved.version, author),
+    /RULE_VERSION_REGRESSION/,
+  );
 });

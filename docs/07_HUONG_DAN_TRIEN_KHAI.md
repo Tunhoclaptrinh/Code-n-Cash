@@ -203,3 +203,32 @@ Bản này đủ cho demo, staging và thử nghiệm nội bộ. Còn các đi�
 - Ma trận phân quyền nằm trong `packages/contracts/permissions.json` và được đóng vào image; đổi quyền là đổi mã, cần review hai người (SoD-4), không sửa trên giao diện.
 - Chưa có giới hạn tần suất đăng nhập, cảnh báo tự động hay sao lưu tự động; API chạy một instance.
 - Accuracy chỉ đo trên 20 mẫu công khai, không đại diện cho toàn bộ 405 mốc.
+
+## 9. Cập nhật Render và bật Gemini
+
+Bản một container dùng **Dockerfile.standalone**, build từ thư mục gốc repo. Image chứa cả web, API, engine, mẫu DOCX, LibreOffice và Poppler. Health Check Path: `/healthz`. Render cung cấp `PORT`; giữ `API_HOST=0.0.0.0` như trong image. Không đặt `API_HOST=127.0.0.1` trên Render.
+
+1. Mở Render Dashboard → service CodeCash → **Settings → Build & Deploy**. Kiểm tra Branch là nhánh chứa commit vừa push (`feat/rule-expression-editor`) hoặc merge nhánh đó vào nhánh service đang theo dõi. Push nhánh tính năng không tự cập nhật service đang theo dõi `main`.
+2. Mở **Environment → Edit / Add Environment Variable** và thêm:
+
+   ```dotenv
+   EXTRACTION_PROVIDER=gemini
+   GEMINI_MODEL=gemini-3.5-flash
+   GEMINI_API_KEY=<dán key riêng của bạn ở đây>
+   ```
+
+   Dán key ở Dashboard; không dùng `VITE_GEMINI_API_KEY`, không sửa key vào source, `render.yaml` hoặc Dockerfile. `.env.gemini.local` chỉ phục vụ máy phát triển và bị loại khỏi Git/Docker; production đọc các biến runtime của Render. Model trên đã gọi thành công trong đợt kiểm thử 25/10/2026; có thể đổi `GEMINI_MODEL` nếu project/quota thay đổi.
+3. Với lần cập nhật code này, chọn **Save, rebuild, and deploy**. Khi chỉ đổi key/model sau này, **Save and deploy** dùng lại image hiện có với biến mới. **Save only** chưa áp dụng cho tiến trình đang chạy. [Tài liệu Render](https://render.com/docs/configure-environment-variables).
+4. Xem **Events / Logs**: build thành công, startup thành công, trạng thái Live. Thử `/healthz`, `/api/v1/health`, đăng nhập, tạo mẫu DOCX, xem PDF, lưu vị trí ký và bấm trích xuất. Bảng đề xuất phải ghi **Gemini AI**, có trang/đoạn trích; thiếu quota/quyền/model sẽ hiển thị lỗi, không âm thầm trả dữ liệu demo.
+
+Các biến hiện có cần giữ: `NODE_ENV=production`, `STORAGE_DRIVER=mongo`, `MONGO_URI` của cluster thực, `JWT_SECRET` hiện tại; `WEB_ORIGIN` là domain web nếu có cấu hình CORS. `SEED_PASSWORD` và `DEMO_LOGIN=true` chỉ cho môi trường demo. Không thay `JWT_SECRET` trong lần bật Gemini vì sẽ làm phiên đăng nhập cũ mất hiệu lực. Muốn tắt AI, đặt `EXTRACTION_PROVIDER=local` rồi **Save and deploy**; luật thanh toán Data Pack không phụ thuộc Gemini.
+
+### Tệp tải lên và khóa ký phải có nơi lưu bền vững
+
+Blueprint hiện để `plan: free`; Mongo giữ bản ghi nhưng **không giữ bytes PDF/DOCX và khóa ký cục bộ** trong `/data`. Render Free mất tệp khi restart/redeploy/spin down và không gắn persistent disk được. Với luồng hợp đồng cần lưu lâu dài, dùng service trả phí, gắn disk tại `/data`, giữ `DATA_DIR=/data`, `TRUST_DIR=/data/trust`; kiểm tra quyền ghi của user `node`. Lưu/backup tệp và khóa trước khi chuyển môi trường. Hiện chưa có adapter object storage; không coi Mongo URI là thay thế cho kho tệp. [Render disks](https://render.com/docs/disks), [giới hạn Free](https://render.com/docs/free).
+
+### Phạm vi xác minh triển khai
+
+`pnpm check` kiểm code/build/test; `scripts/real-contract-smoke.mjs` kiểm qua HTTP toàn bộ luồng DOCX → PDF → ảnh trang → tọa độ ký → trích xuất/xác nhận → khóa. CI có thêm build và smoke **đúng Dockerfile.standalone** bên cạnh stack compose, để bắt thiếu file runtime. API key không cần đưa vào CI: kiểm tích hợp Gemini chạy riêng trên dữ liệu giả lập bằng `pnpm test:gemini:live`.
+
+Máy phát triển hiện không có Docker daemon đang chạy, nên build image phải được xác nhận bằng job Docker trên GitHub Actions hoặc trên Render. Kết quả local không thay cho trạng thái Live của service; cần kiểm đúng commit và log deploy trên Dashboard.

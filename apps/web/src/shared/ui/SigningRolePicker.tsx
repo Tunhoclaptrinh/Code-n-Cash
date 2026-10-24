@@ -1,10 +1,7 @@
-import { Button, Select, Space } from "antd";
-import {
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { Button, Select } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { SignerOrderActions } from "./SignerOrderActions";
+import styles from "./SigningRolePicker.module.css";
 import { useTranslation } from "react-i18next";
 const roles = [
   "CONTRACT_OWNER",
@@ -24,6 +21,7 @@ export function SigningRolePicker({
 }) {
   const { t } = useTranslation("contracts");
   const { t: tc } = useTranslation("common");
+  const { t: tp } = useTranslation("platform");
   const selected = value ? value.split(";") : [];
   const update = (next: string[]) => onChange?.(next.join(";"));
   const move = (index: number, offset: number) => {
@@ -32,13 +30,14 @@ export function SigningRolePicker({
     update(next);
   };
   return (
-    <Space id={id} orientation="vertical" style={{ width: "100%" }}>
+    <div id={id} className={styles.list}>
       {selected.map((role, index) => (
-        <Space wrap key={index}>
-          <span>{index + 1}.</span>
+        <div className={styles.row} key={index}>
+          <span className={styles.index}>{index + 1}</span>
           <Select
             value={role}
-            style={{ width: 220 }}
+            style={{ width: "100%" }}
+            aria-label={`${tp("fields.signerRoles")} ${index + 1}`}
             options={roles.map((value) => ({
               value,
               label: tc(`roles.${value}.name`),
@@ -51,36 +50,21 @@ export function SigningRolePicker({
               )
             }
           />
-          <Button
-            size="small"
-            icon={<ArrowUpOutlined />}
-            disabled={index === 0}
-            onClick={() => move(index, -1)}
-          >
-            {t("contractUpload.form.signers.up")}
-          </Button>
-          <Button
-            size="small"
-            icon={<ArrowDownOutlined />}
-            disabled={index === selected.length - 1}
-            onClick={() => move(index, 1)}
-          >
-            {t("contractUpload.form.signers.down")}
-          </Button>
-          <Button
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() =>
+          <SignerOrderActions
+            first={index === 0}
+            last={index === selected.length - 1}
+            onUp={() => move(index, -1)}
+            onDown={() => move(index, 1)}
+            onRemove={() =>
               update(selected.filter((_, position) => position !== index))
             }
-          >
-            {t("contractUpload.form.signers.remove")}
-          </Button>
-        </Space>
+          />
+        </div>
       ))}
       <Button
         type="dashed"
+        size="small"
+        className={styles.add}
         icon={<PlusOutlined />}
         disabled={selected.length >= 4}
         onClick={() =>
@@ -89,6 +73,6 @@ export function SigningRolePicker({
       >
         {t("contractUpload.form.signers.add")}
       </Button>
-    </Space>
+    </div>
   );
 }

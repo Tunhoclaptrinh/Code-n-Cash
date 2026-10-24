@@ -752,7 +752,7 @@ export interface SignStepView extends SignStep {
 
 export type SlotLook = "NAME_AND_TIME" | "WITH_TITLE";
 
-/** Signature slot on a PDF page, in page units (520 x 620 canvas). */
+/** Top-left coordinates in a 520-unit-wide page. Actual page height comes from PDF metadata. */
 export interface SignatureSlot {
   page: number;
   x: number;
@@ -774,6 +774,12 @@ export interface Rect {
 
 export interface PdfPagePreview {
   pageNo: number;
+  width?: number;
+  height?: number;
+  widthPt?: number;
+  heightPt?: number;
+  contentCheck?: "TEXT" | "MANUAL";
+  anchors?: Array<{ stepNo: number; x: number; y: number }>;
   heading: "ARTICLE_13" | "ARTICLE_14";
   textLineCount: number;
   hasSignatureBlock: boolean;
@@ -791,6 +797,9 @@ export interface SigningSummary {
 
 export interface SigningConfig {
   contractCode: string;
+  documentId?: string;
+  documentSha256?: string;
+  layoutVersion?: number;
   title: string;
   supplierName: string;
   valueMillion: string;

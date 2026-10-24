@@ -209,7 +209,7 @@ try {
   async function checkButtons() {
     const buttons = await evaluate(`(${inspectButtons.toString()})()`);
     const context = await evaluate(
-      "({route:location.pathname,theme:document.documentElement.dataset.theme})",
+      "({route:location.pathname,theme:document.documentElement.dataset.theme,width:innerWidth})",
     );
     buttonAudit.push({ ...context, buttons });
     await writeFile(
@@ -329,6 +329,7 @@ try {
       await send("Page.navigate", { url: base + route });
       await until("document.querySelectorAll('.ant-layout').length>0");
       await pause(700);
+      await checkBothThemes();
       const overflow = await evaluate(
         "document.documentElement.scrollWidth>innerWidth",
       );
@@ -716,7 +717,7 @@ try {
     1,
     "one sample action for the whole form",
   );
-  // Four signers fit their row; the action menu must still reorder and remove real values.
+  // Four signers fit their row; direct actions reorder and remove the actual selected people.
   await evaluate(
     "document.querySelector('[data-testid=contract-template-picker] [role=combobox]').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))",
   );
@@ -739,18 +740,11 @@ try {
   await until(
     "document.querySelectorAll('[data-testid=signer-row] .ant-select-selection-placeholder').length === 0",
   );
+  await checkBothThemes();
   const firstSigner = await evaluate(
     "document.querySelector('[data-testid=signer-row]') .querySelectorAll('.ant-select')[1].innerText",
   );
-  await evaluate(
-    "document.querySelector('[data-testid=signer-row] button').click()",
-  );
-  await until(
-    "!!document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item')",
-  );
-  await evaluate(
-    "document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item')[1].click()",
-  );
+  await evaluate("document.querySelector('[data-testid=signer-down]').click()");
   await until(
     "document.querySelectorAll('[data-testid=signer-row]')[1].querySelectorAll('.ant-select')[1].innerText === " +
       JSON.stringify(firstSigner),
@@ -806,13 +800,7 @@ try {
     mobile: false,
   });
   await evaluate(
-    "document.querySelectorAll('[data-testid=signer-row] button')[3].click()",
-  );
-  await until(
-    "!!document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item-danger')",
-  );
-  await evaluate(
-    "document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item-danger').click()",
+    "document.querySelectorAll('[data-testid=signer-remove]')[1].click()",
   );
   await until(
     "document.querySelectorAll('[data-testid=signer-row]').length === 3",
@@ -862,6 +850,7 @@ try {
     "document.querySelector('.ant-table-row[data-row-key=SINGLE_SIGNER] td:last-child button').click()",
   );
   await until("!!document.querySelector('.ant-modal textarea#documentBody')");
+  await checkBothThemes();
   await evaluate(
     `(() => {const input = document.querySelector('.ant-modal input#name'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'Browser-managed template'); input.dispatchEvent(new Event('input', {bubbles:true}));})()`,
   );

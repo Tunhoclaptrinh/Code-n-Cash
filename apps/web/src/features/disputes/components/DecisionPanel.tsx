@@ -161,7 +161,7 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
         </Link>
         <Button
           type="primary"
-          size="large"
+          size="small"
           disabled={!option || act.isPending}
           loading={act.isPending}
           onClick={onConfirm}

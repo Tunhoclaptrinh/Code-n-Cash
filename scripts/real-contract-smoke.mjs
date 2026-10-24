@@ -79,7 +79,7 @@ for (const count of counts) {
   });
   const body = new FormData();
   body.append(
-  process.env.SMOKE_STORAGE_DRIVER ?? "file",
+    process.env.SMOKE_STORAGE_DRIVER ?? "file",
     new Blob([bytes], { type: sample.mimeType }),
     sample.fileName,
   );

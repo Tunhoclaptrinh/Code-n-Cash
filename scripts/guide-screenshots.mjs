@@ -1025,6 +1025,9 @@ try {
     await until(
       "document.querySelectorAll('[data-testid=rule-variable-catalog] > div').length === 1",
     );
+    await evaluate(
+      "document.querySelector('[data-testid=rule-variable-catalog]').scrollIntoView({block:'end'})",
+    );
     await shot("rules-variables", {
       clip: ".ant-drawer-content-wrapper",
       marks: [
@@ -1051,6 +1054,41 @@ try {
       marks: [
         { n: 1, target: "[data-testid=rule-syntax-result]" },
         { n: 2, target: "[data-testid=rule-expression-condition_expression]" },
+      ],
+    });
+    await evaluate(
+      "Array.from(document.querySelectorAll('.ant-modal button')).find(x => x.innerText.includes('Khôi phục bản lưu')).click()",
+    );
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').focus(); document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').select()",
+    );
+    await send("Input.insertText", {
+      text: "planned_payment_vnd_mn + grace_period_days",
+    });
+    await click("[data-testid=rule-syntax-check]");
+    await until(
+      "document.querySelector('.ant-form-item-explain-error')?.innerText.includes('Đơn vị không khớp')",
+    );
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').closest('.ant-form-item').scrollIntoView({block:'center'})",
+    );
+    await until(
+      "document.querySelector('.ant-form-item-explain-error')?.getBoundingClientRect().height > 20",
+    );
+    await evaluate(
+      "document.querySelector('.ant-modal-body').scrollTop = document.querySelector('.ant-modal-body').scrollHeight",
+    );
+    await until(
+      "(() => { const body = document.querySelector('.ant-modal-body'); body.scrollTop = body.scrollHeight; return document.querySelector('.ant-form-item-explain-error').getBoundingClientRect().bottom <= body.getBoundingClientRect().bottom + 0.5; })()",
+    );
+    await shot("rules-unit-error", {
+      clip: ".ant-modal",
+      marks: [
+        {
+          n: 1,
+          target: "[data-testid=rule-expression-penalty_amount_formula]",
+        },
+        { n: 2, target: ".ant-form-item-explain-error" },
       ],
     });
     await evaluate(

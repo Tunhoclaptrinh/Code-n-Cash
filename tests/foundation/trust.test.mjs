@@ -204,6 +204,14 @@ test("rule diagnostics are read-only; full-pack preview catches regressions outs
   assert.equal(result.valid, false); assert.equal(result.issues[0].code, "TYPE_MISMATCH");
   assert.equal(result.issues[0].field, "condition_expression");
   await assert.rejects(rules.checkExpressions({rules: []}), /RULE_VERSION_INVALID/);
+  const wrongUnit = structuredClone(version.rules); wrongUnit[0].payable_amount_formula = "planned_payment_vnd_mn + grace_period_days";
+  const unitResult = await rules.checkExpressions({rules: wrongUnit});
+  assert.equal(unitResult.valid, false); assert.equal(unitResult.issues[0].code, "UNIT_MISMATCH");
+  const noPercentConversion = structuredClone(version.rules); noPercentConversion.find(row => row.rule_id === "PR0006").penalty_amount_formula = "days_late_after_grace * penalty_rate_pct_per_day * planned_payment_vnd_mn";
+  assert.equal((await rules.checkExpressions({rules: noPercentConversion})).issues[0].code, "PERCENT_CONVERSION_REQUIRED");
+  const zeroDenominator = structuredClone(version.rules); zeroDenominator.find(row => row.rule_id === "PR0023").payable_amount_formula = "planned_payment_vnd_mn / (required_event_completion_rate - required_event_completion_rate)";
+  assert.equal((await rules.checkExpressions({rules: zeroDenominator})).valid, true);
+  await assert.rejects(rules.preview(version.id, {version: version.version, rules: zeroDenominator, templates: version.templates}), /RULE_EVALUATION_FAILED/);
   const baseline = await rules.preview(version.id, {version: version.version, rules: version.rules, templates: version.templates});
   assert.equal(baseline.evaluated, 405); assert.equal(baseline.matched, 20); assert.equal(baseline.changed, 0); assert.equal(baseline.canSubmit, true);
   const modified = structuredClone(version.rules);

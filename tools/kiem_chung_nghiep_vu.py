@@ -24,7 +24,7 @@ from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from pathlib import Path
 
-SPEC_VERSION = "1.0"
+SPEC_VERSION = "1.1"
 DEFAULT_DATA = Path(__file__).resolve().parent.parent / "BangD-Case4" / "DataPack-CASE4_SmartContractWorkflow"
 SNAPSHOT = date(2026, 10, 18)
 CENT = Decimal("0.01")
@@ -97,39 +97,49 @@ _CMP = {ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
 _ARITH = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
 
 
-def _eval(node, env):
+def _eval(node, env, source=None):
     if isinstance(node, ast.Expression):
-        return _eval(node.body, env)
+        return _eval(node.body, env, source)
     if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And):
-        return all(_eval(v, env) for v in node.values)
+        return all(_eval(v, env, source) for v in node.values)
     if isinstance(node, ast.Compare) and len(node.ops) == 1:
-        left, right = _eval(node.left, env), _eval(node.comparators[0], env)
+        left, right = _eval(node.left, env, source), _eval(node.comparators[0], env, source)
         if left is None or right is None:
             return False
         return _CMP[type(node.ops[0])](left, right)
     if isinstance(node, ast.BinOp) and type(node.op) in _ARITH:
-        left, right = _eval(node.left, env), _eval(node.right, env)
+        left, right = _eval(node.left, env, source), _eval(node.right, env, source)
         if left is None or right is None:
             return None
         if isinstance(left, date) and isinstance(node.op, ast.Add):
+            if not isinstance(right, Decimal) or not right.is_finite() or right != right.to_integral_value():
+                raise ValueError("RULE_NON_INTEGER_DAYS")
             return left + timedelta(days=int(right))
+        if isinstance(node.op, ast.Div) and right == 0:
+            raise ValueError("RULE_DIVISION_BY_ZERO")
         return _ARITH[type(node.op)](left, right)
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("MIN", "MAX"):
-        args = [_eval(a, env) for a in node.args]
+        args = [_eval(a, env, source) for a in node.args]
         return min(args) if node.func.id == "MIN" else max(args)
     if isinstance(node, ast.Name):
         if node.id in ("TRUE", "FALSE"):
             return node.id == "TRUE"
         return env[node.id]
-    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
-        return Decimal(str(node.value))
+    if isinstance(node, ast.Constant) and type(node.value) in (int, float):
+        # Read the original token, never round it through a binary float.
+        token = ast.get_source_segment(source, node) if source is not None else str(node.value)
+        value = Decimal(token)
+        if not value.is_finite():
+            raise ValueError("RULE_NON_FINITE_NUMBER")
+        return value
     raise ValueError(f"Biểu thức không được hỗ trợ: {ast.dump(node)}")
 
 
 def evaluate_expr(text, env):
     if text.strip() == "ELSE":
         return True
-    return _eval(ast.parse(text.replace(" AND ", " and "), mode="eval"), env)
+    source = text.replace(" AND ", " and ")
+    return _eval(ast.parse(source, mode="eval"), env, source)
 
 
 # ---------- Đánh giá một milestone theo đặc tả ----------
@@ -397,11 +407,18 @@ def check_invariants(pack, results):
         if rule is None or rule["release_rule_code"] != m["release_rule_code"] \
                 or (rule["decision"], rule["reason_code"]) != (r["decision"], r["reason_code"]):
             bad.append(f"{mid}: rule_id không thuộc phạm vi hoặc không khớp quyết định")
+        if not all(value.is_finite() and value >= 0 for value in (r["payable"], r["penalty"])):
+            bad.append(f"{mid}: số tiền không hữu hạn hoặc âm")
+            continue
         amounts = {"RELEASE": (P, Decimal(0)), "HOLD": (Decimal(0), Decimal(0)), "REJECT": (Decimal(0), Decimal(0))}
         if r["decision"] in amounts and (r["payable"], r["penalty"]) != amounts[r["decision"]]:
             bad.append(f"{mid}: số tiền sai với {r['decision']}")
-        if r["decision"] == "PENALTY" and not (r["penalty"] > 0 and r["payable"] == max(Decimal(0), P - r["penalty"])):
-            bad.append(f"{mid}: PENALTY không đối soát được")
+        if r["decision"] == "PENALTY":
+            rounded_zero = r["penalty"] == 0 and r["raw_penalty"].quantize(CENT, ROUND_HALF_UP) == 0
+            cap = (Decimal(m["max_penalty_pct"]) / 100 * P).quantize(CENT, ROUND_HALF_UP)
+            if not ((r["penalty"] > 0 or rounded_zero) and r["penalty"] <= cap
+                    and r["payable"] == max(Decimal(0), P - r["penalty"])):
+                bad.append(f"{mid}: PENALTY không đối soát được hoặc vượt trần")
         if r["decision"] in ("RELEASE", "PENALTY"):  # chống unauthorized payment
             if r["missing_conditions"] or r["unauthorized"] or r["valid_rejection_count"] or r["open_dispute"] or r["issues"]:
                 bad.append(f"{mid}: trả tiền khi chưa đủ điều kiện")

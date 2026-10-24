@@ -93,9 +93,9 @@
       "orderDetail": "Dừng ở rule khớp đầu tiên trong phạm vi đang chọn. Tính tiền phạt trước, rồi tính tiền được trả. ELSE là nhánh giữ lại kiểm tra khi không rule trước nào khớp.",
       "catalogError": "Chưa tải được từ điển biến từ engine. Hãy tải lại để chèn biến và xem đơn vị.",
       "retry": "Tải lại",
-      "valid": "Cú pháp và kiểu cơ bản hợp lệ · {{count}} biểu thức",
+      "valid": "Cú pháp, kiểu và đơn vị hợp lệ · {{count}} biểu thức",
       "invalid": "Có {{count}} biểu thức cần sửa",
-      "syntaxOnly": "Kiểm tra tĩnh chưa chứng minh kết quả nghiệp vụ đúng. Chạy thử tác động trên 405 mốc trước khi gửi duyệt.",
+      "syntaxOnly": "Đã kiểm kiểu và đơn vị; vẫn cần chạy thử 405 mốc để kiểm kết quả và lỗi phụ thuộc dữ liệu.",
       "unchecked": "Bản đang hiển thị chưa được kiểm tra cú pháp; mỗi lần sửa cần kiểm tra lại.",
       "orderList": "Thứ tự kiểm tra quy tắc",
       "priority": "Ưu tiên {{value}}",
@@ -105,7 +105,7 @@
       "vocabularyHint": "DSL giới hạn, không phải JavaScript, Excel hay Python tự do. Engine lấy/tính các biến từ dữ liệu; giao diện không tự quyết định thanh toán.",
       "syntax": "Cú pháp được phép",
       "syntaxHint": "AND nối điều kiện đúng/sai, có khoảng trắng hai bên. Số thập phân dùng dấu chấm (0.10). TRUE/FALSE viết hoa. MIN/MAX nhận 1–8 đối số số học. ELSE đứng riêng ở ưu tiên 80. Không hỗ trợ OR, NOT, IF, chuỗi, truy cập thuộc tính hoặc gọi hàm khác.",
-      "dateHint": "So sánh ngày hoặc cộng số ngày, ví dụ due_date + grace_period_days. Dùng days_late_after_grace tính sẵn thay vì trừ hai ngày. Ngày hoàn thành chưa có thì phép so sánh trả FALSE.",
+      "dateHint": "Chỉ cộng số ngày nguyên vào ngày, ví dụ due_date + grace_period_days. Không cộng tiền, phần trăm hay số vai trò vào ngày. Dùng days_late_after_grace thay vì trừ ngày; ngày hoàn thành chưa có thì so sánh trả FALSE.",
       "example": "Ví dụ tính phạt và tiền được trả",
       "exampleInputs": "Mốc dự kiến 1000.00 triệu VND, trễ 3 ngày sau ân hạn, phạt 0.10%/ngày, trần 8%. Chỉ áp dụng khi rule phạt khớp đầu tiên.",
       "exampleResult": "Phạt 3.00 triệu VND, tiền trả 997.00 triệu VND. Engine dùng Decimal và ROUND_HALF_UP 2 chữ số. Có tranh chấp mở thì HOLD theo rule 10, không dùng ví dụ này để chi.",
@@ -135,7 +135,7 @@
       },
       "hints": {
         "condition_expression": "Kết quả TRUE/FALSE; rule cuối dùng ELSE. Số ưu tiên nhỏ được xét trước.",
-        "penalty_amount_formula": "Kết quả theo triệu VND. MIN giới hạn trần; không tự dùng penalty_amount_vnd_mn tại đây.",
+        "penalty_amount_formula": "Kết quả theo triệu VND. Đổi phần trăm bằng / 100 hoặc × 0.01; MIN giới hạn trần. Không dùng tiền phạt kết quả tại đây.",
         "payable_amount_formula": "Dùng tiền phạt đã làm tròn từ bước 1. MAX(0, …) tránh tiền trả âm."
       },
       "types": {
@@ -167,8 +167,13 @@
         "NUMBER_REQUIRED": "Công thức tiền và đối số MIN/MAX phải trả số.",
         "DIVISION_BY_ZERO": "Không được chia cho 0.",
         "FALLBACK_ORDER": "ELSE chỉ ở rule cuối, ưu tiên 80.",
-        "EXPRESSION_TOO_COMPLEX": "Biểu thức quá phức tạp, hãy rút gọn."
-      }
+        "EXPRESSION_TOO_COMPLEX": "Biểu thức quá phức tạp, hãy rút gọn.",
+        "UNIT_MISMATCH": "Đơn vị không khớp: không cộng tiền với ngày/số lượng. Công thức tiền phải trả triệu VND; ngày chỉ cộng với số ngày.",
+        "PERCENT_CONVERSION_REQUIRED": "Phần trăm chưa được đổi về tỷ lệ: dùng / 100 (hoặc × 0.01) trước khi tính ra tiền.",
+        "INTEGER_DAYS_REQUIRED": "Số ngày cộng vào ngày phải là số nguyên; hệ thống không tự cắt phần lẻ.",
+        "NEGATIVE_AMOUNT": "Công thức tiền cố định không được trả số âm."
+      },
+      "unitHint": "Phép cộng/trừ, so sánh và MIN/MAX phải cùng đơn vị. Ngày × %/ngày ÷ 100 × tiền cho kết quả tiền. Số cố định như 0 trong MAX(0, tiền) được hiểu theo đơn vị của vế còn lại; công thức chỉ có số cố định được hiểu là triệu VND."
     },
     "preview": "Chạy thử tác động",
     "previewSummary": "Đã tính {{evaluated}} mốc · Khớp {{matched}}/{{samples}} mẫu · {{changed}} mốc thay đổi · {{violations}} vi phạm",

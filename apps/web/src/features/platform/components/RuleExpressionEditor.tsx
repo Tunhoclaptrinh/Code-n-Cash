@@ -337,6 +337,9 @@ export function RuleExpressionEditor({
                   <Typography.Paragraph>
                     {t("rules.language.dateHint")}
                   </Typography.Paragraph>
+                  <Typography.Paragraph>
+                    {t("rules.language.unitHint")}
+                  </Typography.Paragraph>
                 </Space>
               ),
             },

@@ -62,7 +62,9 @@ Bấm **Biến, cú pháp và ví dụ** để tìm biến (1), đọc kiểu, �
 
 ![Lỗi: 1 — rule cần sửa; 2 — biểu thức lỗi và giải thích](../../../public/guide/images/rules-syntax-error.webp)
 
-Bấm **Kiểm tra cú pháp** để kiểm cả 384 biểu thức. Bấm lỗi (1) để tới rule tương ứng. Ví dụ `open_dispute == 1` sai kiểu; dùng `open_dispute == TRUE` nếu muốn kiểm tranh chấp mở. Lỗi có dòng/cột tại ô (2). **Khôi phục bản lưu** chỉ khôi phục ô đang sửa. Kết quả cú pháp hợp lệ chưa chứng minh công thức đúng đơn vị/nghiệp vụ.
+Bấm **Kiểm tra cú pháp** để kiểm cả 384 biểu thức. Bấm lỗi (1) để tới rule tương ứng. Ví dụ `open_dispute == 1` sai kiểu; dùng `open_dispute == TRUE` nếu muốn kiểm tranh chấp mở. Lỗi có dòng/cột tại ô (2). **Khôi phục bản lưu** chỉ khôi phục ô đang sửa. Hệ thống kiểm cả đơn vị: không cộng tiền với ngày, phần trăm cần đổi bằng `/ 100` hoặc `× 0.01`, số ngày phải nguyên. Hợp kiểu/đơn vị vẫn cần chạy thử và rà soát ý định nghiệp vụ; mẫu số dùng biến có thể bằng 0.
+
+![Sai đơn vị: 1 — biểu thức cộng tiền với ngày; 2 — lỗi cần sửa](../../../public/guide/images/rules-unit-error.webp)
 
 ![Chạy thử: 1 — kết quả toàn pack; 2 — gửi duyệt](../../../public/guide/images/rules-preview.webp)
 

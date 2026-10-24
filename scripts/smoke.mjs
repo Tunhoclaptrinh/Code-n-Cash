@@ -71,6 +71,37 @@ const invalidRuleResult = await request(
 );
 assert.equal(invalidRuleResult.status, 201);
 assert.equal(invalidRuleResult.body.data.issues[0].code, "TYPE_MISMATCH");
+for (const [expression, code] of [
+  ["planned_payment_vnd_mn + grace_period_days", "UNIT_MISMATCH"],
+  ["max_penalty_pct * planned_payment_vnd_mn", "PERCENT_CONVERSION_REQUIRED"],
+  ["0 - 1", "NEGATIVE_AMOUNT"],
+]) {
+  const changed = structuredClone(ruleVersion.rules);
+  changed[0].payable_amount_formula = expression;
+  const checked = await request(
+    "/trust/rules/validate",
+    "POST",
+    { rules: changed },
+    sysadmin,
+  );
+  assert.equal(checked.status, 201);
+  assert.equal(checked.body.data.issues[0].code, code);
+}
+const impossible = structuredClone(ruleVersion.rules);
+impossible.find((row) => row.rule_id === "PR0023").payable_amount_formula =
+  "planned_payment_vnd_mn / (required_event_completion_rate - required_event_completion_rate)";
+const failedPreview = await request(
+  `/trust/rules/${ruleVersion.id}/preview`,
+  "POST",
+  {
+    version: ruleVersion.version,
+    rules: impossible,
+    templates: ruleVersion.templates,
+  },
+  sysadmin,
+);
+assert.equal(failedPreview.status, 400);
+assert.equal(failedPreview.body.code, "RULE_EVALUATION_FAILED");
 const previewRules = await request(
   `/trust/rules/${ruleVersion.id}/preview`,
   "POST",

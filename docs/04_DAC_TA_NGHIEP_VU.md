@@ -4,13 +4,13 @@
 
 | Mục | Nội dung |
 | --- | --- |
-| Phiên bản | **1.0** |
+| Phiên bản | **1.1** |
 | Trạng thái | Bản chuẩn đã kiểm chứng trên Data Pack. Chờ đội duyệt và BTC trả lời các giả định Mở (mục 13). |
-| Ngày | 21/10/2026 |
+| Ngày | 25/10/2026 |
 | Quy ước phiên bản | `MAJOR.MINOR`. Tăng MINOR khi bổ sung hoặc làm rõ mà không đổi kết quả của 405 mốc. Tăng MAJOR khi bất kỳ quyết định hay số tiền nào trên Data Pack thay đổi. Quy trình ở mục 19.2. |
 | Lịch sử | Các bản 0.1, 0.2, 0.4, 0.5 nằm ở [`archive/nghiep-vu/`](archive/nghiep-vu/); nội dung thay đổi ở Phụ lục E |
 | Nguồn | [Đề thi PDF](../BangD-Case4/DeThi2026_BangD_SmartContractWorkflow.pdf). Data Pack v1.0-final, snapshot 18/10/2026: [README](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/README.md), [data dictionary](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/02_metadata/data_dictionary.csv), [manifest](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/02_metadata/dataset_manifest_final.csv), 5 tệp `01_data`, 2 tệp `03_labels_sample`, [template nộp](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/04_output_templates/submission_output_template.csv) |
-| Kiểm chứng | Script [`tools/kiem_chung_nghiep_vu.py`](../tools/kiem_chung_nghiep_vu.py) (`SPEC_VERSION = "1.0"`) và bộ test [`tests/test_dac_ta_nghiep_vu.py`](../tests/test_dac_ta_nghiep_vu.py) gồm 41 test. Cách chạy ở Phụ lục D. |
+| Kiểm chứng | Script [`tools/kiem_chung_nghiep_vu.py`](../tools/kiem_chung_nghiep_vu.py) (`SPEC_VERSION = "1.1"`) và bộ test [`tests/test_dac_ta_nghiep_vu.py`](../tests/test_dac_ta_nghiep_vu.py) gồm 41 test. Cách chạy ở Phụ lục D. |
 | Đối tượng đọc | Toàn đội: nghiệp vụ, kỹ thuật, thuyết trình |
 | Mục đích | Một nguồn duy nhất về cách hiểu bài toán, thuật ngữ, quy tắc quyết định, vòng đời trạng thái, xử lý ngoại lệ, phân quyền và quy ước đầu ra |
 
@@ -542,6 +542,8 @@ Event đúng thẩm quyền nhưng sai trạng thái không phải bằng chứn
 - Làm tròn F tới 0,01 theo **ROUND_HALF_UP** trước, rồi mới tính `P − F`, để payable + penalty = P đối soát được.
 - Phải chỉ định HALF_UP một cách tường minh, vì `Decimal` của Python mặc định dùng HALF_EVEN. Ca biên duy nhất là MS0396: F thô 10,605 cho 10,61 theo HALF_UP nhưng 10,60 theo HALF_EVEN (A07, T32).
 - Xuất 2 chữ số thập phân.
+- Số literal trong biểu thức được đọc trực tiếp từ token gốc sang Decimal; không đi vòng qua giá trị float của AST. Số ngày cộng vào ngày phải nguyên, không tự cắt phần lẻ. Chia cho 0 là lỗi tính toán và không được lưu thành quyết định. **[THIẾT KẾ]**
+- Khi F thô rất nhỏ và HALF_UP về `0.00` (ví dụ P = 1.00, rate = 0.10%/ngày, trễ 1 ngày), rule 60 vẫn là PENALTY nếu điều kiện của nó đúng; không tự chuyển sang RELEASE. Bất biến cho phép F = 0 khi F chuẩn sau làm tròn cũng bằng 0, hoặc rate/cap cấu hình bằng 0. Đây là hệ quả toán học của first-match và làm tròn, kiểm bằng ca tổng hợp; không phải ground truth BTC mới. **[THIẾT KẾ]**
 
 **[SAMPLE]** (2 ca phạt khớp) **[GIẢ ĐỊNH]** (chế độ làm tròn)
 
@@ -1035,9 +1037,10 @@ Khung lấy từ `reference_reason_vi` của BTC, bổ sung số liệu cụ th�
 
 Script kiểm tự động các bất biến sau trên cả 405 mốc (hiện 0 vi phạm):
 
+- các số tiền phải hữu hạn và không âm;
 - decision và reason nằm trong miền giá trị; trạng thái khớp ánh xạ 9.1;
 - `rule_id` thuộc đúng phạm vi của mốc, và quyết định cùng reason của nó khớp kết quả;
-- RELEASE thì payable = P và penalty = 0; HOLD và REJECT thì cả hai bằng 0; PENALTY thì F > 0 và payable = max(0, P − F);
+- RELEASE thì payable = P và penalty = 0; HOLD và REJECT thì cả hai bằng 0; PENALTY thì F ≥ 0 và payable = max(0, P − F), F không vượt trần đã làm tròn; F = 0 chỉ hợp lệ nếu F chuẩn sau làm tròn cũng bằng 0;
 - **mốc được trả tiền (RELEASE/PENALTY) phải đạt mọi token, không có event sai quyền, không có rejection, không có tranh chấp mở, không đi qua cổng BR-15**;
 - evidence chỉ gồm event của chính mốc, không chứa bản lặp hay event sai quyền;
 - `conditions_met` cộng `missing_conditions` phủ đúng các token của `required_condition`.
@@ -1325,6 +1328,7 @@ Mọi số có nhãn [DỮ LIỆU] trong tài liệu phải trùng với output 
 | 0.4 | 21/10/2026 | [archive/…v0.4_ra_soat_2.md](archive/nghiep-vu/DAC_TA_NGHIEP_VU_v0.4_ra_soat_2.md) | Rà soát lần 2: làm rõ mục 9, hướng dẫn điền output |
 | 0.5 | 21/10/2026 | [archive/…v0.5.md](archive/nghiep-vu/DAC_TA_NGHIEP_VU_v0.5.md) | Hợp nhất 0.1–0.4; kiểm chứng toàn bộ bằng script; sửa 2 lỗi lớn của 0.2/0.4 |
 | **1.0** | 21/10/2026 | `04_DAC_TA_NGHIEP_VU.md` | Bản chuẩn: chuyển trạng thái, xử lý ngoại lệ, BR-19, BR-20, phân quyền, rủi ro–tuân thủ, quy trình phiên bản; bộ 41 test; chuẩn hoá tên và vị trí tệp |
+| **1.1** | 25/10/2026 | `04_DAC_TA_NGHIEP_VU.md` | Kiểm đơn vị DSL, literal Decimal chính xác, ngày nguyên, phạt rất nhỏ làm tròn 0; chặn ghi kết quả sai bất biến. Giữ nguyên decision/reason/status/tiền của 405 mốc. Xem [20 — Kiểm chứng công thức](20_KIEM_CHUNG_CONG_THUC_VA_THAM_SO.md). |
 
 ### E.2. Thay đổi chi tiết
 

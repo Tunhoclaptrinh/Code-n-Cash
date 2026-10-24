@@ -6,7 +6,7 @@ import type { Actor, RecordEntity } from "../common/types";
 import type { Outcome } from "./actions";
 import type { AccountSpec } from "./accounts";
 import { Ctx, READ_TABLES } from "./context";
-import { applyRun, runEngine } from "./engine";
+import { applyRun, assertEngineOutcome, runEngine } from "./engine";
 import { dataPackSeal, TABLE, type Tables } from "./records";
 import { buildSeed } from "./seed";
 import type { Evaluation } from "./types";
@@ -94,8 +94,11 @@ export class DomainService {
 
   /** Runs the engine on the current data plus hypothetical events (preview, nothing is stored). */
   dryRun(tables: Tables) {
-    return async (events: RecordEntity[]): Promise<Map<string, Evaluation>> =>
-      (await runEngine(tables, events as never)).evaluations;
+    return async (events: RecordEntity[]): Promise<Map<string, Evaluation>> => {
+      const outcome = await runEngine(tables, events as never);
+      assertEngineOutcome(outcome);
+      return outcome.evaluations;
+    };
   }
 
   async read<T>(

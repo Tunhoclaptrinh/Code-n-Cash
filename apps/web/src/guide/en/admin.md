@@ -54,7 +54,9 @@ Open **Variables, syntax and examples**, search (1), and inspect meaning, type, 
 
 ![Diagnostics: 1 — affected rule; 2 — expression and explanation](../../../public/guide/images/rules-syntax-error.webp)
 
-**Check syntax** validates all 384 expressions. Click an issue (1) to select its rule. For example, `open_dispute == 1` compares incompatible types; use `open_dispute == TRUE` to check an open dispute. Errors show a line and column (2). **Restore saved value** restores that field only. Valid syntax and primitive types do not prove correct units or business logic.
+**Check syntax** validates all 384 expressions. Click an issue (1) to select its rule. For example, `open_dispute == 1` compares incompatible types; use `open_dispute == TRUE` to check an open dispute. Errors show a line and column (2). **Restore saved value** restores that field only. Units are also checked: no adding money to days, percentages require `/ 100` or `× 0.01`, and date offsets must be whole days. Valid types and units still require preview and business review; a variable denominator can be zero.
+
+![Unit mismatch: 1 — money added to days; 2 — diagnostic to correct](../../../public/guide/images/rules-unit-error.webp)
 
 ![Preview: 1 — full-pack results; 2 — submit](../../../public/guide/images/rules-preview.webp)
 

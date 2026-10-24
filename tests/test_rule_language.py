@@ -68,4 +68,24 @@ class RuleLanguageTests(unittest.TestCase):
         self.problem('payable_amount_formula', 'MIN(TRUE, 1)', 'NUMBER_REQUIRED')
         self.problem('condition_expression', '0 < valid_approval_count < 3', 'INVALID_COMPARISON')
 
+
+    def test_units_and_percent_conversion(self):
+        self.problem('payable_amount_formula', 'planned_payment_vnd_mn + grace_period_days', 'UNIT_MISMATCH')
+        self.problem('penalty_amount_formula', 'days_late_after_grace', 'UNIT_MISMATCH')
+        self.problem('condition_expression', 'valid_approval_count > grace_period_days', 'UNIT_MISMATCH')
+        self.problem('condition_expression', 'actual_completion_date > due_date + max_penalty_pct', 'UNIT_MISMATCH')
+        self.problem('penalty_amount_formula', 'max_penalty_pct * planned_payment_vnd_mn', 'PERCENT_CONVERSION_REQUIRED')
+        self.problem('condition_expression', 'due_date + 0.5 > actual_completion_date', 'INTEGER_DAYS_REQUIRED')
+        self.problem('penalty_amount_formula', '0 - 1', 'NEGATIVE_AMOUNT')
+        for expr in ['max_penalty_pct / 100 * planned_payment_vnd_mn',
+                     '0.01 * max_penalty_pct * planned_payment_vnd_mn',
+                     'planned_payment_vnd_mn * (valid_approval_count / required_approval_quorum)',
+                     'MIN(planned_payment_vnd_mn, 1000)', 'MAX(0, planned_payment_vnd_mn - 10)']:
+            language.check_expression(expr, 'payable_amount_formula')
+
+    def test_folded_division_by_zero_and_tiny_exact_constant(self):
+        self.problem('payable_amount_formula', 'planned_payment_vnd_mn / (100 - 100)', 'DIVISION_BY_ZERO')
+        language.check_expression('planned_payment_vnd_mn / 1e-400', 'payable_amount_formula')
+
+
 if __name__ == '__main__': unittest.main()

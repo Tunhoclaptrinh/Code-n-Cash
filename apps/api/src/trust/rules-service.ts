@@ -6,6 +6,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
@@ -317,7 +318,13 @@ export class RulesService {
     };
     const [baseline, candidate] = await Promise.all([
       runEngine({ ...input, [TABLE.rules]: pack.payment_rules as never }),
-      runEngine({ ...input, [TABLE.rules]: body.rules as never }),
+      runEngine({ ...input, [TABLE.rules]: body.rules as never }).catch(
+        (error) => {
+          if (error instanceof UnprocessableEntityException)
+            throw new BadRequestException("RULE_EVALUATION_FAILED");
+          throw error;
+        },
+      ),
     ]);
     const labels = readRecords(
       await readFile(

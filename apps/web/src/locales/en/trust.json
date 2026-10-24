@@ -93,9 +93,9 @@
       "orderDetail": "Stop at the first matching rule in the selected scope. Calculate penalty first, then payable. ELSE is the fallback when no earlier rule matches.",
       "catalogError": "Unable to load the engine vocabulary. Retry to insert variables and inspect units.",
       "retry": "Retry",
-      "valid": "Syntax and primitive types valid · {{count}} expressions",
+      "valid": "Syntax, types and units valid · {{count}} expressions",
       "invalid": "{{count}} expressions need correction",
-      "syntaxOnly": "Static validation does not prove business correctness. Preview all 405 milestones before submitting.",
+      "syntaxOnly": "Types and units are checked; preview all 405 milestones to verify results and data-dependent errors.",
       "unchecked": "This revision has not been checked. Recheck after every edit.",
       "orderList": "Rule evaluation order",
       "priority": "Priority {{value}}",
@@ -105,7 +105,7 @@
       "vocabularyHint": "A limited DSL, not arbitrary JavaScript, Excel or Python. The engine derives variables from data; the browser does not decide payments.",
       "syntax": "Supported syntax",
       "syntaxHint": "AND joins booleans with spaces on each side. Use decimal dots (0.10), uppercase TRUE/FALSE. MIN/MAX take 1–8 numeric arguments. ELSE stands alone at priority 80. OR, NOT, IF, strings, property access and other functions are unsupported.",
-      "dateHint": "Compare dates or add days, e.g. due_date + grace_period_days. Use precomputed days_late_after_grace instead of subtracting dates. Missing completion makes comparisons FALSE.",
+      "dateHint": "Add only whole calendar days to dates, e.g. due_date + grace_period_days. No money, percentages or counts. Use days_late_after_grace instead of subtracting dates; missing completion yields FALSE in comparisons.",
       "example": "Penalty and payable example",
       "exampleInputs": "Planned payment 1000.00 million VND, 3 days late after grace, 0.10% daily penalty, cap 8%. Applies only if the penalty rule matches first.",
       "exampleResult": "Penalty 3.00 million VND, payable 997.00 million VND. The engine uses Decimal with 2-decimal ROUND_HALF_UP. An open dispute triggers HOLD at priority 10, regardless of this example.",
@@ -135,7 +135,7 @@
       },
       "hints": {
         "condition_expression": "Returns TRUE/FALSE; final rule uses ELSE. Lower priorities run first.",
-        "penalty_amount_formula": "Million VND. MIN caps the amount; penalty_amount_vnd_mn cannot reference itself here.",
+        "penalty_amount_formula": "Million VND. Convert percentages using / 100 or × 0.01; MIN caps the result. Computed penalty cannot reference itself here.",
         "payable_amount_formula": "May use the rounded penalty from step 1. MAX(0, …) avoids negative payable."
       },
       "types": {
@@ -167,8 +167,13 @@
         "NUMBER_REQUIRED": "Money formulas and MIN/MAX arguments must be numeric.",
         "DIVISION_BY_ZERO": "Division by zero is not allowed.",
         "FALLBACK_ORDER": "ELSE is only allowed at priority 80.",
-        "EXPRESSION_TOO_COMPLEX": "Expression too complex; simplify it."
-      }
+        "EXPRESSION_TOO_COMPLEX": "Expression too complex; simplify it.",
+        "UNIT_MISMATCH": "Unit mismatch: do not add money to days/counts. Money formulas must return million VND; dates accept only days.",
+        "PERCENT_CONVERSION_REQUIRED": "Unconverted percent: use / 100 (or × 0.01) before producing a money amount.",
+        "INTEGER_DAYS_REQUIRED": "Date offsets must be whole days; fractional days are never truncated.",
+        "NEGATIVE_AMOUNT": "A constant money formula cannot return a negative amount."
+      },
+      "unitHint": "Addition, subtraction, comparisons and MIN/MAX require compatible units. Days × %/day ÷ 100 × money yields money. Fixed numbers such as 0 in MAX(0, money) inherit the other operand’s unit; constant-only money formulas mean million VND."
     },
     "preview": "Preview impact",
     "previewSummary": "{{evaluated}} milestones · {{matched}}/{{samples}} samples · {{changed}} changed · {{violations}} violations",

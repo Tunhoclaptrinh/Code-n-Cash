@@ -689,3 +689,21 @@ test("the state survives a restart of the service", async () => {
     ),
   );
 });
+
+test("an invalid rule result rolls back workflow changes and cannot enter a live or hypothetical payment decision", async () => {
+  const original = structuredClone((await repo.list("payment-rules")).find(row => row.rule_id === "PR0007"));
+  const names = ["notes", "evaluations", "status-history", "engine-runs", "audit"];
+  try {
+    await repo.mutate("payment-rules", rows => {rows.find(row => row.rule_id === "PR0007").payable_amount_formula = "planned_payment_vnd_mn + 1";});
+    // Fixture setup itself appends SYSTEM_WRITE; snapshot after that legitimate audit entry.
+    const before = Object.fromEntries(await Promise.all(names.map(async name => [name, JSON.stringify(await repo.list(name))])));
+    await assert.rejects(domain.write(actor("u-owner"), "INVALID_RULE_TEST", ctx => {
+      ctx.t.notes.push({id: "must-rollback", version: 1, text: "Never persist invalid pricing"});
+      return {result: {}, evaluate: true, trigger: {kind: "EVENT"}, audit: []};
+    }), /ENGINE_INVARIANT_VIOLATION/);
+    await assert.rejects(domain.read(actor("u-owner"), (_, dryRun) => dryRun([])), /ENGINE_INVARIANT_VIOLATION/);
+    for (const name of names) assert.equal(JSON.stringify(await repo.list(name)), before[name], name);
+  } finally {
+    await repo.mutate("payment-rules", rows => {Object.assign(rows.find(row => row.rule_id === "PR0007"), original);});
+  }
+});

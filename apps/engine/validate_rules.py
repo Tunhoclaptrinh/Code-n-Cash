@@ -1,7 +1,6 @@
 """Type-check every DSL branch without execution, sharing the UI vocabulary."""
 import ast
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -19,6 +18,102 @@ class ExpressionProblem(ValueError):
         self.code, self.node, self.token = code, node, token
 
 
+from dataclasses import dataclass
+from decimal import Decimal, DecimalException
+
+# Dimensions: money (million VND), calendar days, counts, unconverted percent.
+SCALAR = (0, 0, 0, 0)
+MONEY = (1, 0, 0, 0)
+DAYS = (0, 1, 0, 0)
+COUNT = (0, 0, 1, 0)
+PERCENT = (0, 0, 0, 1)
+UNIT_DIMENSIONS = {'money': MONEY, 'days': DAYS, 'count': COUNT,
+                   'ratio': SCALAR, 'percent': PERCENT, 'percentPerDay': (0, -1, 0, 1)}
+
+
+@dataclass(frozen=True)
+class Measure:
+    kind: str
+    dimension: tuple = SCALAR
+    constant: object = None
+
+
+def compatible(left, right, node):
+    # Bare numeric constants inherit the unit of the quantity they are added/compared to.
+    if left.constant is not None:
+        return right.dimension
+    if right.constant is not None:
+        return left.dimension
+    if left.dimension != right.dimension:
+        raise ExpressionProblem('UNIT_MISMATCH', node)
+    return left.dimension
+
+
+def measure(node):
+    if isinstance(node, ast.Expression):
+        return measure(node.body)
+    if isinstance(node, ast.Constant):
+        return Measure('number', constant=node.decimal_value)
+    if isinstance(node, ast.Name):
+        if node.id in ('TRUE', 'FALSE'):
+            return Measure('boolean')
+        variable = VARIABLES[node.id]
+        return Measure(variable['type'], UNIT_DIMENSIONS.get(variable['unit'], SCALAR))
+    if isinstance(node, ast.BoolOp):
+        for child in node.values:
+            measure(child)
+        return Measure('boolean')
+    if isinstance(node, ast.Compare):
+        left, right = measure(node.left), measure(node.comparators[0])
+        if left.kind == 'number':
+            compatible(left, right, node)
+        return Measure('boolean')
+    if isinstance(node, ast.BinOp):
+        left, right = measure(node.left), measure(node.right)
+        if left.kind == 'date':
+            if right.constant is not None:
+                if right.constant != right.constant.to_integral_value():
+                    raise ExpressionProblem('INTEGER_DAYS_REQUIRED', node.right)
+            elif right.dimension != DAYS:
+                raise ExpressionProblem('UNIT_MISMATCH', node.right)
+            return Measure('date')
+        if isinstance(node.op, (ast.Add, ast.Sub)):
+            dimension = compatible(left, right, node)
+        elif isinstance(node.op, ast.Mult):
+            dimension = tuple(a + b for a, b in zip(left.dimension, right.dimension))
+            # 0.01 * percent is equivalent to percent / 100.
+            if dimension[3] > 0 and (left.constant == Decimal('0.01') or right.constant == Decimal('0.01')):
+                dimension = (*dimension[:3], dimension[3] - 1)
+        else:
+            if right.constant == 0:
+                raise ExpressionProblem('DIVISION_BY_ZERO', node.right)
+            dimension = tuple(a - b for a, b in zip(left.dimension, right.dimension))
+            if right.constant == 100 and dimension[3] > 0:
+                dimension = (*dimension[:3], dimension[3] - 1)
+        constant = None
+        if left.constant is not None and right.constant is not None:
+            operations = {ast.Add: lambda: left.constant + right.constant,
+                          ast.Sub: lambda: left.constant - right.constant,
+                          ast.Mult: lambda: left.constant * right.constant,
+                          ast.Div: lambda: left.constant / right.constant}
+            try:
+                constant = operations[type(node.op)]()
+                if not constant.is_finite():
+                    raise ExpressionProblem('INVALID_CONSTANT', node)
+            except DecimalException as error:
+                raise ExpressionProblem('INVALID_CONSTANT', node) from error
+        return Measure('number', dimension, constant)
+    if isinstance(node, ast.Call):
+        args = [measure(arg) for arg in node.args]
+        result = next((arg for arg in args if arg.constant is None), args[0])
+        for arg in args:
+            compatible(result, arg, node)
+        constant = None
+        if all(arg.constant is not None for arg in args):
+            constant = (min if node.func.id == 'MIN' else max)(arg.constant for arg in args)
+        return Measure('number', result.dimension, constant)
+    raise ExpressionProblem('UNSUPPORTED_EXPRESSION', node)
+
 def expression_type(node, field):
     if isinstance(node, ast.Expression):
         return expression_type(node.body, field)
@@ -32,8 +127,7 @@ def expression_type(node, field):
             raise ExpressionProblem('VARIABLE_UNAVAILABLE', node, node.id)
         return variable['type']
     if isinstance(node, ast.Constant):
-        if (type(node.value) not in (int, float) or len(str(node.value)) > 16
-                or (isinstance(node.value, float) and not math.isfinite(node.value))):
+        if type(node.value) not in (int, float) or not hasattr(node, 'decimal_value'):
             raise ExpressionProblem('INVALID_CONSTANT', node)
         return 'number'
     if isinstance(node, ast.BoolOp):
@@ -53,8 +147,6 @@ def expression_type(node, field):
             return 'date'
         if left != 'number' or right != 'number':
             raise ExpressionProblem('TYPE_MISMATCH', node)
-        if isinstance(node.op, ast.Div) and isinstance(node.right, ast.Constant) and node.right.value == 0:
-            raise ExpressionProblem('DIVISION_BY_ZERO', node.right)
         return 'number'
     if isinstance(node, ast.Call):
         if (not isinstance(node.func, ast.Name) or node.func.id not in ('MIN', 'MAX')
@@ -73,19 +165,33 @@ def check_expression(text, field, priority=None):
         if priority is not None and str(priority) != '80':
             raise ExpressionProblem('FALLBACK_ORDER')
         return
-    tree = ast.parse(text.replace(' AND ', ' and '), mode='eval')
+    source = text.replace(' AND ', ' and ')
+    tree = ast.parse(source, mode='eval')
     nodes = list(ast.walk(tree))
     if len(nodes) > 512:
         raise ExpressionProblem('EXPRESSION_TOO_COMPLEX')
     for node in nodes:
         if not isinstance(node, ALLOWED):
             raise ExpressionProblem('UNSUPPORTED_EXPRESSION', node)
-        if isinstance(node, ast.Constant) and len(ast.get_source_segment(text.replace(' AND ', ' and '), node) or '') > 16:
-            raise ExpressionProblem('INVALID_CONSTANT', node)
+        if isinstance(node, ast.Constant):
+            literal = ast.get_source_segment(source, node) or ''
+            if type(node.value) not in (int, float) or not literal or len(literal) > 16:
+                raise ExpressionProblem('INVALID_CONSTANT', node)
+            try:
+                node.decimal_value = Decimal(literal)
+                if not node.decimal_value.is_finite():
+                    raise ExpressionProblem('INVALID_CONSTANT', node)
+            except DecimalException as error:
+                raise ExpressionProblem('INVALID_CONSTANT', node) from error
     actual = expression_type(tree, field)
     expected = 'boolean' if field == 'condition_expression' else 'number'
     if actual != expected:
         raise ExpressionProblem('BOOLEAN_REQUIRED' if expected == 'boolean' else 'NUMBER_REQUIRED', tree.body)
+    result = measure(tree)
+    if field != 'condition_expression' and result.constant is not None and result.constant < 0:
+        raise ExpressionProblem('NEGATIVE_AMOUNT', tree.body)
+    if field != 'condition_expression' and result.constant is None and result.dimension != MONEY:
+        raise ExpressionProblem('PERCENT_CONVERSION_REQUIRED' if result.dimension[3] else 'UNIT_MISMATCH', tree.body)
 
 
 def inspect(rules, limit=None):

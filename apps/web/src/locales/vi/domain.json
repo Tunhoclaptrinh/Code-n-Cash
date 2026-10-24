@@ -261,8 +261,10 @@
     "RULE_VERSION_INVALID": "Cấu hình chưa hợp lệ: kiểm tra đủ luật, tổng tỷ lệ 100%, sự kiện và biểu thức cho phép.",
     "RULE_VERSION_LOCKED": "Phiên bản đã khóa; hãy soạn bản nháp mới để thay đổi.",
     "RULE_VERSION_AUTHOR_REQUIRED": "Chỉ người soạn được sửa và gửi duyệt bản nháp này.",
-    "RULE_VERSION_REGRESSION": "Cấu hình không qua kiểm chứng mẫu hoặc bất biến nghiệp vụ.",
-    "SECOND_REVIEWER_REQUIRED": "Cần người quản trị khác rà soát và duyệt phát hành."
+    "RULE_VERSION_REGRESSION": "Cấu hình làm đổi kết quả baseline hoặc không qua mẫu/bất biến nghiệp vụ.",
+    "SECOND_REVIEWER_REQUIRED": "Cần người quản trị khác rà soát và duyệt phát hành.",
+    "ENGINE_INVARIANT_VIOLATION": "Kết quả tính vi phạm điều kiện hoặc đối soát tiền. Giao dịch chưa được lưu; kiểm tra quy tắc và tham số.",
+    "RULE_EVALUATION_FAILED": "Công thức hợp cú pháp nhưng không tính được trên dữ liệu (ví dụ chia cho 0 hoặc số ngày lẻ). Kiểm tra mẫu số và tham số rồi chạy thử lại."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

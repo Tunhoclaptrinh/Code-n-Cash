@@ -229,6 +229,12 @@ export async function runEngine(
   });
 }
 
+/** Invalid engine results must not become live decisions or hypothetical payment previews. */
+export function assertEngineOutcome(outcome: EngineOutcome): void {
+  if (outcome.violations.length)
+    throw new UnprocessableEntityException("ENGINE_INVARIANT_VIOLATION");
+}
+
 /** Facts that make two evaluations different; run id and time alone are not a change. */
 const factsOf = (evaluation: Evaluation) =>
   JSON.stringify({ ...evaluation, runId: "", evaluatedAt: "" });
@@ -248,6 +254,7 @@ export function applyRun(
   outcome: EngineOutcome,
   trigger: Trigger,
 ): { changed: string[] } {
+  assertEngineOutcome(outcome);
   const evaluations = tables[TABLE.evaluations] as EvaluationRecord[];
   const history = tables[TABLE.history] as HistoryRecord[];
   const paid = new Set(

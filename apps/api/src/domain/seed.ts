@@ -555,7 +555,7 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
     organizations: organizationRecords,
     templates: templateRecords(stages),
     settings: [
-      ["SPEC_VERSION", "1.0", "DATA_PACK"],
+      ["SPEC_VERSION", "1.1", "DATA_PACK"],
       ["DATA_PACK_SNAPSHOT", "2026-10-18", "DATA_PACK"],
       ["EVALUATION_MODE", "offline_full_history", "SEED"],
       ["DEMO_BUYER", `${DEMO_BUYER} · ${orgName(DEMO_BUYER)}`, "SEED"],

@@ -28,3 +28,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 Ưu tiên lõi đúng, dashboard tối thiểu và minh chứng. Không suy accuracy toàn bộ từ 20 mẫu. Hai PDF là hồ sơ bắt buộc theo mục 8 đề thi; cách gửi CSV/source/video theo thông báo BTC. Proposal cần roadmap MVP **2–3 tuần**, tách khỏi lịch chuẩn bị bài **7 ngày**.
 
 - [19 — Điều kiện, công thức và từ điển biến quy tắc](19_DIEU_KIEN_CONG_THUC_VA_BIEN_QUY_TAC.md)
+
+- [20 — Kiểm chứng công thức, biến và tham số thực thi](20_KIEM_CHUNG_CONG_THUC_VA_THAM_SO.md)

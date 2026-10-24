@@ -53,9 +53,9 @@ Docker runtime cũng sao chép catalog cùng validator, tránh lỗi thiếu t�
 
 - Điều kiện trả boolean; công thức tiền trả number. Dùng `TRUE`, `FALSE`, `AND`, `== != < <= > >=`, `+ - * /`, ngoặc và `MIN/MAX` (1–8 đối số). AND có khoảng trắng hai bên; số thập phân dùng dấu chấm. ELSE đứng riêng ở priority 80.
 - Không thực thi JavaScript/Python/Excel tự do; không `eval`, OR/NOT/IF, chuỗi, truy cập thuộc tính, import, hàm tùy ý, so sánh chuỗi `a < b < c` hay lũy thừa. Dùng `a < b AND b < c`.
-- Chỉ cộng số vào ngày để so sánh; dùng `days_late_after_grace` tính sẵn thay vì trừ hai ngày. Công thức tiền không nhận date/boolean. So sánh cùng kiểu; boolean chỉ ==/!=.
-- 2.000 ký tự/trường, tối đa 512 AST nodes, số hữu hạn tối đa 16 ký tự. Chặn chia trực tiếp cho literal 0; lỗi có rule, trường, mã lỗi, dòng/cột. Kiểm tất cả nhánh kể cả nhánh không chạy.
-- Kiểm tra **kiểu cơ bản**, chưa suy luận đơn vị tiền/ngày/phần trăm, chưa chứng minh mọi mẫu số luôn khác 0 hoặc công thức đúng trên dữ liệu chưa thấy. `planned_payment_vnd_mn + grace_period_days` vẫn là number nên cần người rà soát và chạy thử; không quảng cáo đây là bộ chứng minh nghiệp vụ.
+- Chỉ cộng số ngày nguyên vào ngày để so sánh; dùng `days_late_after_grace` tính sẵn thay vì trừ hai ngày. Công thức tiền không nhận date/boolean. So sánh cùng kiểu; boolean chỉ ==/!=.
+- 2.000 ký tự/trường, tối đa 512 AST nodes, số hữu hạn tối đa 16 ký tự. Chặn chia cho mẫu số hằng bằng 0, kể cả biểu thức hằng như (100 - 100); lỗi có rule, trường, mã lỗi, dòng/cột. Kiểm tất cả nhánh kể cả nhánh không chạy.
+- Bổ sung kiểm đơn vị tiền/ngày/số lượng/phần trăm: `planned_payment_vnd_mn + grace_period_days` bị chặn UNIT_MISMATCH. Phần trăm phải quy đổi `/ 100` hoặc `× 0.01` để ra tiền. Hằng số kế thừa đơn vị của vế còn lại; công thức thuần hằng hiểu là triệu VND. Kiểm đơn vị chưa chứng minh mọi mẫu số luôn khác 0 hoặc công thức đúng nghiệp vụ trên dữ liệu chưa thấy; xem [20 — Kiểm chứng thực thi](20_KIEM_CHUNG_CONG_THUC_VA_THAM_SO.md).
 - Mỗi request chẩn đoán tối đa 128 rule. Kiểm tra engine không áp giới hạn này vì lịch sử có thể chứa nhiều phiên bản, mỗi phiên bản thêm 128 rule. JSON API tối đa 4 MB để lưu/gửi cả cấu hình; giới hạn trường/kiểu vẫn kiểm riêng.
 
 ## Ví dụ tính toán
@@ -101,7 +101,7 @@ WEB_URL=http://127.0.0.1:5330 GUIDE_STEPS='rule language' GUIDE_OUT=/tmp/rules-i
 
 Dùng thư mục mới cho mỗi bộ smoke tổng thể có ghi dữ liệu. `GUIDE_STEPS` chỉ lọc bước capture; xuất ra /tmp khi chụp một phần để không thay manifest của bộ ảnh đầy đủ.
 
-## Kết quả kiểm chứng bản này
+## Kết quả kiểm chứng tại commit 0a021f0 (trước khi siết đơn vị)
 
 - `pnpm check`: typecheck, lint, format, build đạt; **112 test** (61 Python + 51 API/foundation) đạt.
 - HTTP smoke: nhận đủ payload 128 rule, trả chẩn đoán 384 biểu thức, preview/lưu nháp hoạt động; supplier bị chặn cả từ điển, chẩn đoán và preview.

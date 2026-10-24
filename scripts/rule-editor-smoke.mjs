@@ -226,6 +226,46 @@ try {
     "document.querySelector('[data-testid=rule-version-preview]').click()",
   );
   await until("!!document.querySelector('[data-testid=rule-preview-result]')");
+  const originalPenalty = await evaluate(
+    "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').value",
+  );
+  for (const [expression, message] of [
+    ["planned_payment_vnd_mn + grace_period_days", "Unit mismatch"],
+    [
+      "days_late_after_grace * penalty_rate_pct_per_day * planned_payment_vnd_mn",
+      "Unconverted percent",
+    ],
+  ]) {
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').focus(); document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').select()",
+    );
+    await send("Input.insertText", { text: expression });
+    await evaluate(
+      "document.querySelector('[data-testid=rule-syntax-check]').click()",
+    );
+    await until(
+      "document.querySelector('[data-testid=rule-syntax-result]')?.classList.contains('ant-alert-error')",
+    );
+    assert.ok(
+      await evaluate(
+        `document.querySelector('.ant-form-item-explain-error').innerText.includes(${JSON.stringify(message)})`,
+      ),
+    );
+    assert.ok(
+      await evaluate(
+        "document.querySelector('[data-testid=rule-version-submit]').disabled",
+      ),
+    );
+  }
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal button')).find(x => x.innerText.includes('Restore saved value')).click()",
+  );
+  assert.equal(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').value",
+    ),
+    originalPenalty,
+  );
   const payable = await evaluate(
     "document.querySelector('[data-testid=rule-expression-payable_amount_formula]').value",
   );

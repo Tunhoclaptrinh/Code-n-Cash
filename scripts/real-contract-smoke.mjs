@@ -31,7 +31,11 @@ async function post(path, body) {
   return result.value;
 }
 const health = await request("/health", undefined, "GET");
-assert.equal(health.value.storage, "file", "ISOLATED_FILE_STORAGE_REQUIRED");
+assert.equal(
+  health.value.storage,
+  process.env.SMOKE_STORAGE_DRIVER ?? "file",
+  "ISOLATED_TEST_STORAGE_REQUIRED",
+);
 token = (
   await post("/auth/login", { email: "legal@novaan.vn", password: "Passw0rd!" })
 ).token;
@@ -79,7 +83,7 @@ for (const count of counts) {
   });
   const body = new FormData();
   body.append(
-    process.env.SMOKE_STORAGE_DRIVER ?? "file",
+    "file",
     new Blob([bytes], { type: sample.mimeType }),
     sample.fileName,
   );

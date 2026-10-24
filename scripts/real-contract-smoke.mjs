@@ -1,4 +1,4 @@
-/** Real HTTP document flow. Use only a disposable file-backed API, never shared Mongo data. */
+/** Real HTTP document flow. Mongo requires explicit opt-in for an isolated CI database. */
 import assert from "node:assert/strict";
 const base = process.env.API_BASE_URL ?? "http://127.0.0.1:3000/api/v1";
 let token;
@@ -79,7 +79,7 @@ for (const count of counts) {
   });
   const body = new FormData();
   body.append(
-    "file",
+  process.env.SMOKE_STORAGE_DRIVER ?? "file",
     new Blob([bytes], { type: sample.mimeType }),
     sample.fileName,
   );

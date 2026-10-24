@@ -5,6 +5,12 @@ import { mkdtemp, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 const base = process.env.WEB_URL ?? "http://127.0.0.1:5173";
+// Workflow scripts must never write into a shared Mongo deployment.
+const health = await fetch(`${base}/api/v1/health`).then((r) => r.json());
+if ((health.data?.storage ?? health.storage) !== "file")
+  throw new Error(
+    "ISOLATED_FILE_STORAGE_REQUIRED: use STORAGE_DRIVER=file and a fresh DATA_DIR in /tmp",
+  );
 const profile = await mkdtemp(join(tmpdir(), "codecash-browser-"));
 const chrome = spawn(
   process.env.CHROME_BIN ?? "google-chrome",

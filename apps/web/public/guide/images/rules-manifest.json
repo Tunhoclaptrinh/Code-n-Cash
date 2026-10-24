@@ -1,0 +1,13 @@
+{
+  "capturedAt": "2026-10-24T17:08:06.841Z",
+  "base": "http://127.0.0.1:5330",
+  "screenshots": [
+    "rules-editor",
+    "rules-formulas",
+    "rules-variables",
+    "rules-syntax-error",
+    "rules-preview"
+  ],
+  "missingMarks": [],
+  "failures": []
+}

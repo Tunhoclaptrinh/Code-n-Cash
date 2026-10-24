@@ -40,6 +40,30 @@ Mở tab **Người dùng**. Dùng biểu tượng sửa để thay thông tin �
 
 Ma trận cho biết vai trò nào được xem, tạo, sửa, nhập, xuất và chạy hành động. Tìm nhóm như kiểm soát, hợp đồng hoặc tài khoản. Đây là màn đọc quyền hiện có, không phải nơi bấm bật/tắt quyền động.
 
-> **Giới hạn cấu hình:** rule đánh giá và ma trận quyền không sửa qua màn hình này. Tham số nhập trong hồ sơ hợp đồng đi vào mốc nghiệp vụ; bản ghi “tham số” tạo tuỳ ý ở quản trị không tự thay engine. Muốn thêm phiên bản rule hoặc provider tích hợp phải phát triển và review riêng.
+> **Giới hạn cấu hình:** rule đánh giá và ma trận quyền không sửa qua màn hình này. Tham số nhập trong hồ sơ hợp đồng đi vào mốc nghiệp vụ; bản ghi “tham số” tạo tuỳ ý ở quản trị không tự thay engine. Phiên bản rule có luồng soạn, chạy thử và duyệt riêng ở trang cấu hình quy tắc; provider tích hợp cần phát triển và review riêng.
 
 Lỗi `MANAGED_RECORD` nghĩa là bản ghi thuộc nguồn được bảo vệ; mở đúng trang nghiệp vụ thay vì thử nhập đè. Nếu không có nút ghi, kiểm tra bạn đang dùng kiểm toán hay quản trị. Xem [Vai trò](/guide/roles) và [Công cụ bảng](/guide/tables).
+
+## Soạn điều kiện và công thức quy tắc
+
+Mở **Phiên bản quy tắc và mẫu mốc**, chọn **Soạn phiên bản mới**, nhập tên/lý do rồi mở tab **Biểu thức quy tắc**. Người soạn chỉ sửa bản nháp của mình; người có quyền đọc có thể tra cứu và chạy thử. Các quyết định vẫn do engine xử lý.
+
+![Chọn rule: 1 — quy trình và loại mốc; 2 — rule theo ưu tiên; 3 — điều kiện](../../../public/guide/images/rules-editor.webp)
+
+Chọn quy trình/loại mốc (1), rồi chọn rule (2). Xét từ ưu tiên 10 đến 80 và dừng tại rule đầu tiên đúng. Tranh chấp mở được HOLD trước khi xét phạt hoặc trả tiền. Phạm vi, thứ tự, quyết định và mã lý do khóa theo Data Pack. Mô tả là tham chiếu, không tự viết lại khi đổi biểu thức.
+
+![Công thức: 1 — tiền phạt; 2 — tiền được trả](../../../public/guide/images/rules-formulas.webp)
+
+Điều kiện phải trả **TRUE/FALSE** (hoặc **ELSE** ở rule cuối). Engine tính tiền phạt (1) trước, làm tròn 2 chữ số rồi đưa vào `penalty_amount_vnd_mn` để tính tiền được trả (2). Cả hai theo **triệu VND**. Cuộn trong hộp cấu hình để xem các phần bên dưới.
+
+![Tra cứu: 1 — tìm biến; 2 — kiểu, đơn vị, ví dụ và nguồn](../../../public/guide/images/rules-variables.webp)
+
+Bấm **Biến, cú pháp và ví dụ** để tìm biến (1), đọc kiểu, đơn vị, nguồn và ví dụ (2). Ô **Chèn biến tại con trỏ** chèn đúng tên; nút số biến dưới mỗi biểu thức mở danh sách để tra nghĩa. Không tự đặt tên biến mới. Tỷ lệ đủ chứng từ `1.0` là 100%; tỷ lệ phạt `0.10` là 0,10%/ngày và cần chia 100 trong công thức. Ngày hoàn thành lấy required event hợp lệ cần thiết, không lấy event workflow cuối.
+
+![Lỗi: 1 — rule cần sửa; 2 — biểu thức lỗi và giải thích](../../../public/guide/images/rules-syntax-error.webp)
+
+Bấm **Kiểm tra cú pháp** để kiểm cả 384 biểu thức. Bấm lỗi (1) để tới rule tương ứng. Ví dụ `open_dispute == 1` sai kiểu; dùng `open_dispute == TRUE` nếu muốn kiểm tranh chấp mở. Lỗi có dòng/cột tại ô (2). **Khôi phục bản lưu** chỉ khôi phục ô đang sửa. Kết quả cú pháp hợp lệ chưa chứng minh công thức đúng đơn vị/nghiệp vụ.
+
+![Chạy thử: 1 — kết quả toàn pack; 2 — gửi duyệt](../../../public/guide/images/rules-preview.webp)
+
+Bấm **Chạy thử tác động**: kiểm cú pháp, chạy cả 405 mốc, so 20 mẫu và so quyết định/lý do/trạng thái/tiền với baseline. Có thay đổi thì mở danh sách tối đa 30 mốc để đối chiếu; bản làm đổi kết quả pack bị chặn gửi duyệt. Thay mẫu mốc chỉ áp dụng cho hồ sơ mới, không viết lại mốc BTC. Sửa bất kỳ ô cấu hình nào sẽ bỏ kết quả chạy thử cũ; phải chạy lại trước khi gửi duyệt (2). Người quản trị thứ hai mới được duyệt phát hành. Khớp 20 mẫu và giữ baseline không phải chứng nhận đúng toàn bộ ground truth ẩn.

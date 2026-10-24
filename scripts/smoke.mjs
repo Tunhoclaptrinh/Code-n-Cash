@@ -13,6 +13,11 @@ async function request(path, method = "GET", body, token) {
   });
   return { status: response.status, body: await response.json() };
 }
+assert.equal(
+  (await request("/health")).body.data.storage,
+  "file",
+  "Run against an isolated file fixture",
+);
 assert.equal((await request("/resources/users")).status, 401);
 const login = await request("/auth/login", "POST", {
   email: "admin@codecash.vn",
@@ -27,6 +32,69 @@ const sysadmin = (
     password: "Passw0rd!",
   })
 ).body.data.token;
+// Full versions exceed the default 100 kB JSON limit; exercise real HTTP rather than only services.
+const catalog = await request(
+  "/trust/rules/language",
+  "GET",
+  undefined,
+  sysadmin,
+);
+assert.equal(catalog.status, 200);
+assert.equal(catalog.body.data.variables.length, 17);
+const ruleDraft = await request(
+  "/trust/rules",
+  "POST",
+  {
+    name: "HTTP rule diagnostics",
+    reason: "Validate complete payload and preview",
+  },
+  sysadmin,
+);
+assert.equal(ruleDraft.status, 201);
+const ruleVersion = ruleDraft.body.data;
+const validRules = await request(
+  "/trust/rules/validate",
+  "POST",
+  { rules: ruleVersion.rules },
+  sysadmin,
+);
+assert.equal(validRules.status, 201);
+assert.equal(validRules.body.data.checked, 384);
+assert.equal(validRules.body.data.valid, true);
+const invalidRules = structuredClone(ruleVersion.rules);
+invalidRules[0].condition_expression = "open_dispute == 1";
+const invalidRuleResult = await request(
+  "/trust/rules/validate",
+  "POST",
+  { rules: invalidRules },
+  sysadmin,
+);
+assert.equal(invalidRuleResult.status, 201);
+assert.equal(invalidRuleResult.body.data.issues[0].code, "TYPE_MISMATCH");
+const previewRules = await request(
+  `/trust/rules/${ruleVersion.id}/preview`,
+  "POST",
+  {
+    version: ruleVersion.version,
+    rules: ruleVersion.rules,
+    templates: ruleVersion.templates,
+  },
+  sysadmin,
+);
+assert.equal(previewRules.status, 201);
+assert.equal(previewRules.body.data.canSubmit, true);
+assert.equal(previewRules.body.data.evaluated, 405);
+const saveRules = await request(
+  `/trust/rules/${ruleVersion.id}`,
+  "PATCH",
+  {
+    version: ruleVersion.version,
+    rules: ruleVersion.rules,
+    templates: ruleVersion.templates,
+  },
+  sysadmin,
+);
+assert.equal(saveRules.status, 200);
 assert.equal(
   (await request("/resources/users", "GET", undefined, admin)).status,
   403,
@@ -43,6 +111,21 @@ const supplier = (
     password: "Passw0rd!",
   })
 ).body.data.token;
+for (const [path, method, body] of [
+  ["/trust/rules/language", "GET", undefined],
+  ["/trust/rules/validate", "POST", { rules: ruleVersion.rules }],
+  [
+    `/trust/rules/${ruleVersion.id}/preview`,
+    "POST",
+    {
+      version: ruleVersion.version,
+      rules: ruleVersion.rules,
+      templates: ruleVersion.templates,
+    },
+  ],
+]) {
+  assert.equal((await request(path, method, body, supplier)).status, 403);
+}
 assert.equal(
   (
     await request(

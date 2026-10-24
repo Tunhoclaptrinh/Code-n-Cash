@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kiem_chung_nghiep_vu as spec
 import dataset
+import validate_rules
 
 
 PAID = ('RELEASE', 'PENALTY')
@@ -86,6 +87,7 @@ def evaluate(as_of=None, data=None):
             hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((spec.DEFAULT_DATA / '01_data').glob('*.csv'))
         ).encode()).hexdigest()
         source = {'kind': 'datapack'}
+    validate_rules.validate(pack.rules)
     results, timings = {}, {}
     for mid in pack.milestones:
         start = perf_counter()
@@ -140,6 +142,7 @@ def timeline(milestone_id, data=None):
         pack, _, _, voided = dataset.load(data)
     else:
         pack, voided = spec.Pack.load(spec.DEFAULT_DATA), frozenset()
+    validate_rules.validate(pack.rules)
     if milestone_id not in pack.milestones:
         raise ValueError(f'UNKNOWN_MILESTONE {milestone_id}')
     events = pack.events_by_ms[milestone_id]

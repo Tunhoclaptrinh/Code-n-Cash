@@ -31,7 +31,8 @@
     "infra:down": "docker compose -f infra/compose.yaml down",
     "docker:build": "docker compose -f infra/compose.prod.yaml build",
     "docker:up": "docker compose -f infra/compose.prod.yaml --env-file .env.production up -d",
-    "docker:down": "docker compose -f infra/compose.prod.yaml --env-file .env.production down"
+    "docker:down": "docker compose -f infra/compose.prod.yaml --env-file .env.production down",
+    "test:rules:browser": "node scripts/rule-editor-smoke.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

@@ -192,3 +192,28 @@ test("witness outage keeps a failed durable job that can retry without duplicati
   assert.equal(retried.status, "CONFIRMED"); assert.equal(retried.attempts, 2);
   assert.equal((await trust.retry(job.id, actor)).attempts, 2);
 });
+
+test("rule diagnostics are read-only; full-pack preview catches regressions outside the 20 samples", async () => {
+  const author = actors["u-sysadmin"];
+  const version = await rules.create({name: "Explain rule language", reason: "Test all branches and full-pack gate"}, author);
+  const before = (await repo.list("audit")).length;
+  assert.equal((await rules.language()).variables.length, 17);
+  assert.deepEqual(await rules.checkExpressions({rules: version.rules}), {valid: true, checked: 384, issues: []});
+  const invalid = structuredClone(version.rules); invalid[0].condition_expression = "open_dispute == 1";
+  const result = await rules.checkExpressions({rules: invalid});
+  assert.equal(result.valid, false); assert.equal(result.issues[0].code, "TYPE_MISMATCH");
+  assert.equal(result.issues[0].field, "condition_expression");
+  await assert.rejects(rules.checkExpressions({rules: []}), /RULE_VERSION_INVALID/);
+  const baseline = await rules.preview(version.id, {version: version.version, rules: version.rules, templates: version.templates});
+  assert.equal(baseline.evaluated, 405); assert.equal(baseline.matched, 20); assert.equal(baseline.changed, 0); assert.equal(baseline.canSubmit, true);
+  const modified = structuredClone(version.rules);
+  const target = modified.find(row => row.rule_id === "PR0023");
+  target.condition_expression += " AND planned_payment_vnd_mn != 258.00";
+  const preview = await rules.preview(version.id, {version: version.version, rules: modified, templates: version.templates});
+  assert.equal(preview.matched, 20, "public examples alone cannot protect the full pack");
+  assert.ok(preview.changed > 0); assert.equal(preview.canSubmit, false);
+  assert.ok(preview.changes.some(row => row.milestoneId === "MS0001"));
+  assert.equal((await repo.list("audit")).length, before, "diagnostics and preview do not write business state");
+  const saved = await rules.save(version.id, {version: version.version, rules: modified, templates: version.templates}, author);
+  await assert.rejects(rules.submit(saved.id, saved.version, author), /RULE_VERSION_REGRESSION/);
+});

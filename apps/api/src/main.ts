@@ -67,6 +67,8 @@ class ApplicationModule {}
 async function main() {
   const app =
     await NestFactory.create<NestExpressApplication>(ApplicationModule);
+  // A full 128-rule version exceeds Express's default 100 kB JSON limit.
+  app.useBodyParser("json", { limit: "4mb" });
   await app.get(Repository).init();
   app.setGlobalPrefix("api/v1");
   app.enableCors({

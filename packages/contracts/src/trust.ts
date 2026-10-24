@@ -68,10 +68,59 @@ export interface RuleVersion {
     offsetDays: number;
   }>;
   validation: {
+    changed?: number;
     matched: number;
     samples: number;
     evaluated: number;
     invariantViolations: number;
     fingerprint: string;
   } | null;
+}
+
+export type RuleExpressionField =
+  "condition_expression" | "penalty_amount_formula" | "payable_amount_formula";
+export interface RuleExpressionValidation {
+  valid: boolean;
+  checked: number;
+  issues: Array<{
+    ruleId: string;
+    field: RuleExpressionField;
+    code: string;
+    token: string | null;
+    line: number;
+    column: number;
+  }>;
+}
+export interface RuleLanguage {
+  version: string;
+  variables: Array<{
+    name: string;
+    type: "boolean" | "number" | "date";
+    unit: string;
+    source: string;
+    example: string;
+    fields: RuleExpressionField[];
+    label: { vi: string; en: string };
+    description: { vi: string; en: string };
+  }>;
+  operators: string[];
+  functions: string[];
+  constants: string[];
+  fields: RuleExpressionField[];
+}
+export interface RulePreview {
+  evaluated: number;
+  expected: number;
+  matched: number;
+  samples: number;
+  invariantViolations: number;
+  fingerprint: string;
+  changed: number;
+  templateChanges: number;
+  canSubmit: boolean;
+  changes: Array<{
+    milestoneId: string;
+    before: Record<string, string>;
+    after: Record<string, string>;
+  }>;
 }

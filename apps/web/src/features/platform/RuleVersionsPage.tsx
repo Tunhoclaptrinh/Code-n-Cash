@@ -3,6 +3,7 @@ import {
   Alert,
   App,
   Button,
+  Collapse,
   Form,
   Input,
   InputNumber,
@@ -34,6 +35,8 @@ import {
 import { trustApi } from "@/shared/api/trust";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
+import { RuleExpressionEditor } from "./components/RuleExpressionEditor";
+import styles from "./components/RuleExpressionEditor.module.css";
 import { localList, useListQuery } from "@/shared/lib/useListQuery";
 
 const events = [
@@ -82,6 +85,7 @@ export default function RuleVersionsPage() {
   const [selected, setSelected] = useState<RuleVersion>();
   const [rules, setRules] = useState<RuleVersion["rules"]>([]);
   const [templates, setTemplates] = useState<RuleVersion["templates"]>([]);
+  const [editorTab, setEditorTab] = useState("rules");
   const [publishing, setPublishing] = useState<RuleVersion>();
   const refresh = () =>
     client.invalidateQueries({ queryKey: ["rule-versions"] });
@@ -92,6 +96,7 @@ export default function RuleVersionsPage() {
       }),
     );
   const open = (version: RuleVersion) => {
+    setEditorTab("rules");
     setSelected(version);
     setRules(structuredClone(version.rules));
     setTemplates(structuredClone(version.templates));
@@ -100,6 +105,54 @@ export default function RuleVersionsPage() {
     selected?.status === "DRAFT" &&
     selected.createdBy === user.id &&
     hasPermission("rules:write");
+  const syntax = useMutation({
+    mutationFn: trustApi.validateRuleExpressions,
+    onError: report,
+  });
+  const currentSyntax =
+    syntax.variables === rules && !syntax.isPending ? syntax.data : undefined;
+  const preview = useMutation({
+    mutationFn: async (input: {
+      selected: RuleVersion;
+      rules: RuleVersion["rules"];
+      templates: RuleVersion["templates"];
+    }) => {
+      const checked = await syntax.mutateAsync(input.rules);
+      if (!checked.valid) return null;
+      return trustApi.previewRuleVersion(
+        input.selected,
+        input.rules,
+        input.templates,
+      );
+    },
+    onError: report,
+  });
+  const currentPreview =
+    preview.variables?.selected === selected &&
+    preview.variables?.rules === rules &&
+    preview.variables?.templates === templates &&
+    !preview.isPending
+      ? preview.data
+      : undefined;
+  const renderImpact = (value: Record<string, string>) => (
+    <Space orientation="vertical" size={2}>
+      <Space wrap>
+        <Tag>{value.decision}</Tag>
+        <Typography.Text>
+          {td(`status.${value.status}`, { defaultValue: value.status })}
+        </Typography.Text>
+      </Space>
+      <Typography.Text>
+        {td(`reason.${value.reason}`, { defaultValue: value.reason })}
+      </Typography.Text>
+      <Typography.Text>
+        {t("rules.previewPayable", { value: value.payable })}
+      </Typography.Text>
+      <Typography.Text type="secondary">
+        {t("rules.previewPenalty", { value: value.penalty })}
+      </Typography.Text>
+    </Space>
+  );
   const save = useMutation({
     mutationFn: async (submit: boolean) => {
       if (!selected) return;
@@ -298,10 +351,28 @@ export default function RuleVersionsPage() {
       <Modal
         open={!!selected}
         width={1280}
+        className={styles.modal}
         title={selected?.name}
         onCancel={() => setSelected(undefined)}
         footer={
           <Space wrap>
+            {editable && !currentPreview?.canSubmit ? (
+              <Typography.Text type="secondary" className={styles.hint}>
+                {t("rules.language.previewFirst")}
+              </Typography.Text>
+            ) : null}
+            {selected ? (
+              <Button
+                loading={preview.isPending}
+                disabled={
+                  !rulesValid || !templateValid || !totalValid || save.isPending
+                }
+                onClick={() => preview.mutate({ selected, rules, templates })}
+                data-testid="rule-version-preview"
+              >
+                {t("rules.preview")}
+              </Button>
+            ) : null}
             {editable ? (
               <>
                 <Button
@@ -314,7 +385,12 @@ export default function RuleVersionsPage() {
                 <Button
                   type="primary"
                   loading={save.isPending}
-                  disabled={!rulesValid || !templateValid || !totalValid}
+                  disabled={
+                    !rulesValid ||
+                    !templateValid ||
+                    !totalValid ||
+                    !currentPreview?.canSubmit
+                  }
                   onClick={() => save.mutate(true)}
                   data-testid="rule-version-submit"
                 >
@@ -338,24 +414,84 @@ export default function RuleVersionsPage() {
         destroyOnHidden
       >
         {selected ? (
-          <Space orientation="vertical" style={{ width: "100%" }}>
-            <Alert
-              type={selected.intact === false ? "error" : "info"}
-              showIcon
-              title={
-                selected.intact === false
-                  ? t("rules.tampered")
-                  : t("rules.editorNotice")
-              }
-            />
-            <Typography.Paragraph>{selected.reason}</Typography.Paragraph>
-            <Typography.Text code copyable>
-              {selected.hash}
-            </Typography.Text>
+          <div className={styles.modalContent}>
+            {selected.intact === false || editorTab === "templates" ? (
+              <Alert
+                type={selected.intact === false ? "error" : "info"}
+                showIcon
+                title={
+                  selected.intact === false
+                    ? t("rules.tampered")
+                    : t("rules.editorNotice")
+                }
+              />
+            ) : null}
+            <Space wrap key="version-metadata">
+              <Typography.Text type="secondary">
+                {selected.reason}
+              </Typography.Text>
+              <Typography.Text code copyable={{ text: selected.hash }}>
+                {selected.hash.slice(0, 16)}…
+              </Typography.Text>
+            </Space>
+            {currentPreview ? (
+              <Alert
+                type={currentPreview.canSubmit ? "success" : "warning"}
+                showIcon
+                data-testid="rule-preview-result"
+                title={t("rules.previewSummary", {
+                  evaluated: currentPreview.evaluated,
+                  matched: currentPreview.matched,
+                  samples: currentPreview.samples,
+                  changed: currentPreview.changed,
+                  violations: currentPreview.invariantViolations,
+                })}
+                description={t("rules.previewScope", {
+                  templates: currentPreview.templateChanges,
+                })}
+              />
+            ) : null}
+            {currentPreview?.changes.length ? (
+              <Collapse
+                items={[
+                  {
+                    key: "changes",
+                    label: t("rules.previewChanges"),
+                    children: (
+                      <Table
+                        size="small"
+                        rowKey="milestoneId"
+                        dataSource={currentPreview.changes}
+                        data-testid="rule-impact-table"
+                        scroll={{ x: 650 }}
+                        pagination={{ pageSize: 5 }}
+                        columns={[
+                          {
+                            title: t("rules.previewMilestone"),
+                            dataIndex: "milestoneId",
+                          },
+                          {
+                            title: t("rules.previewBefore"),
+                            render: (_, row) => renderImpact(row.before),
+                          },
+                          {
+                            title: t("rules.previewAfter"),
+                            render: (_, row) => renderImpact(row.after),
+                          },
+                        ]}
+                      />
+                    ),
+                  },
+                ]}
+              />
+            ) : null}
             {!totalValid ? (
               <Alert type="error" title={t("rules.percentTotal")} />
             ) : null}
             <Tabs
+              key="version-configuration"
+              activeKey={editorTab}
+              onChange={setEditorTab}
               items={[
                 {
                   key: "templates",
@@ -496,68 +632,29 @@ export default function RuleVersionsPage() {
                   key: "rules",
                   label: t("rules.expressions"),
                   children: (
-                    <Table
-                      size="small"
-                      rowKey="rule_id"
-                      dataSource={rules}
-                      scroll={{ x: 1300 }}
-                      pagination={{ pageSize: 8 }}
-                      columns={[
-                        {
-                          title: t("rules.scope"),
-                          render: (_, row) => (
-                            <>
-                              {row.release_rule_code}
-                              <br />
-                              {row.priority} · {row.decision}
-                            </>
+                    <RuleExpressionEditor
+                      key={selected.id}
+                      rules={rules}
+                      original={selected.rules}
+                      editable={editable && !save.isPending}
+                      validation={currentSyntax}
+                      checking={syntax.isPending}
+                      onCheck={() => syntax.mutate(rules)}
+                      onChange={(id, field, value) =>
+                        setRules((all) =>
+                          all.map((row) =>
+                            row.rule_id === id
+                              ? { ...row, [field]: value }
+                              : row,
                           ),
-                        },
-                        ...[
-                          "condition_expression",
-                          "payable_amount_formula",
-                          "penalty_amount_formula",
-                        ].map((key) => ({
-                          key,
-                          title: t(`rules.${key}`),
-                          render: (_: unknown, row: Record<string, string>) => (
-                            <Form.Item
-                              style={{ margin: 0 }}
-                              validateStatus={
-                                !row[key]?.trim() ? "error" : undefined
-                              }
-                              help={
-                                !row[key]?.trim()
-                                  ? t("rules.expressionRequired")
-                                  : undefined
-                              }
-                            >
-                              <Input.TextArea
-                                disabled={!editable}
-                                rows={2}
-                                value={row[key]}
-                                maxLength={2000}
-                                placeholder={t(`rules.${key}`)}
-                                onChange={(event) =>
-                                  setRules((all) =>
-                                    all.map((item) =>
-                                      item.rule_id === row.rule_id
-                                        ? { ...item, [key]: event.target.value }
-                                        : item,
-                                    ),
-                                  )
-                                }
-                              />
-                            </Form.Item>
-                          ),
-                        })),
-                      ]}
+                        )
+                      }
                     />
                   ),
                 },
               ]}
             />
-          </Space>
+          </div>
         ) : null}
       </Modal>
       <ConfirmModal

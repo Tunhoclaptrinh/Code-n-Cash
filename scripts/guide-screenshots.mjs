@@ -16,6 +16,16 @@ import { join, relative, resolve } from "node:path";
 
 const base = process.env.WEB_URL ?? "http://127.0.0.1:5174";
 const out = resolve(process.env.GUIDE_OUT ?? "apps/web/public/guide/images");
+// Workflow scripts must never write into a shared Mongo deployment.
+const health = await fetch(`${base}/api/v1/health`).then((r) => r.json());
+if ((health.data?.storage ?? health.storage) !== "file")
+  throw new Error(
+    "ISOLATED_FILE_STORAGE_REQUIRED: use STORAGE_DRIVER=file and a fresh DATA_DIR in /tmp",
+  );
+const originalOut = resolve(
+  process.env.GUIDE_ORIGINAL_OUT ?? "playwright-report/guide/originals",
+);
+const onlySteps = process.env.GUIDE_STEPS?.split(",");
 const profile = await mkdtemp(join(tmpdir(), "codecash-guide-"));
 const chrome = spawn(
   process.env.CHROME_BIN ?? "google-chrome",
@@ -25,7 +35,6 @@ const chrome = spawn(
     "--disable-gpu",
     "--disable-dev-shm-usage",
     "--no-first-run",
-    "--hide-scrollbars",
     `--user-data-dir=${profile}`,
     "--remote-debugging-port=0",
     "about:blank",
@@ -159,6 +168,7 @@ try {
   const failures = [];
   /** Runs one capture step; a failure is reported and the next step still runs. */
   async function attempt(name, fn) {
+    if (onlySteps && !onlySteps.includes(name)) return;
     try {
       await fn();
     } catch (error) {
@@ -202,8 +212,6 @@ try {
         `window.__find(${JSON.stringify(clip)})?.scrollIntoView({block: "start"}); window.scrollBy(0, -80)`,
       );
     await pause(250);
-    const lost = await evaluate(`window.__annotate(${JSON.stringify(marks)})`);
-    for (const target of lost) missing.push(`${name}: ${target}`);
     const params = { format: "webp", quality: 86 };
     if (clip) {
       const rect = await evaluate(`(() => {
@@ -219,6 +227,15 @@ try {
       };
       params.captureBeyondViewport = true;
     }
+    await mkdir(originalOut, { recursive: true });
+    await evaluate("document.getElementById('__guide_layer')?.remove()");
+    const original = await send("Page.captureScreenshot", params);
+    await writeFile(
+      join(originalOut, `${name}.webp`),
+      Buffer.from(original.data, "base64"),
+    );
+    const lost = await evaluate(`window.__annotate(${JSON.stringify(marks)})`);
+    for (const target of lost) missing.push(`${name}: ${target}`);
     const { data } = await send("Page.captureScreenshot", params);
     await writeFile(join(out, `${name}.webp`), Buffer.from(data, "base64"));
     await evaluate("document.getElementById('__guide_layer')?.remove()");
@@ -940,6 +957,118 @@ try {
         { n: 2, target: ".data-table-wrapper .ant-row", pad: 2 },
       ],
     });
+  });
+
+  await attempt("rule language", async () => {
+    await evaluate("localStorage.setItem('codecash.onboarding', 'done')");
+    await loginAs("sysadmin@codecash.vn");
+    await viewport(1440, 1000);
+    await go(
+      "/platform/rule-versions",
+      "!!document.querySelector('[data-testid=rule-version-create]')",
+    );
+    await click("[data-testid=rule-version-create]");
+    await until("!!document.querySelector('.ant-modal input#name')");
+    for (const [selector, text] of [
+      [".ant-modal input#name", "Giải thích bộ quy tắc"],
+      [
+        ".ant-modal textarea#reason",
+        "Minh họa điều kiện, biến, cú pháp và tác động; chưa gửi duyệt.",
+      ],
+    ]) {
+      await evaluate(
+        `document.querySelector(${JSON.stringify(selector)}).focus()`,
+      );
+      await send("Input.insertText", { text });
+    }
+    await evaluate(
+      "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+    );
+    await until("!!document.querySelector('[data-testid=rule-option-PR0006]')");
+    await click("[data-testid=rule-option-PR0006]");
+    await click("[data-testid=rule-syntax-check]");
+    await until(
+      "document.querySelector('[data-testid=rule-syntax-result]')?.classList.contains('ant-alert-success')",
+    );
+    await shot("rules-editor", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=rule-scope-select]" },
+        { n: 2, target: "[data-testid=rule-option-PR0006]" },
+        { n: 3, target: "[data-testid=rule-expression-condition_expression]" },
+      ],
+    });
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').scrollIntoView({block:'center'})",
+    );
+    await shot("rules-formulas", {
+      clip: ".ant-modal",
+      marks: [
+        {
+          n: 1,
+          target: "[data-testid=rule-expression-penalty_amount_formula]",
+        },
+        {
+          n: 2,
+          target: "[data-testid=rule-expression-payable_amount_formula]",
+        },
+      ],
+    });
+    await click("[data-testid=rule-language-help]");
+    await until(
+      "!!document.querySelector('[data-testid=rule-variable-search] input')",
+    );
+    await evaluate(
+      "document.querySelector('[data-testid=rule-variable-search] input').focus()",
+    );
+    await send("Input.insertText", { text: "penalty_amount_vnd_mn" });
+    await until(
+      "document.querySelectorAll('[data-testid=rule-variable-catalog] > div').length === 1",
+    );
+    await shot("rules-variables", {
+      clip: ".ant-drawer-content-wrapper",
+      marks: [
+        { n: 1, target: "[data-testid=rule-variable-search]" },
+        { n: 2, target: "[data-testid=rule-variable-catalog]" },
+      ],
+    });
+    await evaluate("document.querySelector('.ant-drawer-close').click()");
+    await until("!document.querySelector('.ant-drawer-open')");
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-condition_expression]').focus(); document.querySelector('[data-testid=rule-expression-condition_expression]').select()",
+    );
+    await send("Input.insertText", { text: "open_dispute == 1" });
+    await until(
+      "document.querySelector('[data-testid=rule-expression-condition_expression]')?.value === 'open_dispute == 1'",
+    );
+    await click("[data-testid=rule-syntax-check]");
+    await until(
+      "document.querySelector('[data-testid=rule-syntax-result]')?.classList.contains('ant-alert-error')",
+    );
+    await evaluate("document.querySelector('.ant-modal-body').scrollTop = 0");
+    await shot("rules-syntax-error", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=rule-syntax-result]" },
+        { n: 2, target: "[data-testid=rule-expression-condition_expression]" },
+      ],
+    });
+    await evaluate(
+      "Array.from(document.querySelectorAll('.ant-modal button')).find(x => x.innerText.includes('Khôi phục bản lưu')).click()",
+    );
+    await click("[data-testid=rule-version-preview]");
+    await until(
+      "!!document.querySelector('[data-testid=rule-preview-result]')",
+    );
+    await evaluate("document.querySelector('.ant-modal-body').scrollTop = 0");
+    await shot("rules-preview", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=rule-preview-result]" },
+        { n: 2, target: "[data-testid=rule-version-submit]" },
+      ],
+    });
+    await viewport(1440, 900);
   });
 
   /* ------------------------------ auditor, secondary approver ------------------------------ */

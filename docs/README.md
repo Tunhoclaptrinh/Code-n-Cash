@@ -26,3 +26,5 @@ Nguồn chuẩn: [PDF đề thi](../BangD-Case4/DeThi2026_BangD_SmartContractWor
 Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 128 rules, 1.134 events, 20 mẫu công khai**. [Output template](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/04_output_templates/submission_output_template.csv) có **405 dòng và 22 cột**. Đây là thông tin dữ liệu, chưa phải kết quả chạy engine.
 
 Ưu tiên lõi đúng, dashboard tối thiểu và minh chứng. Không suy accuracy toàn bộ từ 20 mẫu. Hai PDF là hồ sơ bắt buộc theo mục 8 đề thi; cách gửi CSV/source/video theo thông báo BTC. Proposal cần roadmap MVP **2–3 tuần**, tách khỏi lịch chuẩn bị bài **7 ngày**.
+
+- [19 — Điều kiện, công thức và từ điển biến quy tắc](19_DIEU_KIEN_CONG_THUC_VA_BIEN_QUY_TAC.md)

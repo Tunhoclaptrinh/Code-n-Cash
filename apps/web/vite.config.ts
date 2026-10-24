@@ -12,6 +12,14 @@ export default defineConfig({
   plugins: [react()],
   define: { __APP_VERSION__: JSON.stringify(version) },
   resolve: {
+    // Share singleton contexts across workspace packages and their pnpm peer variants.
+    dedupe: [
+      "react",
+      "react-dom",
+      "i18next",
+      "react-i18next",
+      "@tanstack/react-query",
+    ],
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   server: { port: 5173, proxy: { "/api": apiTarget } },

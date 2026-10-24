@@ -25,6 +25,20 @@ export class TrustController {
   @Get("rules") @RequirePermission("rules:read") listRules() {
     return this.rules.list();
   }
+  @Get("rules/language") @RequirePermission("rules:read") ruleLanguage() {
+    return this.rules.language();
+  }
+  @Post("rules/validate") @RequirePermission("rules:read") validateRules(
+    @Body() body: { rules?: unknown },
+  ) {
+    return this.rules.checkExpressions(body);
+  }
+  @Post("rules/:id/preview") @RequirePermission("rules:read") previewRules(
+    @Param("id") id: string,
+    @Body() body: { version?: unknown; rules?: unknown; templates?: unknown },
+  ) {
+    return this.rules.preview(id, body);
+  }
   @Post("rules") @RequirePermission("rules:write") createRules(
     @Body() body: { name?: unknown; reason?: unknown },
     @Req() req: SessionRequest,

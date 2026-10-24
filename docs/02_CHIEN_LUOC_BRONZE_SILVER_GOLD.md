@@ -119,3 +119,7 @@ Use case mô phỏng: mua thiết bị phòng thực hành; trường là BUYER,
 ## 7. Bằng chứng để quyết định có nâng cấp không
 
 G3 cần 20 mẫu decision/amount đúng, test chặn chi sai qua, UI tối thiểu hoạt động. G4 có CSV validator, audit review và báo cáo KPI. Đo accuracy trên tập có nhãn; trên toàn 405 mốc báo coverage/invariant/trace. Không suy thành tích toàn bộ từ mẫu công khai, không hứa hidden test hay “đạt Gold” chỉ vì dùng AI/hash.
+
+## Cập nhật theo trả lời BTC ngày 24/10/2026
+
+Ưu tiên Đồng → Bạc → Vàng được áp dụng bằng cổng kiểm cụ thể trong [14 — Rà soát](14_RA_SOAT_BTC_DONG_BAC_VANG.md). BTC xác nhận 20 PUBLIC / 250 HIDDEN / 135 HOLDOUT đều trong 405 mốc; xuất toàn template, không tự lọc scope. Rule động phải giữ nguyên toàn bộ baseline 405, không chỉ 20 mẫu. Ngày hoàn thành chỉ dựa required event; phân quyền resolver là extension Silver; confidence [0,1] do đội giải thích, không mở khóa decision. Những điểm còn chưa xác nhận ở [15 — Xác nhận BTC](15_XAC_NHAN_BTC_VA_GIA_DINH.md).

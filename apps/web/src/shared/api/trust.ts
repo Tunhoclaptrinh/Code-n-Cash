@@ -4,6 +4,9 @@ import type {
   ExtractionProposal,
   LocalProof,
   RuleVersion,
+  RulePreview,
+  RuleLanguage,
+  RuleExpressionValidation,
 } from "@codecash/contracts";
 import { platform } from "./platform";
 
@@ -53,6 +56,9 @@ export const trustApi = {
     }),
   signatureBundle: (code: string) =>
     platform.get(`/trust/contracts/${code}/signatures`),
+  ruleLanguage: () => platform.get<RuleLanguage>("/trust/rules/language"),
+  validateRuleExpressions: (rules: RuleVersion["rules"]) =>
+    platform.post<RuleExpressionValidation>("/trust/rules/validate", { rules }),
   rules: () => platform.get<RuleVersion[]>("/trust/rules"),
   createRuleVersion: (values: { name: string; reason: string }) =>
     write<RuleVersion>("/rules", values),
@@ -66,6 +72,16 @@ export const trustApi = {
       { version: version.version, rules, templates },
       "PATCH",
     ),
+  previewRuleVersion: (
+    version: RuleVersion,
+    rules: RuleVersion["rules"],
+    templates: RuleVersion["templates"],
+  ) =>
+    platform.post<RulePreview>(`/trust/rules/${version.id}/preview`, {
+      version: version.version,
+      rules,
+      templates,
+    }),
   submitRuleVersion: (version: RuleVersion) =>
     write<RuleVersion>(`/rules/${version.id}/submit`, {
       version: version.version,

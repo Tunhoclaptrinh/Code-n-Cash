@@ -135,13 +135,14 @@
       },
       "positionsNotice": {
         "title": "Signature positions are assigned in the next step",
-        "body": "Positions are not detected automatically. Next, you place one slot on the PDF page for each signer, in the order above."
+        "body": "Positions are not detected automatically. Next, you place one slot on the PDF page for each signer, in the order above.",
+        "compact": "Next: place signing fields on the document."
       },
       "file": {
         "label": "Contract file",
         "constraint": "PDF or DOCX, up to 20 MB",
-        "meta": "{{size}} MB · {{pages}} pages · upload complete",
-        "metaNoPages": "{{size}} MB · upload complete",
+        "meta": "{{size}} · {{pages}} pages",
+        "metaNoPages": "{{size}}",
         "replace": "Replace file",
         "replaceHint": "Replacing the file after configuration forces a new check of the signature positions and the digitized copy, so that no signature lands in the wrong place.",
         "errors": {
@@ -150,13 +151,17 @@
           "required": "Choose the contract file."
         },
         "empty": "No file chosen",
-        "choose": "Choose a file"
+        "choose": "Choose a file",
+        "sizeKb": "{{size}} KB",
+        "sizeMb": "{{size}} MB"
       },
       "appendix": {
         "label": "Attached appendices",
         "optional": "optional",
         "drop": "Drag and drop or choose appendix files",
-        "remove": "Remove file {{name}}"
+        "remove": "Remove file {{name}}",
+        "invalid": "Use non-empty PDF/DOCX files, up to 20 MB per file and 20 appendices.",
+        "add": "Add appendix"
       },
       "actions": {
         "cancel": "Cancel",
@@ -182,12 +187,13 @@
       },
       "signers": {
         "label": "Signers and signing order",
-        "hint": "Two to four people, at least one per side. They sign top to bottom; the last must use a digital signature. When the last one signs, the buyer's CONTRACT_SIGNED event is recorded (matrix 4.2).",
+        "hint": "One to four signers. A single signature completes the workflow; two or more signers must represent both parties. Sign in order; the final step requires digital signing.",
         "presetLabel": "Presets:",
         "presets": {
           "BUYER_FIRST": "Buyer signs first",
           "SUPPLIER_FIRST": "Supplier signs first",
-          "THREE_PARTY": "3 people: supplier → finance → owner"
+          "THREE_PARTY": "3 people: supplier → finance → owner",
+          "SINGLE_SIGNER": "Single signer"
         },
         "person": "Pick the signer",
         "up": "Up",
@@ -195,11 +201,18 @@
         "remove": "Remove",
         "add": "Add a signer",
         "errors": {
-          "count": "Two to four signers are needed.",
+          "count": "One to four signers are required.",
           "missing": "Pick a person for every step.",
           "duplicate": "A person signs only once.",
-          "bothSides": "At least one signer per side is needed."
-        }
+          "bothSides": "With two or more signers, both buyer and supplier must be represented."
+        },
+        "singleNotice": "Single-signer workflow: the contract becomes effective after this person signs digitally. The contract editor explicitly chooses this workflow.",
+        "actions": "Actions",
+        "actionsAt": "Actions for signer {{index}}",
+        "sideAt": "Party for signer {{index}}",
+        "personAt": "Signer {{index}}",
+        "count": "{{count}}/{{max}} signers",
+        "compactHint": "Sign in order from top to bottom; the last signer uses a digital signature."
       },
       "errors": {
         "TITLE_REQUIRED": "Enter the contract title.",
@@ -209,9 +222,9 @@
         "INVALID_DATES": "The start date must not be after the end date.",
         "INVALID_PENALTY": "Invalid penalty terms (grace 0–60 days, 0–5%/day, cap 0–100%).",
         "INVALID_SUPPLIER": "Pick a supplier of the Data Pack.",
-        "SIGNER_COUNT": "Two to four signers are needed.",
+        "SIGNER_COUNT": "One to four signers are required.",
         "INVALID_SIGNER": "Signers must belong to their side and not repeat.",
-        "SIGNERS_BOTH_SIDES": "At least one signer per side is needed.",
+        "SIGNERS_BOTH_SIDES": "With two or more signers, both buyer and supplier must be represented.",
         "INVALID_REVIEWER": "The reviewer must be a buyer contract officer.",
         "FILE_REQUIRED": "Choose the contract file.",
         "DRAFT_LOCKED": "The terms are locked; cancel the signing to edit.",
@@ -234,26 +247,63 @@
       "ruleVersion": "Pinned rule version: {{id}}. Later configuration changes do not replace this draft’s version."
     },
     "checks": {
-      "title": "Checks on the uploaded file",
+      "title": "Current file and configuration",
       "readable": {
         "title": "Content is readable.",
         "detail": "{{pages}} pages, not a scan."
       },
       "ready": {
         "title": "Ready to assign signature positions.",
-        "detail": "The signing flow has {{steps}} steps, each needing a signature box on the PDF page."
+        "detail": "{{steps}} signers in the selected order."
       },
       "unsigned": {
         "title": "No digital signature yet",
         "detail": "in the file: expected for a new contract."
-      }
+      },
+      "noFile": "No file selected",
+      "storage": "Storage",
+      "uploaded": "File saved on server",
+      "local": "File changes not yet saved to server",
+      "pendingVerification": "This is file metadata and configuration only. Content, terms and signatures are checked in later steps."
     },
     "preview": {
       "title": "Preview",
       "page": "Page {{page}} / {{total}}",
       "partyA": "PARTY A REPRESENTATIVE",
-      "partyB": "PARTY B REPRESENTATIVE"
+      "partyB": "PARTY B REPRESENTATIVE",
+      "schematic": "Illustration of signature areas; this is not a rendering of the selected file.",
+      "selectFile": "Select a file or generate a sample to preview the actual document.",
+      "loading": "Rendering document…",
+      "unavailable": "The document could not be rendered. Check the file or download it to open in your editor.",
+      "downloadPdf": "Download preview PDF",
+      "noStoredFile": "No original file has been stored. The organiser dataset does not include contract files.",
+      "downloadOriginal": "Download original file"
     },
-    "intro": "Step 1/5. A new contract is cut into milestones by the Data Pack workflow of its type, so the same rules as the organiser's 405 milestones apply."
+    "intro": "Step 1/5. A new contract is cut into milestones by the Data Pack workflow of its type, so the same rules as the organiser's 405 milestones apply.",
+    "sample": {
+      "defaultTitle": "Sample contract — {{type}}",
+      "generate": "Generate sample contract",
+      "download": "Download file",
+      "notice": "Generate a real DOCX using the current terms and 1–4 signers. Download, edit and upload it again; it is marked as an unsigned test fixture.",
+      "compactNotice": "Create a DOCX with the current content and signers."
+    },
+    "templates": {
+      "choose": "Choose a contract template",
+      "notice": "Administrators manage templates. Adjust signers and terms for this draft without changing the source template.",
+      "body": "Contract content override",
+      "bodyHint": "Variables: title, buyer, supplier, valueMillion, startDate, endDate; enclose in double braces. Leave blank for default content.",
+      "stale": "Terms or signers changed after generation. Regenerate the document before saving.",
+      "bodyEmptyHint": "Leave blank to use the default content."
+    },
+    "demo": {
+      "title": "Equipment supply agreement — demo",
+      "body": "Sample terms for testing: {{supplier}} supplies equipment to {{buyer}} under {{title}}. The parties review delivery evidence before processing payment."
+    },
+    "sections": {
+      "details": "Contract details",
+      "terms": "Payment terms",
+      "signing": "Signing setup",
+      "document": "Contract document"
+    }
   }
 }

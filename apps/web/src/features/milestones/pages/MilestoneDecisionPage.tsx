@@ -1,3 +1,4 @@
+import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -921,6 +922,10 @@ function ExceptionPanel({
               label: `${e.id} · ${td(`eventType.${e.type}`)} · ${e.actor.name}`,
             }))}
             data-testid="exception-event"
+          />
+          <DemoFillButton
+            disabled={!!reason.trim()}
+            onClick={() => setReason(t("decision.exceptions.demoReason"))}
           />
           <Input.TextArea
             rows={2}

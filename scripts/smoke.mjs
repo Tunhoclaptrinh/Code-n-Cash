@@ -27,6 +27,95 @@ const sysadmin = (
     password: "Passw0rd!",
   })
 ).body.data.token;
+// Full revisions exceed 100 KB: save and preview must reach the rule service over HTTP.
+const revision = await request(
+  "/trust/rules",
+  "POST",
+  { name: "HTTP regression preview", reason: "Verify full-size rule payload" },
+  sysadmin,
+);
+assert.equal(revision.status, 201);
+const language = await request(
+  "/trust/rules/language",
+  "GET",
+  undefined,
+  sysadmin,
+);
+assert.equal(language.status, 200);
+assert.equal(language.body.data.variables.length, 17);
+const syntax = await request(
+  "/trust/rules/validate",
+  "POST",
+  { rules: revision.body.data.rules },
+  sysadmin,
+);
+assert.equal(syntax.status, 201);
+assert.deepEqual(syntax.body.data, { valid: true, checked: 384, issues: [] });
+const badSyntax = await request(
+  "/trust/rules/validate",
+  "POST",
+  {
+    rules: [
+      {
+        ...revision.body.data.rules[0],
+        condition_expression: "open_dispute == 1",
+      },
+    ],
+  },
+  sysadmin,
+);
+assert.equal(badSyntax.status, 201);
+assert.equal(badSyntax.body.data.issues[0].code, "TYPE_MISMATCH");
+assert.equal(badSyntax.body.data.issues[0].field, "condition_expression");
+
+const revisionData = revision.body.data;
+assert.ok(Buffer.byteLength(JSON.stringify(revisionData)) > 100 * 1024);
+const savedRevision = await request(
+  `/trust/rules/${revisionData.id}`,
+  "PATCH",
+  {
+    version: revisionData.version,
+    rules: revisionData.rules,
+    templates: revisionData.templates,
+  },
+  sysadmin,
+);
+assert.equal(savedRevision.status, 200);
+const impact = await request(
+  `/trust/rules/${revisionData.id}/preview`,
+  "POST",
+  {
+    version: savedRevision.body.data.version,
+    rules: revisionData.rules,
+    templates: revisionData.templates,
+  },
+  sysadmin,
+);
+assert.equal(impact.status, 201);
+assert.equal(impact.body.data.evaluated, 405);
+assert.equal(impact.body.data.changed, 0);
+assert.equal(impact.body.data.canSubmit, true);
+assert.equal(
+  (
+    await request(
+      "/trust/rules",
+      "POST",
+      { padding: "x".repeat(2 * 1024 * 1024) },
+      sysadmin,
+    )
+  ).status,
+  413,
+);
+const invalidJson = await fetch(base + "/trust/rules", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${sysadmin}`,
+  },
+  body: "{",
+});
+assert.equal(invalidJson.status, 400);
+assert.equal((await invalidJson.json()).code, "INVALID_JSON");
 assert.equal(
   (await request("/resources/users", "GET", undefined, admin)).status,
   403,
@@ -43,6 +132,21 @@ const supplier = (
     password: "Passw0rd!",
   })
 ).body.data.token;
+assert.equal(
+  (await request("/trust/rules/language", "GET", undefined, supplier)).status,
+  403,
+);
+assert.equal(
+  (
+    await request(
+      "/trust/rules/validate",
+      "POST",
+      { rules: revision.body.data.rules },
+      supplier,
+    )
+  ).status,
+  403,
+);
 assert.equal(
   (
     await request(
@@ -137,8 +241,88 @@ assert.equal(renamed.body.code, "MANAGED_RECORD");
 const workflow = (module, action, args, token) =>
   request(`/workflow/${module}/${action}`, "POST", { args }, token);
 const finance = (
-  await request("/auth/demo-login", "POST", { email: "finance@novaan.vn" })
+  await request("/auth/login", "POST", {
+    email: "finance@novaan.vn",
+    password: "Passw0rd!",
+  })
 ).body.data.token;
+// Dynamic contract templates use the same CRUD guard, versions and workflow catalog over HTTP.
+const templateBody = {
+  code: `HTTP_TEMPLATE_${Date.now()}`,
+  name: "HTTP dynamic template",
+  contractType: "SERVICES",
+  approvalPolicy: "FINANCE_PLUS_OWNER",
+  valueMillion: "1200.50",
+  graceDays: 7,
+  penaltyRatePct: "0.25",
+  maxPenaltyPct: "8.00",
+  signerRoles: "CONTRACT_OWNER",
+  documentBody: "Terms for {{buyer}}",
+  active: true,
+};
+assert.equal(
+  (await request("/resources/contract-templates", "POST", templateBody, admin))
+    .status,
+  403,
+);
+assert.equal(
+  (await request("/resources/contract-templates", "POST", templateBody, owner))
+    .status,
+  403,
+);
+const templateCreated = await request(
+  "/resources/contract-templates",
+  "POST",
+  templateBody,
+  sysadmin,
+);
+assert.equal(templateCreated.status, 201);
+const templateId = templateCreated.body.data.id;
+const activePresets = await workflow(
+  "drafts",
+  "getUploadFormOptions",
+  [],
+  owner,
+);
+assert.equal(
+  activePresets.body.data.presets.find((row) => row.id === templateId).defaults
+    .documentBody,
+  templateBody.documentBody,
+);
+const templateUpdated = await request(
+  `/resources/contract-templates/${templateId}`,
+  "PATCH",
+  { version: 1, documentBody: "Revised text", active: false },
+  sysadmin,
+);
+assert.equal(templateUpdated.status, 200);
+assert.equal(
+  (
+    await request(
+      `/resources/contract-templates/${templateId}`,
+      "PATCH",
+      { version: 1, name: "stale" },
+      sysadmin,
+    )
+  ).status,
+  409,
+);
+assert.ok(
+  !(
+    await workflow("drafts", "getUploadFormOptions", [], owner)
+  ).body.data.presets.some((row) => row.id === templateId),
+);
+assert.equal(
+  (
+    await request(
+      `/resources/contract-templates/${templateId}`,
+      "DELETE",
+      undefined,
+      sysadmin,
+    )
+  ).status,
+  200,
+);
 const ownerList = await workflow("contracts", "getContractList", [], owner);
 assert.equal(ownerList.status, 201);
 assert.ok(ownerList.body.data.contracts.some((c) => c.id === "CT0019"));
@@ -293,5 +477,5 @@ assert.equal(
   200,
 );
 console.log(
-  "API smoke passed: auth, RBAC, scope, CRUD, stale versions, pagination, append-only audit, workflow on the Data Pack (scope, paged lists, tasks, approval → engine, replay, integrity), engine/schema, dataset upload/run/download.",
+  "API smoke passed: full-size rule save/preview, JSON size/parse errors, auth, RBAC, scope, CRUD, dynamic template catalog, stale versions, pagination, append-only audit, workflow on the Data Pack (scope, paged lists, tasks, approval → engine, replay, integrity), engine/schema, dataset upload/run/download.",
 );

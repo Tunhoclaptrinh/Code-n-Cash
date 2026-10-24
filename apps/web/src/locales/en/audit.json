@@ -155,7 +155,8 @@
         "hint": "Copy the chain head somewhere else (minutes, email, submission). Paste it here later: if the whole log was rewritten or truncated, it will not match.",
         "MATCH": "Matches",
         "MISMATCH": "Does not match: the log was rewritten",
-        "NOT_FOUND": "Entry not found: the log was truncated"
+        "NOT_FOUND": "Entry not found: the log was truncated",
+        "loadCurrent": "Load current anchor"
       }
     },
     "evidence": {

@@ -246,8 +246,8 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     ),
   },
   drafts: {
-    getContractDraft: read("contracts:draft-read", (ctx, [code]) =>
-      drafts.currentDraft(ctx, opt(code) as string | undefined),
+    getContractDraft: read("contracts:draft-read", (ctx, [code, fresh]) =>
+      drafts.currentDraft(ctx, opt(code) as string | undefined, fresh === true),
     ),
     getUploadFormOptions: read("contracts:draft-read", (ctx) =>
       drafts.uploadFormOptions(ctx),

@@ -15,12 +15,27 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp(),
       res = ctx.getResponse(),
       req = ctx.getRequest();
-    const status = error instanceof HttpException ? error.getStatus() : 500;
+    const parserType = (error as { type?: string } | null)?.type;
+    const parserStatus =
+      parserType === "entity.too.large"
+        ? 413
+        : parserType === "entity.parse.failed"
+          ? 400
+          : null;
+    const status =
+      error instanceof HttpException
+        ? error.getStatus()
+        : (parserStatus ?? 500);
     const detail = error instanceof HttpException ? error.getResponse() : null;
     const message =
       typeof detail === "string"
         ? detail
-        : ((detail as { message?: unknown })?.message ?? "INTERNAL_ERROR");
+        : ((detail as { message?: unknown })?.message ??
+          (parserStatus === 413
+            ? "PAYLOAD_TOO_LARGE"
+            : parserStatus === 400
+              ? "INVALID_JSON"
+              : "INTERNAL_ERROR"));
     if (status === 500) this.log.error(error);
     if (status >= 400 && status !== 404) {
       try {

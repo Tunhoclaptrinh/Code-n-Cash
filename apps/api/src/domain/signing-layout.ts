@@ -1,6 +1,6 @@
 import type { PdfPagePreview, SlotMap } from "./types";
 
-/** Signers per contract: one or two for each side, laid out two per row on the last page. */
+/** One to four configured signers, laid out two per row on the last page. */
 export const MAX_SIGNERS = 4;
 const COLUMN_X = [36, 270];
 const ROW_HEIGHT = 194;

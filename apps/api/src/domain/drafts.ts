@@ -1,3 +1,4 @@
+import { templatePresets, templateSnapshot } from "./contract-templates";
 import {
   BadRequestException,
   ForbiddenException,
@@ -15,7 +16,7 @@ import {
   type SigningRecord,
   type StageTemplate,
 } from "./records";
-import { defaultSlots, MAX_SIGNERS, previewPagesFor } from "./signing-layout";
+import { MAX_SIGNERS, previewPagesFor } from "./signing-layout";
 import { addDays, fromCents, shareOf, toCents } from "./templates";
 import type {
   ApprovalPolicy,
@@ -100,8 +101,6 @@ export function uploadFormOptions(ctx: Ctx): UploadFormOptions {
     supplierSigners[String(s.party_id)] = users
       .filter((u) => u.organizationId === s.party_id && u.role === "SUPPLIER")
       .map((u) => person(ctx, u));
-  const owner = buyerSigners.find((p) => p.role === "CONTRACT_OWNER");
-  const finance = buyerSigners.find((p) => p.role === "FINANCE_APPROVER");
   const workflows = Object.fromEntries(
     CONTRACT_TYPES.map((type) => [
       type,
@@ -121,42 +120,16 @@ export function uploadFormOptions(ctx: Ctx): UploadFormOptions {
     reviewers: buyerSigners.filter((p) => p.role === "LEGAL_REVIEWER"),
     buyerSigners,
     supplierSigners,
-    presets: [
-      {
-        id: "BUYER_FIRST",
-        signers: owner
-          ? [
-              { party: "BUYER", userId: owner.userId },
-              { party: "SUPPLIER", userId: "" },
-            ]
-          : [],
-      },
-      {
-        id: "SUPPLIER_FIRST",
-        signers: owner
-          ? [
-              { party: "SUPPLIER", userId: "" },
-              { party: "BUYER", userId: owner.userId },
-            ]
-          : [],
-      },
-      {
-        id: "THREE_PARTY",
-        signers:
-          owner && finance
-            ? [
-                { party: "SUPPLIER", userId: "" },
-                { party: "BUYER", userId: finance.userId },
-                { party: "BUYER", userId: owner.userId },
-              ]
-            : [],
-      },
-    ],
+    presets: templatePresets(ctx, buyerSigners),
     workflows,
   };
 }
 
 const toDraft = (d: DraftRecord): ContractDraft => ({
+  templateId: d.templateId,
+  templateVersion: d.templateSnapshot?.version,
+  templateSnapshot: d.templateSnapshot,
+  documentBody: d.documentBody,
   code: d.code,
   state: d.state,
   origin: d.origin,
@@ -174,13 +147,18 @@ const toDraft = (d: DraftRecord): ContractDraft => ({
   signers: d.signers,
   file: d.file,
   appendixNames: d.appendixNames,
+  appendixDocuments: d.appendixDocuments,
   ruleVersion: d.ruleVersionId
     ? { id: String(d.ruleVersionId), hash: String(d.ruleVersionHash) }
     : undefined,
 });
 
 /** The organisation's open draft, or a new one with the next contract code (not saved yet). */
-export function currentDraft(ctx: Ctx, code?: string): ContractDraft {
+export function currentDraft(
+  ctx: Ctx,
+  code?: string,
+  fresh = false,
+): ContractDraft {
   assertEditor(ctx);
   const drafts = ctx
     .drafts()
@@ -193,7 +171,7 @@ export function currentDraft(ctx: Ctx, code?: string): ContractDraft {
   const open = drafts
     .filter((d) => d.state === "DRAFT")
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
-  if (open) return toDraft(open);
+  if (open && !fresh) return toDraft(open);
   const options = uploadFormOptions(ctx);
   const supplier = options.suppliers[0];
   const owner = options.buyerSigners.find((p) => p.role === "CONTRACT_OWNER");
@@ -236,6 +214,46 @@ const decimal = (value: unknown, max: number) => {
   return toCents(normalized) > toCents(String(max)) ? null : normalized;
 };
 const isoDate = (value: unknown) => (validIsoDate(value) ? value : null);
+
+/** Shared by draft saving and document generation; never trust client signer names or parties. */
+export function validateDraftSigners(ctx: Ctx, input: ContractDraft) {
+  const buyer = ctx.actor.organizationId;
+  const supplier = ctx.party(String(input.supplierId));
+  if (supplier?.party_type !== "SUPPLIER")
+    throw new BadRequestException("INVALID_SUPPLIER");
+  const signers = Array.isArray(input.signers) ? input.signers : [];
+  if (signers.length < 1 || signers.length > MAX_SIGNERS)
+    throw new BadRequestException("SIGNER_COUNT");
+  const seen = new Set<string>();
+  for (const signer of signers) {
+    if (
+      !signer ||
+      typeof signer.userId !== "string" ||
+      !["BUYER", "SUPPLIER"].includes(signer.party)
+    )
+      throw new BadRequestException("INVALID_SIGNER");
+    const user = ctx.user(String(signer.userId));
+    const ok =
+      user &&
+      user.active !== false &&
+      !seen.has(user.id) &&
+      (signer.party === "BUYER"
+        ? user.organizationId === buyer &&
+          BUYER_SIGNER_ROLES.includes(String(user.role))
+        : signer.party === "SUPPLIER" &&
+          user.organizationId === supplier.party_id &&
+          user.role === "SUPPLIER");
+    if (!ok) throw new BadRequestException("INVALID_SIGNER");
+    seen.add(user.id);
+  }
+  if (
+    signers.length > 1 &&
+    (!signers.some((s) => s.party === "BUYER") ||
+      !signers.some((s) => s.party === "SUPPLIER"))
+  )
+    throw new BadRequestException("SIGNERS_BOTH_SIDES");
+  return signers;
+}
 
 /** Validates and stores step 1 of the upload wizard: draft, contract row and signing order. */
 export function saveDraft(
@@ -281,32 +299,8 @@ export function saveDraft(
     throw new BadRequestException("INVALID_DATES");
   if (!rate || !cap || !Number.isInteger(grace) || grace < 0 || grace > 60)
     throw new BadRequestException("INVALID_PENALTY");
-  const supplier = ctx.party(String(input.supplierId));
-  if (supplier?.party_type !== "SUPPLIER")
-    throw new BadRequestException("INVALID_SUPPLIER");
-  const signers = Array.isArray(input.signers) ? input.signers : [];
-  if (signers.length < 2 || signers.length > MAX_SIGNERS)
-    throw new BadRequestException("SIGNER_COUNT");
-  const seen = new Set<string>();
-  for (const signer of signers) {
-    const user = ctx.user(String(signer.userId));
-    const ok =
-      user &&
-      !seen.has(user.id) &&
-      (signer.party === "BUYER"
-        ? user.organizationId === buyer &&
-          BUYER_SIGNER_ROLES.includes(String(user.role))
-        : signer.party === "SUPPLIER" &&
-          user.organizationId === supplier.party_id &&
-          user.role === "SUPPLIER");
-    if (!ok) throw new BadRequestException("INVALID_SIGNER");
-    seen.add(user.id);
-  }
-  if (
-    !signers.some((s) => s.party === "BUYER") ||
-    !signers.some((s) => s.party === "SUPPLIER")
-  )
-    throw new BadRequestException("SIGNERS_BOTH_SIDES");
+  const supplier = ctx.party(String(input.supplierId))!;
+  const signers = validateDraftSigners(ctx, input);
   const reviewer = ctx.user(String(input.reviewerId));
   if (
     !reviewer ||
@@ -370,7 +364,18 @@ export function saveDraft(
       }) as ContractRecord,
     );
 
+  if (
+    input.documentBody !== undefined &&
+    (typeof input.documentBody !== "string" ||
+      input.documentBody.length > 20000)
+  )
+    throw new BadRequestException("CONTRACT_TEMPLATE_INVALID");
+  const selectedTemplate = templateSnapshot(ctx, input);
   const draftFields = {
+    templateId: selectedTemplate?.id,
+    templateVersion: selectedTemplate?.version,
+    templateSnapshot: selectedTemplate,
+    documentBody: input.documentBody ?? selectedTemplate?.documentBody ?? "",
     ruleVersionId: version?.id,
     ruleVersionHash: version?.hash,
     code: expectedCode,
@@ -401,6 +406,11 @@ export function saveDraft(
           ? ctx.draft(expectedCode)?.file.sha256
           : undefined,
     },
+    appendixDocuments: ctx
+      .draft(expectedCode)
+      ?.appendixDocuments?.filter((document) =>
+        input.appendixNames?.includes(document.name),
+      ),
     appendixNames: (input.appendixNames ?? [])
       .map((name) => String(name).slice(0, 255))
       .slice(0, 20),
@@ -445,7 +455,9 @@ export function saveDraft(
   const signing = signingTable.find((s) => s.contractCode === expectedCode);
   if (signing) {
     if (signing.steps.length !== steps.length) {
-      signing.slots = defaultSlots(steps.length);
+      signing.slots = Object.fromEntries(
+        steps.map((step) => [step.stepNo, null]),
+      );
       signing.previewPages = previewPagesFor(steps.length);
     }
     Object.assign(signing, {
@@ -462,7 +474,7 @@ export function saveDraft(
         pageCount: file.pages ?? 14,
         digitalSignatureRequired: true,
         steps,
-        slots: defaultSlots(steps.length),
+        slots: Object.fromEntries(steps.map((step) => [step.stepNo, null])),
         previewPages: previewPagesFor(steps.length),
         origin: "APP" as const,
         organizationId: buyer,
@@ -559,6 +571,15 @@ export function confirmDigitization(
   const draft = ctx.draft(code);
   if (!draft || contract.lifecycle !== "DRAFT" || draft.state !== "DRAFT")
     throw new BadRequestException("DRAFT_LOCKED");
+  if (
+    draft.origin === "APP" &&
+    (!draft.file.documentId ||
+      draft.appendixNames.some(
+        (name) =>
+          !draft.appendixDocuments?.some((document) => document.name === name),
+      ))
+  )
+    throw new BadRequestException("DOCUMENT_REQUIRED");
   if (
     draft.file.documentId &&
     !ctx.t["extraction-proposals"].some(

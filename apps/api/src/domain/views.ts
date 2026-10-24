@@ -494,7 +494,7 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
           amountMillion: contract.contract_value_vnd_mn,
           reasonCode: null,
           badge: "YOUR_TURN",
-          href: "/contracts/new",
+          href: `/contracts/new?draft=${encodeURIComponent(contract.contract_id)}`,
         });
       continue;
     }

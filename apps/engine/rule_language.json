@@ -1,0 +1,349 @@
+{
+  "version": "BTC_DSL_V1",
+  "variables": [
+    {
+      "name": "open_dispute",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "events.csv",
+      "example": "FALSE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Tranh chấp đang mở",
+        "en": "Open dispute"
+      },
+      "description": {
+        "vi": "Có DISPUTE_OPENED chưa được DISPUTE_RESOLVED hợp lệ tham chiếu đóng.",
+        "en": "A DISPUTE_OPENED has no valid linked DISPUTE_RESOLVED."
+      }
+    },
+    {
+      "name": "valid_rejection_event_count",
+      "type": "number",
+      "unit": "count",
+      "source": "events.csv + parties.csv",
+      "example": "0",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Số từ chối hợp lệ",
+        "en": "Valid rejections"
+      },
+      "description": {
+        "vi": "Số sự kiện REJECTION hợp lệ của bên có quyền từ chối.",
+        "en": "Number of valid REJECTION events from an authorized party."
+      }
+    },
+    {
+      "name": "unauthorized_required_event_count",
+      "type": "number",
+      "unit": "count",
+      "source": "events.csv + parties.csv",
+      "example": "0",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Sự kiện bắt buộc sai thẩm quyền",
+        "en": "Unauthorized required events"
+      },
+      "description": {
+        "vi": "Đếm sự kiện thuộc loại bắt buộc nhưng actor sai bên hoặc không được phép.",
+        "en": "Required-type events submitted by an unauthorized or wrong-side actor."
+      }
+    },
+    {
+      "name": "required_event_completion_rate",
+      "type": "number",
+      "unit": "ratio",
+      "source": "milestones.csv + events.csv",
+      "example": "1.0",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Tỷ lệ đủ chứng từ",
+        "en": "Required event completion"
+      },
+      "description": {
+        "vi": "Từ 0 đến 1: số loại sự kiện bắt buộc hợp lệ / tổng loại bắt buộc. 1.0 là đủ 100%, không nhập 100.",
+        "en": "From 0 to 1: valid required event types / all required types. 1.0 means 100%; do not enter 100."
+      }
+    },
+    {
+      "name": "approval_required",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "milestones.csv",
+      "example": "TRUE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Có yêu cầu phê duyệt",
+        "en": "Approval required"
+      },
+      "description": {
+        "vi": "Mốc có yêu cầu đủ vai trò phê duyệt trước khi thanh toán hay không.",
+        "en": "Whether the milestone requires approval before payment."
+      }
+    },
+    {
+      "name": "valid_approval_count",
+      "type": "number",
+      "unit": "count",
+      "source": "events.csv + parties.csv",
+      "example": "2",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Số vai trò đã duyệt hợp lệ",
+        "en": "Covered approval roles"
+      },
+      "description": {
+        "vi": "Đếm vai trò bắt buộc đã được phê duyệt hợp lệ, không đếm số lượt bấm hoặc tổng event APPROVAL.",
+        "en": "Counts distinct required roles covered by valid approvals, not clicks or raw APPROVAL events."
+      }
+    },
+    {
+      "name": "required_approval_quorum",
+      "type": "number",
+      "unit": "count",
+      "source": "milestones.csv",
+      "example": "2",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Số vai trò duyệt cần đủ",
+        "en": "Required approval quorum"
+      },
+      "description": {
+        "vi": "Số vai trò phê duyệt cần được phủ theo cấu hình mốc.",
+        "en": "Required number of approval roles for the milestone."
+      }
+    },
+    {
+      "name": "late_penalty_applicable",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "milestones.csv",
+      "example": "TRUE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Mốc có áp dụng phạt chậm",
+        "en": "Late penalty enabled"
+      },
+      "description": {
+        "vi": "Chỉ xét phạt chậm khi cờ của mốc là TRUE và không có rule ưu tiên trước đó chặn.",
+        "en": "Late penalty applies only when TRUE and no earlier rule blocks payment."
+      }
+    },
+    {
+      "name": "actual_completion_date",
+      "type": "date",
+      "unit": "date",
+      "source": "required events from events.csv",
+      "example": "2026-10-14",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Ngày hoàn thành nghiệp vụ",
+        "en": "Business completion date"
+      },
+      "description": {
+        "vi": "Ngày của required event hợp lệ hoàn thành cuối cùng; không lấy APPROVAL hay workflow event cuối. Chưa đủ required events thì chưa có ngày, so sánh trả FALSE.",
+        "en": "Date of the latest required valid completion event; excludes later APPROVAL/workflow events. Missing completion yields FALSE in comparisons."
+      }
+    },
+    {
+      "name": "due_date",
+      "type": "date",
+      "unit": "date",
+      "source": "milestones.csv",
+      "example": "2026-10-10",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Ngày đến hạn",
+        "en": "Due date"
+      },
+      "description": {
+        "vi": "Hạn nghiệp vụ của mốc. Cộng grace_period_days để lấy hết hạn ân hạn.",
+        "en": "Milestone business deadline; add grace_period_days for the grace deadline."
+      }
+    },
+    {
+      "name": "grace_period_days",
+      "type": "number",
+      "unit": "days",
+      "source": "milestones.csv",
+      "example": "2",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Số ngày ân hạn",
+        "en": "Grace days"
+      },
+      "description": {
+        "vi": "Số ngày lịch cộng vào due_date.",
+        "en": "Calendar days added to due_date."
+      }
+    },
+    {
+      "name": "all_required_conditions_met",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "validated events + approval quorum",
+      "example": "TRUE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Đủ điều kiện bắt buộc",
+        "en": "Required conditions satisfied"
+      },
+      "description": {
+        "vi": "Đủ required events, không có required event sai thẩm quyền, đủ quorum nếu cần. Vẫn phải kiểm tranh chấp và từ chối riêng.",
+        "en": "Required events complete, no unauthorized required events, and quorum met if required. Disputes and rejections still need separate checks."
+      }
+    },
+    {
+      "name": "planned_payment_vnd_mn",
+      "type": "number",
+      "unit": "money",
+      "source": "milestones.csv",
+      "example": "1000.00",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Giá trị dự kiến của mốc",
+        "en": "Planned milestone payment"
+      },
+      "description": {
+        "vi": "Đơn vị triệu VND; 1000.00 nghĩa là một nghìn triệu VND, không phải 1000 đồng.",
+        "en": "Million VND; 1000.00 means one thousand million VND, not 1000 VND."
+      }
+    },
+    {
+      "name": "penalty_amount_vnd_mn",
+      "type": "number",
+      "unit": "money",
+      "source": "result of penalty_amount_formula",
+      "example": "3.00",
+      "fields": ["payable_amount_formula"],
+      "label": {
+        "vi": "Tiền phạt đã tính",
+        "en": "Computed penalty"
+      },
+      "description": {
+        "vi": "Kết quả công thức phạt đã làm tròn 2 chữ số. Chỉ dùng trong công thức tiền được trả; không tự tham chiếu trong công thức phạt/điều kiện.",
+        "en": "Penalty formula result rounded to 2 decimals. Available only in the payable formula, never in conditions or the penalty formula itself."
+      }
+    },
+    {
+      "name": "days_late_after_grace",
+      "type": "number",
+      "unit": "days",
+      "source": "actual completion − (due + grace)",
+      "example": "3",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Số ngày trễ sau ân hạn",
+        "en": "Days late after grace"
+      },
+      "description": {
+        "vi": "MAX(0, ngày hoàn thành − (due_date + grace_period_days)); engine tính sẵn, không tự trừ ngày trong DSL.",
+        "en": "MAX(0, completion − (due_date + grace_period_days)); already computed by the engine, do not subtract dates in the DSL."
+      }
+    },
+    {
+      "name": "penalty_rate_pct_per_day",
+      "type": "number",
+      "unit": "percentPerDay",
+      "source": "milestones.csv",
+      "example": "0.10",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Tỷ lệ phạt mỗi ngày",
+        "en": "Daily penalty rate"
+      },
+      "description": {
+        "vi": "Nhập theo phần trăm: 0.10 nghĩa là 0,10%/ngày; chia 100 trong công thức.",
+        "en": "Percent value: 0.10 means 0.10% per day; divide by 100 in the formula."
+      }
+    },
+    {
+      "name": "max_penalty_pct",
+      "type": "number",
+      "unit": "percent",
+      "source": "milestones.csv",
+      "example": "8.00",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Trần phạt",
+        "en": "Penalty cap"
+      },
+      "description": {
+        "vi": "Phần trăm tối đa trên giá trị dự kiến của mốc; chia 100 trong công thức.",
+        "en": "Maximum percentage of the planned milestone value; divide by 100 in the formula."
+      }
+    }
+  ],
+  "constants": ["TRUE", "FALSE"],
+  "functions": ["MIN", "MAX"],
+  "operators": ["AND", "==", "!=", "<", "<=", ">", ">=", "+", "-", "*", "/"],
+  "fields": [
+    "condition_expression",
+    "penalty_amount_formula",
+    "payable_amount_formula"
+  ]
+}

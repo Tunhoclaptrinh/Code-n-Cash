@@ -251,5 +251,96 @@
         "maxLength": 250
       }
     ]
+  },
+  {
+    "name": "contract-templates",
+    "fields": [
+      {
+        "key": "code",
+        "type": "string",
+        "required": true,
+        "maxLength": 60,
+        "pattern": "^[A-Za-z0-9_-]+$"
+      },
+      {
+        "key": "name",
+        "type": "string",
+        "required": true,
+        "maxLength": 250
+      },
+      {
+        "key": "description",
+        "type": "string",
+        "maxLength": 2000
+      },
+      {
+        "key": "contractType",
+        "type": "select",
+        "required": true,
+        "options": [
+          "GOODS_SUPPLY",
+          "SERVICES",
+          "SOFTWARE_IMPLEMENTATION",
+          "MAINTENANCE"
+        ]
+      },
+      {
+        "key": "approvalPolicy",
+        "type": "select",
+        "required": true,
+        "options": [
+          "AUTO_IF_ALL_CONDITIONS",
+          "SINGLE_BUYER_APPROVAL",
+          "FINANCE_PLUS_OWNER",
+          "DUAL_APPROVAL"
+        ]
+      },
+      {
+        "key": "valueMillion",
+        "type": "string",
+        "required": true,
+        "maxLength": 15,
+        "pattern": "^\\d+(\\.\\d{1,2})?$"
+      },
+      {
+        "key": "graceDays",
+        "type": "number",
+        "required": true,
+        "integer": true,
+        "min": 0,
+        "max": 60
+      },
+      {
+        "key": "penaltyRatePct",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "pattern": "^\\d+(\\.\\d{1,2})?$"
+      },
+      {
+        "key": "maxPenaltyPct",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "pattern": "^\\d+(\\.\\d{1,2})?$"
+      },
+      {
+        "key": "signerRoles",
+        "type": "string",
+        "required": true,
+        "maxLength": 150,
+        "pattern": "^(CONTRACT_OWNER|FINANCE_APPROVER|SECONDARY_APPROVER|LEGAL_REVIEWER|SUPPLIER)(;(CONTRACT_OWNER|FINANCE_APPROVER|SECONDARY_APPROVER|LEGAL_REVIEWER|SUPPLIER)){0,3}$"
+      },
+      {
+        "key": "documentBody",
+        "type": "textarea",
+        "maxLength": 20000
+      },
+      {
+        "key": "active",
+        "type": "boolean",
+        "required": true
+      }
+    ]
   }
 ]

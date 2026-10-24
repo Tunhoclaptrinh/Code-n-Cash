@@ -24,7 +24,7 @@ from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from pathlib import Path
 
-SPEC_VERSION = "1.0"
+SPEC_VERSION = "1.1"
 DEFAULT_DATA = Path(__file__).resolve().parent.parent / "BangD-Case4" / "DataPack-CASE4_SmartContractWorkflow"
 SNAPSHOT = date(2026, 10, 18)
 CENT = Decimal("0.01")
@@ -136,7 +136,7 @@ def evaluate_expr(text, env):
 
 def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=False,
              completion_includes_approval=False, rounding=ROUND_HALF_UP, enforce_invoice_flag=False,
-             ignore_resolutions=False, as_of=None, voided=frozenset()):
+             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False):
     """Trả về quyết định và toàn bộ fact của một milestone.
 
     Tham số mặc định là đặc tả. Các cờ còn lại chỉ dùng để đo độ nhạy (mục 13).
@@ -253,7 +253,9 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
             p["party_type"] == "APPROVER" and p["parent_party_id"] == c["buyer_id"]
             and "DISPUTE" in p["allowed_event_types"].split(";")))
         return (o is not None and o["event_type"] == "DISPUTE_OPENED" and o["milestone_id"] == r["milestone_id"]
-                and r["event_status"] == "RESOLVED" and r["event_timestamp"] >= o["event_timestamp"] and buyer_side)
+                and o["contract_id"] == r["contract_id"] == m["contract_id"]
+                and r["event_status"] == "RESOLVED" and r["event_timestamp"] >= o["event_timestamp"]
+                and (not strict_resolution or (buyer_side and p["status"] == "ACTIVE")))
 
     scope_events = uniq
     if contract_scope_dispute:

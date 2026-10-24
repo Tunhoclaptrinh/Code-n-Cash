@@ -1,19 +1,18 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Alert, Dropdown, Space, Tag, Typography } from "antd";
+import { Alert, Space, Tag, Typography } from "antd";
 import type { MenuProps } from "antd";
 import {
   ArrowRightOutlined,
   EyeOutlined,
   FileSearchOutlined,
-  MenuOutlined,
 } from "@ant-design/icons";
 import {
   BaseButton,
   DataTable,
   DetailModal,
-  IconButton,
   PageContainer,
   type FilterConfig,
   type StatisticsItem,
@@ -264,7 +263,20 @@ export default function TaskInboxPage() {
         ) : null}
         <DataTable<TaskRow>
           rowKey="id"
-          columns={columns}
+          scroll={{ x: 1400 }}
+          columns={columns.map((column) => ({
+            ...column,
+            width:
+              (
+                {
+                  kind: 270,
+                  contract: 280,
+                  amount: 160,
+                  dueDate: 160,
+                  badge: 220,
+                } as Record<string, number>
+              )[String(column.key)] ?? 200,
+          }))}
           {...list.table}
           emptyText={t("inbox.empty")}
           statisticsData={statistics}
@@ -279,27 +291,17 @@ export default function TaskInboxPage() {
           exportable
           exportFilename="tasks"
           onExport={(options) => void onExport(options)}
+          actionsWidth={104}
           customActions={(r) => (
-            <Space size={4}>
-              <IconButton
-                icon={<ArrowRightOutlined />}
-                tooltip={t(`inbox.action.${r.kind}`)}
-                success={
-                  r.badge === "LATE_PENALTY_RISK" || r.badge === "YOUR_TURN"
-                }
-                onClick={() => navigate(r.href)}
-              />
-              <Dropdown
-                menu={{ items: menuFor(r) }}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <IconButton
-                  icon={<MenuOutlined />}
-                  tooltip={t("inbox.actions.more")}
-                />
-              </Dropdown>
-            </Space>
+            <TableRowActions
+              primary={{
+                label: t(`inbox.action.${r.kind}`),
+                icon: <ArrowRightOutlined />,
+                onClick: () => navigate(r.href),
+              }}
+              menu={menuFor(r)}
+              moreLabel={t("inbox.actions.more")}
+            />
           )}
         />
         <Typography.Paragraph type="secondary">

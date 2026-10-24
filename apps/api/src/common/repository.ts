@@ -35,6 +35,8 @@ export class Repository implements OnModuleDestroy {
         "contract-drafts",
         "milestone-templates",
         "settings",
+        "contract-templates",
+        "app-migrations",
         "documents",
         "datasets",
         "audit",

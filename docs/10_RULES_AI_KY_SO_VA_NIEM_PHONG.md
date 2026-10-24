@@ -27,7 +27,7 @@ Hồ sơ đưa chính sách phê duyệt, quorum, ân hạn và phạt xuống c
 
 Mở **Quản trị → Phiên bản quy tắc** bằng SYSTEM_ADMIN. Tạo tên và lý do; sửa biểu thức trong DSL cho phép và tỷ lệ/hạn/chứng từ/phạt của mẫu mốc. Tổng tỷ lệ mỗi workflow phải bằng 100%. Cấu trúc, mã, độ ưu tiên và phạm vi rule chuẩn không đổi qua editor này.
 
-Lưu có optimistic version. **Kiểm thử và gửi duyệt** kiểm mọi nhánh biểu thức bằng AST allowlist, sau đó chạy evaluator chuẩn trên Data Pack nguyên bản và so 20 nhãn (decision, reason, payable, penalty). Không khớp hoặc vi phạm bất biến thì không sang REVIEW. REVIEW khoá nội dung. Một SYSTEM_ADMIN khác mới được phát hành; tài khoản tác giả không được tự duyệt. Có thể tạo tài khoản quản trị thứ hai ở Người dùng cho demo; không dùng kiểm soát viên thay vai quản trị.
+Lưu có optimistic version. **Kiểm thử và gửi duyệt** kiểm mọi nhánh biểu thức bằng AST allowlist, sau đó chạy evaluator chuẩn trên Data Pack nguyên bản và so 20 nhãn (decision, reason, payable, penalty). Ngoài so mẫu, phải so toàn bộ 405 mốc với baseline: bất kỳ thay đổi decision/reason/payable/penalty nào cũng chặn REVIEW trong profile tương thích BTC. Không khớp mẫu, thiếu mốc hoặc vi phạm bất biến cũng bị chặn. So baseline không xác minh ground truth ẩn. REVIEW khoá nội dung. Một SYSTEM_ADMIN khác mới được phát hành; tài khoản tác giả không được tự duyệt. Có thể tạo tài khoản quản trị thứ hai ở Người dùng cho demo; không dùng kiểm soát viên thay vai quản trị.
 
 Phát hành không sửa 128 rule gốc. Rule mới có namespace phiên bản; hồ sơ mới/lần lưu đầu của hồ sơ chưa gắn phiên bản nhận bản đang phát hành. Hồ sơ đã gắn bản cũ tiếp tục dùng bản đó, kể cả khi RETIRED. Hash nội dung được kiểm trước khi áp dụng; thay đổi cấu hình sau này không ngầm đổi hợp đồng cũ.
 
@@ -85,7 +85,7 @@ Cần Node 22+, Python 3, pnpm và pdftotext (gói poppler-utils; Dockerfile đ�
 
 ```bash
 pnpm check
-API_PORT=3219 DATA_DIR=/tmp/codecash-demo-review TRUST_DIR=/tmp/codecash-demo-witness pnpm start:api
+STORAGE_DRIVER=file API_PORT=3219 DATA_DIR=/tmp/codecash-demo-review TRUST_DIR=/tmp/codecash-demo-witness pnpm start:api
 VITE_API_PROXY=http://127.0.0.1:3219 pnpm --filter @codecash/web exec vite --host 127.0.0.1 --port 5291 --strictPort
 API_BASE_URL=http://127.0.0.1:3219/api/v1 pnpm test:e2e
 WEB_URL=http://127.0.0.1:5291 pnpm test:browser
@@ -99,3 +99,5 @@ Smoke thay đổi workflow; mỗi kịch bản phê duyệt/chụp hướng dẫ
 - CA/PAdES: khóa tài liệu bất biến, signature artifact, chain/trust store, OCSP/CRL/TSA, webhook có xác thực/idempotency/expiry và ca lỗi đối tác.
 - Blockchain/TSA: provider bên ngoài, digest-only payload, transaction receipt và độ sâu xác nhận, retry theo lịch, kiểm độc lập từ endpoint khác. Không có token hoặc smart contract chi tiền trong demo.
 - Vận hành: kiểm thử Mongo replica set thực, worker nhiều instance, backup/restore khoá/receipt, xoay/thu hồi khoá, parser tài liệu lớn, quan sát tải và kết nối ERP thật. Phần này chưa được xác nhận chỉ từ kiểm thử file-storage cục bộ.
+
+Cập nhật 24/10/2026: chi tiết cổng rule toàn pack, tách profile bài nộp/workflow và câu trả lời BTC nằm ở tài liệu 14–16. Số liệu kiểm thử lịch sử trong tài liệu này không thay báo cáo bản hiện tại.

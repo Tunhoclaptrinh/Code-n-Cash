@@ -41,7 +41,8 @@
     "kinds": {
       "TEMPLATE": "Mẫu quy trình",
       "TEXT_RULES": "Trích xuất văn bản cục bộ"
-    }
+    },
+    "loadSuggestions": "Nạp đề xuất"
   },
   "rules": {
     "title": "Phiên bản quy tắc và mẫu mốc",
@@ -53,7 +54,7 @@
     "author": "Người soạn",
     "validation": "Mẫu khớp",
     "hash": "Hash cấu hình",
-    "notice": "Phiên bản phải qua kiểm tra biểu thức, 405 mốc và 20 mẫu công khai; người quản trị khác duyệt phát hành. Hợp đồng đã gắn phiên bản giữ nguyên cấu hình cũ.",
+    "notice": "Phiên bản phải giữ nguyên kết quả baseline của toàn bộ 405 mốc, khớp 20 mẫu và không vi phạm bất biến; người quản trị khác duyệt phát hành. Đây chưa phải xác nhận ground truth ẩn.",
     "create": "Soạn phiên bản mới",
     "search": "Tìm tên, lý do hoặc hash phiên bản",
     "all": "Tất cả",
@@ -84,6 +85,99 @@
       "REVIEW": "Chờ người thứ hai duyệt",
       "PUBLISHED": "Đang phát hành",
       "RETIRED": "Đã có phiên bản thay thế"
+    },
+    "preview": "Chạy thử tác động",
+    "previewSummary": "Đã tính {{evaluated}} mốc · Khớp {{matched}}/{{samples}} mẫu · {{changed}} mốc thay đổi · {{violations}} vi phạm bất biến",
+    "previewScope": "Mẫu mốc thay đổi: {{templates}} (chỉ tác động hồ sơ mới). Chỉ được gửi duyệt khi số kết quả thay đổi trên toàn pack bằng 0.",
+    "milestone": "Mã mốc",
+    "before": "Trước",
+    "after": "Sau",
+    "demoName": "Phiên bản quy tắc dùng thử",
+    "demoReason": "Dữ liệu demo: kiểm tra tác động trước khi gửi xét duyệt; chưa đề xuất thay đổi kết quả nghiệp vụ.",
+    "language": {
+      "scope": "Chọn quy trình và loại mốc",
+      "reference": "Biến, cú pháp và ví dụ",
+      "check": "Kiểm tra cú pháp",
+      "order": "Áp dụng rule đầu tiên thỏa điều kiện, theo ưu tiên 10 → 80",
+      "orderDetail": "Dừng ở rule khớp đầu tiên trong phạm vi đang chọn. Tính tiền phạt trước, rồi tính tiền được trả. ELSE là nhánh giữ lại để kiểm tra khi không có rule trước đó khớp.",
+      "catalogError": "Chưa tải được từ điển biến từ engine. Bạn vẫn có thể đọc cấu hình; hãy tải lại để chèn biến và xem đơn vị.",
+      "retry": "Tải lại",
+      "valid": "Cú pháp và kiểu cơ bản hợp lệ · {{count}} biểu thức",
+      "invalid": "Có {{count}} biểu thức cần sửa",
+      "syntaxOnly": "Đây là kiểm tra tĩnh, chưa chứng minh kết quả nghiệp vụ đúng. Chạy thử tác động trên 405 mốc trước khi gửi duyệt.",
+      "unchecked": "Bản đang hiển thị chưa được kiểm tra cú pháp. Mỗi lần sửa cần kiểm tra lại; không dùng kết quả cũ.",
+      "orderList": "Thứ tự kiểm tra quy tắc",
+      "priority": "Ưu tiên {{value}}",
+      "lockedMetadata": "Phạm vi, ưu tiên, quyết định và mã lý do được khóa theo Data Pack. Phần mô tả trên là tham chiếu của rule, không tự diễn giải lại khi bạn sửa biểu thức.",
+      "modified": "Biểu thức đã đổi so với bản lưu. Đối chiếu lại mô tả nghiệp vụ và chạy thử trước khi gửi duyệt.",
+      "vocabulary": "{{count}} biến được engine hỗ trợ",
+      "vocabularyHint": "Đây là DSL giới hạn, không phải JavaScript, Excel hay Python tự do. Dữ liệu được engine tính/đọc từ Data Pack; màn hình không tự quyết định thanh toán.",
+      "syntax": "Cú pháp được phép",
+      "syntaxHint": "AND nối các điều kiện đúng/sai; viết với khoảng trắng hai bên. Dùng dấu chấm cho số thập phân (0.10), TRUE/FALSE viết hoa. MIN/MAX nhận 1–8 đối số số học. ELSE chỉ đứng một mình ở rule ưu tiên 80. Không hỗ trợ OR, NOT, IF, truy cập thuộc tính, chuỗi ký tự hay gọi hàm khác.",
+      "dateHint": "Ngày dùng để so sánh; có thể cộng số ngày vào ngày, ví dụ due_date + grace_period_days. Dùng days_late_after_grace đã tính sẵn thay vì tự trừ hai ngày. Ngày hoàn thành chưa có thì phép so sánh trả FALSE.",
+      "example": "Ví dụ tính tiền phạt và tiền được trả",
+      "exampleInputs": "Giả sử mốc dự kiến 1000.00 triệu VND, trễ sau ân hạn 3 ngày, phạt 0.10%/ngày, trần 8%. Chỉ xét ví dụ này khi rule phạt là rule đầu tiên khớp.",
+      "exampleResult": "Tiền phạt là 3.00 triệu VND, tiền được trả là 997.00 triệu VND. Làm tròn 2 chữ số bằng ROUND_HALF_UP trong engine. Đang có tranh chấp mở thì HOLD theo rule 10, không dùng kết quả ví dụ này để chi.",
+      "search": "Tìm theo tên biến hoặc ý nghĩa",
+      "exampleValue": "Ví dụ",
+      "source": "Nguồn",
+      "noVariables": "Không tìm thấy biến phù hợp.",
+      "insertVariable": "Chèn biến tại con trỏ",
+      "restore": "Khôi phục bản lưu",
+      "position": "dòng {{line}}, cột {{column}}",
+      "previewFirst": "Chạy thử tác động cho bản đang sửa và xử lý các kết quả bị chặn trước khi gửi duyệt.",
+      "priorities": {
+        "10": "Đang có tranh chấp",
+        "20": "Có từ chối hợp lệ",
+        "30": "Chứng từ sai thẩm quyền",
+        "40": "Chưa đủ chứng từ bắt buộc",
+        "50": "Chưa đủ vai trò phê duyệt",
+        "60": "Hoàn thành trễ, có áp dụng phạt",
+        "70": "Đủ điều kiện thanh toán",
+        "80": "Không khớp, cần kiểm tra thủ công"
+      },
+      "labels": {
+        "condition_expression": "Nếu điều kiện sau đúng",
+        "penalty_amount_formula": "1. Tính tiền phạt (triệu VND)",
+        "payable_amount_formula": "2. Tính tiền được trả (triệu VND)"
+      },
+      "hints": {
+        "condition_expression": "Kết quả phải là TRUE hoặc FALSE. Rule 80 dùng ELSE. Các số ưu tiên nhỏ được xét trước.",
+        "penalty_amount_formula": "Trả về một số theo triệu VND. MIN giới hạn theo trần phạt; chưa được dùng penalty_amount_vnd_mn tại đây.",
+        "payable_amount_formula": "Trả về một số theo triệu VND. Được dùng penalty_amount_vnd_mn đã tính và làm tròn ở bước 1; MAX(0, …) tránh số âm."
+      },
+      "types": {
+        "boolean": "Đúng / sai",
+        "number": "Số",
+        "date": "Ngày"
+      },
+      "units": {
+        "boolean": "TRUE / FALSE",
+        "count": "Số lượng",
+        "ratio": "Tỷ lệ 0–1",
+        "date": "YYYY-MM-DD",
+        "days": "Ngày lịch",
+        "money": "Triệu VND",
+        "percentPerDay": "% / ngày",
+        "percent": "%"
+      },
+      "errors": {
+        "UNKNOWN_VARIABLE": "Biến “{{token}}” không tồn tại. Chọn tên từ từ điển biến.",
+        "VARIABLE_UNAVAILABLE": "“{{token}}” chỉ có sau bước tính phạt; chỉ dùng trong công thức tiền được trả.",
+        "EXPRESSION_REQUIRED": "Nhập biểu thức không trống, tối đa 2.000 ký tự.",
+        "SYNTAX_ERROR": "Cú pháp chưa hợp lệ. Kiểm tra ngoặc, toán tử, dấu chấm thập phân và khoảng trắng quanh AND.",
+        "UNSUPPORTED_EXPRESSION": "DSL không hỗ trợ cấu trúc/toán tử này. Xem danh sách cú pháp được phép.",
+        "INVALID_CONSTANT": "Chỉ dùng số hữu hạn tối đa 16 ký tự hoặc TRUE/FALSE; không dùng chuỗi hay True/False kiểu Python.",
+        "INVALID_COMPARISON": "Mỗi phép so sánh dùng một toán tử; nối các phép so sánh bằng AND.",
+        "INVALID_FUNCTION": "Chỉ dùng MIN/MAX với 1–8 đối số, không dùng đối số có tên.",
+        "TYPE_MISMATCH": "Kiểu dữ liệu không khớp: so sánh cùng kiểu; chỉ cộng ngày với số ngày, hoặc tính toán các số.",
+        "BOOLEAN_REQUIRED": "Điều kiện và các vế AND phải trả về TRUE/FALSE, không phải tiền hay ngày.",
+        "NUMBER_REQUIRED": "Công thức tiền và đối số MIN/MAX phải là số, không phải điều kiện hay ngày.",
+        "DIVISION_BY_ZERO": "Không được chia cho 0.",
+        "FALLBACK_ORDER": "ELSE chỉ dùng ở rule cuối, ưu tiên 80.",
+        "EXPRESSION_TOO_COMPLEX": "Biểu thức quá phức tạp; tách và rút gọn trong giới hạn DSL."
+      },
+      "usedVariables": "{{count}} biến trong biểu thức"
     }
   },
   "fields": {

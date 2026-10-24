@@ -1,3 +1,7 @@
+import { RuleExpressionEditor } from "./components/RuleExpressionEditor";
+import editorStyles from "./components/RuleExpressionEditor.module.css";
+import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { DemoFormFill } from "@/shared/ui/DemoFillButton";
 import { useMemo, useState } from "react";
 import {
   Alert,
@@ -15,14 +19,17 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  PlusOutlined,
+  ExperimentOutlined,
+} from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   ConfirmModal,
   DataTable,
   FormModal,
-  IconButton,
   PageContainer,
   useAccess,
 } from "@codecash/ui";
@@ -82,6 +89,7 @@ export default function RuleVersionsPage() {
   const [selected, setSelected] = useState<RuleVersion>();
   const [rules, setRules] = useState<RuleVersion["rules"]>([]);
   const [templates, setTemplates] = useState<RuleVersion["templates"]>([]);
+  const [editorTab, setEditorTab] = useState("rules");
   const [publishing, setPublishing] = useState<RuleVersion>();
   const refresh = () =>
     client.invalidateQueries({ queryKey: ["rule-versions"] });
@@ -93,6 +101,7 @@ export default function RuleVersionsPage() {
     );
   const open = (version: RuleVersion) => {
     setSelected(version);
+    setEditorTab("rules");
     setRules(structuredClone(version.rules));
     setTemplates(structuredClone(version.templates));
   };
@@ -113,6 +122,29 @@ export default function RuleVersionsPage() {
     },
     onError: report,
   });
+  const preview = useMutation({
+    mutationFn: ({
+      version,
+      rules,
+      templates,
+    }: {
+      version: RuleVersion;
+      rules: RuleVersion["rules"];
+      templates: RuleVersion["templates"];
+    }) => trustApi.previewRuleVersion(version, rules, templates),
+    onError: report,
+  });
+  const syntax = useMutation({
+    mutationFn: trustApi.validateRuleExpressions,
+    onError: report,
+  });
+  const currentSyntax = syntax.variables === rules ? syntax.data : undefined;
+  const currentPreview =
+    preview.variables?.version.id === selected?.id &&
+    preview.variables?.rules === rules &&
+    preview.variables?.templates === templates
+      ? preview.data
+      : undefined;
   const publish = useMutation({
     mutationFn: trustApi.publishRuleVersion,
     onSuccess: async () => {
@@ -237,11 +269,14 @@ export default function RuleVersionsPage() {
           onTabChange={(key) =>
             list.setFilter("status", key === "ALL" ? undefined : [key])
           }
+          actionsWidth={72}
           customActions={(row) => (
-            <IconButton
-              icon={<EyeOutlined />}
-              tooltip={t("rules.review")}
-              onClick={() => open(row)}
+            <TableRowActions
+              primary={{
+                label: t("rules.review"),
+                icon: <EyeOutlined />,
+                onClick: () => open(row),
+              }}
             />
           )}
         />
@@ -261,6 +296,14 @@ export default function RuleVersionsPage() {
           }
         }}
       >
+        <div style={{ marginBottom: 12 }}>
+          <DemoFormFill
+            values={{
+              name: t("rules.demoName"),
+              reason: t("rules.demoReason"),
+            }}
+          />
+        </div>
         <Form.Item
           name="name"
           label={t("rules.name")}
@@ -298,12 +341,48 @@ export default function RuleVersionsPage() {
       <Modal
         open={!!selected}
         width={1280}
+        className={editorStyles.modal}
         title={selected?.name}
         onCancel={() => setSelected(undefined)}
         footer={
           <Space wrap>
+            {editable && !currentPreview?.canSubmit ? (
+              <Typography.Text
+                type="secondary"
+                style={{ maxWidth: 360, fontSize: 12 }}
+              >
+                {t("rules.language.previewFirst")}
+              </Typography.Text>
+            ) : null}
             {editable ? (
               <>
+                <Button
+                  icon={<ExperimentOutlined />}
+                  loading={preview.isPending || syntax.isPending}
+                  disabled={
+                    !rulesValid ||
+                    !templateValid ||
+                    !totalValid ||
+                    save.isPending
+                  }
+                  onClick={() => {
+                    if (selected)
+                      void syntax
+                        .mutateAsync(rules)
+                        .then((result) => {
+                          if (result.valid)
+                            preview.mutate({
+                              version: selected,
+                              rules,
+                              templates,
+                            });
+                        })
+                        .catch(() => {});
+                  }}
+                  data-testid="rule-version-preview"
+                >
+                  {t("rules.preview")}
+                </Button>
                 <Button
                   loading={save.isPending}
                   disabled={!rulesValid || !templateValid || !totalValid}
@@ -312,9 +391,19 @@ export default function RuleVersionsPage() {
                   {t("rules.save")}
                 </Button>
                 <Button
+                  title={
+                    !currentPreview?.canSubmit
+                      ? t("rules.language.previewFirst")
+                      : undefined
+                  }
                   type="primary"
                   loading={save.isPending}
-                  disabled={!rulesValid || !templateValid || !totalValid}
+                  disabled={
+                    !rulesValid ||
+                    !templateValid ||
+                    !totalValid ||
+                    !currentPreview?.canSubmit
+                  }
                   onClick={() => save.mutate(true)}
                   data-testid="rule-version-submit"
                 >
@@ -339,23 +428,84 @@ export default function RuleVersionsPage() {
       >
         {selected ? (
           <Space orientation="vertical" style={{ width: "100%" }}>
-            <Alert
-              type={selected.intact === false ? "error" : "info"}
-              showIcon
-              title={
-                selected.intact === false
-                  ? t("rules.tampered")
-                  : t("rules.editorNotice")
-              }
-            />
-            <Typography.Paragraph>{selected.reason}</Typography.Paragraph>
-            <Typography.Text code copyable>
-              {selected.hash}
-            </Typography.Text>
+            {selected.intact === false || editorTab === "templates" ? (
+              <Alert
+                type={selected.intact === false ? "error" : "info"}
+                showIcon
+                title={
+                  selected.intact === false
+                    ? t("rules.tampered")
+                    : t("rules.editorNotice")
+                }
+              />
+            ) : null}
+            <Space key="version-metadata" wrap size={12}>
+              <Typography.Text type="secondary">
+                {selected.reason}
+              </Typography.Text>
+              <Typography.Text
+                code
+                copyable={{ text: selected.hash }}
+                title={selected.hash}
+              >
+                {selected.hash.slice(0, 16)}…
+              </Typography.Text>
+            </Space>
             {!totalValid ? (
               <Alert type="error" title={t("rules.percentTotal")} />
             ) : null}
+            {currentPreview ? (
+              <>
+                <Alert
+                  showIcon
+                  data-testid="rule-preview-result"
+                  type={currentPreview.canSubmit ? "success" : "warning"}
+                  title={t("rules.previewSummary", {
+                    evaluated: currentPreview.evaluated,
+                    matched: currentPreview.matched,
+                    samples: currentPreview.samples,
+                    changed: currentPreview.changed,
+                    violations: currentPreview.invariantViolations,
+                  })}
+                  description={t("rules.previewScope", {
+                    templates: currentPreview.templateChanges,
+                  })}
+                />
+                {currentPreview.changes.length ? (
+                  <Table
+                    size="small"
+                    rowKey="milestoneId"
+                    dataSource={currentPreview.changes}
+                    pagination={{ pageSize: 5 }}
+                    scroll={{ x: 800 }}
+                    columns={[
+                      { title: t("rules.milestone"), dataIndex: "milestoneId" },
+                      {
+                        title: t("rules.before"),
+                        render: (_, row) => (
+                          <Typography.Text code>
+                            {JSON.stringify(row.before)}
+                          </Typography.Text>
+                        ),
+                      },
+                      {
+                        title: t("rules.after"),
+                        render: (_, row) => (
+                          <Typography.Text code>
+                            {JSON.stringify(row.after)}
+                          </Typography.Text>
+                        ),
+                      },
+                    ]}
+                  />
+                ) : null}
+              </>
+            ) : null}
             <Tabs
+              key="version-configuration"
+              activeKey={editorTab}
+              onChange={setEditorTab}
+              data-testid="rule-editor-tabs"
               items={[
                 {
                   key: "templates",
@@ -496,62 +646,23 @@ export default function RuleVersionsPage() {
                   key: "rules",
                   label: t("rules.expressions"),
                   children: (
-                    <Table
-                      size="small"
-                      rowKey="rule_id"
-                      dataSource={rules}
-                      scroll={{ x: 1300 }}
-                      pagination={{ pageSize: 8 }}
-                      columns={[
-                        {
-                          title: t("rules.scope"),
-                          render: (_, row) => (
-                            <>
-                              {row.release_rule_code}
-                              <br />
-                              {row.priority} · {row.decision}
-                            </>
+                    <RuleExpressionEditor
+                      key={selected.id}
+                      rules={rules}
+                      original={selected.rules}
+                      editable={editable && !save.isPending}
+                      validation={currentSyntax}
+                      checking={syntax.isPending}
+                      onCheck={() => syntax.mutate(rules)}
+                      onChange={(id, field, value) =>
+                        setRules((all) =>
+                          all.map((row) =>
+                            row.rule_id === id
+                              ? { ...row, [field]: value }
+                              : row,
                           ),
-                        },
-                        ...[
-                          "condition_expression",
-                          "payable_amount_formula",
-                          "penalty_amount_formula",
-                        ].map((key) => ({
-                          key,
-                          title: t(`rules.${key}`),
-                          render: (_: unknown, row: Record<string, string>) => (
-                            <Form.Item
-                              style={{ margin: 0 }}
-                              validateStatus={
-                                !row[key]?.trim() ? "error" : undefined
-                              }
-                              help={
-                                !row[key]?.trim()
-                                  ? t("rules.expressionRequired")
-                                  : undefined
-                              }
-                            >
-                              <Input.TextArea
-                                disabled={!editable}
-                                rows={2}
-                                value={row[key]}
-                                maxLength={2000}
-                                placeholder={t(`rules.${key}`)}
-                                onChange={(event) =>
-                                  setRules((all) =>
-                                    all.map((item) =>
-                                      item.rule_id === row.rule_id
-                                        ? { ...item, [key]: event.target.value }
-                                        : item,
-                                    ),
-                                  )
-                                }
-                              />
-                            </Form.Item>
-                          ),
-                        })),
-                      ]}
+                        )
+                      }
                     />
                   ),
                 },

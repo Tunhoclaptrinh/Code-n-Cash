@@ -34,3 +34,5 @@ The base dialog may label the current page as “10 records” even when the sel
 ## Import and details
 
 Import appears only for permitted administrative resources. Download that resource's template, preview validation results and import valid rows. See [Administration](/guide/admin). Click a record name for a quick view; expand its detail dialog for more space. Open the dedicated workflow page to submit evidence, approve or sign.
+
+In the **Actions** column, compact icon buttons stay on one row. Hover or focus with Tab to read an action name; the hamburger **☰** opens the fully labelled menu. Toolbar actions such as **Create**, **Import** and **Export** keep visible text.

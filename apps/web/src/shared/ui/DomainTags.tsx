@@ -25,7 +25,7 @@ export function OriginTag({ origin }: { origin: Origin }) {
     <Tooltip title={t(`origin.hint.${origin}`)}>
       <Tag
         color={originColor[origin]}
-        bordered={false}
+        variant="filled"
         style={{ margin: 0, fontSize: 11.5, lineHeight: "18px" }}
         data-testid={`origin-${origin}`}
       >

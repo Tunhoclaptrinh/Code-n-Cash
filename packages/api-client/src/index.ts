@@ -57,13 +57,13 @@ export class ApiClient {
         : body
     ) as T;
   }
-  async download(path: string): Promise<Blob> {
-    const headers = new Headers();
+  async download(path: string, init: RequestInit = {}): Promise<Blob> {
+    const headers = new Headers(init.headers);
     const token = this.options.getToken?.();
     if (token) headers.set("Authorization", `Bearer ${token}`);
     const response = await (this.options.fetch ?? fetch)(
       this.options.baseUrl + path,
-      { headers },
+      { ...init, headers },
     );
     if (!response.ok)
       throw new ApiError(

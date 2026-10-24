@@ -1,4 +1,6 @@
+import { useSearchParams } from "react-router-dom";
 import { PageContainer, BaseCard, LoadingState } from "@codecash/ui";
+import type { ContractDraft } from "../types";
 import { Alert } from "antd";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -18,15 +20,28 @@ export default function ContractUploadPage() {
   const { t: tc } = useTranslation("common");
   const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
+  const [params] = useSearchParams();
+  const draftCode = params.get("draft") ?? undefined;
   const draft = useQuery({
-    queryKey: ["contract-draft", user.organizationId],
-    queryFn: () => getContractDraft(),
+    queryKey: [
+      "contract-draft",
+      user.organizationId,
+      user.id,
+      draftCode ?? "new",
+    ],
+    queryFn: () => getContractDraft(draftCode, !draftCode),
   });
   const options = useQuery({
-    queryKey: ["contract-draft", "options", user.organizationId],
+    queryKey: ["contract-draft", "options", user.organizationId, user.id],
     queryFn: getUploadFormOptions,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
-  const [signers, setSigners] = useState<number>();
+  const [previewFile, setPreviewFile] = useState<File>();
+  const [workingDraft, setWorkingDraft] =
+    useState<Pick<ContractDraft, "code" | "file" | "signers">>();
+  const current =
+    workingDraft?.code === draft.data?.code ? workingDraft : draft.data;
   const failure = draft.error ?? options.error;
 
   return (
@@ -62,19 +77,24 @@ export default function ContractUploadPage() {
             </BaseCard>
             <div className={styles.columns}>
               <ContractUploadForm
-                key={draft.data.code}
+                key={`${draft.data.code}-${draftCode ?? "new"}`}
+                startBlank={!draftCode}
                 draft={draft.data}
                 options={options.data}
-                onSignersChange={setSigners}
+                onDraftChange={setWorkingDraft}
+                onPreviewFileChange={setPreviewFile}
               />
               <div className={styles.side}>
                 <FileChecksPanel
-                  pages={draft.data.file.pages ?? 0}
-                  signingSteps={signers ?? draft.data.signers.length}
+                  file={current?.file ?? draft.data.file}
+                  signingSteps={
+                    current?.signers.length ?? draft.data.signers.length
+                  }
                 />
                 <PagePreviewPanel
-                  page={draft.data.file.pages ?? 0}
-                  total={draft.data.file.pages ?? 0}
+                  file={previewFile}
+                  documentId={current?.file.documentId}
+                  name={current?.file.name ?? ""}
                 />
               </div>
             </div>

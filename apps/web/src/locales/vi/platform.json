@@ -17,7 +17,8 @@
     "milestone-templates": "Mẫu mốc thực hiện",
     "settings": "Cấu hình",
     "documents": "Tài liệu",
-    "audit": "Nhật ký hệ thống"
+    "audit": "Nhật ký hệ thống",
+    "contract-templates": "Mẫu hợp đồng"
   },
   "fields": {
     "name": "Tên",
@@ -51,7 +52,15 @@
     "paymentPercent": "Tỷ lệ thanh toán (%)",
     "latePenalty": "Áp dụng phạt trễ",
     "offsetDays": "Hạn (ngày sau khi bắt đầu)",
-    "origin": "Nguồn"
+    "origin": "Nguồn",
+    "signerRoles": "Thứ tự vai trò ký",
+    "documentBody": "Nội dung mẫu",
+    "description": "Mô tả",
+    "approvalPolicy": "Chính sách duyệt",
+    "valueMillion": "Giá trị (triệu VND)",
+    "graceDays": "Số ngày ân hạn",
+    "penaltyRatePct": "Phạt mỗi ngày (%)",
+    "maxPenaltyPct": "Trần phạt (%)"
   },
   "data": {
     "title": "Kết quả Data Pack",
@@ -130,7 +139,7 @@
       "scope": "Danh sách mốc chấm",
       "noScope": "Không có: xuất toàn bộ mốc",
       "templateHint": "Không có submission_output_template.csv: hệ thống dựng đủ 22 cột theo thứ tự milestones.csv, giống template chính thức.",
-      "scopeHint": "Chỉ xuất {{count}} mốc trong danh sách chấm; engine vẫn đọc toàn bộ dữ liệu để xét tranh chấp cấp hợp đồng.",
+      "scopeHint": "Phát hiện danh sách {{count}} mốc để tham khảo. Bài nộp vẫn xuất toàn bộ template; ứng dụng không tự lọc theo danh sách này.",
       "unknownScope": "{{count}} mã mốc trong danh sách chấm không có trong milestones.csv: {{ids}}",
       "notReady": "Bộ dữ liệu chưa đủ tệp bắt buộc hoặc thiếu cột. Bổ sung rồi tải lên lại.",
       "runFirst": "Chưa có kết quả. Bấm “Đánh giá dữ liệu” để chạy engine trên bộ dữ liệu này."
@@ -143,7 +152,8 @@
       "hint": "Bắt buộc: contracts.csv, parties.csv, milestones.csv, events.csv, payment_rules.csv. Tuỳ chọn: decision_sample.csv, submission_output_template.csv, hidden_test_ids_*.csv. Có thể nén cả thư mục Data Pack thành một tệp ZIP. Tối đa 20 tệp, tổng 25 MB.",
       "chooseFiles": "Chọn ít nhất một tệp",
       "done": "Đã tải lên bộ dữ liệu",
-      "incomplete": "Đã tải lên nhưng còn thiếu tệp hoặc cột bắt buộc"
+      "incomplete": "Đã tải lên nhưng còn thiếu tệp hoặc cột bắt buộc",
+      "demoName": "Bộ dữ liệu kiểm thử"
     },
     "kpi": {
       "title": "Chỉ số KPI (đặc tả mục 15)",
@@ -203,6 +213,12 @@
       "WF_SERVICE_4STAGE": "Dịch vụ · 4 mốc",
       "WF_SOFTWARE_5STAGE": "Phần mềm · 5 mốc",
       "WF_MAINTENANCE_3STAGE": "Bảo trì · 3 mốc"
+    },
+    "approvalPolicy": {
+      "AUTO_IF_ALL_CONDITIONS": "Tự động khi đủ điều kiện",
+      "SINGLE_BUYER_APPROVAL": "Chủ hợp đồng duyệt",
+      "DUAL_APPROVAL": "Chủ hợp đồng + duyệt cấp 2",
+      "FINANCE_PLUS_OWNER": "Tài chính + chủ hợp đồng"
     }
   },
   "passwordTooShort": "Mật khẩu cần ít nhất 12 ký tự.",
@@ -234,7 +250,8 @@
       "documents": "Tài liệu",
       "administration": "Quản trị",
       "controls": "Kiểm soát ngoại lệ",
-      "trust": "Niêm phong và phiên bản luật"
+      "trust": "Niêm phong và phiên bản luật",
+      "contract-templates": "Mẫu hợp đồng"
     },
     "scope": {
       "all": "Tất cả",
@@ -321,7 +338,13 @@
       "anchors:write": "Tạo và thử lại niêm phong",
       "rules:read": "Xem phiên bản quy tắc",
       "rules:write": "Soạn phiên bản quy tắc",
-      "rules:publish": "Duyệt phiên bản của người khác"
+      "rules:publish": "Duyệt phiên bản của người khác",
+      "contract-templates:read": "Xem mẫu hợp đồng",
+      "contract-templates:create": "Thêm mẫu hợp đồng",
+      "contract-templates:update": "Sửa mẫu hợp đồng",
+      "contract-templates:delete": "Xóa mẫu hợp đồng",
+      "contract-templates:import": "Nhập mẫu hợp đồng",
+      "contract-templates:export": "Xuất mẫu hợp đồng"
     },
     "scopeLabel": "Phạm vi",
     "searchPlaceholder": "Tìm theo tên quyền, mã quyền, nhóm (không cần dấu)"
@@ -330,7 +353,8 @@
   "imported_one": "Đã nhập {{count}} bản ghi",
   "imported_other": "Đã nhập {{count}} bản ghi",
   "errors": {
-    "MANAGED_RECORD": "Bản ghi này thuộc Data Pack hoặc luồng nghiệp vụ nên không sửa, xoá ở đây. Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên."
+    "MANAGED_RECORD": "Bản ghi này thuộc Data Pack hoặc luồng nghiệp vụ nên không sửa, xoá ở đây. Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên.",
+    "CONTRACT_TEMPLATE_INVALID": "Mẫu hợp đồng không hợp lệ. Kiểm tra điều khoản, giới hạn số tiền và vai trò ký."
   },
   "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)",
   "managedNote": "Bản ghi nguồn {{origins}} chỉ xem và xuất được; bản ghi tạo thêm thì sửa, xoá bình thường.",
@@ -341,8 +365,21 @@
     "requiredEvents": "VD: DELIVERY;INVOICE",
     "partyId": "VD: B010, S015, A028",
     "draftId": "Mã hồ sơ đã lưu",
-    "password": "12–128 ký tự"
+    "password": "12–128 ký tự",
+    "signerRoles": "CONTRACT_OWNER;SUPPLIER"
   },
   "anchorsTitle": "Niêm phong độc lập",
-  "rulesTitle": "Phiên bản quy tắc và mẫu mốc"
+  "rulesTitle": "Phiên bản quy tắc và mẫu mốc",
+  "demo": {
+    "organizations": "Tổ chức dùng thử",
+    "users": "Người dùng thử",
+    "userTitle": "Chuyên viên thử nghiệm",
+    "contract-drafts": "Hồ sơ hợp đồng dùng thử",
+    "milestone-templates": "Mốc ký hợp đồng dùng thử",
+    "settings": "Tham số thử nghiệm",
+    "settingValue": "Giá trị dùng thử",
+    "contract-templates": "Mẫu cung cấp thiết bị — dùng thử",
+    "description": "Dữ liệu gợi ý để thử form; cần rà soát trước khi lưu.",
+    "documentBody": "{{supplier}} cung cấp thiết bị cho {{buyer}} theo {{title}}, giá trị {{valueMillion}} triệu VND."
+  }
 }

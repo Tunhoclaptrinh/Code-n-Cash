@@ -1,0 +1,75 @@
+{
+  "sample": "MẪU KIỂM THỬ CODECASH — CHƯA KÝ",
+  "sections": [
+    {
+      "title": "Chủ thể và mục đích",
+      "body": "Bên mua: {buyer}. Nhà cung cấp: {supplier}. Mã tham chiếu: {code}. Đây là dữ liệu kiểm thử được tạo từ biểu mẫu, không phải tư vấn pháp lý."
+    },
+    {
+      "title": "Phạm vi công việc",
+      "body": "Nhà cung cấp thực hiện công việc ghi trong tên hợp đồng và từng mốc. Chỉ chứng từ thuộc đúng hợp đồng và đúng loại sự kiện mới được dùng để đánh giá."
+    },
+    {
+      "title": "Giá trị hợp đồng",
+      "body": "Giá trị được khai báo bằng triệu VND, chính xác đến hai chữ số thập phân. Khoản thanh toán được xác định bằng bộ quy tắc được ghim cho hợp đồng."
+    },
+    {
+      "title": "Tiến độ và mốc thanh toán",
+      "body": "Các mốc dưới đây lấy từ mẫu quy trình đang cấu hình. Người rà soát phải xác nhận lại thời hạn trước khi phát hành."
+    },
+    {
+      "title": "Chứng từ nghiệm thu",
+      "body": "Người cung cấp chứng từ phải thuộc nhà cung cấp của hợp đồng. Chứng từ chưa đủ hoặc chữ ký chưa hợp lệ không tự động làm phát sinh thanh toán."
+    },
+    {
+      "title": "Chính sách phê duyệt",
+      "body": "Chính sách phê duyệt: {approvalPolicy}. Chỉ người có đúng vai trò và đúng bên mới được biểu quyết. Việc ký hợp đồng không thay cho phê duyệt thanh toán."
+    },
+    {
+      "title": "Người ký và thứ tự ký",
+      "body": "Chữ ký được thực hiện theo đúng thứ tự dưới đây. Lượt cuối phải dùng phương thức ký số. Một người không được xuất hiện hai lần."
+    },
+    {
+      "title": "Phạt chậm và ân hạn",
+      "body": "Ngày bắt đầu: {startDate}. Ngày kết thúc: {endDate}. Thời gian ân hạn: {graceDays} ngày. Tỷ lệ phạt: {penaltyRatePct}% mỗi ngày."
+    },
+    {
+      "title": "Giới hạn trách nhiệm",
+      "body": "Mức phạt tối đa là {maxPenaltyPct}%. Hệ thống áp dụng công thức trên số thập phân chính xác và ghi lý do quyết định vào dấu vết kiểm toán."
+    },
+    {
+      "title": "Bảo hành và hỗ trợ",
+      "body": "Mốc bảo hành chỉ mở khi mốc tiền nhiệm hoàn tất. Hồ sơ cần có sự kiện bảo hành phù hợp với loại hợp đồng."
+    },
+    {
+      "title": "Tranh chấp",
+      "body": "Tranh chấp đang mở giữ việc giải ngân. Tổ kiểm soát xử lý ngoại lệ; tài khoản quản trị hệ thống không thay vai trò nghiệp vụ."
+    },
+    {
+      "title": "Quản lý thay đổi",
+      "body": "Thay đổi cấu hình quy tắc phải có phiên bản, lý do, kiểm thử và người duyệt độc lập. Không tự động thay quy tắc đã ghim của hợp đồng cũ."
+    },
+    {
+      "title": "Hiệu lực và lưu trữ",
+      "body": "Hợp đồng có hiệu lực khi hoàn tất các lượt ký được cấu hình. Tệp kiểm thử chưa có chữ ký; chứng minh LOCAL_ED25519 của demo không phải chứng thư CA/PAdES được công nhận bên ngoài."
+    }
+  ],
+  "fields": {
+    "valueMillion": "Giá trị hợp đồng: {value} triệu VND",
+    "startDate": "Ngày bắt đầu: {value}",
+    "endDate": "Ngày kết thúc: {value}",
+    "graceDays": "Ân hạn: {value} ngày",
+    "penaltyRatePct": "Phạt trễ hạn: {value}% mỗi ngày",
+    "maxPenaltyPct": "Trần phạt: {value}%"
+  },
+  "stage": "{name} — {paymentPercent}% — {dueDate} — {requiredEvents}",
+  "single": "Một người ký: chữ ký duy nhất hoàn tất quy trình ký của tài liệu này.",
+  "multiple": "Nhiều người ký: cần hoàn thành tất cả lượt theo thứ tự, có đại diện của hai bên.",
+  "sides": {
+    "BUYER": "Bên mua",
+    "SUPPLIER": "Nhà cung cấp"
+  },
+  "page": "Mục {page}/14",
+  "signatures": "Xác nhận và chữ ký",
+  "signHere": "Vị trí ký — họ tên, ngày giờ, phương thức ký"
+}

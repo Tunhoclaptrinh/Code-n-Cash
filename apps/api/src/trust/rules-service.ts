@@ -6,6 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { canonical } from "../common/audit-chain";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
@@ -23,6 +24,8 @@ import { runEngine } from "../domain/engine";
 import { toCents } from "../domain/templates";
 import { BUSINESS_EVENTS } from "../domain/vocabulary";
 import { versionHash, versionRuleSet } from "../domain/rule-versions";
+
+import type { RuleExpressionValidation, RuleLanguage } from "./types";
 
 const mutableRuleKeys = new Set([
   "condition_expression",
@@ -219,6 +222,73 @@ export class RulesService {
       ],
     );
   }
+  async language(): Promise<RuleLanguage> {
+    return JSON.parse(
+      await readFile(
+        resolve(repoRoot(), "apps/engine/rule_language.json"),
+        "utf8",
+      ),
+    );
+  }
+  async checkExpressions(body: {
+    rules?: unknown;
+  }): Promise<RuleExpressionValidation> {
+    const rules = body?.rules;
+    if (
+      !Array.isArray(rules) ||
+      !rules.length ||
+      rules.length > 128 ||
+      rules.some(
+        (row) =>
+          !row ||
+          typeof row !== "object" ||
+          Array.isArray(row) ||
+          typeof row.rule_id !== "string" ||
+          row.rule_id.length > 200 ||
+          [
+            "condition_expression",
+            "penalty_amount_formula",
+            "payable_amount_formula",
+          ].some(
+            (field) =>
+              typeof row[field] !== "string" || row[field].length > 2000,
+          ),
+      )
+    )
+      throw new BadRequestException("RULE_VERSION_INVALID");
+    return new Promise((resolveOk, reject) => {
+      const child = spawn(
+        processEnvPython(),
+        ["apps/engine/validate_rules.py", "--inspect"],
+        { cwd: repoRoot(), stdio: ["pipe", "pipe", "ignore"] },
+      );
+      let output = "";
+      const timer = setTimeout(() => {
+        child.kill();
+        reject(new BadRequestException("RULE_VERSION_INVALID"));
+      }, 5000);
+      child.stdout.on("data", (chunk) => {
+        output += chunk.toString();
+        if (output.length > 200000) child.kill();
+      });
+      child.on("error", () => {
+        clearTimeout(timer);
+        reject(new BadRequestException("RULE_VERSION_INVALID"));
+      });
+      child.on("close", (code) => {
+        clearTimeout(timer);
+        if (code !== 0)
+          return reject(new BadRequestException("RULE_VERSION_INVALID"));
+        try {
+          resolveOk(JSON.parse(output));
+        } catch {
+          reject(new BadRequestException("RULE_VERSION_INVALID"));
+        }
+      });
+      child.stdin.on("error", () => {});
+      child.stdin.end(JSON.stringify(rules));
+    });
+  }
   private validateExpressions(rules: unknown): Promise<void> {
     return new Promise((resolveOk, reject) => {
       const process = spawn(
@@ -244,6 +314,95 @@ export class RulesService {
       process.stdin.end(JSON.stringify(rules));
     });
   }
+  /** Compare an unsaved candidate with the official pack; do not change rules, decisions or audit. */
+  async preview(
+    id: string,
+    body: { version?: unknown; rules?: unknown; templates?: unknown },
+  ) {
+    const version = await this.get(id);
+    if (version.version !== body.version)
+      throw new ConflictException("VERSION_CONFLICT");
+    await this.validateContent(body.rules, body.templates);
+    await this.validateExpressions(body.rules);
+    const pack = await loadDataPack();
+    const tables = {
+      [TABLE.contracts]: pack.contracts as never,
+      [TABLE.parties]: pack.parties as never,
+      [TABLE.milestones]: pack.milestones as never,
+      [TABLE.events]: pack.events as never,
+      [TABLE.exceptions]: [],
+    };
+    const [baseline, candidate] = await Promise.all([
+      runEngine({ ...tables, [TABLE.rules]: pack.payment_rules as never }),
+      runEngine({ ...tables, [TABLE.rules]: body.rules as never }),
+    ]);
+    const labels = readRecords(
+      await readFile(
+        resolve(dataPackDir(), "03_labels_sample/decision_sample.csv"),
+        "utf8",
+      ),
+    ).rows;
+    const mismatches = labels
+      .filter((label) => {
+        const actual = candidate.evaluations.get(label.milestone_id);
+        return (
+          !actual ||
+          actual.decision !== label.expected_decision ||
+          actual.reasonCode !== label.reason_code ||
+          toCents(actual.payableMillion) !==
+            toCents(label.payable_amount_vnd_mn) ||
+          toCents(actual.penaltyMillion) !==
+            toCents(label.penalty_amount_vnd_mn)
+        );
+      })
+      .map((label) => label.milestone_id);
+    const changes = [...candidate.evaluations].flatMap(([id, after]) => {
+      const before = baseline.evaluations.get(id);
+      const summary = (value: typeof before) =>
+        value
+          ? {
+              decision: value.decision,
+              payableMillion: value.payableMillion,
+              penaltyMillion: value.penaltyMillion,
+              reasonCode: value.reasonCode,
+            }
+          : null;
+      return canonical(summary(before)) === canonical(summary(after))
+        ? []
+        : [{ milestoneId: id, before: summary(before), after: summary(after) }];
+    });
+    return {
+      fingerprint: versionHash({
+        ...version,
+        rules: body.rules,
+        templates: body.templates,
+      }),
+      evaluated: candidate.evaluations.size,
+      matched: labels.length - mismatches.length,
+      samples: labels.length,
+      invariantViolations: candidate.violations.length,
+      compatibilityPolicy: "BTC_FULL_PACK_V1" as const,
+      expected: baseline.evaluations.size,
+      canSubmit:
+        mismatches.length === 0 &&
+        candidate.violations.length === 0 &&
+        changes.length === 0 &&
+        candidate.evaluations.size === pack.milestones.length,
+      changed: changes.length,
+      changes: changes.slice(0, 100),
+      mismatches,
+      // Templates affect future contracts only; the 405 existing milestone inputs stay fixed.
+      templateChanges: (body.templates as RecordEntity[]).filter(
+        (row) =>
+          canonical(row) !==
+          canonical(
+            (version.templates as RecordEntity[]).find(
+              (original) => original.id === row.id,
+            ),
+          ),
+      ).length,
+    };
+  }
   async submit(id: string, expected: unknown, actor: Actor) {
     const snapshot = await this.get(id);
     checkState(snapshot, expected, "DRAFT");
@@ -251,33 +410,12 @@ export class RulesService {
       throw new ForbiddenException("RULE_VERSION_AUTHOR_REQUIRED");
     await this.validateContent(snapshot.rules, snapshot.templates);
     await this.validateExpressions(snapshot.rules);
-    const pack = await loadDataPack();
-    const result = await runEngine({
-      [TABLE.contracts]: pack.contracts as never,
-      [TABLE.parties]: pack.parties as never,
-      [TABLE.milestones]: pack.milestones as never,
-      [TABLE.events]: pack.events as never,
-      [TABLE.rules]: snapshot.rules as never,
-      [TABLE.exceptions]: [],
+    const compatibility = await this.preview(id, {
+      version: expected,
+      rules: snapshot.rules,
+      templates: snapshot.templates,
     });
-    const labels = readRecords(
-      await readFile(
-        resolve(dataPackDir(), "03_labels_sample/decision_sample.csv"),
-        "utf8",
-      ),
-    ).rows;
-    const matched = labels.filter((label) => {
-      const evaluation = result.evaluations.get(label.milestone_id);
-      return (
-        evaluation?.decision === label.expected_decision &&
-        evaluation.reasonCode === label.reason_code &&
-        toCents(evaluation.payableMillion) ===
-          toCents(label.payable_amount_vnd_mn) &&
-        toCents(evaluation.penaltyMillion) ===
-          toCents(label.penalty_amount_vnd_mn)
-      );
-    }).length;
-    if (matched !== labels.length || result.violations.length)
+    if (!compatibility.canSubmit)
       throw new BadRequestException("RULE_VERSION_REGRESSION");
     return this.repo.transact(
       ["rule-versions"],
@@ -290,11 +428,14 @@ export class RulesService {
           status: "REVIEW",
           submittedBy: actor.id,
           validation: {
-            matched,
-            samples: labels.length,
-            evaluated: result.evaluations.size,
-            invariantViolations: result.violations.length,
-            fingerprint: result.fingerprint,
+            matched: compatibility.matched,
+            samples: compatibility.samples,
+            evaluated: compatibility.evaluated,
+            invariantViolations: compatibility.invariantViolations,
+            fingerprint: compatibility.fingerprint,
+            compatibilityPolicy: compatibility.compatibilityPolicy,
+            expected: compatibility.expected,
+            changed: compatibility.changed,
           },
           version: current.version + 1,
           updatedAt: new Date().toISOString(),
@@ -322,6 +463,21 @@ export class RulesService {
           throw new ForbiddenException("SECOND_REVIEWER_REQUIRED");
         if (versionHash(current) !== current.hash)
           throw new BadRequestException("RULE_VERSION_INVALID");
+        const validation = current.validation as {
+          compatibilityPolicy?: string;
+          changed?: number;
+          evaluated?: number;
+          expected?: number;
+          fingerprint?: string;
+        } | null;
+        if (
+          !validation ||
+          validation.compatibilityPolicy !== "BTC_FULL_PACK_V1" ||
+          validation.changed !== 0 ||
+          validation.evaluated !== validation.expected ||
+          validation.fingerprint !== current.hash
+        )
+          throw new BadRequestException("RULE_VERSION_REGRESSION");
         for (const prior of tables["rule-versions"].filter(
           (row) => row.status === "PUBLISHED",
         )) {

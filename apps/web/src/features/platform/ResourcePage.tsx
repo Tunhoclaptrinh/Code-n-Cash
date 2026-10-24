@@ -1,9 +1,12 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { DemoFormFill } from "@/shared/ui/DemoFillButton";
+import { resourceDemoInput } from "./lib/demoInput";
+import { SigningRolePicker } from "@/shared/ui/SigningRolePicker";
 import { useEffect, useMemo, useState, type Key, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
-  Dropdown,
   Form,
   Input,
   InputNumber,
@@ -24,7 +27,6 @@ import {
   EditOutlined,
   EyeOutlined,
   KeyOutlined,
-  MenuOutlined,
 } from "@ant-design/icons";
 import {
   BaseButton,
@@ -34,7 +36,6 @@ import {
   DetailModal,
   PageContainer,
   FormModal,
-  IconButton,
   useAccess,
   useDebounce,
   useResource,
@@ -133,6 +134,17 @@ function ResourceView({ resource }: { resource: string }) {
     queryFn: () =>
       platform.resource<Entity>("organizations").list({ page: 1, limit: 100 }),
   });
+  const uploadDrafts = useQuery({
+    queryKey: ["resource", "contract-drafts", "upload-lookup", user.id],
+    queryFn: () =>
+      platform
+        .resource<Entity>("contract-drafts")
+        .list({ page: 1, limit: 100 }),
+    enabled: uploadOpen && hasPermission("documents:upload"),
+  });
+  const uploadDraft = uploadDrafts.data?.items.find(
+    (row) => row.state === "DRAFT",
+  );
   const definition = definitions.data?.find((x) => x.name === resource);
   const fields = useMemo(() => definition?.fields ?? [], [definition]);
   const readOnly = definition?.readOnly;
@@ -181,6 +193,11 @@ function ResourceView({ resource }: { resource: string }) {
       );
     if (field.type === "select")
       return <Tag>{optionLabel(field, String(value))}</Tag>;
+    if (field.key === "signerRoles")
+      return String(value)
+        .split(";")
+        .map((role, index) => `${index + 1}. ${tc(`roles.${role}.name`)}`)
+        .join(" → ");
     if (field.ref) return refName(value);
     if (field.key === "sha256")
       return (
@@ -340,28 +357,16 @@ function ResourceView({ resource }: { resource: string }) {
       : []),
   ];
   const rowActions = (record: Entity) => (
-    <Space size={4}>
-      {editable(record, "update") ? (
-        <IconButton
-          icon={<EditOutlined />}
-          tooltip={t("edit")}
-          onClick={() => setEditor(record)}
-        />
-      ) : (
-        <IconButton
-          icon={<EyeOutlined />}
-          tooltip={t("detail")}
-          onClick={() => setViewing(record)}
-        />
-      )}
-      <Dropdown
-        menu={{ items: menuFor(record) }}
-        trigger={["click"]}
-        placement="bottomRight"
-      >
-        <IconButton icon={<MenuOutlined />} tooltip={t("moreActions")} />
-      </Dropdown>
-    </Space>
+    <TableRowActions
+      primary={{
+        label: editable(record, "update") ? t("edit") : t("detail"),
+        icon: editable(record, "update") ? <EditOutlined /> : <EyeOutlined />,
+        onClick: () =>
+          editable(record, "update") ? setEditor(record) : setViewing(record),
+      }}
+      menu={menuFor(record)}
+      moreLabel={t("moreActions")}
+    />
   );
 
   /** Server-side export of the current search, filters and sort (Base import-export). */
@@ -498,7 +503,8 @@ function ResourceView({ resource }: { resource: string }) {
           }
           rowKey="id"
           dataSource={items}
-          columns={columns}
+          scroll={{ x: Math.max(1100, columns.length * 200 + 240) }}
+          columns={columns.map((column) => ({ ...column, width: 200 }))}
           loading={state.query.isPending}
           searchValue={searchText}
           onSearch={setSearchText}
@@ -541,6 +547,7 @@ function ResourceView({ resource }: { resource: string }) {
               };
             })
           }
+          actionsWidth={104}
           customActions={rowActions}
           onAdd={!readOnly && can("create") ? () => setEditor(null) : undefined}
           selectedRowKeys={selectedKeys}
@@ -594,6 +601,7 @@ function ResourceView({ resource }: { resource: string }) {
       />
       <FormModal
         open={editor !== undefined}
+        width={resource === "contract-templates" ? 860 : 580}
         title={t(editor ? "edit" : "create")}
         initialValues={toForm(editor)}
         loading={busy}
@@ -614,69 +622,122 @@ function ResourceView({ resource }: { resource: string }) {
           }
         }}
       >
-        {fields.map((field) => (
-          <Form.Item
-            key={field.key}
-            name={field.key}
-            label={fieldLabel(field.key)}
-            valuePropName={field.type === "boolean" ? "checked" : "value"}
-            validateTrigger={["onChange", "onBlur"]}
-            rules={[
-              {
-                validator: async (_, value: unknown) => {
-                  const code = fieldProblem(field, value);
-                  if (code)
-                    throw new Error(
-                      tc(
-                        `forms.${code.startsWith("REQUIRED") ? "required" : field.type === "email" ? "email" : "invalid"}`,
-                        { field: fieldLabel(field.key) },
-                      ),
+        <div
+          data-testid="resource-form-fields"
+          style={
+            resource === "contract-templates"
+              ? {
+                  maxHeight: "62dvh",
+                  overflowY: "auto",
+                  scrollbarGutter: "stable",
+                  paddingRight: 12,
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+                  columnGap: 24,
+                }
+              : undefined
+          }
+        >
+          <div style={{ gridColumn: "1 / -1", marginBottom: 12 }}>
+            <DemoFormFill
+              values={(current) =>
+                resourceDemoInput(
+                  resource,
+                  organizations.data?.items ?? [],
+                  t,
+                  current,
+                )
+              }
+              disabled={busy}
+            />
+          </div>
+          {fields.map((field) => (
+            <Form.Item
+              key={field.key}
+              style={
+                resource === "contract-templates" &&
+                ["signerRoles", "documentBody"].includes(field.key)
+                  ? { gridColumn: "1 / -1" }
+                  : undefined
+              }
+              name={field.key}
+              label={fieldLabel(field.key)}
+              valuePropName={field.type === "boolean" ? "checked" : "value"}
+              validateTrigger={["onChange", "onBlur"]}
+              rules={[
+                {
+                  validator: async (_, value: unknown) => {
+                    const code = fieldProblem(
+                      field,
+                      field.ref &&
+                        value &&
+                        typeof value === "object" &&
+                        "value" in value
+                        ? value.value
+                        : value,
                     );
+                    if (code)
+                      throw new Error(
+                        tc(
+                          `forms.${code.startsWith("REQUIRED") ? "required" : field.type === "email" ? "email" : "invalid"}`,
+                          { field: fieldLabel(field.key) },
+                        ),
+                      );
+                  },
                 },
-              },
-            ]}
-          >
-            {field.ref ? (
-              <DebounceSelect
-                fetchOptions={searchRef(field)}
-                placeholder={t("searchToPick")}
-                showSearch
-                allowClear
-              />
-            ) : field.type === "select" ? (
-              <Select
-                placeholder={tc("forms.choose", {
-                  field: fieldLabel(field.key),
-                })}
-                options={field.options?.map((value) => ({
-                  label: optionLabel(field, value),
-                  value,
-                }))}
-              />
-            ) : field.type === "boolean" ? (
-              <Switch />
-            ) : field.type === "number" ? (
-              <InputNumber
-                min={field.min ?? 0}
-                max={field.max}
-                precision={field.integer ? 0 : undefined}
-                placeholder={tc("forms.enter", {
-                  field: fieldLabel(field.key),
-                })}
-                style={{ width: "100%" }}
-              />
-            ) : (
-              <Input
-                placeholder={t(`placeholders.${field.key}`, {
-                  defaultValue: tc("forms.enter", {
+              ]}
+            >
+              {field.key === "signerRoles" ? (
+                <SigningRolePicker />
+              ) : field.type === "textarea" ? (
+                <Input.TextArea
+                  rows={8}
+                  maxLength={field.maxLength}
+                  showCount
+                />
+              ) : field.ref ? (
+                <DebounceSelect
+                  fetchOptions={searchRef(field)}
+                  placeholder={t("searchToPick")}
+                  showSearch
+                  allowClear
+                />
+              ) : field.type === "select" ? (
+                <Select
+                  placeholder={tc("forms.choose", {
                     field: fieldLabel(field.key),
-                  }),
-                })}
-                maxLength={field.maxLength ?? 2000}
-              />
-            )}
-          </Form.Item>
-        ))}
+                  })}
+                  options={field.options?.map((value) => ({
+                    label: optionLabel(field, value),
+                    value,
+                  }))}
+                />
+              ) : field.type === "boolean" ? (
+                <Switch />
+              ) : field.type === "number" ? (
+                <InputNumber
+                  min={field.min ?? 0}
+                  max={field.max}
+                  precision={field.integer ? 0 : undefined}
+                  placeholder={tc("forms.enter", {
+                    field: fieldLabel(field.key),
+                  })}
+                  style={{ width: "100%" }}
+                />
+              ) : (
+                <Input
+                  placeholder={t(`placeholders.${field.key}`, {
+                    defaultValue: tc("forms.enter", {
+                      field: fieldLabel(field.key),
+                    }),
+                  })}
+                  maxLength={field.maxLength ?? 2000}
+                />
+              )}
+            </Form.Item>
+          ))}
+        </div>
       </FormModal>
       <FormModal
         open={uploadOpen}
@@ -708,7 +769,15 @@ function ResourceView({ resource }: { resource: string }) {
       >
         <Form.Item
           name="draftId"
-          label={t("draftId")}
+          label={
+            <Space wrap>
+              {t("draftId")}
+              <DemoFormFill
+                disabled={!uploadDraft}
+                values={{ draftId: uploadDraft?.code ?? uploadDraft?.id }}
+              />
+            </Space>
+          }
           rules={[
             {
               required: true,
@@ -752,7 +821,14 @@ function ResourceView({ resource }: { resource: string }) {
       >
         <Form.Item
           name="password"
-          label={t("newPassword")}
+          label={
+            <Space wrap>
+              {t("newPassword")}
+              <DemoFormFill
+                values={() => ({ password: `${crypto.randomUUID()}!Aa1` })}
+              />
+            </Space>
+          }
           rules={[
             { required: true },
             { min: 12, max: 128, message: t("passwordTooShort") },

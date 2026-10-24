@@ -1,3 +1,4 @@
+import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useId, useState } from "react";
 import { Alert, App as AntApp, Button, Input, Modal, Space, Tag } from "antd";
 import { PageHeader } from "@codecash/ui";
@@ -300,6 +301,13 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
           <div>
             <label htmlFor={noteId} className={styles.noteLabel}>
               {t("approve.note.label")}{" "}
+              <DemoFillButton
+                disabled={!!note.trim()}
+                onClick={() => {
+                  setNote(t("approve.note.demo"));
+                  setNoteMissing(false);
+                }}
+              />
               <span className={styles.noteHint}>{t("approve.note.hint")}</span>
             </label>
             <Input.TextArea

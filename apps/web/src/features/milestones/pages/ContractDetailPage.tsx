@@ -1,3 +1,4 @@
+import { ContractDocuments } from "@/shared/ui/ContractDocuments";
 import { PageContainer } from "@codecash/ui";
 import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
 import {
@@ -39,7 +40,13 @@ import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
 import styles from "./ContractDetailPage.module.css";
 
-type TabKey = "milestones" | "events" | "history" | "signing" | "participants";
+type TabKey =
+  | "documents"
+  | "milestones"
+  | "events"
+  | "history"
+  | "signing"
+  | "participants";
 type Emphasis = "done" | "attention" | "danger" | "active";
 
 const emphasisOf: Record<MilestoneStatus, Emphasis> = {
@@ -162,6 +169,7 @@ export default function ContractDetailPage() {
         <PageContainer
           tabs={(
             [
+              "documents",
               "milestones",
               "events",
               "history",
@@ -182,6 +190,9 @@ export default function ContractDetailPage() {
           activeTabKey={tab}
           onTabChange={(key) => setTab(key as TabKey)}
         >
+          {tab === "documents" ? (
+            <ContractDocuments contractId={contract.id} />
+          ) : null}
           {tab === "milestones" ? (
             <div className={styles.grid}>
               {data.milestones.length ? (

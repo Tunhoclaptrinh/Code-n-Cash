@@ -5,6 +5,16 @@ import { mkdtemp, readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 const base = process.env.WEB_URL ?? "http://127.0.0.1:5173";
+// These scripts perform workflow writes; never inherit a shared Mongo database from .env.
+const health = await fetch(`${base}/api/v1/health`).then(async (response) => {
+  if (!response.ok) throw new Error(`TEST_API_NOT_READY: ${response.status}`);
+  return response.json();
+});
+if ((health.data?.storage ?? health.storage) !== "file") {
+  throw new Error(
+    "ISOLATED_FILE_STORAGE_REQUIRED: start the test API with STORAGE_DRIVER=file and a fresh DATA_DIR in /tmp.",
+  );
+}
 const profile = await mkdtemp(join(tmpdir(), "codecash-browser-"));
 const chrome = spawn(
   process.env.CHROME_BIN ?? "google-chrome",
@@ -79,11 +89,20 @@ try {
     return result.result.value;
   };
   async function until(expression) {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 150; i++) {
       if (await evaluate(expression)) return;
       await pause(100);
     }
-    throw new Error("Timed out: " + expression);
+    throw new Error(
+      "Timed out: " +
+        expression +
+        " at " +
+        (await evaluate(
+          "location.pathname + ' ' + document.body.innerText.slice(0, 500)",
+        )) +
+        " errors=" +
+        errors.slice(-2).join(";"),
+    );
   }
   await send("Runtime.enable");
   await send("Page.enable");
@@ -99,7 +118,9 @@ try {
     "demo account entry remains visible while the API is unavailable",
   );
   await send("Network.setBlockedURLs", { urls: [] });
-  await until("!document.querySelector('[data-testid=demo-accounts-error]')");
+  await until(
+    "!document.querySelector('[data-testid=demo-accounts-error]') && !!document.querySelector('[data-testid=demo-accounts]:not(.ant-btn-loading)')",
+  );
   await evaluate(
     "document.querySelector('[data-testid=demo-accounts]').click()",
   );
@@ -183,10 +204,41 @@ try {
   await until("document.querySelectorAll('.ant-table-row').length === 6");
   const screens = [];
   await mkdir("artifacts/browser", { recursive: true });
+  async function checkTableActions() {
+    const layout = await evaluate(`(() => ({
+      actions: [...document.querySelectorAll('[data-testid=table-row-actions]')].map(el => {
+        const r = el.getBoundingClientRect(), buttons = [...el.querySelectorAll('button')];
+        return { width:r.width, height:r.height, labelled:buttons.every(b => !!b.getAttribute('aria-label')?.trim()),
+          aligned:buttons.every(b => Math.abs(b.getBoundingClientRect().top - buttons[0].getBoundingClientRect().top) < 1) };
+      }),
+      toolbar: [...document.querySelectorAll('.data-table-wrapper .codecash-btn, .data-table-wrapper button.ant-btn-primary')]
+        .filter(b => !b.closest('td') && !b.disabled && b.getBoundingClientRect().width > 0)
+        .map(b => ({label:b.innerText.trim(), color:getComputedStyle(b).color, background:getComputedStyle(b).backgroundColor})),
+    }))()`);
+    assert.ok(
+      layout.actions.every(
+        (a) => a.width <= 70 && a.height <= 34 && a.labelled && a.aligned,
+      ),
+      "compact labelled row actions stay on one line",
+    );
+    assert.ok(
+      layout.toolbar.every((b) => b.label && b.color !== b.background),
+      "toolbar buttons retain visible labels and distinct foreground/background",
+    );
+  }
   async function visit(route) {
     await send("Page.navigate", { url: base + route });
     await until("document.querySelectorAll('.ant-layout').length>0");
-    await pause(route === "/data" || route === "/integrity" ? 1200 : 700);
+    await until(
+      "!document.querySelector('.ant-spin-spinning, .ant-skeleton-active')",
+    );
+    if (route === "/contracts")
+      await until("document.body.innerText.includes('CT0001')");
+    if (route === "/contracts/CT0019/milestones/3/decision")
+      await until("document.body.innerText.includes('PR00')");
+    if (route === "/data")
+      await until("document.body.innerText.includes('405')");
+    await pause(200);
     const screen = await evaluate(
       "({route:location.pathname,text:document.body.innerText,overflow:document.documentElement.scrollWidth>innerWidth})",
     );
@@ -201,6 +253,7 @@ try {
       route,
     );
     assert.equal(screen.overflow, false, route);
+    await checkTableActions();
     screens.push({ route: screen.route, overflow: screen.overflow });
     if (route === "/contracts") assert.ok(screen.text.includes("CT0001"));
     if (route === "/contracts/CT0019/milestones/3/decision")
@@ -312,6 +365,11 @@ try {
     }
   }
   await visitMobile(["/guide/start", "/guide/decision"]);
+  await send("Page.navigate", { url: base + "/contracts" });
+  await until("document.querySelectorAll('.ant-table-row').length === 10");
+  await until(
+    "Array.from(document.querySelectorAll('.data-table-wrapper button')).some(button => button.innerText.trim() === 'Xuất')",
+  );
   await evaluate("localStorage.setItem('scw.language', 'en')");
   // Integrity check: audit chain, sealed evidence and every decision re-run are intact.
   await send("Page.navigate", { url: base + "/integrity" });
@@ -347,7 +405,7 @@ try {
     downloadPath: downloads,
   });
   await evaluate(
-    "Array.from(document.querySelectorAll('.data-table-wrapper button')).find((b) => b.innerText.trim() === 'Export').click()",
+    "document.querySelector('.data-table-wrapper button .anticon-download').closest('button').click()",
   );
   await until("!!document.querySelector('.ant-modal-footer')");
   await pause(300);
@@ -556,6 +614,11 @@ try {
   await loginAs("legal@novaan.vn");
   await send("Page.navigate", { url: base + "/contracts/new" });
   await until("!!document.querySelector('#contract-title')");
+  assert.equal(
+    await evaluate("document.body.innerText.includes('policyHint.undefined')"),
+    false,
+  );
+
   await evaluate(
     `(() => { const input = document.querySelector('#contract-title'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); })()`,
   );
@@ -567,16 +630,362 @@ try {
   assert.equal(await evaluate("location.pathname"), "/contracts/new");
   assert.ok(
     await evaluate(
-      "document.querySelectorAll('[data-testid=signer-list] .ant-row').length >= 2",
+      "document.querySelectorAll('[data-testid=signer-row]').length === 0",
     ),
+  );
+  assert.equal(
+    await evaluate(
+      "document.querySelector('[data-testid=contract-document-body]').value",
+    ),
+    "",
+  );
+  await evaluate("document.querySelector('#contract-title').focus()");
+  await send("Input.insertText", { text: "Keep my manually entered title" });
+  await evaluate(
+    "document.querySelector('[data-testid=contract-fill-demo]').click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row]').length === 2",
+  );
+  assert.equal(
+    await evaluate("document.querySelector('#contract-title').value"),
+    "Keep my manually entered title",
+  );
+  assert.equal(await evaluate("location.pathname"), "/contracts/new");
+  assert.equal(
+    await evaluate(
+      "document.querySelector('form').querySelectorAll('[data-testid=contract-fill-demo], [data-testid=demo-fill]').length",
+    ),
+    1,
+    "one sample action for the whole form",
+  );
+  // Four signers fit their row; the action menu must still reorder and remove real values.
+  await evaluate(
+    "document.querySelector('[data-testid=contract-template-picker] [role=combobox]').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))",
+  );
+  await until(
+    "!!document.querySelector('[data-testid=template-option-THREE_PARTY]')",
+  );
+  await evaluate(
+    "document.querySelector('.ant-select-dropdown [data-testid=template-option-THREE_PARTY]').click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row]').length === 3",
+  );
+  await evaluate("document.querySelector('[data-testid=signer-add]').click()");
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row]').length === 4",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=contract-fill-demo]').click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row] .ant-select-selection-placeholder').length === 0",
+  );
+  const firstSigner = await evaluate(
+    "document.querySelector('[data-testid=signer-row]') .querySelectorAll('.ant-select')[1].innerText",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=signer-row] button').click()",
+  );
+  await until(
+    "!!document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item')",
+  );
+  await evaluate(
+    "document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item')[1].click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row]')[1].querySelectorAll('.ant-select')[1].innerText === " +
+      JSON.stringify(firstSigner),
+  );
+  for (const width of [1440, 1280, 1024, 390]) {
+    await send("Emulation.setDeviceMetricsOverride", {
+      width,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await pause(250);
+    const layout = await evaluate(`(() => {
+      const rows = [...document.querySelectorAll('[data-testid=signer-row]')];
+      return { overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        rows: rows.map(row => { const r = row.getBoundingClientRect(); const items = [...row.children].map(x => x.getBoundingClientRect());
+          return { width: r.width, height: r.height, inside: items.every(x => x.left >= r.left - 1 && x.right <= r.right + 1),
+            aligned: items.every(x => Math.abs((x.top + x.bottom) / 2 - (r.top + r.bottom) / 2) < 2) }; }) };
+    })()`);
+    assert.equal(
+      layout.overflow,
+      false,
+      `contract form has no horizontal overflow at ${width}`,
+    );
+    assert.ok(
+      layout.rows.every(
+        (row) => row.inside && (row.width <= 520 || row.aligned),
+      ),
+      `signer controls fit at ${width}`,
+    );
+    assert.ok(
+      layout.rows.every((row) => row.height <= (row.width <= 520 ? 82 : 40)),
+      `compact signer height at ${width}`,
+    );
+    if (width === 390 || width === 1440) {
+      await evaluate(
+        "document.querySelector('[data-testid=template-and-signers]').scrollIntoView({block: 'start'})",
+      );
+      const screen = await send("Page.captureScreenshot", {
+        format: "png",
+        captureBeyondViewport: false,
+      });
+      await writeFile(
+        `artifacts/browser/compact-signers-${width}.png`,
+        Buffer.from(screen.data, "base64"),
+      );
+    }
+  }
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1440,
+    height: 1000,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await evaluate(
+    "document.querySelectorAll('[data-testid=signer-row] button')[3].click()",
+  );
+  await until(
+    "!!document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item-danger')",
+  );
+  await evaluate(
+    "document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden) .ant-dropdown-menu-item-danger').click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row]').length === 3",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=contract-template-picker] [role=combobox]').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))",
+  );
+  await until(
+    "!!document.querySelector('[data-testid=template-option-SINGLE_SIGNER]')",
+  );
+  await evaluate(
+    "document.querySelector('.ant-select-dropdown [data-testid=template-option-SINGLE_SIGNER]').click()",
+  );
+  await until(
+    "document.querySelectorAll('[data-testid=signer-row]').length === 1",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=generate-contract-sample]').click()",
+  );
+  await until("document.body.innerText.includes('CodeCash-1-signers.docx')");
+  assert.equal(
+    await evaluate(
+      "document.querySelector('#contract-title').value.length > 0",
+    ),
+    true,
+  );
+  // Generated bytes must not silently keep old terms after a form edit.
+  await evaluate(
+    "document.querySelector('[data-testid=contract-document-body]').focus()",
+  );
+  await send("Input.insertText", {
+    text: "Browser-specific additional clause",
+  });
+  await until(
+    "!!document.querySelector('[data-testid=contract-document-stale]')",
+  );
+  await evaluate(
+    "Array.from(document.querySelectorAll('form button')).at(-1).click()",
+  );
+  assert.equal(await evaluate("location.pathname"), "/contracts/new");
+  await loginAs("sysadmin@codecash.vn");
+  await send("Page.navigate", { url: base + "/platform/contract-templates" });
+  await until(
+    "!!document.querySelector('.ant-table-row[data-row-key=SINGLE_SIGNER]')",
+  );
+  await evaluate(
+    "document.querySelector('.ant-table-row[data-row-key=SINGLE_SIGNER] td:last-child button').click()",
+  );
+  await until("!!document.querySelector('.ant-modal textarea#documentBody')");
+  await evaluate(
+    `(() => {const input = document.querySelector('.ant-modal input#name'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'Browser-managed template'); input.dispatchEvent(new Event('input', {bubbles:true}));})()`,
+  );
+  await evaluate(
+    "document.querySelector('.ant-modal textarea#documentBody').focus()",
+  );
+  await send("Input.insertText", {
+    text: "Scope for {{title}} supplied by {{supplier}}",
+  });
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+  );
+  await until("!document.querySelector('.ant-modal')");
+  await until("document.body.innerText.includes('Browser-managed template')");
+  await loginAs("legal@novaan.vn");
+  await send("Page.navigate", { url: base + "/contracts/new" });
+  await until(
+    "!!document.querySelector('[data-testid=contract-template-picker]')",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=contract-template-picker] [role=combobox]').dispatchEvent(new MouseEvent('mousedown', {bubbles:true}))",
+  );
+  await until(
+    "!!document.querySelector('.ant-select-dropdown [data-testid=template-option-SINGLE_SIGNER]')",
+  );
+  assert.ok(
+    await evaluate(
+      "document.querySelector('.ant-select-dropdown [data-testid=template-option-SINGLE_SIGNER]').innerText.includes('Browser-managed template')",
+    ),
+  );
+  await evaluate(
+    "document.querySelector('.ant-select-dropdown [data-testid=template-option-SINGLE_SIGNER]').click()",
+  );
+  await until(
+    "document.querySelector('[data-testid=contract-document-body]').value.includes('Scope for {{title}}')",
+  );
+  await loginAs("sysadmin@codecash.vn");
+  await send("Page.navigate", { url: base + "/platform/rule-versions" });
+  await until("!!document.querySelector('[data-testid=rule-version-create]')");
+  await evaluate(
+    "document.querySelector('[data-testid=rule-version-create]').click()",
+  );
+  await until("!!document.querySelector('.ant-modal input#name')");
+  for (const [id, value] of [
+    ["name", "Browser impact preview"],
+    ["reason", "Verify a candidate without publishing"],
+  ]) {
+    await evaluate(`document.querySelector('.ant-modal #${id}').focus()`);
+    await send("Input.insertText", { text: value });
+  }
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+  );
+  await until("!!document.querySelector('[data-testid=rule-version-preview]')");
+  await evaluate(
+    "document.querySelector('[data-testid=rule-version-preview]').click()",
+  );
+  await until("!!document.querySelector('[data-testid=rule-preview-result]')");
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-preview-result]').innerText.includes('405')",
+    ),
+  );
+  // The editor explains a single scope, uses the engine catalog and validates unsaved input.
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal .ant-tabs-tab')).find(tab => /Rule expressions|Biểu thức quy tắc/.test(tab.innerText)).click()",
+  );
+  await until(
+    "!!document.querySelector('[data-testid=rule-expression-editor]')",
+  );
+  await until("!!document.querySelector('[data-testid=rule-syntax-result]')");
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-syntax-result]').innerText.includes('384')",
+    ),
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-option-PR0006]').click()",
+  );
+  await until(
+    "document.querySelector('[data-testid=rule-expression-penalty_amount_formula]').value.includes('MIN(')",
+  );
+  const expression = await evaluate(
+    "document.querySelector('[data-testid=rule-expression-condition_expression]').value",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-expression-condition_expression]').focus()",
+  );
+  await send("Input.dispatchKeyEvent", {
+    type: "keyDown",
+    key: "a",
+    code: "KeyA",
+    modifiers: 2,
+  });
+  await send("Input.dispatchKeyEvent", {
+    type: "keyUp",
+    key: "a",
+    code: "KeyA",
+    modifiers: 2,
+  });
+  await send("Input.insertText", { text: "open_dispute == 1" });
+  await until("!document.querySelector('[data-testid=rule-preview-result]')");
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-version-submit]').disabled",
+    ),
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-syntax-check]').click()",
+  );
+  await until(
+    "document.querySelector('[data-testid=rule-syntax-result]')?.classList.contains('ant-alert-error')",
+  );
+  assert.ok(
+    await evaluate(
+      "document.querySelector('.ant-form-item-explain-error').innerText.includes('Type mismatch')",
+    ),
+  );
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal button')).find(button => button.innerText.includes('Restore saved value')).click()",
+  );
+  await until(
+    "document.querySelector('[data-testid=rule-expression-condition_expression]').value === " +
+      JSON.stringify(expression),
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-language-help]').click()",
+  );
+  await until(
+    "!!document.querySelector('[data-testid=rule-variable-search] input')",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-variable-search] input').focus()",
+  );
+  await send("Input.insertText", { text: "penalty_amount_vnd_mn" });
+  await until(
+    "document.querySelectorAll('[data-testid=rule-variable-catalog] > div').length === 1",
+  );
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-variable-catalog]').innerText.includes('Available only in the payable formula')",
+    ),
+  );
+  await evaluate("document.querySelector('.ant-drawer-close').click()");
+  await until("!document.querySelector('.ant-drawer-open')");
+  await evaluate(
+    "document.querySelector('[data-testid=rule-version-preview]').click()",
+  );
+  await until("!!document.querySelector('[data-testid=rule-preview-result]')");
+  const ruleScreenshot = await send("Page.captureScreenshot", {
+    format: "png",
+  });
+  await writeFile(
+    "artifacts/browser/rule-preview.png",
+    Buffer.from(ruleScreenshot.data, "base64"),
   );
   // The supplier sees its turn to sign CT0102 (three signers, the owner already signed).
   await loginAs("supplier@phuminh.vn");
   await until("document.body.innerText.includes('CT0102')");
-  const fake = await evaluate(
-    `(async()=>{const {checkFile}=await import('/src/features/signing/api/verification.api.ts');return checkFile(null,new File(['%PDF-1.4\\n/ByteRange [0 1 2 3]'],'unsigned.pdf'));})()`,
+  await send("Page.navigate", { url: base + "/guide/signing" });
+  await until("document.querySelectorAll('article img').length > 0");
+  await pause(500);
+  const guideLayout = await evaluate(
+    `(() => { const image = document.querySelector('article img'); const pane = document.querySelector('[role=region]'); return { maxHeight: image.getBoundingClientRect().height, viewport: innerHeight, overflow: getComputedStyle(pane).overflowY, scrollable: pane.scrollHeight > pane.clientHeight }; })()`,
   );
-  assert.equal(fake.outcome, "UNVERIFIED");
+  assert.ok(guideLayout.maxHeight <= guideLayout.viewport);
+  assert.equal(guideLayout.overflow, "auto");
+  assert.equal(guideLayout.scrollable, true);
+  await send("Page.navigate", { url: base + "/verify/CT0103" });
+  await until("!!document.querySelector('input[type=file]')");
+  await evaluate(`(() => {
+    const input = document.querySelector('input[type=file]');
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(['%PDF-1.4\\n/ByteRange [0 1 2 3]'], 'unsigned.pdf', {type:'application/pdf'}));
+    input.files = transfer.files;
+    input.dispatchEvent(new Event('change', {bubbles:true}));
+  })()`);
+  await until(
+    "document.querySelector('[role=status]')?.innerText.includes('cryptographic signature and certificate have not been verified')",
+  );
+  const fake = { outcome: "UNVERIFIED" };
   assert.deepEqual(errors, []);
   await writeFile(
     "artifacts/browser/report.json",
@@ -593,7 +1002,7 @@ try {
     ),
   );
   console.log(
-    `Browser smoke passed: demo directory outage/recovery, demo login per role, onboarding after login, ${screens.length} screens, desktop/mobile layout, exception queue, server-side search, integrity check, replay, separated internal roles, approval → engine PENALTY, upload validation, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
+    `Browser smoke passed: demo directory outage/recovery, demo login per role, onboarding after login, ${screens.length} screens, desktop/mobile layout, exception queue, server-side search, integrity check, replay, separated internal roles, approval → engine PENALTY, empty new contract, non-destructive demo fill, upload validation, single-signer DOCX generation, stale-document guard, admin template edit → upload catalog, rule impact preview, resource tabs, contract modal full screen, dataset upload/run, admin create/delete, unsigned PDF handling.`,
   );
 } finally {
   ws?.close();

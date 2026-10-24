@@ -53,7 +53,7 @@ export interface AuthResult {
 }
 export interface ResourceField {
   key: string;
-  type: "string" | "email" | "number" | "boolean" | "select";
+  type: "string" | "email" | "number" | "boolean" | "select" | "textarea";
   required?: boolean;
   options?: string[];
   /** Resource this field references by id; forms populate it and the API checks it exists. */

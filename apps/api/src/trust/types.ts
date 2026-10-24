@@ -73,5 +73,70 @@ export interface RuleVersion {
     evaluated: number;
     invariantViolations: number;
     fingerprint: string;
+    compatibilityPolicy?: "BTC_FULL_PACK_V1";
+    expected?: number;
+    changed?: number;
   } | null;
+}
+
+export interface RulePreview {
+  compatibilityPolicy: "BTC_FULL_PACK_V1";
+  expected: number;
+  fingerprint: string;
+  evaluated: number;
+  matched: number;
+  samples: number;
+  invariantViolations: number;
+  canSubmit: boolean;
+  changed: number;
+  templateChanges: number;
+  mismatches: string[];
+  changes: Array<{
+    milestoneId: string;
+    before: {
+      decision: string;
+      payableMillion: string;
+      penaltyMillion: string;
+      reasonCode: string;
+    } | null;
+    after: {
+      decision: string;
+      payableMillion: string;
+      penaltyMillion: string;
+      reasonCode: string;
+    } | null;
+  }>;
+}
+
+export type RuleExpressionField =
+  "condition_expression" | "penalty_amount_formula" | "payable_amount_formula";
+export interface RuleExpressionIssue {
+  ruleId: string;
+  field: RuleExpressionField;
+  code: string;
+  token: string | null;
+  line: number;
+  column: number;
+}
+export interface RuleExpressionValidation {
+  valid: boolean;
+  checked: number;
+  issues: RuleExpressionIssue[];
+}
+export interface RuleLanguage {
+  version: string;
+  constants: string[];
+  functions: string[];
+  operators: string[];
+  fields: RuleExpressionField[];
+  variables: Array<{
+    name: string;
+    type: "boolean" | "number" | "date";
+    unit: string;
+    source: string;
+    example: string;
+    fields: RuleExpressionField[];
+    label: { vi: string; en: string };
+    description: { vi: string; en: string };
+  }>;
 }

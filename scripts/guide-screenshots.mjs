@@ -5,7 +5,7 @@
  * the parts the guide text explains.
  *
  * Run against freshly imported data (the script approves, signs and resolves on the way):
- *   API: API_PORT=3100 DATA_DIR=<empty folder> pnpm dev:api
+ *   API: STORAGE_DRIVER=file API_PORT=3100 DATA_DIR=<empty folder> pnpm dev:api
  *   Web: VITE_API_PROXY=http://127.0.0.1:3100 pnpm --filter @codecash/web exec vite --port 5174 --strictPort
  *   WEB_URL=http://127.0.0.1:5174 pnpm guide:screenshots
  */
@@ -16,6 +16,19 @@ import { join, relative, resolve } from "node:path";
 
 const base = process.env.WEB_URL ?? "http://127.0.0.1:5174";
 const out = resolve(process.env.GUIDE_OUT ?? "apps/web/public/guide/images");
+const originalOut = resolve(
+  process.env.GUIDE_ORIGINAL_OUT ?? "playwright-report/guide/originals",
+);
+// These scripts perform workflow writes; never inherit a shared Mongo database from .env.
+const health = await fetch(`${base}/api/v1/health`).then(async (response) => {
+  if (!response.ok) throw new Error(`TEST_API_NOT_READY: ${response.status}`);
+  return response.json();
+});
+if ((health.data?.storage ?? health.storage) !== "file") {
+  throw new Error(
+    "ISOLATED_FILE_STORAGE_REQUIRED: start the test API with STORAGE_DRIVER=file and a fresh DATA_DIR in /tmp.",
+  );
+}
 const profile = await mkdtemp(join(tmpdir(), "codecash-guide-"));
 const chrome = spawn(
   process.env.CHROME_BIN ?? "google-chrome",
@@ -25,7 +38,6 @@ const chrome = spawn(
     "--disable-gpu",
     "--disable-dev-shm-usage",
     "--no-first-run",
-    "--hide-scrollbars",
     `--user-data-dir=${profile}`,
     "--remote-debugging-port=0",
     "about:blank",
@@ -219,6 +231,17 @@ try {
       };
       params.captureBeyondViewport = true;
     }
+    await evaluate(
+      "document.getElementById('__guide_layer').style.visibility = 'hidden'",
+    );
+    const original = await send("Page.captureScreenshot", params);
+    await writeFile(
+      join(originalOut, `${name}.webp`),
+      Buffer.from(original.data, "base64"),
+    );
+    await evaluate(
+      "document.getElementById('__guide_layer').style.visibility = 'visible'",
+    );
     const { data } = await send("Page.captureScreenshot", params);
     await writeFile(join(out, `${name}.webp`), Buffer.from(data, "base64"));
     await evaluate("document.getElementById('__guide_layer')?.remove()");
@@ -287,6 +310,7 @@ try {
     shot(`nav-${role}`, { clip: ".ant-layout-sider", margin: 0 });
 
   await mkdir(out, { recursive: true });
+  await mkdir(originalOut, { recursive: true });
   await send("Runtime.enable");
   await send("Page.enable");
   await viewport(1440, 900);
@@ -654,7 +678,7 @@ try {
     await evaluate("document.querySelector('.ant-modal-close').click()");
     await pause(300);
     await evaluate(
-      "document.querySelector('.ant-table-tbody .ant-table-row td:last-child [role=button]').click()",
+      "document.querySelector('.ant-table-tbody .ant-table-row td:last-child button').click()",
     );
     await until("!!document.querySelector('.ant-modal')");
     await pause(500);
@@ -691,17 +715,63 @@ try {
   });
   await attempt("upload", async () => {
     await go("/contracts/new", "!!document.querySelector('#contract-title')");
-    await shot("upload-form");
+    await shot("upload-form", {
+      marks: [{ n: 1, target: "[data-testid=contract-fill-demo]" }],
+    });
+    await click("[data-testid=contract-fill-demo]");
+    await until(
+      "document.querySelector('#contract-title').value.length > 0 && document.querySelectorAll('[data-testid=signer-row]').length > 0",
+    );
+    await shot("upload-demo-filled", {
+      marks: [{ n: 1, target: "[data-testid=contract-fill-demo]" }],
+    });
+    await press("[data-testid=contract-template-picker] [role=combobox]");
+    await until(
+      "!!document.querySelector('[data-testid=template-option-THREE_PARTY]')",
+    );
+    await click(
+      ".ant-select-dropdown [data-testid=template-option-THREE_PARTY]",
+    );
+    await until(
+      "document.querySelectorAll('[data-testid=signer-row]').length === 3",
+    );
+    await click("[data-testid=signer-add]");
+    await until(
+      "document.querySelectorAll('[data-testid=signer-row]').length === 4",
+    );
+    await click("[data-testid=contract-fill-demo]");
+    await until(
+      "document.querySelectorAll('[data-testid=signer-row] .ant-select-selection-placeholder').length === 0",
+    );
+    await click("[data-testid=generate-contract-sample]");
+    await until(
+      "!!document.querySelector('[data-testid=real-document-preview]')",
+    );
+    await evaluate(
+      "document.querySelector('[data-testid=real-document-preview]').scrollIntoView({block: 'center'})",
+    );
+    await shot("upload-real-preview", {
+      marks: [{ n: 1, target: "[data-testid=real-document-preview]" }],
+    });
+
+    await shot("upload-document", {
+      clip: "[data-testid=contract-document-section]",
+      margin: 16,
+      marks: [
+        { n: 1, target: "[data-testid=contract-document-body]" },
+        { n: 2, target: "[data-testid=contract-file-choose]", badge: "right" },
+      ],
+    });
     await shot("upload-signers", {
-      clip: "[data-testid=signer-list]",
-      margin: 60,
-      marks: [{ n: 1, target: "[data-testid=signer-preset-BUYER_FIRST]" }],
+      clip: "[data-testid=template-and-signers]",
+      margin: 16,
+      marks: [{ n: 1, target: "[data-testid=contract-template-picker]" }],
     });
   });
   await attempt("positions and digitize", async () => {
     await go(
       "/contracts/CT0101/sign-positions",
-      "document.body.innerText.includes('CT0101')",
+      "document.querySelectorAll('button[aria-pressed]').length >= 4",
     );
     await shot("upload-positions");
     await go(
@@ -714,6 +784,9 @@ try {
         { n: 2, target: "[data-testid=digitize-confirm]" },
       ],
     });
+    await evaluate(
+      "(() => {const fill = document.querySelector('[data-testid=load-deadline-suggestion]'); if (fill) fill.click();})()",
+    );
     await evaluate(
       "document.querySelector('[data-testid=digitize-confirm]').click()",
     );
@@ -898,8 +971,11 @@ try {
         { n: 3, target: { text: "Thêm mới" } },
         { n: 4, target: { text: "Nhập" } },
         { n: 5, target: { text: "Xuất" } },
-        { n: 6, target: ".ant-table-tbody .ant-table-row td:nth-child(6)" },
-        { n: 7, target: ".ant-table-tbody .ant-table-row td:last-child" },
+        {
+          n: 6,
+          target: ".ant-table-tbody .ant-table-row td:nth-child(6) .ant-tag",
+        },
+        { n: 7, target: "[data-testid=table-row-actions]" },
       ],
     });
     await click({ text: "Thêm mới" });
@@ -912,6 +988,33 @@ try {
     await until("!!document.querySelector('.ant-modal')");
     await pause(500);
     await shot("admin-import", { clip: ".ant-modal" });
+    await evaluate("document.querySelector('.ant-modal-close').click()");
+  });
+  await attempt("contract templates", async () => {
+    await go(
+      "/platform/contract-templates",
+      "document.querySelectorAll('.ant-table-row').length >= 4",
+    );
+    await shot("admin-contract-templates", {
+      marks: [
+        { n: 1, target: { text: "Thêm mới" } },
+        { n: 2, target: ".ant-table-tbody .ant-table-row td:last-child" },
+      ],
+    });
+    await evaluate(
+      "document.querySelector('.ant-table-tbody .ant-table-row td:last-child button').click()",
+    );
+    await until("!!document.querySelector('.ant-modal textarea#documentBody')");
+    await evaluate(
+      "document.querySelector('.ant-modal #documentBody').scrollIntoView({block: 'end'})",
+    );
+    await shot("admin-template-editor", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "#signerRoles" },
+        { n: 2, target: "#documentBody" },
+      ],
+    });
     await evaluate("document.querySelector('.ant-modal-close').click()");
   });
   await attempt("users", async () => {
@@ -940,6 +1043,111 @@ try {
         { n: 2, target: ".data-table-wrapper .ant-row", pad: 2 },
       ],
     });
+  });
+
+  await attempt("rule language", async () => {
+    await go(
+      "/platform/rule-versions",
+      "!!document.querySelector('[data-testid=rule-version-create]')",
+    );
+    await click("[data-testid=rule-version-create]");
+    await until("!!document.querySelector('.ant-modal input#name')");
+    await evaluate("document.querySelector('.ant-modal input#name').focus()");
+    await send("Input.insertText", { text: "Giải thích bộ quy tắc" });
+    await evaluate(
+      "document.querySelector('.ant-modal textarea#reason').focus()",
+    );
+    await send("Input.insertText", {
+      text: "Minh họa kiểm tra cú pháp, biến và tác động; chưa gửi duyệt.",
+    });
+    await evaluate(
+      "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+    );
+    await until(
+      "!!document.querySelector('[data-testid=rule-version-preview]')",
+    );
+    await evaluate(
+      "Array.from(document.querySelectorAll('.ant-modal .ant-tabs-tab')).find(tab => tab.innerText.includes('Biểu thức quy tắc')).click()",
+    );
+    await until("!!document.querySelector('[data-testid=rule-option-PR0006]')");
+    await click("[data-testid=rule-option-PR0006]");
+    await click("[data-testid=rule-syntax-check]");
+    await until(
+      "document.querySelector('[data-testid=rule-syntax-result]')?.classList.contains('ant-alert-success')",
+    );
+    await shot("rules-editor", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=rule-scope-select]" },
+        { n: 2, target: "[data-testid=rule-option-PR0006]" },
+        {
+          n: 3,
+          target: "[data-testid=rule-expression-penalty_amount_formula]",
+        },
+      ],
+    });
+    await click("[data-testid=rule-language-help]");
+    await until(
+      "!!document.querySelector('[data-testid=rule-variable-search] input')",
+    );
+    await evaluate(
+      "document.querySelector('[data-testid=rule-variable-search] input').focus()",
+    );
+    await send("Input.insertText", { text: "penalty_amount_vnd_mn" });
+    await until(
+      "document.querySelectorAll('[data-testid=rule-variable-catalog] > div').length === 1",
+    );
+    await shot("rules-variables", {
+      clip: ".ant-drawer-content-wrapper",
+      marks: [
+        { n: 1, target: "[data-testid=rule-variable-search]" },
+        { n: 2, target: "[data-testid=rule-variable-catalog]" },
+      ],
+    });
+    await evaluate("document.querySelector('.ant-drawer-close').click()");
+    await until("!document.querySelector('.ant-drawer-open')");
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-condition_expression]').focus()",
+    );
+    await send("Input.dispatchKeyEvent", {
+      type: "keyDown",
+      key: "a",
+      code: "KeyA",
+      modifiers: 2,
+    });
+    await send("Input.dispatchKeyEvent", {
+      type: "keyUp",
+      key: "a",
+      code: "KeyA",
+      modifiers: 2,
+    });
+    await send("Input.insertText", { text: "open_dispute == 1" });
+    await click("[data-testid=rule-syntax-check]");
+    await until(
+      "document.querySelector('[data-testid=rule-syntax-result]')?.classList.contains('ant-alert-error')",
+    );
+    await shot("rules-syntax-error", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=rule-syntax-result]" },
+        { n: 2, target: "[data-testid=rule-expression-condition_expression]" },
+      ],
+    });
+    await evaluate(
+      "Array.from(document.querySelectorAll('.ant-modal button')).find(button => button.innerText.includes('Khôi phục bản lưu')).click()",
+    );
+    await click("[data-testid=rule-version-preview]");
+    await until(
+      "!!document.querySelector('[data-testid=rule-preview-result]')",
+    );
+    await shot("rules-preview", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=rule-preview-result]" },
+        { n: 2, target: "[data-testid=rule-version-submit]" },
+      ],
+    });
+    await evaluate("document.querySelector('.ant-modal-close').click()");
   });
 
   /* ------------------------------ auditor, secondary approver ------------------------------ */

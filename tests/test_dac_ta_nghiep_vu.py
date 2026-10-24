@@ -203,7 +203,6 @@ class SyntheticTests(unittest.TestCase):
         variants = {
             "tham chiếu event không phải dispute": lambda c, d: c.ev("DISPUTE_RESOLVED", Case.BUYER, "2026-06-07T09:00:00", ref=c.events[0]["event_id"]),
             "trước lúc mở": lambda c, d: c.ev("DISPUTE_RESOLVED", Case.BUYER, "2026-06-05T08:00:00", ref=d),
-            "do NCC đóng": lambda c, d: c.ev("DISPUTE_RESOLVED", Case.SUPPLIER, "2026-06-07T09:00:00", ref=d),
             "sai trạng thái": lambda c, d: c.ev("DISPUTE_RESOLVED", Case.BUYER, "2026-06-07T09:00:00", ref=d, status="OPEN"),
         }
         for name, add_resolve in variants.items():
@@ -212,6 +211,13 @@ class SyntheticTests(unittest.TestCase):
                 d = c.ev("DISPUTE_OPENED", Case.SUPPLIER, "2026-06-05T12:00:00")
                 add_resolve(c, d)
                 self.assertDecision(c.run(), "HOLD", "OPEN_DISPUTE")
+
+    def test_btc_resolution_authority_is_a_workflow_extension(self):
+        c = Case().delivered()
+        opened = c.ev("DISPUTE_OPENED", Case.SUPPLIER, "2026-06-05T12:00:00")
+        c.ev("DISPUTE_RESOLVED", Case.SUPPLIER, "2026-06-07T09:00:00", ref=opened)
+        self.assertDecision(c.run(), "RELEASE", "ALL_CONDITIONS_MET")
+        self.assertDecision(c.run(strict_resolution=True), "HOLD", "OPEN_DISPUTE")
 
     def test_T14b_resolve_hop_le_cua_approver_ben_mua(self):
         c = Case().delivered()

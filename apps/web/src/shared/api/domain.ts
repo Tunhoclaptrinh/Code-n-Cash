@@ -237,8 +237,8 @@ export const getVerification = (contractCode: string) =>
 
 /* ---------------------------- upload and digitisation ---------------------------- */
 
-export const getContractDraft = (code?: string) =>
-  workflowCall<ContractDraft>("drafts", "getContractDraft", [code]);
+export const getContractDraft = (code?: string, fresh = false) =>
+  workflowCall<ContractDraft>("drafts", "getContractDraft", [code, fresh]);
 export const getUploadFormOptions = () =>
   workflowCall<UploadFormOptions>("drafts", "getUploadFormOptions", []);
 export const saveContractDraft = (draft: ContractDraft) =>

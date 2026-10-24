@@ -41,7 +41,8 @@
     "kinds": {
       "TEMPLATE": "Workflow template",
       "TEXT_RULES": "Local text extraction"
-    }
+    },
+    "loadSuggestions": "Load suggestions"
   },
   "rules": {
     "title": "Rule and template versions",
@@ -53,7 +54,7 @@
     "author": "Author",
     "validation": "Samples matched",
     "hash": "Configuration hash",
-    "notice": "Versions pass expression checks, 405 milestone evaluations and 20 public samples; another administrator publishes them. Pinned contracts retain their existing configuration.",
+    "notice": "Versions must preserve all 405 baseline outcomes, match 20 public samples and pass invariants before another administrator publishes. This does not verify hidden ground truth.",
     "create": "Draft a version",
     "search": "Search name, rationale or version hash",
     "all": "All",
@@ -84,6 +85,99 @@
       "REVIEW": "Awaiting second reviewer",
       "PUBLISHED": "Published",
       "RETIRED": "Retired"
+    },
+    "preview": "Preview impact",
+    "previewSummary": "{{evaluated}} milestones evaluated · {{matched}}/{{samples}} samples matched · {{changed}} changed · {{violations}} invariant violations",
+    "previewScope": "Changed milestone templates: {{templates}} (future contracts only). Submission requires zero changed outcomes across the full pack.",
+    "milestone": "Milestone",
+    "before": "Before",
+    "after": "After",
+    "demoName": "Demo rule revision",
+    "demoReason": "Demo input: preview impact before requesting review; no business outcome change is proposed.",
+    "language": {
+      "scope": "Choose workflow and milestone type",
+      "reference": "Variables, syntax and examples",
+      "check": "Check syntax",
+      "order": "Apply the first matching rule, in priority order 10 → 80",
+      "orderDetail": "Stop at the first matching rule in the selected scope. Calculate penalty first, then payable amount. ELSE holds the milestone for review when no earlier rule matches.",
+      "catalogError": "The engine variable catalog is unavailable. You can read the configuration; retry to insert variables and see units.",
+      "retry": "Retry",
+      "valid": "Syntax and basic types valid · {{count}} expressions",
+      "invalid": "{{count}} expressions need correction",
+      "syntaxOnly": "This is static validation, not proof of correct business results. Preview all 405 milestones before submitting.",
+      "unchecked": "The displayed content has not been syntax checked. Editing requires a new check; previous results are not reused.",
+      "orderList": "Rule evaluation order",
+      "priority": "Priority {{value}}",
+      "lockedMetadata": "Scope, priority, decision and reason code are fixed by the Data Pack. The description is reference text; it is not regenerated when expressions change.",
+      "modified": "Expressions differ from the saved version. Review their business meaning and preview the impact before submitting.",
+      "vocabulary": "{{count}} engine-supported variables",
+      "vocabularyHint": "This is a restricted DSL, not free-form JavaScript, Excel or Python. The engine reads/calculates Data Pack inputs; this screen does not decide payments.",
+      "syntax": "Supported syntax",
+      "syntaxHint": "AND joins boolean conditions and requires spaces on both sides. Use a decimal point (0.10) and uppercase TRUE/FALSE. MIN/MAX take 1–8 numeric arguments. ELSE stands alone at priority 80. OR, NOT, IF, attributes, strings and other function calls are unsupported.",
+      "dateHint": "Compare dates, or add calendar days, e.g. due_date + grace_period_days. Use the computed days_late_after_grace instead of subtracting dates. A missing completion date makes comparisons FALSE.",
+      "example": "Penalty and payable worked example",
+      "exampleInputs": "Assume a planned 1000.00 million VND, 3 days late after grace, a 0.10% daily rate and an 8% cap. This example applies only if the penalty rule is the first match.",
+      "exampleResult": "Penalty is 3.00 million VND; payable is 997.00 million VND. The engine rounds to 2 decimals with ROUND_HALF_UP. An open dispute still causes HOLD at priority 10; this example cannot authorize payment.",
+      "search": "Search variable name or meaning",
+      "exampleValue": "Example",
+      "source": "Source",
+      "noVariables": "No matching variables.",
+      "insertVariable": "Insert variable at cursor",
+      "restore": "Restore saved value",
+      "position": "line {{line}}, column {{column}}",
+      "previewFirst": "Preview the current changes and resolve blocked outcomes before submitting.",
+      "priorities": {
+        "10": "Open dispute",
+        "20": "Valid rejection",
+        "30": "Unauthorized evidence",
+        "40": "Missing required evidence",
+        "50": "Approval roles incomplete",
+        "60": "Late completion with penalty",
+        "70": "Payment conditions satisfied",
+        "80": "No match; manual review"
+      },
+      "labels": {
+        "condition_expression": "If this condition is true",
+        "penalty_amount_formula": "1. Calculate penalty (million VND)",
+        "payable_amount_formula": "2. Calculate payable amount (million VND)"
+      },
+      "hints": {
+        "condition_expression": "Must return TRUE or FALSE. Priority 80 uses ELSE. Lower priority numbers run first.",
+        "penalty_amount_formula": "Returns a numeric million-VND value. MIN enforces the cap; penalty_amount_vnd_mn is not yet available here.",
+        "payable_amount_formula": "Returns a numeric million-VND value. May use penalty_amount_vnd_mn already calculated and rounded in step 1; MAX(0, …) prevents a negative result."
+      },
+      "types": {
+        "boolean": "Boolean",
+        "number": "Number",
+        "date": "Date"
+      },
+      "units": {
+        "boolean": "TRUE / FALSE",
+        "count": "Count",
+        "ratio": "Ratio 0–1",
+        "date": "YYYY-MM-DD",
+        "days": "Calendar days",
+        "money": "Million VND",
+        "percentPerDay": "% / day",
+        "percent": "%"
+      },
+      "errors": {
+        "UNKNOWN_VARIABLE": "Unknown variable “{{token}}”. Choose a name from the catalog.",
+        "VARIABLE_UNAVAILABLE": "“{{token}}” is available only after penalty calculation, in the payable formula.",
+        "EXPRESSION_REQUIRED": "Enter a non-empty expression of at most 2,000 characters.",
+        "SYNTAX_ERROR": "Invalid syntax. Check parentheses, operators, decimal points and spaces around AND.",
+        "UNSUPPORTED_EXPRESSION": "This construct/operator is unsupported. See the allowed syntax.",
+        "INVALID_CONSTANT": "Use a finite number of at most 16 characters or TRUE/FALSE; strings and Python-style True/False are unsupported.",
+        "INVALID_COMPARISON": "Use one operator per comparison and join comparisons with AND.",
+        "INVALID_FUNCTION": "Only MIN/MAX with 1–8 positional arguments are allowed.",
+        "TYPE_MISMATCH": "Type mismatch: compare the same type; arithmetic needs numbers, except adding days to a date.",
+        "BOOLEAN_REQUIRED": "Conditions and AND operands must return TRUE/FALSE, not money or dates.",
+        "NUMBER_REQUIRED": "Money formulas and MIN/MAX arguments must be numeric, not conditions or dates.",
+        "DIVISION_BY_ZERO": "Division by zero is not allowed.",
+        "FALLBACK_ORDER": "ELSE is allowed only at the final rule, priority 80.",
+        "EXPRESSION_TOO_COMPLEX": "Expression is too complex; simplify it within the DSL limits."
+      },
+      "usedVariables": "{{count}} variables used"
     }
   },
   "fields": {

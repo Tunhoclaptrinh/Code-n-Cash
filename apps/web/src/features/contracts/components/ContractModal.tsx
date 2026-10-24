@@ -207,7 +207,11 @@ export function ContractModal({
               hasPermission("contracts:draft-write") ? (
                 <Button
                   icon={<FormOutlined />}
-                  onClick={() => navigate("/contracts/new")}
+                  onClick={() =>
+                    navigate(
+                      `/contracts/new?draft=${encodeURIComponent(contract.id)}`,
+                    )
+                  }
                 >
                   {t("contractList.actions.completeDraft")}
                 </Button>

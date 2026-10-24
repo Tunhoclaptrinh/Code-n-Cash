@@ -15,6 +15,13 @@ export function pinnedVersion(
     : versions.find((entry) => entry.status === "PUBLISHED");
   if (id && !version) throw new BadRequestException("RULE_VERSION_INVALID");
   if (
+    !id &&
+    version &&
+    (version.validation as { compatibilityPolicy?: string } | undefined)
+      ?.compatibilityPolicy !== "BTC_FULL_PACK_V1"
+  )
+    throw new BadRequestException("RULE_VERSION_REGRESSION");
+  if (
     version &&
     (!["PUBLISHED", "RETIRED"].includes(String(version.status)) ||
       versionHash(version) !== version.hash)

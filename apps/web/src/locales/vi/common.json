@@ -222,5 +222,15 @@
     "invalid": "{{field}} chưa đúng định dạng hoặc giới hạn cho phép.",
     "enter": "Nhập {{field}}",
     "choose": "Chọn {{field}}"
+  },
+  "demoFill": {
+    "action": "Điền mẫu",
+    "all": "Điền mẫu toàn bộ",
+    "hint": "Chỉ điền ô trống; không tự lưu hoặc gửi.",
+    "notice": "Nhập thông tin hoặc dùng dữ liệu mẫu để thử nhanh.",
+    "completeFirst": "Điền đầy đủ các trường bắt buộc trước khi tạo tệp."
+  },
+  "tableActions": {
+    "more": "Thao tác khác"
   }
 }

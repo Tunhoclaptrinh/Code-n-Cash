@@ -25,6 +25,14 @@ export class TrustController {
   @Get("rules") @RequirePermission("rules:read") listRules() {
     return this.rules.list();
   }
+  @Get("rules/language") @RequirePermission("rules:read") ruleLanguage() {
+    return this.rules.language();
+  }
+  @Post("rules/validate")
+  @RequirePermission("rules:read")
+  validateRuleExpressions(@Body() body: { rules?: unknown }) {
+    return this.rules.checkExpressions(body);
+  }
   @Post("rules") @RequirePermission("rules:write") createRules(
     @Body() body: { name?: unknown; reason?: unknown },
     @Req() req: SessionRequest,
@@ -37,6 +45,12 @@ export class TrustController {
     @Req() req: SessionRequest,
   ) {
     return this.rules.save(id, body, req.user);
+  }
+  @Post("rules/:id/preview") @RequirePermission("rules:write") previewRules(
+    @Param("id") id: string,
+    @Body() body: { version?: unknown; rules?: unknown; templates?: unknown },
+  ) {
+    return this.rules.preview(id, body);
   }
   @Post("rules/:id/submit") @RequirePermission("rules:write") submitRules(
     @Param("id") id: string,

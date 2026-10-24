@@ -51,17 +51,43 @@ class UploadedDatasetTests(unittest.TestCase):
         self.assertEqual(result['summary']['sampleMatched'], 20)
         self.assertEqual(stable(result['rows']), stable(self.official['rows']))
 
-    def test_hidden_test_ids_narrow_the_output(self):
+    def test_hidden_ids_cannot_narrow_submission_without_explicit_opt_in(self):
         self.flat()
         ids = ['MS0001', 'MS0002', 'MS0404']
         with open(self.folder / 'hidden_test_ids_Case4.csv', 'w', newline='') as handle:
             writer = csv.writer(handle)
             writer.writerow(['milestone_id'])
             writer.writerows([i] for i in ids + ['MS9999'])
-        result = engine.evaluate(data=self.folder)
+        full = engine.evaluate(data=self.folder)
+        self.assertEqual(len(full['rows']), 405)
+        self.assertTrue(full['summary']['source']['scopeIgnored'])
+        result = engine.evaluate(data=self.folder, apply_scope=True)
         self.assertEqual([row['milestone_id'] for row in result['rows']], ids)
         self.assertEqual(result['summary']['source']['unknownScopeIds'], ['MS9999'])
         self.assertEqual(sum(result['summary']['decisions'].values()), 3)
+
+    def test_template_must_cover_each_milestone_once_with_correct_metadata(self):
+        self.flat()
+        original = engine.spec.read(DATA, '04_output_templates/submission_output_template.csv')
+        for problem, rows in [('TEMPLATE_EMPTY', []), ('TEMPLATE_INCOMPLETE', original[:-1]),
+                              ('TEMPLATE_DUPLICATE_MILESTONES', original + [original[0]]),
+                              ('TEMPLATE_METADATA_MISMATCH', [dict(original[0], contract_id='CT9999')] + original[1:])]:
+            with self.subTest(problem=problem):
+                with open(self.folder / 'submission_output_template.csv', 'w', newline='') as handle:
+                    writer = csv.DictWriter(handle, engine.dataset.TEMPLATE_COLUMNS)
+                    writer.writeheader()
+                    writer.writerows(rows)
+                with self.assertRaisesRegex(ValueError, problem):
+                    engine.evaluate(data=self.folder)
+
+    def test_duplicate_primary_ids_are_rejected_instead_of_silently_overwritten(self):
+        self.flat()
+        with open(self.folder / 'events.csv', 'a') as handle:
+            rows = engine.spec.read(DATA, '01_data/events.csv')
+            writer = csv.DictWriter(handle, list(rows[0]))
+            writer.writerow(rows[0])
+        with self.assertRaisesRegex(ValueError, 'events:duplicate_or_empty_id'):
+            engine.evaluate(data=self.folder)
 
     def test_missing_files_and_columns_are_reported_before_evaluation(self):
         self.flat(['contracts', 'parties', 'milestones', 'events'])
@@ -87,7 +113,9 @@ class UploadedDatasetTests(unittest.TestCase):
             writer = csv.writer(handle)
             writer.writerow(['event_id'])
             writer.writerows([e] for e in held['unauthorized'] + ([valid] if valid else []))
-        result = engine.evaluate(data=self.folder)
+        submission = engine.evaluate(data=self.folder)
+        self.assertEqual(stable(submission['rows']), stable(self.official['rows']))
+        result = engine.evaluate(data=self.folder, workflow=True)
         after = next(t['result'] for t in result['traces'] if t['result']['milestone_id'] == held['milestone_id'])
         # Voiding removes the block but never creates evidence (T40b); valid events cannot be voided (T41).
         self.assertEqual(after['voided'], held['unauthorized'])

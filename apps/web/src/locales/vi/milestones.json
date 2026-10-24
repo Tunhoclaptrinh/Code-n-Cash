@@ -66,7 +66,8 @@
       "events_other": "Event ({{count}})",
       "history": "Lịch sử trạng thái",
       "signing": "Ký hợp đồng",
-      "participants": "Người tham gia"
+      "participants": "Người tham gia",
+      "documents": "Tài liệu gốc"
     },
     "noMilestones": "Hợp đồng chưa có mốc. Mốc được tạo khi khoá điều khoản số hoá.",
     "terms": {
@@ -237,7 +238,8 @@
       "reason": "Lý do (bắt buộc), ví dụ: NCC nhập nhầm kênh, bên mua đã nộp lại đúng quyền",
       "propose": "Đề xuất vô hiệu",
       "proposed": "Đã gửi đề xuất, chờ kiểm soát viên thứ hai.",
-      "decided": "Đã ghi quyết định; engine đánh giá lại."
+      "decided": "Đã ghi quyết định; engine đánh giá lại.",
+      "demoReason": "Lý do demo: đề nghị kiểm soát viên khác rà soát thẩm quyền ghi nhận sự kiện và bằng chứng liên quan theo BR-19."
     },
     "dispute": {
       "title": "Không đồng ý với quyết định?",
@@ -366,7 +368,8 @@
       "label": "Ghi chú",
       "hint": "bắt buộc khi từ chối hoặc yêu cầu bổ sung",
       "required": "Nhập ghi chú.",
-      "placeholder": "Nêu căn cứ phê duyệt, từ chối hoặc tài liệu cần bổ sung (tối đa 2.000 ký tự)."
+      "placeholder": "Nêu căn cứ phê duyệt, từ chối hoặc tài liệu cần bổ sung (tối đa 2.000 ký tự).",
+      "demo": "Ghi chú demo: cần đối chiếu chứng từ, số tiền và điều kiện thanh toán trước khi gửi quyết định."
     },
     "actions": {
       "reject": "Từ chối",

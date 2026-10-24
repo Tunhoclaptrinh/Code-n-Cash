@@ -232,6 +232,10 @@ export interface ProfileRecord extends RecordEntity {
 }
 
 export interface DraftRecord extends RecordEntity {
+  templateId?: string;
+  templateVersion?: number;
+  templateSnapshot?: ContractDraft["templateSnapshot"];
+  documentBody?: string;
   code: string;
   title: string;
   supplierId: string;
@@ -249,6 +253,7 @@ export interface DraftRecord extends RecordEntity {
   signers: ContractDraft["signers"];
   file: ContractDraft["file"];
   appendixNames: string[];
+  appendixDocuments?: Array<{ id: string; name: string; sha256: string }>;
   digitization: Digitization | null;
 }
 

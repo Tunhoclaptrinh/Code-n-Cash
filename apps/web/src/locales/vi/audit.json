@@ -155,7 +155,8 @@
         "hint": "Chép mã đầu chuỗi ra nơi khác (biên bản, email, hồ sơ nộp). Lần sau dán vào đây: nếu cả nhật ký bị viết lại hoặc bị cắt bớt, kết quả sẽ không khớp.",
         "MATCH": "Khớp",
         "MISMATCH": "Không khớp: nhật ký đã bị viết lại",
-        "NOT_FOUND": "Không thấy bản ghi đó: nhật ký đã bị cắt bớt"
+        "NOT_FOUND": "Không thấy bản ghi đó: nhật ký đã bị cắt bớt",
+        "loadCurrent": "Nạp mốc hiện tại"
       }
     },
     "evidence": {

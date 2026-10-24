@@ -1,0 +1,137 @@
+.form {
+  container-type: inline-size;
+}
+
+.form :global(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.form :global(.ant-form-item-label) {
+  padding-bottom: 6px;
+}
+
+.form :global(.ant-form-item-extra),
+.hint,
+.positionHint,
+.bodyFooter {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.toolbar,
+.signerFooter,
+.bodyFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar {
+  margin-bottom: 16px;
+}
+
+.divider:global(.ant-divider) {
+  margin: 8px 0 16px;
+  font-size: 14px;
+}
+
+.helpIcon {
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+.signerRow {
+  display: grid;
+  grid-template-columns: 24px 140px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.signerIndex:global(.ant-tag) {
+  margin: 0;
+  text-align: center;
+}
+
+.signerSide,
+.signerPerson {
+  min-width: 0;
+}
+
+.signerActions {
+  justify-self: end;
+}
+
+.signerFooter {
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.hint {
+  display: block;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.positionHint:global(.ant-typography) {
+  margin-top: -4px;
+  margin-bottom: 16px;
+}
+
+.bodyFooter {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  margin-top: 4px;
+}
+
+.bodyFooter > :last-child {
+  white-space: nowrap;
+}
+
+.documentActions {
+  margin-bottom: 4px;
+}
+
+.fileCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.fileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.fileName {
+  max-width: calc(100% - 65px);
+  vertical-align: middle;
+}
+
+@container (max-width: 520px) {
+  .signerRow {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    row-gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .signerSide {
+    grid-column: 2;
+  }
+
+  .signerActions {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .signerPerson {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+}

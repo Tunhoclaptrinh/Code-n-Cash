@@ -1,3 +1,5 @@
+import { DemoFillButton } from "@/shared/ui/DemoFillButton";
+import { ContractDocumentPanel } from "@/shared/ui/ContractDocumentPanel";
 import { Alert, Button, Input, Table, Tag } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -55,6 +57,7 @@ export default function DigitizeReviewPage() {
         { label: t("digitize.breadcrumb.current") },
       ]}
     >
+      <ContractDocumentPanel contractId={contractId} />
       {digitization.data ? (
         <Review contractId={contractId} data={digitization.data} />
       ) : (
@@ -81,9 +84,7 @@ function Review({
   const pendingCount = data.milestones.filter(
     (m) => m.source === "NEEDS_CONFIRMATION",
   ).length;
-  const [deadlineText, setDeadlineText] = useState(
-    dateToInputText(pending?.dueDate ?? data.suggestedDueDate),
-  );
+  const [deadlineText, setDeadlineText] = useState("");
   const [deadlineInvalid, setDeadlineInvalid] = useState(false);
   const [highlighted, setHighlighted] = useState<SourceClauseKind | null>(null);
   const confirm = useMutation({
@@ -248,6 +249,16 @@ function Review({
                   className={styles.deadlineLabel}
                 >
                   {t("digitize.ambiguity.label", { no: pending.sequence })}
+                  <DemoFillButton
+                    testId="load-deadline-suggestion"
+                    disabled={!!deadlineText.trim() || !data.suggestedDueDate}
+                    onClick={() => {
+                      setDeadlineText(dateToInputText(data.suggestedDueDate));
+                      setDeadlineInvalid(false);
+                    }}
+                  >
+                    {t("digitize.ambiguity.loadSuggestion")}
+                  </DemoFillButton>
                 </label>
                 <Input
                   id="milestone-deadline"

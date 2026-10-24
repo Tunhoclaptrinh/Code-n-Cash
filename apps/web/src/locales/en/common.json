@@ -222,5 +222,15 @@
     "invalid": "{{field}} has an invalid format or is outside the allowed range.",
     "enter": "Enter {{field}}",
     "choose": "Choose {{field}}"
+  },
+  "demoFill": {
+    "action": "Fill sample",
+    "all": "Fill sample data",
+    "hint": "Fill empty fields only; does not save or submit.",
+    "notice": "Enter your details or use sample input to try the flow.",
+    "completeFirst": "Complete required fields before generating a file."
+  },
+  "tableActions": {
+    "more": "More actions"
   }
 }

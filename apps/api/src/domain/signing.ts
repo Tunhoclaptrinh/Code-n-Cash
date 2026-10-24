@@ -11,7 +11,7 @@ import { repoRoot } from "../common/paths";
 import { digestBytes } from "../trust/crypto";
 import {
   LocalSigningProvider,
-  type SigningProvider,
+  getSigningProvider,
 } from "../trust/signing-provider";
 import { outcome, newEvent, type Outcome } from "./actions";
 import type { Ctx } from "./context";
@@ -33,7 +33,12 @@ import type {
   VerificationResult,
 } from "./types";
 
-const signingProvider: SigningProvider = new LocalSigningProvider();
+const signingProvider = {
+  sign: (subject: string, payload: Record<string, unknown>) =>
+    getSigningProvider().sign(subject, payload),
+  verify: (subject: string, proof: import("../trust/types").LocalProof) =>
+    getSigningProvider().verify(subject, proof),
+};
 const REQUEST_LIFETIME_MS = 5 * 60 * 1000;
 /** The simulated signer confirms on the phone a few seconds after the request is sent. */
 const SIMULATED_CONFIRM_DELAY_MS = 7000;
@@ -71,6 +76,9 @@ export function signingDigest(ctx: Ctx, code: string) {
       terms,
       fileName: signing.fileName,
       slots: signing.slots,
+      ...((draft?.appendixDocuments?.length ?? 0)
+        ? { appendices: draft!.appendixDocuments }
+        : {}),
       signers: signing.steps.map((step) => ({
         stepNo: step.stepNo,
         userId: step.signerUserId,
@@ -93,6 +101,20 @@ export function signingDigest(ctx: Ctx, code: string) {
     const digest = digestBytes(bytes);
     if (digest !== draft.file.sha256)
       throw new BadRequestException("DOCUMENT_CHANGED");
+    for (const appendix of draft.appendixDocuments ?? []) {
+      if (!/^[a-f0-9-]{36}$/.test(appendix.id))
+        throw new BadRequestException("INVALID_DOCUMENT");
+      const appendixBytes = readFileSync(
+        resolve(
+          repoRoot(),
+          process.env.DATA_DIR ?? ".data",
+          "uploads",
+          appendix.id,
+        ),
+      );
+      if (digestBytes(appendixBytes) !== appendix.sha256)
+        throw new BadRequestException("DOCUMENT_CHANGED");
+    }
     return { digest, termsDigest, basis: "DOCUMENT_BYTES" as const };
   }
   return { digest: termsDigest, termsDigest, basis: "TERMS_SNAPSHOT" as const };
@@ -135,6 +157,7 @@ export function signingOverview(
   const mine = config.steps.find((s) => s.signerUserId === ctx.actor.id);
   return {
     ...config,
+    simulated: getSigningProvider().simulated,
     currentStepNo: current?.stepNo ?? null,
     myStepNo: mine?.stepNo ?? null,
     lastMethod: profile?.lastMethod ?? "USB_TOKEN",
@@ -218,7 +241,10 @@ function assertSigner(ctx: Ctx, contractCode: string, stepNo: number) {
  * Records a signature and moves the sequence on. When the last signer signs, the buyer's
  * CONTRACT_SIGNED event is recorded (spec 4.2: the buyer creates it) and the contract starts.
  */
-function complete(ctx: Ctx, request: SigningRequestRecord): Outcome {
+async function complete(
+  ctx: Ctx,
+  request: SigningRequestRecord,
+): Promise<Outcome> {
   const record = stored(ctx, request.contractCode);
   const step = record.steps.find((s) => s.stepNo === request.stepNo)!;
   if (request.status !== "PENDING" || step.status !== "CURRENT")
@@ -235,7 +261,7 @@ function complete(ctx: Ctx, request: SigningRequestRecord): Outcome {
   const previous = record.steps.find(
     (s) => s.stepNo === step.stepNo - 1,
   )?.localProof;
-  const proof = signingProvider.sign(`signer:${step.signerUserId}`, {
+  const proof = await signingProvider.sign(`signer:${step.signerUserId}`, {
     kind: "CONTRACT_SIGNATURE",
     contractCode: request.contractCode,
     requestId: request.id,
@@ -252,6 +278,9 @@ function complete(ctx: Ctx, request: SigningRequestRecord): Outcome {
   if (!signingProvider.verify(`signer:${step.signerUserId}`, proof))
     throw new BadRequestException("INVALID_SIGNATURE_PROOF");
   step.localProof = proof;
+  step.proofSource = getSigningProvider().kind as NonNullable<
+    typeof step.proofSource
+  >;
   request.status = "COMPLETED";
   step.status = "SIGNED";
   step.signedAt = signedAt;
@@ -325,18 +354,22 @@ function complete(ctx: Ctx, request: SigningRequestRecord): Outcome {
 }
 
 /** Reading a request lets the simulated phone side progress (expiry, auto-confirmation). */
-export function readRequest(
+export async function readRequest(
   ctx: Ctx,
   contractCode: string,
   stepNo: number,
-): Outcome<SigningRequest | null> {
+): Promise<Outcome<SigningRequest | null>> {
   assertSigner(ctx, contractCode, stepNo);
   const request = latestRequest(ctx, contractCode, stepNo);
   if (request?.status === "PENDING") {
     const now = Date.now();
     if (Date.parse(request.expiresAt) <= now) request.status = "EXPIRED";
-    else if (request.autoConfirmAt && Date.parse(request.autoConfirmAt) <= now)
-      return complete(ctx, request) as Outcome<SigningRequest>;
+    else if (
+      getSigningProvider().simulated &&
+      request.autoConfirmAt &&
+      Date.parse(request.autoConfirmAt) <= now
+    )
+      return (await complete(ctx, request)) as Outcome<SigningRequest>;
   }
   return outcome(ctx, request ? plain(request) : null);
 }
@@ -375,7 +408,9 @@ export function sendRequest(
       code: String(randomInt(1000, 10000)),
       sentAt: new Date(now).toISOString(),
       expiresAt: new Date(now + REQUEST_LIFETIME_MS).toISOString(),
-      autoConfirmAt: new Date(now + SIMULATED_CONFIRM_DELAY_MS).toISOString(),
+      autoConfirmAt: getSigningProvider().simulated
+        ? new Date(now + SIMULATED_CONFIRM_DELAY_MS).toISOString()
+        : null,
       documentDigest: signingDigest(ctx, contractCode).digest,
       termsDigest: signingDigest(ctx, contractCode).termsDigest,
       organizationId: step.organizationId,
@@ -484,7 +519,13 @@ export function verification(
       )?.localProof;
       const cryptoValid =
         !!proof &&
-        signingProvider.verify(`signer:${s.signerUserId}`, proof) &&
+        (s.proofSource === "HTTP_ED25519_BRIDGE"
+          ? !getSigningProvider().simulated &&
+            signingProvider.verify(`signer:${s.signerUserId}`, proof)
+          : new LocalSigningProvider().verify(
+              `signer:${s.signerUserId}`,
+              proof,
+            )) &&
         proof.payload.contractCode === contractCode &&
         proof.payload.signerUserId === s.signerUserId &&
         proof.payload.stepNo === s.stepNo &&

@@ -79,7 +79,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       void queryClient.invalidateQueries({
         predicate: (query) =>
           WORKFLOW_KEYS.includes(String(query.queryKey[0])) ||
-          (query.queryKey[0] === "resource" && query.queryKey[1] === "audit"),
+          (query.queryKey[0] === "resource" &&
+            [
+              "audit",
+              "documents",
+              "contract-drafts",
+              "milestone-templates",
+            ].includes(String(query.queryKey[1]))),
       });
     window.addEventListener("codecash:workflow-changed", refresh);
     return () => {

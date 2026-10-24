@@ -80,7 +80,7 @@ python3 apps/engine/cli.py --data duong/dan/bo-du-lieu --inspect          # tệ
 python3 apps/engine/cli.py --data duong/dan/bo-du-lieu --output artifacts/run-hidden
 ```
 
-Bắt buộc 5 tệp `contracts`, `parties`, `milestones`, `events`, `payment_rules`. Không có template thì dựng 22 cột theo `milestones.csv`; có `*test_ids*.csv` thì chỉ xuất các mốc trong đó. Với bộ dữ liệu tải lên, vi phạm bất biến được báo trong `metrics.json` thay vì dừng chạy.
+Bắt buộc 5 tệp `contracts`, `parties`, `milestones`, `events`, `payment_rules`. Không có template thì dựng 22 cột theo `milestones.csv`; mặc định luôn xuất đủ template, bỏ qua `*test_ids*.csv`; `--apply-scope` chỉ dành cho chẩn đoán riêng, không dùng cho bài nộp. Profile bài nộp dừng nếu vi phạm bất biến, không xuất CSV có thể bị hiểu nhầm là hợp lệ. Profile workflow giữ diagnostic để kiểm tra nhưng API chặn ghi giao dịch khi kết quả vi phạm.
 
 Đầu ra: `submission_output.csv` đúng 22 cột/405 dòng, `audit.json`, `metrics.json`. Adapter gọi đúng bộ quy tắc đang được kiểm chứng, dùng Decimal, giữ sáu trường BTC điền sẵn. Accuracy chỉ công bố trên 20 mẫu công khai; độ phủ 405 mốc không phải ground truth toàn bộ.
 
@@ -114,3 +114,5 @@ Stack gồm nginx (SPA + proxy `/api`), API (kèm engine Python) và MongoDB rep
 - Rà soát điều khoản dựng mốc từ mẫu quy trình của Data Pack và dữ liệu nhập ở form; chưa có OCR/AI đọc PDF.
 - Accuracy chỉ đo trên 20 mẫu công khai; không suy ra cho 405 mốc hay hidden test.
 - MongoDB có adapter và cấu hình nhưng phải chạy integration test với Mongo thực trước khi triển khai; kiểm thử mặc định dùng kho file.
+
+Rà soát theo trả lời BTC: `python3 tools/ra_soat_btc.py` tạo báo cáo kiểm tra 405 mốc và giới hạn kết luận. Xem [14 — Đồng/Bạc/Vàng](docs/14_RA_SOAT_BTC_DONG_BAC_VANG.md) và [15 — Xác nhận BTC](docs/15_XAC_NHAN_BTC_VA_GIA_DINH.md). Profile `BTC_SUBMISSION` không áp ngoại lệ của ứng dụng; `--workflow` dành cho nghiệp vụ Silver.

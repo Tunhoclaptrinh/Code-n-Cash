@@ -1,3 +1,4 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,6 @@ import {
 import {
   DataTable,
   DetailModal,
-  IconButton,
   PageContainer,
   type FilterConfig,
   type StatisticsItem,
@@ -318,11 +318,14 @@ export default function PermissionMatrixPage() {
           exportable
           exportFilename="permission-matrix"
           onExport={(options) => void onExport(options)}
+          actionsWidth={72}
           customActions={(row) => (
-            <IconButton
-              icon={<EyeOutlined />}
-              tooltip={t("permissions.detail")}
-              onClick={() => setDetail(row)}
+            <TableRowActions
+              primary={{
+                label: t("permissions.detail"),
+                icon: <EyeOutlined />,
+                onClick: () => setDetail(row),
+              }}
             />
           )}
         />

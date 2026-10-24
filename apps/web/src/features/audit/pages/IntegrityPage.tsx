@@ -1,3 +1,4 @@
+import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -91,6 +92,15 @@ export default function IntegrityPage() {
                   onPressEnter={() => setAnchor(anchorText.trim())}
                   aria-label={t("integrity.chain.anchor.label")}
                 />
+                <DemoFillButton
+                  disabled={!!anchorText.trim() || !report.data?.chain.head}
+                  onClick={() => {
+                    const head = report.data?.chain.head;
+                    if (head) setAnchorText(`${head.seq}:${head.hash}`);
+                  }}
+                >
+                  {t("integrity.chain.anchor.loadCurrent")}
+                </DemoFillButton>
                 <Button onClick={() => setAnchor(anchorText.trim())}>
                   {t("integrity.chain.anchor.check")}
                 </Button>

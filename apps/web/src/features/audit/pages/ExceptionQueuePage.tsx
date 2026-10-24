@@ -1,10 +1,10 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Alert, Space, Tag, Typography } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import {
   DataTable,
-  IconButton,
   PageContainer,
   type FilterConfig,
   type StatisticsItem,
@@ -211,7 +211,11 @@ export default function ExceptionQueuePage() {
         ) : null}
         <DataTable<QueueRow>
           rowKey={(row) => row.milestone.id}
-          columns={columns}
+          scroll={{ x: 1500 }}
+          columns={columns.map((column) => ({
+            ...column,
+            width: ({} as Record<string, number>)[String(column.key)] ?? 200,
+          }))}
           {...list.table}
           statisticsData={statistics}
           tabs={[
@@ -228,12 +232,14 @@ export default function ExceptionQueuePage() {
           exportable
           exportFilename="exceptions"
           onExport={(options) => void onExport(options)}
+          actionsWidth={72}
           customActions={(row) => (
-            <IconButton
-              icon={<ArrowRightOutlined />}
-              tooltip={t("exceptions.open")}
-              success
-              onClick={() => navigate(path(row))}
+            <TableRowActions
+              primary={{
+                label: t("exceptions.open"),
+                icon: <ArrowRightOutlined />,
+                onClick: () => navigate(path(row)),
+              }}
             />
           )}
         />

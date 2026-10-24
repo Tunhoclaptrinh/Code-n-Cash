@@ -41,7 +41,8 @@
     "kinds": {
       "TEMPLATE": "Mẫu quy trình",
       "TEXT_RULES": "Trích xuất văn bản cục bộ"
-    }
+    },
+    "loadSuggestions": "Nạp đề xuất"
   },
   "rules": {
     "title": "Phiên bản quy tắc và mẫu mốc",
@@ -85,6 +86,14 @@
       "PUBLISHED": "Đang phát hành",
       "RETIRED": "Đã có phiên bản thay thế"
     },
+    "preview": "Chạy thử tác động",
+    "previewSummary": "Đã tính {{evaluated}} mốc · Khớp {{matched}}/{{samples}} mẫu · {{changed}} mốc thay đổi · {{violations}} vi phạm",
+    "previewScope": "Mẫu mốc thay đổi: {{templates}} (chỉ cho hồ sơ mới). Gửi duyệt cần giữ nguyên quyết định, lý do, trạng thái và số tiền trên toàn pack.",
+    "milestone": "Mã mốc",
+    "before": "Trước",
+    "after": "Sau",
+    "demoName": "Phiên bản quy tắc dùng thử",
+    "demoReason": "Dữ liệu demo: kiểm tra tác động trước khi gửi xét duyệt; chưa đề xuất thay đổi kết quả nghiệp vụ.",
     "language": {
       "scope": "Chọn quy trình và loại mốc",
       "reference": "Biến, cú pháp và ví dụ",
@@ -117,7 +126,6 @@
       "restore": "Khôi phục bản lưu",
       "position": "dòng {{line}}, cột {{column}}",
       "previewFirst": "Chạy thử bản đang sửa và xử lý kết quả bị chặn trước khi gửi duyệt.",
-      "usedVariables": "{{count}} biến trong biểu thức",
       "priorities": {
         "10": "Đang có tranh chấp",
         "20": "Có từ chối hợp lệ",
@@ -173,11 +181,9 @@
         "INTEGER_DAYS_REQUIRED": "Số ngày cộng vào ngày phải là số nguyên; hệ thống không tự cắt phần lẻ.",
         "NEGATIVE_AMOUNT": "Công thức tiền cố định không được trả số âm."
       },
+      "usedVariables": "{{count}} biến trong biểu thức",
       "unitHint": "Phép cộng/trừ, so sánh và MIN/MAX phải cùng đơn vị. Ngày × %/ngày ÷ 100 × tiền cho kết quả tiền. Số cố định như 0 trong MAX(0, tiền) được hiểu theo đơn vị của vế còn lại; công thức chỉ có số cố định được hiểu là triệu VND."
     },
-    "preview": "Chạy thử tác động",
-    "previewSummary": "Đã tính {{evaluated}} mốc · Khớp {{matched}}/{{samples}} mẫu · {{changed}} mốc thay đổi · {{violations}} vi phạm",
-    "previewScope": "Mẫu mốc thay đổi: {{templates}} (chỉ cho hồ sơ mới). Gửi duyệt cần giữ nguyên quyết định, lý do, trạng thái và số tiền trên toàn pack.",
     "previewChanges": "Xem tối đa 30 mốc thay đổi (tiền theo triệu VND)",
     "previewMilestone": "Mốc",
     "previewBefore": "Trước",

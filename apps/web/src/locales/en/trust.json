@@ -41,7 +41,8 @@
     "kinds": {
       "TEMPLATE": "Workflow template",
       "TEXT_RULES": "Local text extraction"
-    }
+    },
+    "loadSuggestions": "Load suggestions"
   },
   "rules": {
     "title": "Rule and template versions",
@@ -85,6 +86,14 @@
       "PUBLISHED": "Published",
       "RETIRED": "Retired"
     },
+    "preview": "Preview impact",
+    "previewSummary": "{{evaluated}} milestones · {{matched}}/{{samples}} samples · {{changed}} changed · {{violations}} violations",
+    "previewScope": "{{templates}} template changes (new contracts only). Submission requires unchanged decisions, reasons, statuses and amounts across the full pack.",
+    "milestone": "Milestone",
+    "before": "Before",
+    "after": "After",
+    "demoName": "Demo rule revision",
+    "demoReason": "Demo input: preview impact before requesting review; no business outcome change is proposed.",
     "language": {
       "scope": "Select workflow and milestone type",
       "reference": "Variables, syntax and examples",
@@ -117,7 +126,6 @@
       "restore": "Restore saved value",
       "position": "line {{line}}, column {{column}}",
       "previewFirst": "Preview this revision and address blockers before submitting.",
-      "usedVariables": "{{count}} variables used",
       "priorities": {
         "10": "Open dispute",
         "20": "Valid rejection",
@@ -173,11 +181,9 @@
         "INTEGER_DAYS_REQUIRED": "Date offsets must be whole days; fractional days are never truncated.",
         "NEGATIVE_AMOUNT": "A constant money formula cannot return a negative amount."
       },
+      "usedVariables": "{{count}} variables used",
       "unitHint": "Addition, subtraction, comparisons and MIN/MAX require compatible units. Days × %/day ÷ 100 × money yields money. Fixed numbers such as 0 in MAX(0, money) inherit the other operand’s unit; constant-only money formulas mean million VND."
     },
-    "preview": "Preview impact",
-    "previewSummary": "{{evaluated}} milestones · {{matched}}/{{samples}} samples · {{changed}} changed · {{violations}} violations",
-    "previewScope": "{{templates}} template changes (new contracts only). Submission requires unchanged decisions, reasons, statuses and amounts across the full pack.",
     "previewChanges": "Inspect up to 30 changed milestones (million VND)",
     "previewMilestone": "Milestone",
     "previewBefore": "Before",

@@ -1,3 +1,4 @@
+import { DemoFillButton, fillEmptyInputs } from "@/shared/ui/DemoFillButton";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -52,9 +53,7 @@ export function ExtractionPanel({ code }: { code: string }) {
       Object.fromEntries(
         paths.map((path) => [
           path,
-          proposal.data?.confirmedValues?.[path] ??
-            proposal.data?.fields.find((field) => field.path === path)?.value ??
-            String(draft.data?.[path] ?? ""),
+          proposal.data?.confirmedValues?.[path] ?? "",
         ]),
       ),
     );
@@ -119,6 +118,26 @@ export function ExtractionPanel({ code }: { code: string }) {
           >
             {t("extraction.document")}
           </Button>
+        ) : null}
+        {proposal.data && !proposal.data.confirmedBy ? (
+          <DemoFillButton
+            onClick={() =>
+              setValues((current) =>
+                fillEmptyInputs(
+                  current,
+                  Object.fromEntries(
+                    proposal.data!.fields.map((field) => [
+                      field.path,
+                      field.value ?? "",
+                    ]),
+                  ),
+                ),
+              )
+            }
+            testId="extraction-load-suggestions"
+          >
+            {t("extraction.loadSuggestions")}
+          </DemoFillButton>
         ) : null}
         {proposal.data ? (
           <Tag>

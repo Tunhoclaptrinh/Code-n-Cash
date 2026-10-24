@@ -1,0 +1,75 @@
+{
+  "sample": "CODECASH TEST FIXTURE — UNSIGNED",
+  "sections": [
+    {
+      "title": "Parties and purpose",
+      "body": "Buyer: {buyer}. Supplier: {supplier}. Reference: {code}. This test fixture reflects the form and is not legal advice."
+    },
+    {
+      "title": "Scope of work",
+      "body": "The supplier delivers the work described by the contract title and its milestones. Evidence must belong to this contract and the correct event type."
+    },
+    {
+      "title": "Contract value",
+      "body": "Value is stated in million VND with two decimal places. Payment follows the rule version pinned to the contract."
+    },
+    {
+      "title": "Milestones and payment",
+      "body": "The milestones below come from the configured workflow template. A reviewer must confirm the dates before issuance."
+    },
+    {
+      "title": "Acceptance evidence",
+      "body": "Evidence must be provided by this contract supplier. Incomplete documents or invalid signatures do not authorize payment."
+    },
+    {
+      "title": "Approval policy",
+      "body": "Approval policy: {approvalPolicy}. Only the assigned roles and parties may vote. Contract signing does not replace payment approval."
+    },
+    {
+      "title": "Signers and order",
+      "body": "Signers act in the order shown below. The final step requires digital signing. The same person cannot occupy two steps."
+    },
+    {
+      "title": "Late penalty and grace",
+      "body": "Start date: {startDate}. End date: {endDate}. Grace period: {graceDays} days. Penalty rate: {penaltyRatePct}% per day."
+    },
+    {
+      "title": "Liability cap",
+      "body": "Penalty cap: {maxPenaltyPct}%. The engine uses exact decimal formulas and records decision reasons in the audit trail."
+    },
+    {
+      "title": "Warranty and support",
+      "body": "The warranty milestone opens only after its predecessor completes. Required evidence follows the configured contract workflow."
+    },
+    {
+      "title": "Disputes",
+      "body": "An open dispute holds release. The controller handles exceptions; system administration does not confer business approval authority."
+    },
+    {
+      "title": "Change control",
+      "body": "A rule change needs a version, reason, regression check and independent reviewer. Existing contracts retain their pinned version."
+    },
+    {
+      "title": "Effect and retention",
+      "body": "The contract becomes effective when all configured signing steps complete. This fixture is unsigned; demo LOCAL_ED25519 proof is not an externally trusted CA/PAdES certificate."
+    }
+  ],
+  "fields": {
+    "valueMillion": "Contract value: {value} million VND",
+    "startDate": "Start date: {value}",
+    "endDate": "End date: {value}",
+    "graceDays": "Grace period: {value} days",
+    "penaltyRatePct": "Penalty rate: {value}% per day",
+    "maxPenaltyPct": "Penalty cap: {value}%"
+  },
+  "stage": "{name} — {paymentPercent}% — {dueDate} — {requiredEvents}",
+  "single": "Single signer: this signature completes the configured signing workflow.",
+  "multiple": "Multiple signers: all steps must complete in order, representing both parties.",
+  "sides": {
+    "BUYER": "Buyer",
+    "SUPPLIER": "Supplier"
+  },
+  "page": "Section {page}/14",
+  "signatures": "Confirmation and signatures",
+  "signHere": "Signature area — name, timestamp and method"
+}

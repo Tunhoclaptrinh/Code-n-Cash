@@ -74,7 +74,7 @@ def scope_files(found):
     return [p for name, ps in found.items() if 'test_ids' in name or name.startswith('scope') for p in ps]
 
 
-def inspect(base):
+def inspect(base, apply_scope=False):
     base = Path(base)
     found = locate(base)
     files, ok = [], True
@@ -104,14 +104,16 @@ def inspect(base):
         ids = [r.get('milestone_id', '') for r in spec.read(scopes[0].parent, scopes[0].name)]
         scope_entry = {'path': str(scopes[0].relative_to(base)), 'rows': len(ids),
                        'status': 'ok' if ids and all(ids) else 'invalid'}
-    ok = ok and (not scope_entry or scope_entry['status'] == 'ok')
+    if scope_entry:
+        scope_entry['applied'] = apply_scope
+    ok = ok and (not apply_scope or not scope_entry or scope_entry['status'] == 'ok')
     return {'ok': ok, 'files': files, 'scope': scope_entry}
 
 
-def load(base):
+def load(base, *, apply_scope=False, workflow=False):
     """Build the pack; without a template the rows follow milestones.csv, as the official template does."""
     base = Path(base)
-    report = inspect(base)
+    report = inspect(base, apply_scope=apply_scope)
     if not report['ok']:
         problems = [f"{f['name']}:{f['status']}" for f in report['files'] if f['status'] not in ('ok', 'optional')]
         if report['scope'] and report['scope']['status'] != 'ok':
@@ -119,10 +121,16 @@ def load(base):
         raise ValueError('DATASET_INVALID ' + ', '.join(problems))
     paths = {f['role']: base / f['path'] for f in report['files'] if f['status'] == 'ok'}
     rows = {role: spec.read(path.parent, path.name) for role, path in paths.items()}
+    for role, key in [('contracts', 'contract_id'), ('parties', 'party_id'), ('milestones', 'milestone_id'), ('events', 'event_id'), ('payment_rules', 'rule_id')]:
+        ids = [row.get(key, '') for row in rows[role]]
+        if any(not value for value in ids) or len(ids) != len(set(ids)):
+            raise ValueError(f'DATASET_INVALID {role}:duplicate_or_empty_id')
     milestones = rows['milestones']
     known = {m['milestone_id'] for m in milestones}
     contracts = {c['contract_id']: c for c in rows['contracts']}
-    template = rows.get('template') or [
+    if 'template' in rows and not rows['template']:
+        raise ValueError('TEMPLATE_EMPTY')
+    template = rows.get('template') if 'template' in rows else [
         dict({key: '' for key in TEMPLATE_COLUMNS},
              contract_id=m['contract_id'], milestone_id=m['milestone_id'],
              contract_type=contracts.get(m['contract_id'], {}).get('contract_type', ''),
@@ -132,24 +140,44 @@ def load(base):
     unknown = sorted({t['milestone_id'] for t in template} - known)
     if unknown:
         raise ValueError('TEMPLATE_UNKNOWN_MILESTONES ' + ', '.join(unknown[:10]))
+    ids = [row['milestone_id'] for row in template]
+    if len(ids) != len(set(ids)):
+        raise ValueError('TEMPLATE_DUPLICATE_MILESTONES')
+    if set(ids) != known:
+        raise ValueError('TEMPLATE_INCOMPLETE')
+    generated = {m['milestone_id']: m for m in milestones}
+    for row in template:
+        milestone = generated[row['milestone_id']]
+        contract = contracts.get(milestone['contract_id'], {})
+        expected = {'contract_id': milestone['contract_id'], 'contract_type': contract.get('contract_type', ''),
+                    'milestone_sequence': milestone['milestone_sequence'], 'milestone_type': milestone['milestone_type'],
+                    'planned_payment_vnd_mn': milestone['planned_payment_vnd_mn']}
+        if any(row[key] != value for key, value in expected.items()):
+            raise ValueError(f"TEMPLATE_METADATA_MISMATCH {row['milestone_id']}")
+    # A submission always uses the 22 official columns, even if an uploaded template has extras.
+    template = [{key: row.get(key, '') for key in TEMPLATE_COLUMNS} for row in template]
     scope_ids, unknown_scope = None, []
-    if report['scope']:
+    if apply_scope and report['scope']:
         scope = base / report['scope']['path']
         scope_ids = {r['milestone_id'] for r in spec.read(scope.parent, scope.name)}
         unknown_scope = sorted(scope_ids - known)
         template = [t for t in template if t['milestone_id'] in scope_ids]
-    samples = [d for d in rows.get('decision_sample', []) if d['milestone_id'] in known]
-    voided_paths = locate(base).get(VOIDED, [])
+    output_ids = {row['milestone_id'] for row in template}
+    samples = [d for d in rows.get('decision_sample', []) if d['milestone_id'] in output_ids]
+    voided_paths = locate(base).get(VOIDED, []) if workflow else []
     if len(voided_paths) > 1:
         raise ValueError(f'DATASET_INVALID {VOIDED}:ambiguous')
     voided = frozenset(r['event_id'] for p in voided_paths for r in spec.read(p.parent, p.name) if r.get('event_id'))
     pack = spec.Pack(rows['contracts'], rows['parties'], milestones, rows['events'], rows['payment_rules'],
                      samples, template, base)
     # The scoring list changes the output, so it is part of the run identity.
-    hashed = [paths[role] for role in sorted(paths)] + ([base / report['scope']['path']] if report['scope'] else []) \
+    hashed = [paths[role] for role in sorted(paths)] + ([base / report['scope']['path']] if apply_scope and report['scope'] else []) \
         + voided_paths
     digest = hashlib.sha256(''.join(hashlib.sha256(p.read_bytes()).hexdigest() for p in hashed).encode()).hexdigest()
     source = {'kind': 'dataset', 'files': {role: str(path.relative_to(base)) for role, path in paths.items()},
+              'profile': 'WORKFLOW' if workflow else 'BTC_SUBMISSION',
+              'outputScope': 'EXPLICIT_SUBSET' if apply_scope and report['scope'] else 'FULL_TEMPLATE',
+              'scopeIgnored': bool(report['scope']) and not apply_scope,
               'generatedTemplate': 'template' not in paths, 'scopeRows': len(scope_ids) if scope_ids else None,
               'unknownScopeIds': unknown_scope[:50], 'voided': sorted(voided)}
     return pack, digest, source, voided

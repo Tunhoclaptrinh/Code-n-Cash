@@ -75,32 +75,32 @@ def kpi(pack, results, rows, traces, timings, matched, started):
     }
 
 
-def evaluate(as_of=None, data=None):
+def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
     """Official Data Pack by default. With `data`, an uploaded dataset: invariant breaks are reported, not raised."""
     started = perf_counter()
     voided = frozenset()
     if data:
-        pack, fingerprint, source, voided = dataset.load(data)
+        pack, fingerprint, source, voided = dataset.load(data, apply_scope=apply_scope, workflow=workflow)
     else:
         pack = spec.Pack.load(spec.DEFAULT_DATA)
         fingerprint = hashlib.sha256(''.join(
             hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((spec.DEFAULT_DATA / '01_data').glob('*.csv'))
         ).encode()).hexdigest()
-        source = {'kind': 'datapack'}
+        source = {'kind': 'datapack', 'profile': 'BTC_SUBMISSION', 'outputScope': 'FULL_TEMPLATE'}
     validate_rules.validate(pack.rules)
     results, timings = {}, {}
     for mid in pack.milestones:
         start = perf_counter()
         try:
-            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided)
+            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided, strict_resolution=workflow)
         except (KeyError, ValueError, ArithmeticError) as error:
             raise ValueError(f'EVALUATION_FAILED {mid}: {type(error).__name__} {error}') from error
         timings[mid] = (perf_counter() - start) * 1000
     violations = spec.check_invariants(pack, results) if not as_of else []
-    if violations and not data:
+    if violations and not workflow:
         raise ValueError('; '.join(violations))
     now = datetime.now(timezone.utc).isoformat()
-    run_id = 'run-' + hashlib.sha256((fingerprint + spec.SPEC_VERSION + str(as_of)).encode()).hexdigest()[:16]
+    run_id = 'run-' + hashlib.sha256((fingerprint + spec.SPEC_VERSION + str(as_of) + str(apply_scope) + str(workflow)).encode()).hexdigest()[:16]
     flags = spec.assumption_flags(pack, results)
     rows, traces = [], []
     for template in pack.template:
@@ -136,10 +136,10 @@ TIMELINE_FIELDS = ('decision', 'reason_code', 'rule_id', 'status', 'payable', 'p
                    'valid_approval_count', 'quorum', 'open_dispute_ids')
 
 
-def timeline(milestone_id, data=None):
+def timeline(milestone_id, data=None, *, workflow=False):
     """Decision of one milestone right after each moment of its history (as-of, BR-16), oldest first."""
     if data:
-        pack, _, _, voided = dataset.load(data)
+        pack, _, _, voided = dataset.load(data, workflow=workflow)
     else:
         pack, voided = spec.Pack.load(spec.DEFAULT_DATA), frozenset()
     validate_rules.validate(pack.rules)
@@ -148,7 +148,7 @@ def timeline(milestone_id, data=None):
     events = pack.events_by_ms[milestone_id]
     points = []
     for at in sorted({e['event_timestamp'] for e in events}):
-        result = spec.evaluate(pack, milestone_id, as_of=at, voided=voided)
+        result = spec.evaluate(pack, milestone_id, as_of=at, voided=voided, strict_resolution=workflow)
         points.append({'at': at, 'eventIds': [e['event_id'] for e in events if e['event_timestamp'] == at],
                        **{field: result[field] for field in TIMELINE_FIELDS}})
     return points
@@ -166,17 +166,19 @@ if __name__ == '__main__':
     parser.add_argument('--as-of')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--data', type=Path, help='uploaded dataset folder instead of the official Data Pack')
+    parser.add_argument('--apply-scope', action='store_true', help='diagnostic subset only; never use for the full BTC submission')
+    parser.add_argument('--workflow', action='store_true', help='enable approved live-workflow exception events; not the BTC submission profile')
     parser.add_argument('--inspect', action='store_true', help='only report which files were found in --data')
     parser.add_argument('--timeline', metavar='MILESTONE_ID', help='decision of one milestone after each of its events')
     args = parser.parse_args()
     try:
         if args.inspect:
-            print(json.dumps(dataset.inspect(args.data or spec.DEFAULT_DATA), ensure_ascii=False))
+            print(json.dumps(dataset.inspect(args.data or spec.DEFAULT_DATA, apply_scope=args.apply_scope), ensure_ascii=False))
             sys.exit(0)
         if args.timeline:
-            print(json.dumps(timeline(args.timeline, args.data), default=encode, ensure_ascii=False))
+            print(json.dumps(timeline(args.timeline, args.data, workflow=args.workflow), default=encode, ensure_ascii=False))
             sys.exit(0)
-        result = evaluate(args.as_of, args.data)
+        result = evaluate(args.as_of, args.data, apply_scope=args.apply_scope, workflow=args.workflow)
     except (ValueError, zipfile.BadZipFile) as error:
         # One line the API can show; a traceback adds nothing for a bad upload.
         print(str(error), file=sys.stderr)

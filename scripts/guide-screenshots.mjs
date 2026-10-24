@@ -5,7 +5,7 @@
  * the parts the guide text explains.
  *
  * Run against freshly imported data (the script approves, signs and resolves on the way):
- *   API: API_PORT=3100 DATA_DIR=<empty folder> pnpm dev:api
+ *   API: STORAGE_DRIVER=file API_PORT=3100 DATA_DIR=<empty folder> pnpm dev:api
  *   Web: VITE_API_PROXY=http://127.0.0.1:3100 pnpm --filter @codecash/web exec vite --port 5174 --strictPort
  *   WEB_URL=http://127.0.0.1:5174 pnpm guide:screenshots
  */
@@ -304,6 +304,7 @@ try {
     shot(`nav-${role}`, { clip: ".ant-layout-sider", margin: 0 });
 
   await mkdir(out, { recursive: true });
+  await mkdir(originalOut, { recursive: true });
   await send("Runtime.enable");
   await send("Page.enable");
   await viewport(1440, 900);
@@ -671,7 +672,7 @@ try {
     await evaluate("document.querySelector('.ant-modal-close').click()");
     await pause(300);
     await evaluate(
-      "document.querySelector('.ant-table-tbody .ant-table-row td:last-child [role=button]').click()",
+      "document.querySelector('.ant-table-tbody .ant-table-row td:last-child button').click()",
     );
     await until("!!document.querySelector('.ant-modal')");
     await pause(500);
@@ -708,17 +709,63 @@ try {
   });
   await attempt("upload", async () => {
     await go("/contracts/new", "!!document.querySelector('#contract-title')");
-    await shot("upload-form");
+    await shot("upload-form", {
+      marks: [{ n: 1, target: "[data-testid=contract-fill-demo]" }],
+    });
+    await click("[data-testid=contract-fill-demo]");
+    await until(
+      "document.querySelector('#contract-title').value.length > 0 && document.querySelectorAll('[data-testid=signer-row]').length > 0",
+    );
+    await shot("upload-demo-filled", {
+      marks: [{ n: 1, target: "[data-testid=contract-fill-demo]" }],
+    });
+    await press("[data-testid=contract-template-picker] [role=combobox]");
+    await until(
+      "!!document.querySelector('[data-testid=template-option-THREE_PARTY]')",
+    );
+    await click(
+      ".ant-select-dropdown [data-testid=template-option-THREE_PARTY]",
+    );
+    await until(
+      "document.querySelectorAll('[data-testid=signer-row]').length === 3",
+    );
+    await click("[data-testid=signer-add]");
+    await until(
+      "document.querySelectorAll('[data-testid=signer-row]').length === 4",
+    );
+    await click("[data-testid=contract-fill-demo]");
+    await until(
+      "document.querySelectorAll('[data-testid=signer-row] .ant-select-selection-placeholder').length === 0",
+    );
+    await click("[data-testid=generate-contract-sample]");
+    await until(
+      "!!document.querySelector('[data-testid=real-document-preview]')",
+    );
+    await evaluate(
+      "document.querySelector('[data-testid=real-document-preview]').scrollIntoView({block: 'center'})",
+    );
+    await shot("upload-real-preview", {
+      marks: [{ n: 1, target: "[data-testid=real-document-preview]" }],
+    });
+
+    await shot("upload-document", {
+      clip: "[data-testid=contract-document-section]",
+      margin: 16,
+      marks: [
+        { n: 1, target: "[data-testid=contract-document-body]" },
+        { n: 2, target: "[data-testid=contract-file-choose]", badge: "right" },
+      ],
+    });
     await shot("upload-signers", {
-      clip: "[data-testid=signer-list]",
-      margin: 60,
-      marks: [{ n: 1, target: "[data-testid=signer-preset-BUYER_FIRST]" }],
+      clip: "[data-testid=template-and-signers]",
+      margin: 16,
+      marks: [{ n: 1, target: "[data-testid=contract-template-picker]" }],
     });
   });
   await attempt("positions and digitize", async () => {
     await go(
       "/contracts/CT0101/sign-positions",
-      "document.body.innerText.includes('CT0101')",
+      "document.querySelectorAll('button[aria-pressed]').length >= 4",
     );
     await shot("upload-positions");
     await go(
@@ -731,6 +778,9 @@ try {
         { n: 2, target: "[data-testid=digitize-confirm]" },
       ],
     });
+    await evaluate(
+      "(() => {const fill = document.querySelector('[data-testid=load-deadline-suggestion]'); if (fill) fill.click();})()",
+    );
     await evaluate(
       "document.querySelector('[data-testid=digitize-confirm]').click()",
     );
@@ -915,8 +965,11 @@ try {
         { n: 3, target: { text: "Thêm mới" } },
         { n: 4, target: { text: "Nhập" } },
         { n: 5, target: { text: "Xuất" } },
-        { n: 6, target: ".ant-table-tbody .ant-table-row td:nth-child(6)" },
-        { n: 7, target: ".ant-table-tbody .ant-table-row td:last-child" },
+        {
+          n: 6,
+          target: ".ant-table-tbody .ant-table-row td:nth-child(6) .ant-tag",
+        },
+        { n: 7, target: "[data-testid=table-row-actions]" },
       ],
     });
     await click({ text: "Thêm mới" });
@@ -929,6 +982,33 @@ try {
     await until("!!document.querySelector('.ant-modal')");
     await pause(500);
     await shot("admin-import", { clip: ".ant-modal" });
+    await evaluate("document.querySelector('.ant-modal-close').click()");
+  });
+  await attempt("contract templates", async () => {
+    await go(
+      "/platform/contract-templates",
+      "document.querySelectorAll('.ant-table-row').length >= 4",
+    );
+    await shot("admin-contract-templates", {
+      marks: [
+        { n: 1, target: { text: "Thêm mới" } },
+        { n: 2, target: ".ant-table-tbody .ant-table-row td:last-child" },
+      ],
+    });
+    await evaluate(
+      "document.querySelector('.ant-table-tbody .ant-table-row td:last-child button').click()",
+    );
+    await until("!!document.querySelector('.ant-modal textarea#documentBody')");
+    await evaluate(
+      "document.querySelector('.ant-modal #documentBody').scrollIntoView({block: 'end'})",
+    );
+    await shot("admin-template-editor", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "#signerRoles" },
+        { n: 2, target: "#documentBody" },
+      ],
+    });
     await evaluate("document.querySelector('.ant-modal-close').click()");
   });
   await attempt("users", async () => {

@@ -28,6 +28,16 @@ Tải mẫu của đúng tài nguyên, điền cột theo mẫu rồi chọn t�
 
 Nhập tài nguyên quản trị khác với tải Data Pack để engine đánh giá. Hai chức năng có mục đích và cấu trúc tệp riêng.
 
+## Quản lý mẫu hợp đồng
+
+![Danh mục mẫu: 1 — thêm mẫu; 2 — sửa hoặc mở menu xóa](../../../public/guide/images/admin-contract-templates.webp)
+
+Mở tab **Mẫu hợp đồng** bằng tài khoản quản trị. Thêm, sửa, xóa hoặc tắt mẫu; nhập/xuất dùng cùng công cụ bảng. Cấu hình loại hợp đồng, giá trị gợi ý, chính sách phê duyệt, phạt, thứ tự vai trò ký và nội dung bổ sung. Mẫu nhiều người ký phải có đại diện hai bên; người lập hồ sơ sẽ chọn người ký cụ thể.
+
+![Sửa mẫu: 1 — thứ tự vai trò ký; 2 — nội dung bổ sung](../../../public/guide/images/admin-template-editor.webp)
+
+Nội dung là văn bản; dùng biến trong hai dấu ngoặc nhọn như `{{title}}`, `{{buyer}}`, `{{supplier}}`, `{{valueMillion}}`. Lưu xong, người lập hồ sơ chọn mẫu ở màn tải lên và điều chỉnh riêng. Sửa/xóa mẫu không đổi hồ sơ đã lưu. Có thể tắt mẫu để ngừng dùng cho hồ sơ mới.
+
 ## Quản lý người dùng
 
 ![Thao tác người dùng ở menu cuối dòng](../../../public/guide/images/admin-users.webp)
@@ -40,9 +50,13 @@ Mở tab **Người dùng**. Dùng biểu tượng sửa để thay thông tin �
 
 Ma trận cho biết vai trò nào được xem, tạo, sửa, nhập, xuất và chạy hành động. Tìm nhóm như kiểm soát, hợp đồng hoặc tài khoản. Đây là màn đọc quyền hiện có, không phải nơi bấm bật/tắt quyền động.
 
-> **Giới hạn cấu hình:** rule đánh giá và ma trận quyền không sửa qua màn hình này. Tham số nhập trong hồ sơ hợp đồng đi vào mốc nghiệp vụ; bản ghi “tham số” tạo tuỳ ý ở quản trị không tự thay engine. Phiên bản rule có luồng soạn, chạy thử và duyệt riêng ở trang cấu hình quy tắc; provider tích hợp cần phát triển và review riêng.
+> **Giới hạn cấu hình:** ma trận quyền chỉ hiển thị để đối chiếu; rule có luồng soạn, chạy thử và duyệt phiên bản riêng. Tham số nhập trong hồ sơ hợp đồng đi vào mốc nghiệp vụ; bản ghi “tham số” tạo tùy ý ở quản trị không tự thay engine. Provider mới cần được tích hợp và kiểm chứng riêng.
 
 Lỗi `MANAGED_RECORD` nghĩa là bản ghi thuộc nguồn được bảo vệ; mở đúng trang nghiệp vụ thay vì thử nhập đè. Nếu không có nút ghi, kiểm tra bạn đang dùng kiểm toán hay quản trị. Xem [Vai trò](/guide/roles) và [Công cụ bảng](/guide/tables).
+
+## Điền dữ liệu dùng thử
+
+Form thêm mới để trống. Nút **Điền mẫu toàn bộ** duy nhất ở đầu form điền tất cả ô trống; kiểm tra lại rồi tự bấm lưu. Nút không tự tạo tài khoản, đổi quyền, reset mật khẩu hoặc phát hành rule. Dữ liệu tham chiếu được lấy từ danh mục bạn được quyền xem. Phiên bản rule chỉ được gửi duyệt khi không làm đổi baseline 405 mốc, khớp mẫu và bất biến; kiểm tra này chưa xác nhận ground truth ẩn.
 
 ## Soạn điều kiện và công thức quy tắc
 

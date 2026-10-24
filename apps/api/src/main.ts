@@ -1,10 +1,21 @@
+import { getSigningProvider } from "./trust/signing-provider";
 import { existsSync } from "node:fs";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { SampleDocumentsController } from "./sample-documents";
+import { ContractFilesController } from "./contract-files";
 import { DocumentsController } from "./documents";
 import "reflect-metadata";
 import { WorkflowController, WorkflowService } from "./workflow.controller";
 import { config as loadEnv } from "dotenv";
-import { Module, Controller, Get, Inject } from "@nestjs/common";
+import {
+  Module,
+  Controller,
+  Get,
+  Inject,
+  BadRequestException,
+  PayloadTooLargeException,
+} from "@nestjs/common";
+import type { Request, Response, NextFunction } from "express";
 import { NestFactory, APP_GUARD } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { randomUUID } from "node:crypto";
@@ -48,6 +59,8 @@ class HealthController {
     EngineController,
     WorkflowController,
     DocumentsController,
+    ContractFilesController,
+    SampleDocumentsController,
     PermissionsController,
   ],
   providers: [
@@ -65,10 +78,26 @@ class HealthController {
 })
 class ApplicationModule {}
 async function main() {
+  getSigningProvider();
   const app =
     await NestFactory.create<NestExpressApplication>(ApplicationModule);
-  // A full 128-rule version exceeds Express's default 100 kB JSON limit.
+  // A complete 128-rule revision exceeds Express's default 100 KB JSON limit.
   app.useBodyParser("json", { limit: "4mb" });
+  // Normalize parser errors before Nest maps SyntaxError to its implementation message.
+  app.use(
+    (
+      error: { type?: string },
+      _req: Request,
+      _res: Response,
+      next: NextFunction,
+    ) => {
+      if (error.type === "entity.parse.failed")
+        return next(new BadRequestException("INVALID_JSON"));
+      if (error.type === "entity.too.large")
+        return next(new PayloadTooLargeException("PAYLOAD_TOO_LARGE"));
+      next(error);
+    },
+  );
   await app.get(Repository).init();
   app.setGlobalPrefix("api/v1");
   app.enableCors({

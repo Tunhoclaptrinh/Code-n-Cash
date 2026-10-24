@@ -60,7 +60,8 @@
     "NOT_YOUR_TURN": "Chưa đến lượt bạn ký.",
     "IMAGE_NOT_ALLOWED": "Hợp đồng này bắt buộc chữ ký số, không dùng được ảnh chữ ký.",
     "SIGNING_ALREADY_STARTED": "Đã có người ký nên không thể thay đổi.",
-    "UNKNOWN": "Không thực hiện được. Vui lòng thử lại."
+    "UNKNOWN": "Không thực hiện được. Vui lòng thử lại.",
+    "SIGNATURE_PROVIDER_ERROR": "Nhà cung cấp ký chưa trả về bằng chứng hợp lệ. Trạng thái chưa được hoàn tất."
   },
   "positions": {
     "breadcrumb": {
@@ -88,7 +89,7 @@
     },
     "list": {
       "title": "Danh sách ô ký",
-      "reset": "Đặt lại vị trí mẫu",
+      "reset": "Điền vị trí ký mẫu",
       "cardTitle": "{{party}} · {{person}}",
       "status": {
         "UNASSIGNED": "Chưa gán",
@@ -166,7 +167,8 @@
       "title": "MS{{no}}: hợp đồng chỉ ghi \"sau {{months}} tháng bảo hành\"",
       "body": "Chưa có ngày cụ thể nên hệ thống không tự suy ra được. Nhập ngày hạn, hoặc để trống và mốc này sẽ luôn ở trạng thái HOLD cho tới khi có ngày.",
       "label": "Hạn MS{{no}}",
-      "invalid": "Ngày không hợp lệ."
+      "invalid": "Ngày không hợp lệ.",
+      "loadSuggestion": "Nạp ngày gợi ý"
     },
     "approvers": {
       "title": "Người phê duyệt theo hợp đồng",
@@ -387,6 +389,8 @@
     "basis": {
       "DOCUMENT_BYTES": "Gắn với tệp gốc",
       "TERMS_SNAPSHOT": "Gắn với snapshot điều khoản"
-    }
+    },
+    "bridgeNotice": "Chữ ký được gửi đến dịch vụ ký đã cấu hình và chỉ ghi nhận sau khi kiểm tra bằng chứng trả về. Kết quả chưa bao gồm xác thực chứng thư CA/PAdES.",
+    "bridgeConfirm": "Xác nhận và gửi đến dịch vụ ký"
   }
 }

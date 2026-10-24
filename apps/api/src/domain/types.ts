@@ -736,6 +736,7 @@ export interface SignStep {
   status: SignStepStatus;
   signedAt: string | null;
   method: SignMethod | null;
+  proofSource?: "LOCAL_ED25519" | "HTTP_ED25519_BRIDGE";
   localProof?: {
     provider: "LOCAL_ED25519";
     payload: Record<string, unknown>;
@@ -826,6 +827,7 @@ export interface SignerCertificate {
 }
 
 export interface SigningOverview extends SigningConfig {
+  simulated: boolean;
   currentStepNo: number | null;
   myStepNo: number | null;
   lastMethod: SignMethod;
@@ -880,7 +882,18 @@ export interface DraftSigner {
 
 export type DraftState = "DRAFT" | "DIGITIZED" | "SIGNING" | "ACTIVE";
 
+export interface ContractTemplateSnapshot {
+  id: string;
+  version: number;
+  name: string;
+  documentBody: string;
+}
+
 export interface ContractDraft {
+  templateId?: string;
+  templateVersion?: number;
+  templateSnapshot?: ContractTemplateSnapshot;
+  documentBody?: string;
   ruleVersion?: { id: string; hash: string };
   code: string;
   state: DraftState;
@@ -899,6 +912,7 @@ export interface ContractDraft {
   signers: DraftSigner[];
   file: ContractFile;
   appendixNames: string[];
+  appendixDocuments?: Array<{ id: string; name: string; sha256: string }>;
 }
 
 export interface PersonOption {
@@ -911,7 +925,20 @@ export interface PersonOption {
 }
 
 export interface SigningPreset {
-  id: "BUYER_FIRST" | "SUPPLIER_FIRST" | "THREE_PARTY";
+  id: string;
+  name: string;
+  version: number;
+  description: string;
+  defaults: Pick<
+    ContractDraft,
+    | "type"
+    | "approvalPolicy"
+    | "valueMillion"
+    | "graceDays"
+    | "penaltyRatePct"
+    | "maxPenaltyPct"
+    | "documentBody"
+  >;
   signers: DraftSigner[];
 }
 

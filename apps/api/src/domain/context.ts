@@ -56,6 +56,7 @@ export const READ_TABLES = [
   "documents",
   "extraction-proposals",
   "rule-versions",
+  "contract-templates",
 ];
 
 const BUYER_ROLES = new Set([

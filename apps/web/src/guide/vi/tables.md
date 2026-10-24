@@ -54,3 +54,5 @@ Nhãn “Trang hiện tại (10 bản ghi)” trong hộp xuất của phần n�
 ## Nhập và xem nhanh
 
 Nhập chỉ có ở tài nguyên quản trị được cấp quyền. Tải mẫu, điền dữ liệu, xem lỗi từng dòng rồi nhập dòng hợp lệ; xem [Quản trị](/guide/admin). Bấm tên bản ghi để xem nhanh; ở hộp chi tiết có nút phóng toàn màn. Muốn ghi nghiệp vụ như phê duyệt hoặc nộp chứng từ, mở trang nghiệp vụ tương ứng.
+
+Trong cột **Thao tác**, nút icon được xếp gọn trên một hàng. Rê chuột hoặc dùng Tab để xem tên thao tác; nút hamburger **☰** mở menu có nhãn đầy đủ. Các nút trên thanh công cụ như **Thêm mới**, **Nhập**, **Xuất** vẫn có chữ.

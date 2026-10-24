@@ -1,3 +1,4 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -6,7 +7,6 @@ import { EyeOutlined } from "@ant-design/icons";
 import {
   DataTable,
   DetailModal,
-  IconButton,
   PageContainer,
   type FilterConfig,
   type StatisticsItem,
@@ -222,7 +222,17 @@ export function ActivityLogView({
       <Alert type="info" showIcon title={t("appendOnly")} />
       <DataTable<ActivityEntry>
         rowKey="id"
-        columns={columns}
+        scroll={{ x: 1400 }}
+        columns={columns.map((column) => ({
+          ...column,
+          width:
+            (
+              { at: 180, actor: 220, action: 340, contract: 220 } as Record<
+                string,
+                number
+              >
+            )[String(column.key)] ?? 200,
+        }))}
         {...list.table}
         emptyText={t("table.empty")}
         statisticsData={statistics}
@@ -247,11 +257,14 @@ export function ActivityLogView({
         exportFilename={t("export.fileName")}
         onExport={(options) => void onExport(options)}
         onView={(e) => setDetail(e)}
+        actionsWidth={72}
         customActions={(e) => (
-          <IconButton
-            icon={<EyeOutlined />}
-            tooltip={t("detail.view")}
-            onClick={() => setDetail(e)}
+          <TableRowActions
+            primary={{
+              label: t("detail.view"),
+              icon: <EyeOutlined />,
+              onClick: () => setDetail(e),
+            }}
           />
         )}
       />

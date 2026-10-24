@@ -576,6 +576,53 @@
           }
         }
       ]
+    },
+    {
+      "key": "contract-templates",
+      "permissions": [
+        {
+          "key": "contract-templates:read",
+          "grants": {
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all",
+            "CONTRACT_OWNER": "all",
+            "LEGAL_REVIEWER": "all"
+          }
+        },
+        {
+          "key": "contract-templates:create",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
+          "key": "contract-templates:update",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
+          "key": "contract-templates:delete",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
+          "key": "contract-templates:import",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
+          "key": "contract-templates:export",
+          "grants": {
+            "SYSTEM_ADMIN": "all",
+            "AUDITOR": "all",
+            "CONTRACT_OWNER": "all",
+            "LEGAL_REVIEWER": "all"
+          }
+        }
+      ]
     }
   ]
 }

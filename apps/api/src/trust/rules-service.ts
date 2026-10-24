@@ -1,4 +1,3 @@
-import { canonical } from "../common/audit-chain";
 import {
   BadRequestException,
   ConflictException,
@@ -8,6 +7,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from "@nestjs/common";
+import { canonical } from "../common/audit-chain";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
@@ -27,8 +27,8 @@ import { BUSINESS_EVENTS } from "../domain/vocabulary";
 import { versionHash, versionRuleSet } from "../domain/rule-versions";
 
 import type {
-  RuleLanguage,
   RuleExpressionValidation,
+  RuleLanguage,
   RulePreview,
 } from "./types";
 
@@ -377,7 +377,12 @@ export class RulesService {
       matched,
       samples: labels.length,
       invariantViolations: candidate.violations.length,
-      fingerprint: candidate.fingerprint,
+      compatibilityPolicy: "BTC_FULL_PACK_V1",
+      fingerprint: versionHash({
+        ...snapshot,
+        rules: body.rules,
+        templates: body.templates,
+      }),
       changed: changes.length,
       changes: changes.slice(0, 30),
       templateChanges: (body.templates as Record<string, unknown>[]).filter(
@@ -428,12 +433,12 @@ export class RulesService {
       throw new ForbiddenException("RULE_VERSION_AUTHOR_REQUIRED");
     await this.validateContent(snapshot.rules, snapshot.templates);
     await this.validateExpressions(snapshot.rules);
-    const result = await this.preview(id, {
+    const compatibility = await this.preview(id, {
       version: expected,
       rules: snapshot.rules,
       templates: snapshot.templates,
     });
-    if (!result.canSubmit)
+    if (!compatibility.canSubmit)
       throw new BadRequestException("RULE_VERSION_REGRESSION");
     return this.repo.transact(
       ["rule-versions"],
@@ -446,12 +451,14 @@ export class RulesService {
           status: "REVIEW",
           submittedBy: actor.id,
           validation: {
-            matched: result.matched,
-            samples: result.samples,
-            evaluated: result.evaluated,
-            invariantViolations: result.invariantViolations,
-            changed: result.changed,
-            fingerprint: result.fingerprint,
+            matched: compatibility.matched,
+            samples: compatibility.samples,
+            evaluated: compatibility.evaluated,
+            invariantViolations: compatibility.invariantViolations,
+            fingerprint: compatibility.fingerprint,
+            compatibilityPolicy: compatibility.compatibilityPolicy,
+            expected: compatibility.expected,
+            changed: compatibility.changed,
           },
           version: current.version + 1,
           updatedAt: new Date().toISOString(),
@@ -479,20 +486,24 @@ export class RulesService {
           throw new ForbiddenException("SECOND_REVIEWER_REQUIRED");
         if (versionHash(current) !== current.hash)
           throw new BadRequestException("RULE_VERSION_INVALID");
-        const validation = current.validation as Pick<
-          RulePreview,
-          | "changed"
-          | "matched"
-          | "samples"
-          | "evaluated"
-          | "invariantViolations"
-        > | null;
+        const validation = current.validation as {
+          compatibilityPolicy?: string;
+          changed?: number;
+          evaluated?: number;
+          expected?: number;
+          fingerprint?: string;
+        } | null;
         if (
           !validation ||
+          validation.compatibilityPolicy !== "BTC_FULL_PACK_V1" ||
           validation.changed !== 0 ||
-          validation.matched !== validation.samples ||
+          validation.evaluated !== validation.expected ||
           validation.evaluated !== 405 ||
-          validation.invariantViolations !== 0
+          (current.validation as { matched?: number }).matched !==
+            (current.validation as { samples?: number }).samples ||
+          (current.validation as { invariantViolations?: number })
+            .invariantViolations !== 0 ||
+          validation.fingerprint !== current.hash
         )
           throw new BadRequestException("RULE_VERSION_REGRESSION");
         for (const prior of tables["rule-versions"].filter(

@@ -1,3 +1,4 @@
+import { initialContractTemplates } from "./contract-templates";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { recordHash } from "../common/audit-chain";
 import { Repository } from "../common/repository";
@@ -12,7 +13,13 @@ import { buildSeed } from "./seed";
 import type { Evaluation } from "./types";
 
 const WRITE_TABLES = READ_TABLES.filter(
-  (name) => !["users", "organizations", "milestone-templates"].includes(name),
+  (name) =>
+    ![
+      "users",
+      "organizations",
+      "milestone-templates",
+      "contract-templates",
+    ].includes(name),
 );
 
 /**
@@ -32,6 +39,27 @@ export class DomainService {
    * Returns the accounts to create, so the caller can hash their passwords.
    */
   async bootstrap(): Promise<AccountSpec[]> {
+    await this.repo.transact(
+      ["app-migrations", "contract-templates"],
+      (tables) => {
+        if (
+          !tables["app-migrations"].some(
+            (row) => row.id === "contract-template-bootstrap-v1",
+          )
+        ) {
+          tables["contract-templates"].push(...initialContractTemplates());
+          tables["app-migrations"].push({
+            id: "contract-template-bootstrap-v1",
+            key: "contract-template-bootstrap-v1",
+            value: "done",
+            version: 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            organizationId: "OPS",
+          });
+        }
+      },
+    );
     if ((await this.repo.list(TABLE.contracts)).length) return [];
     const started = Date.now();
     const seed = await buildSeed();

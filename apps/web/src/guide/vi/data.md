@@ -30,7 +30,7 @@ Bộ không có `decision_sample.csv` không có đủ nhãn để tính độ c
 4. Đọc lỗi thiếu tệp, thiếu cột hoặc dữ liệu không hợp lệ; sửa tại nguồn và tải lại.
 5. Chọn bộ vừa tải, đánh giá, đối chiếu trace rồi tải đầu ra.
 
-Bộ tải lên để chạy đánh giá riêng; không phải thao tác nhập ghi đè các hợp đồng sống đang dùng cho công việc. Khi có danh sách hidden-test IDs, engine vẫn đọc toàn bộ dữ liệu liên quan nhưng đầu ra chỉ lấy mốc trong danh sách.
+Bộ tải lên để chạy đánh giá riêng; không phải thao tác nhập ghi đè các hợp đồng sống đang dùng cho công việc. BTC xác nhận 20 PUBLIC, 250 HIDDEN, 135 HOLDOUT cùng nằm trong 405 mốc. Mặc định xuất đủ template; danh sách test IDs không tự làm mất dòng. Chỉ CLI chẩn đoán với `--apply-scope` mới lọc đầu ra, không dùng cho bài nộp.
 
 ## Trace và các tệp đầu ra
 

@@ -9,7 +9,7 @@
 | [01 — Đề bài và thuật ngữ](01_DE_BAI_VA_THUAT_NGU.md) | Giải thích bài toán, decision flow và ví dụ đối chiếu sample |
 | [02 — Chiến lược kỹ thuật](02_CHIEN_LUOC_BRONZE_SILVER_GOLD.md) | Bronze/Silver/Gold, engine, quyền, audit, ký số và AI |
 | [03 — Lộ trình và checklist](03_LO_TRINH_VA_CHECKLIST_NOP_BAI.md) | Phương án tổng thể, phân công sáu người, lịch bảy ngày và đầu ra |
-| [04 — Đặc tả nghiệp vụ](04_DAC_TA_NGHIEP_VU.md) (v1.0) | **Nguồn chuẩn** về quy tắc quyết định, thẩm quyền, trạng thái, xử lý ngoại lệ, phân quyền, đầu ra; kiểm chứng bằng [`tools/kiem_chung_nghiep_vu.py`](../tools/kiem_chung_nghiep_vu.py) và [`tests/`](../tests/test_dac_ta_nghiep_vu.py). Bản cũ ở [archive/nghiep-vu](archive/nghiep-vu/) |
+| [04 — Đặc tả nghiệp vụ](04_DAC_TA_NGHIEP_VU.md) (v1.1) | **Nguồn chuẩn** về quy tắc quyết định, thẩm quyền, trạng thái, xử lý ngoại lệ, phân quyền, đầu ra; kiểm chứng bằng [`tools/kiem_chung_nghiep_vu.py`](../tools/kiem_chung_nghiep_vu.py) và [`tests/`](../tests/test_dac_ta_nghiep_vu.py). Bản cũ ở [archive/nghiep-vu](archive/nghiep-vu/) |
 | [05 — Hướng dẫn đọc và việc còn mở](05_HUONG_DAN_DOC_VA_VIEC_CON_MO.md) | Thứ tự đọc đặc tả theo vai trò, việc còn dở (P0/P1/P2), điểm cần BTC hoặc đội quyết, bản nháp câu hỏi gửi BTC |
 | [06 — Kiến trúc monorepo](06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md) | Web/API/engine, phần tái sử dụng từ UniFlow, ranh giới trách nhiệm, CRUD và phân quyền |
 | [07 — Triển khai](07_HUONG_DAN_TRIEN_KHAI.md) | Docker Compose production, HTTPS, sao lưu, cập nhật/quay lui, xử lý sự cố |
@@ -27,6 +27,22 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 
 Ưu tiên lõi đúng, dashboard tối thiểu và minh chứng. Không suy accuracy toàn bộ từ 20 mẫu. Hai PDF là hồ sơ bắt buộc theo mục 8 đề thi; cách gửi CSV/source/video theo thông báo BTC. Proposal cần roadmap MVP **2–3 tuần**, tách khỏi lịch chuẩn bị bài **7 ngày**.
 
+- [11 — Rà soát hoàn thiện và kịch bản kiểm thử](11_RA_SOAT_VA_KICH_BAN_HOAN_THIEN.md)
+
+- [12 — Phân quyền và preview tài liệu thực](12_PHAN_QUYEN_VA_PREVIEW_TAI_LIEU.md)
+
+- [13 — Mẫu hợp đồng động và adapter ký](13_MAU_HOP_DONG_DONG_VA_TICH_HOP_KY.md)
+
+- [14 — Rà soát theo BTC, ưu tiên Đồng → Bạc → Vàng](14_RA_SOAT_BTC_DONG_BAC_VANG.md)
+- [15 — Xác nhận BTC và giả định còn mở](15_XAC_NHAN_BTC_VA_GIA_DINH.md)
+- [16 — Đối chiếu 8 loại mốc chưa có sample](16_DOI_CHIEU_CAC_LOAI_MOC_CHUA_CO_SAMPLE.md)
+
+- [17 — Tinh gọn form, đồng bộ UI và báo cáo kiểm thử](17_TINH_GON_FORM_VA_DONG_BO_UI.md)
+
+- [18 — PDF hợp đồng mẫu và nút thao tác theo base](18_PDF_MAU_VA_NUT_THAO_TAC.md)
+
 - [19 — Điều kiện, công thức và từ điển biến quy tắc](19_DIEU_KIEN_CONG_THUC_VA_BIEN_QUY_TAC.md)
 
 - [20 — Kiểm chứng công thức, biến và tham số thực thi](20_KIEM_CHUNG_CONG_THUC_VA_THAM_SO.md)
+
+- [21 — Hợp nhất tính năng và rà soát nút](21_HOP_NHAT_TINH_NANG_VA_RA_SOAT_NUT.md)

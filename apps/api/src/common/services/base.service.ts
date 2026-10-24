@@ -1,3 +1,4 @@
+import { validateContractTemplate } from "../../domain/contract-templates";
 import {
   Injectable,
   Inject,
@@ -88,6 +89,13 @@ export class BaseService {
       }
       data[f.key] =
         f.type === "email" ? String(value).trim().toLowerCase() : value;
+    }
+    if (def.name === "contract-templates" && !errors.length && !partial) {
+      try {
+        validateContractTemplate(data);
+      } catch {
+        errors.push("CONTRACT_TEMPLATE_INVALID");
+      }
     }
     return { errors, data };
   }
@@ -287,6 +295,7 @@ export class BaseService {
           version: items[i].version + 1,
           updatedAt: new Date().toISOString(),
         };
+        if (name === "contract-templates") validateContractTemplate(updated);
         items[i] = updated;
       },
       this.auditRecord("UPDATE", name, id, actor),

@@ -34,7 +34,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 FROM ${NODE_IMAGE} AS api
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 poppler-utils \
+    && apt-get install -y --no-install-recommends python3 poppler-utils libreoffice-writer fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production \
     API_HOST=0.0.0.0 \
@@ -52,7 +52,8 @@ COPY apps/api/package.json ./apps/api/
 # Runtime files the API reads relative to REPO_ROOT: resource definitions and the engine.
 COPY packages/contracts/resources.json packages/contracts/permissions.json ./packages/contracts/
 COPY apps/engine/cli.py apps/engine/dataset.py apps/engine/server.py ./apps/engine/
-COPY apps/engine/validate_rules.py apps/engine/rule_language.json ./apps/engine/
+COPY apps/engine/validate_rules.py apps/engine/rule_language.json apps/engine/sample_contract.py ./apps/engine/
+COPY apps/engine/templates ./apps/engine/templates
 COPY tools/kiem_chung_nghiep_vu.py ./tools/
 COPY BangD-Case4/DataPack-CASE4_SmartContractWorkflow ./BangD-Case4/DataPack-CASE4_SmartContractWorkflow
 RUN mkdir -p /data && chown node:node /data

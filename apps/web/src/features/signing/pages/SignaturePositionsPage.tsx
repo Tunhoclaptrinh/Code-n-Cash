@@ -123,7 +123,10 @@ export default function SignaturePositionsPage() {
       guide="signing"
       active="upload"
       breadcrumb={[
-        { label: t("positions.breadcrumb.parent"), to: "/contracts/new" },
+        {
+          label: t("positions.breadcrumb.parent"),
+          to: `/contracts/new?draft=${encodeURIComponent(contractId)}`,
+        },
         { label: t("positions.breadcrumb.current") },
       ]}
     >
@@ -730,7 +733,10 @@ function Editor({ contractId, config }: EditorProps) {
           </section>
 
           <div className={styles.footer}>
-            <Link to="/contracts/new" className={shared.btnSecondary}>
+            <Link
+              to={`/contracts/new?draft=${encodeURIComponent(contractId)}`}
+              className={shared.btnSecondary}
+            >
               {t("positions.actions.back")}
             </Link>
             {canContinue ? (

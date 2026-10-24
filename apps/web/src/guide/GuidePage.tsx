@@ -41,7 +41,12 @@ export default function GuidePage() {
           }))}
           onClick={({ key }) => navigate(`/guide/${key}`)}
         />
-        <div className={styles.content}>
+        <div
+          className={styles.content}
+          role="region"
+          aria-label={t("guide.title")}
+          tabIndex={0}
+        >
           <GuideContent topic={topic} />
         </div>
       </div>

@@ -1,7 +1,9 @@
+import { DemoFormFill } from "@/shared/ui/DemoFillButton";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Alert,
   App as AntApp,
   Form,
@@ -22,13 +24,7 @@ import {
   ExclamationCircleFilled,
   MinusCircleOutlined,
 } from "@ant-design/icons";
-import {
-  BaseButton,
-  BaseCard,
-  ConfirmModal,
-  FormModal,
-  IconButton,
-} from "@codecash/ui";
+import { BaseButton, BaseCard, ConfirmModal, FormModal } from "@codecash/ui";
 import { formatDateTime } from "@/shared/lib/format";
 import {
   deleteDataset,
@@ -131,12 +127,15 @@ export function DatasetPanel({
             </BaseButton>
           ) : null}
           {dataset && canManage ? (
-            <IconButton
+            <Button
+              size="small"
+              type="text"
               danger
               icon={<DeleteOutlined />}
-              tooltip={t("data.source.delete")}
               onClick={() => setConfirmDelete(true)}
-            />
+            >
+              {t("data.source.delete")}
+            </Button>
           ) : null}
         </Space>
         {dataset ? (
@@ -230,7 +229,15 @@ export function DatasetPanel({
           }
         }}
       >
-        <Form.Item name="name" label={t("data.upload.name")}>
+        <Form.Item
+          name="name"
+          label={
+            <Space wrap>
+              {t("data.upload.name")}
+              <DemoFormFill values={{ name: t("data.upload.demoName") }} />
+            </Space>
+          }
+        >
           <Input
             maxLength={120}
             placeholder={t("data.upload.namePlaceholder")}

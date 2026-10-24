@@ -3,6 +3,7 @@ import { Button, Drawer } from "antd";
 import { ReadOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import styles from "./guide.module.css";
 import { GuideContent } from "./GuideContent";
 import type { GuideTopic } from "./topics";
 
@@ -20,6 +21,7 @@ export function GuideButton({ topic }: { topic: GuideTopic }) {
         {t("guide.button")}
       </Button>
       <Drawer
+        classNames={{ body: styles.drawerBody }}
         open={open}
         onClose={() => setOpen(false)}
         size="large"

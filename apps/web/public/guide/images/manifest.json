@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-23T03:46:04.014Z",
-  "base": "http://127.0.0.1:5277",
+  "capturedAt": "2026-10-24T18:31:02.875Z",
+  "base": "http://127.0.0.1:5351",
   "screenshots": [
     "login",
     "login-demo-menu",
@@ -36,6 +36,9 @@
     "tasks",
     "tasks-detail",
     "upload-form",
+    "upload-demo-filled",
+    "upload-real-preview",
+    "upload-document",
     "upload-signers",
     "upload-positions",
     "upload-digitize",
@@ -57,13 +60,34 @@
     "admin-organizations",
     "admin-create",
     "admin-import",
+    "admin-contract-templates",
+    "admin-template-editor",
     "admin-users",
     "admin-permissions",
+    "rules-editor",
+    "rules-formulas",
+    "rules-variables",
+    "rules-syntax-error",
+    "rules-unit-error",
+    "rules-preview",
     "nav-auditor",
     "nav-secondary",
     "guide-drawer",
     "mobile-tasks"
   ],
   "missingMarks": [],
-  "failures": []
+  "failures": [],
+  "updatedAt": "2026-10-24T18:34:54.055Z",
+  "updatedScreenshots": [
+    "login",
+    "login-demo-menu",
+    "welcome",
+    "header-tips",
+    "nav-legal",
+    "upload-form",
+    "upload-demo-filled",
+    "upload-real-preview",
+    "upload-document",
+    "upload-signers"
+  ]
 }

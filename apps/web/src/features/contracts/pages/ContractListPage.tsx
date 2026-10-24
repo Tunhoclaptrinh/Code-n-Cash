@@ -1,15 +1,8 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Button,
-  Dropdown,
-  Progress,
-  Space,
-  Tag,
-  Typography,
-} from "antd";
+import { Alert, Button, Progress, Space, Tag, Typography } from "antd";
 import type { MenuProps } from "antd";
 import {
   ArrowRightOutlined,
@@ -17,12 +10,10 @@ import {
   EditOutlined,
   EyeOutlined,
   FileSearchOutlined,
-  MenuOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import {
   DataTable,
-  IconButton,
   PageContainer,
   useAccess,
   type FilterConfig,
@@ -235,7 +226,7 @@ export default function ContractListPage() {
     if (c.status === "DRAFT" && c.yourTurn)
       return {
         label: t("contractList.actions.completeDraft"),
-        to: "/contracts/new",
+        to: `/contracts/new?draft=${encodeURIComponent(c.id)}`,
       };
     if (c.status === "AWAITING_SIGNATURE" && c.yourTurn)
       return {
@@ -264,7 +255,7 @@ export default function ContractListPage() {
             </Typography.Text>
             <OriginTag origin={c.origin} />
             {c.openDispute ? (
-              <Tag color="error" bordered={false} style={{ margin: 0 }}>
+              <Tag color="error" variant="filled" style={{ margin: 0 }}>
                 {t("contractList.disputeFlag")}
               </Tag>
             ) : null}
@@ -416,7 +407,22 @@ export default function ContractListPage() {
         ) : null}
         <DataTable<ContractRow>
           rowKey="id"
-          columns={columns}
+          scroll={{ x: 1800 }}
+          columns={columns.map((column) => ({
+            ...column,
+            width:
+              (
+                {
+                  contract: 280,
+                  buyer: 190,
+                  supplier: 190,
+                  valueMillion: 150,
+                  progress: 200,
+                  status: 230,
+                  nextDue: 250,
+                } as Record<string, number>
+              )[String(column.key)] ?? 200,
+          }))}
           {...list.table}
           statisticsData={statistics}
           tabs={[
@@ -448,35 +454,19 @@ export default function ContractListPage() {
               </Button>
             ) : null
           }
+          actionsWidth={104}
           customActions={(c) => {
             const action = primaryAction(c);
             return (
-              <Space size={4}>
-                {action ? (
-                  <IconButton
-                    icon={<EditOutlined />}
-                    tooltip={action.label}
-                    success
-                    onClick={() => navigate(action.to)}
-                  />
-                ) : (
-                  <IconButton
-                    icon={<FileSearchOutlined />}
-                    tooltip={t("contractList.actions.open")}
-                    onClick={() => navigate(`/contracts/${c.id}`)}
-                  />
-                )}
-                <Dropdown
-                  menu={{ items: menuFor(c) }}
-                  trigger={["click"]}
-                  placement="bottomRight"
-                >
-                  <IconButton
-                    icon={<MenuOutlined />}
-                    tooltip={t("contractList.actions.more")}
-                  />
-                </Dropdown>
-              </Space>
+              <TableRowActions
+                primary={{
+                  label: action?.label ?? t("contractList.actions.open"),
+                  icon: action ? <EditOutlined /> : <FileSearchOutlined />,
+                  onClick: () => navigate(action?.to ?? `/contracts/${c.id}`),
+                }}
+                menu={menuFor(c)}
+                moreLabel={t("contractList.actions.more")}
+              />
             );
           }}
         />

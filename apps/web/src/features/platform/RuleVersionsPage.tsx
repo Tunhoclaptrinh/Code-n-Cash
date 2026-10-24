@@ -23,7 +23,6 @@ import {
   ConfirmModal,
   DataTable,
   FormModal,
-  IconButton,
   PageContainer,
   useAccess,
 } from "@codecash/ui";
@@ -35,6 +34,8 @@ import {
 import { trustApi } from "@/shared/api/trust";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
+import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { DemoFormFill } from "@/shared/ui/DemoFillButton";
 import { RuleExpressionEditor } from "./components/RuleExpressionEditor";
 import styles from "./components/RuleExpressionEditor.module.css";
 import { localList, useListQuery } from "@/shared/lib/useListQuery";
@@ -290,11 +291,14 @@ export default function RuleVersionsPage() {
           onTabChange={(key) =>
             list.setFilter("status", key === "ALL" ? undefined : [key])
           }
+          actionsWidth={72}
           customActions={(row) => (
-            <IconButton
-              icon={<EyeOutlined />}
-              tooltip={t("rules.review")}
-              onClick={() => open(row)}
+            <TableRowActions
+              primary={{
+                label: t("rules.review"),
+                icon: <EyeOutlined />,
+                onClick: () => open(row),
+              }}
             />
           )}
         />
@@ -314,6 +318,14 @@ export default function RuleVersionsPage() {
           }
         }}
       >
+        <div style={{ marginBottom: 12 }}>
+          <DemoFormFill
+            values={{
+              name: t("rules.demoName"),
+              reason: t("rules.demoReason"),
+            }}
+          />
+        </div>
         <Form.Item
           name="name"
           label={t("rules.name")}

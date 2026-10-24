@@ -158,7 +158,12 @@ export const runTimeline = (
   milestoneId: string,
 ): Promise<TimelineResult[]> =>
   withDataset(tables, [], async (dir) =>
-    JSON.parse(await python(["--data", dir, "--timeline", milestoneId], 60000)),
+    JSON.parse(
+      await python(
+        ["--data", dir, "--workflow", "--timeline", milestoneId],
+        60000,
+      ),
+    ),
   );
 
 /**
@@ -171,7 +176,9 @@ export async function runEngine(
 ): Promise<EngineOutcome> {
   const started = Date.now();
   return withDataset(tables, extraEvents, async (dir) => {
-    const output = JSON.parse(await python(["--data", dir, "--json"], 60000));
+    const output = JSON.parse(
+      await python(["--data", dir, "--workflow", "--json"], 60000),
+    );
     const evaluatedAt = new Date().toISOString();
     const confidence = new Map<string, string>(
       output.rows.map((row: Record<string, string>) => [

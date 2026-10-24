@@ -14,17 +14,20 @@
 | Đối tượng đọc | Toàn đội: nghiệp vụ, kỹ thuật, thuyết trình |
 | Mục đích | Một nguồn duy nhất về cách hiểu bài toán, thuật ngữ, quy tắc quyết định, vòng đời trạng thái, xử lý ngoại lệ, phân quyền và quy ước đầu ra |
 
+Bản 1.1 bổ sung [trả lời BTC do đội cung cấp](15_XAC_NHAN_BTC_VA_GIA_DINH.md) về ngày hoàn thành, dispute, confidence và chia 20 PUBLIC / 250 HIDDEN / 135 HOLDOUT. Kết quả decision/reason/payable/penalty trên 405 mốc giữ nguyên. Phân quyền đóng dispute phía bên mua là thiết kế Silver; Bronze chỉ xử lý trạng thái và liên kết event chuẩn. Cổng rule động và profile xuất bài được giải thích ở [báo cáo rà soát](14_RA_SOAT_BTC_DONG_BAC_VANG.md).
+
 ## Quy ước nhãn độ tin cậy
 
 | Nhãn | Ý nghĩa | Mức tin |
 | --- | --- | --- |
 | **[ĐỀ]** | Nêu trực tiếp trong đề PDF, README, data dictionary hoặc `payment_rules.csv` của BTC | Cao nhất |
+| **[BTC]** | BTC trả lời trực tiếp đội thi, được đội chuyển lại trong phiên làm việc 24/10/2026; xem tài liệu 15 | Làm rõ phạm vi đề |
 | **[SAMPLE]** | Được 20 mẫu công khai của BTC xác nhận (script khớp 20/20) | Cao, nhưng chỉ cho loại tình huống có mẫu |
 | **[DỮ LIỆU]** | Đếm hoặc kiểm trên CSV bằng script. Là sự thật về dữ liệu, **không phải** ground truth | Tái lập được |
 | **[GIẢ ĐỊNH]** | Đội tự chọn khi nguồn không nói rõ. Luôn kèm tác động đo được và mã ở mục 13 | Phải nêu trong hồ sơ |
 | **[THIẾT KẾ]** | Quy trình vận hành do đội đề xuất, ngoài phạm vi Data Pack. Không đổi kết quả của 405 mốc | Đề xuất của đội |
 
-Khi các nguồn mâu thuẫn, ưu tiên theo thứ tự **[ĐỀ] (rule, dictionary) → [SAMPLE] → [DỮ LIỆU] → [GIẢ ĐỊNH]**. Ví dụ ở mục 4.4: cột `allowed_event_types` bị gạt vì 20 sample (đáp án của BTC) cho kết quả khác.
+Khi các nguồn mâu thuẫn, ưu tiên theo thứ tự **[ĐỀ] kết hợp [BTC] làm rõ → [SAMPLE] → [DỮ LIỆU] → [GIẢ ĐỊNH]**. Ví dụ ở mục 4.4: cột `allowed_event_types` bị gạt vì 20 sample (đáp án của BTC) cho kết quả khác.
 
 ## Quy ước ngôn ngữ và ký hiệu
 
@@ -55,12 +58,12 @@ Con người chỉ can thiệp bằng cách tạo event mới hoặc quyết đ�
 2. 8 rule chạy **first-match**, priority từ 10 đến 80, đọc từ `payment_rules.csv`. Logic giống hệt nhau ở cả 16 phạm vi rule. **[ĐỀ] [DỮ LIỆU]**
 3. **Chặn trước, tính tiền sau.** Dữ liệu hoặc điều kiện chưa rõ thì HOLD, không bao giờ tự RELEASE. **[ĐỀ]**
 4. Đề ưu tiên **Rule Execution Accuracy** và **tỷ lệ tình huống xử lý đúng**; **Unauthorized Payment Rate càng gần 0 càng tốt**. Nếu buộc phải sai, sai theo hướng giữ tiền an toàn hơn trả nhầm. **[ĐỀ]**
-5. Không hard-code theo sample. Manifest cho thấy tập chấm nhiều khả năng là **250 mốc nằm trong chính 405 mốc** của template (mục 11.6). **[ĐỀ] [DỮ LIỆU]**
+5. Không hard-code theo sample. BTC xác nhận 405 mốc gồm **20 PUBLIC, 250 HIDDEN, 135 HOLDOUT**; không biết danh sách chia tập và ground truth ẩn. Xuất đủ template 405 dòng. **[BTC]**
 
 **Tình trạng kiểm chứng.**
 
 - Script cài đúng đặc tả này và khớp **20/20 sample trên cả 17 cột so sánh**: quyết định, reason_code, payable, penalty, planned_payment, evidence_event_ids, missing_required_events và 10 cột fact.
-- **41/41 test** đạt, gồm 30 test cho các ca biên mà Data Pack chưa có.
+- **41/41 test của bản 1.0** đã đạt, gồm 30 test cho các ca biên mà Data Pack chưa có.
 - **0 vi phạm** bất biến đầu ra trên 405 mốc.
 - Trên toàn pack: RELEASE 348, PENALTY 15, HOLD 36, REJECT 6.
 
@@ -191,9 +194,9 @@ Quyền với các event hỗ trợ:
 | `APPROVAL` | Người tạo là APPROVER đang ACTIVE, thuộc bên mua của hợp đồng, có `can_approve_payment = TRUE`, và vai trò (tra trong `parties`) nằm trong `required_approval_roles` | [ĐỀ] README mục 9; [SAMPLE] |
 | `REJECTION` | Người tạo là APPROVER đang ACTIVE, thuộc bên mua của hợp đồng, có `REJECTION` trong `allowed_event_types`. **Không** giới hạn theo `required_approval_roles` | [SAMPLE] SC015: mốc không cần phê duyệt vẫn ra REJECT |
 | `DISPUTE_OPENED` | Mọi bản ghi đều được tính là tranh chấp ("mở dễ"). Trong dữ liệu: bên mua 12, NCC 6, tất cả đều có `can_raise_dispute = TRUE` | [GIẢ ĐỊNH] an toàn |
-| `DISPUTE_RESOLVED` | Do phía bên mua tạo: chính bên mua của hợp đồng, hoặc approver của bên mua có quyền `DISPUTE` | [GIẢ ĐỊNH] A06; dữ liệu 8/8 do bên mua |
+| `DISPUTE_RESOLVED` | Bronze: event RESOLVED tham chiếu đúng dispute/mốc/hợp đồng, không trước lúc mở. Silver: ứng dụng giới hạn bên mua/approver bên mua và lưu audit | [BTC]; phân quyền Silver [THIẾT KẾ], dữ liệu 8/8 do bên mua |
 
-Hệ thống luôn tra loại bên và vai trò trong `parties.csv`; **không** tin cột `actor_party_type` / `actor_role` ghi trong event. Hiện hai nguồn khớp 1.134/1.134, nhưng hidden test có thể cố ý làm lệch (test T43). **[DỮ LIỆU]**
+Hệ thống luôn tra loại bên và vai trò trong `parties.csv`; **không** tin cột `actor_party_type` / `actor_role` ghi trong event. Hiện hai nguồn khớp 1.134/1.134, test T43 kiểm phòng vệ nếu có dữ liệu lệch. BTC đã xác nhận hidden dùng các mốc trong cùng Data Pack; đây không phải nhận định rằng BTC sẽ tạo dữ liệu actor mới. **[DỮ LIỆU]**
 
 ### 4.3. Chính sách phê duyệt **[DỮ LIỆU]**
 
@@ -481,12 +484,12 @@ Event đúng thẩm quyền nhưng sai trạng thái không phải bằng chứn
 **BR-08. Tranh chấp.**
 
 - Mỗi `DISPUTE_OPENED` của milestone (sau khử lặp) là một tranh chấp, bất kể ai mở. Nguyên tắc "mở dễ" này giữ an toàn cho thanh toán. **[GIẢ ĐỊNH]**
-- Tranh chấp được coi là **đã đóng** khi có một `DISPUTE_RESOLVED` thoả **cả năm** điều kiện:
+- Bronze coi tranh chấp **đã đóng** khi có `DISPUTE_RESOLVED` thỏa bốn điều kiện liên kết/trạng thái/thời gian dưới đây. Điều kiện 5 chỉ áp dụng profile workflow Silver của đội, không phải yêu cầu bắt buộc BTC:
   1. trạng thái là `RESOLVED`;
   2. `reference_event_id` trỏ đúng vào tranh chấp đó, và event được trỏ tới là `DISPUTE_OPENED`;
-  3. cùng milestone;
+  3. cùng milestone và hợp đồng;
   4. thời điểm không sớm hơn lúc mở;
-  5. do phía bên mua tạo (mục 4.2).
+  5. **chỉ Silver:** do phía bên mua ACTIVE tạo theo phân quyền mục 4.2; stakeholder khác chỉ được mở rộng khi có ma trận quyền và audit rõ ràng.
 - Mỗi bản resolve chỉ đóng đúng tranh chấp mà nó tham chiếu. Còn ít nhất một tranh chấp mở thì `open_dispute = TRUE` (T15, T16).
 - **Phạm vi là milestone.** Câu giải thích trong sample ghi "tranh chấp đang mở **tại milestone**", và `open_dispute` trong `decision_sample` là thuộc tính của từng mốc. Nếu tính theo cả hợp đồng thì thêm 31 mốc HOLD (A05). **[SAMPLE] [GIẢ ĐỊNH]**
 - Cặp tranh chấp đã đóng không đưa vào `evidence_event_ids` nhưng vẫn nằm trong audit. **[SAMPLE]** SC009, SC010.
@@ -518,7 +521,7 @@ Event đúng thẩm quyền nhưng sai trạng thái không phải bằng chứn
 
 - Với mỗi loại required, lấy event hợp lệ **sớm nhất** của loại đó.
 - `actual_completion_timestamp` là thời điểm **muộn nhất** trong các event vừa lấy, tức lúc mọi điều kiện bằng chứng lần đầu được thoả. `actual_completion_date` là phần ngày của thời điểm đó.
-- Không tính APPROVAL. Manifest cho thấy ground truth của BTC tách riêng `actual_completion_timestamp` và `last_event_timestamp`. Nếu tính cả approval thì 0 mốc đổi kết quả. **[DỮ LIỆU]**
+- Không tính APPROVAL, DISPUTE_RESOLVED hay event quản trị xuất hiện sau đó. BTC đã xác nhận rõ; xem ví dụ DELIVERY 10/10, INVOICE 11/10, ACCEPTANCE 14/10, APPROVAL 16/10 → hoàn thành 14/10. Manifest tách `actual_completion_timestamp` và `last_event_timestamp`. **[BTC] [DỮ LIỆU]**
 - Còn thiếu required event thì ngày hoàn thành để trống và không tính phạt.
 - Ví dụ MS0020: ACCEPTANCE ngày 12/11, INVOICE ngày 13/11 → hoàn thành ngày 13/11. **[SAMPLE]** SC005, SC006.
 
@@ -885,7 +888,7 @@ Manifest công khai liệt kê 6 tệp **chỉ dành cho BTC**:
 
 - Ground truth có `expected_milestone_status`, `conditions_met`, `missing_conditions`, `rule_id_applied`, `evidence_event_ids`. Các trường này nhiều khả năng được chấm, nên phải điền đầy đủ và nhất quán (mục 14).
 - Ground truth tách `actual_completion_timestamp` khỏi `last_event_timestamp`, ủng hộ cách tính ở BR-11.
-- `hidden_test_ids` có `milestone_id` và `planned_payment_vnd_mn`; `evaluation_split` có 405 dòng kèm `score_eligible`. Tập chấm nhiều khả năng là **250 mốc nằm trong 405 mốc của template**, không phải dữ liệu mới (A16).
+- `hidden_test_ids` có `milestone_id` và `planned_payment_vnd_mn`; `evaluation_split` có 405 dòng kèm `score_eligible`. BTC xác nhận **20 PUBLIC, 250 HIDDEN, 135 HOLDOUT** nằm trong 405 mốc của template; không phải bộ hợp đồng/event hoàn toàn mới (A16). Không có danh sách split hay ground truth ẩn, nên không chọn/bỏ dòng theo suy đoán.
 - `evaluation_config` có `missing_value_policy`, nên ô để trống có thể bị trừ điểm. Không bỏ trống trường bắt buộc nào (mục 14.2).
 
 ---
@@ -935,10 +938,10 @@ Trạng thái:
 | --- | --- | --- | --- | --- | --- |
 | A01 | Nguồn kiểm thẩm quyền required event | Ma trận 4.2 | 5 sample bác bỏ cách dùng nguyên cột | Dùng nguyên cột: 108 mốc, 15/20 sample. 4 loại chưa có sample: 80 mốc phụ thuộc | Đóng tạm (hỏi BTC xác nhận 4 loại) |
 | A02 | Event sau snapshot | Dùng toàn bộ | SC005 | Cắt theo snapshot: 92 mốc, sample còn 14/20 | Đóng |
-| A03 | Ngày hoàn thành | BR-11 | SC005, SC006; manifest | Tính cả approval: 0 mốc | Đóng tạm |
+| A03 | Ngày hoàn thành | BR-11, chỉ required event hợp lệ | BTC xác nhận; SC005, SC006 | Không đổi 405 kết quả | Đã làm rõ [BTC] |
 | A04 | Khoá khử lặp, bản được giữ | BR-03 | SC019, SC020 | 0 ca biên | Đóng tạm |
 | A05 | Tranh chấp tính theo mốc hay theo hợp đồng | Theo mốc | Câu giải thích sample "tại milestone" | Theo hợp đồng: +31 mốc HOLD | **Mở** |
-| A06 | Ai được đóng tranh chấp; ai được từ chối | Đóng: phía bên mua. Từ chối: mọi approver của bên mua | Dữ liệu 8/8; cột quyền | 0 mốc | **Mở** (không ảnh hưởng dữ liệu hiện tại) |
+| A06 | Ai được đóng tranh chấp; ai được từ chối | Bronze đọc linked event; Silver phân quyền buyer-side. REJECTION tiếp tục theo parties | BTC không bắt buộc mô hình resolver ở Bronze; extension phải audit | 0 mốc gốc; kiểm riêng synthetic | Đã làm rõ phạm vi dispute [BTC]; quyền Silver [THIẾT KẾ] |
 | A07 | Chế độ làm tròn | ROUND_HALF_UP, 2 chữ số, làm tròn F trước khi trừ | 2 ca phạt trong sample khớp | HALF_EVEN: MS0396 lệch 0,01 | **Mở** |
 | A08 | `invoice_required = TRUE` nhưng INVOICE không bắt buộc | Theo `required_event_types` | Dictionary; `required_condition` | Bắt buộc INVOICE: +15 mốc HOLD | **Mở** |
 | A09 | Phụ thuộc giữa các mốc | Đánh giá độc lập | `payment_rules.csv` không có rule phụ thuộc | Chặn tuần tự: +55 mốc HOLD | Đóng |
@@ -946,9 +949,9 @@ Trạng thái:
 | A11 | Quorum khác số vai trò | Chuyển sang cổng BR-15 | 405/405 bằng nhau | — | Đóng |
 | A12 | Tên trạng thái milestone | Tên theo README | README mục 15; cột trong ground truth | — | Đóng tạm |
 | A13 | Định dạng `conditions_met`, `missing_conditions` | Token DSL của `required_condition` (mục 14.3) | Ngôn ngữ BTC dùng trong dữ liệu | Không đo được | **Mở** |
-| A14 | Ý nghĩa `confidence_score` | Quy ước 1,00 / 0,80 / 0,50 (mục 14.2) | BTC không định nghĩa | 46 mốc nhận 0,80 | **Mở** |
+| A14 | Ý nghĩa `confidence_score` | Quy ước 1,00 / 0,80 / 0,50 (mục 14.2) | BTC xác nhận [0,1], đội chọn công thức; không thay decision | 46 mốc nhận 0,80 | Đã làm rõ [BTC]; heuristic [THIẾT KẾ] |
 | A15 | Vòng sơ khảo có nộp CSV không | Chuẩn bị đủ, đưa vào phụ lục | Đề mục 8 chỉ yêu cầu 2 PDF | — | **Mở** |
-| A16 | Tập chấm ẩn | 250 mốc nằm trong 405 mốc | Manifest | — | Đóng tạm |
+| A16 | Tập chấm ẩn | 20 PUBLIC + 250 HIDDEN + 135 HOLDOUT trong 405 | BTC xác nhận; split/ground truth ẩn không được cung cấp | Xuất đủ 405 mốc | Đã làm rõ [BTC] |
 | A17 | `approval_limit_vnd_mn` | Không áp ở baseline; bật ở Silver | Dictionary | 0 approval vượt hạn mức | Đóng |
 | A18 | Approval có trước khi đủ bằng chứng | Không kiểm thứ tự | Nguồn không nói | 0 ca | Đóng tạm |
 | A19 | Cơ chế vô hiệu event (BR-19) | Thiết kế của đội, có hai người duyệt | Không có trong Data Pack; cần để mốc UNAUTHORIZED không kẹt vĩnh viễn | 0 mốc trên batch | Đóng tạm (nêu là thiết kế Silver) |
@@ -1357,3 +1360,11 @@ Mọi số có nhãn [DỮ LIỆU] trong tài liệu phải trùng với output 
 | 21 | Ca biên ngoài dữ liệu | Danh sách test | Danh sách test | Danh sách test | 41 test tự động, đã kiểm "có răng" |
 | 22 | Tên và vị trí tệp | `docs/Nghiệp vụ/…` | `docs/Nghiệp vụ/…` | `docs/Nghiệp vụ/…_v0.5.md` | `docs/04_DAC_TA_NGHIEP_VU.md`; bản cũ vào `docs/archive/nghiep-vu/` |
 | 23 | Nguồn tham chiếu | Đường dẫn repo | Tên tệp dán từ chat | Đường dẫn repo + script | Thêm test, quy trình phiên bản |
+
+
+## Cập nhật 24/10/2026: phân tách bài nộp và workflow mở rộng
+
+- CLI mặc định chạy profile `BTC_SUBMISSION`, xuất toàn bộ template, bỏ qua danh sách scope/test ID và các quyết định vô hiệu event ngoài 5 CSV chuẩn. `--apply-scope` chỉ dành cho chẩn đoán; `--workflow` chỉ dùng luồng Silver có ngoại lệ được duyệt.
+- Rule động chỉ được gửi duyệt khi không đổi decision/reason/payable/penalty trên toàn bộ 405 mốc so baseline, khớp mẫu và không vi phạm bất biến; người thứ hai duyệt, hash/version khóa nội dung. Tương thích baseline không đồng nghĩa đã xác minh đáp án ẩn.
+- Mô tả buyer-side resolver trong lịch sử phần BR-08 là chính sách Silver của đội, không được suy thành yêu cầu bắt buộc Bronze của BTC.
+- Các câu hỏi A05, A07, A08, A13, A15 chưa được 4 câu trả lời này xác nhận; không tự đóng. Toàn bộ quyết định, nguyên do, rủi ro và kiểm chứng: tài liệu 14–15.

@@ -1,3 +1,4 @@
+import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -24,7 +25,6 @@ import {
   BaseCard,
   DataTable,
   DetailModal,
-  IconButton,
   PageContainer,
   downloadBlob,
   exportToCSV,
@@ -420,7 +420,7 @@ export default function DataPage() {
                 {
                   key: "sample",
                   label: (
-                    <Space size={4}>
+                    <Space wrap size={4}>
                       {t("data.summary.sample")}
                       <Tooltip
                         title={t("data.summary.sampleHint", {
@@ -505,11 +505,14 @@ export default function DataPage() {
             )(options)
           }
           onView={(row) => setTraceRow(row)}
+          actionsWidth={72}
           customActions={(row) => (
-            <IconButton
-              icon={<EyeOutlined />}
-              tooltip={t("data.trace")}
-              onClick={() => setTraceRow(row)}
+            <TableRowActions
+              primary={{
+                label: t("data.trace"),
+                icon: <EyeOutlined />,
+                onClick: () => setTraceRow(row),
+              }}
             />
           )}
         />
@@ -592,7 +595,7 @@ function KpiCard({ summary, kpi }: { summary: EvaluationSummary; kpi: Kpi }) {
       </Typography.Text>
     );
   const label = (key: string) => (
-    <Space size={4}>
+    <Space wrap size={4}>
       {t(`data.kpi.${key}`)}
       <Tooltip title={t(`data.kpi.hint.${key}`)}>
         <InfoCircleOutlined />

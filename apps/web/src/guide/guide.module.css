@@ -69,6 +69,9 @@ h4.heading {
 .figure :global(.ant-image-img) {
   width: 100%;
   height: auto;
+  max-height: min(65dvh, 720px);
+  object-fit: contain;
+  background: var(--bg-surface-alt);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -166,5 +169,32 @@ h4.heading {
 
   .content {
     padding: 16px;
+  }
+}
+
+.content {
+  max-height: calc(100dvh - 150px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.content::-webkit-scrollbar,
+.drawerBody::-webkit-scrollbar {
+  width: 9px;
+}
+.content::-webkit-scrollbar-thumb,
+.drawerBody::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 8px;
+  border: 2px solid var(--bg-surface-card);
+}
+.drawerBody {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+@media (max-width: 991px) {
+  .content {
+    max-height: calc(100dvh - 220px);
   }
 }

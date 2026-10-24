@@ -1,3 +1,4 @@
+import { ContractDocumentPanel } from "@/shared/ui/ContractDocumentPanel";
 import { Alert, Button } from "antd";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -59,9 +60,14 @@ export default function SigningMethodPage() {
       <Alert
         type="info"
         showIcon
-        title={t("localProof.notice")}
+        title={t(
+          overview.data?.simulated === false
+            ? "localProof.bridgeNotice"
+            : "localProof.notice",
+        )}
         style={{ marginBottom: 16 }}
       />
+      <ContractDocumentPanel contractId={contractId} />
       {overview.data ? (
         <MethodSelection
           contractId={contractId}
@@ -279,7 +285,24 @@ function MethodSelection({
               </div>
             ) : null}
           </div>
-          {current && methodKind(current.method) === "USB" ? null : (
+          {!overview.simulated ? (
+            <div style={{ padding: 24 }}>
+              <Alert
+                type="info"
+                showIcon
+                title={t("localProof.bridgeNotice")}
+                style={{ marginBottom: 16 }}
+              />
+              <Button
+                type="primary"
+                loading={confirm.isPending}
+                disabled={!pending}
+                onClick={() => confirm.mutate()}
+              >
+                {t("localProof.bridgeConfirm")}
+              </Button>
+            </div>
+          ) : current && methodKind(current.method) === "USB" ? null : (
             <PhoneFrame
               request={current}
               step={step}

@@ -135,13 +135,14 @@
       },
       "positionsNotice": {
         "title": "Vị trí ký được gán ở bước sau",
-        "body": "Hệ thống không tự nhận diện vị trí ký. Bước sau, bạn gán một ô ký trên trang PDF cho từng người ký theo đúng thứ tự trên."
+        "body": "Hệ thống không tự nhận diện vị trí ký. Bước sau, bạn gán một ô ký trên trang PDF cho từng người ký theo đúng thứ tự trên.",
+        "compact": "Bước tiếp theo: đặt vị trí ký trên tài liệu."
       },
       "file": {
         "label": "Tệp hợp đồng",
         "constraint": "PDF hoặc DOCX, tối đa 20 MB",
-        "meta": "{{size}} MB · {{pages}} trang · tải lên xong",
-        "metaNoPages": "{{size}} MB · tải lên xong",
+        "meta": "{{size}} · {{pages}} trang",
+        "metaNoPages": "{{size}}",
         "replace": "Thay tệp",
         "replaceHint": "Thay tệp sau khi đã cấu hình sẽ buộc kiểm tra lại vị trí ký và bản số hóa, để chữ ký không rơi sai chỗ.",
         "errors": {
@@ -150,13 +151,17 @@
           "required": "Chọn tệp hợp đồng."
         },
         "empty": "Chưa chọn tệp",
-        "choose": "Chọn tệp"
+        "choose": "Chọn tệp",
+        "sizeKb": "{{size}} KB",
+        "sizeMb": "{{size}} MB"
       },
       "appendix": {
         "label": "Phụ lục đính kèm",
         "optional": "không bắt buộc",
         "drop": "Kéo thả hoặc chọn tệp phụ lục",
-        "remove": "Bỏ tệp {{name}}"
+        "remove": "Bỏ tệp {{name}}",
+        "invalid": "Chỉ nhận PDF/DOCX có nội dung, tối đa 20 MB mỗi tệp và 20 phụ lục.",
+        "add": "Thêm phụ lục"
       },
       "actions": {
         "cancel": "Hủy",
@@ -182,12 +187,13 @@
       },
       "signers": {
         "label": "Người ký và thứ tự ký",
-        "hint": "Từ 2 đến 4 người, có ít nhất một người mỗi bên. Ký lần lượt từ trên xuống; người cuối cùng bắt buộc dùng chữ ký số. Khi người cuối ký xong, hệ thống ghi event CONTRACT_SIGNED của bên mua (ma trận 4.2).",
+        "hint": "Từ 1 đến 4 người. Một người ký sẽ hoàn tất quy trình; từ 2 người phải có đại diện mỗi bên. Ký lần lượt; lượt cuối bắt buộc ký số.",
         "presetLabel": "Mẫu nhanh:",
         "presets": {
           "BUYER_FIRST": "Bên mua ký trước",
           "SUPPLIER_FIRST": "Nhà cung cấp ký trước",
-          "THREE_PARTY": "3 người: NCC → Tài chính → Chủ HĐ"
+          "THREE_PARTY": "3 người: NCC → Tài chính → Chủ HĐ",
+          "SINGLE_SIGNER": "1 người ký"
         },
         "person": "Chọn người ký",
         "up": "Lên",
@@ -195,11 +201,18 @@
         "remove": "Bỏ người này",
         "add": "Thêm người ký",
         "errors": {
-          "count": "Cần từ 2 đến 4 người ký.",
+          "count": "Cần từ 1 đến 4 người ký.",
           "missing": "Chọn người cho mọi bước ký.",
           "duplicate": "Một người chỉ ký một lần.",
-          "bothSides": "Cần ít nhất một người ký của mỗi bên."
-        }
+          "bothSides": "Khi có từ 2 người ký, cần đại diện của cả bên mua và nhà cung cấp."
+        },
+        "singleNotice": "Luồng một người ký: sau khi người duy nhất ký số, hợp đồng sẽ có hiệu lực. Đây là lựa chọn rõ ràng của người lập hợp đồng.",
+        "actions": "Thao tác",
+        "actionsAt": "Thao tác người ký {{index}}",
+        "sideAt": "Bên ký {{index}}",
+        "personAt": "Người ký {{index}}",
+        "count": "{{count}}/{{max}} người ký",
+        "compactHint": "Ký lần lượt từ trên xuống; lượt cuối ký số."
       },
       "errors": {
         "TITLE_REQUIRED": "Nhập tên hợp đồng.",
@@ -209,9 +222,9 @@
         "INVALID_DATES": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.",
         "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–100%).",
         "INVALID_SUPPLIER": "Chọn nhà cung cấp trong Data Pack.",
-        "SIGNER_COUNT": "Cần từ 2 đến 4 người ký.",
+        "SIGNER_COUNT": "Cần từ 1 đến 4 người ký.",
         "INVALID_SIGNER": "Người ký phải thuộc đúng bên và không trùng nhau.",
-        "SIGNERS_BOTH_SIDES": "Cần ít nhất một người ký mỗi bên.",
+        "SIGNERS_BOTH_SIDES": "Khi có từ 2 người ký, cần đại diện của cả bên mua và nhà cung cấp.",
         "INVALID_REVIEWER": "Người rà soát phải là cán bộ hợp đồng của bên mua.",
         "FILE_REQUIRED": "Chọn tệp hợp đồng.",
         "DRAFT_LOCKED": "Hợp đồng đã khoá điều khoản; hủy luồng ký để sửa.",
@@ -234,26 +247,63 @@
       "ruleVersion": "Phiên bản quy tắc đã gắn: {{id}}. Thay đổi cấu hình sau này không thay phiên bản của hồ sơ này."
     },
     "checks": {
-      "title": "Kiểm tra tệp vừa tải lên",
+      "title": "Tệp và cấu hình hiện tại",
       "readable": {
         "title": "Đọc được nội dung.",
         "detail": "{{pages}} trang, không phải bản scan."
       },
       "ready": {
         "title": "Sẵn sàng gán vị trí ký.",
-        "detail": "Trình tự ký có {{steps}} bước, mỗi bước cần một ô ký trên trang PDF."
+        "detail": "{{steps}} người ký theo thứ tự đang chọn."
       },
       "unsigned": {
         "title": "Chưa có chữ ký số nào",
         "detail": "trong tệp: đúng với hợp đồng mới."
-      }
+      },
+      "noFile": "Chưa chọn tệp",
+      "storage": "Lưu trữ",
+      "uploaded": "Đã lưu tệp trên server",
+      "local": "Chưa lưu thay đổi tệp lên server",
+      "pendingVerification": "Chỉ hiển thị thông tin tệp và cấu hình. Nội dung, điều khoản và chữ ký được kiểm tra ở các bước sau."
     },
     "preview": {
       "title": "Xem trước",
       "page": "Trang {{page}} / {{total}}",
       "partyA": "ĐẠI DIỆN BÊN A",
-      "partyB": "ĐẠI DIỆN BÊN B"
+      "partyB": "ĐẠI DIỆN BÊN B",
+      "schematic": "Sơ đồ minh họa vùng ký; không phải bản kết xuất của tệp đang chọn.",
+      "selectFile": "Chọn tệp hoặc tạo hợp đồng mẫu để xem tài liệu thật.",
+      "loading": "Đang kết xuất tài liệu…",
+      "unavailable": "Không kết xuất được tài liệu. Hãy kiểm tra tệp hoặc tải xuống để mở bằng trình soạn thảo.",
+      "downloadPdf": "Tải bản PDF xem trước",
+      "noStoredFile": "Hồ sơ chưa có tệp gốc được lưu. Dữ liệu mẫu của ban tổ chức không kèm bản hợp đồng.",
+      "downloadOriginal": "Tải tệp gốc"
     },
-    "intro": "Bước 1/5. Hợp đồng mới được cắt thành mốc theo đúng workflow của loại hợp đồng trong Data Pack, nên được đánh giá bằng cùng bộ rule với 405 mốc của BTC."
+    "intro": "Bước 1/5. Hợp đồng mới được cắt thành mốc theo đúng workflow của loại hợp đồng trong Data Pack, nên được đánh giá bằng cùng bộ rule với 405 mốc của BTC.",
+    "sample": {
+      "defaultTitle": "Hợp đồng mẫu — {{type}}",
+      "generate": "Tạo hợp đồng mẫu",
+      "download": "Tải tệp",
+      "notice": "Tạo DOCX thực từ điều khoản và 1–4 người ký đang chọn. Bạn có thể tải, sửa rồi tải lên lại; tệp được đánh dấu kiểm thử và chưa có chữ ký.",
+      "compactNotice": "Tạo DOCX theo nội dung và người ký đã chọn."
+    },
+    "templates": {
+      "choose": "Chọn mẫu hợp đồng",
+      "notice": "Mẫu do quản trị cấu hình. Bạn có thể thêm/bớt người ký và chỉnh điều khoản riêng; thay đổi ở đây không sửa mẫu gốc.",
+      "body": "Nội dung riêng của hợp đồng",
+      "bodyHint": "Tên biến: title, buyer, supplier, valueMillion, startDate, endDate; đặt trong hai cặp ngoặc nhọn. Để trống dùng nội dung mặc định.",
+      "stale": "Điều khoản hoặc người ký đã thay đổi sau khi tạo tệp. Hãy tạo lại mẫu để nội dung khớp trước khi lưu.",
+      "bodyEmptyHint": "Để trống để dùng nội dung mặc định."
+    },
+    "demo": {
+      "title": "Hợp đồng cung cấp thiết bị — dùng thử",
+      "body": "Nội dung mẫu để kiểm thử: {{supplier}} cung cấp thiết bị cho {{buyer}} theo {{title}}. Hai bên đối chiếu biên bản bàn giao trước khi xử lý thanh toán."
+    },
+    "sections": {
+      "details": "Thông tin hợp đồng",
+      "terms": "Điều khoản thanh toán",
+      "signing": "Thiết lập ký",
+      "document": "Tài liệu hợp đồng"
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { ContractDocuments } from "@/shared/ui/ContractDocuments";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -72,15 +73,12 @@ function Flow({
     overview.currentStepNo !== null &&
     overview.currentStepNo === overview.myStepNo;
   const canCancel = !overview.anySigned && hasPermission("signing:cancel");
-  const signaturePage = overview.previewPages.find(
-    (page) => page.hasSignatureBlock,
-  );
 
   const cancel = useMutation({
     mutationFn: () => cancelSigning(contractId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["signing"] });
-      void navigate("/contracts/new");
+      void navigate(`/contracts/new?draft=${encodeURIComponent(contractId)}`);
     },
   });
 
@@ -111,43 +109,7 @@ function Flow({
               count: overview.pageCount,
             })}
           </div>
-          <div className={styles.preview}>
-            <div className={styles.page}>
-              {signaturePage ? (
-                <div className={styles.pageHeading}>
-                  {t(`document.article.${signaturePage.heading}`)}
-                </div>
-              ) : null}
-              <div className={styles.line} style={{ width: "94%" }} />
-              <div className={styles.line} style={{ width: "88%" }} />
-              <div className={styles.line} style={{ width: "60%" }} />
-              <div className={styles.signers}>
-                {steps.map((step) => {
-                  const state = stepState(step, overview);
-                  return (
-                    <div key={step.stepNo} className={styles.signer}>
-                      <div className={styles.signerHeading}>
-                        {t(`document.representative.${step.party}`)}
-                      </div>
-                      <div
-                        className={cx(
-                          toneClass(step.stepNo),
-                          styles.slot,
-                          styles[`slot${state}`],
-                        )}
-                      >
-                        <span>{t("slot.label", { stepNo: step.stepNo })}</span>
-                        <span className={styles.slotState}>
-                          {t(`slot.state.${state}`)}
-                        </span>
-                      </div>
-                      <div className={styles.signerName}>{step.signerName}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <ContractDocuments contractId={contractId} />
         </section>
 
         <section className={cx(shared.card, styles.sequenceCard)}>

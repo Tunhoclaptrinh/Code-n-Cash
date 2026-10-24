@@ -57,6 +57,7 @@ export const PLATFORM_RESOURCES = [
   "organizations",
   "users",
   "contract-drafts",
+  "contract-templates",
   "milestone-templates",
   "settings",
   "documents",

@@ -4,10 +4,12 @@
 
 | Mục                | Nội dung                                                                                               |
 | ------------------- | ------------------------------------------------------------------------------------------------------- |
-| Áp dụng cho       | [04 — Đặc tả nghiệp vụ](04_DAC_TA_NGHIEP_VU.md) **v1.0**                                     |
+| Áp dụng cho       | [04 — Đặc tả nghiệp vụ](04_DAC_TA_NGHIEP_VU.md) **v1.1**                                     |
 | Ngày               | 21/10/2026                                                                                              |
 | Cập nhật khi      | Đặc tả đổi phiên bản, một việc ở mục 2 xong, hoặc BTC/đội trả lời một điểm ở mục 3 |
 | Đối tượng đọc | Toàn đội. Riêng mục 4 là bản nháp gửi BTC                                                      |
+
+Cập nhật 24/10/2026: BTC đã trả lời về completion, dispute, confidence và split 20/250/135; xem [15 — Xác nhận BTC](15_XAC_NHAN_BTC_VA_GIA_DINH.md) và [14 — Rà soát Đồng/Bạc/Vàng](14_RA_SOAT_BTC_DONG_BAC_VANG.md). Các mục hỏi BTC bên dưới là bản lịch sử; không gửi lại những câu đã được trả lời.
 
 Tài liệu này không thay đặc tả. Nó trả lời ba câu hỏi:
 
@@ -70,6 +72,8 @@ Người chính lấy theo phân công ở [02](02_CHIEN_LUOC_BRONZE_SILVER_GOLD
 "Xong khi" là điều kiện nghiệm thu; chưa đạt thì chưa đánh dấu xong. Mốc quyết định cuối D3 (doc 03): nếu P0 chưa ổn thì dừng toàn bộ P1, P2.
 
 ### 2.1. P0 — cần cho bài nộp
+
+Hiện trạng ngày 24/10/2026 thay cho checklist lịch sử: engine/export/audit và báo cáo kiểm đã có; raw event của 8 loại chưa có sample được đối chiếu tại [tài liệu 16](16_DOI_CHIEU_CAC_LOAI_MOC_CHUA_CO_SAMPLE.md). Các giả định còn mở, hồ sơ PDF và cách nộp vẫn cần đội chốt theo [tài liệu 14–15](14_RA_SOAT_BTC_DONG_BAC_VANG.md). Không đánh đồng code/test xanh với đã hoàn tất bài nộp.
 
 ### 2.2. P1 — cộng điểm Silver
 

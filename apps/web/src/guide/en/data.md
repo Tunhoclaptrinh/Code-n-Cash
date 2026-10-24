@@ -22,7 +22,7 @@ The engine matches all 20 public labeled decisions and amounts. Wrong-release an
 4. Resolve missing-file, column and validation errors at the source.
 5. Select the uploaded dataset, evaluate, inspect traces and download outputs.
 
-Evaluation uploads do not overwrite the live contracts used by inbox tasks. Hidden-test ID files restrict output milestones while the engine still reads the supporting full dataset.
+Evaluation uploads do not overwrite the live contracts used by inbox tasks. BTC confirmed 20 PUBLIC, 250 HIDDEN and 135 HOLDOUT within the same 405 milestones. Submission exports the full template; test ID lists do not automatically filter rows. Only diagnostic CLI `--apply-scope` narrows output.
 
 ![A milestone's trace](../../../public/guide/images/data-trace.webp)
 

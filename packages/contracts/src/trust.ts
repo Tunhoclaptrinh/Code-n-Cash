@@ -68,6 +68,8 @@ export interface RuleVersion {
     offsetDays: number;
   }>;
   validation: {
+    compatibilityPolicy?: "BTC_FULL_PACK_V1";
+    expected?: number;
     changed?: number;
     matched: number;
     samples: number;
@@ -109,6 +111,7 @@ export interface RuleLanguage {
   fields: RuleExpressionField[];
 }
 export interface RulePreview {
+  compatibilityPolicy: "BTC_FULL_PACK_V1";
   evaluated: number;
   expected: number;
   matched: number;

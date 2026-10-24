@@ -66,6 +66,27 @@ test("the Data Pack is imported as tables and evaluated by the specification eng
   );
 });
 
+test("opening a fresh contract does not resume or overwrite an existing draft", async () => {
+  const before = await repo.list("contract-drafts");
+  const resumed = await call("u-legal", "drafts", "getContractDraft", "CT0101");
+  const fresh = await call(
+    "u-legal",
+    "drafts",
+    "getContractDraft",
+    undefined,
+    true,
+  );
+  assert.equal(resumed.code, "CT0101");
+  assert.notEqual(fresh.code, resumed.code);
+  assert.equal(fresh.origin, "APP");
+  assert.equal(fresh.file.name, "");
+  assert.deepEqual(await repo.list("contract-drafts"), before);
+  await assert.rejects(
+    call("u-supplier", "drafts", "getContractDraft", undefined, true),
+    /ACTION_FORBIDDEN/,
+  );
+});
+
 test("each organisation sees only its contracts; direct ids of others are refused", async () => {
   const supplier = await call("u-supplier", "contracts", "getContractList");
   assert.ok(supplier.contracts.length > 0);
@@ -352,6 +373,34 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
       ? draft.file
       : { name: "HopDong.pdf", sizeBytes: 1000, kind: "PDF", pages: 14 },
   });
+  const { SampleDocumentsController } =
+    await import("../../apps/api/dist/sample-documents.js");
+  const { DocumentsController } =
+    await import("../../apps/api/dist/documents.js");
+  const { BaseService } =
+    await import("../../apps/api/dist/common/services/base.service.js");
+  const { ExtractionService } =
+    await import("../../apps/api/dist/trust/extraction-service.js");
+  const generated = await new SampleDocumentsController(domain).create(
+    { draft: saved, language: "en" },
+    { user: actor("u-legal") },
+  );
+  const buffer = Buffer.from(generated.base64, "base64");
+  await new DocumentsController(repo, new BaseService(repo)).upload(
+    saved.code,
+    { buffer, size: buffer.length, originalname: generated.fileName },
+    { user: actor("u-legal") },
+  );
+  const extractor = new ExtractionService(repo, domain);
+  const proposal = await extractor.extract(saved.code, actor("u-legal"));
+  await extractor.confirm(
+    saved.code,
+    proposal.id,
+    Object.fromEntries(
+      proposal.fields.map((field) => [field.path, field.value]),
+    ),
+    actor("u-legal"),
+  );
   const digitized = await call(
     "u-legal",
     "drafts",
@@ -393,10 +442,10 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     );
     assert.equal(milestone.max_penalty_pct, penalized ? "6.50" : "0.00");
     assert.equal(milestone.required_approval_quorum, "2");
-    assert.deepEqual(
-      milestone.required_approval_roles.split(";").sort(),
-      ["CONTRACT_OWNER", "FINANCE_APPROVER"],
-    );
+    assert.deepEqual(milestone.required_approval_roles.split(";").sort(), [
+      "CONTRACT_OWNER",
+      "FINANCE_APPROVER",
+    ]);
     assert.ok(await evaluationOf(milestone.milestone_id));
   }
   assert.equal(
@@ -688,6 +737,154 @@ test("the state survives a restart of the service", async () => {
       (e) => e.action.kind === "DECISION" && e.contractCode === "CT0103",
     ),
   );
+});
+
+test("administrators manage persistent templates; drafts pin a version and survive template deletion", async () => {
+  const { BaseService } =
+    await import("../../apps/api/dist/common/services/base.service.js");
+  const base = new BaseService(repo);
+  const template = {
+    code: "SERVICE_CUSTOM",
+    name: "Dịch vụ theo yêu cầu",
+    description: "Reusable terms",
+    contractType: "SERVICES",
+    approvalPolicy: "FINANCE_PLUS_OWNER",
+    valueMillion: "1200.50",
+    graceDays: 7,
+    penaltyRatePct: "0.25",
+    maxPenaltyPct: "7.00",
+    signerRoles: "CONTRACT_OWNER",
+    documentBody: "Deliver {{title}} to {{buyer}}",
+    active: true,
+  };
+  for (const id of ["u-owner", "u-legal", "u-admin", "u-auditor"])
+    await assert.rejects(
+      base.create("contract-templates", template, actor(id)),
+      /PERMISSION_DENIED/,
+    );
+  await assert.rejects(
+    base.create(
+      "contract-templates",
+      { ...template, signerRoles: "CONTRACT_OWNER;LEGAL_REVIEWER" },
+      actor("u-sysadmin"),
+    ),
+    /CONTRACT_TEMPLATE_INVALID/,
+  );
+  await assert.rejects(
+    base.create(
+      "contract-templates",
+      { ...template, valueMillion: "0.00" },
+      actor("u-sysadmin"),
+    ),
+    /CONTRACT_TEMPLATE_INVALID/,
+  );
+  const created = await base.create(
+    "contract-templates",
+    template,
+    actor("u-sysadmin"),
+  );
+  const options = await call("u-legal", "drafts", "getUploadFormOptions");
+  const preset = options.presets.find((row) => row.id === created.id);
+  assert.equal(preset.defaults.valueMillion, "1200.50");
+  assert.equal(preset.signers.length, 1);
+  const input = {
+    ...(await call("u-legal", "drafts", "getContractDraft")),
+    ...preset.defaults,
+    title: "Pinned template contract",
+    supplierId: "S015",
+    reviewerId: "u-legal",
+    templateId: created.id,
+    templateVersion: created.version,
+    signers: preset.signers,
+    documentBody: "Custom contract-specific terms",
+    file: { name: "not-uploaded.pdf", kind: "PDF", sizeBytes: 100 },
+  };
+  const saved = await call("u-legal", "drafts", "saveContractDraft", input);
+  assert.equal(saved.templateSnapshot.documentBody, template.documentBody);
+  assert.equal(saved.documentBody, "Custom contract-specific terms");
+  await assert.rejects(
+    call("u-legal", "drafts", "confirmDigitization", saved.code, {
+      dueDate: "2028-12-31",
+    }),
+    /DOCUMENT_REQUIRED/,
+  );
+  const updated = await base.update(
+    "contract-templates",
+    created.id,
+    {
+      version: created.version,
+      name: "Version two",
+      documentBody: "Changed defaults",
+    },
+    actor("u-sysadmin"),
+  );
+  await assert.rejects(
+    base.update(
+      "contract-templates",
+      created.id,
+      { version: created.version, name: "stale edit" },
+      actor("u-sysadmin"),
+    ),
+    /VERSION_CONFLICT/,
+  );
+  const pinned = await call("u-legal", "drafts", "saveContractDraft", saved);
+  assert.equal(pinned.templateSnapshot.version, 1);
+  assert.equal(pinned.templateSnapshot.name, template.name);
+  const refreshed = await call("u-legal", "drafts", "saveContractDraft", {
+    ...pinned,
+    templateVersion: updated.version,
+    documentBody: updated.documentBody,
+  });
+  assert.equal(refreshed.templateSnapshot.version, 2);
+  await base.remove("contract-templates", created.id, actor("u-sysadmin"));
+  await domain.bootstrap();
+  assert.ok(
+    !(await repo.list("contract-templates")).some(
+      (row) => row.id === created.id,
+    ),
+  );
+  assert.ok(
+    !(await call("u-legal", "drafts", "getUploadFormOptions")).presets.some(
+      (row) => row.id === created.id,
+    ),
+  );
+  assert.equal(
+    (await call("u-legal", "drafts", "saveContractDraft", refreshed))
+      .templateSnapshot.version,
+    2,
+  );
+  await assert.rejects(
+    call("u-legal", "drafts", "saveContractDraft", {
+      ...refreshed,
+      templateVersion: 99,
+    }),
+    /CONTRACT_TEMPLATE_UNAVAILABLE/,
+  );
+  const audit = await repo.list("audit");
+  assert.deepEqual(
+    audit
+      .filter(
+        (row) =>
+          row.resource === "contract-templates" && row.recordId === created.id,
+      )
+      .map((row) => row.action),
+    ["CREATE", "UPDATE", "DELETE"],
+  );
+});
+
+test("live workflow rolls back business changes and success audit when engine invariants fail", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { outcome } = await import("../../apps/api/dist/domain/actions.js");
+  const before = await readFile(repo.path, "utf8");
+  await assert.rejects(
+    domain.write(actor("u-admin"), "test-invalid-engine-result", (ctx) => {
+      for (const rule of ctx.t["payment-rules"])
+        if (rule.priority === "70") rule.payable_amount_formula = "0";
+      return outcome(ctx, {}, { evaluate: true });
+    }),
+    /ENGINE_INVARIANT_VIOLATION/,
+  );
+  assert.equal(await readFile(repo.path, "utf8"), before);
 });
 
 test("an invalid rule result rolls back workflow changes and cannot enter a live or hypothetical payment decision", async () => {

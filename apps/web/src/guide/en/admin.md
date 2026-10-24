@@ -61,3 +61,17 @@ Open **Variables, syntax and examples**, search (1), and inspect meaning, type, 
 ![Preview: 1 — full-pack results; 2 — submit](../../../public/guide/images/rules-preview.webp)
 
 **Preview impact** validates syntax, runs all 405 milestones, checks 20 public examples and compares decisions, reasons, statuses and amounts with the baseline. Inspect up to 30 changed milestones; any changed pack result blocks submission. Template edits affect new contracts only, without rewriting organiser milestones. Editing configuration invalidates the previous preview; preview again before submitting (2). Another administrator must publish. Matching the public examples and preserving baseline do not verify hidden ground truth.
+
+## Contract templates
+
+![Template catalog: 1 — create; 2 — edit or open the delete menu](../../../public/guide/images/admin-contract-templates.webp)
+
+As system administrator, open **Contract templates**. Create, edit, delete or deactivate a template; import/export use the table tools. Configure type, suggested value, approval policy, penalty, ordered signer roles and additional text. Multiple signers must cover both parties. The contract editor chooses the actual people.
+
+![Template editor: 1 — ordered signer roles; 2 — additional text](../../../public/guide/images/admin-template-editor.webp)
+
+Text supports fields such as `{{title}}`, `{{buyer}}`, `{{supplier}}`, `{{valueMillion}}`. Each saved draft keeps its own template version and adjustments; editing or deleting the catalog entry does not alter that draft. Deactivate a template to prevent new use.
+
+## Sample input
+
+Create forms start empty. The single **Fill sample data** button at the top proposes values for every empty field; review and save explicitly. It does not create accounts, change permissions, reset passwords or publish rules. References use your allowed directory. Rule publication requires zero changed outcomes across the 405-milestone baseline as well as public-label and invariant checks; this is not hidden-ground-truth validation.

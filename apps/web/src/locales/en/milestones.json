@@ -66,7 +66,8 @@
       "events_other": "Events ({{count}})",
       "history": "Status history",
       "signing": "Signing",
-      "participants": "Participants"
+      "participants": "Participants",
+      "documents": "Original documents"
     },
     "noMilestones": "No milestones yet. They are created when the digitised terms are locked.",
     "terms": {
@@ -237,7 +238,8 @@
       "reason": "Reason (required), e.g. the supplier used the wrong channel and the buyer resubmitted",
       "propose": "Propose voiding",
       "proposed": "Proposal sent; a second controller decides.",
-      "decided": "Decision recorded; the engine re-evaluated."
+      "decided": "Decision recorded; the engine re-evaluated.",
+      "demoReason": "Demo reason: ask another controller to review event authority and related evidence under BR-19."
     },
     "dispute": {
       "title": "Disagree with the decision?",
@@ -366,7 +368,8 @@
       "label": "Note",
       "hint": "required to reject or request info",
       "required": "Write a note.",
-      "placeholder": "Explain the decision or requested documents (up to 2,000 characters)."
+      "placeholder": "Explain the decision or requested documents (up to 2,000 characters).",
+      "demo": "Demo note: check evidence, amount and payment conditions before submitting a decision."
     },
     "actions": {
       "reject": "Reject",

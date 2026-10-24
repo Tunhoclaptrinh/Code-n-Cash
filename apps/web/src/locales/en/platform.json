@@ -17,7 +17,8 @@
     "milestone-templates": "Milestone templates",
     "settings": "Settings",
     "documents": "Documents",
-    "audit": "System audit"
+    "audit": "System audit",
+    "contract-templates": "Contract templates"
   },
   "fields": {
     "name": "Name",
@@ -51,7 +52,15 @@
     "paymentPercent": "Payment share (%)",
     "latePenalty": "Late penalty applies",
     "offsetDays": "Due (days after start)",
-    "origin": "Source"
+    "origin": "Source",
+    "signerRoles": "Signing role order",
+    "documentBody": "Template content",
+    "description": "Description",
+    "approvalPolicy": "Approval policy",
+    "valueMillion": "Value (million VND)",
+    "graceDays": "Grace days",
+    "penaltyRatePct": "Daily penalty (%)",
+    "maxPenaltyPct": "Penalty cap (%)"
   },
   "data": {
     "title": "Data Pack results",
@@ -130,7 +139,7 @@
       "scope": "Scored milestone list",
       "noScope": "None: every milestone is exported",
       "templateHint": "No submission_output_template.csv: the 22 columns are built in milestones.csv order, like the official template.",
-      "scopeHint": "Only the {{count}} listed milestones are exported; the engine still reads all data for contract-level disputes.",
+      "scopeHint": "Detected a reference list of {{count}} milestones. Submission still exports the full template; this list does not filter app output.",
       "unknownScope": "{{count}} milestone IDs in the scored list are not in milestones.csv: {{ids}}",
       "notReady": "The dataset lacks a required file or column. Add it and upload again.",
       "runFirst": "No results yet. Click “Evaluate dataset” to run the engine on this dataset."
@@ -143,7 +152,8 @@
       "hint": "Required: contracts.csv, parties.csv, milestones.csv, events.csv, payment_rules.csv. Optional: decision_sample.csv, submission_output_template.csv, hidden_test_ids_*.csv. You can zip the whole Data Pack folder into one file. Up to 20 files, 25 MB in total.",
       "chooseFiles": "Choose at least one file",
       "done": "Dataset uploaded",
-      "incomplete": "Uploaded, but a required file or column is missing"
+      "incomplete": "Uploaded, but a required file or column is missing",
+      "demoName": "Test dataset"
     },
     "kpi": {
       "title": "KPIs (spec section 15)",
@@ -203,6 +213,12 @@
       "WF_SERVICE_4STAGE": "Services · 4 milestones",
       "WF_SOFTWARE_5STAGE": "Software · 5 milestones",
       "WF_MAINTENANCE_3STAGE": "Maintenance · 3 milestones"
+    },
+    "approvalPolicy": {
+      "AUTO_IF_ALL_CONDITIONS": "Automatic when conditions are met",
+      "SINGLE_BUYER_APPROVAL": "Contract owner approves",
+      "DUAL_APPROVAL": "Owner + secondary approver",
+      "FINANCE_PLUS_OWNER": "Finance + contract owner"
     }
   },
   "passwordTooShort": "The password needs at least 12 characters.",
@@ -234,7 +250,8 @@
       "documents": "Documents",
       "administration": "Administration",
       "controls": "Exception control",
-      "trust": "Anchors and rule versions"
+      "trust": "Anchors and rule versions",
+      "contract-templates": "Contract templates"
     },
     "scope": {
       "all": "All",
@@ -321,7 +338,13 @@
       "anchors:write": "Create and retry anchors",
       "rules:read": "Read rule versions",
       "rules:write": "Draft rule versions",
-      "rules:publish": "Publish another administrator’s version"
+      "rules:publish": "Publish another administrator’s version",
+      "contract-templates:read": "View contract templates",
+      "contract-templates:create": "Create contract templates",
+      "contract-templates:update": "Edit contract templates",
+      "contract-templates:delete": "Delete contract templates",
+      "contract-templates:import": "Import contract templates",
+      "contract-templates:export": "Export contract templates"
     },
     "scopeLabel": "Scope",
     "searchPlaceholder": "Search permission name, key or module"
@@ -330,7 +353,8 @@
   "imported_one": "{{count}} record imported",
   "imported_other": "{{count}} records imported",
   "errors": {
-    "MANAGED_RECORD": "This record belongs to the Data Pack or the workflow, so it cannot be edited or deleted here. Edit contract drafts on the Upload contract screen."
+    "MANAGED_RECORD": "This record belongs to the Data Pack or the workflow, so it cannot be edited or deleted here. Edit contract drafts on the Upload contract screen.",
+    "CONTRACT_TEMPLATE_INVALID": "Invalid template. Check terms, amount limits and signer roles."
   },
   "searchPlaceholder": "Search every column, organisation names included",
   "managedNote": "Records from {{origins}} can only be viewed and exported; records added here can be edited and deleted.",
@@ -341,8 +365,21 @@
     "requiredEvents": "e.g. DELIVERY;INVOICE",
     "partyId": "e.g. B010, S015, A028",
     "draftId": "Saved draft ID",
-    "password": "12–128 characters"
+    "password": "12–128 characters",
+    "signerRoles": "CONTRACT_OWNER;SUPPLIER"
   },
   "anchorsTitle": "Independent anchors",
-  "rulesTitle": "Rule and template versions"
+  "rulesTitle": "Rule and template versions",
+  "demo": {
+    "organizations": "Demo organization",
+    "users": "Demo user",
+    "userTitle": "Test specialist",
+    "contract-drafts": "Demo contract record",
+    "milestone-templates": "Demo contract signing milestone",
+    "settings": "Demo setting",
+    "settingValue": "Sample value",
+    "contract-templates": "Equipment supply template — demo",
+    "description": "Suggested input for trying the form; review before saving.",
+    "documentBody": "{{supplier}} supplies equipment to {{buyer}} under {{title}}, valued at {{valueMillion}} million VND."
+  }
 }

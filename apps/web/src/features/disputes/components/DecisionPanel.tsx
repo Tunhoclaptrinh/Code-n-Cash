@@ -1,3 +1,4 @@
+import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { App as AntApp, Button, Input, Radio } from "antd";
 import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -26,7 +27,7 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
     ...(view.canResolve ? (["RESOLVE", "REQUEST_INFO"] as const) : []),
     ...(view.canOpen ? (["OPEN"] as const) : []),
   ];
-  const [option, setOption] = useState<Option | undefined>(options[0]);
+  const [option, setOption] = useState<Option | undefined>();
   const [note, setNote] = useState("");
   const [noteMissing, setNoteMissing] = useState(false);
   const ref = {
@@ -65,6 +66,7 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
   });
 
   function onConfirm() {
+    if (!option) return;
     if (!note.trim()) {
       setNoteMissing(true);
       return;
@@ -117,6 +119,13 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
         <div>
           <label htmlFor={noteId} className={styles.label}>
             {t("decision.note.label")}{" "}
+            <DemoFillButton
+              disabled={!!note.trim()}
+              onClick={() => {
+                setNote(t("decision.note.demo"));
+                setNoteMissing(false);
+              }}
+            />
             <span className={styles.required}>*</span>
           </label>
           <Input.TextArea

@@ -55,7 +55,7 @@ Bộ máy danh sách: [`apps/api/src/domain/listing.ts`](../apps/api/src/domain/
 | Xuất | `onExport={(o) => void list.exporter(columns, values, tên)(o)}`: phạm vi trang hiện tại, tất cả (đọc lần lượt từng trang 100 dòng) hoặc N dòng đầu, đúng thứ tự đang xem; chỉ các cột đã chọn, mỗi cột ghi đúng điều cột đó hiển thị (một cột có thể ghi nhiều ô, ví dụ mã + tiêu đề). Tài nguyên CRUD xuất phía server `GET /resources/:r/export?format&columns&filters…` |
 | Nhập | Chỉ tài nguyên CRUD: `GET …/template` → `POST …/import/validate` → `ImportPreviewModal` (báo lỗi từng dòng) → chỉ nhập dòng hợp lệ; `importColumns` là các trường của resource |
 | Quyền | `useAccess(user).hasPermission("module:action")`; ẩn nút khi không có quyền, API vẫn kiểm lại |
-| Thao tác hàng | `customActions` **thay thế** nút mặc định: một `IconButton` chính + `Dropdown` chứa Xem chi tiết/Sửa/Xóa… |
+| Thao tác hàng | `customActions` **thay thế** nút mặc định: dùng `TableRowActions` ở `apps/web/src/shared/ui` để giữ icon nhỏ trên **một dòng**, có tooltip và `aria-label` dịch đầy đủ; menu hamburger chứa đầy đủ tên thao tác. Cột rộng 104 px cho hai nút, 72 px cho một nút. Nút trên thanh công cụ/form như **Thêm mới**, Lưu, Tải lên vẫn phải có chữ; không đưa chữ dài vào từng hàng làm tăng chiều cao bảng |
 | Xem chi tiết | `DetailModal` với `items`, có `onEdit`/`onDelete` nếu được sửa. Bản ghi dài (tab, bảng con): `ExpandableModal` có nút phóng toàn màn hình, ví dụ [ContractModal](../apps/web/src/features/contracts/components/ContractModal.tsx) |
 | Thêm/sửa | `onAdd` (nút "Thêm mới") + `FormModal` với `Form.Item` có `rules` |
 | Xóa | `ConfirmModal` (`danger`); xóa nhiều: `batchOperations` + `onBatchDelete` |
@@ -103,7 +103,7 @@ Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) l
 ## 7. Trang Data Pack và bộ dữ liệu tải lên
 
 - Nguồn dữ liệu: Data Pack chính thức hoặc bộ dữ liệu người dùng tải lên ([DatasetPanel](../apps/web/src/features/platform/components/DatasetPanel.tsx)). Tải lên nhận CSV rời hoặc ZIP của cả thư mục; engine tìm tệp theo tên và báo tệp nào đủ, thiếu, thiếu cột trước khi chạy.
-- Không có `submission_output_template.csv` thì engine dựng 22 cột theo thứ tự `milestones.csv`. Có `*test_ids*.csv` (ví dụ `hidden_test_ids_Case4.csv`) thì chỉ xuất các mốc trong danh sách; engine vẫn đọc toàn bộ dữ liệu.
+- Không có `submission_output_template.csv` thì engine dựng 22 cột theo thứ tự `milestones.csv`. Mặc định xuất đủ template; `*test_ids*.csv` không tự thu hẹp đầu ra. Chỉ CLI chẩn đoán có `--apply-scope` mới lọc mốc; không dùng tùy chọn này cho bài nộp BTC.
 - "Tải kết quả": `submission_output.csv`, `audit.json`, `metrics.json` do engine ghi (`GET /engine/datasets/:id/files/:file`). Quyền `engine:datasets`.
 - Khối **Chỉ số KPI** hiện `summary.kpi` của engine (đặc tả mục 15): độ chính xác, Macro-F1, UPR, giữ thừa, khớp tiền trên mẫu có nhãn; độ phủ, truy vết, thời gian trên mọi mốc. Không có nhãn thì các ô theo nhãn ghi "Không kèm nhãn mẫu".
 
@@ -137,3 +137,11 @@ Hai lệnh smoke cần API chạy trên dữ liệu vừa khởi tạo (kịch b
 | `AppShell` dựng lại ở mỗi trang | `AppLayout` + `AppPage` |
 | Thanh lọc tự dựng bằng `Select`/`DatePicker` trên trang danh sách | `filters` + FilterBuilder của `DataTable` |
 | Khóa i18n dạng hash trong `packages/ui` | Khóa có nghĩa trong namespace `base` |
+
+## 11. Form trống và điền mẫu
+
+Mỗi form chỉ có **một nút Điền mẫu toàn bộ** ở đầu form; không đặt nút cạnh từng nhãn. Form tạo mới bắt đầu trống; dữ liệu hồ sơ đã lưu và trường chỉ đọc do hệ thống cấp vẫn giữ nguyên. `DemoFillButton`/`DemoFormFill` ở `apps/web/src/shared/ui` dùng chung hàm `fillEmptyInputs`: chỉ điền ô trống, giữ 0/false và các lựa chọn đã nhập, không gọi API ghi. Nạp đề xuất trích xuất/ngày gợi ý/anchor là thao tác riêng dùng dữ liệu thực; không tạo quyết định phê duyệt. `/contracts/new` tạo hồ sơ mới chưa lưu, `?draft=CODE` mở đúng bản nháp theo quyền. Không sửa base `packages/ui`.
+
+Form tải hợp đồng chia nhóm thông tin, thanh toán, ký và tài liệu. Danh sách người ký dùng grid theo chiều rộng thực của form: một dòng trên desktop, hai dòng trên màn hẹp; các thao tác chuyển lên/xuống/bỏ nằm trong menu **Thao tác** có chữ. Không lặp lại chuỗi tên người ký bên dưới danh sách. Chú thích dài đặt trong tooltip truy cập được bằng bàn phím; lỗi và cảnh báo nghiệp vụ vẫn hiện trực tiếp. Nội dung hợp đồng co giãn 3–8 dòng; bộ đếm và chú thích ở hàng riêng để không đè nhau. Giữ nút sinh DOCX/tải tệp tách khỏi nút điền mẫu, vì đây là thao tác tạo tài liệu thật.
+
+Cấu hình Vite `resolve.dedupe` giữ một runtime React, i18next/react-i18next và React Query giữa web và `@codecash/ui`. Monorepo có thể sinh nhiều đường dẫn peer theo phiên bản TypeScript; nếu không dedupe, form và nút base có thể dùng ngôn ngữ/context khác nhau dù cùng phiên bản package. Kiểm browser phải chuyển sang tiếng Việt và xác nhận nút base **Xuất** cùng ngôn ngữ với form, trên bản build thật. Khi chạy smoke/ảnh hướng dẫn, luôn ghi rõ `STORAGE_DRIVER=file` cùng `DATA_DIR` riêng; chỉ đặt `DATA_DIR` không ngăn được `.env` chọn Mongo.

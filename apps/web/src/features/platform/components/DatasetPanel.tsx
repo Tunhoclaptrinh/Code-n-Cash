@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Button,
-  Alert,
   App as AntApp,
   Form,
   Input,
@@ -150,15 +149,11 @@ export function DatasetPanel({
                 : ""}
             </Typography.Text>
             <div data-testid="dataset-checklist">
-              <Typography.Text strong>
-                {t("data.source.checklist")}
-              </Typography.Text>
               <div
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
                   gap: 8,
-                  marginTop: 8,
                 }}
               >
                 {dataset.report.files.map((file) => (
@@ -178,26 +173,21 @@ export function DatasetPanel({
                     path={file.path}
                   />
                 ))}
-                <FileRow
-                  name={
-                    dataset.report.scope?.path.split("/").at(-1) ??
-                    "*test_ids*.csv"
-                  }
-                  status={dataset.report.scope?.status ?? "optional"}
-                  detail={
-                    dataset.report.scope
-                      ? `${t("data.source.scope")} · ${t("data.source.rows", {
-                          count: dataset.report.scope.rows,
-                        })}`
-                      : t("data.source.noScope")
-                  }
-                  path={dataset.report.scope?.path ?? null}
-                />
+                {dataset.report.scope ? (
+                  <FileRow
+                    name={dataset.report.scope.path.split("/").at(-1) ?? ""}
+                    status={dataset.report.scope.status}
+                    detail={`${t("data.source.scope")} · ${t(
+                      "data.source.rows",
+                      {
+                        count: dataset.report.scope.rows,
+                      },
+                    )}`}
+                    path={dataset.report.scope.path}
+                  />
+                ) : null}
               </div>
             </div>
-            {!dataset.report.ok ? (
-              <Alert type="error" showIcon title={t("data.source.notReady")} />
-            ) : null}
           </>
         ) : null}
       </Space>
@@ -255,7 +245,7 @@ export function DatasetPanel({
           </p>
           <p>{t("data.upload.drop")}</p>
           <p className="ant-upload-hint" style={{ padding: "0 12px" }}>
-            {t("data.upload.hint")}
+            {t("lite.uploadHint")}
           </p>
         </Upload.Dragger>
       </FormModal>

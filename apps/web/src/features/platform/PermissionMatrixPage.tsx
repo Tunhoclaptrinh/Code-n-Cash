@@ -290,7 +290,6 @@ export default function PermissionMatrixPage() {
       ]}
     >
       <PageContainer>
-        <Alert type="info" showIcon title={t("permissions.source")} />
         {matrix.isError ? (
           <Alert type="error" showIcon title={matrix.error.message} />
         ) : null}

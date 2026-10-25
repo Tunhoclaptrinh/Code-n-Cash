@@ -153,13 +153,12 @@ function Report({
   return (
     <Space direction="vertical" size={16} style={{ width: "100%" }}>
       <Typography.Text type="secondary">
-        {t("integrity.checkedAt", { time: formatDateTime(data.checkedAt) })}
+        {t("lite.checkedAt", { time: formatDateTime(data.checkedAt) })}
       </Typography.Text>
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.chain.title")}
-            subtitle={t("integrity.chain.subtitle")}
             extra={<Verdict ok={chain.ok} />}
           >
             <Descriptions
@@ -171,11 +170,15 @@ function Report({
                   label: t("integrity.chain.sealed"),
                   children: chain.sealed,
                 },
-                {
-                  key: "unsealed",
-                  label: t("integrity.chain.unsealed"),
-                  children: chain.unsealed,
-                },
+                ...(chain.unsealed
+                  ? [
+                      {
+                        key: "unsealed",
+                        label: t("integrity.chain.unsealed"),
+                        children: chain.unsealed,
+                      },
+                    ]
+                  : []),
                 {
                   key: "head",
                   label: t("integrity.chain.head"),
@@ -192,21 +195,23 @@ function Report({
                     "—"
                   ),
                 },
-                {
-                  key: "broken",
-                  label: t("integrity.chain.firstBroken"),
-                  children: chain.firstBroken ? (
-                    <Typography.Text type="danger">
-                      #{chain.firstBroken.seq} ·{" "}
-                      {t(
-                        `integrity.chain.problems.${chain.firstBroken.problem}`,
-                      )}{" "}
-                      · {chain.firstBroken.id}
-                    </Typography.Text>
-                  ) : (
-                    t("integrity.chain.none")
-                  ),
-                },
+                ...(chain.firstBroken
+                  ? [
+                      {
+                        key: "broken",
+                        label: t("integrity.chain.firstBroken"),
+                        children: (
+                          <Typography.Text type="danger">
+                            #{chain.firstBroken.seq} ·{" "}
+                            {t(
+                              `integrity.chain.problems.${chain.firstBroken.problem}`,
+                            )}{" "}
+                            · {chain.firstBroken.id}
+                          </Typography.Text>
+                        ),
+                      },
+                    ]
+                  : []),
                 ...(chain.anchor
                   ? [
                       {
@@ -227,19 +232,12 @@ function Report({
                   : []),
               ]}
             />
-            <Typography.Paragraph
-              type="secondary"
-              style={{ margin: "12px 0 8px" }}
-            >
-              {t("integrity.chain.anchor.hint")}
-            </Typography.Paragraph>
-            {anchorControl}
+            <div style={{ marginTop: 12 }}>{anchorControl}</div>
           </BaseCard>
         </Col>
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.evidence.title")}
-            subtitle={t("integrity.evidence.subtitle")}
             extra={<Verdict ok={!evidence.problems.length} />}
           >
             <Descriptions
@@ -251,11 +249,15 @@ function Report({
                   label: t("integrity.evidence.sealed"),
                   children: evidence.sealed,
                 },
-                {
-                  key: "unsealed",
-                  label: t("integrity.evidence.unsealed"),
-                  children: evidence.unsealed,
-                },
+                ...(evidence.unsealed
+                  ? [
+                      {
+                        key: "unsealed",
+                        label: t("integrity.evidence.unsealed"),
+                        children: evidence.unsealed,
+                      },
+                    ]
+                  : []),
               ]}
             />
             {evidence.problems.length ? (
@@ -295,7 +297,6 @@ function Report({
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.dataPack.title")}
-            subtitle={t("integrity.dataPack.subtitle")}
             extra={
               data.dataPack ? (
                 <Verdict ok={data.dataPack.tables.every((x) => x.ok)} />
@@ -304,11 +305,6 @@ function Report({
           >
             {data.dataPack ? (
               <>
-                <Typography.Paragraph type="secondary">
-                  {t("integrity.dataPack.sealedAt", {
-                    time: formatDateTime(data.dataPack.sealedAt),
-                  })}
-                </Typography.Paragraph>
                 <Table<SealedTable>
                   size="small"
                   rowKey="name"
@@ -359,7 +355,6 @@ function Report({
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.decisions.title")}
-            subtitle={t("integrity.decisions.subtitle")}
             extra={<Verdict ok={!decisions.mismatches.length} />}
           >
             <Descriptions
@@ -440,7 +435,6 @@ function Report({
           </BaseCard>
         </Col>
       </Row>
-      <Alert type="info" showIcon title={t("integrity.note")} />
     </Space>
   );
 }

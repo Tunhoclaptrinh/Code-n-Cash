@@ -2,7 +2,7 @@ import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Alert, Tag, Typography } from "antd";
+import { Tag, Typography } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import {
   DataTable,
@@ -220,7 +220,6 @@ export function ActivityLogView({
 
   return (
     <PageContainer>
-      <Alert type="info" showIcon title={t("appendOnly")} />
       <DataTable<ActivityEntry>
         rowKey="id"
         scroll={{ x: 1400 }}

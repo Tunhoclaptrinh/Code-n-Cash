@@ -246,5 +246,9 @@
     "before": "Before",
     "after": "After",
     "noChanges": "No data changed, or this older entry predates detailed change capture."
+  },
+  "lite": {
+    "checkedAt": "Checked at {{time}}",
+    "exceptionsNote": "One person proposes, a second person approves."
   }
 }

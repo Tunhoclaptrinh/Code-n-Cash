@@ -38,7 +38,13 @@ import {
 } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
-import { describeNext, eventClassTone, statusTone } from "@/shared/lib/domain";
+import {
+  actorName,
+  contractTitle,
+  describeNext,
+  eventClassTone,
+  statusTone,
+} from "@/shared/lib/domain";
 import {
   formatDate,
   formatDateTime,
@@ -51,6 +57,11 @@ import {
 } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
+import {
+  TechnicalDetails,
+  TechnicalList,
+  TrackingCode,
+} from "@/shared/ui/TechnicalInfo";
 import { ToneTag, type Tone } from "@/shared/ui/ToneTag";
 import styles from "./MilestoneDecisionPage.module.css";
 
@@ -107,8 +118,9 @@ export default function MilestoneDecisionPage() {
 }
 
 function DecisionContent({ data }: { data: MilestoneDetail }) {
-  const { t } = useTranslation("milestones");
+  const { t, i18n } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -142,7 +154,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
           <div className={styles.bannerMeta}>
             {t("decision.meta", {
               contractId: contract.id,
-              title: contract.title,
+              title: contractTitle(contract),
               supplier: contract.supplier.name,
             })}{" "}
             · {contract.buyer.name}
@@ -151,8 +163,11 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
             <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
             <DecisionTag decision={evaluation.decision} />
             <MilestoneStatusTag status={milestone.status} />
-            <OriginTag origin={milestone.origin} />
           </div>
+          <Space size={12} wrap>
+            <TrackingCode code={milestone.id} />
+            <TrackingCode code={evaluation.reasonCode} />
+          </Space>
           <div className={styles.bannerSummary}>
             {t("decision.summaryLine", {
               rule: evaluation.ruleId,
@@ -160,17 +175,28 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
               penalty: formatDecimalString(evaluation.penaltyMillion),
             })}
           </div>
-          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-            {t("decision.runLine", {
-              run: evaluation.runId,
-              at: formatDateTime(evaluation.evaluatedAt),
-              spec: evaluation.specVersion,
-              confidence: evaluation.confidence,
-            })}
-          </Typography.Text>
           <Typography.Text>
             {t("decision.next")} <b>{describeNext(td, milestone.next)}</b>
           </Typography.Text>
+          <TechnicalDetails
+            items={[
+              {
+                key: "run",
+                label: tc("technical.run"),
+                value: t("decision.runLine", {
+                  run: evaluation.runId,
+                  at: formatDateTime(evaluation.evaluatedAt),
+                  spec: evaluation.specVersion,
+                  confidence: evaluation.confidence,
+                }),
+              },
+              {
+                key: "source",
+                label: tc("technical.source"),
+                value: <OriginTag origin={milestone.origin} />,
+              },
+            ]}
+          />
         </div>
         <div className={styles.bannerActions}>
           <Space wrap>
@@ -417,17 +443,26 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
                 },
                 {
                   key: "id",
-                  title: "Rule",
-                  render: (_, r) => (
-                    <Typography.Text code>{r.id}</Typography.Text>
-                  ),
+                  title: t("decision.rules.rule"),
+                  render: (_, r) => <TrackingCode code={r.id} />,
                 },
                 {
                   key: "condition",
                   title: t("decision.rules.condition"),
+                  // Business wording first; the Data Pack expression stays in the tooltip.
                   render: (_, r) => (
-                    <Tooltip title={r.description}>
-                      <Typography.Text code>{r.condition}</Typography.Text>
+                    <Tooltip
+                      title={
+                        <Typography.Text code style={{ color: "inherit" }}>
+                          {r.condition}
+                        </Typography.Text>
+                      }
+                    >
+                      <span>
+                        {i18n.language.startsWith("vi")
+                          ? r.description
+                          : r.name}
+                      </span>
                     </Tooltip>
                   ),
                 },
@@ -503,8 +538,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
                         : ""}
                       {change.trigger.kind === "EVENTS"
                         ? ` · ${change.trigger.eventIds.join(", ")}`
-                        : ""}{" "}
-                      · {change.runId}
+                        : ""}
                     </Typography.Text>
                   </>
                 ),
@@ -538,6 +572,7 @@ function EventTable({
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   return (
     <Table<ClassifiedEvent>
       size="small"
@@ -545,6 +580,34 @@ function EventTable({
       dataSource={events}
       pagination={false}
       scroll={{ x: "max-content" }}
+      expandable={{
+        expandedRowRender: (e) => (
+          <TechnicalList
+            items={[
+              {
+                key: "source",
+                label: tc("technical.source"),
+                value: <OriginTag origin={e.origin} />,
+              },
+              {
+                key: "document",
+                label: tc("technical.document"),
+                value: e.documentId,
+              },
+              {
+                key: "channel",
+                label: tc("technical.channel"),
+                value: e.source,
+              },
+              {
+                key: "party",
+                label: tc("technical.party"),
+                value: e.actor.partyId,
+              },
+            ]}
+          />
+        ),
+      }}
       columns={[
         {
           key: "at",
@@ -555,10 +618,15 @@ function EventTable({
           key: "type",
           title: t("detail.events.type"),
           render: (_, e) => (
-            <Space size={4} wrap>
-              <b>{td(`eventType.${e.type}`)}</b>
-              <Tag style={{ margin: 0 }}>{td(`eventStatus.${e.status}`)}</Tag>
-            </Space>
+            <>
+              <Space size={4} wrap>
+                <b>{td(`eventType.${e.type}`)}</b>
+                <Tag style={{ margin: 0 }}>{td(`eventStatus.${e.status}`)}</Tag>
+              </Space>
+              <div>
+                <TrackingCode code={e.id} />
+              </div>
+            </>
           ),
         },
         {
@@ -566,13 +634,16 @@ function EventTable({
           title: t("detail.events.actor"),
           render: (_, e) => (
             <>
-              <div>{e.actor.name}</div>
+              <div>{actorName(td, e.actor)}</div>
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {e.actor.partyId}
-                {e.actor.type ? ` · ${td(`partyType.${e.actor.type}`)}` : ""}
-                {e.actor.approvalRole
-                  ? ` · ${td(`approvalRole.${e.actor.approvalRole}`)}`
-                  : ""}
+                {[
+                  e.actor.type ? td(`partyType.${e.actor.type}`) : "",
+                  e.actor.approvalRole
+                    ? td(`approvalRole.${e.actor.approvalRole}`)
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </Typography.Text>
             </>
           ),
@@ -601,26 +672,13 @@ function EventTable({
           title: t("detail.events.document"),
           render: (_, e) => (
             <>
-              <Typography.Text code>{e.documentId}</Typography.Text>
-              {e.fileName ? (
-                <div style={{ fontSize: 12 }}>{e.fileName}</div>
-              ) : null}
+              {e.fileName ?? "—"}
               {e.referenceEventId ? (
                 <div style={{ fontSize: 12 }}>
                   {t("detail.events.reference", { id: e.referenceEventId })}
                 </div>
               ) : null}
             </>
-          ),
-        },
-        {
-          key: "id",
-          title: "ID",
-          render: (_, e) => (
-            <Space size={4}>
-              <Typography.Text code>{e.id}</Typography.Text>
-              <OriginTag origin={e.origin} />
-            </Space>
           ),
         },
       ]}
@@ -696,7 +754,8 @@ function ReplayPanel({
                 render: (_, p) =>
                   p.events.map((e) => (
                     <div key={e.id}>
-                      <b>{td(`eventType.${e.type}`)}</b> · {e.actor.name}{" "}
+                      <b>{td(`eventType.${e.type}`)}</b> ·{" "}
+                      {actorName(td, e.actor)}{" "}
                       <Typography.Text
                         type="secondary"
                         style={{ fontSize: 12 }}
@@ -842,7 +901,6 @@ function ExceptionPanel({
             }}
           >
             <Space size={6} wrap>
-              <Typography.Text code>{request.id}</Typography.Text>
               <Tag
                 color={
                   request.status === "APPROVED"
@@ -915,7 +973,7 @@ function ExceptionPanel({
             onChange={setEventId}
             options={candidates.map((e) => ({
               value: e.id,
-              label: `${e.id} · ${td(`eventType.${e.type}`)} · ${e.actor.name}`,
+              label: `${e.id} · ${td(`eventType.${e.type}`)} · ${actorName(td, e.actor)}`,
             }))}
             data-testid="exception-event"
           />

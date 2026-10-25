@@ -18,6 +18,7 @@ import {
 } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
+import { actorName, contractHeading } from "@/shared/lib/domain";
 import {
   formatDate,
   formatDateTime,
@@ -27,6 +28,7 @@ import {
 import { DecisionTag, OriginTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
+import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
 import styles from "./EvidenceSubmissionPage.module.css";
@@ -220,8 +222,8 @@ function Workspace({
   return (
     <>
       <WorkflowContext>
-        {contract.id} · {contract.title} ·{" "}
-        {td(`milestoneType.${milestone.type}`)} · {td(`side.${data.side}`)}
+        {contractHeading(contract)} · {td(`milestoneType.${milestone.type}`)} ·{" "}
+        {td(`side.${data.side}`)} · <TrackingCode code={milestone.id} />
       </WorkflowContext>
       <div className={styles.grid}>
         <Panel className={`${styles.panel} ${styles.panelLeft}`}>
@@ -305,6 +307,7 @@ function Workspace({
                 <Space size={6} wrap>
                   <DecisionTag decision={preview.decision} />
                   <span>{td(`reason.${preview.reasonCode}`)}</span>
+                  <TrackingCode code={preview.reasonCode} />
                 </Space>
                 <span>
                   {t("submit.preview.amounts", {
@@ -361,14 +364,14 @@ function SlotCard({
           <div className={styles.fileMeta}>
             {t("submit.file.recorded", {
               id: slot.evidence.id,
-              by: slot.evidence.recordedBy ?? slot.evidence.actor.name,
+              by:
+                slot.evidence.recordedBy ?? actorName(td, slot.evidence.actor),
               at: formatDateTime(slot.evidence.at),
             })}
           </div>
         </div>
         <Space size={4}>
           <ToneTag tone="success">{t("submit.file.valid")}</ToneTag>
-          <OriginTag origin={slot.evidence.origin} />
         </Space>
       </div>
     );

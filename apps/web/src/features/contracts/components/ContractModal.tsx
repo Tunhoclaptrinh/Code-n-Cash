@@ -24,7 +24,13 @@ import type { EventRow, MilestoneRow } from "@codecash/contracts";
 import { ApiError } from "@/shared/api/client";
 import { cancelSigning, getContractOverview } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
-import { describeNext } from "@/shared/lib/domain";
+import { useDemoMode } from "@/shared/auth/useDemoMode";
+import {
+  actorName,
+  contractHeading,
+  describeNext,
+  peopleOf,
+} from "@/shared/lib/domain";
 import {
   formatDate,
   formatDateTime,
@@ -37,6 +43,7 @@ import {
 } from "@/shared/ui/DomainTags";
 import { ExpandableModal } from "@/shared/ui/ExpandableModal";
 import { PageState } from "@/shared/ui/PageState";
+import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import type { ContractRow } from "../types";
 
 const percentOf = (part: string, whole: string) =>
@@ -60,7 +67,9 @@ export function ContractModal({
 }) {
   const { t } = useTranslation("contracts");
   const { t: td } = useTranslation("domain");
+  const { t: tm } = useTranslation("milestones");
   const { message } = AntApp.useApp();
+  const demo = useDemoMode();
   const navigate = useNavigate();
   const cache = useQueryClient();
   const user = useCurrentUser();
@@ -103,9 +112,10 @@ export function ContractModal({
             {td("milestoneNo", { no: m.sequence })} ·{" "}
             {td(`milestoneType.${m.type}`)}
           </Typography.Text>
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            {m.id} · {m.ruleId}
-          </Typography.Text>
+          <Space size={8}>
+            <TrackingCode code={m.id} />
+            <TrackingCode code={m.ruleId} />
+          </Space>
         </Space>
       ),
     },
@@ -155,23 +165,18 @@ export function ContractModal({
       key: "type",
       title: t("contractList.modal.event"),
       render: (_: unknown, e: EventRow) => (
-        <Space size={4} wrap>
+        <Space direction="vertical" size={0}>
           <Typography.Text strong>{td(`eventType.${e.type}`)}</Typography.Text>
-          <OriginTag origin={e.origin} />
+          <TrackingCode code={e.id} />
         </Space>
       ),
     },
     {
       key: "actor",
       title: t("contractList.modal.actor"),
-      render: (_: unknown, e: EventRow) => e.recordedBy ?? e.actor.name,
-    },
-    {
-      key: "id",
-      title: "ID",
-      render: (_: unknown, e: EventRow) => (
-        <Typography.Text code>{e.id}</Typography.Text>
-      ),
+      render: (_: unknown, e: EventRow) =>
+        e.recordedBy ??
+        actorName(td, e.actor, peopleOf(data?.participants ?? [])),
     },
   ];
 
@@ -183,9 +188,7 @@ export function ContractModal({
         title={
           contract ? (
             <Space wrap size={8}>
-              <span>
-                {contract.id} · {contract.title}
-              </span>
+              <span>{contractHeading(contract)}</span>
               {statusTag(contract)}
               <OriginTag origin={contract.origin} />
             </Space>
@@ -260,12 +263,12 @@ export function ContractModal({
                         {
                           key: "buyer",
                           label: t("contractList.table.columns.buyer"),
-                          children: `${contract.buyer.name} (${contract.buyer.id})`,
+                          children: contract.buyer.name,
                         },
                         {
                           key: "supplier",
                           label: t("contractList.table.columns.supplier"),
-                          children: `${contract.supplier.name} (${contract.supplier.id})`,
+                          children: contract.supplier.name,
                         },
                         {
                           key: "kind",
@@ -299,7 +302,9 @@ export function ContractModal({
                         {
                           key: "rules",
                           label: t("contractList.modal.ruleSet"),
-                          children: data.ruleSetId,
+                          children: td(`ruleSet.${data.ruleSetId}`, {
+                            defaultValue: data.ruleSetId,
+                          }),
                         },
                       ]}
                     />
@@ -389,20 +394,38 @@ export function ContractModal({
                         {person.personName ?? person.name}
                       </Typography.Text>{" "}
                       <Typography.Text type="secondary">
-                        {person.personName ? `${person.name} · ` : ""}
-                        {person.partyId}
+                        {person.personName
+                          ? [
+                              person.side === "BUYER"
+                                ? contract.buyer.name
+                                : contract.supplier.name,
+                              demo ? person.email : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")
+                          : null}
                       </Typography.Text>
                     </span>
-                    <Space size={4}>
+                    <Space size={4} wrap>
                       <Tag style={{ margin: 0 }}>
                         {person.approvalRole
                           ? td(`approvalRole.${person.approvalRole}`)
                           : td(`side.${person.side}`)}
                       </Tag>
-                      <OriginTag origin={person.origin} />
-                      {person.identityOrigin ? (
-                        <Tag>{t("contractList.modal.demoIdentity")}</Tag>
-                      ) : null}
+                      {(data.signing?.steps ?? [])
+                        .filter(
+                          (step) =>
+                            !!person.email && step.signerEmail === person.email,
+                        )
+                        .map((step) => (
+                          <Tag
+                            key={step.stepNo}
+                            color="purple"
+                            style={{ margin: 0 }}
+                          >
+                            {tm("detail.signing.step", { step: step.stepNo })}
+                          </Tag>
+                        ))}
                     </Space>
                   </div>
                 )),

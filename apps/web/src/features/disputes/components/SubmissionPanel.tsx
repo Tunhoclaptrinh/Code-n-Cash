@@ -1,8 +1,10 @@
 import { Space, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
+import { actorName } from "@/shared/lib/domain";
 import { initialsOf } from "@/shared/lib/initials";
-import { DecisionTag, OriginTag } from "@/shared/ui/DomainTags";
+import { DecisionTag } from "@/shared/ui/DomainTags";
+import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import type { DisputeView } from "../types";
 import styles from "./SubmissionPanel.module.css";
 
@@ -29,15 +31,15 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
         >
           <div className={styles.author}>
             <span className={styles.avatar}>
-              {initialsOf(opened.recordedBy ?? opened.actor.name)}
+              {initialsOf(opened.recordedBy ?? actorName(td, opened.actor))}
             </span>
             <b>
               {opened.recordedBy
                 ? t("submission.author", {
                     name: opened.recordedBy,
-                    organization: `${opened.actor.name} (${opened.actor.partyId})`,
+                    organization: actorName(td, opened.actor),
                   })
-                : `${opened.actor.name} (${opened.actor.partyId})`}
+                : actorName(td, opened.actor)}
             </b>
             <span className={styles.time}>{formatDateTime(opened.at)}</span>
           </div>
@@ -46,8 +48,7 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
             <Tag color={state === "OPEN" ? "warning" : "success"}>
               {t(`state.${state}`)}
             </Tag>
-            <Typography.Text code>{opened.id}</Typography.Text>
-            <OriginTag origin={opened.origin} />
+            <TrackingCode code={opened.id} />
           </Space>
           {resolution ? (
             <div className={styles.file}>
@@ -56,7 +57,7 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
               </span>
               {t("submission.resolution", {
                 id: resolution.id,
-                by: resolution.recordedBy ?? resolution.actor.name,
+                by: resolution.recordedBy ?? actorName(td, resolution.actor),
                 at: formatDateTime(resolution.at),
                 note: resolution.note,
               })}

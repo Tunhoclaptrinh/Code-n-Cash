@@ -25,18 +25,18 @@
   "impact": {
     "title": "Effect on payment",
     "now": "Now",
-    "afterResolve": "If every dispute is closed (engine dry run)",
+    "afterResolve": "If every dispute is closed (dry run)",
     "unit": "million",
     "penalty": "penalty {{penalty}}",
     "noPreview": "Only the buyer or contract owner sees the dry run while a dispute is open.",
-    "footnote": "While a dispute is open the milestone is held (rule 10). Nobody edits the penalty by hand: the engine recomputes the amount after the dispute closes."
+    "footnote": "While a dispute is open the milestone is held. Nobody edits the penalty by hand: the amount is recomputed after the dispute closes."
   },
   "decision": {
     "title": "Handle the dispute",
     "options": {
       "RESOLVE": {
         "name": "Close the dispute",
-        "description": "Records DISPUTE_RESOLVED referencing each open dispute (BR-08). The engine re-evaluates at once."
+        "description": "Records a resolution for each open dispute; the milestone is re-evaluated at once."
       },
       "REQUEST_INFO": {
         "name": "Request info",
@@ -55,7 +55,7 @@
     },
     "readOnly": "You can only view the disputes of this milestone.",
     "rule": "\"Easy to open, hard to close\": every DISPUTE_OPENED blocks payment; only a DISPUTE_RESOLVED by the buyer (or its contract owner), referencing that dispute and not earlier than it, lifts the block.",
-    "done": "Event recorded. The engine re-evaluated: {{status}} ({{reason}}).",
+    "done": "Recorded. Re-evaluated: {{status}} ({{reason}}).",
     "noted": "Note recorded.",
     "actions": {
       "trace": "Open the decision trace",

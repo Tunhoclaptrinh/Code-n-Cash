@@ -32,7 +32,6 @@ import { ApiError } from "@/shared/api/client";
 import { platform } from "@/shared/api/platform";
 import { getContractDraft, saveContractDraft } from "@/shared/api/domain";
 import { formatNumber } from "@/shared/lib/format";
-import { OriginTag } from "@/shared/ui/DomainTags";
 import type {
   ContractDraft,
   ContractFile,
@@ -543,9 +542,6 @@ export function ContractUploadForm({
                   readOnly
                 />
               </Space.Compact>
-              <div style={{ marginTop: 8 }}>
-                <OriginTag origin={value.origin} />
-              </div>
             </Form.Item>
           </Col>
         </Row>
@@ -754,9 +750,7 @@ export function ContractUploadForm({
               placeholder={t("contractUpload.templates.choose")}
               value={value.templateId}
               labelRender={({ label }) =>
-                value.templateSnapshot
-                  ? `${value.templateSnapshot.name} · v${value.templateSnapshot.version}`
-                  : label
+                value.templateSnapshot ? value.templateSnapshot.name : label
               }
               onSelect={(id?: string) => {
                 if (id) applyPreset(id);
@@ -786,7 +780,7 @@ export function ContractUploadForm({
                   value: preset.id,
                   label: (
                     <span data-testid={`template-option-${preset.id}`}>
-                      {preset.name} · v{preset.version}
+                      {preset.name}
                     </span>
                   ),
                 })),

@@ -335,7 +335,7 @@ try {
     await shot("login-demo-menu", {
       marks: [
         { n: 1, target: ".ant-dropdown-menu-item-group" },
-        { n: 2, target: { text: "Tất cả tổ chức trong Data Pack", up: "li" } },
+        { n: 2, target: { text: "Tất cả tổ chức", up: "li" } },
       ],
     });
     await evaluate(
@@ -518,7 +518,7 @@ try {
       ],
     });
     await click({
-      text: "Event",
+      text: "sự kiện",
       contains: true,
       scope: ".ant-tabs-nav",
       children: 3,
@@ -881,7 +881,7 @@ try {
     await shot("evidence-ready", {
       marks: [
         { n: 1, target: "[data-testid=evidence-slot]" },
-        { n: 2, target: { text: "Nếu nộp ngay bây giờ (engine chạy thử)" } },
+        { n: 2, target: { text: "Nếu nộp ngay bây giờ (chạy thử)" } },
         { n: 3, target: "[data-testid=submit-evidence]" },
       ],
     });

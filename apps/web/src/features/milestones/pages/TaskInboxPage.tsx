@@ -2,7 +2,7 @@ import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Alert, Space, Tag, Typography } from "antd";
+import { Alert, Tag, Typography } from "antd";
 import type { MenuProps } from "antd";
 import {
   ArrowRightOutlined,
@@ -182,10 +182,7 @@ export default function TaskInboxPage() {
       ...columnSearch(),
       render: (_: unknown, r: TaskRow) => (
         <>
-          <Space size={6} wrap>
-            <Typography.Text strong>{r.contractId}</Typography.Text>
-            <OriginTag origin={r.origin} />
-          </Space>
+          <Typography.Text strong>{r.contractId}</Typography.Text>
           <div>{where(r)}</div>
           <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
             {r.contractTitle}

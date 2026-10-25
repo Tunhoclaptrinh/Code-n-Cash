@@ -8,7 +8,6 @@ import {
   Grid,
   Layout,
   Menu,
-  Space,
   Tag,
   Tooltip,
 } from "antd";
@@ -172,28 +171,11 @@ export function AppLayout() {
     />
   );
   const footerCollapsed = desktop && collapsed;
-  const siderFooter = (
-    <div className={styles.siderFooter} data-collapsed={footerCollapsed}>
-      {footerCollapsed ? (
-        <Tooltip title={t("sider.environment")} placement="right">
-          <Tag color="processing" style={{ margin: 0 }}>
-            {t("sider.demoShort")}
-          </Tag>
-        </Tooltip>
-      ) : (
-        <>
-          <div className={styles.siderFooterTitle}>
-            {t("sider.environment")}
-          </div>
-          <div className={styles.siderFooterText}>{t("sider.demoBody")}</div>
-          <Space size={6} wrap>
-            <Tag color="processing" style={{ margin: 0 }}>
-              v{__APP_VERSION__}
-            </Tag>
-            <Tag style={{ margin: 0 }}>{user.roleChipOrganization}</Tag>
-          </Space>
-        </>
-      )}
+  // Only the organisation the user works for; build and environment details stay out of the UI.
+  const siderFooter = footerCollapsed ? null : (
+    <div className={styles.siderFooter}>
+      <div className={styles.siderFooterTitle}>{t("sider.organization")}</div>
+      <div className={styles.siderFooterText}>{user.roleChipOrganization}</div>
     </div>
   );
 

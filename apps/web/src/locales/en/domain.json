@@ -150,7 +150,7 @@
     "VOIDED": "Voided (BR-19)"
   },
   "trigger": {
-    "IMPORT": "Data Pack import",
+    "IMPORT": "Initial data",
     "EVENTS": "New event",
     "EXCEPTION": "Exception decision",
     "PAYMENT": "Payment transfer",
@@ -298,5 +298,11 @@
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",
-  "overdue_other": "{{count}} days overdue"
+  "overdue_other": "{{count}} days overdue",
+  "ruleSet": {
+    "R_GOODS_STD": "Standard goods",
+    "R_SERVICE_STD": "Standard services",
+    "R_SOFTWARE_STD": "Standard software",
+    "R_MAINTENANCE_STD": "Standard maintenance"
+  }
 }

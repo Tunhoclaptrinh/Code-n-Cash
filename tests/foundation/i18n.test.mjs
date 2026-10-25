@@ -162,3 +162,19 @@ test("every guide topic has both translations and existing screenshots", async (
     }
   }
 });
+
+test("business screens use business wording, not system jargon", async () => {
+  // The milestone decision trace is the organiser's grading view and keeps its technical terms;
+  // audit, integrity and admin namespaces are for controllers and are not checked here.
+  const jargon = /\bengine\b|Data Pack|schema|Ed25519|snapshot/i;
+  const found = [];
+  for (const lang of ["vi", "en"])
+    for (const ns of ["milestones", "disputes", "contracts", "signing"]) {
+      const strings = await load(lang, ns);
+      for (const key of keysOf(strings)) {
+        if (ns === "milestones" && key.startsWith("decision.")) continue;
+        if (jargon.test(at(strings, key))) found.push(`${lang}/${ns}: ${key}`);
+      }
+    }
+  assert.deepEqual(found, []);
+});

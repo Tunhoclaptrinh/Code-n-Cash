@@ -89,7 +89,7 @@
       "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
     },
     "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
-    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh. Người dùng là dữ liệu bổ sung; tổ chức và người phê duyệt lấy từ Data Pack.",
+    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
     "highlights": {
       "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
       "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
@@ -99,7 +99,7 @@
     "demoUnavailable": "Không kết nối được để tải tài khoản demo.",
     "demoEmpty": "Chưa có tài khoản demo khả dụng.",
     "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
-    "demoAll": "Tất cả tổ chức trong Data Pack",
+    "demoAll": "Tất cả tổ chức",
     "emailPlaceholder": "name@example.com",
     "demoSearch": "Tìm tên, email hoặc công ty…"
   },
@@ -122,9 +122,7 @@
     }
   },
   "sider": {
-    "environment": "Môi trường",
-    "demoShort": "Demo",
-    "demoBody": "Bản demo: dữ liệu mẫu, luồng ký mô phỏng."
+    "organization": "Đơn vị"
   },
   "onboarding": {
     "title": "Chào mừng đến với CodeCash",
@@ -243,8 +241,12 @@
   "tableActions": {
     "more": "Thao tác khác"
   },
-  "identity": {
-    "demoPerson": "Danh tính demo",
-    "roleSource": "Vai trò/đơn vị:"
+  "technical": {
+    "title": "Chi tiết kỹ thuật",
+    "source": "Nguồn dữ liệu",
+    "document": "Mã tài liệu",
+    "channel": "Kênh ghi nhận",
+    "run": "Lượt đánh giá",
+    "party": "Mã bên"
   }
 }

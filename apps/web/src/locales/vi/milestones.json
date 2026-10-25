@@ -7,7 +7,7 @@
     "title": "Việc cần làm",
     "subtitle_one": "{{count}} việc đang chờ bạn",
     "subtitle_other": "{{count}} việc đang chờ bạn",
-    "intro": "Mỗi việc sinh ra từ quyết định mới nhất của engine: mốc thiếu chứng từ của bên bạn, chưa đủ vai trò phê duyệt, đang tranh chấp, có event sai thẩm quyền, hoặc đến lượt bạn ký. Làm xong, engine đánh giá lại và việc tự biến mất.",
+    "intro": "Mỗi việc phát sinh từ đánh giá mới nhất của hệ thống: mốc còn thiếu chứng từ của bên bạn, chưa đủ người phê duyệt, đang tranh chấp, có chứng từ sai thẩm quyền, hoặc đến lượt bạn ký. Làm xong, hệ thống đánh giá lại và việc tự biến mất.",
     "empty": "Không có việc nào đang chờ bạn",
     "footer": "Việc của các bên khác không hiện ở đây; xem trạng thái đầy đủ trong trang hợp đồng.",
     "tabs": {
@@ -45,7 +45,7 @@
       "DECIDE_EXCEPTION": "Duyệt đề xuất"
     },
     "detail": {
-      "reason": "Lý do engine giữ",
+      "reason": "Lý do đang giữ",
       "origin": "Nguồn dữ liệu"
     },
     "searchPlaceholder": "Tìm theo mã, tên hợp đồng, mã mốc (không cần dấu)"
@@ -62,8 +62,8 @@
     "tabs": {
       "milestones_one": "Các mốc ({{count}})",
       "milestones_other": "Các mốc ({{count}})",
-      "events_one": "Event ({{count}})",
-      "events_other": "Event ({{count}})",
+      "events_one": "Hồ sơ & sự kiện ({{count}})",
+      "events_other": "Hồ sơ & sự kiện ({{count}})",
       "history": "Lịch sử trạng thái",
       "signing": "Ký hợp đồng",
       "participants": "Người tham gia",
@@ -75,17 +75,19 @@
       "policy": "Chính sách duyệt",
       "period": "Thời hạn",
       "penalty": "Phạt trễ hạn",
-      "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%"
+      "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
+      "workflow": "Quy trình mốc",
+      "ruleSet": "Bộ quy tắc thanh toán"
     },
     "requirement": {
       "VALID": "Hợp lệ: {{id}} lúc {{at}}",
       "MISSING": "Còn thiếu; {{side}} nộp",
-      "UNAUTHORIZED": "Có event sai thẩm quyền {{id}}; cần {{side}} nộp lại và kiểm soát viên xử lý (BR-19)"
+      "UNAUTHORIZED": "Có chứng từ sai thẩm quyền {{id}}; cần {{side}} nộp lại và kiểm soát viên xử lý"
     },
     "milestone": {
       "amountUnit": "triệu VND",
       "due": "Hạn {{due}} · ân hạn {{grace}} ngày",
-      "noDue": "Chưa có hạn (giữ theo rule 80)",
+      "noDue": "Chưa có hạn nên mốc đang được giữ",
       "completed": "hoàn thành {{at}}",
       "approvals": "Phê duyệt {{done}}/{{quorum}}",
       "noApproval": "Không cần phê duyệt",
@@ -115,29 +117,32 @@
     },
     "events": {
       "at": "Thời điểm",
-      "type": "Event",
+      "type": "Sự kiện",
       "milestone": "Mốc",
-      "actor": "Bên tạo",
-      "document": "Chứng từ",
+      "actor": "Bên ghi nhận",
+      "document": "Tệp đính kèm",
       "reference": "Tham chiếu {{id}}"
     },
     "history": {
-      "body": "Event và các lần engine đổi trạng thái, mới nhất ở trên (tối đa 200 dòng).",
+      "body": "Các sự kiện hồ sơ và mỗi lần trạng thái mốc thay đổi, mới nhất ở trên (tối đa 200 dòng).",
       "byParty": "bởi {{actor}} · {{milestone}}"
     },
     "signing": {
       "title": "Trình tự ký ({{signed}}/{{total}} đã ký)",
-      "note": "Thứ tự và người ký là dữ liệu bổ sung (Data Pack chỉ có event CONTRACT_SIGNED). Khi người cuối ký, hệ thống ghi CONTRACT_SIGNED của bên mua.",
+      "note": "Ký lần lượt theo thứ tự dưới đây. Hợp đồng có hiệu lực khi người ký cuối cùng hoàn tất.",
       "final": "bước cuối, bắt buộc chữ ký số",
       "state": {
         "WAITING": "Chờ đến lượt",
         "CURRENT": "Đến lượt ký",
         "SIGNED": "Đã ký"
       },
-      "none": "Hợp đồng chưa có trình tự ký."
+      "none": "Hợp đồng chưa có trình tự ký.",
+      "dates": "Ngày ký ghi trên hợp đồng: {{document}} · hoàn tất ký trên hệ thống: {{completed}}",
+      "step": "Ký bước {{step}}"
     },
     "participants": {
-      "title": "Các bên và người tham gia"
+      "title": "Các bên và người tham gia",
+      "approves": "{{role}} · duyệt chi"
     },
     "signedPending": "Hợp đồng đã ký đủ; một số mốc thanh toán còn chờ điều kiện",
     "roleLabel": "Vai trò",
@@ -162,7 +167,7 @@
       "title": "Đã chuyển chi {{amount}} triệu VND bởi {{by}} lúc {{at}}",
       "body": "Khoá idempotency {{id}}: mỗi mốc chỉ chi một lần cho một phiên bản quyết định. Mốc đã chốt, event mới chỉ được ghi nhận."
     },
-    "issues": "Ghi chú của engine",
+    "issues": "Ghi chú đánh giá",
     "conditions": {
       "title": "Điều kiện của mốc"
     },
@@ -201,7 +206,7 @@
       "raw": "Phạt thô trước làm tròn",
       "penalty": "Tiền phạt F (ROUND_HALF_UP)",
       "payable": "Đủ điều kiện chi",
-      "note": "Engine tính bằng Decimal, không dùng float. Đủ điều kiện chi không phải số tiền đã chi."
+      "note": "Số tiền tính bằng số thập phân chính xác (Decimal), không dùng số thực dấu phẩy động. Đủ điều kiện chi không phải số tiền đã chi."
     },
     "rules": {
       "title": "8 rule của phạm vi {{scope}} (first-match)",
@@ -210,17 +215,18 @@
       "decision": "Quyết định",
       "reason": "Lý do",
       "formula": "Công thức trả / phạt",
-      "outcome": "Kết quả"
+      "outcome": "Kết quả",
+      "rule": "Luật"
     },
     "events": {
-      "title_one": "{{count}} event của mốc và cách engine phân loại",
-      "title_other": "{{count}} event của mốc và cách engine phân loại",
+      "title_one": "{{count}} sự kiện của mốc và cách hệ thống phân loại",
+      "title_other": "{{count}} sự kiện của mốc và cách hệ thống phân loại",
       "classification": "Phân loại",
       "inEvidence": "bằng chứng"
     },
     "history": {
       "title": "Lịch sử chuyển trạng thái",
-      "note": "Mỗi lần đánh giá có run id; cùng dữ liệu và cùng phiên bản luôn cho cùng kết quả."
+      "note": "Mỗi lần đánh giá đều được lưu lại; cùng dữ liệu và cùng phiên bản quy tắc luôn cho cùng kết quả."
     },
     "exceptions": {
       "title": "Ngoại lệ BR-19",
@@ -241,7 +247,7 @@
       "reason": "Lý do (bắt buộc), ví dụ: NCC nhập nhầm kênh, bên mua đã nộp lại đúng quyền",
       "propose": "Đề xuất vô hiệu",
       "proposed": "Đã gửi đề xuất, chờ kiểm soát viên thứ hai.",
-      "decided": "Đã ghi quyết định; engine đánh giá lại.",
+      "decided": "Đã ghi quyết định; hệ thống đánh giá lại.",
       "demoReason": "Lý do demo: đề nghị kiểm soát viên khác rà soát thẩm quyền ghi nhận sự kiện và bằng chứng liên quan theo BR-19."
     },
     "dispute": {
@@ -253,7 +259,7 @@
       "title": "Diễn biến theo thời gian",
       "run": "Phát lại từng sự kiện",
       "again": "Chạy lại",
-      "body": "Engine đánh giá lại mốc ngay sau từng sự kiện của nó, chỉ dùng dữ liệu có tới thời điểm đó (chế độ as-of, BR-16). Dùng để giải thích vì sao mốc đi tới quyết định hiện tại.",
+      "body": "Hệ thống đánh giá lại mốc ngay sau từng sự kiện của nó, chỉ dùng dữ liệu có tới thời điểm đó (BR-16). Dùng để giải thích vì sao mốc đi tới quyết định hiện tại.",
       "columns": {
         "at": "Thời điểm",
         "events": "Sự kiện",
@@ -271,14 +277,14 @@
   "submit": {
     "breadcrumb": "{{contractId}} · Mốc {{no}}",
     "title": "Nộp chứng từ · Mốc {{no}} · {{name}}",
-    "done": "Đã ghi event. Engine đánh giá lại: {{status}} ({{reason}}).",
+    "done": "Đã ghi nhận chứng từ. Kết quả đánh giá lại: {{status}} ({{reason}}).",
     "required": {
       "title": "Chứng từ bắt buộc của mốc"
     },
     "dropzone": "Kéo thả tài liệu kèm theo (không bắt buộc)",
     "dropzoneAria": "Chọn tài liệu kèm theo",
     "nothingLeft": "Bên bạn đã đủ chứng từ cho mốc này.",
-    "lockNote": "Mỗi tệp thành một event theo schema của Data Pack; không sửa hay xoá được sau khi nộp.",
+    "lockNote": "Mỗi tệp được ghi nhận thành một chứng từ của mốc; không sửa hay xoá được sau khi nộp.",
     "later": "Để sau",
     "submit_one": "Nộp {{count}} chứng từ",
     "submit_other": "Nộp {{count}} chứng từ",
@@ -288,14 +294,14 @@
         "SYSTEM": "Hệ thống",
         "HUMAN": "Con người"
       },
-      "validate": "Kiểm thẩm quyền theo ma trận 4.2 và khử trùng lặp (BR-03, BR-04).",
-      "match": "Engine Python chạy 8 rule theo thứ tự ưu tiên và tính tiền.",
+      "validate": "Kiểm tra đúng thẩm quyền của bên nộp và loại bỏ bản trùng lặp.",
+      "match": "Hệ thống đối chiếu các quy tắc thanh toán theo thứ tự ưu tiên và tính số tiền.",
       "approve": "Phê duyệt chi: {{roles}}.",
       "result": "Ra quyết định, ghi lịch sử trạng thái và audit.",
       "noApproval": "không cần, hợp đồng tự động khi đủ điều kiện"
     },
     "preview": {
-      "title": "Nếu nộp ngay bây giờ (engine chạy thử)",
+      "title": "Nếu nộp ngay bây giờ (chạy thử)",
       "amounts_one": "Đủ điều kiện chi {{payable}} · phạt {{penalty}} · trễ {{count}} ngày",
       "amounts_other": "Đủ điều kiện chi {{payable}} · phạt {{penalty}} · trễ {{count}} ngày",
       "empty": "Đính kèm chứng từ để xem kết quả dự kiến."
@@ -314,7 +320,7 @@
       "meta": "{{fileName}} · {{size}} MB",
       "ready": "Sẵn sàng nộp",
       "remove": "Gỡ",
-      "replacesUnauthorized": "Bản đúng thẩm quyền; event sai quyền cũ vẫn giữ mốc cho đến khi kiểm soát viên vô hiệu nó (BR-19).",
+      "replacesUnauthorized": "Bản đúng thẩm quyền; chứng từ sai thẩm quyền trước đó vẫn giữ mốc cho đến khi kiểm soát viên vô hiệu nó.",
       "unauthorizedMine": "có bản sai thẩm quyền, cần bạn nộp bản đúng",
       "empty": "chưa có tệp",
       "choose": "Chọn tệp",
@@ -326,21 +332,21 @@
     "breadcrumb": "{{contractId}} · Mốc {{no}} · {{name}}",
     "title": "Phê duyệt chi · Mốc {{no}} · {{name}}",
     "requested": "Đã ghi yêu cầu bổ sung; mốc tiếp tục chờ.",
-    "done": "Đã ghi event. Engine đánh giá lại: {{status}} ({{reason}}).",
+    "done": "Đã ghi nhận phê duyệt. Kết quả đánh giá lại: {{status}} ({{reason}}).",
     "blocked": {
       "MILESTONE_CLOSED": "Mốc đã chốt; không ghi thêm ý kiến.",
       "NOT_APPROVER": "Bạn không phải người phê duyệt của bên mua hợp đồng này; chỉ xem.",
       "APPROVAL_NOT_REQUIRED": "Mốc không cần phê duyệt (chính sách tự động khi đủ điều kiện).",
       "NOT_REQUIRED_ROLE": "Vai trò của bạn không nằm trong các vai trò bắt buộc của mốc; bạn vẫn có thể từ chối nếu có căn cứ.",
-      "ALREADY_APPROVED": "Bạn đã phê duyệt mốc này; mỗi người chỉ được tính một lần (BR-10)."
+      "ALREADY_APPROVED": "Bạn đã phê duyệt mốc này; mỗi người chỉ được tính một lần."
     },
     "proposal": {
       "title": "Kết quả nếu bạn phê duyệt",
       "milestoneValue": "Giá trị mốc",
       "penalty": "Tiền phạt",
       "payable": "Đủ điều kiện chi",
-      "preview_one": "Engine chạy thử với phê duyệt của bạn: {{decision}} · {{reason}} · trễ {{count}} ngày.",
-      "preview_other": "Engine chạy thử với phê duyệt của bạn: {{decision}} · {{reason}} · trễ {{count}} ngày.",
+      "preview_one": "Chạy thử với phê duyệt của bạn: {{decision}} · {{reason}} · trễ {{count}} ngày.",
+      "preview_other": "Chạy thử với phê duyệt của bạn: {{decision}} · {{reason}} · trễ {{count}} ngày.",
       "current": "Hiện tại: {{reason}}.",
       "trace": "Xem truy vết quyết định",
       "currentTitle": "Kết quả hiện tại của mốc"
@@ -363,9 +369,9 @@
     },
     "consequences": {
       "title": "Khi bạn chọn",
-      "approve": "Phê duyệt: ghi event APPROVAL; engine đánh giá lại ngay.",
-      "requestInfo": "Yêu cầu bổ sung: ghi chú cho các bên, không tạo event, mốc tiếp tục chờ.",
-      "reject": "Từ chối: ghi event REJECTION; mốc ra REJECT (rule 20) và không gỡ được trong hệ thống."
+      "approve": "Phê duyệt: ghi nhận ý kiến đồng ý; hệ thống đánh giá lại mốc ngay.",
+      "requestInfo": "Yêu cầu bổ sung: gửi ghi chú cho các bên, mốc tiếp tục chờ.",
+      "reject": "Từ chối: mốc chuyển sang bị từ chối và không gỡ được trong hệ thống."
     },
     "note": {
       "label": "Ghi chú",

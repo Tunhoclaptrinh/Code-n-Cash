@@ -153,4 +153,4 @@ Không đổi: Nhật ký hoạt động, Toàn vẹn dữ liệu, Hàng đợi 
 - Màn Quyết định mốc vẫn giữ mã BR, `ROUND_HALF_UP`, phạm vi `R_GOODS_STD:ACCEPTANCE` và nhãn "first-match" vì đây là màn BTC đối chiếu quyết định.
 - Người tham gia: email chỉ hiện khi API bật đăng nhập demo, để giám khảo biết đăng nhập tài khoản nào khi thử ký/duyệt.
 - Ảnh hướng dẫn trong `apps/web/public/guide` chưa chụp lại; chạy `pnpm guide:screenshots` khi cập nhật bộ hướng dẫn (đã sửa sẵn selector cho nhãn mới).
-- Phần còn lại của góp ý (bản xem trước hợp đồng có chữ ký/dấu demo, tài khoản Bùi Văn Khánh ở CT0105) thuộc kế hoạch riêng, chưa làm trong đợt này.
+- Bản xem trước hợp đồng có chữ ký/dấu demo bên cạnh mọi thao tác: xem [32 — Văn bản hợp đồng bên cạnh thao tác](32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md). Góp ý về tài khoản Bùi Văn Khánh ở CT0105 chưa xử lý.

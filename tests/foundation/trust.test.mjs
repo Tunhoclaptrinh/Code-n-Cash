@@ -637,7 +637,8 @@ test("partial sample DOCX previews an unfinished draft with placeholders but kee
   const text = await textOf(half, "partial-some.docx");
   assert.ok(text.includes("Half <done>"));
   assert.ok(text.includes("2027-01-10"));
-  assert.ok(text.includes("Contract Signing") && text.includes("2027-01-15"));
+  // Milestone names follow the document language.
+  assert.ok(text.includes("Contract signing") && text.includes("2027-01-15"));
   assert.ok(!text.includes("abc"), "invalid values never reach the document");
 
   const supplierId = "S015";

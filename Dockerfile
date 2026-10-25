@@ -34,7 +34,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 FROM ${NODE_IMAGE} AS api
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 poppler-utils libreoffice-writer fonts-dejavu-core \
+    && apt-get install -y --no-install-recommends python3 poppler-utils libreoffice-writer fonts-dejavu-core fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production \
     API_HOST=0.0.0.0 \

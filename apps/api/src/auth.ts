@@ -119,6 +119,22 @@ export class AuthService {
     const users = (await this.repo.list("users")).filter(
       (u) => u.origin === "SEED" && u.active !== false,
     );
+    // Contract codes of each organisation, drafts included, so the demo menu finds "who acts on CT0105".
+    const contractsOf = new Map<string, Set<string>>();
+    const link = (party: unknown, code: unknown) => {
+      if (!party || !code) return;
+      const codes = contractsOf.get(String(party)) ?? new Set<string>();
+      codes.add(String(code));
+      contractsOf.set(String(party), codes);
+    };
+    for (const c of await this.repo.list("contracts")) {
+      link(c.buyer_id, c.contract_id);
+      link(c.supplier_id, c.contract_id);
+    }
+    for (const d of await this.repo.list("contract-drafts")) {
+      link(d.organizationId, d.code);
+      link(d.supplierId, d.code);
+    }
     const view = (u: RecordEntity) => ({
       email: String(u.email),
       displayName: String(u.displayName),
@@ -126,6 +142,7 @@ export class AuthService {
       organization: String(u.roleChipOrganization ?? ""),
       organizationId: String(u.organizationId),
       partyId: u.partyId ? String(u.partyId) : null,
+      contracts: [...(contractsOf.get(String(u.organizationId)) ?? [])],
     });
     const groups = new Map<string, ReturnType<typeof view>[]>();
     for (const user of users) {

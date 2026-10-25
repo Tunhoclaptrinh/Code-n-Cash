@@ -18,6 +18,8 @@ export interface DemoAccount {
   organization: string;
   organizationId: string;
   partyId: string | null;
+  /** Contract codes the account's organisation is a party to. */
+  contracts: string[];
 }
 
 export interface DemoDirectory {

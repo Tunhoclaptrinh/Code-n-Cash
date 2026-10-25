@@ -905,7 +905,8 @@ test("administrators manage persistent templates; drafts pin a version and survi
 
 test("live workflow rolls back business changes and success audit when engine invariants fail", async () => {
   const { readFile } = await import("node:fs/promises");
-  const { outcome } = await import("../../apps/api/dist/domain/actions.js");
+  const { outcome } =
+    await import("../../apps/api/dist/domain/actions/index.js");
   const before = await readFile(repo.path, "utf8");
   await assert.rejects(
     domain.write(actor("u-admin"), "test-invalid-engine-result", (ctx) => {

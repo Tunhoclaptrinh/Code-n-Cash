@@ -332,7 +332,6 @@ function SlotCard({
           <b>{name}</b> {sideTag}
           <div className={styles.fileMeta}>
             {t("submit.file.recorded", {
-              id: slot.evidence.id,
               by:
                 slot.evidence.recordedBy ?? actorName(td, slot.evidence.actor),
               at: formatDateTime(slot.evidence.at),

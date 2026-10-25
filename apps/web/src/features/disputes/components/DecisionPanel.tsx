@@ -16,6 +16,7 @@ type Option = "RESOLVE" | "REQUEST_INFO" | "OPEN";
 export function DecisionPanel({ view }: { view: DisputeView }) {
   const { t } = useTranslation("disputes");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const queryClient = useQueryClient();
   const ids = useId();
@@ -118,10 +119,17 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
             <DemoFillButton
               disabled={!!note.trim()}
               onClick={() => {
-                setNote(t("decision.note.demo"));
+                // A sentence for the chosen action, naming only this milestone.
+                setNote(
+                  t(`lite.demoNote.${option ?? options[0]}`, {
+                    milestone: `${td("milestoneNo", { no: view.milestone.sequence })} · ${td(`milestoneType.${view.milestone.type}`)}`,
+                  }),
+                );
                 setNoteMissing(false);
               }}
-            />
+            >
+              {tc("demoFill.action")}
+            </DemoFillButton>
             <span className={styles.required}>*</span>
           </label>
           <Input.TextArea

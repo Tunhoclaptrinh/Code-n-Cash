@@ -80,9 +80,9 @@
       "ruleSet": "Bộ quy tắc thanh toán"
     },
     "requirement": {
-      "VALID": "Hợp lệ: {{id}} lúc {{at}}",
+      "VALID": "Hợp lệ lúc {{at}}",
       "MISSING": "Còn thiếu; {{side}} nộp",
-      "UNAUTHORIZED": "Có chứng từ sai thẩm quyền {{id}}; cần {{side}} nộp lại và kiểm soát viên xử lý"
+      "UNAUTHORIZED": "Có chứng từ sai thẩm quyền; cần {{side}} nộp lại và kiểm soát viên xử lý"
     },
     "milestone": {
       "amountUnit": "triệu VND",
@@ -117,11 +117,12 @@
     },
     "events": {
       "at": "Thời điểm",
-      "type": "Sự kiện",
+      "type": "Hành động",
       "milestone": "Mốc",
-      "actor": "Bên ghi nhận",
+      "actor": "Người thực hiện",
       "document": "Tệp đính kèm",
-      "reference": "Tham chiếu {{id}}"
+      "reference": "Tham chiếu {{id}}",
+      "note": "Nội dung"
     },
     "history": {
       "body": "Các sự kiện hồ sơ và mỗi lần trạng thái mốc thay đổi, mới nhất ở trên (tối đa 200 dòng).",
@@ -312,7 +313,7 @@
       "none": "Mốc này không áp phạt trễ hạn."
     },
     "file": {
-      "recorded": "{{id}} · {{by}} · {{at}}",
+      "recorded": "{{by}} · {{at}}",
       "valid": "Hợp lệ",
       "otherUnauthorized": "Có bản do bên không có thẩm quyền tạo; {{side}} cần nộp bản đúng quyền.",
       "otherSide": "Do {{side}} nộp.",
@@ -353,7 +354,7 @@
     },
     "documents": {
       "title": "Bằng chứng hợp lệ",
-      "recorded": "{{id}} · {{by}} · {{at}}",
+      "recorded": "{{by}} · {{at}}",
       "missing": "Chưa có bằng chứng hợp lệ; {{side}} cần nộp.",
       "note": "Phê duyệt không thay được chứng từ còn thiếu: mốc chỉ đủ điều kiện khi đủ cả chứng từ lẫn vai trò duyệt."
     },
@@ -404,7 +405,8 @@
         "APPROVAL_NOT_REQUIRED": "Mốc này không cần phê duyệt.",
         "NOT_REQUIRED_ROLE": "Vai trò của bạn không bắt buộc duyệt; vẫn có thể từ chối.",
         "ALREADY_APPROVED": "Bạn đã phê duyệt mốc này."
-      }
+      },
+      "demoNote": "Đã đối chiếu chứng từ và điều kiện thanh toán của {{milestone}}."
     }
   },
   "decisionLite": {
@@ -430,7 +432,8 @@
     },
     "exceptions": {
       "title": "Ngoại lệ",
-      "pick": "Chọn chứng từ sai thẩm quyền"
+      "pick": "Chọn chứng từ sai thẩm quyền",
+      "demoReason": "Đề nghị kiểm soát viên thứ hai rà soát chứng từ ghi nhận sai thẩm quyền của {{milestone}}."
     }
   },
   "detailLite": {

@@ -44,11 +44,7 @@ import {
 } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
-import {
-  TechnicalDetails,
-  TechnicalList,
-  TrackingCode,
-} from "@/shared/ui/TechnicalInfo";
+import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
 import styles from "./ContractDetailPage.module.css";
 
 type TabKey =
@@ -550,6 +546,7 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
   );
 }
 
+/** Activity history in back-office form: when, who, what, on which milestone and the note given. */
 function EventsTable({
   events,
   milestones,
@@ -561,7 +558,6 @@ function EventsTable({
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
-  const { t: tc } = useTranslation("common");
   const sequenceOf = new Map(milestones.map((m) => [m.id, m.sequence]));
   const types = [...new Set(events.map((e) => e.type))];
   return (
@@ -573,41 +569,24 @@ function EventsTable({
           dataSource={[...events].reverse()}
           pagination={{ pageSize: 10, hideOnSinglePage: true }}
           scroll={{ x: "max-content" }}
-          expandable={{
-            // Source, document reference and channel stay one click away for reviewers.
-            expandedRowRender: (e) => (
-              <TechnicalList
-                items={[
-                  {
-                    key: "source",
-                    label: tc("technical.source"),
-                    value: <OriginTag origin={e.origin} />,
-                  },
-                  {
-                    key: "document",
-                    label: tc("technical.document"),
-                    value: e.documentId,
-                  },
-                  {
-                    key: "channel",
-                    label: tc("technical.channel"),
-                    value: e.source,
-                  },
-                  {
-                    key: "party",
-                    label: tc("technical.party"),
-                    value: e.actor.partyId,
-                  },
-                ]}
-              />
-            ),
-          }}
           columns={[
             {
               key: "at",
               title: t("detail.events.at"),
               render: (_, e) => formatDateTime(e.at),
               sorter: (a, b) => a.at.localeCompare(b.at),
+            },
+            {
+              key: "actor",
+              title: t("detail.events.actor"),
+              render: (_, e) => (
+                <>
+                  <div>{e.recordedBy ?? actorName(td, e.actor, people)}</div>
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {e.actor.type ? td(`partyType.${e.actor.type}`) : ""}
+                  </Typography.Text>
+                </>
+              ),
             },
             {
               key: "type",
@@ -618,19 +597,14 @@ function EventsTable({
               })),
               onFilter: (value, e) => e.type === value,
               render: (_, e) => (
-                <>
-                  <Space size={4} wrap>
-                    <Typography.Text strong>
-                      {td(`eventType.${e.type}`)}
-                    </Typography.Text>
-                    <Tag style={{ margin: 0 }}>
-                      {td(`eventStatus.${e.status}`)}
-                    </Tag>
-                  </Space>
-                  <div>
-                    <TrackingCode code={e.id} />
-                  </div>
-                </>
+                <Space size={4} wrap>
+                  <Typography.Text strong>
+                    {td(`eventType.${e.type}`)}
+                  </Typography.Text>
+                  <Tag style={{ margin: 0 }}>
+                    {td(`eventStatus.${e.status}`)}
+                  </Tag>
+                </Space>
               ),
             },
             {
@@ -640,35 +614,13 @@ function EventsTable({
                 td("milestoneNo", { no: sequenceOf.get(e.milestoneId) ?? "?" }),
             },
             {
-              key: "actor",
-              title: t("detail.events.actor"),
-              render: (_, e) => (
-                <>
-                  <div>{actorName(td, e.actor, people)}</div>
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    {[
-                      e.actor.type ? td(`partyType.${e.actor.type}`) : "",
-                      e.recordedBy ?? "",
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </Typography.Text>
-                </>
-              ),
-            },
-            {
-              key: "document",
-              title: t("detail.events.document"),
-              render: (_, e) => (
-                <>
-                  {e.fileName ?? "—"}
-                  {e.referenceEventId ? (
-                    <div style={{ fontSize: 12 }}>
-                      {t("detail.events.reference", { id: e.referenceEventId })}
-                    </div>
-                  ) : null}
-                </>
-              ),
+              key: "note",
+              title: t("detail.events.note"),
+              // Only what a person wrote or attached; organiser rows carry no user note.
+              render: (_, e) =>
+                [e.origin === "APP" ? e.note : "", e.fileName ?? ""]
+                  .filter(Boolean)
+                  .join(" · ") || "—",
             },
           ]}
         />
@@ -712,8 +664,7 @@ function HistoryTimeline({
                         milestone: td("milestoneNo", {
                           no: sequenceOf.get(entry.event.milestoneId) ?? "?",
                         }),
-                      })}{" "}
-                      <TrackingCode code={entry.event.id} />
+                      })}
                     </>
                   ),
                 }

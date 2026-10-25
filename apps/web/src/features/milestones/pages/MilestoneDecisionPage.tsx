@@ -925,8 +925,10 @@ function ExceptionPanel({
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const user = useCurrentUser();
+  const { milestone } = data;
   const [eventId, setEventId] = useState<string>();
   const [reason, setReason] = useState("");
   const controller = user.role === "ADMIN_AUDITOR";
@@ -1065,8 +1067,16 @@ function ExceptionPanel({
           />
           <DemoFillButton
             disabled={!!reason.trim()}
-            onClick={() => setReason(t("decision.exceptions.demoReason"))}
-          />
+            onClick={() =>
+              setReason(
+                t("decisionLite.exceptions.demoReason", {
+                  milestone: `${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`,
+                }),
+              )
+            }
+          >
+            {tc("demoFill.action")}
+          </DemoFillButton>
           <Input.TextArea
             rows={2}
             value={reason}

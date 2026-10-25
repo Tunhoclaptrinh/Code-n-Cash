@@ -90,6 +90,7 @@ export default function PaymentApprovalPage() {
 function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -245,7 +246,6 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   <b>{td(`eventType.${event.type}`)}</b>
                   <div className={styles.documentMeta}>
                     {t("approve.documents.recorded", {
-                      id: event.id,
                       by: event.recordedBy ?? actorName(td, event.actor),
                       at: formatDateTime(event.at),
                     })}
@@ -297,10 +297,16 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               <DemoFillButton
                 disabled={!!note.trim()}
                 onClick={() => {
-                  setNote(t("approve.note.demo"));
+                  setNote(
+                    t("workLite.approve.demoNote", {
+                      milestone: `${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`,
+                    }),
+                  );
                   setNoteMissing(false);
                 }}
-              />
+              >
+                {tc("demoFill.action")}
+              </DemoFillButton>
               <span className={styles.noteHint}>{t("approve.note.hint")}</span>
             </label>
             <Input.TextArea

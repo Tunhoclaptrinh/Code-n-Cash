@@ -80,9 +80,9 @@
       "ruleSet": "Payment rule set"
     },
     "requirement": {
-      "VALID": "Valid: {{id}} at {{at}}",
+      "VALID": "Valid at {{at}}",
       "MISSING": "Missing; the {{side}} submits it",
-      "UNAUTHORIZED": "Record {{id}} was filed by the wrong party; the {{side}} resubmits and controllers handle it"
+      "UNAUTHORIZED": "A record was filed by the wrong party; the {{side}} resubmits and controllers handle it"
     },
     "milestone": {
       "amountUnit": "million VND",
@@ -117,11 +117,12 @@
     },
     "events": {
       "at": "Time",
-      "type": "Event",
+      "type": "Action",
       "milestone": "Milestone",
-      "actor": "Recorded by",
+      "actor": "Done by",
       "document": "Attachment",
-      "reference": "Refers to {{id}}"
+      "reference": "Refers to {{id}}",
+      "note": "Details"
     },
     "history": {
       "body": "Record events and every milestone status change, newest first (up to 200 rows).",
@@ -312,7 +313,7 @@
       "none": "This milestone has no late penalty."
     },
     "file": {
-      "recorded": "{{id}} · {{by}} · {{at}}",
+      "recorded": "{{by}} · {{at}}",
       "valid": "Valid",
       "otherUnauthorized": "A copy was created by a party without authority; the {{side}} must submit a valid one.",
       "otherSide": "Submitted by the {{side}}.",
@@ -353,7 +354,7 @@
     },
     "documents": {
       "title": "Valid evidence",
-      "recorded": "{{id}} · {{by}} · {{at}}",
+      "recorded": "{{by}} · {{at}}",
       "missing": "No valid evidence yet; the {{side}} must submit it.",
       "note": "An approval does not replace missing evidence: the milestone is eligible only with both the evidence and the approval roles."
     },
@@ -404,7 +405,8 @@
         "APPROVAL_NOT_REQUIRED": "This milestone needs no approval.",
         "NOT_REQUIRED_ROLE": "Your role is not required to approve; you can still reject.",
         "ALREADY_APPROVED": "You already approved this milestone."
-      }
+      },
+      "demoNote": "Documents and payment conditions of {{milestone}} have been checked."
     }
   },
   "decisionLite": {
@@ -430,7 +432,8 @@
     },
     "exceptions": {
       "title": "Exceptions",
-      "pick": "Select the record entered without authority"
+      "pick": "Select the record entered without authority",
+      "demoReason": "Please have a second controller review the record filed by the wrong party for {{milestone}}."
     }
   },
   "detailLite": {

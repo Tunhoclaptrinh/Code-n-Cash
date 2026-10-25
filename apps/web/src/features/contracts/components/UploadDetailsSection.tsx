@@ -1,10 +1,9 @@
-import { Col, Form, Input, Row, Select, Space, Tag, Typography } from "antd";
+import { Col, Form, Input, Row, Select, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import type { ContractType } from "@codecash/contracts";
 import { TITLE_MAX_LENGTH } from "../lib/uploadDraft";
 import type { ContractUploadFormState } from "../hooks/useContractUploadForm";
 import type { UploadFormOptions } from "../types";
-import styles from "./ContractUploadForm.module.css";
 
 interface UploadDetailsSectionProps {
   form: ContractUploadFormState;
@@ -28,9 +27,6 @@ export function UploadDetailsSection({
     setTitleError,
     changeSupplier,
   } = form;
-  const stages = value.type
-    ? (options.workflows[value.type]?.stages ?? [])
-    : [];
   return (
     <>
       <Row gutter={16}>
@@ -49,18 +45,6 @@ export function UploadDetailsSection({
                 label: td(`contractType.${type}`),
               }))}
             />
-            {stages.length ? (
-              <Space size={[4, 4]} wrap className={styles.hint}>
-                <Typography.Text type="secondary">
-                  {t("contractUpload.form.type.stages")}
-                </Typography.Text>
-                {stages.map((stage, index) => (
-                  <Tag key={stage} style={{ margin: 0 }}>
-                    {index + 1}. {td(`milestoneType.${stage}`)}
-                  </Tag>
-                ))}
-              </Space>
-            ) : null}
           </Form.Item>
         </Col>
         <Col xs={24} md={12}>

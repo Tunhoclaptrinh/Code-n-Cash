@@ -16,7 +16,6 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { actorName } from "@/shared/lib/domain";
 import { formatDateTime } from "@/shared/lib/format";
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
-import { Panel } from "@/shared/ui/Panel";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 import styles from "./MilestoneDecision.module.css";
 
@@ -30,8 +29,10 @@ export function ExceptionPanel({
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const user = useCurrentUser();
+  const { milestone } = data;
   const [eventId, setEventId] = useState<string>();
   const [reason, setReason] = useState("");
   const controller = user.role === "ADMIN_AUDITOR";
@@ -72,11 +73,10 @@ export function ExceptionPanel({
     onError: failed,
   });
   return (
-    <Panel className={styles.panel}>
-      <h2>{t("decision.exceptions.title")}</h2>
-      <Typography.Paragraph type="secondary">
-        {t("decision.exceptions.body")}
-      </Typography.Paragraph>
+    <section>
+      <h3 className={styles.traceHeading}>
+        {t("decisionLite.exceptions.title")}
+      </h3>
       {data.exceptions.length ? (
         data.exceptions.map((request) => (
           <div
@@ -126,7 +126,8 @@ export function ExceptionPanel({
                 <Space style={{ marginTop: 6 }}>
                   <Button
                     size="small"
-                    type="primary"
+                    color="green"
+                    variant="solid"
                     loading={decide.isPending}
                     onClick={() => decide.mutate({ request, approve: true })}
                     data-testid="exception-approve"
@@ -154,7 +155,7 @@ export function ExceptionPanel({
       {controller && data.actions.proposeException ? (
         <Space direction="vertical" style={{ width: "100%", marginTop: 12 }}>
           <Select
-            placeholder={t("decision.exceptions.pick")}
+            placeholder={t("decisionLite.exceptions.pick")}
             value={eventId}
             onChange={setEventId}
             options={candidates.map((e) => ({
@@ -165,8 +166,16 @@ export function ExceptionPanel({
           />
           <DemoFillButton
             disabled={!!reason.trim()}
-            onClick={() => setReason(t("decision.exceptions.demoReason"))}
-          />
+            onClick={() =>
+              setReason(
+                t("decisionLite.exceptions.demoReason", {
+                  milestone: `${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`,
+                }),
+              )
+            }
+          >
+            {tc("demoFill.action")}
+          </DemoFillButton>
           <Input.TextArea
             rows={2}
             value={reason}
@@ -177,7 +186,8 @@ export function ExceptionPanel({
             data-testid="exception-reason"
           />
           <Button
-            type="primary"
+            color="orange"
+            variant="outlined"
             disabled={!eventId || !reason.trim()}
             loading={propose.isPending}
             onClick={() => propose.mutate()}
@@ -187,6 +197,6 @@ export function ExceptionPanel({
           </Button>
         </Space>
       ) : null}
-    </Panel>
+    </section>
   );
 }

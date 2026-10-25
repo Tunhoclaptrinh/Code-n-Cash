@@ -1,15 +1,7 @@
 import { ContractDocuments } from "@/shared/ui/ContractDocuments";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
-import {
-  Alert,
-  Button,
-  Space,
-  Table,
-  Tag,
-  Timeline,
-  Tooltip,
-  Typography,
-} from "antd";
+import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
 import {
   CheckCircleFilled,
   CloseCircleFilled,
@@ -47,17 +39,12 @@ import {
 import { initialsOf } from "@/shared/lib/initials";
 import {
   ContractStatusTag,
-  DecisionTag,
   MilestoneStatusTag,
   OriginTag,
 } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
-import {
-  TechnicalDetails,
-  TechnicalList,
-  TrackingCode,
-} from "@/shared/ui/TechnicalInfo";
+import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
 import styles from "./ContractDetailPage.module.css";
 
 type TabKey =
@@ -210,94 +197,70 @@ export default function ContractDetailPage() {
           activeTabKey={tab}
           onTabChange={(key) => setTab(key as TabKey)}
         >
-          {data.signing &&
-          data.signing.signed === data.signing.total &&
-          data.milestones.some((m) => m.decision === "HOLD") ? (
-            <Alert
-              type="warning"
-              showIcon
-              data-testid="signed-pending-conditions"
-              title={t("detail.signedPending")}
-              description={data.milestones
-                .filter((m) => m.decision === "HOLD")
-                .map(
-                  (m) =>
-                    `${m.id} · ${td(`milestoneType.${m.type}`)}: ${describeNext(td, m.next)}`,
-                )
-                .join("; ")}
-              style={{ marginBottom: 12 }}
-            />
-          ) : null}
           {tab === "documents" ? (
             <ContractDocuments contractId={contract.id} />
           ) : null}
           {tab === "milestones" ? (
-            <div className={styles.grid}>
-              {data.milestones.length ? (
-                <ol className={styles.timeline}>
-                  {data.milestones.map((row, index) => (
-                    <MilestoneItem
-                      key={row.id}
-                      row={row}
-                      contractId={contract.id}
-                      isLast={index === data.milestones.length - 1}
+            <ContractSideLayout contractId={contract.id}>
+              <div className={styles.grid}>
+                <div className={styles.sidebar}>
+                  <PaymentOverview data={data} />
+                  <Panel className={`${styles.sideCard} ${styles.people}`}>
+                    <h2>{t("detail.terms.title")}</h2>
+                    <TermRow
+                      label={t("detail.terms.policy")}
+                      value={td(`policy.${contract.approvalPolicy}`)}
                     />
-                  ))}
-                </ol>
-              ) : (
-                <Panel className={styles.tabPanel}>
-                  <div className={styles.panelBody}>
-                    <p className={styles.empty}>{t("detail.noMilestones")}</p>
-                  </div>
-                </Panel>
-              )}
-              <div className={styles.sidebar}>
-                <PaymentOverview data={data} />
-                <Panel className={`${styles.sideCard} ${styles.people}`}>
-                  <h2>{t("detail.terms.title")}</h2>
-                  <TermRow
-                    label={t("detail.terms.workflow")}
-                    value={td(`workflow.${data.workflowTemplate}`)}
-                  />
-                  <TermRow
-                    label={t("detail.terms.ruleSet")}
-                    value={td(`ruleSet.${data.ruleSetId}`, {
-                      defaultValue: data.ruleSetId,
-                    })}
-                  />
-                  <TermRow
-                    label={t("detail.terms.policy")}
-                    value={td(`policy.${contract.approvalPolicy}`)}
-                  />
-                  <TermRow
-                    label={t("detail.terms.period")}
-                    value={`${formatDate(contract.startDate)} – ${formatDate(contract.endDate)}`}
-                  />
-                  <TermRow
-                    label={t("detail.terms.penalty")}
-                    value={t("detail.terms.penaltyValue", {
-                      grace: data.graceDays,
-                      rate: data.penaltyRatePct,
-                      cap: data.maxPenaltyPct,
-                    })}
-                  />
-                  <TechnicalDetails
-                    items={[
-                      {
-                        key: "workflow",
-                        label: t("detail.terms.workflow"),
-                        value: data.workflowTemplate,
-                      },
-                      {
-                        key: "ruleSet",
-                        label: t("detail.terms.ruleSet"),
-                        value: data.ruleSetId,
-                      },
-                    ]}
-                  />
-                </Panel>
+                    <TermRow
+                      label={t("detail.terms.period")}
+                      value={`${formatDate(contract.startDate)} – ${formatDate(contract.endDate)}`}
+                    />
+                    <TermRow
+                      label={t("detail.terms.penalty")}
+                      value={t("detail.terms.penaltyValue", {
+                        grace: data.graceDays,
+                        rate: data.penaltyRatePct,
+                        cap: data.maxPenaltyPct,
+                      })}
+                    />
+                    <TechnicalDetails
+                      items={[
+                        {
+                          key: "workflow",
+                          label: t("detail.terms.workflow"),
+                          value: td(`workflow.${data.workflowTemplate}`),
+                        },
+                        {
+                          key: "ruleSet",
+                          label: t("detail.terms.ruleSet"),
+                          value: td(`ruleSet.${data.ruleSetId}`, {
+                            defaultValue: data.ruleSetId,
+                          }),
+                        },
+                      ]}
+                    />
+                  </Panel>
+                </div>
+                {data.milestones.length ? (
+                  <ol className={styles.timeline}>
+                    {data.milestones.map((row, index) => (
+                      <MilestoneItem
+                        key={row.id}
+                        row={row}
+                        contractId={contract.id}
+                        isLast={index === data.milestones.length - 1}
+                      />
+                    ))}
+                  </ol>
+                ) : (
+                  <Panel className={styles.tabPanel}>
+                    <div className={styles.panelBody}>
+                      <p className={styles.empty}>{t("detail.noMilestones")}</p>
+                    </div>
+                  </Panel>
+                )}
               </div>
-            </div>
+            </ContractSideLayout>
           ) : null}
           {tab === "events" ? (
             <EventsTable
@@ -317,7 +280,6 @@ export default function ContractDetailPage() {
           {tab === "participants" ? (
             <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>
-                <h2>{t("detail.participants.title")}</h2>
                 <ParticipantRows data={data} />
               </div>
             </Panel>
@@ -379,6 +341,7 @@ function MilestoneItem({
   isLast: boolean;
 }) {
   const { t } = useTranslation("milestones");
+  const { t: tl } = useTranslation("milestones", { keyPrefix: "detailLite" });
   const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
   const user = useCurrentUser();
@@ -417,7 +380,6 @@ function MilestoneItem({
               {td(`milestoneType.${row.type}`)}
             </b>
             <MilestoneStatusTag status={row.status} />
-            <DecisionTag decision={row.decision} />
             <TrackingCode code={row.id} />
           </div>
           <div className={styles.amountBlock}>
@@ -433,12 +395,9 @@ function MilestoneItem({
           <div className={styles.info}>
             <div className={styles.due}>
               {row.dueDate
-                ? t("detail.milestone.due", {
-                    due: formatDate(row.dueDate),
-                    grace: row.graceDays,
-                  })
+                ? tl("due", { due: formatDate(row.dueDate) })
                 : t("detail.milestone.noDue")}
-              {row.completedAt
+              {row.completedAt && emphasis !== "done"
                 ? ` · ${t("detail.milestone.completed", { at: formatDate(row.completedAt) })}`
                 : ""}
             </div>
@@ -461,23 +420,16 @@ function MilestoneItem({
                     quorum: row.quorum,
                   })}
                 </Tag>
-              ) : (
-                <Tag style={{ margin: 0 }}>
-                  {t("detail.milestone.noApproval")}
-                </Tag>
-              )}
+              ) : null}
             </Space>
             <div className={styles.fact}>
               <span className={styles.factLabel}>
                 {t("detail.milestone.reason")}{" "}
               </span>
-              <b>{td(`reason.${row.reasonCode}`)}</b>{" "}
-              <Space size={8} wrap>
-                <TrackingCode code={row.reasonCode} />
-                <TrackingCode code={row.ruleId} />
-              </Space>
+              <b>{td(`reason.${row.reasonCode}`)}</b>
             </div>
-            {row.decision === "RELEASE" || row.decision === "PENALTY" ? (
+            {(row.decision === "RELEASE" || row.decision === "PENALTY") &&
+            Number(row.payableMillion) !== Number(row.plannedMillion) ? (
               <div className={styles.fact}>
                 <span className={styles.factLabel}>
                   {t("detail.milestone.payable")}{" "}
@@ -536,6 +488,7 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
     Number(totals.valueMillion) > 0
       ? `${Math.round((Number(part) / Number(totals.valueMillion)) * 1000) / 10}%`
       : "0%";
+  const nonZero = (value: string) => Number(value) !== 0;
   const rows: Array<[string, string, string?]> = [
     [t("detail.payment.contractValue"), totals.valueMillion],
     [
@@ -543,9 +496,24 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
       totals.eligibleMillion,
       styles.paymentSettled,
     ],
-    [t("detail.payment.penalty"), totals.penaltyMillion, styles.paymentPenalty],
+    ...(nonZero(totals.penaltyMillion)
+      ? [
+          [
+            t("detail.payment.penalty"),
+            totals.penaltyMillion,
+            styles.paymentPenalty,
+          ] as [string, string, string],
+        ]
+      : []),
     [t("detail.payment.held"), totals.heldMillion],
-    [t("detail.payment.rejected"), totals.rejectedMillion],
+    ...(nonZero(totals.rejectedMillion)
+      ? [
+          [t("detail.payment.rejected"), totals.rejectedMillion] as [
+            string,
+            string,
+          ],
+        ]
+      : []),
     [t("detail.payment.transferred"), totals.paidMillion],
   ];
   return (
@@ -578,6 +546,7 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
   );
 }
 
+/** Activity history in back-office form: when, who, what, on which milestone and the note given. */
 function EventsTable({
   events,
   milestones,
@@ -589,7 +558,6 @@ function EventsTable({
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
-  const { t: tc } = useTranslation("common");
   const sequenceOf = new Map(milestones.map((m) => [m.id, m.sequence]));
   const types = [...new Set(events.map((e) => e.type))];
   return (
@@ -601,41 +569,24 @@ function EventsTable({
           dataSource={[...events].reverse()}
           pagination={{ pageSize: 10, hideOnSinglePage: true }}
           scroll={{ x: "max-content" }}
-          expandable={{
-            // Source, document reference and channel stay one click away for reviewers.
-            expandedRowRender: (e) => (
-              <TechnicalList
-                items={[
-                  {
-                    key: "source",
-                    label: tc("technical.source"),
-                    value: <OriginTag origin={e.origin} />,
-                  },
-                  {
-                    key: "document",
-                    label: tc("technical.document"),
-                    value: e.documentId,
-                  },
-                  {
-                    key: "channel",
-                    label: tc("technical.channel"),
-                    value: e.source,
-                  },
-                  {
-                    key: "party",
-                    label: tc("technical.party"),
-                    value: e.actor.partyId,
-                  },
-                ]}
-              />
-            ),
-          }}
           columns={[
             {
               key: "at",
               title: t("detail.events.at"),
               render: (_, e) => formatDateTime(e.at),
               sorter: (a, b) => a.at.localeCompare(b.at),
+            },
+            {
+              key: "actor",
+              title: t("detail.events.actor"),
+              render: (_, e) => (
+                <>
+                  <div>{e.recordedBy ?? actorName(td, e.actor, people)}</div>
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {e.actor.type ? td(`partyType.${e.actor.type}`) : ""}
+                  </Typography.Text>
+                </>
+              ),
             },
             {
               key: "type",
@@ -646,19 +597,14 @@ function EventsTable({
               })),
               onFilter: (value, e) => e.type === value,
               render: (_, e) => (
-                <>
-                  <Space size={4} wrap>
-                    <Typography.Text strong>
-                      {td(`eventType.${e.type}`)}
-                    </Typography.Text>
-                    <Tag style={{ margin: 0 }}>
-                      {td(`eventStatus.${e.status}`)}
-                    </Tag>
-                  </Space>
-                  <div>
-                    <TrackingCode code={e.id} />
-                  </div>
-                </>
+                <Space size={4} wrap>
+                  <Typography.Text strong>
+                    {td(`eventType.${e.type}`)}
+                  </Typography.Text>
+                  <Tag style={{ margin: 0 }}>
+                    {td(`eventStatus.${e.status}`)}
+                  </Tag>
+                </Space>
               ),
             },
             {
@@ -668,35 +614,13 @@ function EventsTable({
                 td("milestoneNo", { no: sequenceOf.get(e.milestoneId) ?? "?" }),
             },
             {
-              key: "actor",
-              title: t("detail.events.actor"),
-              render: (_, e) => (
-                <>
-                  <div>{actorName(td, e.actor, people)}</div>
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    {[
-                      e.actor.type ? td(`partyType.${e.actor.type}`) : "",
-                      e.recordedBy ?? "",
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </Typography.Text>
-                </>
-              ),
-            },
-            {
-              key: "document",
-              title: t("detail.events.document"),
-              render: (_, e) => (
-                <>
-                  {e.fileName ?? "—"}
-                  {e.referenceEventId ? (
-                    <div style={{ fontSize: 12 }}>
-                      {t("detail.events.reference", { id: e.referenceEventId })}
-                    </div>
-                  ) : null}
-                </>
-              ),
+              key: "note",
+              title: t("detail.events.note"),
+              // Only what a person wrote or attached; organiser rows carry no user note.
+              render: (_, e) =>
+                [e.origin === "APP" ? e.note : "", e.fileName ?? ""]
+                  .filter(Boolean)
+                  .join(" · ") || "—",
             },
           ]}
         />
@@ -721,7 +645,6 @@ function HistoryTimeline({
   return (
     <Panel className={styles.tabPanel}>
       <div className={styles.panelBody}>
-        <p>{t("detail.history.body")}</p>
         <Timeline
           items={sorted.slice(0, 200).map((entry) =>
             entry.kind === "EVENT"
@@ -741,8 +664,7 @@ function HistoryTimeline({
                         milestone: td("milestoneNo", {
                           no: sequenceOf.get(entry.event.milestoneId) ?? "?",
                         }),
-                      })}{" "}
-                      <TrackingCode code={entry.event.id} />
+                      })}
                     </>
                   ),
                 }
@@ -787,7 +709,6 @@ function SigningPanel({ data }: { data: ContractOverview }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
   const { t: ts } = useTranslation("signing");
-  const { t: roleText } = useTranslation("common");
   const signing = data.signing;
   // The Data Pack signing date can differ from when the last signature was recorded; show both.
   const completedAt =
@@ -808,9 +729,6 @@ function SigningPanel({ data }: { data: ContractOverview }) {
                 total: signing.total,
               })}
             </h2>
-            <Typography.Paragraph type="secondary">
-              {t("detail.signing.note")}
-            </Typography.Paragraph>
             {data.contract.signingDate &&
             completedAt &&
             completedAt.slice(0, 10) !== data.contract.signingDate ? (
@@ -830,14 +748,10 @@ function SigningPanel({ data }: { data: ContractOverview }) {
                 <div className={styles.personInfo}>
                   <b>{step.signerName}</b>
                   <div className={styles.personRole}>
-                    {td(`side.${step.party}`)} · {step.organizationName}
-                    {step.signerRole
-                      ? ` · ${t("detail.roleLabel")}: ${roleText(`roles.${step.signerRole}.name`)}`
-                      : ""}
-                    {step.signerTitle
-                      ? ` · ${t("detail.titleLabel")}: ${step.signerTitle}`
-                      : ""}
-                    {step.isFinal ? ` · ${t("detail.signing.final")}` : ""}
+                    {[
+                      step.signerTitle ?? td(`side.${step.party}`),
+                      step.organizationName,
+                    ].join(" · ")}
                   </div>
                 </div>
                 <Tag

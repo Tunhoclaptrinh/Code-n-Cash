@@ -141,12 +141,6 @@ export function RuleExpressionEditor({
           </Button>
         </Space>
       </div>
-      <Alert
-        type="info"
-        showIcon
-        title={t("rules.language.order")}
-        className={styles.notice}
-      />
       {catalog.isError ? (
         <Alert
           type="warning"
@@ -187,15 +181,8 @@ export function RuleExpressionEditor({
             }
             data-testid="rule-syntax-result"
           />
-        ) : (
-          <Typography.Text type="secondary">
-            {t("rules.language.unchecked")}
-          </Typography.Text>
-        )}
+        ) : null}
       </div>
-      <Typography.Paragraph type="secondary" className={styles.hint}>
-        {t("rules.language.syntaxOnly")}
-      </Typography.Paragraph>
       <div className={styles.layout}>
         <nav
           aria-label={t("rules.language.orderList")}
@@ -241,9 +228,6 @@ export function RuleExpressionEditor({
             </div>
             <Typography.Paragraph className={styles.description}>
               {selected.rule_description_vi}
-            </Typography.Paragraph>
-            <Typography.Paragraph type="secondary" className={styles.hint}>
-              {t("rules.language.lockedMetadata")}
             </Typography.Paragraph>
             <Space wrap size={[6, 6]} className={styles.metadata}>
               <Tag>
@@ -475,9 +459,6 @@ function ExpressionInput({
       }
       className={styles.expression}
     >
-      <Typography.Paragraph type="secondary" className={styles.hint}>
-        {t(`rules.language.hints.${field}`)}
-      </Typography.Paragraph>
       <Input.TextArea
         ref={input}
         id={`rule-expression-${field}`}

@@ -2,7 +2,7 @@ import { Button, Space, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { MilestoneDetail } from "@codecash/contracts";
-import { contractTitle, describeNext } from "@/shared/lib/domain";
+import { describeNext } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import {
   DecisionTag,
@@ -34,14 +34,6 @@ export function DecisionBanner({
   return (
     <Panel as="div" className={styles.banner}>
       <div className={styles.bannerText}>
-        <div className={styles.bannerMeta}>
-          {t("decision.meta", {
-            contractId: contract.id,
-            title: contractTitle(contract),
-            supplier: contract.supplier.name,
-          })}{" "}
-          · {contract.buyer.name}
-        </div>
         <div className={styles.bannerHeadline}>
           <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
           <DecisionTag decision={evaluation.decision} />
@@ -52,7 +44,7 @@ export function DecisionBanner({
           <TrackingCode code={evaluation.reasonCode} />
         </Space>
         <div className={styles.bannerSummary}>
-          {t("decision.summaryLine", {
+          {t("decisionLite.summaryLine", {
             rule: evaluation.ruleId,
             payable: formatDecimalString(evaluation.payableMillion),
             penalty: formatDecimalString(evaluation.penaltyMillion),
@@ -104,7 +96,16 @@ export function DecisionBanner({
             </Button>
           ) : null}
           {actions.resolveDispute || actions.openDispute ? (
-            <Button onClick={() => navigate(`${base}/dispute`)}>
+            <Button
+              // Both open the dispute screen: handling one is the next step, raising one flags a problem.
+              {...(actions.resolveDispute
+                ? { type: "primary" as const }
+                : {
+                    color: "orange" as const,
+                    variant: "outlined" as const,
+                  })}
+              onClick={() => navigate(`${base}/dispute`)}
+            >
               {actions.resolveDispute
                 ? t("decision.actions.resolveDispute")
                 : t("decision.actions.openDispute")}

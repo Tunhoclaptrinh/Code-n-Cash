@@ -42,6 +42,11 @@ export async function listDemoAccounts(): Promise<DemoDirectory> {
   };
 }
 
+/** Archives the current demo data, audit log included, and restarts from the initial data. */
+export async function resetDemoData(): Promise<{ archive: string }> {
+  return platform.post<{ archive: string }>("/auth/reset-demo", {});
+}
+
 export async function signInDemo(email: string): Promise<User> {
   return storeSession(
     await platform.post<AuthResult>("/auth/demo-login", { email }),

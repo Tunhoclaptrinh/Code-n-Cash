@@ -4,7 +4,6 @@ import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { actorName } from "@/shared/lib/domain";
 import { initialsOf } from "@/shared/lib/initials";
 import { DecisionTag } from "@/shared/ui/DomainTags";
-import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import type { DisputeView } from "../types";
 import styles from "./SubmissionPanel.module.css";
 
@@ -15,13 +14,12 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
   const { evaluation, preview } = view;
   return (
     <section className={styles.panel}>
-      <h2 className={styles.heading}>
-        {t("submission.title", { count: view.disputes.length })}
-      </h2>
-      {view.disputes.length ? null : (
-        <Typography.Text type="secondary">
-          {t("submission.none")}
-        </Typography.Text>
+      {view.disputes.length ? (
+        <h2 className={styles.heading}>
+          {t("submission.title", { count: view.disputes.length })}
+        </h2>
+      ) : (
+        <Typography.Text type="secondary">{t("lite.none")}</Typography.Text>
       )}
       {view.disputes.map(({ opened, resolution, state }) => (
         <div
@@ -43,24 +41,30 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
             </b>
             <span className={styles.time}>{formatDateTime(opened.at)}</span>
           </div>
-          <div>{t("submission.quote", { message: opened.note })}</div>
+          {/* Organiser rows carry a placeholder note, not words a person wrote. */}
+          {opened.origin === "APP" && opened.note ? (
+            <div>{t("submission.quote", { message: opened.note })}</div>
+          ) : null}
           <Space size={6} wrap style={{ marginTop: 8 }}>
             <Tag color={state === "OPEN" ? "warning" : "success"}>
               {t(`state.${state}`)}
             </Tag>
-            <TrackingCode code={opened.id} />
           </Space>
           {resolution ? (
             <div className={styles.file}>
               <span className={styles.fileKind}>
                 {td("eventType.DISPUTE_RESOLVED")}
               </span>
-              {t("submission.resolution", {
-                id: resolution.id,
-                by: resolution.recordedBy ?? actorName(td, resolution.actor),
-                at: formatDateTime(resolution.at),
-                note: resolution.note,
-              })}
+              {t(
+                resolution.origin === "APP" && resolution.note
+                  ? "submission.resolution"
+                  : "submission.resolutionPlain",
+                {
+                  by: resolution.recordedBy ?? actorName(td, resolution.actor),
+                  at: formatDateTime(resolution.at),
+                  note: resolution.note,
+                },
+              )}
             </div>
           ) : null}
         </div>
@@ -118,11 +122,10 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
               </div>
             </>
           ) : (
-            <div className={styles.impactLabel}>{t("impact.noPreview")}</div>
+            <div className={styles.impactLabel}>{t("lite.noPreview")}</div>
           )}
         </div>
       </div>
-      <div className={styles.footnote}>{t("impact.footnote")}</div>
     </section>
   );
 }

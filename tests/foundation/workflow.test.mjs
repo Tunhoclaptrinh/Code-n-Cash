@@ -246,6 +246,16 @@ test("a dispute is closed only by a buyer-side DISPUTE_RESOLVED that references 
   const view = await call("u-owner", "disputes", "getDispute", "CT0019", 3);
   assert.equal(view.canResolve, true);
   assert.ok(view.preview);
+  // While a dispute is open nobody can open another one on the same milestone.
+  assert.equal(view.canOpen, false);
+  await assert.rejects(
+    call("u-supplier", "disputes", "openDispute", {
+      contractId: "CT0019",
+      sequence: 3,
+      note: "Thêm một tranh chấp",
+    }),
+    /DISPUTE_ALREADY_OPEN/,
+  );
   const result = await call("u-owner", "disputes", "resolveDispute", {
     contractId: "CT0019",
     sequence: 3,
@@ -259,6 +269,8 @@ test("a dispute is closed only by a buyer-side DISPUTE_RESOLVED that references 
   );
   assert.equal(resolution.event_type, "DISPUTE_RESOLVED");
   assert.equal(resolution.reference_event_id, view.disputes[0].opened.id);
+  const closed = await call("u-owner", "disputes", "getDispute", "CT0019", 3);
+  assert.equal(closed.canOpen, true);
 });
 
 test("BR-19 voids an unauthorised event only with two different controllers", async () => {
@@ -961,4 +973,76 @@ test("an invalid rule result rolls back workflow changes and cannot enter a live
       );
     });
   }
+});
+
+test("organiser contracts get a deterministic simulated original that leaves signatures alone", async () => {
+  const { mockInput, mockOriginal, mockRendering, needsMockOriginal } =
+    await import("../../apps/api/dist/mock-originals.js");
+  const verificationBefore = await call(
+    "u-owner",
+    "signing",
+    "getVerification",
+    "CT0084",
+  );
+  const input = await domain.read(actor("u-owner"), (ctx) => {
+    assert.equal(needsMockOriginal(ctx, "CT0084"), true);
+    return mockInput(ctx, "CT0084");
+  });
+  // The document is rebuilt from the contract's own data: its signers and milestones.
+  assert.deepEqual(
+    input.signers.map((s) => s.name),
+    verificationBefore.signatures.map((s) => s.signerName),
+  );
+  assert.equal(input.stages.length, 4);
+  const first = await mockOriginal(input);
+  const again = await mockOriginal(structuredClone(input));
+  assert.equal(first.sha256, again.sha256);
+  assert.equal(first.docx.subarray(0, 2).toString(), "PK");
+  // Rendering finds one signing area per signer on the real PDF pages.
+  const rendering = await mockRendering(input);
+  const anchors = rendering.pages.flatMap((page) => page.anchors ?? []);
+  assert.deepEqual(
+    anchors.map((anchor) => anchor.stepNo),
+    input.signers.map((_, index) => index + 1),
+  );
+  // Viewing never changes what the signatures are bound to.
+  assert.deepEqual(
+    await call("u-owner", "signing", "getVerification", "CT0084"),
+    verificationBefore,
+  );
+});
+
+// Runs last: it replaces the data every other test works on.
+test("the demo reset archives the data and its audit chain instead of deleting them", async () => {
+  const { readFile, readdir } = await import("node:fs/promises");
+  const { can } = await import("../../apps/api/dist/common/permissions.js");
+  const { verifyChain } =
+    await import("../../apps/api/dist/common/audit-chain.js");
+  assert.equal(can("SYSTEM_ADMIN", "demo:reset"), true);
+  for (const role of ["ADMIN_AUDITOR", "AUDITOR", "CONTRACT_OWNER", "SUPPLIER"])
+    assert.equal(can(role, "demo:reset"), false, role);
+  await call("u-owner", "signing", "getVerification", "CT0084");
+  const before = await repo.list("audit");
+  assert.ok(before.length > 1);
+
+  const { archive } = await domain.resetDemo(actor("u-sysadmin"));
+  const archived = JSON.parse(
+    await readFile(join(dir, `records.${archive}.json`), "utf8"),
+  );
+  assert.deepEqual(archived.audit, before);
+  assert.ok((await readdir(dir)).includes("records.json"));
+
+  const audit = await repo.list("audit");
+  assert.equal(verifyChain(audit).ok, true);
+  assert.ok(audit.some((entry) => entry.action === "IMPORT_DATA_PACK"));
+  const reset = audit.find((entry) => entry.action === "RESET_DEMO_DATA");
+  assert.equal(reset.actorId, "u-sysadmin");
+  assert.equal(reset.recordId, archive);
+  assert.equal(reset.archivedEntries, before.length);
+  assert.equal(reset.archivedHeadHash, before.at(-1).hash);
+  // The initial data is back.
+  const official = (await repo.list("events")).filter(
+    (e) => e.origin !== "APP",
+  );
+  assert.equal((await repo.list("events")).length, official.length);
 });

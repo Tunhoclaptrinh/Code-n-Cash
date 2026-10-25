@@ -33,15 +33,10 @@
   flex-wrap: wrap;
 }
 
-.canvasHeader h2 {
-  font-size: 18px;
-  font-weight: 800;
-}
-
 .fileMeta {
-  margin-left: auto;
+  flex: 1;
   color: var(--color-text-muted);
-  font-size: 12px;
+  font-size: 13px;
   overflow-wrap: anywhere;
 }
 
@@ -290,20 +285,14 @@
   min-height: 0;
 }
 
-.listCard,
-.checksCard {
+.listCard {
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.checksCard {
-  gap: 8px;
-}
-
-.listCard h2,
-.checksCard h2 {
+.listCard h2 {
   font-size: 16px;
   font-weight: 800;
 }
@@ -429,46 +418,6 @@
   color: var(--signing-danger-flag);
 }
 
-.removeButtonOff {
-  opacity: 0.45;
-}
-
-.tip {
-  padding: 10px 16px;
-  font-size: 12px;
-}
-
-.check {
-  display: flex;
-  gap: 10px;
-}
-
-.checkIconPending,
-.checkIconOk,
-.checkIconFail {
-  font-weight: 800;
-}
-
-.checkIconPending {
-  color: var(--color-text-muted);
-}
-
-.checkIconOk {
-  color: var(--color-success);
-}
-
-.checkIconFail {
-  color: var(--signing-danger-flag);
-}
-
-.checkTextPending {
-  color: var(--color-text-muted);
-}
-
-.checkTextOk {
-  color: var(--color-text);
-}
-
 .checkTextFail {
   color: var(--signing-danger-flag);
   font-weight: 700;
@@ -481,14 +430,6 @@
   justify-content: flex-end;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.blocked {
-  background: var(--color-border);
-  color: var(--color-text-muted);
-  font-weight: 700;
-  border-radius: var(--radius-md);
-  padding: 11px 22px;
 }
 
 /* Two columns collapse on narrow screens; wide document canvases scroll inside their card. */

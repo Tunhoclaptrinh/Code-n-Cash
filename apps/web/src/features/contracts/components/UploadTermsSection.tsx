@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { ApprovalPolicy } from "@codecash/contracts";
 import type { ContractUploadFormState } from "../hooks/useContractUploadForm";
 import type { UploadFormOptions } from "../types";
+import { HelpLabel } from "./HelpLabel";
 import styles from "./ContractUploadForm.module.css";
 
 interface UploadTermsSectionProps {
@@ -23,13 +24,17 @@ export function UploadTermsSection({ form, options }: UploadTermsSectionProps) {
       <Row gutter={16}>
         <Col xs={24}>
           <Form.Item
-            label={t("contractUpload.form.policy.label")}
-            required
-            extra={
-              value.approvalPolicy
-                ? td(`policyHint.${value.approvalPolicy}`)
-                : undefined
+            label={
+              value.approvalPolicy ? (
+                <HelpLabel
+                  label={t("contractUpload.form.policy.label")}
+                  hint={td(`policyHint.${value.approvalPolicy}`)}
+                />
+              ) : (
+                t("contractUpload.form.policy.label")
+              )
             }
+            required
           >
             <Select<ApprovalPolicy>
               placeholder={placeholder("policy")}

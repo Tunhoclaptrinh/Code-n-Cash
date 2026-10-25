@@ -41,20 +41,10 @@ export function ContractUploadForm({
     onDraftChange,
     onPreviewFileChange,
   });
-  const { value, save, sample, fillAll, onContinue, errorCode } = form;
+  const { save, sample, fillAll, onContinue, errorCode } = form;
 
   return (
     <BaseCard bodyStyle={{ padding: 20 }}>
-      {value.ruleVersion ? (
-        <Alert
-          type="info"
-          showIcon
-          title={t("contractUpload.form.ruleVersion", {
-            id: value.ruleVersion.id.slice(0, 8),
-          })}
-          style={{ marginBottom: 16 }}
-        />
-      ) : null}
       <Form
         className={styles.form}
         disabled={save.isPending || sample.isPending}

@@ -20,6 +20,7 @@ export function UploadSigningSection({
   options,
 }: UploadSigningSectionProps) {
   const { t } = useTranslation("contracts");
+  const { t: tl } = useTranslation("contracts", { keyPrefix: "lite" });
   const { t: tc } = useTranslation("common");
   const { t: td } = useTranslation("domain");
   const {
@@ -41,7 +42,7 @@ export function UploadSigningSection({
         <Alert
           type="warning"
           showIcon
-          title={t("contractUpload.form.signers.singleNotice")}
+          title={tl("singleSigner")}
           style={{ marginBottom: 16 }}
         />
       ) : null}
@@ -202,17 +203,8 @@ export function UploadSigningSection({
               })}
             </Typography.Text>
           </div>
-          <Typography.Text type="secondary" className={styles.hint}>
-            {t("contractUpload.form.signers.compactHint")}
-          </Typography.Text>
         </Form.Item>
       </div>
-      <Typography.Paragraph type="secondary" className={styles.positionHint}>
-        <HelpLabel
-          label={t("contractUpload.form.positionsNotice.compact")}
-          hint={t("contractUpload.form.positionsNotice.body")}
-        />
-      </Typography.Paragraph>
     </>
   );
 }

@@ -94,12 +94,6 @@ export function pageHeightOf(previewPages: PdfPagePreview[], number: number) {
   return previewPages.find((p) => p.pageNo === number)?.height ?? PAGE_HEIGHT;
 }
 
-export interface LayoutCheck {
-  code: string;
-  ok: boolean;
-  pending: boolean;
-}
-
 /** Validates the current slot layout against the printed signer areas. */
 export function analyzeLayout(
   config: SigningConfig,
@@ -157,20 +151,14 @@ export function analyzeLayout(
     unconfiguredPrinted.length > 0 ||
     incompatible.length > 0 ||
     assigned.some((step) => flags[step.stepNo].wrong);
-  const checks: LayoutCheck[] = [
-    { code: "CORRECT_SIGNER", ok: !anyWrong, pending: !hasNamedAreas },
-    { code: "ONE_SLOT_PER_STEP", ok: allAssigned, pending: false },
-    {
-      code: "NO_OVERLAP",
-      ok: !anyOverlap,
-      pending: assigned.length < steps.length,
-    },
-    {
-      code: "NO_CONTENT_COVERED",
-      ok: !anyOver,
-      pending: assigned.length === 0,
-    },
-  ];
+  // Only unmet checks are listed; a missing slot is already shown by the step status.
+  const problems = (
+    [
+      anyWrong && "CORRECT_SIGNER",
+      anyOverlap && "NO_OVERLAP",
+      anyOver && "NO_CONTENT_COVERED",
+    ] as const
+  ).filter((code) => code !== false);
   const canContinue =
     allAssigned &&
     !anyOver &&
@@ -182,7 +170,7 @@ export function analyzeLayout(
     hasNamedAreas,
     incompatible,
     unconfiguredPrinted,
-    checks,
+    problems,
     canContinue,
   };
 }

@@ -68,6 +68,7 @@ export default function RuleVersionsPage() {
   const { t } = useTranslation("trust");
   const { t: td } = useTranslation("domain");
   const { t: tc } = useTranslation("common");
+  const { t: tp } = useTranslation("platform");
   const { message } = App.useApp();
   const user = useCurrentUser();
   const { hasPermission } = useAccess(user);
@@ -266,7 +267,6 @@ export default function RuleVersionsPage() {
       }
     >
       <PageContainer>
-        <Alert type="info" showIcon title={t("rules.notice")} />
         <DataTable
           rowKey="id"
           columns={columns}
@@ -371,7 +371,7 @@ export default function RuleVersionsPage() {
           <Space wrap>
             {editable && !currentPreview?.canSubmit ? (
               <Typography.Text type="secondary" className={styles.hint}>
-                {t("rules.language.previewFirst")}
+                {tp("lite.previewFirst")}
               </Typography.Text>
             ) : null}
             {selected ? (
@@ -428,16 +428,8 @@ export default function RuleVersionsPage() {
       >
         {selected ? (
           <div className={styles.modalContent}>
-            {selected.intact === false || editorTab === "templates" ? (
-              <Alert
-                type={selected.intact === false ? "error" : "info"}
-                showIcon
-                title={
-                  selected.intact === false
-                    ? t("rules.tampered")
-                    : t("rules.editorNotice")
-                }
-              />
+            {selected.intact === false ? (
+              <Alert type="error" showIcon title={t("rules.tampered")} />
             ) : null}
             <Space wrap key="version-metadata">
               <Typography.Text type="secondary">
@@ -458,9 +450,6 @@ export default function RuleVersionsPage() {
                   samples: currentPreview.samples,
                   changed: currentPreview.changed,
                   violations: currentPreview.invariantViolations,
-                })}
-                description={t("rules.previewScope", {
-                  templates: currentPreview.templateChanges,
                 })}
               />
             ) : null}

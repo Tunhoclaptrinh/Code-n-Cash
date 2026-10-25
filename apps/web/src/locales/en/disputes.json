@@ -9,7 +9,8 @@
     "none": "No dispute on this milestone.",
     "author": "{{name}} · {{organization}}",
     "quote": "\"{{message}}\"",
-    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+    "resolution": "{{by}} · {{at}}: {{note}}",
+    "resolutionPlain": "{{by}} · {{at}}"
   },
   "state": {
     "OPEN": "Open",
@@ -60,6 +61,20 @@
     "actions": {
       "trace": "Open the decision trace",
       "confirm": "Confirm"
+    }
+  },
+  "lite": {
+    "none": "This milestone has no disputes.",
+    "noPreview": "No dry-run result yet.",
+    "options": {
+      "RESOLVE": "Mark as settled; the milestone is recalculated right away.",
+      "REQUEST_INFO": "Leave a note for the party who opened it; the milestone stays on hold.",
+      "OPEN": "Payment is on hold until the dispute is closed."
+    },
+    "demoNote": {
+      "RESOLVE": "The parties have agreed on the dispute about {{milestone}}; please close it.",
+      "REQUEST_INFO": "Please provide documents to clarify the dispute about {{milestone}}.",
+      "OPEN": "The result of {{milestone}} is not agreed; please hold the payment until it is clarified."
     }
   }
 }

@@ -20,6 +20,8 @@ export function SlotListCard({ config, editor, flags }: SlotListCardProps) {
   const { t } = useTranslation("signing");
   const { steps, previewPages } = config;
   const { boxes, looks, setLooks, activeStep, put, reset, selectStep } = editor;
+  const widthPt = (pageNo: number) =>
+    previewPages.find((p) => p.pageNo === pageNo)?.widthPt;
   return (
     <section className={cx(shared.card, styles.listCard)}>
       <div className={styles.listHeader}>
@@ -79,29 +81,20 @@ export function SlotListCard({ config, editor, flags }: SlotListCardProps) {
                 {t("positions.missingPrintedName")}
               </span>
             ) : null}
-            <div className={styles.cardPosition}>
-              {box
-                ? t("positions.list.position", {
-                    page: box.page,
-                    top: toMm(
-                      box.y,
-                      previewPages.find((p) => p.pageNo === box.page)?.widthPt,
-                    ),
-                    left: toMm(
-                      box.x,
-                      previewPages.find((p) => p.pageNo === box.page)?.widthPt,
-                    ),
-                    width: toMm(
-                      box.w,
-                      previewPages.find((p) => p.pageNo === box.page)?.widthPt,
-                    ),
-                    height: toMm(
-                      box.h,
-                      previewPages.find((p) => p.pageNo === box.page)?.widthPt,
-                    ),
-                  })
-                : t("positions.list.empty")}
-            </div>
+            {box ? (
+              <div
+                className={styles.cardPosition}
+                title={t("positions.list.position", {
+                  page: box.page,
+                  top: toMm(box.y, widthPt(box.page)),
+                  left: toMm(box.x, widthPt(box.page)),
+                  width: toMm(box.w, widthPt(box.page)),
+                  height: toMm(box.h, widthPt(box.page)),
+                })}
+              >
+                {t("prepLite.positions.page", { page: box.page })}
+              </div>
+            ) : null}
             <div className={styles.cardActions}>
               <span className={styles.cardLookLabel}>
                 {t("positions.list.look.label")}
@@ -125,16 +118,15 @@ export function SlotListCard({ config, editor, flags }: SlotListCardProps) {
                   {t(`positions.list.look.${option}`)}
                 </button>
               ))}
-              <button
-                type="button"
-                className={cx(
-                  styles.removeButton,
-                  !box && styles.removeButtonOff,
-                )}
-                onClick={() => put(step.stepNo, null)}
-              >
-                {t("positions.list.remove")}
-              </button>
+              {box ? (
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() => put(step.stepNo, null)}
+                >
+                  {t("positions.list.remove")}
+                </button>
+              ) : null}
             </div>
           </div>
         );

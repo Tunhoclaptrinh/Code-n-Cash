@@ -29,6 +29,7 @@ export function UploadDocumentSection({
   form: ContractUploadFormState;
 }) {
   const { t } = useTranslation("contracts");
+  const { t: tl } = useTranslation("contracts", { keyPrefix: "lite" });
   const { t: td } = useTranslation("domain");
   const {
     value,
@@ -70,7 +71,7 @@ export function UploadDocumentSection({
           type="warning"
           showIcon
           data-testid="contract-document-stale"
-          title={t("contractUpload.templates.stale")}
+          title={tl("stale")}
           style={{ marginBottom: 16 }}
         />
       ) : null}
@@ -90,9 +91,6 @@ export function UploadDocumentSection({
           onChange={(event) => set("documentBody", event.target.value)}
         />
         <div className={styles.bodyFooter}>
-          <Typography.Text type="secondary">
-            {t("contractUpload.templates.bodyEmptyHint")}
-          </Typography.Text>
           <Typography.Text type="secondary">
             {(value.documentBody ?? "").length}/20000
           </Typography.Text>
@@ -132,12 +130,6 @@ export function UploadDocumentSection({
           style={{ marginBottom: 16 }}
         />
       ) : null}
-      <Typography.Paragraph type="secondary" className={styles.hint}>
-        <HelpLabel
-          label={t("contractUpload.sample.compactNotice")}
-          hint={t("contractUpload.sample.notice")}
-        />
-      </Typography.Paragraph>
       <Form.Item
         label={
           <HelpLabel
@@ -146,7 +138,6 @@ export function UploadDocumentSection({
           />
         }
         required
-        extra={t("contractUpload.form.file.constraint")}
         validateStatus={
           fileError || (touched && !value.file.name) ? "error" : undefined
         }
@@ -185,7 +176,7 @@ export function UploadDocumentSection({
               </>
             ) : (
               <Typography.Text type="secondary">
-                {t("contractUpload.form.file.empty")}
+                {tl("fileEmpty")}
               </Typography.Text>
             )}
           </div>

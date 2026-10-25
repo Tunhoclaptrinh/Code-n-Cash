@@ -1,4 +1,4 @@
-import { Descriptions, Space } from "antd";
+import { Collapse, Descriptions, Space } from "antd";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
@@ -41,65 +41,78 @@ export function ConditionsPanel({ data }: { data: MilestoneDetail }) {
           </span>
         ))}
       </Space>
-      <Descriptions
+      <Collapse
+        ghost
         size="small"
-        column={1}
-        style={{ marginTop: 16 }}
+        className={styles.more}
         items={[
           {
-            key: "events",
-            label: t("decision.facts.requiredEvents"),
-            children: `${milestone.requirements.filter((r) => r.state === "VALID").length}/${milestone.requirements.length}`,
-          },
-          {
-            key: "missing",
-            label: t("decision.facts.missing"),
-            children:
-              evaluation.missing
-                .map((type) => td(`eventType.${type}`))
-                .join(", ") || "—",
-          },
-          {
-            key: "unauthorized",
-            label: t("decision.facts.unauthorized"),
-            children: evaluation.unauthorized.join(", ") || "0",
-          },
-          {
-            key: "duplicates",
-            label: t("decision.facts.duplicates"),
-            children:
-              evaluation.duplicates
-                .map(([dup, of]) => `${dup} → ${of}`)
-                .join(", ") || "0",
-          },
-          {
-            key: "dispute",
-            label: t("decision.facts.openDispute"),
-            children:
-              evaluation.openDisputeIds.join(", ") || t("decision.facts.none"),
-          },
-          {
-            key: "rejections",
-            label: t("decision.facts.rejections"),
-            children: evaluation.validRejectionCount,
-          },
-          {
-            key: "approvals",
-            label: t("decision.facts.approvals"),
-            children: evaluation.approvalRequired
-              ? t("decision.facts.approvalValue", {
-                  done: evaluation.validApprovalCount,
-                  quorum: evaluation.quorum,
-                  roles: milestone.approvalRoles
-                    .map((role) => td(`approvalRole.${role}`))
-                    .join(", "),
-                })
-              : t("decision.facts.noApproval"),
-          },
-          {
-            key: "voided",
-            label: t("decision.facts.voided"),
-            children: evaluation.voided.join(", ") || "0",
+            key: "facts",
+            label: t("decisionLite.more"),
+            children: (
+              <Descriptions
+                size="small"
+                column={1}
+                items={[
+                  {
+                    key: "events",
+                    label: t("decision.facts.requiredEvents"),
+                    children: `${milestone.requirements.filter((r) => r.state === "VALID").length}/${milestone.requirements.length}`,
+                  },
+                  {
+                    key: "missing",
+                    label: t("decision.facts.missing"),
+                    children:
+                      evaluation.missing
+                        .map((type) => td(`eventType.${type}`))
+                        .join(", ") || "—",
+                  },
+                  {
+                    key: "unauthorized",
+                    label: t("decisionLite.facts.unauthorized"),
+                    children: evaluation.unauthorized.join(", ") || "0",
+                  },
+                  {
+                    key: "duplicates",
+                    label: t("decision.facts.duplicates"),
+                    children:
+                      evaluation.duplicates
+                        .map(([dup, of]) => `${dup} → ${of}`)
+                        .join(", ") || "0",
+                  },
+                  {
+                    key: "dispute",
+                    label: t("decision.facts.openDispute"),
+                    children:
+                      evaluation.openDisputeIds.join(", ") ||
+                      t("decision.facts.none"),
+                  },
+                  {
+                    key: "rejections",
+                    label: t("decision.facts.rejections"),
+                    children: evaluation.validRejectionCount,
+                  },
+                  {
+                    key: "approvals",
+                    label: t("decision.facts.approvals"),
+                    children: evaluation.approvalRequired
+                      ? t("decision.facts.approvalValue", {
+                          done: evaluation.validApprovalCount,
+                          quorum: evaluation.quorum,
+                          roles: milestone.approvalRoles
+                            .map((role) => td(`approvalRole.${role}`))
+                            .join(", "),
+                        })
+                      : t("decision.facts.noApproval"),
+                  },
+                  {
+                    key: "voided",
+                    label: t("decisionLite.facts.voided"),
+                    children: evaluation.voided.join(", ") || "0",
+                  },
+                ]}
+              />
+            ),
           },
         ]}
       />

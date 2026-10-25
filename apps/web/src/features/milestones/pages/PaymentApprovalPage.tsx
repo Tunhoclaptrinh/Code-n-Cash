@@ -15,6 +15,7 @@ import {
 import { AppPage } from "@/shared/layout/AppPage";
 import { actorName, contractHeading } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import {
   DecisionTag,
   MilestoneStatusTag,
@@ -89,6 +90,7 @@ export default function PaymentApprovalPage() {
 function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -143,7 +145,10 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   };
 
   return (
-    <>
+    <ContractSideLayout
+      contractId={contract.id}
+      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
+    >
       <WorkflowContext>
         {contractHeading(contract)} · {contract.supplier.name} ·{" "}
         <TrackingCode code={milestone.id} />
@@ -153,7 +158,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          title={t(`approve.blocked.${data.blockedReason}`, {
+          title={t(`workLite.approve.blocked.${data.blockedReason}`, {
             defaultValue: data.blockedReason,
           })}
         />
@@ -241,7 +246,6 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   <b>{td(`eventType.${event.type}`)}</b>
                   <div className={styles.documentMeta}>
                     {t("approve.documents.recorded", {
-                      id: event.id,
                       by: event.recordedBy ?? actorName(td, event.actor),
                       at: formatDateTime(event.at),
                     })}
@@ -272,9 +276,6 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   </ToneTag>
                 </div>
               ))}
-            <div className={styles.documentsNote}>
-              {t("approve.documents.note")}
-            </div>
           </Panel>
         </div>
 
@@ -290,28 +291,22 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               <StepItem key={slot.role} slot={slot} index={index} />
             ))}
           </ol>
-          <div className={styles.consequences}>
-            <b>{t("approve.consequences.title")}</b>
-            <div className={styles.consequenceFirst}>
-              {t("approve.consequences.approve")}
-            </div>
-            <div className={styles.consequence}>
-              {t("approve.consequences.requestInfo")}
-            </div>
-            <div className={styles.consequence}>
-              {t("approve.consequences.reject")}
-            </div>
-          </div>
           <div>
             <label htmlFor={noteId} className={styles.noteLabel}>
               {t("approve.note.label")}{" "}
               <DemoFillButton
                 disabled={!!note.trim()}
                 onClick={() => {
-                  setNote(t("approve.note.demo"));
+                  setNote(
+                    t("workLite.approve.demoNote", {
+                      milestone: `${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`,
+                    }),
+                  );
                   setNoteMissing(false);
                 }}
-              />
+              >
+                {tc("demoFill.action")}
+              </DemoFillButton>
               <span className={styles.noteHint}>{t("approve.note.hint")}</span>
             </label>
             <Input.TextArea
@@ -339,8 +334,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
           </div>
           <div className={styles.actions}>
             <Button
-              color="danger"
-              variant="outlined"
+              danger
               disabled={!data.canReject || vote.isPending}
               onClick={() => needNote("REJECT")}
             >
@@ -372,19 +366,20 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
         okText={t("approve.confirm.submit")}
         cancelText={t("approve.confirm.cancel")}
         confirmLoading={vote.isPending}
+        okButtonProps={{ color: "green", variant: "solid" }}
         onOk={() => vote.mutate("APPROVE")}
         onCancel={() => setConfirming(false)}
       >
         {t("approve.confirm.body", {
           no: milestone.sequence,
-          name,
+          name: td(`milestoneType.${milestone.type}`),
           decision: preview?.decision ?? evaluation.decision,
           payable: formatDecimalString(
             preview?.payableMillion ?? evaluation.payableMillion,
           ),
         })}
       </Modal>
-    </>
+    </ContractSideLayout>
   );
 }
 

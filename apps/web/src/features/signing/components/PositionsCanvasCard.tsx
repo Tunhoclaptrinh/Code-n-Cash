@@ -28,12 +28,12 @@ export function PositionsCanvasCard({
   flags,
 }: PositionsCanvasCardProps) {
   const { t } = useTranslation("signing");
-  const { page, activeStep, selectStep } = editor;
+  const { activeStep, selectStep } = editor;
   const { expanded, setExpanded, canvasRef, canvasHeight } = view;
   return (
     <section className={cx(shared.card, styles.canvasCard)}>
       <div className={styles.canvasHeader}>
-        <h2>{t("positions.title")}</h2>
+        <span className={styles.fileMeta}>{config.fileName}</span>
         <Button
           size="small"
           icon={expanded ? <CompressOutlined /> : <ExpandOutlined />}
@@ -47,13 +47,6 @@ export function PositionsCanvasCard({
               : "positions.expandWorkspace",
           )}
         </Button>
-        <span className={styles.fileMeta}>
-          {t("positions.fileMeta", {
-            fileName: config.fileName,
-            page,
-            total: config.pageCount,
-          })}
-        </span>
       </div>
       <div className={styles.chips}>
         {config.steps.map((step) => {
@@ -78,7 +71,7 @@ export function PositionsCanvasCard({
             </button>
           );
         })}
-        <span className={styles.hint}>{t("positions.hint")}</span>
+        <span className={styles.hint}>{t("prepLite.positions.hint")}</span>
       </div>
       <div
         className={styles.canvas}

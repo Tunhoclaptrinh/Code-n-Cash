@@ -2,7 +2,6 @@ import { Timeline, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import type { MilestoneDetail } from "@codecash/contracts";
 import { formatDateTime } from "@/shared/lib/format";
-import { Panel } from "@/shared/ui/Panel";
 import styles from "./MilestoneDecision.module.css";
 
 /** Status changes of the milestone, newest first. */
@@ -14,8 +13,8 @@ export function HistoryPanel({
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
   return (
-    <Panel className={styles.panel}>
-      <h2>{t("decision.history.title")}</h2>
+    <section>
+      <h3 className={styles.traceHeading}>{t("decision.history.title")}</h3>
       <Timeline
         items={[...history].reverse().map((change) => ({
           key: change.id,
@@ -48,7 +47,6 @@ export function HistoryPanel({
           ),
         }))}
       />
-      <div className={styles.panelNote}>{t("decision.history.note")}</div>
-    </Panel>
+    </section>
   );
 }

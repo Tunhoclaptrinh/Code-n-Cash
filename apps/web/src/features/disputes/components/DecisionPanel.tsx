@@ -12,14 +12,11 @@ import styles from "./DecisionPanel.module.css";
 
 type Option = "RESOLVE" | "REQUEST_INFO" | "OPEN";
 
-/**
- * Right column. The buyer (or its contract owner) closes disputes with DISPUTE_RESOLVED events
- * that reference them (BR-08); either party may open a new one. Nobody edits the penalty by hand:
- * the engine re-evaluates the milestone after every event (spec 9.5).
- */
+/** Right column: the buyer (or its contract owner) closes disputes (BR-08); either party may open one. */
 export function DecisionPanel({ view }: { view: DisputeView }) {
   const { t } = useTranslation("disputes");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const queryClient = useQueryClient();
   const ids = useId();
@@ -106,7 +103,7 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
               <div>
                 <b>{t(`decision.options.${value}.name`)}</b>
                 <div className={styles.optionHint}>
-                  {t(`decision.options.${value}.description`)}
+                  {t(`lite.options.${value}`)}
                 </div>
               </div>
             </label>
@@ -122,10 +119,17 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
             <DemoFillButton
               disabled={!!note.trim()}
               onClick={() => {
-                setNote(t("decision.note.demo"));
+                // A sentence for the chosen action, naming only this milestone.
+                setNote(
+                  t(`lite.demoNote.${option ?? options[0]}`, {
+                    milestone: `${td("milestoneNo", { no: view.milestone.sequence })} · ${td(`milestoneType.${view.milestone.type}`)}`,
+                  }),
+                );
                 setNoteMissing(false);
               }}
-            />
+            >
+              {tc("demoFill.action")}
+            </DemoFillButton>
             <span className={styles.required}>*</span>
           </label>
           <Input.TextArea
@@ -151,7 +155,6 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
           ) : null}
         </div>
       ) : null}
-      <div className={styles.pending}>{t("decision.rule")}</div>
       <div className={styles.actions}>
         <Link
           to={`/contracts/${view.contract.id}/milestones/${view.milestone.sequence}/decision`}
@@ -160,7 +163,9 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
           {t("decision.actions.trace")}
         </Link>
         <Button
-          type="primary"
+          {...(option === "OPEN" || option === "REQUEST_INFO"
+            ? { color: "orange" as const, variant: "outlined" as const }
+            : { color: "green" as const, variant: "solid" as const })}
           size="small"
           disabled={!option || act.isPending}
           loading={act.isPending}

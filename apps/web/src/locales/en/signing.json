@@ -244,8 +244,8 @@
       "WAITING": "Awaiting signature",
       "SIGNED": "Fully signed"
     },
-    "meta_one": "{{code}} · {{supplier}} · {{value}} million VND · {{count}} page",
-    "meta_other": "{{code}} · {{supplier}} · {{value}} million VND · {{count}} pages",
+    "meta_one": "{{code}} · {{supplier}} · {{value}} million VND",
+    "meta_other": "{{code}} · {{supplier}} · {{value}} million VND",
     "sequence": {
       "title": "Signing sequence",
       "stepTitle": "{{party}} · {{person}}",
@@ -294,8 +294,8 @@
     },
     "file": {
       "title": "File to be signed",
-      "meta_one": "{{fileName}} · {{count}} page",
-      "meta_other": "{{fileName}} · {{count}} pages"
+      "meta_one": "{{fileName}}",
+      "meta_other": "{{fileName}}"
     },
     "actions": {
       "back": "Back",
@@ -443,5 +443,54 @@
     "bridgeNotice": "Signatures go to the configured signing service and are recorded only when its response is valid. CA certificate validation is not included.",
     "bridgeConfirm": "Confirm and submit to signing service",
     "basisLabel": "What was signed"
+  },
+  "prepLite": {
+    "positions": {
+      "seedNotice": "No original file: this layout is illustrative.",
+      "scanNotice": "No text could be read on this page. Check manually that no slot covers content.",
+      "identityManual": "Printed signer names could not be detected. Check each slot manually.",
+      "hint": "Click or drag on the page to place a slot.",
+      "page": "Page {{page}}",
+      "checks": {
+        "NO_OVERLAP": "Two slots overlap.",
+        "NO_CONTENT_COVERED": "A slot covers clause text or a signer name.",
+        "CORRECT_SIGNER": "A slot is not on the right signer or printed signing area."
+      }
+    },
+    "digitize": {
+      "sourceToggle": "Workflow template terms (illustration)",
+      "ambiguityHint": "Leave empty: this milestone waits until a date is known.",
+      "totalMatch": "Matches contract value",
+      "lockNote": "Cannot be edited after confirming.",
+      "locked": "Confirmed and locked.",
+      "extractionFirst": "Finish the term review above first."
+    },
+    "extraction": {
+      "noFile": "No original file: enter and confirm values manually.",
+      "reviewAck": "I checked these values against the document.",
+      "method": "Extraction method"
+    }
+  },
+  "lite": {
+    "flowMeta": "{{supplier}} · {{value}} million VND",
+    "stepSub": "{{title}} · {{organization}}",
+    "stepSigned": "Signed {{dateTime}} · {{method}}",
+    "simulatedTag": "Simulated signing",
+    "serviceTag": "Configured signing service",
+    "methodHint": {
+      "USB_TOKEN": "Plug in the token, enter the PIN.",
+      "VNPT_SMARTCA": "Confirm in the phone app.",
+      "VIETTEL_MYSIGN": "Confirm in the phone app.",
+      "IMAGE": "Only draws an image on the page, no digital signature."
+    },
+    "wait": {
+      "REMOTE": "Sent to {{app}} at {{time}}, {{remaining}} left. The code must match: <code>{{code}}</code>.",
+      "USB": "Sent at {{time}}, {{remaining}} left."
+    },
+    "phoneCaption": "Signer's phone",
+    "phoneCodeLabel": "Confirmation code",
+    "verifyMeta": "{{dateTime}} · {{method}}",
+    "checkHint": "See whether the signatures in the file still hold.",
+    "signNow": "Sign the contract"
   }
 }

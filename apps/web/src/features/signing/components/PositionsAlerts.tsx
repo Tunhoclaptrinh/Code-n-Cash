@@ -37,30 +37,27 @@ export function PositionsAlerts({
           style={{ marginBottom: 12 }}
         />
       ) : null}
-      <Alert
-        type={config.documentId ? "info" : "warning"}
-        showIcon
-        title={t(
-          config.documentId
-            ? "positions.realDocumentNotice"
-            : "positions.seedDocumentNotice",
-        )}
-        style={{ marginBottom: 12 }}
-      />
+      {!config.documentId ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={t("prepLite.positions.seedNotice")}
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
       {scanNotice ? (
         <Alert
           type="warning"
           showIcon
-          title={t("positions.scanNotice")}
+          title={t("prepLite.positions.scanNotice")}
           style={{ marginBottom: 12 }}
         />
       ) : null}
-
       {config.documentId && !hasNamedAreas ? (
         <Alert
           type="warning"
           showIcon
-          title={t("positions.identityManual")}
+          title={t("prepLite.positions.identityManual")}
           style={{ marginBottom: 12 }}
         />
       ) : null}

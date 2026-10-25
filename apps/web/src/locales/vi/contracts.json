@@ -278,7 +278,8 @@
       "downloadPdf": "Tải bản PDF xem trước",
       "noStoredFile": "Hồ sơ chưa có tệp gốc được lưu. Dữ liệu mẫu của ban tổ chức không kèm bản hợp đồng.",
       "downloadOriginal": "Tải tệp gốc",
-      "completeForm": "Điền thông tin và chọn người ký để xem PDF nháp tự cập nhật.",
+      "partialNote": "PDF nháp cập nhật theo form, chưa lưu vào hợp đồng. Các trường chưa điền hiển thị là “……” và sẽ được thay khi bạn nhập đủ.",
+      "updating": "Đang cập nhật…",
       "unsaved": "PDF nháp cập nhật theo form, chưa lưu vào hợp đồng. Bấm “Tạo và dùng hợp đồng mẫu” để chọn bản này làm tài liệu ký.",
       "working": "Nội dung đang soạn",
       "selected": "Tài liệu đã chọn",
@@ -309,6 +310,18 @@
       "terms": "Điều khoản thanh toán",
       "signing": "Thiết lập ký",
       "document": "Tài liệu hợp đồng"
+    }
+  },
+  "lite": {
+    "singleSigner": "Chỉ một người ký: hợp đồng có hiệu lực ngay khi người đó ký.",
+    "stale": "Nội dung đã đổi sau khi tạo tệp. Hãy tạo lại hợp đồng mẫu.",
+    "fileEmpty": "Chưa chọn tệp · PDF hoặc DOCX, tối đa 20 MB",
+    "previewFailed": "Không xem trước được tài liệu.",
+    "progress": "{{eligible}}/{{total}} mốc",
+    "checks": {
+      "title": "Cần bổ sung",
+      "noFile": "Chưa chọn tệp hợp đồng.",
+      "noSigners": "Chưa chọn người ký."
     }
   }
 }

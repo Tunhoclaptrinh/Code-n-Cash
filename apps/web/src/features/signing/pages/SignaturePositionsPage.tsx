@@ -64,7 +64,7 @@ function Editor({ contractId, config }: EditorProps) {
     hasNamedAreas,
     incompatible,
     unconfiguredPrinted,
-    checks,
+    problems,
     canContinue,
   } = analyzeLayout(config, boxes, looks, imageReady);
   const view = useCanvasView({
@@ -114,7 +114,7 @@ function Editor({ contractId, config }: EditorProps) {
           config={config}
           editor={editor}
           flags={flags}
-          checks={checks}
+          problems={problems}
           canContinue={canContinue}
         />
       </div>

@@ -68,12 +68,6 @@ export function AnchorPanel() {
   };
   return (
     <Card title={t("anchors.title")} data-testid="anchor-panel">
-      <Alert
-        type="info"
-        showIcon
-        title={t("anchors.localNotice")}
-        style={{ marginBottom: 16 }}
-      />
       {status.data ? (
         <Typography.Paragraph>
           {t("anchors.key")}:{" "}

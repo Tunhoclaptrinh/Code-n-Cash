@@ -246,5 +246,9 @@
     "before": "Trước",
     "after": "Sau",
     "noChanges": "Thao tác không đổi dữ liệu hoặc bản ghi cũ chưa có chi tiết trước/sau."
+  },
+  "lite": {
+    "checkedAt": "Kiểm tra lúc {{time}}",
+    "exceptionsNote": "Một người đề xuất, người thứ hai duyệt."
   }
 }

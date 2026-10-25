@@ -1,4 +1,4 @@
-import { Button, Select } from "antd";
+import { Button } from "antd";
 import { Trans, useTranslation } from "react-i18next";
 import type { CanvasView } from "../hooks/useCanvasView";
 import type { SlotEditor } from "../hooks/useSlotEditor";
@@ -45,17 +45,6 @@ export function PagerBar({ config, editor, view }: PagerBarProps) {
       >
         ▶
       </button>
-      <Select
-        size="small"
-        aria-label={t("positions.choosePage")}
-        value={page}
-        onChange={setPage}
-        style={{ width: 110 }}
-        options={config.previewPages.map((p) => ({
-          value: p.pageNo,
-          label: t("positions.pageNo", { page: p.pageNo }),
-        }))}
-      />
       <Button
         size="small"
         onClick={() => setFitMode("width")}
@@ -73,7 +62,6 @@ export function PagerBar({ config, editor, view }: PagerBarProps) {
         {t("positions.fitPage")}
       </Button>
       <span className={styles.zoom}>
-        {t("positions.zoom.label")}
         <button
           type="button"
           className={styles.pagerButton}

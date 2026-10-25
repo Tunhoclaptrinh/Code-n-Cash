@@ -1,5 +1,5 @@
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
-import { Alert, Button, Input, Table, Tag } from "antd";
+import { Alert, Button, Collapse, Input, Table, Tag } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
@@ -79,9 +79,6 @@ function Review({
   const pending = data.milestones.find(
     (m) => m.source === "NEEDS_CONFIRMATION",
   );
-  const pendingCount = data.milestones.filter(
-    (m) => m.source === "NEEDS_CONFIRMATION",
-  ).length;
   const [deadlineText, setDeadlineText] = useState("");
   const [deadlineInvalid, setDeadlineInvalid] = useState(false);
   const [highlighted, setHighlighted] = useState<SourceClauseKind | null>(null);
@@ -97,9 +94,6 @@ function Review({
   });
   const total = sumDecimalStrings(data.milestones.map((m) => m.valueMillion));
   const totalMatches = total === sumDecimalStrings([data.contractValueMillion]);
-  const totalClause = data.clauses.find(
-    (clause) => clause.kind === "TOTAL_VALUE",
-  );
   const onConfirm = () => {
     if (data.locked) {
       void navigate(`/contracts/${contractId}/signing`);
@@ -124,40 +118,9 @@ function Review({
       <div className={styles.layout} data-testid="digitization-milestones">
         <section className={cx(shared.card, styles.panel)}>
           <div className={styles.panelHeader}>
-            <h2>{t("digitize.source.title")}</h2>
-            <span className={styles.headerNote}>
-              {t("digitize.source.badge")}
-            </span>
-          </div>
-          <div className={styles.sourceBox}>
-            {data.clauses.map((clause) => (
-              <SourceClauseText
-                key={clause.kind}
-                clause={clause}
-                data={data}
-                highlighted={highlighted === clause.kind}
-              />
-            ))}
-          </div>
-          <div className={styles.sourceHint}>{t("digitize.source.hint")}</div>
-        </section>
-
-        <section className={cx(shared.card, styles.panel)}>
-          <div className={styles.panelHeader}>
             <h2>
               {t("digitize.result.title", { count: data.milestones.length })}
             </h2>
-            <span
-              className={cx(
-                shared.pill,
-                styles.badge,
-                pendingCount ? styles.badgePending : styles.badgeDone,
-              )}
-            >
-              {pendingCount
-                ? t("digitize.result.pendingBadge", { count: pendingCount })
-                : t("digitize.result.reviewedBadge")}
-            </span>
           </div>
           <Table<DigitizedMilestone>
             rowKey="sequence"
@@ -242,7 +205,7 @@ function Review({
                   months: pending.relativeTermMonths ?? 0,
                 })}
               </b>
-              <span>{t("digitize.ambiguity.body")}</span>
+              <span>{t("prepLite.digitize.ambiguityHint")}</span>
               <div className={styles.deadlineRow}>
                 <label
                   htmlFor="milestone-deadline"
@@ -287,11 +250,6 @@ function Review({
                       .join(", ")
                   : t("digitize.approvers.none")}
               </b>
-              <div className={styles.summaryLabel}>
-                {t("digitize.approvers.note", {
-                  count: data.requiredApprovals,
-                })}
-              </div>
             </div>
             <div className={styles.summaryBox}>
               <div className={styles.summaryLabel}>
@@ -308,15 +266,35 @@ function Review({
                 }
               >
                 {totalMatches
-                  ? t("digitize.total.match", {
-                      article: totalClause?.article ?? "",
-                    })
+                  ? t("prepLite.digitize.totalMatch")
                   : t("digitize.total.mismatch", {
                       value: formatDecimalString(data.contractValueMillion),
                     })}
               </div>
             </div>
           </div>
+          <Collapse
+            ghost
+            size="small"
+            items={[
+              {
+                key: "clauses",
+                label: t("prepLite.digitize.sourceToggle"),
+                children: (
+                  <div className={styles.sourceBox}>
+                    {data.clauses.map((clause) => (
+                      <SourceClauseText
+                        key={clause.kind}
+                        clause={clause}
+                        data={data}
+                        highlighted={highlighted === clause.kind}
+                      />
+                    ))}
+                  </div>
+                ),
+              },
+            ]}
+          />
           {confirm.isError ? (
             <Alert
               type="error"
@@ -329,8 +307,8 @@ function Review({
           <div className={styles.footer}>
             <span className={styles.footerNote}>
               {data.locked
-                ? t("digitize.footer.locked")
-                : t("digitize.footer.lockNote")}
+                ? t("prepLite.digitize.locked")
+                : t("prepLite.digitize.lockNote")}
             </span>
             <Link
               to={`/contracts/${contractId}/sign-positions`}
@@ -354,7 +332,7 @@ function Review({
             <Alert
               type="info"
               showIcon
-              title={t("digitize.extractionFirst")}
+              title={t("prepLite.digitize.extractionFirst")}
               action={
                 <Button
                   size="small"

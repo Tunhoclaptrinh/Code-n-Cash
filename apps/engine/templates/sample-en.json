@@ -71,5 +71,45 @@
   },
   "page": "Section {page}/14",
   "signatures": "Confirmation and signatures",
-  "signHere": "Signature area — name, timestamp and method"
+  "signHere": "Signature area — name, timestamp and method",
+  "original": {
+    "notice": "SIMULATED CONTRACT — rebuilt from the organiser's contract data for viewing and cross-checking",
+    "closing": "The contract becomes effective when all agreed signing steps complete. The parties keep the original and its records. This copy is rebuilt from the contract data for viewing in the system.",
+    "footer": "Simulated copy · Page "
+  },
+  "milestoneTypes": {
+    "SIGNING": "Contract signing",
+    "DELIVERY": "Delivery",
+    "ACCEPTANCE": "Acceptance",
+    "WARRANTY": "Warranty",
+    "KICKOFF": "Service kickoff",
+    "INTERIM_DELIVERY": "Interim deliverable",
+    "FINAL_ACCEPTANCE": "Final acceptance",
+    "WARRANTY_CLOSE": "Warranty / support close",
+    "REQUIREMENTS_APPROVAL": "Requirements approval",
+    "UAT_PASS": "UAT passed",
+    "GO_LIVE_ACCEPTANCE": "Go-live acceptance",
+    "ACTIVATION": "Service activation",
+    "SERVICE_COMPLETION": "Service completion"
+  },
+  "pendingSigners": "Signers have not been chosen yet: the signing list and order will appear here once signers are selected.",
+  "pendingSignerBlock": "SIGNERS — NOT CHOSEN YET",
+  "eventTypes": {
+    "CONTRACT_SIGNED": "Contract signed",
+    "KICKOFF_CONFIRMED": "Kickoff confirmed",
+    "REQUIREMENTS_APPROVED": "Requirements approved",
+    "UAT_PASSED": "UAT passed",
+    "ACCEPTANCE": "Acceptance report",
+    "DELIVERY": "Delivery note",
+    "INVOICE": "Invoice",
+    "GO_LIVE": "Go-live",
+    "SERVICE_ACTIVATED": "Service activated",
+    "SERVICE_COMPLETED": "Service completed",
+    "WARRANTY_COMPLETED": "Warranty completed",
+    "APPROVAL": "Payment approval",
+    "REJECTION": "Rejection",
+    "DISPUTE_OPENED": "Dispute opened",
+    "DISPUTE_RESOLVED": "Dispute resolved",
+    "OTHER": "Supporting file"
+  }
 }

@@ -347,11 +347,14 @@ export class AuthController {
   @Public() @Post("demo-login") demoLogin(@Body() body: unknown) {
     return this.auth.demoLogin(body);
   }
-  @Public() @Post("reset-demo") async resetDemo() {
+  /** Demo deployments only, system administrator only; the previous data is archived, not deleted. */
+  @RequirePermission("demo:reset")
+  @Post("reset-demo")
+  async resetDemo(@Req() req: SessionRequest) {
     if (!demoLoginEnabled()) throw new NotFoundException("DEMO_LOGIN_DISABLED");
-    await this.domain.resetDemo();
+    const result = await this.domain.resetDemo(req.user);
     await this.auth.seed();
-    return { ok: true, message: "Demo data reset successfully" };
+    return result;
   }
   @Post("logout") logout(@Req() req: SessionRequest) {
     return this.auth.logout(req.user);

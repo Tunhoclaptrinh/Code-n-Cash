@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Button, Space, Spin } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
@@ -11,12 +11,18 @@ export function DocumentPreview({
   documentId,
   name,
   onReady,
+  keepPrevious = false,
+  onLoadingChange,
 }: {
   previewPath?: string;
   file?: File;
   documentId?: string;
   name: string;
   onReady?: (ready: boolean) => void;
+  /** Keep showing the last rendered document while a new source loads, instead of a spinner. */
+  keepPrevious?: boolean;
+  /** True while a source is being fetched or converted; false once it rendered or failed. */
+  onLoadingChange?: (loading: boolean) => void;
 }) {
   const { t } = useTranslation("contracts");
   const [result, setResult] = useState<{
@@ -26,12 +32,23 @@ export function DocumentPreview({
   }>();
   const [failed, setFailed] = useState(false);
   const source = file ?? previewPath ?? documentId;
+  const keptUrl = useRef<string | undefined>(undefined);
+  useEffect(
+    () => () => {
+      if (keptUrl.current) URL.revokeObjectURL(keptUrl.current);
+    },
+    [],
+  );
   useEffect(() => {
     let active = true;
     let url: string | undefined;
     setFailed(false);
     onReady?.(false);
-    if (!source) return;
+    if (!source) {
+      onLoadingChange?.(false);
+      return;
+    }
+    onLoadingChange?.(true);
     const load = async () => {
       try {
         let blob: Blob;
@@ -54,17 +71,35 @@ export function DocumentPreview({
           );
         if (!active) return;
         url = URL.createObjectURL(blob);
+        if (keepPrevious) {
+          // The displayed document owns its URL until the next one has rendered.
+          const old = keptUrl.current;
+          keptUrl.current = url;
+          if (old) URL.revokeObjectURL(old);
+        }
         setResult({ url, blob, source });
+        onLoadingChange?.(false);
       } catch {
-        if (active) setFailed(true);
+        if (active) {
+          setFailed(true);
+          onLoadingChange?.(false);
+        }
       }
     };
     void load();
     return () => {
       active = false;
-      if (url) URL.revokeObjectURL(url);
+      if (url && !keepPrevious) URL.revokeObjectURL(url);
     };
-  }, [source, file, documentId, previewPath, onReady]);
+  }, [
+    source,
+    file,
+    documentId,
+    previewPath,
+    onReady,
+    keepPrevious,
+    onLoadingChange,
+  ]);
   if (!source)
     return <Alert type="info" title={t("contractUpload.preview.selectFile")} />;
   if (failed)
@@ -75,7 +110,7 @@ export function DocumentPreview({
         title={t("contractUpload.preview.unavailable")}
       />
     );
-  if (!result || result.source !== source)
+  if (!result || (result.source !== source && !keepPrevious))
     return (
       <Spin tip={t("contractUpload.preview.loading")}>
         <div style={{ height: 160 }} />

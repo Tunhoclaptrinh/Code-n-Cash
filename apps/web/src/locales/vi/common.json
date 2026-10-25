@@ -39,7 +39,15 @@
     "themeLight": "Chuyển sang giao diện sáng",
     "themeDark": "Chuyển sang giao diện tối",
     "guide": "Hướng dẫn nhanh",
-    "openInbox": "Mở danh sách việc cần làm"
+    "openInbox": "Mở danh sách việc cần làm",
+    "resetDemo": {
+      "action": "Khôi phục dữ liệu demo",
+      "title": "Khôi phục dữ liệu demo về ban đầu?",
+      "body": "Toàn bộ thao tác trong phiên demo hiện tại được lưu trữ kèm nhật ký, sau đó hệ thống nạp lại dữ liệu ban đầu. Mọi người dùng cần đăng nhập lại.",
+      "ok": "Khôi phục",
+      "done": "Đã khôi phục dữ liệu ban đầu. Vui lòng đăng nhập lại.",
+      "failed": "Không khôi phục được dữ liệu demo."
+    }
   },
   "languages": {
     "vi": "Tiếng Việt",
@@ -248,5 +256,22 @@
     "channel": "Kênh ghi nhận",
     "run": "Lượt đánh giá",
     "party": "Mã bên"
+  },
+  "contractPane": {
+    "title": "Văn bản hợp đồng",
+    "simulated": "Bản mô phỏng",
+    "simulatedHint": "Ban tổ chức chỉ cung cấp dữ liệu hợp đồng; văn bản này được lập lại từ chính điều khoản, các mốc và người ký của hợp đồng.",
+    "pages_other": "{{count}} trang",
+    "download": "Tải tệp gốc",
+    "toSignatures": "Đến trang ký",
+    "focus": "Đang xử lý:",
+    "loading": "Đang chuẩn bị văn bản…",
+    "unavailable": "Chưa hiển thị được văn bản hợp đồng. Thử tải tệp gốc hoặc mở lại sau.",
+    "signedCaption": "Đã ký số · {{method}} · {{at}}",
+    "imageCaption": "Ký bằng ảnh · {{at}}",
+    "current": "Bước {{step}} · đang chờ {{name}} ký",
+    "waiting": "Bước {{step}} · {{name}}",
+    "seal": "MẪU",
+    "open": "Xem hợp đồng"
   }
 }

@@ -434,6 +434,11 @@ try {
   await send("Page.navigate", {
     url: base + "/contracts/CT0019/milestones/3/decision",
   });
+  // The trace section is collapsed by default: open it first.
+  await until("!!document.querySelector('[data-testid=trace-details]')");
+  await evaluate(
+    "document.querySelector('[data-testid=trace-details] .ant-collapse-header').click()",
+  );
   await until("!!document.querySelector('[data-testid=replay-timeline]')");
   await evaluate(
     "document.querySelector('[data-testid=replay-timeline]').click()",

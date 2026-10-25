@@ -278,7 +278,8 @@
       "downloadPdf": "Download preview PDF",
       "noStoredFile": "No original file has been stored. The organiser dataset does not include contract files.",
       "downloadOriginal": "Download original file",
-      "completeForm": "Complete the terms and select signers to see the automatically updated draft PDF.",
+      "partialNote": "This draft PDF follows the form and has not been saved. Fields not filled in yet are shown as “……” until you complete them.",
+      "updating": "Updating…",
       "unsaved": "This draft PDF follows the form and has not been saved. Generate and use the sample to select it as the signing document.",
       "working": "Working draft",
       "selected": "Selected document",
@@ -309,6 +310,18 @@
       "terms": "Payment terms",
       "signing": "Signing setup",
       "document": "Contract document"
+    }
+  },
+  "lite": {
+    "singleSigner": "Single signer: the contract takes effect as soon as they sign.",
+    "stale": "The content changed after the file was generated. Generate the sample again.",
+    "fileEmpty": "No file selected · PDF or DOCX, up to 20 MB",
+    "previewFailed": "The document cannot be previewed.",
+    "progress": "{{eligible}}/{{total}} milestones",
+    "checks": {
+      "title": "To complete",
+      "noFile": "No contract file selected.",
+      "noSigners": "No signers selected."
     }
   }
 }

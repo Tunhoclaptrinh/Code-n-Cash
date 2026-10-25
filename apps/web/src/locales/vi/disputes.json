@@ -9,7 +9,8 @@
     "none": "Mốc chưa có tranh chấp nào.",
     "author": "{{name}} · {{organization}}",
     "quote": "\"{{message}}\"",
-    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+    "resolution": "{{by}} · {{at}}: {{note}}",
+    "resolutionPlain": "{{by}} · {{at}}"
   },
   "state": {
     "OPEN": "Đang mở",
@@ -60,6 +61,20 @@
     "actions": {
       "trace": "Xem truy vết quyết định",
       "confirm": "Xác nhận"
+    }
+  },
+  "lite": {
+    "none": "Mốc chưa có tranh chấp.",
+    "noPreview": "Chưa có kết quả chạy thử.",
+    "options": {
+      "RESOLVE": "Ghi nhận đã giải quyết; mốc được tính lại ngay.",
+      "REQUEST_INFO": "Ghi chú cho bên mở tranh chấp; mốc vẫn bị giữ.",
+      "OPEN": "Mốc tạm giữ thanh toán đến khi đóng tranh chấp."
+    },
+    "demoNote": {
+      "RESOLVE": "Các bên đã thống nhất nội dung tranh chấp của {{milestone}}; đề nghị đóng tranh chấp.",
+      "REQUEST_INFO": "Đề nghị bên liên quan bổ sung tài liệu để làm rõ tranh chấp của {{milestone}}.",
+      "OPEN": "Chưa thống nhất kết quả {{milestone}}; đề nghị tạm giữ thanh toán để làm rõ."
     }
   }
 }

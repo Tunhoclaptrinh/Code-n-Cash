@@ -330,6 +330,7 @@
       "settings:delete": "Xóa cấu hình",
       "settings:import": "Nhập cấu hình từ tệp",
       "settings:export": "Xuất cấu hình",
+      "demo:reset": "Khôi phục dữ liệu demo (lưu trữ dữ liệu cũ)",
       "disputes:open": "Mở tranh chấp",
       "exceptions:read": "Xem hàng đợi ngoại lệ BR-19",
       "exceptions:propose": "Đề xuất vô hiệu sự kiện sai thẩm quyền",
@@ -381,5 +382,9 @@
     "contract-templates": "Mẫu cung cấp thiết bị — dùng thử",
     "description": "Dữ liệu gợi ý để thử form; cần rà soát trước khi lưu.",
     "documentBody": "{{supplier}} cung cấp thiết bị cho {{buyer}} theo {{title}}, giá trị {{valueMillion}} triệu VND."
+  },
+  "lite": {
+    "previewFirst": "Chạy thử trước khi gửi duyệt.",
+    "uploadHint": "Cần: contracts, parties, milestones, events, payment_rules (.csv hoặc một tệp ZIP)."
   }
 }

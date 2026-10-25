@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type DragEvent } from "react";
-import { Alert, App as AntApp, Button, Space, Tag, Typography } from "antd";
+import { Alert, App as AntApp, Button, Space, Tag } from "antd";
 import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -25,6 +25,7 @@ import {
   formatDecimalString,
   formatNumber,
 } from "@/shared/lib/format";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { DecisionTag, OriginTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
@@ -32,13 +33,6 @@ import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
 import styles from "./EvidenceSubmissionPage.module.css";
-
-const AFTERMATH_STEPS = [
-  { key: "validate", actor: "SYSTEM" },
-  { key: "match", actor: "SYSTEM" },
-  { key: "approve", actor: "HUMAN" },
-  { key: "result", actor: "SYSTEM" },
-] as const;
 
 function toMegabytes(bytes: number): number {
   return Math.max(0.1, Math.round((bytes / 1_048_576) * 10) / 10);
@@ -220,122 +214,97 @@ function Workspace({
   );
 
   return (
-    <>
+    <ContractSideLayout
+      contractId={contract.id}
+      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
+    >
       <WorkflowContext>
-        {contractHeading(contract)} · {td(`milestoneType.${milestone.type}`)} ·{" "}
-        {td(`side.${data.side}`)} · <TrackingCode code={milestone.id} />
+        {contractHeading(contract)} · {td(`side.${data.side}`)} ·{" "}
+        <TrackingCode code={milestone.id} />
       </WorkflowContext>
-      <div className={styles.grid}>
-        <Panel className={`${styles.panel} ${styles.panelLeft}`}>
-          <h2>{t("submit.required.title")}</h2>
-          {data.slots.map((slot) => (
-            <SlotCard
-              key={slot.eventType}
-              slot={slot}
-              onPick={onPick(slot.eventType)}
-              onRemove={onRemove}
-            />
-          ))}
-          {data.extras.map((file) => (
-            <ExtraFile key={file.id} file={file} onRemove={onRemove} />
-          ))}
-          {pending.length ? (
-            <label
-              className={`${styles.dropzone} ${dragging ? styles.dropzoneActive : ""}`}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={onDrop}
-            >
-              {t("submit.dropzone")}
-              <input
-                type="file"
-                multiple
-                className={styles.fileInput}
-                aria-label={t("submit.dropzoneAria")}
-                onChange={onPick("OTHER")}
-              />
-            </label>
-          ) : (
-            <Alert type="success" showIcon title={t("submit.nothingLeft")} />
-          )}
-          <div className={styles.actions}>
-            <span className={styles.lockNote}>{t("submit.lockNote")}</span>
-            <Button onClick={() => navigate("/tasks")}>
-              {t("submit.later")}
-            </Button>
-            <Button
-              type="primary"
-              disabled={busy || !data.canSubmit}
-              loading={submitting}
-              onClick={onSubmit}
-              data-testid="submit-evidence"
-            >
-              {t("submit.submit", { count: pending.length })}
-            </Button>
+      <Panel className={styles.panel}>
+        <h2>{t("submit.required.title")}</h2>
+        {milestone.latePenalty && deadline ? (
+          <div className={styles.penaltyLine}>
+            {t("workLite.evidence.penalty", {
+              due: formatDate(milestone.dueDate),
+              deadline: formatDate(deadline),
+              rate: formatNumber(Number(milestone.penaltyRatePct), 2),
+              cap: formatNumber(Number(milestone.maxPenaltyPct), 2),
+            })}
           </div>
-        </Panel>
-
-        <Panel className={`${styles.panel} ${styles.panelRight}`}>
-          <h2>{t("submit.aftermath.title")}</h2>
-          <ol className={styles.steps}>
-            {AFTERMATH_STEPS.map((step) => (
-              <li key={step.key} className={styles.step}>
-                <span
-                  className={`${styles.actor} ${step.actor === "HUMAN" ? styles.actorHuman : styles.actorSystem}`}
-                >
-                  {t(`submit.aftermath.actor.${step.actor}`)}
-                </span>
-                <span>
-                  {t(`submit.aftermath.${step.key}`, {
-                    roles: milestone.approvalRequired
-                      ? milestone.approvalRoles
-                          .map((role) => td(`approvalRole.${role}`))
-                          .join(", ")
-                      : t("submit.aftermath.noApproval"),
-                  })}
-                </span>
-              </li>
-            ))}
-          </ol>
+        ) : null}
+        {data.slots.map((slot) => (
+          <SlotCard
+            key={slot.eventType}
+            slot={slot}
+            onPick={onPick(slot.eventType)}
+            onRemove={onRemove}
+          />
+        ))}
+        {data.extras.map((file) => (
+          <ExtraFile key={file.id} file={file} onRemove={onRemove} />
+        ))}
+        {pending.length ? (
+          <label
+            className={`${styles.dropzone} ${dragging ? styles.dropzoneActive : ""}`}
+            onDragOver={(event) => {
+              event.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
+          >
+            {t("submit.dropzone")}
+            <input
+              type="file"
+              multiple
+              className={styles.fileInput}
+              aria-label={t("submit.dropzoneAria")}
+              onChange={onPick("OTHER")}
+            />
+          </label>
+        ) : (
+          <Alert type="success" showIcon title={t("submit.nothingLeft")} />
+        )}
+        {preview ? (
           <div className={styles.note}>
             <b className={styles.noteTitle}>{t("submit.preview.title")}</b>
-            {preview ? (
-              <Space direction="vertical" size={4}>
-                <Space size={6} wrap>
-                  <DecisionTag decision={preview.decision} />
-                  <span>{td(`reason.${preview.reasonCode}`)}</span>
-                  <TrackingCode code={preview.reasonCode} />
-                </Space>
-                <span>
-                  {t("submit.preview.amounts", {
-                    payable: formatDecimalString(preview.payableMillion),
-                    penalty: formatDecimalString(preview.penaltyMillion),
-                    count: preview.daysLate,
-                  })}
-                </span>
+            <Space direction="vertical" size={4}>
+              <Space size={6} wrap>
+                <DecisionTag decision={preview.decision} />
+                <span>{td(`reason.${preview.reasonCode}`)}</span>
+                <TrackingCode code={preview.reasonCode} />
               </Space>
-            ) : (
-              <span>{t("submit.preview.empty")}</span>
-            )}
+              <span>
+                {t("submit.preview.amounts", {
+                  payable: formatDecimalString(preview.payableMillion),
+                  penalty: formatDecimalString(preview.penaltyMillion),
+                  count: preview.daysLate,
+                })}
+              </span>
+            </Space>
           </div>
-          <div className={styles.note}>
-            <b className={styles.noteTitle}>{t("submit.penalty.title")}</b>
-            {milestone.latePenalty && deadline
-              ? t("submit.penalty.terms", {
-                  due: formatDate(milestone.dueDate),
-                  grace: milestone.graceDays,
-                  deadline: formatDate(deadline),
-                  rate: milestone.penaltyRatePct,
-                  cap: milestone.maxPenaltyPct,
-                })
-              : t("submit.penalty.none")}
-          </div>
-        </Panel>
-      </div>
-    </>
+        ) : null}
+        <div className={styles.actions}>
+          <span className={styles.lockNote}>
+            {t("workLite.evidence.lockNote")}
+          </span>
+          <Button onClick={() => navigate("/tasks")}>
+            {t("submit.later")}
+          </Button>
+          <Button
+            type="primary"
+            disabled={busy || !data.canSubmit}
+            loading={submitting}
+            onClick={onSubmit}
+            data-testid="submit-evidence"
+          >
+            {t("submit.submit", { count: pending.length })}
+          </Button>
+        </div>
+      </Panel>
+    </ContractSideLayout>
   );
 }
 
@@ -363,7 +332,6 @@ function SlotCard({
           <b>{name}</b> {sideTag}
           <div className={styles.fileMeta}>
             {t("submit.file.recorded", {
-              id: slot.evidence.id,
               by:
                 slot.evidence.recordedBy ?? actorName(td, slot.evidence.actor),
               at: formatDateTime(slot.evidence.at),
@@ -428,11 +396,6 @@ function SlotCard({
             {t("submit.file.remove")}
           </button>
         </div>
-        {slot.state === "UNAUTHORIZED" ? (
-          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-            {t("submit.file.replacesUnauthorized")}
-          </Typography.Text>
-        ) : null}
       </div>
     );
   return (

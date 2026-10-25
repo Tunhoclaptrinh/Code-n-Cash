@@ -7,7 +7,6 @@ import { getMilestoneTimeline } from "@/shared/api/domain";
 import { actorName, statusTone } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { DecisionTag } from "@/shared/ui/DomainTags";
-import { Panel } from "@/shared/ui/Panel";
 import { ToneTag, type Tone } from "@/shared/ui/ToneTag";
 import styles from "./MilestoneDecision.module.css";
 
@@ -35,13 +34,13 @@ export function ReplayPanel({
     enabled: requested,
   });
   return (
-    <Panel className={styles.panel}>
+    <section>
       <Space
         wrap
         style={{ width: "100%", justifyContent: "space-between" }}
         align="center"
       >
-        <h2>{t("decision.replay.title")}</h2>
+        <h3 className={styles.traceHeading}>{t("decision.replay.title")}</h3>
         <Button
           loading={replay.isFetching}
           onClick={() =>
@@ -52,9 +51,6 @@ export function ReplayPanel({
           {t(requested ? "decision.replay.again" : "decision.replay.run")}
         </Button>
       </Space>
-      <Typography.Paragraph type="secondary">
-        {t("decision.replay.body")}
-      </Typography.Paragraph>
       {replay.isError ? (
         <Alert type="error" showIcon title={t("decision.replay.error")} />
       ) : null}
@@ -149,7 +145,6 @@ export function ReplayPanel({
           />
         </div>
       ) : null}
-      <div className={styles.panelNote}>{t("decision.replay.note")}</div>
-    </Panel>
+    </section>
   );
 }

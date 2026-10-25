@@ -1,20 +1,16 @@
+/* The banner sits in the narrower column beside the contract, so the actions go under the text. */
 .banner {
   padding: 16px 20px;
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
 }
 
 .bannerText {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.bannerMeta {
-  color: var(--color-text-muted);
-  font-size: 13px;
-  overflow-wrap: anywhere;
 }
 
 .bannerHeadline {
@@ -39,8 +35,8 @@
 }
 
 .bannerActions {
-  margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   flex: none;
 }
@@ -250,40 +246,38 @@
   color: var(--color-text-muted);
 }
 
-/* Dispute banner */
+/* Secondary details */
 
-.dispute {
-  --ms-dispute-wash: color-mix(
-    in srgb,
-    var(--color-warning) 5%,
-    var(--color-surface)
-  );
-  --ms-dispute-border: color-mix(
-    in srgb,
-    var(--color-warning) 35%,
-    var(--color-border)
-  );
-  --ms-dispute-text: var(--color-text-secondary);
-  padding: 14px 26px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  background: var(--ms-dispute-wash);
-  border-color: var(--ms-dispute-border);
+.more {
+  margin-top: 8px;
 }
 
-.disputeTitle {
-  color: var(--color-warning);
+.more :global(.ant-collapse-header),
+.more :global(.ant-collapse-body),
+.trace :global(.ant-collapse-header) {
+  padding-inline: 0 !important;
 }
 
-.disputeText {
-  color: var(--ms-dispute-text);
+.trace {
+  padding: 4px 20px;
 }
 
-.disputeLink {
-  margin-left: auto;
-  color: var(--color-primary-dark);
+.traceHeading {
+  margin: 0 0 8px;
+  font-size: 15px;
   font-weight: 700;
+}
+
+.matchedRule {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.ruleToggle {
+  align-self: flex-start;
+  padding-inline: 0;
 }
 
 @media (max-width: 1200px) {

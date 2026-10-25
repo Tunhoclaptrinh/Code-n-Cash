@@ -2,7 +2,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(380px, 1fr) minmax(0, 1.3fr);
   gap: 16px;
 }
 
@@ -19,8 +19,10 @@
   }
 }
 
+/* Like the workflow screens: the contract preview on the left, the form on the right. */
 @media (min-width: 1201px) {
   .side {
+    order: -1;
     position: sticky;
     top: 80px;
     align-self: start;

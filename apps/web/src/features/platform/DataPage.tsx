@@ -394,9 +394,6 @@ export default function DataPage() {
         {result.isError ? (
           <Alert type="error" showIcon title={result.error.message} />
         ) : null}
-        {dataset?.report.ok && !dataset.lastRun && !evaluate.isPending ? (
-          <Alert type="info" showIcon title={t("data.source.runFirst")} />
-        ) : null}
         {summary?.source?.kind === "dataset" ? (
           <SourceNotes summary={summary} />
         ) : null}
@@ -560,16 +557,6 @@ function SourceNotes({ summary }: { summary: EvaluationSummary }) {
   const unknown = source.unknownScopeIds ?? [];
   return (
     <Space direction="vertical" size={8} style={{ width: "100%" }}>
-      {source.generatedTemplate ? (
-        <Alert type="info" showIcon title={t("data.source.templateHint")} />
-      ) : null}
-      {source.scopeRows ? (
-        <Alert
-          type="info"
-          showIcon
-          title={t("data.source.scopeHint", { count: source.scopeRows })}
-        />
-      ) : null}
       {unknown.length ? (
         <Alert
           type="warning"

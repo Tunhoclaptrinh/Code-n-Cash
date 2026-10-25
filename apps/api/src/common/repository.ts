@@ -82,19 +82,41 @@ export class Repository implements OnModuleDestroy {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     }
   }
-  async reset(): Promise<void> {
-    if (this.db) {
-      await this.db.dropDatabase();
-      await this.init();
-    } else {
-      this.data = {};
-      try {
-        const { unlink } = await import("node:fs/promises");
-        await unlink(this.path);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  /**
+   * Demo reset: moves the whole store aside under a new archive name instead of deleting it, so
+   * the sealed audit chain of the previous demo stays intact and readable. Returns the archive
+   * name and the head of the archived chain, which the next chain records as its link back.
+   */
+  async archiveAndReset(): Promise<{
+    archive: string;
+    head?: RecordEntity;
+    entries: number;
+  }> {
+    const task = this.queue.then(async () => {
+      const audit = await this.list("audit");
+      const archive = `archive-${new Date().toISOString().replace(/[-:.]/g, "")}`;
+      if (this.db) {
+        const db = this.db.db!;
+        for (const { name } of await db.listCollections().toArray())
+          if (!name.startsWith("archive-"))
+            await db.renameCollection(name, `${archive}__${name}`);
+        await this.db.close();
+        await this.init();
+      } else {
+        try {
+          await rename(
+            this.path,
+            this.path.replace(/\.json$/, `.${archive}.json`),
+          );
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+        this.data = {};
       }
-    }
+      return { archive, head: chainHead(audit), entries: audit.length };
+    });
+    this.queue = task.catch(() => {});
+    return task;
   }
   async list(resource: string): Promise<RecordEntity[]> {
     if (this.db)

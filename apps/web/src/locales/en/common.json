@@ -39,7 +39,15 @@
     "themeLight": "Switch to light theme",
     "themeDark": "Switch to dark theme",
     "guide": "Quick guide",
-    "openInbox": "Open my tasks"
+    "openInbox": "Open my tasks",
+    "resetDemo": {
+      "action": "Reset demo data",
+      "title": "Reset the demo data to its initial state?",
+      "body": "Everything done in the current demo is archived together with its log, then the initial data is loaded again. Everyone has to sign in again.",
+      "ok": "Reset",
+      "done": "The initial data is restored. Please sign in again.",
+      "failed": "The demo data could not be reset."
+    }
   },
   "languages": {
     "vi": "Tiếng Việt",
@@ -248,5 +256,23 @@
     "channel": "Recorded via",
     "run": "Evaluation run",
     "party": "Party code"
+  },
+  "contractPane": {
+    "title": "Contract document",
+    "simulated": "Simulated copy",
+    "simulatedHint": "The organiser provides contract data only; this document is rebuilt from the contract's own terms, milestones and signers.",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "download": "Download original",
+    "toSignatures": "Go to signatures",
+    "focus": "Working on:",
+    "loading": "Preparing the document…",
+    "unavailable": "The contract document cannot be shown right now. Download the original or try again later.",
+    "signedCaption": "Digitally signed · {{method}} · {{at}}",
+    "imageCaption": "Signed with an image · {{at}}",
+    "current": "Step {{step}} · waiting for {{name}}",
+    "waiting": "Step {{step}} · {{name}}",
+    "seal": "DEMO",
+    "open": "View contract"
   }
 }

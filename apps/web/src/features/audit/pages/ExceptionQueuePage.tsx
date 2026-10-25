@@ -206,7 +206,7 @@ export default function ExceptionQueuePage() {
       breadcrumb={[{ label: t("exceptions.title") }]}
     >
       <PageContainer>
-        <Alert type="info" showIcon title={t("exceptions.intro")} />
+        <Alert type="info" showIcon title={t("lite.exceptionsNote")} />
         {list.result.isError ? (
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}

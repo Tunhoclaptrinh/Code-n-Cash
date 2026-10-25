@@ -465,21 +465,8 @@ function ResourceView({ resource }: { resource: string }) {
         {state.query.isError ? (
           <Alert type="error" showIcon title={state.query.error.message} />
         ) : null}
-        {definition?.managedOrigins &&
-        !readOnly &&
-        (can("update") || can("delete")) ? (
-          <Alert
-            type="info"
-            showIcon
-            title={[
-              t("managedNote", {
-                origins: definition.managedOrigins
-                  .map((origin) => t(`domain:origin.${origin}`))
-                  .join(", "),
-              }),
-              resource === "contract-drafts" ? t("managedDraftsNote") : "",
-            ].join(" ")}
-          />
+        {resource === "contract-drafts" && !readOnly && can("update") ? (
+          <Alert type="info" showIcon title={t("managedDraftsNote")} />
         ) : null}
         <DataTable<Entity>
           // The resources are tabs of one table: each tab is a different list, read from the server.

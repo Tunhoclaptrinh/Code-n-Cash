@@ -470,5 +470,26 @@
       "reviewAck": "I checked these values against the document.",
       "method": "Extraction method"
     }
+  },
+  "lite": {
+    "flowMeta": "{{supplier}} · {{value}} million VND",
+    "stepSub": "{{title}} · {{organization}}",
+    "stepSigned": "Signed {{dateTime}} · {{method}}",
+    "simulatedTag": "Simulated signing",
+    "serviceTag": "Configured signing service",
+    "methodHint": {
+      "USB_TOKEN": "Plug in the token, enter the PIN.",
+      "VNPT_SMARTCA": "Confirm in the phone app.",
+      "VIETTEL_MYSIGN": "Confirm in the phone app.",
+      "IMAGE": "Only draws an image on the page, no digital signature."
+    },
+    "wait": {
+      "REMOTE": "Sent to {{app}} at {{time}}, {{remaining}} left. The code must match: <code>{{code}}</code>.",
+      "USB": "Sent at {{time}}, {{remaining}} left."
+    },
+    "phoneCaption": "Signer's phone",
+    "phoneCodeLabel": "Confirmation code",
+    "verifyMeta": "{{dateTime}} · {{method}}",
+    "checkHint": "See whether the signatures in the file still hold."
   }
 }

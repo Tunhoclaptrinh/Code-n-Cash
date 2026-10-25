@@ -464,5 +464,26 @@
       "reviewAck": "Tôi đã đối chiếu các giá trị với tài liệu.",
       "method": "Cách trích xuất"
     }
+  },
+  "lite": {
+    "flowMeta": "{{supplier}} · {{value}} triệu VND",
+    "stepSub": "{{title}} · {{organization}}",
+    "stepSigned": "Đã ký {{dateTime}} · {{method}}",
+    "simulatedTag": "Ký mô phỏng",
+    "serviceTag": "Dịch vụ ký đã cấu hình",
+    "methodHint": {
+      "USB_TOKEN": "Cắm token, nhập mã PIN.",
+      "VNPT_SMARTCA": "Xác nhận trên ứng dụng điện thoại.",
+      "VIETTEL_MYSIGN": "Xác nhận trên ứng dụng điện thoại.",
+      "IMAGE": "Chỉ vẽ ảnh lên trang, không có chữ ký số."
+    },
+    "wait": {
+      "REMOTE": "Gửi đến {{app}} lúc {{time}}, còn {{remaining}}. Mã phải trùng: <code>{{code}}</code>.",
+      "USB": "Gửi lúc {{time}}, còn {{remaining}}."
+    },
+    "phoneCaption": "Điện thoại của người ký",
+    "phoneCodeLabel": "Mã xác nhận",
+    "verifyMeta": "{{dateTime}} · {{method}}",
+    "checkHint": "Xem các chữ ký trong tệp còn đúng hay không."
   }
 }

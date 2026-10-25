@@ -1,6 +1,6 @@
 import { SignaturePlacementPreview } from "@/shared/ui/SignaturePlacementPreview";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
-import { Alert, Button } from "antd";
+import { Button, Tag, Tooltip } from "antd";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trans, useTranslation } from "react-i18next";
@@ -18,12 +18,7 @@ import {
   sendSigningRequest,
 } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
-import {
-  cx,
-  formatCountdown,
-  formatMonthYear,
-  spaceCode,
-} from "../lib/helpers";
+import { cx, formatCountdown, spaceCode } from "../lib/helpers";
 import { methodKind, SIGN_METHODS } from "../lib/methods";
 import type {
   SignMethod,
@@ -58,16 +53,6 @@ export default function SigningMethodPage() {
         { label: t("signMethod.breadcrumb.current", { stepNo }) },
       ]}
     >
-      <Alert
-        type="info"
-        showIcon
-        title={t(
-          overview.data?.simulated === false
-            ? "localProof.bridgeNotice"
-            : "localProof.notice",
-        )}
-        style={{ marginBottom: 16 }}
-      />
       {overview.data ? (
         <MethodSelection
           contractId={contractId}
@@ -99,7 +84,12 @@ function MethodSelection({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const step = overview.steps.find((candidate) => candidate.stepNo === stepNo);
-  const [selected, setSelected] = useState<SignMethod>(overview.lastMethod);
+  // A hidden image option must not be the preselected one.
+  const [selected, setSelected] = useState<SignMethod>(
+    overview.digitalSignatureRequired && overview.lastMethod === "IMAGE"
+      ? "VNPT_SMARTCA"
+      : overview.lastMethod,
+  );
   const [now, setNow] = useState(() => Date.now());
   const completed = useRef(false);
   const requestKey = signingKeys.request(contractId, stepNo);
@@ -187,6 +177,22 @@ function MethodSelection({
             party: t(`party.${step.party}`),
           })}
         </span>
+        <Tooltip
+          title={t(
+            overview.simulated
+              ? "localProof.notice"
+              : "localProof.bridgeNotice",
+          )}
+        >
+          <Tag
+            variant="filled"
+            className={styles.modeTag}
+            tabIndex={0}
+            data-testid="signing-mode-tag"
+          >
+            {t(overview.simulated ? "lite.simulatedTag" : "lite.serviceTag")}
+          </Tag>
+        </Tooltip>
       </div>
 
       <div className={styles.layout}>
@@ -197,26 +203,18 @@ function MethodSelection({
             role="radiogroup"
             aria-label={t("signMethod.methods.label")}
           >
-            {SIGN_METHODS.map((method) => (
+            {SIGN_METHODS.filter(
+              (method) =>
+                !(method === "IMAGE" && overview.digitalSignatureRequired),
+            ).map((method) => (
               <MethodCard
                 key={method}
                 method={method}
-                overview={overview}
+                lastUsed={overview.lastMethod === method}
                 selected={selected === method}
-                blocked={
-                  method === "IMAGE" && overview.digitalSignatureRequired
-                }
                 onSelect={() => setSelected(method)}
               />
             ))}
-          </div>
-          <div className={styles.fileBox}>
-            <b>{t("signMethod.file.title")}</b>
-            <br />
-            {t("signMethod.file.meta", {
-              fileName: overview.fileName,
-              count: overview.pageCount,
-            })}
           </div>
           {send.error || confirm.error || reject.error || cancel.error ? (
             <p role="alert" className={styles.error}>
@@ -260,25 +258,7 @@ function MethodSelection({
                 {t(`signMethod.progress.badge.${phase}`)}
               </span>
             </div>
-            <ProgressList
-              request={current}
-              step={step}
-              overview={overview}
-              now={now}
-            />
-            {pending ? (
-              <div className={cx(shared.notice, styles.lock)}>
-                <b className={shared.noticeTitle}>
-                  {t("signMethod.lock.title")}
-                </b>
-                <br />
-                <Trans
-                  t={t}
-                  i18nKey="signMethod.lock.body"
-                  components={{ b: <b className={styles.exceptions} /> }}
-                />
-              </div>
-            ) : null}
+            <ProgressList request={current} now={now} />
             {pending ? (
               <div className={styles.progressFooter}>
                 <Button
@@ -294,12 +274,6 @@ function MethodSelection({
           </div>
           {!overview.simulated ? (
             <div style={{ padding: 24 }}>
-              <Alert
-                type="info"
-                showIcon
-                title={t("localProof.bridgeNotice")}
-                style={{ marginBottom: 16 }}
-              />
               <Button
                 color="green"
                 variant="solid"
@@ -331,56 +305,38 @@ function MethodSelection({
 
 function MethodCard({
   method,
-  overview,
+  lastUsed,
   selected,
-  blocked,
   onSelect,
 }: {
   method: SignMethod;
-  overview: SigningOverview;
+  lastUsed: boolean;
   selected: boolean;
-  blocked: boolean;
   onSelect: () => void;
 }) {
   const { t } = useTranslation("signing");
-  const certificate = overview.certificates[method];
-  const description = blocked
-    ? t("method.IMAGE.blocked")
-    : certificate
-      ? t(`method.${method}.description`, {
-          context: "certified",
-          holder: certificate.holder,
-          expiry: formatMonthYear(
-            certificate.expiryMonth,
-            certificate.expiryYear,
-          ),
-        })
-      : t(`method.${method}.description`);
 
   return (
     <button
       type="button"
       role="radio"
       aria-checked={selected}
-      disabled={blocked}
-      className={cx(
-        styles.method,
-        selected && styles.methodOn,
-        blocked && styles.methodBlocked,
-      )}
+      className={cx(styles.method, selected && styles.methodOn)}
       onClick={onSelect}
     >
       <span className={styles.radio} aria-hidden="true" />
       <span className={styles.methodBody}>
         <span className={styles.methodName}>
           <b>{t(`method.${method}.name`)}</b>
-          {overview.lastMethod === method && !blocked ? (
+          {lastUsed ? (
             <span className={cx(shared.pill, styles.lastUsed)}>
               {t("signMethod.methods.lastUsed")}
             </span>
           ) : null}
         </span>
-        <span className={styles.methodDescription}>{description}</span>
+        <span className={styles.methodDescription}>
+          {t(`lite.methodHint.${method}`)}
+        </span>
       </span>
     </button>
   );
@@ -397,19 +353,12 @@ interface ProgressItem {
 
 function ProgressList({
   request,
-  step,
-  overview,
   now,
 }: {
   request: SigningRequest | null;
-  step: SignStepView;
-  overview: SigningOverview;
   now: number;
 }) {
   const { t } = useTranslation("signing");
-  const nextStep = overview.steps.find(
-    (candidate) => candidate.stepNo === step.stepNo + 1,
-  );
   const kind = request
     ? methodKind(request.method) === "USB"
       ? "USB"
@@ -420,11 +369,7 @@ function ProgressList({
     state: "todo",
     marker: "3",
     title: t("signMethod.progress.done.title"),
-    description: nextStep
-      ? t("signMethod.progress.done.description", {
-          nextParty: t(`party.${nextStep.party}`),
-        })
-      : t("signMethod.progress.done.descriptionFinal"),
+    description: null,
   };
 
   let items: ProgressItem[];
@@ -433,7 +378,7 @@ function ProgressList({
       state: "done",
       marker: "✓",
       title: t("signMethod.progress.sent.title"),
-      description: t(`signMethod.progress.sent.${kind}`),
+      description: null,
     };
     if (request.status === "COMPLETED") {
       items = [
@@ -457,7 +402,7 @@ function ProgressList({
           description: (
             <Trans
               t={t}
-              i18nKey={`signMethod.progress.wait.${kind}.description`}
+              i18nKey={`lite.wait.${kind}`}
               values={{
                 app: t(`method.${request.method}.app`, { defaultValue: "" }),
                 time: formatTime(request.sentAt),
@@ -481,13 +426,13 @@ function ProgressList({
             state: "failed",
             marker: "✕",
             title: t(`signMethod.progress.ended.${ended}.title`),
-            description: t(`signMethod.progress.ended.${ended}.description`),
+            description: null,
           }
         : {
             state: "current",
             marker: "1",
             title: t("signMethod.progress.idle.title"),
-            description: t("signMethod.progress.idle.description"),
+            description: null,
           },
       {
         state: "todo",
@@ -553,13 +498,7 @@ function PhoneFrame({
 
   return (
     <div className={styles.phoneColumn}>
-      <div className={styles.phoneCaption}>
-        <Trans
-          t={t}
-          i18nKey="signMethod.phone.caption"
-          components={{ br: <br /> }}
-        />
-      </div>
+      <div className={styles.phoneCaption}>{t("lite.phoneCaption")}</div>
       <div
         className={cx(
           styles.phone,
@@ -596,7 +535,7 @@ function PhoneFrame({
             </div>
             <div className={cx(styles.phoneCard, styles.phoneCodeCard)}>
               <div className={styles.phoneLabel}>
-                {t("signMethod.phone.codeLabel")}
+                {t("lite.phoneCodeLabel")}
               </div>
               <b className={styles.phoneCode}>{request.code}</b>
             </div>

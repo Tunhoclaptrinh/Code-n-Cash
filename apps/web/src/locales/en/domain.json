@@ -307,7 +307,7 @@
   },
   "ruleCondition": {
     "OPEN_DISPUTE": "An open dispute puts the payment on hold.",
-    "REJECTION_PRESENT": "A rejection means the milestone is rejected and not paid.",
+    "REJECTION_PRESENT": "A valid rejection means the milestone is rejected and not paid.",
     "UNAUTHORIZED_EVENT": "Evidence from a party without authority does not count; held for review.",
     "MISSING_REQUIRED_EVENT": "Without all required evidence for the milestone, no payment is released.",
     "APPROVAL_QUORUM_NOT_MET": "If approval is required but the roles or number of approvals are incomplete, payment is held.",

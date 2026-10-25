@@ -5,7 +5,7 @@ import { BaseCard } from "@codecash/ui";
 import { draftProblems } from "@codecash/contracts";
 import { DocumentPreview } from "@/shared/ui/DocumentPreview";
 import { platform } from "@/shared/api/platform";
-import type { DraftInput } from "./ContractUploadForm";
+import type { DraftInput } from "../lib/uploadDraft";
 
 /** Unsaved form preview never replaces the document selected for upload/signing. */
 export function PagePreviewPanel({

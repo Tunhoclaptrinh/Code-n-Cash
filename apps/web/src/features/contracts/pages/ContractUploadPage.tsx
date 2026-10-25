@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { PageContainer, BaseCard, LoadingState } from "@codecash/ui";
-import type { DraftInput } from "../components/ContractUploadForm";
+import type { DraftInput } from "../lib/uploadDraft";
 import { Alert } from "antd";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";

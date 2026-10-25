@@ -7,8 +7,9 @@ import { Panel } from "./Panel";
 import styles from "./ContractSideLayout.module.css";
 
 /**
- * A workflow screen with the contract document beside it: two columns on wide screens (the
- * document stays in view while scrolling), a "View contract" drawer on narrow ones.
+ * A workflow screen with the contract document beside it: on wide screens the document on the
+ * left (kept in view while scrolling) and the information and actions on the right; a "View
+ * contract" drawer on narrow ones.
  */
 export function ContractSideLayout({
   contractId,
@@ -26,12 +27,12 @@ export function ContractSideLayout({
   if (wide)
     return (
       <div data-testid="contract-side-layout" className={styles.columns}>
-        <div className={styles.main}>{children}</div>
         <aside>
           <Panel as="div" className={styles.aside}>
             {pane}
           </Panel>
         </aside>
+        <div className={styles.main}>{children}</div>
       </div>
     );
   return (

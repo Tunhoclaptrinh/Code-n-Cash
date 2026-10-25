@@ -1,6 +1,6 @@
 .columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 42%);
+  grid-template-columns: minmax(420px, 48%) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -9,7 +9,7 @@
   min-width: 0;
 }
 
-/* The document stays in view while the action column scrolls. */
+/* The document stays in view on the left while the information and actions column scrolls. */
 .aside {
   position: sticky;
   top: 16px;

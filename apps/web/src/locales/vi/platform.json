@@ -144,8 +144,29 @@
       "incomplete": "Đã tải lên nhưng còn thiếu tệp hoặc cột bắt buộc",
       "demoName": "Bộ dữ liệu kiểm thử"
     },
+    "benchmark": {
+      "title": "Bộ ca tổng hợp (nửa kiểm tra)",
+      "subtitle": "{{scenarios}} tình huống trên {{milestones}} mốc, chia theo hợp đồng; đáp án suy từ bảng luật",
+      "loading": "Đang tính trên bộ ca tổng hợp, mất vài giây...",
+      "error": "Chưa lấy được kết quả trên bộ ca tổng hợp.",
+      "retry": "Thử lại",
+      "cases": "Số ca",
+      "decisionAccuracy": "Độ chính xác quyết định",
+      "fullMatch": "Khớp toàn bộ",
+      "macroF1": "Macro-F1 (4 lớp)",
+      "unauthorizedPayment": "Chi sai (UPR)",
+      "lowerBound": "{{ratio}} · cận dưới 95%: {{bound}}",
+      "upperBound": "{{ratio}} · cận trên 95%: {{bound}}",
+      "hint": {
+        "cases": "Số ca thuộc nửa kiểm tra, tách theo hợp đồng khỏi nửa phát triển.",
+        "decisionAccuracy": "Số ca có quyết định đúng đáp án, kèm cận dưới khoảng tin cậy Wilson 95%.",
+        "fullMatch": "Số ca khớp cả quyết định, mã lý do, số tiền được trả và tiền phạt.",
+        "macroF1": "Trung bình F1 của bốn lớp quyết định, ước lượng theo hợp đồng.",
+        "unauthorizedPayment": "Ca bị trả tiền trong khi đáp án là giữ hoặc từ chối, trên số ca có đáp án giữ hoặc từ chối, kèm cận trên khoảng tin cậy Wilson 95%. Mục tiêu là 0."
+      }
+    },
     "kpi": {
-      "title": "Chỉ số KPI (đặc tả mục 15)",
+      "title": "Chỉ số KPI",
       "subtitle": "Trên {{labelled}} mốc có nhãn công khai; độ phủ, truy vết, thời gian trên {{milestones}} mốc",
       "decisionAccuracy": "Độ chính xác quyết định",
       "macroF1": "Macro-F1 (4 lớp)",

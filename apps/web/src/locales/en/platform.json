@@ -144,8 +144,29 @@
       "incomplete": "Uploaded, but a required file or column is missing",
       "demoName": "Test dataset"
     },
+    "benchmark": {
+      "title": "Generated cases (test half)",
+      "subtitle": "{{scenarios}} situations on {{milestones}} milestones, split by contract; answers derived from the rule table",
+      "loading": "Computing on the generated cases, this takes a few seconds...",
+      "error": "Could not load the results on the generated cases.",
+      "retry": "Retry",
+      "cases": "Cases",
+      "decisionAccuracy": "Decision accuracy",
+      "fullMatch": "Full match",
+      "macroF1": "Macro-F1 (4 classes)",
+      "unauthorizedPayment": "Unauthorized payment (UPR)",
+      "lowerBound": "{{ratio}} · 95% lower bound: {{bound}}",
+      "upperBound": "{{ratio}} · 95% upper bound: {{bound}}",
+      "hint": {
+        "cases": "Cases in the test half, separated by contract from the development half.",
+        "decisionAccuracy": "Cases whose decision matches the expected answer, with the lower bound of the 95% Wilson interval.",
+        "fullMatch": "Cases matching the decision, reason code, payable amount and penalty together.",
+        "macroF1": "Mean F1 of the four decision classes, estimated by contract.",
+        "unauthorizedPayment": "Cases paid while the expected answer is hold or reject, over the cases expected to be held or rejected, with the upper bound of the 95% Wilson interval. Target: 0."
+      }
+    },
     "kpi": {
-      "title": "KPIs (spec section 15)",
+      "title": "KPIs",
       "subtitle": "{{labelled}} publicly labelled milestones; coverage, trace and time on {{milestones}} milestones",
       "decisionAccuracy": "Decision accuracy",
       "macroF1": "Macro-F1 (4 classes)",

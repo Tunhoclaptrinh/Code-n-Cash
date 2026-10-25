@@ -175,7 +175,7 @@
       "deadline": "Hạn cuối không phạt",
       "deadlineValue": "{{due}} + {{grace}} ngày = {{deadline}}",
       "noDue": "Không đọc được hạn: giữ theo rule 80",
-      "completed": "Hoàn thành thực tế (BR-11)",
+      "completed": "Hoàn thành thực tế",
       "notCompleted": "Chưa đủ chứng từ",
       "lateDays": "Số ngày trễ sau ân hạn",
       "lateDaysValue_one": "{{count}} ngày",
@@ -336,7 +336,6 @@
     }
   },
   "decisionLite": {
-    "summaryLine": "Luật áp dụng {{rule}} · Đủ điều kiện chi {{payable}} · Phạt {{penalty}} triệu",
     "more": "Xem chi tiết",
     "facts": {
       "unauthorized": "Chứng từ ghi nhận sai thẩm quyền",
@@ -345,7 +344,8 @@
     "amounts": {
       "milestoneValue": "Giá trị mốc",
       "penalty": "Tiền phạt",
-      "how": "Cách tính"
+      "how": "Cách tính",
+      "title": "Hạn và tính tiền"
     },
     "rules": {
       "title": "Luật áp dụng",
@@ -360,7 +360,14 @@
       "title": "Ngoại lệ",
       "pick": "Chọn chứng từ sai thẩm quyền",
       "demoReason": "Đề nghị kiểm soát viên thứ hai rà soát chứng từ ghi nhận sai thẩm quyền của {{milestone}}."
-    }
+    },
+    "figures": {
+      "planned": "Giá trị mốc (triệu)",
+      "penalty": "Tiền phạt (triệu)",
+      "payable": "Được chi (triệu)"
+    },
+    "conditionMet": "Đạt",
+    "conditionMissing": "Chưa đạt"
   },
   "detailLite": {
     "due": "Hạn {{due}}"

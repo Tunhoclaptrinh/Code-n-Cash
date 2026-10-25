@@ -175,7 +175,7 @@
       "deadline": "Last day without penalty",
       "deadlineValue": "{{due}} + {{grace}} days = {{deadline}}",
       "noDue": "Unreadable due date: held under rule 80",
-      "completed": "Actual completion (BR-11)",
+      "completed": "Actual completion",
       "notCompleted": "Evidence incomplete",
       "lateDays": "Days late after grace",
       "lateDaysValue_one": "{{count}} day",
@@ -336,7 +336,6 @@
     }
   },
   "decisionLite": {
-    "summaryLine": "Applied rule {{rule}} · Payable {{payable}} · Penalty {{penalty}} million",
     "more": "Show details",
     "facts": {
       "unauthorized": "Records entered without authority",
@@ -345,7 +344,8 @@
     "amounts": {
       "milestoneValue": "Milestone value",
       "penalty": "Penalty",
-      "how": "How it is calculated"
+      "how": "How it is calculated",
+      "title": "Deadline and amounts"
     },
     "rules": {
       "title": "Applied rule",
@@ -360,7 +360,14 @@
       "title": "Exceptions",
       "pick": "Select the record entered without authority",
       "demoReason": "Please have a second controller review the record filed by the wrong party for {{milestone}}."
-    }
+    },
+    "figures": {
+      "planned": "Milestone value (million)",
+      "penalty": "Penalty (million)",
+      "payable": "Payable (million)"
+    },
+    "conditionMet": "Met",
+    "conditionMissing": "Not met"
   },
   "detailLite": {
     "due": "Due {{due}}"

@@ -8,9 +8,13 @@ import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { PageState } from "@/shared/ui/PageState";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
+import { SideCard } from "@/shared/ui/SidePanel";
 import { AmountsPanel } from "../components/AmountsPanel";
 import { ConditionsPanel } from "../components/ConditionsPanel";
-import { DecisionBanner } from "../components/DecisionBanner";
+import {
+  DecisionBanner,
+  DecisionTechnical,
+} from "../components/DecisionBanner";
 import { DecisionTrace } from "../components/DecisionTrace";
 import { RulesPanel } from "../components/RulesPanel";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
@@ -79,13 +83,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
       contractId={contract.id}
       focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
     >
-      <Space direction="vertical" size={20} style={{ width: "100%" }}>
-        <DecisionBanner
-          data={data}
-          transferring={transfer.isPending}
-          onTransfer={() => transfer.mutate()}
-        />
-
+      <Space direction="vertical" size={12} style={{ width: "100%" }}>
         {data.payment ? (
           <Alert
             type="success"
@@ -108,9 +106,17 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
           />
         ) : null}
 
-        <ConditionsPanel data={data} />
-        <AmountsPanel money={money} />
-        <RulesPanel data={data} />
+        <SideCard>
+          <DecisionBanner
+            data={data}
+            transferring={transfer.isPending}
+            onTransfer={() => transfer.mutate()}
+          />
+          <ConditionsPanel data={data} />
+          <AmountsPanel money={money} />
+          <RulesPanel data={data} />
+          <DecisionTechnical data={data} />
+        </SideCard>
         <DecisionTrace data={data} onChanged={refresh} />
       </Space>
     </ContractSideLayout>

@@ -3,7 +3,7 @@ import { Button, Table, Tag, Tooltip, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import type { MilestoneDetail, RuleOutcome } from "@codecash/contracts";
 import { DecisionTag } from "@/shared/ui/DomainTags";
-import { Panel } from "@/shared/ui/Panel";
+import { SideSection } from "@/shared/ui/SidePanel";
 import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import styles from "./MilestoneDecision.module.css";
 
@@ -26,14 +26,10 @@ export function RulesPanel({ data }: { data: MilestoneDetail }) {
         : rule.name,
     });
   return (
-    <>
-      {matchedRule ? (
-        <Panel className={styles.panel}>
-          <h2>{t("decisionLite.rules.title")}</h2>
-          <div className={styles.matchedRule}>
-            <TrackingCode code={matchedRule.id} />
-            <span>{ruleSentence(matchedRule)}</span>
-          </div>
+    <SideSection
+      title={t("decisionLite.rules.title")}
+      extra={
+        matchedRule ? (
           <Button
             type="link"
             size="small"
@@ -45,10 +41,17 @@ export function RulesPanel({ data }: { data: MilestoneDetail }) {
               ? t("decisionLite.rules.hideAll")
               : t("decisionLite.rules.showAll", { count: data.rules.length })}
           </Button>
-        </Panel>
+        ) : null
+      }
+    >
+      {matchedRule ? (
+        <div className={styles.matchedRule}>
+          <TrackingCode code={matchedRule.id} />
+          <span>{ruleSentence(matchedRule)}</span>
+        </div>
       ) : null}
       {allRules || !matchedRule ? (
-        <Panel className={styles.panel}>
+        <div className={styles.ruleTable}>
           <Table
             size="small"
             rowKey="id"
@@ -115,8 +118,8 @@ export function RulesPanel({ data }: { data: MilestoneDetail }) {
               },
             ]}
           />
-        </Panel>
+        </div>
       ) : null}
-    </>
+    </SideSection>
   );
 }

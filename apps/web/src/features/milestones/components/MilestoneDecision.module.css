@@ -1,74 +1,55 @@
-/* The banner sits in the narrower column beside the contract, so the actions go under the text. */
-.banner {
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 16px;
-}
-
-.bannerText {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
+/* Decision headline inside the side card. */
 .bannerHeadline {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 14px;
-}
-
-.bannerText {
-  min-width: 0;
+  gap: 6px 10px;
 }
 
 .bannerHeadline h2 {
-  font-size: 18px;
+  margin: 0;
+  font-size: 17px;
   font-weight: 700;
   line-height: 1.4;
 }
 
-.bannerSummary {
+.bannerCodes {
+  margin-top: -4px;
+}
+
+.next {
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--color-text-secondary);
 }
 
+.next b {
+  color: var(--color-text);
+}
+
+/* Actions sit on the right edge of the column, the main one last. */
 .bannerActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  flex: none;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
-.panel {
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.panel h2 {
-  font-size: 18px;
-  font-weight: 800;
+.ruleTable {
+  min-width: 0;
 }
 
 .panelNote {
-  margin-top: auto;
-  font-size: 13.5px;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--color-text-muted);
 }
-
-/* Amounts */
-
-/* Reasons */
-
-/* History */
 
 /* Secondary details */
 
 .more {
-  margin-top: 8px;
+  margin-top: -4px;
 }
 
 .more :global(.ant-collapse-header),
@@ -95,27 +76,16 @@
 }
 
 .ruleToggle {
-  align-self: flex-start;
   padding-inline: 0;
+  height: auto;
 }
 
 @media (max-width: 760px) {
-  .banner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-    padding: 16px;
-  }
-  .bannerHeadline h2 {
-    font-size: 18px;
-  }
   .bannerActions {
-    margin-left: 0;
-    flex: initial;
-    flex-wrap: wrap;
+    justify-content: stretch;
   }
   .bannerActions > * {
-    max-width: 100%;
+    flex: 1 1 auto;
     white-space: normal;
     height: auto;
     min-height: 36px;

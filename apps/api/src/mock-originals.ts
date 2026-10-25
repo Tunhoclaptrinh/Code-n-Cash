@@ -43,10 +43,10 @@ const generatorVersion = (() => {
     ));
 })();
 
-/** Contracts that need a simulated original: active ones without an uploaded document. */
+/** Contracts that need a simulated original: any contract without an uploaded document. */
 export function needsMockOriginal(ctx: Ctx, code: string) {
-  const contract = ctx.contract(code);
-  return contract.lifecycle !== "DRAFT" && !ctx.draft(code)?.file?.documentId;
+  ctx.contract(code);
+  return !ctx.draft(code)?.file?.documentId;
 }
 
 /** Generator input for one contract, read inside the actor's scope. */

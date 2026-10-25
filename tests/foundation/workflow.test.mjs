@@ -246,6 +246,16 @@ test("a dispute is closed only by a buyer-side DISPUTE_RESOLVED that references 
   const view = await call("u-owner", "disputes", "getDispute", "CT0019", 3);
   assert.equal(view.canResolve, true);
   assert.ok(view.preview);
+  // While a dispute is open nobody can open another one on the same milestone.
+  assert.equal(view.canOpen, false);
+  await assert.rejects(
+    call("u-supplier", "disputes", "openDispute", {
+      contractId: "CT0019",
+      sequence: 3,
+      note: "Thêm một tranh chấp",
+    }),
+    /DISPUTE_ALREADY_OPEN/,
+  );
   const result = await call("u-owner", "disputes", "resolveDispute", {
     contractId: "CT0019",
     sequence: 3,
@@ -259,6 +269,8 @@ test("a dispute is closed only by a buyer-side DISPUTE_RESOLVED that references 
   );
   assert.equal(resolution.event_type, "DISPUTE_RESOLVED");
   assert.equal(resolution.reference_event_id, view.disputes[0].opened.id);
+  const closed = await call("u-owner", "disputes", "getDispute", "CT0019", 3);
+  assert.equal(closed.canOpen, true);
 });
 
 test("BR-19 voids an unauthorised event only with two different controllers", async () => {

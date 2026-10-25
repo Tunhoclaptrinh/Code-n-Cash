@@ -294,7 +294,8 @@
     "SIGNER_DOCUMENT_MISMATCH": "Người ký không khớp tên/bên ký in sẵn trên tài liệu. Kiểm tra lại người ký hoặc tạo lại tài liệu.",
     "SLOT_WRONG_SIGNER_AREA": "Ô ký nằm ngoài vùng dành cho người này. Chọn đúng vùng ký hoặc dùng gợi ý.",
     "ENGINE_OUTPUT_INVALID": "Kết quả engine không đúng hợp đồng dữ liệu hoặc thiếu đối soát. Thao tác chưa được lưu.",
-    "ENGINE_UNAVAILABLE": "Không kết nối được engine đã cấu hình. Kiểm tra dịch vụ; hệ thống không tự đổi sang kết quả khác."
+    "ENGINE_UNAVAILABLE": "Không kết nối được engine đã cấu hình. Kiểm tra dịch vụ; hệ thống không tự đổi sang kết quả khác.",
+    "DISPUTE_ALREADY_OPEN": "Mốc đang có tranh chấp chưa đóng; không mở thêm tranh chấp mới."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

@@ -449,6 +449,9 @@ export function openDispute(
   assertOpen(ctx, m);
   const party = disputeParty(ctx, m);
   if (!party) throw new ForbiddenException("CANNOT_OPEN_DISPUTE");
+  // One open dispute already holds the milestone; further concerns go into that dispute.
+  if (ctx.evaluation(m.milestone_id).openDisputeIds.length)
+    throw new BadRequestException("DISPUTE_ALREADY_OPEN");
   const note = text(input.note);
   if (!note) throw new BadRequestException("NOTE_REQUIRED");
   return eventOutcome(ctx, m, [

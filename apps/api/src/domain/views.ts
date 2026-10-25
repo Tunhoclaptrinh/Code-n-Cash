@@ -381,6 +381,7 @@ export function milestoneDetail(
       openDispute:
         open &&
         mine &&
+        evaluation.openDisputeIds.length === 0 &&
         ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(
           ctx.actor.role,
         ),
@@ -854,6 +855,7 @@ export async function disputeView(
       })),
     canOpen:
       live &&
+      evaluation.openDisputeIds.length === 0 &&
       (contract.buyer_id === ctx.actor.organizationId ||
         contract.supplier_id === ctx.actor.organizationId) &&
       ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { fold } from "@codecash/contracts";
 import {
   Alert,
   Avatar,
@@ -42,6 +43,7 @@ export default function LoginPage() {
   const { user, signIn, signInDemo } = useSession();
   const navigate = useNavigate();
   const [form] = Form.useForm<{ email: string; password: string }>();
+  const [demoSearch, setDemoSearch] = useState("");
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const demo = useQuery({
@@ -92,6 +94,20 @@ export default function LoginPage() {
       </span>
     ),
   });
+  const foundAccounts = [
+    ...featured,
+    ...organizations.flatMap((org) => org.accounts),
+  ].filter((account) =>
+    fold(
+      [
+        account.displayName,
+        account.email,
+        account.organization,
+        account.partyId,
+        t(`roles.${account.role}.name`),
+      ].join(" "),
+    ).includes(fold(demoSearch.trim())),
+  );
   return (
     <div className={styles.page}>
       <aside className={styles.brandPanel}>
@@ -121,10 +137,35 @@ export default function LoginPage() {
             <Dropdown
               trigger={["click"]}
               placement="bottomRight"
+              popupRender={(menu) => (
+                <div
+                  style={{
+                    background: "var(--bg-surface-card)",
+                    padding: 8,
+                    borderRadius: 8,
+                    maxWidth: "calc(100vw - 24px)",
+                    width: 520,
+                  }}
+                >
+                  <Input.Search
+                    autoFocus
+                    value={demoSearch}
+                    onChange={(e) => setDemoSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Escape") e.stopPropagation();
+                    }}
+                    placeholder={t("login.demoSearch")}
+                    data-testid="demo-account-search"
+                    style={{ marginBottom: 8 }}
+                  />
+                  {menu}
+                </div>
+              )}
               menu={{
                 style: { maxHeight: "70vh", overflowY: "auto" },
-                items:
-                  featured.length || organizations.length
+                items: demoSearch.trim()
+                  ? foundAccounts.map(accountItem)
+                  : featured.length || organizations.length
                     ? [
                         {
                           type: "group",

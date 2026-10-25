@@ -1,3 +1,4 @@
+import { refreshPdfLayouts } from "../pdf-layout";
 import { initialContractTemplates } from "./contract-templates";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { recordHash } from "../common/audit-chain";
@@ -60,7 +61,10 @@ export class DomainService {
         }
       },
     );
-    if ((await this.repo.list(TABLE.contracts)).length) return [];
+    if ((await this.repo.list(TABLE.contracts)).length) {
+      await refreshPdfLayouts(this.repo);
+      return [];
+    }
     const started = Date.now();
     const seed = await buildSeed();
     await this.repo.transact(

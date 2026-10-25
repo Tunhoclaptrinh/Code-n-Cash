@@ -138,7 +138,10 @@
     },
     "participants": {
       "title": "Các bên và người tham gia"
-    }
+    },
+    "signedPending": "Hợp đồng đã ký đủ; một số mốc thanh toán còn chờ điều kiện",
+    "roleLabel": "Vai trò",
+    "titleLabel": "Chức danh"
   },
   "decision": {
     "breadcrumb": "Mốc {{no}} · {{name}}",

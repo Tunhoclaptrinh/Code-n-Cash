@@ -100,7 +100,8 @@
     "demoEmpty": "Chưa có tài khoản demo khả dụng.",
     "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
     "demoAll": "Tất cả tổ chức trong Data Pack",
-    "emailPlaceholder": "name@example.com"
+    "emailPlaceholder": "name@example.com",
+    "demoSearch": "Tìm tên, email hoặc công ty…"
   },
   "common": {
     "loading": "Đang tải…",
@@ -214,6 +215,13 @@
       "activity": "Nhật ký hoạt động",
       "data": "Kết quả Data Pack",
       "admin": "Quản trị hệ thống"
+    },
+    "samples": {
+      "title": "Tải hợp đồng để thử luồng ký",
+      "notice": "Tệp mẫu chưa ký. Tải PDF, chọn nhà cung cấp Phú Minh (S015), cấu hình đúng người ký dưới đây rồi tải tệp vào hợp đồng mới.",
+      "pdf": "PDF · {{count}} người ký",
+      "all": "Tải trọn bộ PDF + DOCX",
+      "signers": "Thêm lần lượt theo số người của mẫu: Nguyễn Văn An (owner@novaan.vn), Vũ Thanh Hà (supplier@phuminh.vn), Lê Quốc Dũng (finance@novaan.vn), Trần Thị Mai (legal@novaan.vn). Tìm tài khoản bằng tên/email trong menu Tài khoản demo. Đây là mẫu chưa ký để kiểm thử quy trình."
     }
   },
   "forms": {
@@ -232,5 +240,9 @@
   },
   "tableActions": {
     "more": "Thao tác khác"
+  },
+  "identity": {
+    "demoPerson": "Danh tính demo",
+    "roleSource": "Vai trò/đơn vị:"
   }
 }

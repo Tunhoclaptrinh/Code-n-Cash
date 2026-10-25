@@ -40,3 +40,9 @@ Chọn ngôn ngữ và giao diện rồi bấm **Bắt đầu**. Các lựa ch�
 ## Khi màn hình khác ảnh
 
 Ảnh dùng dữ liệu thử mới khởi tạo ngày 23/10/2026, ngôn ngữ tiếng Việt và giao diện sáng. Số việc, ngày trễ và trạng thái có thể khác sau khi đã thao tác. Tài khoản khác tổ chức chỉ thấy dữ liệu của tổ chức mình. Xem [Vai trò và kịch bản](/guide/roles) để chọn đúng tài khoản và [Công cụ bảng](/guide/tables) để bỏ các bộ lọc còn giữ.
+
+## Tìm đúng tài khoản người ký
+
+![Tìm tài khoản: 1 — gõ tên/email/công ty; 2 — chọn người để đăng nhập demo](../../../public/guide/images/review-account-search.png)
+
+Trong **Tài khoản demo**, tìm không dấu như `Bui Van Khanh` hoặc email. Bùi Văn Khánh dùng `supplier@alphatech.vn`, thuộc S001 — AlphaTech. Vũ Thanh Hà dùng `supplier@phuminh.vn`, thuộc S015 — Phú Minh. Chọn đúng công ty ghi trên hợp đồng; tài khoản nhà cung cấp khác không được ký thay. Danh sách lượt ký hiển thị email để đối chiếu.

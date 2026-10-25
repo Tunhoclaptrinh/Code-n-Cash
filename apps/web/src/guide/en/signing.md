@@ -69,3 +69,23 @@ New upload forms start empty; generated IDs and system fields remain read-only. 
 **Load suggestions** uses values actually extracted from the file for review. Unconfirmed dates and new signature positions also start empty and have explicit suggestion/sample actions.
 
 ![Contract document: 1 — custom content; 2 — select or replace the file](../../../public/guide/images/upload-document.webp)
+
+## Download demo files and preview current input
+
+Open **Guide** on the page or the header help button. Download one of the 1–4 signer PDFs or the PDF/DOCX ZIP. These files are **unsigned** and intended for upload/signing demos. Select supplier **S015 — Phú Minh** and use the first N names: Nguyễn Văn An, Vũ Thanh Hà, Lê Quốc Dũng, Trần Thị Mai. Find the accounts by name/email in **Demo accounts**.
+
+![Demo downloads: 1 — individual PDFs and PDF/DOCX ZIP](../../../public/guide/images/review-guide-downloads.png)
+
+The right panel has two tabs: **Working draft** is an actual PDF updated from valid form input; **Selected document** is the file that will be uploaded and signed. Form changes do not modify that file. Generate and use the sample or upload a revised document to change the signing file.
+
+![The draft PDF follows the title and terms entered in the form](../../../public/guide/images/review-live-preview.png)
+
+## Match the printed signer and area
+
+![Placement: 1 — actual PDF and printed name; 2 — suggested areas](../../../public/guide/images/review-signature-match.png)
+
+Suggestions match detectable printed names and parties rather than blindly using the box number. Select a signer or **Go to signing area** to open the right page. **Fit page** shows the full page; zoom in for detailed placement. The document and signer list scroll independently.
+
+![Mismatched signers are blocked until corrected](../../../public/guide/images/review-signature-mismatch.png)
+
+Correct the signer list or regenerate the file if a configured signer is absent or a printed signer is missing from the configuration. Do not place one person below another person's printed name. Documents without identifiable names/parties require manual checking; coordinate checks alone do not verify identity. Review the document's signing-order clause too; regenerate a generated sample after changing its order.

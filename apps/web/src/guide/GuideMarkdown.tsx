@@ -54,7 +54,11 @@ function inline(tokens: Token[] | undefined, key: string): ReactNode[] {
         const link = token as Tokens.Link;
         const content = inline(link.tokens, k);
         // App routes stay in the app; anything else opens in a new tab.
-        return link.href.startsWith("/") ? (
+        return link.href.startsWith("/guide/samples/") ? (
+          <a key={k} href={link.href} download>
+            {content}
+          </a>
+        ) : link.href.startsWith("/") ? (
           <Link key={k} to={link.href}>
             {content}
           </Link>

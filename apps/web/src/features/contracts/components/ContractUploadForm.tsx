@@ -85,7 +85,7 @@ function signerProblem(signers: DraftSigner[]): string | null {
   return null;
 }
 
-type DraftInput = Omit<
+export type DraftInput = Omit<
   ContractDraft,
   "type" | "approvalPolicy" | "graceDays"
 > & {
@@ -121,9 +121,7 @@ interface ContractUploadFormProps {
   startBlank?: boolean;
   options: UploadFormOptions;
   onPreviewFileChange?: (file: File) => void;
-  onDraftChange?: (
-    draft: Pick<ContractDraft, "code" | "file" | "signers">,
-  ) => void;
+  onDraftChange?: (draft: DraftInput) => void;
 }
 
 /**

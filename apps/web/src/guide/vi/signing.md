@@ -76,3 +76,23 @@ Màn **Tải hợp đồng lên** mới bắt đầu trống; mã hồ sơ và d
 Sau khi tải tài liệu, **Nạp đề xuất** dùng giá trị trích xuất thực để bạn rà soát; đây không phải dữ liệu demo. Ngày chưa xác nhận có nút nạp ngày gợi ý. Vị trí ký mới để trống, dùng **Điền vị trí ký mẫu** hoặc đặt thủ công trước khi lưu.
 
 ![Tài liệu hợp đồng: 1 — nội dung riêng; 2 — chọn hoặc thay tệp](../../../public/guide/images/upload-document.webp)
+
+## Tải mẫu và xem PDF theo dữ liệu đang nhập
+
+Mở **Hướng dẫn** ở đầu trang hoặc nút trợ giúp trên thanh trên cùng. Chọn PDF 1–4 người ký hoặc **Tải trọn bộ PDF + DOCX**; đây là tệp **chưa ký**, dùng để tải lên và đi qua quy trình ký. Với bộ này chọn nhà cung cấp **S015 — Phú Minh**; danh sách theo số người lần lượt là Nguyễn Văn An, Vũ Thanh Hà, Lê Quốc Dũng, Trần Thị Mai. Tìm tài khoản bằng tên/email trong menu **Tài khoản demo**.
+
+![Tải bộ mẫu: 1 — PDF theo số người và ZIP chứa cả PDF/DOCX](../../../public/guide/images/review-guide-downloads.png)
+
+Khung bên phải có hai thẻ: **Nội dung đang soạn** là PDF nháp tự cập nhật khi thông tin hợp lệ; **Tài liệu đã chọn** là đúng tệp sẽ tải lên và ký. Sửa form không sửa tệp đã chọn. Dùng **Tạo và dùng hợp đồng mẫu** để chọn bản nháp mới làm tệp ký, hoặc tải lên tài liệu đã sửa.
+
+![PDF nháp phản ánh tên và điều khoản đang nhập ở bên trái](../../../public/guide/images/review-live-preview.png)
+
+## Đúng người trên đúng vùng ký
+
+![Đối chiếu vị trí: 1 — PDF thật và tên in sẵn; 2 — gợi ý vùng ký](../../../public/guide/images/review-signature-match.png)
+
+Bấm **Điền vị trí mẫu** rồi đối chiếu từng tên. Gợi ý bám tên và bên ký nhận diện được, không gán máy móc theo số ô. Chọn người hoặc **Đến vùng ký** để chuyển tới đúng trang; dùng **Vừa trang** để xem trọn trang, phóng to khi cần chỉnh chi tiết. Danh sách ô ký và trang PDF có cuộn riêng.
+
+![Danh sách người ký không khớp sẽ bị chặn để sửa lại](../../../public/guide/images/review-signature-mismatch.png)
+
+Nếu PDF có tên in sẵn khác danh sách hoặc còn người chưa cấu hình, bấm **Sửa người ký hoặc tài liệu** để điều chỉnh hoặc tạo lại tệp. Không đặt chữ ký của người này dưới tên người khác. Với tệp không nhận diện được tên/bên ký, hệ thống báo cần kiểm tra thủ công; kiểm tọa độ không chứng minh đã đúng người. Đối chiếu cả điều khoản thứ tự ký trong tài liệu trước khi khóa; thay thứ tự trong mẫu đã sinh thì phải tạo lại tệp.

@@ -1,8 +1,8 @@
 import { useSearchParams } from "react-router-dom";
 import { PageContainer, BaseCard, LoadingState } from "@codecash/ui";
-import type { ContractDraft } from "../types";
+import type { DraftInput } from "../components/ContractUploadForm";
 import { Alert } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/shared/api/client";
@@ -38,8 +38,8 @@ export default function ContractUploadPage() {
     refetchOnWindowFocus: true,
   });
   const [previewFile, setPreviewFile] = useState<File>();
-  const [workingDraft, setWorkingDraft] =
-    useState<Pick<ContractDraft, "code" | "file" | "signers">>();
+  useEffect(() => setPreviewFile(undefined), [draftCode]);
+  const [workingDraft, setWorkingDraft] = useState<DraftInput>();
   const current =
     workingDraft?.code === draft.data?.code ? workingDraft : draft.data;
   const failure = draft.error ?? options.error;
@@ -85,16 +85,17 @@ export default function ContractUploadPage() {
                 onPreviewFileChange={setPreviewFile}
               />
               <div className={styles.side}>
+                <PagePreviewPanel
+                  draft={current}
+                  file={previewFile}
+                  documentId={current?.file.documentId}
+                  name={current?.file.name ?? ""}
+                />
                 <FileChecksPanel
                   file={current?.file ?? draft.data.file}
                   signingSteps={
                     current?.signers.length ?? draft.data.signers.length
                   }
-                />
-                <PagePreviewPanel
-                  file={previewFile}
-                  documentId={current?.file.documentId}
-                  name={current?.file.name ?? ""}
                 />
               </div>
             </div>

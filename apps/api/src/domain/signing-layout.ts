@@ -7,15 +7,73 @@ export const rectanglesOverlap = (
 ) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
 /** The server validates the exact same page geometry as the image shown to the signer. */
+type SignerIdentity = { stepNo: number; signerName: string; party: string };
+const normalizedName = (name: string) =>
+  name.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
+export function signerAnchors(pages: PdfPagePreview[], signer: SignerIdentity) {
+  return pages.flatMap((page) =>
+    (page.anchors ?? [])
+      .filter(
+        (anchor) =>
+          anchor.signerName &&
+          normalizedName(anchor.signerName) ===
+            normalizedName(signer.signerName) &&
+          anchor.party === signer.party,
+      )
+      .map((anchor) => ({ ...anchor, page: page.pageNo })),
+  );
+}
+
 export function assertSlots(
   slots: SlotMap,
   pages: PdfPagePreview[],
   count: number,
   required = false,
+  signers?: SignerIdentity[],
 ) {
+  const printed = pages
+    .flatMap((page) => page.anchors ?? [])
+    .filter((anchor) => anchor.signerName);
+  if (
+    signers &&
+    printed.length &&
+    (required || Object.values(slots).some(Boolean)) &&
+    (printed.length !== signers.length ||
+      printed.some(
+        (anchor) =>
+          !signers.some(
+            (signer) =>
+              normalizedName(signer.signerName) ===
+                normalizedName(anchor.signerName!) &&
+              signer.party === anchor.party,
+          ),
+      ))
+  )
+    throw new BadRequestException("SIGNER_DOCUMENT_MISMATCH");
   const assigned: NonNullable<SlotMap[number]>[] = [];
   for (let step = 1; step <= count; step++) {
     const slot = slots[step];
+    const identity = signers?.find((signer) => signer.stepNo === step);
+    const hasNamedAreas = pages.some((page) =>
+      page.anchors?.some((anchor) => anchor.signerName),
+    );
+    const areas =
+      identity && hasNamedAreas ? signerAnchors(pages, identity) : undefined;
+    if (areas && !areas.length && (slot || required))
+      throw new BadRequestException("SIGNER_DOCUMENT_MISMATCH");
+    if (
+      slot &&
+      areas &&
+      !areas.some(
+        (area) =>
+          area.page === slot.page &&
+          slot.x >= area.x - 1 &&
+          slot.y >= area.y - 1 &&
+          slot.x + slot.w <= area.x + (area.w ?? 240) + 1 &&
+          slot.y + slot.h <= area.y + (area.h ?? 92) + 1,
+      )
+    )
+      throw new BadRequestException("SLOT_WRONG_SIGNER_AREA");
     if (!slot) {
       if (required) throw new BadRequestException("SLOT_REQUIRED");
       continue;
@@ -46,17 +104,32 @@ export function assertSlots(
 }
 
 /** Printed anchors first; otherwise find free rectangles. Suggestions always need review. */
-export function documentSlots(pages: PdfPagePreview[], count: number): SlotMap {
+export function documentSlots(
+  pages: PdfPagePreview[],
+  count: number,
+  signers?: SignerIdentity[],
+): SlotMap {
   const result: SlotMap = {};
   for (let step = 1; step <= count; step++) {
     result[step] = null;
+    const identity = signers?.find((signer) => signer.stepNo === step);
+    const hasNamedAreas = pages.some((page) =>
+      page.anchors?.some((anchor) => anchor.signerName),
+    );
+    const matches =
+      identity && hasNamedAreas ? signerAnchors(pages, identity) : undefined;
+    if (matches && !matches.length) continue;
     const anchored = pages.filter((page) =>
-      page.anchors?.some((anchor) => anchor.stepNo === step),
+      matches
+        ? matches.some((area) => area.page === page.pageNo)
+        : page.anchors?.some((anchor) => anchor.stepNo === step),
     );
     const candidates = (
       anchored.length ? anchored : [...pages].reverse()
     ).flatMap((page) => {
-      const anchor = page.anchors?.find((a) => a.stepNo === step);
+      const anchor = matches
+        ? matches.find((area) => area.page === page.pageNo)
+        : page.anchors?.find((a) => a.stepNo === step);
       const points = anchor
         ? [{ x: anchor.x, y: anchor.y }]
         : Array.from({ length: 10 }, (_, i) => ({
@@ -67,13 +140,19 @@ export function documentSlots(pages: PdfPagePreview[], count: number): SlotMap {
         page: page.pageNo,
         ...point,
         w: 190,
-        h: 88,
+        h: 72,
         look: "NAME_AND_TIME" as const,
       }));
     });
     for (const candidate of candidates) {
       try {
-        assertSlots({ ...result, [step]: candidate }, pages, count);
+        assertSlots(
+          { ...result, [step]: candidate },
+          pages,
+          count,
+          false,
+          signers,
+        );
         result[step] = candidate;
         break;
       } catch {

@@ -1,6 +1,15 @@
 import { ContractDocuments } from "@/shared/ui/ContractDocuments";
 import { PageContainer } from "@codecash/ui";
-import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
+import {
+  Alert,
+  Button,
+  Space,
+  Table,
+  Tag,
+  Timeline,
+  Tooltip,
+  Typography,
+} from "antd";
 import {
   CheckCircleFilled,
   CloseCircleFilled,
@@ -190,6 +199,24 @@ export default function ContractDetailPage() {
           activeTabKey={tab}
           onTabChange={(key) => setTab(key as TabKey)}
         >
+          {data.signing &&
+          data.signing.signed === data.signing.total &&
+          data.milestones.some((m) => m.decision === "HOLD") ? (
+            <Alert
+              type="warning"
+              showIcon
+              data-testid="signed-pending-conditions"
+              title={t("detail.signedPending")}
+              description={data.milestones
+                .filter((m) => m.decision === "HOLD")
+                .map(
+                  (m) =>
+                    `${m.id} · ${td(`milestoneType.${m.type}`)}: ${describeNext(td, m.next)}`,
+                )
+                .join("; ")}
+              style={{ marginBottom: 12 }}
+            />
+          ) : null}
           {tab === "documents" ? (
             <ContractDocuments contractId={contract.id} />
           ) : null}
@@ -698,6 +725,7 @@ function SigningPanel({ data }: { data: ContractOverview }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
   const { t: ts } = useTranslation("signing");
+  const { t: roleText } = useTranslation("common");
   const signing = data.signing;
   return (
     <Panel className={styles.tabPanel}>
@@ -723,7 +751,12 @@ function SigningPanel({ data }: { data: ContractOverview }) {
                   <b>{step.signerName}</b>
                   <div className={styles.personRole}>
                     {td(`side.${step.party}`)} · {step.organizationName}
-                    {step.signerTitle ? ` · ${step.signerTitle}` : ""}
+                    {step.signerRole
+                      ? ` · ${t("detail.roleLabel")}: ${roleText(`roles.${step.signerRole}.name`)}`
+                      : ""}
+                    {step.signerTitle
+                      ? ` · ${t("detail.titleLabel")}: ${step.signerTitle}`
+                      : ""}
                     {step.isFinal ? ` · ${t("detail.signing.final")}` : ""}
                   </div>
                 </div>
@@ -775,7 +808,15 @@ function ParticipantRows({ participants }: { participants: Participant[] }) {
               {person.email ? ` · ${person.email}` : ""}
             </div>
           </div>
-          <OriginTag origin={person.origin} />
+          <Space size={4} wrap>
+            {person.identityOrigin ? (
+              <span>{tc("identity.roleSource")}</span>
+            ) : null}
+            <OriginTag origin={person.origin} />
+            {person.identityOrigin ? (
+              <Tag>{tc("identity.demoPerson")}</Tag>
+            ) : null}
+          </Space>
         </div>
       ))}
     </>

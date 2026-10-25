@@ -97,7 +97,8 @@
       "cancelSigning": "Cancel signing",
       "cancelBody": "Cancel the signing of {{code}} and return it to draft. Only possible while nobody has signed; the action is logged.",
       "cancelled": "Signing cancelled; the contract is a draft again",
-      "openPage": "Open the detail page"
+      "openPage": "Open the detail page",
+      "demoIdentity": "Demo identity"
     }
   },
   "contractUpload": {
@@ -277,7 +278,12 @@
       "unavailable": "The document could not be rendered. Check the file or download it to open in your editor.",
       "downloadPdf": "Download preview PDF",
       "noStoredFile": "No original file has been stored. The organiser dataset does not include contract files.",
-      "downloadOriginal": "Download original file"
+      "downloadOriginal": "Download original file",
+      "completeForm": "Complete the terms and select signers to see the automatically updated draft PDF.",
+      "unsaved": "This draft PDF follows the form and has not been saved. Generate and use the sample to select it as the signing document.",
+      "working": "Working draft",
+      "selected": "Selected document",
+      "fileBasis": "This file is the signing document. Form changes do not modify it; regenerate the sample or upload the revised file."
     },
     "intro": "Step 1/5. A new contract is cut into milestones by the Data Pack workflow of its type, so the same rules as the organiser's 405 milestones apply.",
     "sample": {

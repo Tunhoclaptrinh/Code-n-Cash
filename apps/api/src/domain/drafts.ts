@@ -603,7 +603,13 @@ export function confirmDigitization(
       layout.layoutDocumentId !== draft.file.documentId
     )
       throw new BadRequestException("DOCUMENT_CHANGED");
-    assertSlots(layout.slots, layout.previewPages, layout.steps.length, true);
+    assertSlots(
+      layout.slots,
+      layout.previewPages,
+      layout.steps.length,
+      true,
+      layout.steps,
+    );
   }
   const result = digitization(ctx, code);
   const dueDate = input?.dueDate

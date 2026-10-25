@@ -105,6 +105,7 @@ function participants(ctx: Ctx, contractId: string): Participant[] {
       kind: "APPROVER",
       partyId: party.party_id,
       name: party.party_name,
+      identityOrigin: user ? "SEED" : undefined,
       personName: user ? String(user.displayName) : null,
       role: (user?.role as Participant["role"]) ?? null,
       approvalRole: role,

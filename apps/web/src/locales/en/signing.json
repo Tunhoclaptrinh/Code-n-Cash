@@ -74,7 +74,9 @@
     "SLOT_REQUIRED": "Every signer needs a valid signature area on the document.",
     "SLOT_OUT_OF_BOUNDS": "A signature area is outside its page or has invalid dimensions.",
     "SLOT_OVER_TEXT": "A signature area covers contract text. Move it to blank space.",
-    "SLOT_OVERLAP": "Signature areas overlap. Give each signer a separate area."
+    "SLOT_OVERLAP": "Signature areas overlap. Give each signer a separate area.",
+    "SIGNER_DOCUMENT_MISMATCH": "The signer does not match the printed name/party. Check the signer list or regenerate the document.",
+    "SLOT_WRONG_SIGNER_AREA": "The box is outside this signer’s printed area. Select the correct area or use the suggestion."
   },
   "positions": {
     "breadcrumb": {
@@ -126,7 +128,8 @@
       "title": "Checks before continuing",
       "ONE_SLOT_PER_STEP": "Every signing step has exactly one slot.",
       "NO_OVERLAP": "The two slots do not overlap.",
-      "NO_CONTENT_COVERED": "A slot does not cover clause text or a signer name."
+      "NO_CONTENT_COVERED": "A slot does not cover clause text or a signer name.",
+      "CORRECT_SIGNER": "Signatures match the printed signer and area when identifiable."
     },
     "actions": {
       "back": "Back",
@@ -141,7 +144,20 @@
     "reviewPlacement": "Review signature placement on page {{page}}",
     "reviewTitle": "Your signature placement",
     "reviewNotice": "Review the document and signature area before sending the signing request.",
-    "coordinateInfo": "520-unit page coordinates: x={{x}}, y={{y}}, width={{w}}, height={{h}}."
+    "coordinateInfo": "520-unit page coordinates: x={{x}}, y={{y}}, width={{w}}, height={{h}}.",
+    "mismatch": "No matching printed signing area for: {{names}}",
+    "mismatchHelp": "Check the document, supplier and signer list. Return to upload to correct the signers or regenerate the document; do not sign below another person’s printed name.",
+    "missingPrintedName": "The name or party does not match a printed area in the PDF.",
+    "choosePage": "Choose PDF page",
+    "pageNo": "Page {{page}}",
+    "fitPage": "Fit page",
+    "showArea": "Go to signing area",
+    "identityRole": "Role: {{role}} · Job title: {{title}}",
+    "identityManual": "Printed signer names/parties could not be identified. Manually review each signer and area; automatic checks cover coordinates, detectable text and overlap only.",
+    "unconfiguredPrinted": "The document includes unconfigured signers: {{names}}. Return to upload to match the full list or regenerate the document.",
+    "mismatchSummary": "The signer list does not match the document",
+    "unconfiguredShort": "Printed names missing from the signer list: {{names}}.",
+    "correctSigners": "Correct signers or document"
   },
   "digitize": {
     "breadcrumb": {
@@ -244,7 +260,8 @@
         "queued": "The system notifies this person when it is their turn.",
         "awaiting": "The system is waiting for this person to sign.",
         "signed": "Signed on {{dateTime}} with {{method}}."
-      }
+      },
+      "account": "Signing account: {{email}}"
     },
     "rules": {
       "title": "Sequence rules",

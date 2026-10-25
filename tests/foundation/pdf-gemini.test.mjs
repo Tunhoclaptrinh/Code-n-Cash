@@ -221,6 +221,55 @@ for (const count of [1, 2, 3, 4])
         assert.equal(slots[i].x, anchor.x);
         assert.equal(slots[i].y, anchor.y);
       }
+      const reordered = [...input.signers].reverse().map((person, index) => ({
+        stepNo: index + 1,
+        signerName: person.name,
+        party: person.party,
+      }));
+      const mapped = documentSlots(pages, count, reordered);
+      assertSlots(mapped, pages, count, true, reordered);
+      for (const signer of reordered) {
+        const area = pages
+          .flatMap((p) =>
+            (p.anchors ?? []).map((a) => ({ ...a, page: p.pageNo })),
+          )
+          .find((a) => a.signerName === signer.signerName);
+        assert.ok(area, "printed name must be recovered from the actual PDF");
+        assert.equal(mapped[signer.stepNo].page, area.page);
+        assert.equal(mapped[signer.stepNo].y, area.y);
+      }
+      const stranger = [
+        { ...reordered[0], signerName: "Người không có tên trong PDF" },
+      ];
+      assert.equal(documentSlots(pages, 1, stranger)[1], null);
+      assert.throws(
+        () => assertSlots({ 1: mapped[1] }, pages, 1, true, stranger),
+        /SIGNER_DOCUMENT_MISMATCH/,
+      );
+      if (count > 1)
+        assert.throws(
+          () =>
+            assertSlots(
+              { ...mapped, 1: mapped[2] },
+              pages,
+              count,
+              true,
+              reordered,
+            ),
+          /SLOT_WRONG_SIGNER_AREA/,
+        );
+      if (count > 1)
+        assert.throws(
+          () =>
+            assertSlots(
+              { 1: mapped[1] },
+              pages,
+              1,
+              true,
+              reordered.slice(0, 1),
+            ),
+          /SIGNER_DOCUMENT_MISMATCH/,
+        );
       const image = await renderPdfPage(pdf, pages.length);
       assert.equal(image.subarray(1, 4).toString(), "PNG");
       if (live) {

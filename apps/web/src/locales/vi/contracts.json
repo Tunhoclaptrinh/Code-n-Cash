@@ -97,7 +97,8 @@
       "cancelSigning": "Hủy luồng ký",
       "cancelBody": "Hủy luồng ký của {{code}} và đưa hợp đồng về bản nháp. Chỉ làm được khi chưa ai ký; thao tác được ghi nhật ký.",
       "cancelled": "Đã hủy luồng ký, hợp đồng về bản nháp",
-      "openPage": "Mở trang chi tiết"
+      "openPage": "Mở trang chi tiết",
+      "demoIdentity": "Danh tính demo"
     }
   },
   "contractUpload": {
@@ -277,7 +278,12 @@
       "unavailable": "Không kết xuất được tài liệu. Hãy kiểm tra tệp hoặc tải xuống để mở bằng trình soạn thảo.",
       "downloadPdf": "Tải bản PDF xem trước",
       "noStoredFile": "Hồ sơ chưa có tệp gốc được lưu. Dữ liệu mẫu của ban tổ chức không kèm bản hợp đồng.",
-      "downloadOriginal": "Tải tệp gốc"
+      "downloadOriginal": "Tải tệp gốc",
+      "completeForm": "Điền thông tin và chọn người ký để xem PDF nháp tự cập nhật.",
+      "unsaved": "PDF nháp cập nhật theo form, chưa lưu vào hợp đồng. Bấm “Tạo và dùng hợp đồng mẫu” để chọn bản này làm tài liệu ký.",
+      "working": "Nội dung đang soạn",
+      "selected": "Tài liệu đã chọn",
+      "fileBasis": "Đây là nội dung tệp sẽ được ký. Sửa form không sửa tệp; hãy tạo lại mẫu hoặc tải tệp đã chỉnh sửa."
     },
     "intro": "Bước 1/5. Hợp đồng mới được cắt thành mốc theo đúng workflow của loại hợp đồng trong Data Pack, nên được đánh giá bằng cùng bộ rule với 405 mốc của BTC.",
     "sample": {

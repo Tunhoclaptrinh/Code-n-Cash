@@ -290,7 +290,9 @@
     "SLOT_REQUIRED": "Mỗi người ký cần có một ô ký hợp lệ trên tài liệu.",
     "SLOT_OUT_OF_BOUNDS": "Ô ký nằm ngoài trang hoặc kích thước không hợp lệ.",
     "SLOT_OVER_TEXT": "Ô ký đè lên văn bản của hợp đồng. Hãy chuyển vào vùng trống.",
-    "SLOT_OVERLAP": "Các ô ký đang chồng nhau. Hãy tách vị trí cho từng người."
+    "SLOT_OVERLAP": "Các ô ký đang chồng nhau. Hãy tách vị trí cho từng người.",
+    "SIGNER_DOCUMENT_MISMATCH": "Người ký không khớp tên/bên ký in sẵn trên tài liệu. Kiểm tra lại người ký hoặc tạo lại tài liệu.",
+    "SLOT_WRONG_SIGNER_AREA": "Ô ký nằm ngoài vùng dành cho người này. Chọn đúng vùng ký hoặc dùng gợi ý."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

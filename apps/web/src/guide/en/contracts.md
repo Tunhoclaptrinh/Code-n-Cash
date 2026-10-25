@@ -31,3 +31,11 @@ Drafts need preparation, signing positions and reviewed terms. Signing contracts
 > A visible event is not automatically valid evidence. The engine also checks authority, status, duplication, disputes and policy. Access checks remain enforced when opening a URL directly.
 
 See [Decision trace](/guide/decision), [New contracts and signing](/guide/signing) and [Table tools](/guide/tables).
+
+## Signed contracts can still have blocked payments
+
+![CT0084: 1 — a missing milestone condition, independent of signature completion](../../../public/guide/images/review-signed-hold.png)
+
+**CT0084** has a contract-signed event, but **MS0337 — Acceptance** lacks `ACCEPTANCE`. Two approvals do not replace the acceptance evidence, so that milestone is **HOLD**. The warning names the milestone and missing action. Do not mark every payment complete just because the signing view says 3/3.
+
+**Contract owner** is a role; **Project director** is a job title. A signer may also approve payments where the policy allows it, subject to the separate conditions and quorum of each milestone. **Role/organisation: Organiser data** alongside **Demo identity** distinguishes Data Pack functions from demo personal names/emails.

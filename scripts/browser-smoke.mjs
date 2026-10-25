@@ -337,7 +337,7 @@ try {
       if (route.startsWith("/guide/"))
         assert.ok(
           await evaluate(
-            "document.querySelector('article h2').getBoundingClientRect().top < 500",
+            "document.querySelector('[data-testid=guide-demo-contracts],article h2').getBoundingClientRect().top < 500",
           ),
           `mobile guide content visible without scrolling past navigation: ${route}`,
         );

@@ -34,6 +34,10 @@ export function SignaturePlacementPreview({
         onCancel={() => setOpen(false)}
         footer={null}
         width={720}
+        style={{ top: 24 }}
+        styles={{
+          body: { maxHeight: "calc(100dvh - 140px)", overflowY: "auto" },
+        }}
         title={t("positions.reviewTitle")}
         destroyOnHidden
       >
@@ -47,6 +51,8 @@ export function SignaturePlacementPreview({
           style={{
             position: "relative",
             width: "100%",
+            maxWidth: `calc(66dvh * 520 / ${height})`,
+            margin: "0 auto",
             aspectRatio: `520 / ${height}`,
             background: "white",
           }}

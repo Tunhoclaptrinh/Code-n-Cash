@@ -1,3 +1,4 @@
+import { DemoContractDownloads } from "./DemoContractDownloads";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -23,5 +24,12 @@ export function GuideContent({ topic }: { topic: GuideTopic }) {
   }, [source.data, hash]);
   if (source.isPending) return <PageState kind="loading" />;
   if (source.isError) return <PageState kind="error" />;
-  return <GuideMarkdown source={source.data} />;
+  return (
+    <>
+      {topic === "signing" || topic === "start" ? (
+        <DemoContractDownloads />
+      ) : null}
+      <GuideMarkdown source={source.data} />
+    </>
+  );
 }

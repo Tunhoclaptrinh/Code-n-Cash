@@ -1,0 +1,128 @@
+[
+  {
+    "signerCount": 1,
+    "pdf": "CodeCash-1-signers.pdf",
+    "docx": "CodeCash-1-signers.docx",
+    "pages": 3,
+    "sha256": "d75fb03b71a1a626b76995e371d4aab4ba44e571ce240020828b5cd5fb939465",
+    "supplierId": "S015",
+    "signers": [
+      {
+        "party": "BUYER",
+        "name": "Nguyễn Văn An",
+        "email": "owner@novaan.vn"
+      }
+    ],
+    "unsigned": true,
+    "terms": {
+      "valueMillion": "1250.50",
+      "startDate": "2026-12-01",
+      "endDate": "2027-12-01",
+      "graceDays": 5,
+      "penaltyRatePct": "0.25",
+      "maxPenaltyPct": "8.00"
+    }
+  },
+  {
+    "signerCount": 2,
+    "pdf": "CodeCash-2-signers.pdf",
+    "docx": "CodeCash-2-signers.docx",
+    "pages": 4,
+    "sha256": "05f67db2b7318fb417c4d7de382ed188145841d746b62a68790661bfade94e9e",
+    "supplierId": "S015",
+    "signers": [
+      {
+        "party": "BUYER",
+        "name": "Nguyễn Văn An",
+        "email": "owner@novaan.vn"
+      },
+      {
+        "party": "SUPPLIER",
+        "name": "Vũ Thanh Hà",
+        "email": "supplier@phuminh.vn"
+      }
+    ],
+    "unsigned": true,
+    "terms": {
+      "valueMillion": "1250.50",
+      "startDate": "2026-12-01",
+      "endDate": "2027-12-01",
+      "graceDays": 5,
+      "penaltyRatePct": "0.25",
+      "maxPenaltyPct": "8.00"
+    }
+  },
+  {
+    "signerCount": 3,
+    "pdf": "CodeCash-3-signers.pdf",
+    "docx": "CodeCash-3-signers.docx",
+    "pages": 5,
+    "sha256": "f900850f1e80e935037391f0e0d5ef827a7d5671dbc5900334caf9c8570f4e7f",
+    "supplierId": "S015",
+    "signers": [
+      {
+        "party": "BUYER",
+        "name": "Nguyễn Văn An",
+        "email": "owner@novaan.vn"
+      },
+      {
+        "party": "SUPPLIER",
+        "name": "Vũ Thanh Hà",
+        "email": "supplier@phuminh.vn"
+      },
+      {
+        "party": "BUYER",
+        "name": "Lê Quốc Dũng",
+        "email": "finance@novaan.vn"
+      }
+    ],
+    "unsigned": true,
+    "terms": {
+      "valueMillion": "1250.50",
+      "startDate": "2026-12-01",
+      "endDate": "2027-12-01",
+      "graceDays": 5,
+      "penaltyRatePct": "0.25",
+      "maxPenaltyPct": "8.00"
+    }
+  },
+  {
+    "signerCount": 4,
+    "pdf": "CodeCash-4-signers.pdf",
+    "docx": "CodeCash-4-signers.docx",
+    "pages": 5,
+    "sha256": "cd1c69042f75bf0fa69d852d0ba8f6d612513c33175eb38f8caf6f594bf04b7f",
+    "supplierId": "S015",
+    "signers": [
+      {
+        "party": "BUYER",
+        "name": "Nguyễn Văn An",
+        "email": "owner@novaan.vn"
+      },
+      {
+        "party": "SUPPLIER",
+        "name": "Vũ Thanh Hà",
+        "email": "supplier@phuminh.vn"
+      },
+      {
+        "party": "BUYER",
+        "name": "Lê Quốc Dũng",
+        "email": "finance@novaan.vn"
+      },
+      {
+        "party": "BUYER",
+        "name": "Trần Thị Mai",
+        "email": "legal@novaan.vn"
+      }
+    ],
+    "unsigned": true,
+    "terms": {
+      "valueMillion": "1250.50",
+      "startDate": "2026-12-01",
+      "endDate": "2027-12-01",
+      "graceDays": 5,
+      "penaltyRatePct": "0.25",
+      "maxPenaltyPct": "8.00"
+    }
+  }
+]

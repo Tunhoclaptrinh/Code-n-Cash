@@ -35,7 +35,8 @@
     "docker:down": "docker compose -f infra/compose.prod.yaml --env-file .env.production down",
     "test:rules:browser": "node scripts/rule-editor-smoke.mjs",
     "samples:generate": "node scripts/generate-contract-samples.mjs",
-    "test:gemini:live": "pnpm --filter @codecash/api build && RUN_GEMINI_LIVE=1 node tests/foundation/pdf-gemini.test.mjs"
+    "test:gemini:live": "pnpm --filter @codecash/api build && RUN_GEMINI_LIVE=1 node tests/foundation/pdf-gemini.test.mjs",
+    "samples:guide": "pnpm --filter @codecash/api build && node scripts/generate-guide-samples.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

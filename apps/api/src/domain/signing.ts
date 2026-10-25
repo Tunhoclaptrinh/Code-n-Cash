@@ -222,7 +222,13 @@ export function saveSlots(
       look: slot.look,
     };
   }
-  assertSlots(next, record.previewPages, record.steps.length);
+  assertSlots(
+    next,
+    record.previewPages,
+    record.steps.length,
+    false,
+    record.steps,
+  );
   record.slots = next;
   record.version += 1;
   return outcome(ctx, next);
@@ -231,7 +237,7 @@ export function saveSlots(
 export const defaultSignatureSlots = (ctx: Ctx, contractCode: string) => {
   const record = stored(ctx, contractCode);
   return record.layoutDocumentId
-    ? documentSlots(record.previewPages, record.steps.length)
+    ? documentSlots(record.previewPages, record.steps.length, record.steps)
     : defaultSlots(record.steps.length);
 };
 

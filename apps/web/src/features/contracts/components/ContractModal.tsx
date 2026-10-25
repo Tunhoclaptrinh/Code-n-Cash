@@ -400,6 +400,9 @@ export function ContractModal({
                           : td(`side.${person.side}`)}
                       </Tag>
                       <OriginTag origin={person.origin} />
+                      {person.identityOrigin ? (
+                        <Tag>{t("contractList.modal.demoIdentity")}</Tag>
+                      ) : null}
                     </Space>
                   </div>
                 )),

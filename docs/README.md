@@ -51,3 +51,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [23 — Đề xuất ứng dụng Gemini](23_DE_XUAT_UNG_DUNG_GEMINI.md)
 
 - [24 — PDF thật, vị trí ký và tích hợp Gemini](24_PDF_THAT_VI_TRI_KY_VA_GEMINI.md)
+
+- [25 — Preview, vùng ký đúng người và bộ mẫu tải trong hướng dẫn](25_RA_SOAT_PREVIEW_VUNG_KY_VA_BO_MAU.md)

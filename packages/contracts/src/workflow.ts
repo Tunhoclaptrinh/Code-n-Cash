@@ -405,6 +405,7 @@ export interface Participant {
   approvalRole: ApprovalRole | null;
   email: string | null;
   origin: Origin;
+  identityOrigin?: Origin;
 }
 
 export type TimelineEntry =
@@ -747,6 +748,7 @@ export interface SignStep {
 }
 
 export interface SignStepView extends SignStep {
+  signerEmail?: string;
   organizationName: string;
 }
 
@@ -779,7 +781,15 @@ export interface PdfPagePreview {
   widthPt?: number;
   heightPt?: number;
   contentCheck?: "TEXT" | "MANUAL";
-  anchors?: Array<{ stepNo: number; x: number; y: number }>;
+  anchors?: Array<{
+    stepNo: number;
+    x: number;
+    y: number;
+    w?: number;
+    h?: number;
+    signerName?: string;
+    party?: Side;
+  }>;
   heading: "ARTICLE_13" | "ARTICLE_14";
   textLineCount: number;
   hasSignatureBlock: boolean;

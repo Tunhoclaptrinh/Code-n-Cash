@@ -182,6 +182,7 @@ export class DocumentsController {
         ? {
             pdfSha256: createHash("sha256").update(rendered).digest("hex"),
             pdfPages,
+            pdfLayoutVersion: 2,
           }
         : {}),
       version: 1,

@@ -32,3 +32,9 @@ Sign in as `finance@novaan.vn`, open CT0103 milestone 2 and review the approval 
 > Demo actions persist in the current environment. Signing, approval and accounting transfer change the scenario. Ask the operator for a separate fresh test environment when repeating it; keep existing working data.
 
 Missing tasks may have been completed already or belong to another organization. See [Roles](/guide/roles) and [Table tools](/guide/tables).
+
+## Find the assigned signing account
+
+![Search accounts: 1 — type a name/email/company; 2 — select the demo account](../../../public/guide/images/review-account-search.png)
+
+Search without accents, for example `Bui Van Khanh`, or use an email. Bùi Văn Khánh is `supplier@alphatech.vn` at S001 — AlphaTech; Vũ Thanh Hà is `supplier@phuminh.vn` at S015 — Phú Minh. Match the contract's organisation; a different supplier cannot sign on their behalf. The signing sequence shows each assigned email for comparison.

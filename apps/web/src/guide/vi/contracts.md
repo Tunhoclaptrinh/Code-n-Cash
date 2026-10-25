@@ -45,3 +45,11 @@ Tab **Sự kiện** cho biết ai ghi, loại sự kiện, thời điểm, trạ
 > **Nếu không mở được mã:** kiểm tra tài khoản có thuộc bên mua hoặc NCC của hợp đồng không. Hệ thống kiểm phạm vi ở API; thay địa chỉ trên trình duyệt không mở rộng quyền.
 
 Hồ sơ mới được tạo qua **Tải hợp đồng lên**, xem [Soạn, số hoá và ký](/guide/signing). Các công cụ danh sách được giải thích tại [Tìm, lọc và xuất](/guide/tables).
+
+## Đã ký đủ nhưng vẫn chờ điều kiện
+
+![CT0084: 1 — mốc còn thiếu điều kiện, độc lập với số lượt ký](../../../public/guide/images/review-signed-hold.png)
+
+**CT0084** đã có sự kiện ký hợp đồng, nhưng **MS0337 — Nghiệm thu** chưa có `ACCEPTANCE`. Hai phê duyệt đã đủ vẫn chưa thay được biên bản nghiệm thu, nên mốc này **HOLD**. Dòng cảnh báo nêu mốc và hành động còn thiếu; mở đúng mốc để xem chứng từ/event. Không sửa trạng thái thành hoàn tất chỉ vì màn ký ghi 3/3.
+
+**Chủ hợp đồng** là vai trò; **Giám đốc dự án** là chức danh. Một người có thể ký hợp đồng và tham gia phê duyệt theo chính sách, nhưng vẫn phải tuân thủ điều kiện và quorum riêng của từng mốc. Nhãn **Vai trò/đơn vị: Dữ liệu BTC** đi kèm **Danh tính demo** cho biết tổ chức/chức năng có trong Data Pack còn tên người/email được bổ sung cho demo.

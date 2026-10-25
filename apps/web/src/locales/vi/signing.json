@@ -74,7 +74,9 @@
     "SLOT_REQUIRED": "Mỗi người ký cần có một ô ký hợp lệ trên tài liệu.",
     "SLOT_OUT_OF_BOUNDS": "Ô ký nằm ngoài trang hoặc kích thước không hợp lệ.",
     "SLOT_OVER_TEXT": "Ô ký đè lên văn bản của hợp đồng. Hãy chuyển vào vùng trống.",
-    "SLOT_OVERLAP": "Các ô ký đang chồng nhau. Hãy tách vị trí cho từng người."
+    "SLOT_OVERLAP": "Các ô ký đang chồng nhau. Hãy tách vị trí cho từng người.",
+    "SIGNER_DOCUMENT_MISMATCH": "Người ký không khớp tên/bên ký in sẵn trên tài liệu. Kiểm tra lại người ký hoặc tạo lại tài liệu.",
+    "SLOT_WRONG_SIGNER_AREA": "Ô ký nằm ngoài vùng dành cho người này. Chọn đúng vùng ký hoặc dùng gợi ý."
   },
   "positions": {
     "breadcrumb": {
@@ -126,7 +128,8 @@
       "title": "Kiểm tra trước khi tiếp tục",
       "ONE_SLOT_PER_STEP": "Mỗi bước ký có đúng một ô.",
       "NO_OVERLAP": "Hai ô ký không chồng lên nhau.",
-      "NO_CONTENT_COVERED": "Ô ký không đè lên nội dung điều khoản hoặc tên người ký."
+      "NO_CONTENT_COVERED": "Ô ký không đè lên nội dung điều khoản hoặc tên người ký.",
+      "CORRECT_SIGNER": "Ô ký đúng người và đúng vùng ký in sẵn (nếu nhận diện được)."
     },
     "actions": {
       "back": "Quay lại",
@@ -141,7 +144,20 @@
     "reviewPlacement": "Xem vị trí ký trên trang {{page}}",
     "reviewTitle": "Vị trí chữ ký của bạn",
     "reviewNotice": "Đối chiếu tài liệu và vị trí ô ký trước khi gửi yêu cầu ký.",
-    "coordinateInfo": "Tọa độ theo trang rộng 520 đơn vị: x={{x}}, y={{y}}, rộng={{w}}, cao={{h}}."
+    "coordinateInfo": "Tọa độ theo trang rộng 520 đơn vị: x={{x}}, y={{y}}, rộng={{w}}, cao={{h}}.",
+    "mismatch": "Tài liệu chưa có vùng ký khớp với: {{names}}",
+    "mismatchHelp": "Kiểm tra đúng tệp, đúng nhà cung cấp và danh sách người ký. Quay lại bước tải lên để sửa người ký hoặc tạo lại tài liệu; không đặt chữ ký của người này dưới tên người khác.",
+    "missingPrintedName": "Tên hoặc bên ký không khớp với vùng ký trong PDF.",
+    "choosePage": "Chọn trang PDF",
+    "pageNo": "Trang {{page}}",
+    "fitPage": "Vừa trang",
+    "showArea": "Đến vùng ký",
+    "identityRole": "Vai trò: {{role}} · Chức danh: {{title}}",
+    "identityManual": "Chưa nhận diện được tên/bên ký in sẵn trên PDF. Kiểm tra thủ công từng người và vùng ký; hệ thống chỉ kiểm được tọa độ, chữ nhận diện được và chồng lấn.",
+    "unconfiguredPrinted": "Tài liệu còn người ký chưa được cấu hình: {{names}}. Quay lại bước tải lên để khớp đủ danh sách hoặc tạo lại tài liệu.",
+    "mismatchSummary": "Danh sách người ký chưa khớp tài liệu",
+    "unconfiguredShort": "Tên trên PDF chưa được cấu hình: {{names}}.",
+    "correctSigners": "Sửa người ký hoặc tài liệu"
   },
   "digitize": {
     "breadcrumb": {
@@ -241,7 +257,8 @@
         "queued": "Hệ thống sẽ thông báo cho người này khi đến lượt.",
         "awaiting": "Hệ thống đang chờ người này ký.",
         "signed": "Đã ký lúc {{dateTime}} bằng {{method}}."
-      }
+      },
+      "account": "Tài khoản ký: {{email}}"
     },
     "rules": {
       "title": "Quy tắc của trình tự",

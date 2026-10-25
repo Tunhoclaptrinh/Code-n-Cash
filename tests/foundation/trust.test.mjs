@@ -843,6 +843,53 @@ test("real sample DOCX supports 1–4 signers through upload, extraction, sequen
   }
 });
 
+test("existing PDF layouts gain identity metadata without changing signed slots or proofs", async () => {
+  const { refreshPdfLayouts } =
+    await import("../../apps/api/dist/pdf-layout.js");
+  const document = (await repo.list("documents")).find((row) => row.pdfSha256);
+  assert.ok(document);
+  const signing = (await repo.list("signing")).find(
+    (row) => row.layoutDocumentId === document.id,
+  );
+  const before = structuredClone(signing);
+  await repo.mutate("documents", (rows) => {
+    rows.find((row) => row.id === document.id).pdfLayoutVersion = 1;
+  });
+  const auditBefore = (await repo.list("audit")).filter(
+    (row) => row.action === "REFRESH_PDF_LAYOUT",
+  ).length;
+  await Promise.all([refreshPdfLayouts(repo), refreshPdfLayouts(repo)]);
+  assert.equal(
+    (await repo.list("audit")).filter(
+      (row) => row.action === "REFRESH_PDF_LAYOUT",
+    ).length,
+    auditBefore + 1,
+  );
+  const changed = (await repo.list("documents")).find(
+    (row) => row.id === document.id,
+  );
+  assert.equal(changed.pdfLayoutVersion, 2);
+  assert.ok(
+    changed.pdfPages.some((page) =>
+      page.anchors?.some((anchor) => anchor.signerName),
+    ),
+  );
+  const after = (await repo.list("signing")).find(
+    (row) => row.id === signing.id,
+  );
+  assert.deepEqual(after.slots, before.slots);
+  assert.deepEqual(after.steps, before.steps);
+  assert.equal(after.layoutVersion, before.layoutVersion + 1);
+  const audits = (await repo.list("audit")).length;
+  await refreshPdfLayouts(repo);
+  assert.equal(
+    (await repo.list("audit")).length,
+    audits,
+    "no duplicate migration audit",
+  );
+  assert.equal(verifyChain(await repo.list("audit")).ok, true);
+});
+
 test("HTTP signing bridge binds proofs to the payload and pinned key, with no local fallback", async () => {
   const { HttpSigningProvider } =
     await import("../../apps/api/dist/trust/signing-provider.js");

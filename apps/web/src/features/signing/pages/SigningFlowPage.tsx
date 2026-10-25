@@ -238,6 +238,14 @@ function StepItem({
           </span>
         </div>
         <div className={styles.stepDescription}>{description}</div>
+        <div className={styles.stepNote}>
+          {t("positions.identityRole", { role, title: step.signerTitle })}
+        </div>
+        {step.signerEmail ? (
+          <div className={styles.stepNote}>
+            {t("flow.sequence.account", { email: step.signerEmail })}
+          </div>
+        ) : null}
         <div className={styles.stepNote}>{note}</div>
       </div>
     </li>

@@ -138,7 +138,10 @@
     },
     "participants": {
       "title": "Parties and people"
-    }
+    },
+    "signedPending": "Contract signing is complete; some payment milestones still need conditions",
+    "roleLabel": "Role",
+    "titleLabel": "Job title"
   },
   "decision": {
     "breadcrumb": "Milestone {{no}} · {{name}}",

@@ -100,7 +100,8 @@
     "demoEmpty": "No demo accounts are currently available.",
     "demoFeatured": "Suggested (Nova An · Phú Minh)",
     "demoAll": "Every Data Pack organisation",
-    "emailPlaceholder": "name@example.com"
+    "emailPlaceholder": "name@example.com",
+    "demoSearch": "Search name, email or company…"
   },
   "common": {
     "loading": "Loading…",
@@ -214,6 +215,13 @@
       "activity": "Activity log",
       "data": "Data Pack results",
       "admin": "Administration"
+    },
+    "samples": {
+      "title": "Download contracts to try signing",
+      "notice": "Unsigned demo files. Download a PDF, select Phú Minh (S015), configure the matching signers below, then upload to a new contract.",
+      "pdf": "PDF · {{count}} signers",
+      "all": "Download all PDFs + DOCX",
+      "signers": "For the chosen count use: Nguyễn Văn An (owner@novaan.vn), Vũ Thanh Hà (supplier@phuminh.vn), Lê Quốc Dũng (finance@novaan.vn), Trần Thị Mai (legal@novaan.vn). Search by name/email in Demo accounts. These are unsigned workflow test files."
     }
   },
   "forms": {
@@ -232,5 +240,9 @@
   },
   "tableActions": {
     "more": "More actions"
+  },
+  "identity": {
+    "demoPerson": "Demo identity",
+    "roleSource": "Role/organisation:"
   }
 }

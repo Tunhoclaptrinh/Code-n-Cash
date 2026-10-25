@@ -435,6 +435,7 @@ export class Ctx {
   signingSteps(contractId: string): SignStepView[] {
     return (this.signing(contractId)?.steps ?? []).map((step) => ({
       ...step,
+      signerEmail: this.user(step.signerUserId)?.email as string | undefined,
       organizationName: this.partyName(step.organizationId),
     }));
   }

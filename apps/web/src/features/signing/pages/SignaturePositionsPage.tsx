@@ -1,4 +1,5 @@
-import { Button } from "antd";
+import { Button, Select } from "antd";
+import { printedAreas, wrongSignerArea } from "../lib/signer-placement";
 import {
   useEffect,
   useRef,
@@ -37,7 +38,7 @@ import { Alert } from "antd";
 const PAGE_WIDTH = 520;
 const PAGE_HEIGHT = 620;
 const PAGE_WIDTH_MM = 210;
-const ZOOM_MIN = 75;
+const ZOOM_MIN = 40;
 const ZOOM_MAX = 125;
 const ZOOM_STEP = 25;
 const KEY_STEP = 4;
@@ -170,6 +171,19 @@ function Editor({ contractId, config }: EditorProps) {
     initial.boxes[steps[0]?.stepNo ?? 1]?.page ?? lastPage,
   );
   const [zoom, setZoom] = useState(100);
+  const [autoFit, setAutoFit] = useState(true);
+  const [canvasHeight, setCanvasHeight] = useState(420);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 560, height: 580 });
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const rect = entries[0].contentRect;
+      setCanvasSize({ width: rect.width, height: rect.height });
+    });
+    observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
   const [imageReady, setImageReady] = useState(false);
   const pageHeight = (number: number) =>
     previewPages.find((p) => p.pageNo === number)?.height ?? PAGE_HEIGHT;
@@ -327,8 +341,8 @@ function Editor({ contractId, config }: EditorProps) {
         page: state.page,
         x: state.sx - 100,
         y: state.sy - 45,
-        w: 200,
-        h: 90,
+        w: 190,
+        h: 72,
       });
     }
   };
@@ -365,7 +379,10 @@ function Editor({ contractId, config }: EditorProps) {
   };
 
   // Validation of the current layout.
-  const flags: Record<number, { over: boolean; overlap: boolean }> = {};
+  const flags: Record<
+    number,
+    { over: boolean; overlap: boolean; wrong: boolean }
+  > = {};
   for (const step of steps) {
     const box = boxes[step.stepNo];
     if (!box) continue;
@@ -373,6 +390,10 @@ function Editor({ contractId, config }: EditorProps) {
       previewPages.find((candidate) => candidate.pageNo === box.page)
         ?.blockedZones ?? [];
     flags[step.stepNo] = {
+      wrong: wrongSignerArea(config, step, {
+        ...box,
+        look: looks[step.stepNo],
+      }),
       over: zones.some((zone) => overlaps(box, zone)),
       overlap: steps.some((other) => {
         const otherBox = boxes[other.stepNo];
@@ -389,7 +410,29 @@ function Editor({ contractId, config }: EditorProps) {
   const anyOver = assigned.some((step) => flags[step.stepNo].over);
   const anyOverlap = assigned.some((step) => flags[step.stepNo].overlap);
   const allAssigned = assigned.length === steps.length;
+  const hasNamedAreas = previewPages.some((p) =>
+    p.anchors?.some((anchor) => anchor.signerName),
+  );
+  const incompatible = steps.filter((step) => wrongSignerArea(config, step));
+  const unconfiguredPrinted = previewPages
+    .flatMap((p) => p.anchors ?? [])
+    .filter(
+      (anchor) =>
+        anchor.signerName &&
+        !steps.some((step) =>
+          printedAreas(config, step).some(
+            (area) =>
+              area.signerName === anchor.signerName &&
+              area.party === anchor.party,
+          ),
+        ),
+    );
+  const anyWrong =
+    unconfiguredPrinted.length > 0 ||
+    incompatible.length > 0 ||
+    assigned.some((step) => flags[step.stepNo].wrong);
   const checks = [
+    { code: "CORRECT_SIGNER", ok: !anyWrong, pending: !hasNamedAreas },
     { code: "ONE_SLOT_PER_STEP", ok: allAssigned, pending: false },
     {
       code: "NO_OVERLAP",
@@ -406,10 +449,50 @@ function Editor({ contractId, config }: EditorProps) {
     allAssigned &&
     !anyOver &&
     !anyOverlap &&
+    !anyWrong &&
     (!config.documentId || imageReady);
 
   const pageData = previewPages.find((candidate) => candidate.pageNo === page);
-  const scale = zoom / 100;
+  const fitZoom = clamp(
+    Math.floor(
+      Math.min(
+        (canvasSize.width - 8) / PAGE_WIDTH,
+        (canvasSize.height - 8) / pageHeight(page),
+      ) * 100,
+    ),
+    ZOOM_MIN,
+    ZOOM_MAX,
+  );
+  const viewZoom = autoFit ? fitZoom : zoom;
+  const scale = viewZoom / 100;
+  useEffect(() => {
+    const update = () => {
+      if (canvasRef.current)
+        setCanvasHeight(
+          Math.max(
+            300,
+            Math.min(
+              760,
+              window.innerHeight -
+                canvasRef.current.getBoundingClientRect().top -
+                78,
+            ),
+          ),
+        );
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [incompatible.length, unconfiguredPrinted.length]);
+  const selectStep = (stepNo: number) => {
+    setActiveStep(stepNo);
+    const area = printedAreas(
+      config,
+      steps.find((step) => step.stepNo === stepNo)!,
+    )[0];
+    const target = boxes[stepNo]?.page ?? area?.page;
+    if (target) setPage(target);
+  };
   const visibleSteps = steps.filter(
     (step) => boxes[step.stepNo]?.page === page,
   );
@@ -447,6 +530,56 @@ function Editor({ contractId, config }: EditorProps) {
         />
       ) : null}
 
+      {config.documentId && !hasNamedAreas ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={t("positions.identityManual")}
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
+      {incompatible.length || unconfiguredPrinted.length ? (
+        <Alert
+          type="error"
+          showIcon
+          data-testid="signer-document-mismatch"
+          title={t("positions.mismatchSummary")}
+          description={
+            <>
+              {incompatible.length ? (
+                <div>
+                  {t("positions.mismatch", {
+                    names: incompatible
+                      .map((step) => step.signerName)
+                      .join(", "),
+                  })}
+                </div>
+              ) : null}
+              {unconfiguredPrinted.length ? (
+                <div>
+                  {t("positions.unconfiguredShort", {
+                    names: unconfiguredPrinted
+                      .map((area) => area.signerName)
+                      .join(", "),
+                  })}
+                </div>
+              ) : null}
+              <Button
+                size="small"
+                onClick={() =>
+                  navigate(
+                    `/contracts/new?draft=${encodeURIComponent(contractId)}`,
+                  )
+                }
+                style={{ marginTop: 8 }}
+              >
+                {t("positions.correctSigners")}
+              </Button>
+            </>
+          }
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
       <div className={styles.layout}>
         <section className={cx(shared.card, styles.canvasCard)}>
           <div className={styles.canvasHeader}>
@@ -472,7 +605,8 @@ function Editor({ contractId, config }: EditorProps) {
                   type="button"
                   className={on ? styles.chipOn : styles.chip}
                   aria-pressed={on}
-                  onClick={() => setActiveStep(step.stepNo)}
+                  data-testid={`signer-step-${step.stepNo}`}
+                  onClick={() => selectStep(step.stepNo)}
                 >
                   {t(
                     on ? "positions.stepChipActive" : "positions.stepChip",
@@ -483,7 +617,11 @@ function Editor({ contractId, config }: EditorProps) {
             })}
             <span className={styles.hint}>{t("positions.hint")}</span>
           </div>
-          <div className={styles.canvas}>
+          <div
+            className={styles.canvas}
+            ref={canvasRef}
+            style={{ height: canvasHeight }}
+          >
             <div
               style={{
                 width: Math.round(PAGE_WIDTH * scale),
@@ -552,7 +690,7 @@ function Editor({ contractId, config }: EditorProps) {
                 {visibleSteps.map((step) => {
                   const box = boxes[step.stepNo] as Box;
                   const flag = flags[step.stepNo];
-                  const bad = flag.over || flag.overlap;
+                  const bad = flag.over || flag.overlap || flag.wrong;
                   const selected = activeStep === step.stepNo;
                   const look = looks[step.stepNo];
                   return (
@@ -587,9 +725,6 @@ function Editor({ contractId, config }: EditorProps) {
                       >
                         <span className={styles.slotLine1}>
                           {t("slot.label", { stepNo: step.stepNo })}
-                        </span>
-                        <span className={styles.slotLine2}>
-                          {t(`party.${step.party}`)}
                         </span>
                         <span className={styles.slotLine3}>
                           {step.signerName}
@@ -643,26 +778,42 @@ function Editor({ contractId, config }: EditorProps) {
             >
               ▶
             </button>
+            <Select
+              size="small"
+              aria-label={t("positions.choosePage")}
+              value={page}
+              onChange={setPage}
+              style={{ width: 110 }}
+              options={previewPages.map((p) => ({
+                value: p.pageNo,
+                label: t("positions.pageNo", { page: p.pageNo }),
+              }))}
+            />
+            <Button size="small" onClick={() => setAutoFit(true)}>
+              {t("positions.fitPage")}
+            </Button>
             <span className={styles.zoom}>
               {t("positions.zoom.label")}
               <button
                 type="button"
                 className={styles.pagerButton}
                 aria-label={t("positions.zoom.out")}
-                onClick={() =>
-                  setZoom((value) => Math.max(ZOOM_MIN, value - ZOOM_STEP))
-                }
+                onClick={() => {
+                  setAutoFit(false);
+                  setZoom(Math.max(ZOOM_MIN, viewZoom - ZOOM_STEP));
+                }}
               >
                 −
               </button>
-              <b className={styles.zoomValue}>{zoom}%</b>
+              <b className={styles.zoomValue}>{viewZoom}%</b>
               <button
                 type="button"
                 className={styles.pagerButton}
                 aria-label={t("positions.zoom.in")}
-                onClick={() =>
-                  setZoom((value) => Math.min(ZOOM_MAX, value + ZOOM_STEP))
-                }
+                onClick={() => {
+                  setAutoFit(false);
+                  setZoom(Math.min(ZOOM_MAX, viewZoom + ZOOM_STEP));
+                }}
               >
                 +
               </button>
@@ -686,7 +837,9 @@ function Editor({ contractId, config }: EditorProps) {
             {steps.map((step) => {
               const box = boxes[step.stepNo];
               const flag = flags[step.stepNo];
-              const bad = Boolean(box && (flag.over || flag.overlap));
+              const bad = Boolean(
+                box && (flag.over || flag.overlap || flag.wrong),
+              );
               const on = activeStep === step.stepNo;
               const look = looks[step.stepNo];
               const status = !box
@@ -721,6 +874,18 @@ function Editor({ contractId, config }: EditorProps) {
                       {t(`positions.list.status.${status}`)}
                     </span>
                   </div>
+                  <Button
+                    type="link"
+                    size="small"
+                    onClick={() => selectStep(step.stepNo)}
+                  >
+                    {t("positions.showArea")}
+                  </Button>
+                  {wrongSignerArea(config, step) ? (
+                    <span className={styles.checkTextFail}>
+                      {t("positions.missingPrintedName")}
+                    </span>
+                  ) : null}
                   <div className={styles.cardPosition}>
                     {box
                       ? t("positions.list.position", {

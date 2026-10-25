@@ -3412,28 +3412,22 @@ test("digitisation: a buyer editor locks the terms once; milestones add up to th
   );
 });
 
-test(
-  "digitisation: a due date is a date in the form YYYY-MM-DD, nothing more (spec 5.4)",
-  {
-    todo: "BUG (minor): confirmDigitization keeps only the first 10 characters of the due date, so '2027-05-31T25:99:99junk' is accepted and stored as 2027-05-31",
-  },
-  async () => {
-    const w = await world();
-    for (const dueDate of [
-      "2027-05-31T25:99:99junk",
-      "2027-05-31 DROP TABLE",
-      "2027-05-31x",
-    ])
-      await denied(
-        w,
-        U.LEGAL,
-        "drafts",
-        "confirmDigitization",
-        ["CT0101", { dueDate }],
-        "INVALID_DATES",
-      );
-  },
-);
+test("digitisation: a due date is a date in the form YYYY-MM-DD, nothing more (spec 5.4)", async () => {
+  const w = await world();
+  for (const dueDate of [
+    "2027-05-31T25:99:99junk",
+    "2027-05-31 DROP TABLE",
+    "2027-05-31x",
+  ])
+    await denied(
+      w,
+      U.LEGAL,
+      "drafts",
+      "confirmDigitization",
+      ["CT0101", { dueDate }],
+      "INVALID_DATES",
+    );
+});
 
 test("digitisation: an unreadable due date is kept as a structural gap and holds that milestone under rule 80 (BR-15)", async () => {
   const w = await world();
@@ -3658,19 +3652,13 @@ test("sweep: for every milestone and every party, what the screens offer equals 
   assert.deepEqual(found.slice(0, 20), [], `${found.length} mismatches`);
 });
 
-test(
-  "sweep: the milestone screen offers 'reject' only to an approver who has not rejected it already",
-  {
-    todo: "BUG: milestoneDetail.actions.reject stays true after the approver's own rejection (held behind an open dispute) while the API answers ALREADY_VOTED; approvalView.canReject handles it",
-  },
-  async () => {
-    const { mismatches } = await flagMismatches();
-    const found = mismatches
-      .filter((x) => x.action === "reject")
-      .map((x) => x.text);
-    assert.deepEqual(found, []);
-  },
-);
+test("sweep: the milestone screen offers 'reject' only to an approver who has not rejected it already", async () => {
+  const { mismatches } = await flagMismatches();
+  const found = mismatches
+    .filter((x) => x.action === "reject")
+    .map((x) => x.text);
+  assert.deepEqual(found, []);
+});
 
 test("sweep: the controllers are offered only the BR-19 proposal and the auditor is offered nothing (SoD-1, SoD-3)", async () => {
   const w = await busyWorld();
@@ -4796,31 +4784,25 @@ test("audit: a rejected action leaves no trace in the chain, only successful one
   assert.equal(w.snap().head, head);
 });
 
-test(
-  "signing: a milestone id that is released with a cancelled sequence is never reused for another milestone, so history cannot be mixed up",
-  {
-    todo: "BUG (ambiguous): cancelling a signing sequence deletes the milestones but keeps their history rows, and the next digitisation of the draft reuses the same MS ids",
-  },
-  async () => {
-    const w = await world();
-    await ok(w, U.LEGAL, "drafts", "confirmDigitization", "CT0101", {
-      dueDate: "2027-05-31",
-    });
-    const first = w
-      .tbl("milestones")
-      .filter((m) => m.contract_id === "CT0101")
-      .map((m) => m.milestone_id);
-    await ok(w, U.LEGAL, "signing", "cancelSigning", "CT0101");
-    await ok(w, U.LEGAL, "drafts", "confirmDigitization", "CT0101", {
-      dueDate: "2027-05-31",
-    });
-    const second = w
-      .tbl("milestones")
-      .filter((m) => m.contract_id === "CT0101")
-      .map((m) => m.milestone_id);
-    assert.equal(second.filter((id) => first.includes(id)).length, 0);
-  },
-);
+test("signing: a milestone id that is released with a cancelled sequence is never reused for another milestone, so history cannot be mixed up", async () => {
+  const w = await world();
+  await ok(w, U.LEGAL, "drafts", "confirmDigitization", "CT0101", {
+    dueDate: "2027-05-31",
+  });
+  const first = w
+    .tbl("milestones")
+    .filter((m) => m.contract_id === "CT0101")
+    .map((m) => m.milestone_id);
+  await ok(w, U.LEGAL, "signing", "cancelSigning", "CT0101");
+  await ok(w, U.LEGAL, "drafts", "confirmDigitization", "CT0101", {
+    dueDate: "2027-05-31",
+  });
+  const second = w
+    .tbl("milestones")
+    .filter((m) => m.contract_id === "CT0101")
+    .map((m) => m.milestone_id);
+  assert.equal(second.filter((id) => first.includes(id)).length, 0);
+});
 
 test("approvals: a milestone held by a dispute still takes votes, but the hold wins until the dispute is closed (spec 9.4, rule 10 before 50 and 60)", async () => {
   const w = await world();

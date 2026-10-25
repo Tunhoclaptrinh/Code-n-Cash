@@ -13,6 +13,7 @@ import {
   TABLE,
   type ContractRecord,
   type DraftRecord,
+  type HistoryRecord,
   type SigningRecord,
   type StageTemplate,
 } from "./records";
@@ -623,9 +624,8 @@ export function confirmDigitization(
     );
   }
   const result = digitization(ctx, code);
-  const dueDate = input?.dueDate
-    ? isoDate(String(input.dueDate).slice(0, 10))
-    : null;
+  // The whole value must be a date; trailing text is refused rather than cut off.
+  const dueDate = input?.dueDate ? isoDate(String(input.dueDate)) : null;
   if (input?.dueDate && !dueDate)
     throw new BadRequestException("INVALID_DATES");
   for (const m of result.milestones)
@@ -634,13 +634,14 @@ export function confirmDigitization(
       m.source = "CONFIRMED";
     }
   result.locked = true;
+  // Ids of milestones removed with a cancelled signing sequence live on in the status history,
+  // so they are never handed out again.
+  const usedIds = [
+    ...ctx.milestones.map((m) => m.milestone_id),
+    ...(ctx.t[TABLE.history] as HistoryRecord[]).map((h) => h.milestoneId),
+  ];
   const first =
-    Math.max(
-      0,
-      ...ctx.milestones.map(
-        (m) => Number(m.milestone_id.replace(/\D/g, "")) || 0,
-      ),
-    ) + 1;
+    Math.max(0, ...usedIds.map((id) => Number(id.replace(/\D/g, "")) || 0)) + 1;
   const created = milestonesFor(
     contract,
     stagesOf(

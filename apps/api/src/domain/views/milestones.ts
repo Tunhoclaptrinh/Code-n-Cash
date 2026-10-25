@@ -112,12 +112,14 @@ export function milestoneDetail(
   const mine =
     contract.buyer_id === ctx.actor.organizationId ||
     contract.supplier_id === ctx.actor.organizationId;
-  const approved = ctx
-    .eventsOf(m.milestone_id)
-    .some(
-      (e) =>
-        e.event_type === "APPROVAL" && e.actor_party_id === ctx.actor.partyId,
-    );
+  // One vote per approver and kind, matching what castVote accepts (ALREADY_VOTED).
+  const votedOwn = (type: "APPROVAL" | "REJECTION") =>
+    ctx
+      .eventsOf(m.milestone_id)
+      .some(
+        (e) => e.event_type === type && e.actor_party_id === ctx.actor.partyId,
+      );
+  const approved = votedOwn("APPROVAL");
   return {
     contract: ctx.contractRow(contract),
     milestone: ctx.milestoneRow(m),
@@ -178,7 +180,11 @@ export function milestoneDetail(
         contract.buyer_id === ctx.actor.organizationId &&
         ctx.approvalRoles(m).includes(role) &&
         !approved,
-      reject: open && !!role && contract.buyer_id === ctx.actor.organizationId,
+      reject:
+        open &&
+        !!role &&
+        contract.buyer_id === ctx.actor.organizationId &&
+        !votedOwn("REJECTION"),
       openDispute:
         open &&
         mine &&

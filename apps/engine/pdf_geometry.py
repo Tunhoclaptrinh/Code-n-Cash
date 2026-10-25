@@ -5,6 +5,30 @@ import sys
 import xml.etree.ElementTree as ET
 
 
+def line_text(line):
+    return ' '.join(node.text or '' for node in line.iter() if node.tag.endswith('}word'))
+
+
+# Signature blocks read "ĐẠI DIỆN BÊN MUA / role / (Ký, ...) / VỊ TRÍ KÝ 01 / signer name".
+SIDE_LINE = re.compile(r'^(?:ĐẠI DIỆN|REPRESENTATIVE|FOR)\b.*?(BÊN MUA|NHÀ CUNG CẤP|BUYER|SUPPLIER)\s*$', re.I)
+SIDES = {'BÊN MUA': 'BUYER', 'BUYER': 'BUYER', 'NHÀ CUNG CẤP': 'SUPPLIER', 'SUPPLIER': 'SUPPLIER'}
+
+
+def signer_of(lines, index):
+    """Printed signer name and party for the anchor at `index`, or (name, None) when not recognised."""
+    for back in range(1, 7):
+        if index - back < 0:
+            break
+        side = SIDE_LINE.match(line_text(lines[index - back]).strip())
+        if side and index + 1 < len(lines):
+            return line_text(lines[index + 1]).strip(), SIDES[side.group(1).upper()]
+    # Older layout: the name sits right above the anchor and the party label above the name.
+    name = line_text(lines[index - 1]) if index else ''
+    side = line_text(lines[index - 2]) if index > 1 else ''
+    party = 'BUYER' if side.upper() in ('BÊN MUA', 'BUYER') else 'SUPPLIER' if side.upper() in ('NHÀ CUNG CẤP', 'SUPPLIER') else None
+    return name, party
+
+
 def geometry(path):
     root = ET.parse(path).getroot()
     pages = []
@@ -27,9 +51,7 @@ def geometry(path):
             zones.append(box)
             match = re.search(r'(?:VỊ TRÍ KÝ|SIGNING AREA)\s*0?([1-4])', text, re.I)
             if match:
-                name = ' '.join(node.text or '' for node in lines[index - 1].iter() if node.tag.endswith('}word')) if index else ''
-                side = ' '.join(node.text or '' for node in lines[index - 2].iter() if node.tag.endswith('}word')) if index > 1 else ''
-                party = 'BUYER' if side.upper() in ('BÊN MUA', 'BUYER') else 'SUPPLIER' if side.upper() in ('NHÀ CUNG CẤP', 'SUPPLIER') else None
+                name, party = signer_of(lines, index)
                 anchor = dict(stepNo=int(match.group(1)), x=box['x'], y=box['y'] + box['h'] + 8, w=240, h=92)
                 if party and name:
                     anchor.update(signerName=name, party=party)

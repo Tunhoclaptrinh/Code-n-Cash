@@ -6,10 +6,10 @@
   "submission": {
     "title_one": "{{count}} tranh chấp của mốc",
     "title_other": "{{count}} tranh chấp của mốc",
-    "none": "Mốc chưa có tranh chấp nào.",
     "author": "{{name}} · {{organization}}",
     "quote": "\"{{message}}\"",
-    "resolution": "{{id}} · {{by}} · {{at}}: {{note}}"
+    "resolution": "{{by}} · {{at}}: {{note}}",
+    "resolutionPlain": "{{by}} · {{at}}"
   },
   "state": {
     "OPEN": "Đang mở",
@@ -25,11 +25,9 @@
   "impact": {
     "title": "Tác động đến thanh toán",
     "now": "Hiện tại",
-    "afterResolve": "Nếu đóng mọi tranh chấp (chạy thử)",
+    "afterResolve": "Nếu đóng mọi tranh chấp",
     "unit": "triệu",
-    "penalty": "phạt {{penalty}}",
-    "noPreview": "Chỉ bên mua hoặc chủ hợp đồng xem được kết quả chạy thử khi có tranh chấp mở.",
-    "footnote": "Trong lúc tranh chấp mở, mốc bị tạm giữ. Không ai sửa tay tiền phạt: số tiền được tính lại tự động sau khi đóng tranh chấp."
+    "penalty": "phạt {{penalty}}"
   },
   "decision": {
     "title": "Xử lý tranh chấp",
@@ -50,11 +48,9 @@
     "note": {
       "label": "Lý do",
       "required": "Nhập lý do.",
-      "placeholder": "Nêu vấn đề, chứng từ liên quan và kết luận xử lý (tối đa 2.000 ký tự).",
-      "demo": "Ghi chú demo: đề nghị đối chiếu phạm vi bàn giao và bổ sung tài liệu liên quan trước khi xử lý tranh chấp."
+      "placeholder": "Nêu vấn đề, chứng từ liên quan và kết luận xử lý (tối đa 2.000 ký tự)."
     },
     "readOnly": "Bạn chỉ xem được tranh chấp của mốc này.",
-    "rule": "Nguyên tắc \"mở dễ, đóng khó\": mọi DISPUTE_OPENED đều chặn chi; chỉ DISPUTE_RESOLVED do bên mua (hoặc chủ hợp đồng) tạo, tham chiếu đúng tranh chấp và không sớm hơn lúc mở mới gỡ được chặn.",
     "done": "Đã ghi nhận. Kết quả đánh giá lại: {{status}} ({{reason}}).",
     "noted": "Đã ghi chú.",
     "actions": {
@@ -64,11 +60,15 @@
   },
   "lite": {
     "none": "Mốc chưa có tranh chấp.",
-    "noPreview": "Chưa có kết quả chạy thử.",
     "options": {
       "RESOLVE": "Ghi nhận đã giải quyết; mốc được tính lại ngay.",
       "REQUEST_INFO": "Ghi chú cho bên mở tranh chấp; mốc vẫn bị giữ.",
       "OPEN": "Mốc tạm giữ thanh toán đến khi đóng tranh chấp."
+    },
+    "demoNote": {
+      "RESOLVE": "Các bên đã thống nhất nội dung tranh chấp của {{milestone}}; đề nghị đóng tranh chấp.",
+      "REQUEST_INFO": "Đề nghị bên liên quan bổ sung tài liệu để làm rõ tranh chấp của {{milestone}}.",
+      "OPEN": "Chưa thống nhất kết quả {{milestone}}; đề nghị tạm giữ thanh toán để làm rõ."
     }
   }
 }

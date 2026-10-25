@@ -3,21 +3,15 @@
     "activityLog": "Nhật ký hoạt động"
   },
   "title": "Nhật ký hoạt động",
-  "subtitle": "Event của Data Pack, event tạo trong app và mọi lần engine đổi trạng thái; chỉ thêm, không sửa hay xóa",
   "export": {
-    "button": "Xuất CSV",
     "fileName": "nhat-ky-hoat-dong.csv"
   },
   "filters": {
     "contract": "Hợp đồng",
-    "allContracts": "Tất cả hợp đồng",
     "actor": "Người thực hiện",
-    "category": "Loại việc",
     "all": "Tất cả",
     "from": "Từ ngày",
     "to": "Đến ngày",
-    "rowCount_one": "{{count}} dòng",
-    "rowCount_other": "{{count}} dòng",
     "searchPlaceholder": "Tìm theo người thực hiện, mã hợp đồng, mã mốc, mã sự kiện (không cần dấu)"
   },
   "table": {
@@ -93,15 +87,12 @@
     "decideException": "Quyết định ngoại lệ",
     "getSigningRequest": "Cập nhật yêu cầu ký"
   },
-  "appendOnly": "Nhật ký chỉ ghi thêm: không có thao tác sửa hay xóa bản ghi.",
   "detail": {
     "view": "Xem chi tiết",
     "entryId": "Mã bản ghi"
   },
   "exceptions": {
     "title": "Ngoại lệ BR-19",
-    "subtitle": "Mốc bị giữ vì event sai thẩm quyền hoặc dữ liệu bất thường",
-    "intro": "Hàng đợi của kiểm soát viên (đặc tả 9.5). Một người đề xuất vô hiệu event sai thẩm quyền, người thứ hai duyệt (SoD-2). Không ai ép được quyết định hay số tiền; engine đánh giá lại sau mỗi quyết định.",
     "tiles": {
       "OPEN": "Chưa có đề xuất",
       "PROPOSED": "Chờ người thứ hai",
@@ -128,19 +119,15 @@
   },
   "integrity": {
     "title": "Kiểm tra toàn vẹn",
-    "subtitle": "Nhật ký, chứng từ và quyết định có bị sửa ngoài ứng dụng không",
     "rerun": "Kiểm tra lại",
-    "checkedAt": "Kiểm tra lúc {{time}}. Chỉ đọc, không ghi gì vào dữ liệu.",
     "ok": "Toàn vẹn",
     "broken": "Có sai lệch",
     "chain": {
       "title": "Chuỗi nhật ký kiểm toán",
-      "subtitle": "Mỗi bản ghi chứa mã băm SHA-256 của bản ghi trước",
       "sealed": "Bản ghi đã niêm phong",
       "unsealed": "Bản ghi cũ, trước khi có chuỗi",
       "head": "Mã đầu chuỗi",
       "firstBroken": "Chỗ hỏng đầu tiên",
-      "none": "Không có",
       "problems": {
         "SEQUENCE_GAP": "Mất hoặc chèn bản ghi",
         "LINK_BROKEN": "Liên kết với bản ghi trước bị đứt",
@@ -161,7 +148,6 @@
     },
     "evidence": {
       "title": "Chứng từ ghi trong app",
-      "subtitle": "Mỗi sự kiện được niêm phong mã băm cùng bản ghi nhật ký lúc tạo",
       "sealed": "Sự kiện đã niêm phong",
       "unsealed": "Sự kiện cũ, trước khi có niêm phong",
       "columns": {
@@ -176,7 +162,6 @@
     },
     "decisions": {
       "title": "Đối soát quyết định",
-      "subtitle": "Chạy lại engine trên dữ liệu hiện tại và so với mọi quyết định đã lưu",
       "matched": "Khớp",
       "run": "Lượt chạy",
       "fingerprint": "SHA-256 dữ liệu đầu vào",
@@ -189,15 +174,12 @@
       "frozen": "Đã chi hoặc bị từ chối",
       "missing": "Không còn trong dữ liệu"
     },
-    "note": "Kiểm tra phát hiện bản ghi bị sửa, xoá hoặc chèn khi dữ liệu bị đụng ngoài ứng dụng. Nó không thay sao lưu và phân quyền truy cập kho dữ liệu; người viết lại được cả nhật ký chỉ bị phát hiện khi so với mã đầu chuỗi đã lưu ở nơi khác.",
     "errors": {
       "INVALID_ANCHOR": "Mã đã lưu không đúng dạng số:mã băm (64 ký tự hex).",
       "UNKNOWN": "Không kiểm tra được. Thử lại sau."
     },
     "dataPack": {
       "title": "Dữ liệu gốc của BTC",
-      "subtitle": "Các dòng Data Pack so với mã băm niêm phong lúc nhập",
-      "sealedAt": "Niêm phong lúc nhập dữ liệu, {{time}}.",
       "columns": {
         "table": "Bảng",
         "rows": "Số dòng",

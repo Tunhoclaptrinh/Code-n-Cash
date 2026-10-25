@@ -1,4 +1,4 @@
-"""Bộ test cho docs/04_DAC_TA_NGHIEP_VU.md (mục 16). Tên test mang mã T của bảng mục 16.
+"""Bộ test cho docs/archive/04_DAC_TA_NGHIEP_VU.md (mục 16; tóm tắt hiện hành ở docs/NGHIEP_VU.md). Tên test mang mã T của bảng mục 16.
 
 Ca "có trong pack" chạy trên Data Pack thật. Ca "tự tạo" dựng một hợp đồng + một milestone giả lập
 nhưng dùng party và rule THẬT của Data Pack, nên kiểm được đúng logic đặc tả mà không sửa dữ liệu gốc.
@@ -148,8 +148,8 @@ class DataPackTests(unittest.TestCase):
         self.assertEqual((RESULTS["MS0148"]["rule_id"], RESULTS["MS0148"]["status"]), ("PR0002", "REJECTED"))
 
     def test_T49_phien_ban_tai_lieu_khop_script(self):
-        doc = (Path(__file__).resolve().parent.parent / "docs" / "04_DAC_TA_NGHIEP_VU.md").read_text(encoding="utf-8")
-        match = re.search(r"^\| Phiên bản \| \*\*(\d+\.\d+)\*\*", doc, re.M)
+        doc = (Path(__file__).resolve().parent.parent / "docs" / "NGHIEP_VU.md").read_text(encoding="utf-8")
+        match = re.search(r"^Phiên bản đặc tả engine: (\d+\.\d+)\.", doc, re.M)
         self.assertIsNotNone(match, "Không tìm thấy dòng phiên bản trong tài liệu")
         self.assertEqual(match.group(1), spec.SPEC_VERSION)
 

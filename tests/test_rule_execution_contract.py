@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / 'apps/engine'))
 sys.path.insert(0, str(ROOT / 'tools'))
 import validate_rules as language
 import kiem_chung_nghiep_vu as spec
+from codecash_engine import expressions
 from test_dac_ta_nghiep_vu import Case, PACK, approver
 
 CENT = Decimal('0.01')
@@ -20,13 +21,13 @@ CENT = Decimal('0.01')
 class RuntimeContractTests(unittest.TestCase):
     def test_all_17_variables_match_runtime_values_and_declared_types_on_405_milestones(self):
         observed = set()
-        original = spec.evaluate_expr
+        original = expressions.evaluate_expr
         for mid, milestone in PACK.milestones.items():
             calls = []
             def capture(text, env):
                 calls.append(dict(env))
                 return original(text, env)
-            with patch.object(spec, 'evaluate_expr', side_effect=capture):
+            with patch.object(expressions, 'evaluate_expr', side_effect=capture):
                 result = spec.evaluate(PACK, mid)
             before, after = calls[-2:]
             self.assertNotIn('penalty_amount_vnd_mn', before)

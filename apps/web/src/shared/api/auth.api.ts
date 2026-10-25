@@ -18,6 +18,8 @@ export interface DemoAccount {
   organization: string;
   organizationId: string;
   partyId: string | null;
+  /** Contract codes the account's organisation is a party to. */
+  contracts: string[];
 }
 
 export interface DemoDirectory {
@@ -40,6 +42,11 @@ export async function listDemoAccounts(): Promise<DemoDirectory> {
     featured: result.enabled ? result.accounts : [],
     organizations: result.enabled ? (result.organizations ?? []) : [],
   };
+}
+
+/** Archives the current demo data, audit log included, and restarts from the initial data. */
+export async function resetDemoData(): Promise<{ archive: string }> {
+  return platform.post<{ archive: string }>("/auth/reset-demo", {});
 }
 
 export async function signInDemo(email: string): Promise<User> {

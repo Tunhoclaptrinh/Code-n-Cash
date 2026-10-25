@@ -40,12 +40,16 @@ const OUTPUTS: Record<string, string> = {
 const MAX_FILES = 20;
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
-/** Stdout of `apps/engine/cli.py`; exit code 2 means the input was rejected (message on stderr). */
-function python(args: string[], timeoutMs: number): Promise<string> {
+/** Stdout of an `apps/engine` script (the CLI by default); exit code 2 means the input was rejected. */
+function python(
+  args: string[],
+  timeoutMs: number,
+  script = "cli.py",
+): Promise<string> {
   return new Promise((resolveOutput, reject) => {
     const child = spawn(
       process.env.PYTHON ?? "python3",
-      ["apps/engine/cli.py", ...args],
+      [`apps/engine/${script}`, ...args],
       { cwd: repoRoot(), env: process.env },
     );
     let out = "",
@@ -68,6 +72,26 @@ function python(args: string[], timeoutMs: number): Promise<string> {
       else reject(new Error(err));
     });
   });
+}
+
+/**
+ * The synthetic benchmark depends only on the official Data Pack, so it is computed once per
+ * process (about 6 s) and concurrent requests share the same run. A failed run is not cached.
+ */
+let benchmarkRun: Promise<unknown> | undefined;
+function computeBenchmark(): Promise<unknown> {
+  benchmarkRun ??= python([], 120000, "benchmark.py")
+    .then((out) => {
+      const result = JSON.parse(out);
+      if (!result?.synthetic?.test || !result?.publicSamples)
+        throw new Error("BENCHMARK_OUTPUT_INVALID");
+      return result;
+    })
+    .catch((error) => {
+      benchmarkRun = undefined;
+      throw error;
+    });
+  return benchmarkRun;
 }
 
 @Controller("engine")
@@ -126,6 +150,12 @@ export class EngineController {
   @Get("decisions")
   async decisions() {
     return this.run();
+  }
+  /** Read-only accuracy figures on the generated cases; never computed for uploaded datasets. */
+  @RequirePermission("engine:read")
+  @Get("benchmark")
+  async benchmark() {
+    return computeBenchmark();
   }
   @RequirePermission("engine:evaluate")
   @Post("evaluate")

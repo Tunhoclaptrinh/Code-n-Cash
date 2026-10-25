@@ -11,8 +11,6 @@
     "upload": "Tải hợp đồng lên",
     "activity": "Nhật ký hoạt động",
     "verify": "Kiểm tra chữ ký",
-    "submissions": "Chứng từ đã nộp",
-    "approvals": "Chờ tôi phê duyệt",
     "groups": {
       "workflow": "Nghiệp vụ hợp đồng",
       "data": "Dữ liệu & quản trị",
@@ -25,7 +23,6 @@
     "guide": "Hướng dẫn sử dụng"
   },
   "topbar": {
-    "role": "Vai trò",
     "notifications": "Thông báo",
     "account": "Menu tài khoản",
     "language": "Ngôn ngữ",
@@ -33,13 +30,19 @@
     "openMenu": "Mở điều hướng",
     "collapse": "Thu gọn thanh bên",
     "expand": "Mở rộng thanh bên",
-    "pendingTasks_one": "{{count}} việc đang chờ bạn",
-    "pendingTasks_other": "{{count}} việc đang chờ bạn",
     "noPendingTasks": "Không có việc đang chờ",
     "themeLight": "Chuyển sang giao diện sáng",
     "themeDark": "Chuyển sang giao diện tối",
     "guide": "Hướng dẫn nhanh",
-    "openInbox": "Mở danh sách việc cần làm"
+    "openInbox": "Mở danh sách việc cần làm",
+    "resetDemo": {
+      "action": "Khôi phục dữ liệu demo",
+      "title": "Khôi phục dữ liệu demo về ban đầu?",
+      "body": "Toàn bộ thao tác trong phiên demo hiện tại được lưu trữ kèm nhật ký, sau đó hệ thống nạp lại dữ liệu ban đầu. Mọi người dùng cần đăng nhập lại.",
+      "ok": "Khôi phục",
+      "done": "Đã khôi phục dữ liệu ban đầu. Vui lòng đăng nhập lại.",
+      "failed": "Không khôi phục được dữ liệu demo."
+    }
   },
   "languages": {
     "vi": "Tiếng Việt",
@@ -85,8 +88,7 @@
     "password": "Mật khẩu",
     "submit": "Đăng nhập",
     "errors": {
-      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
-      "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng."
     },
     "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
     "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
@@ -101,7 +103,7 @@
     "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
     "demoAll": "Tất cả tổ chức",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Tìm tên, email hoặc công ty…"
+    "demoSearch": "Tìm tên, email, công ty hoặc mã hợp đồng…"
   },
   "common": {
     "loading": "Đang tải…",
@@ -235,13 +237,13 @@
     "action": "Điền mẫu",
     "all": "Điền mẫu toàn bộ",
     "hint": "Chỉ điền ô trống; không tự lưu hoặc gửi.",
-    "notice": "Nhập thông tin hoặc dùng dữ liệu mẫu để thử nhanh.",
     "completeFirst": "Điền đầy đủ các trường bắt buộc trước khi tạo tệp."
   },
   "tableActions": {
     "more": "Thao tác khác"
   },
   "technical": {
+    "codes": "Mã truy vết",
     "title": "Chi tiết kỹ thuật",
     "source": "Nguồn dữ liệu",
     "document": "Mã tài liệu",
@@ -253,10 +255,8 @@
     "title": "Văn bản hợp đồng",
     "simulated": "Bản mô phỏng",
     "simulatedHint": "Ban tổ chức chỉ cung cấp dữ liệu hợp đồng; văn bản này được lập lại từ chính điều khoản, các mốc và người ký của hợp đồng.",
-    "pages_other": "{{count}} trang",
     "download": "Tải tệp gốc",
     "toSignatures": "Đến trang ký",
-    "focus": "Đang xử lý:",
     "loading": "Đang chuẩn bị văn bản…",
     "unavailable": "Chưa hiển thị được văn bản hợp đồng. Thử tải tệp gốc hoặc mở lại sau.",
     "signedCaption": "Đã ký số · {{method}} · {{at}}",

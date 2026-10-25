@@ -27,6 +27,19 @@ export const decisionTone: Record<Decision, Tone> = {
   REJECT: "danger",
 };
 
+/** The milestone status that says the same as a decision, so a screen shows only one of the two. */
+const statusOfDecision: Record<Decision, MilestoneStatus> = {
+  HOLD: "ON_HOLD",
+  PENALTY: "PAID_WITH_PENALTY",
+  RELEASE: "ELIGIBLE_FOR_PAYMENT",
+  REJECT: "REJECTED",
+};
+
+export const statusRepeatsDecision = (
+  status: MilestoneStatus,
+  decision: Decision,
+) => statusOfDecision[decision] === status;
+
 export const contractStatusTone: Record<ContractStatus, Tone> = {
   DRAFT: "neutral",
   AWAITING_SIGNATURE: "indigo",

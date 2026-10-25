@@ -11,8 +11,6 @@
     "upload": "Upload contract",
     "activity": "Activity log",
     "verify": "Verify signature",
-    "submissions": "Submitted documents",
-    "approvals": "Awaiting my approval",
     "groups": {
       "workflow": "Contract workflow",
       "data": "Data & administration",
@@ -25,7 +23,6 @@
     "guide": "User guide"
   },
   "topbar": {
-    "role": "Role",
     "notifications": "Notifications",
     "account": "Account menu",
     "language": "Language",
@@ -33,13 +30,19 @@
     "openMenu": "Open navigation",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
-    "pendingTasks_one": "{{count}} task waiting for you",
-    "pendingTasks_other": "{{count}} tasks waiting for you",
     "noPendingTasks": "No pending tasks",
     "themeLight": "Switch to light theme",
     "themeDark": "Switch to dark theme",
     "guide": "Quick guide",
-    "openInbox": "Open my tasks"
+    "openInbox": "Open my tasks",
+    "resetDemo": {
+      "action": "Reset demo data",
+      "title": "Reset the demo data to its initial state?",
+      "body": "Everything done in the current demo is archived together with its log, then the initial data is loaded again. Everyone has to sign in again.",
+      "ok": "Reset",
+      "done": "The initial data is restored. Please sign in again.",
+      "failed": "The demo data could not be reset."
+    }
   },
   "languages": {
     "vi": "Tiếng Việt",
@@ -85,8 +88,7 @@
     "password": "Password",
     "submit": "Sign in",
     "errors": {
-      "INVALID_CREDENTIALS": "Email or password is incorrect.",
-      "UNKNOWN": "Could not sign in. Please try again."
+      "INVALID_CREDENTIALS": "Email or password is incorrect."
     },
     "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
     "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
@@ -101,7 +103,7 @@
     "demoFeatured": "Suggested (Nova An · Phú Minh)",
     "demoAll": "All organizations",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Search name, email or company…"
+    "demoSearch": "Search name, email, company or contract code…"
   },
   "common": {
     "loading": "Loading…",
@@ -235,13 +237,13 @@
     "action": "Fill sample",
     "all": "Fill sample data",
     "hint": "Fill empty fields only; does not save or submit.",
-    "notice": "Enter your details or use sample input to try the flow.",
     "completeFirst": "Complete required fields before generating a file."
   },
   "tableActions": {
     "more": "More actions"
   },
   "technical": {
+    "codes": "Trace codes",
     "title": "Technical details",
     "source": "Data source",
     "document": "Document reference",
@@ -253,11 +255,8 @@
     "title": "Contract document",
     "simulated": "Simulated copy",
     "simulatedHint": "The organiser provides contract data only; this document is rebuilt from the contract's own terms, milestones and signers.",
-    "pages_one": "{{count}} page",
-    "pages_other": "{{count}} pages",
     "download": "Download original",
     "toSignatures": "Go to signatures",
-    "focus": "Working on:",
     "loading": "Preparing the document…",
     "unavailable": "The contract document cannot be shown right now. Download the original or try again later.",
     "signedCaption": "Digitally signed · {{method}} · {{at}}",

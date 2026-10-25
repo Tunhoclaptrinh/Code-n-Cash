@@ -4,12 +4,7 @@
     "millionUnit": "million"
   },
   "inbox": {
-    "title": "My tasks",
-    "subtitle_one": "{{count}} task waiting for you",
-    "subtitle_other": "{{count}} tasks waiting for you",
-    "intro": "Each task comes from the latest evaluation: evidence your side still owes, approvals not complete, an open dispute, a record filed by the wrong party, or your turn to sign. Once done, the system re-evaluates and the task goes away.",
     "empty": "Nothing is waiting for you",
-    "footer": "Other parties' tasks are not shown here; the contract page shows the full status.",
     "tabs": {
       "ALL": "All"
     },
@@ -52,7 +47,6 @@
   },
   "detail": {
     "breadcrumb": "{{contractId}}",
-    "meta": "{{id}} · {{kind}} · {{buyer}} → {{supplier}}",
     "disputeFlag": "Open dispute",
     "actions": {
       "signing": "Open signing order",
@@ -80,17 +74,15 @@
       "ruleSet": "Payment rule set"
     },
     "requirement": {
-      "VALID": "Valid: {{id}} at {{at}}",
+      "VALID": "Valid at {{at}}",
       "MISSING": "Missing; the {{side}} submits it",
-      "UNAUTHORIZED": "Record {{id}} was filed by the wrong party; the {{side}} resubmits and controllers handle it"
+      "UNAUTHORIZED": "A record was filed by the wrong party; the {{side}} resubmits and controllers handle it"
     },
     "milestone": {
       "amountUnit": "million VND",
-      "due": "Due {{due}} · {{grace}} days grace",
       "noDue": "No due date, so the milestone is on hold",
       "completed": "completed {{at}}",
       "approvals": "Approvals {{done}}/{{quorum}}",
-      "noApproval": "No approval needed",
       "reason": "Reason:",
       "payable": "Eligible:",
       "penalty": "penalty {{penalty}} ({{days}} days late)",
@@ -117,20 +109,18 @@
     },
     "events": {
       "at": "Time",
-      "type": "Event",
+      "type": "Action",
       "milestone": "Milestone",
-      "actor": "Recorded by",
+      "actor": "Done by",
       "document": "Attachment",
-      "reference": "Refers to {{id}}"
+      "reference": "Refers to {{id}}",
+      "note": "Details"
     },
     "history": {
-      "body": "Record events and every milestone status change, newest first (up to 200 rows).",
       "byParty": "by {{actor}} · {{milestone}}"
     },
     "signing": {
       "title": "Signing order ({{signed}}/{{total}} signed)",
-      "note": "Signers sign one after another in the order below. The contract takes effect when the last signer completes.",
-      "final": "last step, digital signature required",
       "state": {
         "WAITING": "Waiting",
         "CURRENT": "Their turn",
@@ -141,17 +131,11 @@
       "step": "Signs at step {{step}}"
     },
     "participants": {
-      "title": "Parties and people",
       "approves": "{{role}} · approves payments"
-    },
-    "signedPending": "Contract signing is complete; some payment milestones still need conditions",
-    "roleLabel": "Role",
-    "titleLabel": "Job title"
+    }
   },
   "decision": {
     "breadcrumb": "Milestone {{no}} · {{name}}",
-    "meta": "{{contractId}} · {{title}} · {{supplier}}",
-    "summaryLine": "Rule {{rule}} · eligible {{payable}} · penalty {{penalty}} (million VND)",
     "runLine": "Run {{run}} · {{at}} · spec v{{spec}} · confidence {{confidence}}",
     "next": "Next step:",
     "actions": {
@@ -164,8 +148,7 @@
     },
     "transferred": "Simulated payment recorded; the milestone is now Payment transferred.",
     "payment": {
-      "title": "{{amount}} million VND transferred by {{by}} at {{at}}",
-      "body": "Idempotency key {{id}}: one payment per milestone and decision version. The milestone is final; new events are only recorded."
+      "title": "{{amount}} million VND transferred by {{by}} at {{at}}"
     },
     "issues": "Evaluation notes",
     "conditions": {
@@ -179,23 +162,20 @@
     "facts": {
       "requiredEvents": "Valid required evidence",
       "missing": "Missing",
-      "unauthorized": "Unauthorised events",
       "duplicates": "Duplicates excluded",
       "openDispute": "Open disputes",
       "none": "None",
       "rejections": "Valid rejections",
       "approvals": "Approvals",
       "approvalValue": "{{done}}/{{quorum}} roles ({{roles}})",
-      "noApproval": "No approval needed",
-      "voided": "Voided events (BR-19)"
+      "noApproval": "No approval needed"
     },
     "amounts": {
       "title": "Amounts",
-      "milestoneValue": "Milestone value (P)",
       "deadline": "Last day without penalty",
       "deadlineValue": "{{due}} + {{grace}} days = {{deadline}}",
       "noDue": "Unreadable due date: held under rule 80",
-      "completed": "Actual completion (BR-11)",
+      "completed": "Actual completion",
       "notCompleted": "Evidence incomplete",
       "lateDays": "Days late after grace",
       "lateDaysValue_one": "{{count}} day",
@@ -204,12 +184,10 @@
       "rateValue": "{{rate}}%/day, cap {{cap}}% = {{capAmount}}",
       "noPenalty": "No late penalty on this milestone",
       "raw": "Raw penalty before rounding",
-      "penalty": "Penalty F (ROUND_HALF_UP)",
       "payable": "Eligible amount",
       "note": "Amounts use exact decimals (Decimal), never floating point. Eligible is not the amount paid."
     },
     "rules": {
-      "title": "The 8 rules of scope {{scope}} (first match)",
       "priority": "Priority",
       "condition": "Condition",
       "decision": "Decision",
@@ -219,18 +197,13 @@
       "rule": "Rule"
     },
     "events": {
-      "title_one": "{{count}} event of the milestone and how the system classified it",
-      "title_other": "{{count}} events of the milestone and how the system classified them",
       "classification": "Classification",
       "inEvidence": "evidence"
     },
     "history": {
-      "title": "Status history",
-      "note": "Every evaluation is kept; the same data and rule version always give the same result."
+      "title": "Status history"
     },
     "exceptions": {
-      "title": "BR-19 exceptions",
-      "body": "Only unauthorised or anomalous events can be voided. One controller proposes, a second approves; the original event is never edited or deleted, and voiding never creates evidence.",
       "state": {
         "PROPOSED": "Waiting",
         "APPROVED": "Approved",
@@ -243,23 +216,15 @@
       "approve": "Approve voiding",
       "reject": "Reject",
       "none": "No proposal yet.",
-      "pick": "Pick the unauthorised event",
       "reason": "Reason (required), e.g. the supplier used the wrong channel and the buyer resubmitted",
       "propose": "Propose voiding",
       "proposed": "Proposal sent; a second controller decides.",
-      "decided": "Decision recorded; the system re-evaluated.",
-      "demoReason": "Demo reason: ask another controller to review event authority and related evidence under BR-19."
-    },
-    "dispute": {
-      "title": "Disagree with the decision?",
-      "body": "The buyer or the supplier opens a dispute; the milestone is held (rule 10) until the buyer closes it validly.",
-      "link": "Open the dispute page"
+      "decided": "Decision recorded; the system re-evaluated."
     },
     "replay": {
       "title": "History, event by event",
       "run": "Replay each event",
       "again": "Run again",
-      "body": "The system re-evaluates the milestone right after each of its events, using only the data known at that moment (BR-16). Use it to explain how the milestone reached its current decision.",
       "columns": {
         "at": "Time",
         "events": "Events",
@@ -270,12 +235,10 @@
         "amounts": "Payable / penalty"
       },
       "empty": "The milestone has no events yet.",
-      "error": "The replay failed. Try again later.",
-      "note": "Before the due date, a milestone still missing evidence shows as Planned or In progress. Replaying writes nothing."
+      "error": "The replay failed. Try again later."
     }
   },
   "submit": {
-    "breadcrumb": "{{contractId}} · Milestone {{no}}",
     "title": "Submit evidence · Milestone {{no}} · {{name}}",
     "done": "Evidence recorded. Re-evaluated: {{status}} ({{reason}}).",
     "required": {
@@ -284,35 +247,16 @@
     "dropzone": "Drop supporting files (optional)",
     "dropzoneAria": "Choose supporting files",
     "nothingLeft": "Your side has submitted everything for this milestone.",
-    "lockNote": "Each file is recorded as evidence for the milestone; it cannot be edited or deleted after submission.",
     "later": "Later",
     "submit_one": "Submit {{count}} document",
     "submit_other": "Submit {{count}} documents",
-    "aftermath": {
-      "title": "After you submit",
-      "actor": {
-        "SYSTEM": "System",
-        "HUMAN": "People"
-      },
-      "validate": "Check the submitting party's authority and drop duplicates.",
-      "match": "The system applies the payment rules in priority order and computes the amounts.",
-      "approve": "Payment approval: {{roles}}.",
-      "result": "Decision, status history and audit are recorded.",
-      "noApproval": "none; the contract releases automatically when conditions are met"
-    },
     "preview": {
       "title": "If you submit now (dry run)",
       "amounts_one": "Eligible {{payable}} · penalty {{penalty}} · {{count}} day late",
-      "amounts_other": "Eligible {{payable}} · penalty {{penalty}} · {{count}} days late",
-      "empty": "Attach the documents to see the expected result."
-    },
-    "penalty": {
-      "title": "Penalty terms",
-      "terms": "Due {{due}}, {{grace}} days grace (until {{deadline}}). After that {{rate}}%/day, at most {{cap}}% of the milestone value, from the actual completion date.",
-      "none": "This milestone has no late penalty."
+      "amounts_other": "Eligible {{payable}} · penalty {{penalty}} · {{count}} days late"
     },
     "file": {
-      "recorded": "{{id}} · {{by}} · {{at}}",
+      "recorded": "{{by}} · {{at}}",
       "valid": "Valid",
       "otherUnauthorized": "A copy was created by a party without authority; the {{side}} must submit a valid one.",
       "otherSide": "Submitted by the {{side}}.",
@@ -320,7 +264,6 @@
       "meta": "{{fileName}} · {{size}} MB",
       "ready": "Ready",
       "remove": "Remove",
-      "replacesUnauthorized": "A valid copy; the earlier record filed by the wrong party keeps the milestone on hold until controllers void it.",
       "unauthorizedMine": "an unauthorised copy exists; submit a valid one",
       "empty": "no file yet",
       "choose": "Choose a file",
@@ -329,33 +272,25 @@
     }
   },
   "approve": {
-    "breadcrumb": "{{contractId}} · Milestone {{no}} · {{name}}",
     "title": "Payment approval · Milestone {{no}} · {{name}}",
     "requested": "Request recorded; the milestone keeps waiting.",
     "done": "Approval recorded. Re-evaluated: {{status}} ({{reason}}).",
-    "blocked": {
-      "MILESTONE_CLOSED": "The milestone is final; no more decisions.",
-      "NOT_APPROVER": "You are not an approver of this contract's buyer; view only.",
-      "APPROVAL_NOT_REQUIRED": "This milestone needs no approval (automatic policy).",
-      "NOT_REQUIRED_ROLE": "Your role is not one of the milestone's required roles; you may still reject with grounds.",
-      "ALREADY_APPROVED": "You already approved; each person counts once."
-    },
     "proposal": {
       "title": "Result if you approve",
       "milestoneValue": "Milestone value",
       "penalty": "Penalty",
       "payable": "Eligible",
-      "preview_one": "Dry run with your approval: {{decision}} · {{reason}} · {{count}} day late.",
-      "preview_other": "Dry run with your approval: {{decision}} · {{reason}} · {{count}} days late.",
+      "preview_zero": "If you approve: {{reason}}.",
+      "preview_one": "If you approve: {{reason}}, {{count}} day late.",
+      "preview_other": "If you approve: {{reason}}, {{count}} days late.",
       "current": "Now: {{reason}}.",
       "trace": "Open the decision trace",
       "currentTitle": "Current result of the milestone"
     },
     "documents": {
       "title": "Valid evidence",
-      "recorded": "{{id}} · {{by}} · {{at}}",
-      "missing": "No valid evidence yet; the {{side}} must submit it.",
-      "note": "An approval does not replace missing evidence: the milestone is eligible only with both the evidence and the approval roles."
+      "recorded": "{{by}} · {{at}}",
+      "missing": "No valid evidence yet; the {{side}} must submit it."
     },
     "progress": {
       "title": "Approval roles ({{quorum}}/{{roles}} required)",
@@ -367,18 +302,11 @@
         "REJECTED": "Rejected {{time}}"
       }
     },
-    "consequences": {
-      "title": "What each choice does",
-      "approve": "Approve: records your approval; the milestone is re-evaluated at once.",
-      "requestInfo": "Request info: a note to the parties; the milestone keeps waiting.",
-      "reject": "Reject: the milestone becomes rejected and cannot be undone in the system."
-    },
     "note": {
       "label": "Note",
       "hint": "required to reject or request info",
       "required": "Write a note.",
-      "placeholder": "Explain the decision or requested documents (up to 2,000 characters).",
-      "demo": "Demo note: check evidence, amount and payment conditions before submitting a decision."
+      "placeholder": "Explain the decision or requested documents (up to 2,000 characters)."
     },
     "actions": {
       "reject": "Reject",
@@ -404,11 +332,11 @@
         "APPROVAL_NOT_REQUIRED": "This milestone needs no approval.",
         "NOT_REQUIRED_ROLE": "Your role is not required to approve; you can still reject.",
         "ALREADY_APPROVED": "You already approved this milestone."
-      }
+      },
+      "demoNote": "Documents and payment conditions of {{milestone}} have been checked."
     }
   },
   "decisionLite": {
-    "summaryLine": "Applied rule {{rule}} · Payable {{payable}} · Penalty {{penalty}} million",
     "more": "Show details",
     "facts": {
       "unauthorized": "Records entered without authority",
@@ -417,7 +345,8 @@
     "amounts": {
       "milestoneValue": "Milestone value",
       "penalty": "Penalty",
-      "how": "How it is calculated"
+      "how": "How it is calculated",
+      "title": "Deadline and amounts"
     },
     "rules": {
       "title": "Applied rule",
@@ -430,8 +359,16 @@
     },
     "exceptions": {
       "title": "Exceptions",
-      "pick": "Select the record entered without authority"
-    }
+      "pick": "Select the record entered without authority",
+      "demoReason": "Please have a second controller review the record filed by the wrong party for {{milestone}}."
+    },
+    "figures": {
+      "planned": "Milestone value (million)",
+      "penalty": "Penalty (million)",
+      "payable": "Payable (million)"
+    },
+    "conditionMet": "Met",
+    "conditionMissing": "Not met"
   },
   "detailLite": {
     "due": "Due {{due}}"

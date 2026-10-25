@@ -1,8 +1,6 @@
 {
   "title": "Quản trị hệ thống",
-  "navigation": "Thu gọn điều hướng",
   "theme": "Đổi giao diện sáng/tối",
-  "notificationsHint": "Mở Công việc của tôi để xem và xử lý công việc được giao.",
   "yes": "Có",
   "no": "Không",
   "error": "Thao tác thất bại",
@@ -76,7 +74,6 @@
       "reason_code": "Mã lý do"
     },
     "evaluateForbidden": "Vai trò của bạn chỉ được xem kết quả, không chạy đánh giá.",
-    "subtitle": "Đánh giá {{milestones}} mốc của {{contracts}} hợp đồng trong Data Pack bằng engine Python theo đặc tả.",
     "summary": {
       "payable": "Tổng đủ điều kiện trả (triệu VND)",
       "penalty": "Tổng tiền phạt (triệu VND)",
@@ -106,7 +103,6 @@
       "missing": "Điều kiện còn thiếu",
       "raw": "Dữ liệu trace đầy đủ"
     },
-    "subtitleDataset": "{{name}}: xuất {{milestones}} mốc, bộ dữ liệu có {{contracts}} hợp đồng.",
     "download": "Tải kết quả",
     "downloadItems": {
       "submission_output.csv": "submission_output.csv (22 cột nộp bài)",
@@ -125,7 +121,6 @@
       "incomplete": "Thiếu tệp",
       "uploadedBy": "Tải lên bởi {{name}} lúc {{time}}",
       "lastRun": "chạy gần nhất {{time}}",
-      "checklist": "Tệp đầu vào engine tìm thấy",
       "status": {
         "ok": "Đủ",
         "missing": "Thiếu",
@@ -137,26 +132,41 @@
       "rows_other": "{{count}} dòng",
       "missingColumns": "Thiếu cột: {{columns}}",
       "scope": "Danh sách mốc chấm",
-      "noScope": "Không có: xuất toàn bộ mốc",
-      "templateHint": "Không có submission_output_template.csv: hệ thống dựng đủ 22 cột theo thứ tự milestones.csv, giống template chính thức.",
-      "scopeHint": "Phát hiện danh sách {{count}} mốc để tham khảo. Bài nộp vẫn xuất toàn bộ template; ứng dụng không tự lọc theo danh sách này.",
-      "unknownScope": "{{count}} mã mốc trong danh sách chấm không có trong milestones.csv: {{ids}}",
-      "notReady": "Bộ dữ liệu chưa đủ tệp bắt buộc hoặc thiếu cột. Bổ sung rồi tải lên lại.",
-      "runFirst": "Chưa có kết quả. Bấm “Đánh giá dữ liệu” để chạy engine trên bộ dữ liệu này."
+      "unknownScope": "{{count}} mã mốc trong danh sách chấm không có trong milestones.csv: {{ids}}"
     },
     "upload": {
       "title": "Tải bộ dữ liệu để chạy từ đầu",
       "name": "Tên bộ dữ liệu",
       "namePlaceholder": "Ví dụ: Hidden test 22/10",
       "drop": "Kéo thả hoặc bấm để chọn tệp CSV / ZIP",
-      "hint": "Bắt buộc: contracts.csv, parties.csv, milestones.csv, events.csv, payment_rules.csv. Tuỳ chọn: decision_sample.csv, submission_output_template.csv, hidden_test_ids_*.csv. Có thể nén cả thư mục Data Pack thành một tệp ZIP. Tối đa 20 tệp, tổng 25 MB.",
       "chooseFiles": "Chọn ít nhất một tệp",
       "done": "Đã tải lên bộ dữ liệu",
       "incomplete": "Đã tải lên nhưng còn thiếu tệp hoặc cột bắt buộc",
       "demoName": "Bộ dữ liệu kiểm thử"
     },
+    "benchmark": {
+      "title": "Bộ ca tổng hợp (nửa kiểm tra)",
+      "subtitle": "{{scenarios}} tình huống trên {{milestones}} mốc, chia theo hợp đồng; đáp án suy từ bảng luật",
+      "loading": "Đang tính trên bộ ca tổng hợp, mất vài giây...",
+      "error": "Chưa lấy được kết quả trên bộ ca tổng hợp.",
+      "retry": "Thử lại",
+      "cases": "Số ca",
+      "decisionAccuracy": "Độ chính xác quyết định",
+      "fullMatch": "Khớp toàn bộ",
+      "macroF1": "Macro-F1 (4 lớp)",
+      "unauthorizedPayment": "Chi sai (UPR)",
+      "lowerBound": "{{ratio}} · cận dưới 95%: {{bound}}",
+      "upperBound": "{{ratio}} · cận trên 95%: {{bound}}",
+      "hint": {
+        "cases": "Số ca thuộc nửa kiểm tra, tách theo hợp đồng khỏi nửa phát triển.",
+        "decisionAccuracy": "Số ca có quyết định đúng đáp án, kèm cận dưới khoảng tin cậy Wilson 95%.",
+        "fullMatch": "Số ca khớp cả quyết định, mã lý do, số tiền được trả và tiền phạt.",
+        "macroF1": "Trung bình F1 của bốn lớp quyết định, ước lượng theo hợp đồng.",
+        "unauthorizedPayment": "Ca bị trả tiền trong khi đáp án là giữ hoặc từ chối, trên số ca có đáp án giữ hoặc từ chối, kèm cận trên khoảng tin cậy Wilson 95%. Mục tiêu là 0."
+      }
+    },
     "kpi": {
-      "title": "Chỉ số KPI (đặc tả mục 15)",
+      "title": "Chỉ số KPI",
       "subtitle": "Trên {{labelled}} mốc có nhãn công khai; độ phủ, truy vết, thời gian trên {{milestones}} mốc",
       "decisionAccuracy": "Độ chính xác quyết định",
       "macroF1": "Macro-F1 (4 lớp)",
@@ -187,15 +197,6 @@
   "download": "Tải xuống",
   "chooseFile": "Chọn tệp PDF (tối đa 20 MB)",
   "draftId": "ID hợp đồng nháp",
-  "descriptions": {
-    "organizations": "Bên mua và nhà cung cấp tham gia hợp đồng.",
-    "users": "Tài khoản đăng nhập, vai trò và tổ chức của từng người.",
-    "contract-drafts": "Hợp đồng đang soạn trước khi đưa vào luồng ký.",
-    "milestone-templates": "Mẫu mốc thanh toán và điều kiện phê duyệt.",
-    "settings": "Tham số vận hành dùng chung.",
-    "documents": "Tệp PDF đã tải lên, kèm mã băm SHA-256.",
-    "audit": "Nhật ký chỉ ghi thêm của mọi thao tác quản trị."
-  },
   "options": {
     "kind": {
       "BUYER": "Bên mua",
@@ -233,8 +234,6 @@
   "deleted_other": "Đã xóa {{count}} bản ghi",
   "permissions": {
     "title": "Ma trận phân quyền",
-    "subtitle": "{{count}} quyền theo module, áp dụng cho 5 vai trò hệ thống.",
-    "source": "Ma trận lấy từ packages/contracts/permissions.json và là nguồn duy nhất API dùng để kiểm quyền. Theo đặc tả mục 17 (SoD-4), thay đổi ma trận phải sửa đặc tả và được người thứ hai duyệt trước khi phát hành; vì vậy trang này chỉ đọc.",
     "columns": {
       "permission": "Quyền",
       "module": "Module",
@@ -330,6 +329,7 @@
       "settings:delete": "Xóa cấu hình",
       "settings:import": "Nhập cấu hình từ tệp",
       "settings:export": "Xuất cấu hình",
+      "demo:reset": "Khôi phục dữ liệu demo (lưu trữ dữ liệu cũ)",
       "disputes:open": "Mở tranh chấp",
       "exceptions:read": "Xem hàng đợi ngoại lệ BR-19",
       "exceptions:propose": "Đề xuất vô hiệu sự kiện sai thẩm quyền",
@@ -357,7 +357,6 @@
     "CONTRACT_TEMPLATE_INVALID": "Mẫu hợp đồng không hợp lệ. Kiểm tra điều khoản, giới hạn số tiền và vai trò ký."
   },
   "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)",
-  "managedNote": "Bản ghi nguồn {{origins}} chỉ xem và xuất được; bản ghi tạo thêm thì sửa, xoá bình thường.",
   "managedDraftsNote": "Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên.",
   "placeholders": {
     "code": "VD: ORG_NEW",

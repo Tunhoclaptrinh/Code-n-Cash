@@ -113,9 +113,32 @@ export class DomainService {
     return seed.accounts;
   }
 
-  async resetDemo(): Promise<AccountSpec[]> {
-    await this.repo.reset();
-    return this.bootstrap();
+  /**
+   * Starts a fresh demo from the Data Pack and seed data. The previous store, its audit chain
+   * included, is archived rather than deleted; the new chain records who reset it and the head
+   * hash of the archived chain.
+   */
+  async resetDemo(actor: Actor): Promise<{ archive: string }> {
+    const archived = await this.repo.archiveAndReset();
+    await this.bootstrap();
+    const now = new Date().toISOString();
+    await this.repo.transact([], () => null, [
+      {
+        id: `demo-reset-${archived.archive}`,
+        version: 1,
+        createdAt: now,
+        updatedAt: now,
+        organizationId: actor.organizationId,
+        actorId: actor.id,
+        action: "RESET_DEMO_DATA",
+        resource: "datapack",
+        recordId: archived.archive,
+        archivedEntries: archived.entries,
+        archivedHeadHash:
+          typeof archived.head?.hash === "string" ? archived.head.hash : null,
+      },
+    ]);
+    return { archive: archived.archive };
   }
 
   private async load(names: string[]): Promise<Tables> {

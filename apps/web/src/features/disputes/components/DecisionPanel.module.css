@@ -1,69 +1,32 @@
-.panel {
+.options {
   --option-selected-bg: color-mix(
     in srgb,
-    var(--color-primary) 5%,
+    var(--color-primary) 6%,
     var(--color-surface)
   );
-  --option-border: var(--color-border);
-  --pending-bg: color-mix(
-    in srgb,
-    var(--color-warning) 7%,
-    var(--color-surface)
-  );
-  --pending-border: color-mix(
-    in srgb,
-    var(--color-warning) 35%,
-    var(--color-border)
-  );
-  --pending-text: var(--color-text-secondary);
-  --outcome-bg: color-mix(
-    in srgb,
-    var(--color-success) 7%,
-    var(--color-surface)
-  );
-  --outcome-border: color-mix(
-    in srgb,
-    var(--color-success) 30%,
-    var(--color-border)
-  );
-
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-height: 0;
-  padding: 16px 20px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.heading {
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
 
 .option,
 .optionSelected {
   position: relative;
   display: flex;
-  gap: 14px;
-  padding: 14px 16px;
-  border-radius: var(--radius-lg);
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .option {
-  border: 1.5px solid var(--option-border);
+  box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
 .optionSelected {
-  border: 2px solid var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
   background: var(--option-selected-bg);
 }
 
@@ -86,95 +49,69 @@
 
 .indicator {
   flex: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin-top: 2px;
   border-radius: 50%;
   border: 2px solid var(--color-border-strong);
 }
 
 .optionSelected .indicator {
-  border: 6px solid var(--color-primary);
+  border: 5px solid var(--color-primary);
   background: var(--color-surface);
 }
 
 .optionHint {
   color: var(--color-text-muted);
-  font-size: 13.5px;
+  font-size: 13px;
+}
+
+.noteBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .required {
   color: var(--color-danger-strong);
 }
 
-.note {
-  width: 100%;
-  margin-top: 4px;
-  margin-bottom: 18px;
-  padding: 10px 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-input);
-  border-radius: var(--radius-md);
-  resize: none;
-}
-
 .error {
-  margin-top: 2px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-danger-strong);
 }
 
 .pending {
-  padding: 10px 14px;
+  --pending-bg: color-mix(
+    in srgb,
+    var(--color-warning) 8%,
+    var(--color-surface)
+  );
+  padding: 8px 12px;
   background: var(--pending-bg);
-  border: 1px solid var(--pending-border);
   border-radius: var(--radius-md);
-  font-size: 13.5px;
-  color: var(--pending-text);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
 }
 
-.pending b {
-  color: var(--color-warning);
-}
-
-.outcome {
-  padding: 10px 14px;
-  background: var(--outcome-bg);
-  border: 1px solid var(--outcome-border);
-  border-radius: var(--radius-md);
-  font-size: 13.5px;
-  color: var(--color-success);
-}
-
+/* Actions on the right edge, the main one last. */
 .actions {
-  margin-top: auto;
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.later {
-  display: inline-flex;
-  align-items: center;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-input);
-  color: var(--color-text);
-}
-
-.later:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  /* Clears the character count Ant Design draws under the note. */
+  padding-top: 18px;
 }

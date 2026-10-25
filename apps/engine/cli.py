@@ -1,4 +1,4 @@
-"""Application adapter around the independently tested specification evaluator."""
+"""Application adapter around the codecash_engine package (the independently tested specification evaluator)."""
 import argparse
 import csv
 import hashlib
@@ -18,9 +18,8 @@ from pathlib import Path
 from time import perf_counter
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import kiem_chung_nghiep_vu as spec
+import codecash_engine as spec
 import dataset
 import validate_rules
 
@@ -102,6 +101,8 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
     now = datetime.now(timezone.utc).isoformat()
     run_id = 'run-' + hashlib.sha256((fingerprint + spec.SPEC_VERSION + str(as_of) + str(apply_scope) + str(workflow)).encode()).hexdigest()[:16]
     flags = spec.assumption_flags(pack, results)
+    confidence = spec.confidence_scores(pack, results, spec.evaluate, as_of=as_of, voided=voided,
+                                        strict_resolution=workflow)
     rows, traces = [], []
     for template in pack.template:
         mid = template['milestone_id']
@@ -113,9 +114,11 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
                    payable_amount_vnd_mn=str(result['payable']), penalty_amount_vnd_mn=str(result['penalty']),
                    reason_code=result['reason_code'], decision_reason=result['reason_code'],
                    evidence_event_ids=';'.join(result['evidence']), rule_id_applied=result['rule_id'],
-                   confidence_score=str(spec.confidence_score(result, flags.get(mid))), processing_time_ms=f'{timings[mid]:.4f}',
+                   confidence_score=confidence[mid][0], processing_time_ms=f'{timings[mid]:.4f}',
                    evaluated_at=now, engine_name=f'codecash-spec-{spec.SPEC_VERSION}', audit_trace_id=trace_id,
-                   notes=';'.join([f'assumptions:{",".join(flags[mid])}' if flags.get(mid) else '', f'as_of:{as_of}' if as_of else 'offline_full_history']).strip(';'))
+                   notes=';'.join([f'assumptions:{",".join(flags[mid])}' if flags.get(mid) else '',
+                                   f'confidence:{",".join(confidence[mid][1])}' if confidence[mid][1] else '',
+                                   f'as_of:{as_of}' if as_of else 'offline_full_history']).strip(';'))
         rows.append(row)
         traces.append({'id': trace_id, 'inputFingerprint': fingerprint, 'specVersion': spec.SPEC_VERSION,
                        'evaluatedAt': now, 'result': result, 'actors': sorted({pack.event_by_id[e]['actor_party_id'] for e in result['evidence']}),

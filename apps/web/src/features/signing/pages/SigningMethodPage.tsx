@@ -1,31 +1,23 @@
 import { SignaturePlacementPreview } from "@/shared/ui/SignaturePlacementPreview";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { Button, Tag, Tooltip } from "antd";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
-import { formatTime } from "@/shared/lib/format";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import {
-  cancelSigningRequest,
   confirmSigningRequest,
   getSigningRequest,
-  rejectSigningRequest,
   sendSigningRequest,
 } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
-import { cx, formatCountdown, spaceCode } from "../lib/helpers";
-import { methodKind, SIGN_METHODS } from "../lib/methods";
-import type {
-  SignMethod,
-  SigningOverview,
-  SigningRequest,
-  SignStepView,
-} from "../types";
+import { cx } from "../lib/helpers";
+import { SIGN_METHODS } from "../lib/methods";
+import type { SignMethod, SigningOverview } from "../types";
 import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SigningMethodPage.module.css";
@@ -90,24 +82,14 @@ function MethodSelection({
       ? "VNPT_SMARTCA"
       : overview.lastMethod,
   );
-  const [now, setNow] = useState(() => Date.now());
   const completed = useRef(false);
   const requestKey = signingKeys.request(contractId, stepNo);
 
   const request = useQuery({
     queryKey: requestKey,
     queryFn: () => getSigningRequest(contractId, stepNo),
-    refetchInterval: (query) =>
-      query.state.data?.status === "PENDING" ? 1000 : false,
   });
   const current = request.data ?? null;
-  const pending = current?.status === "PENDING";
-
-  useEffect(() => {
-    if (!pending) return;
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, [pending]);
 
   useEffect(() => {
     if (current?.status !== "COMPLETED" || completed.current) return;
@@ -119,29 +101,14 @@ function MethodSelection({
     void queryClient.invalidateQueries({ queryKey: ["signing"] });
   }, [current?.status, contractId, navigate, queryClient, userId]);
 
-  const store = (value: SigningRequest) =>
-    queryClient.setQueryData(requestKey, value);
-  const send = useMutation({
-    mutationFn: () => sendSigningRequest(contractId, stepNo, selected),
-    onSuccess: (value) => {
-      setNow(Date.now());
-      store(value);
+  // One click signs: the request is created and confirmed by the signer at once; the API still
+  // binds the signature to the document digest and the signer's turn exactly as before.
+  const sign = useMutation({
+    mutationFn: async () => {
+      await sendSigningRequest(contractId, stepNo, selected);
+      return confirmSigningRequest(contractId, stepNo);
     },
-  });
-  const confirm = useMutation({
-    mutationFn: () => confirmSigningRequest(contractId, stepNo),
-    onSuccess: store,
-  });
-  const reject = useMutation({
-    mutationFn: () => rejectSigningRequest(contractId, stepNo),
-    onSuccess: store,
-  });
-  const cancel = useMutation({
-    mutationFn: () => cancelSigningRequest(contractId, stepNo),
-    onSuccess: (value) => {
-      store(value);
-      void navigate(`/contracts/${contractId}/signing`);
-    },
+    onSuccess: (value) => queryClient.setQueryData(requestKey, value),
   });
 
   // Only the signer whose turn it is can reach this screen; everyone else goes back to the sequence.
@@ -153,21 +120,11 @@ function MethodSelection({
   }
   if (request.isPending) return <PageState kind="loading" />;
 
-  const lastError = [send, confirm, reject, cancel].find(
-    (mutation) => mutation.error,
-  )?.error;
-  const errorCode = lastError instanceof ApiError ? lastError.code : "UNKNOWN";
-  const selectedKind = methodKind(selected);
-  const phase = current ? current.status : "IDLE";
+  const errorCode =
+    sign.error instanceof ApiError ? sign.error.code : "UNKNOWN";
 
   return (
-    <ContractSideLayout
-      contractId={contractId}
-      focus={t("flow.sequence.stepTitle", {
-        party: t(`party.${step.party}`),
-        person: step.signerName,
-      })}
-    >
+    <ContractSideLayout contractId={contractId}>
       <div className={styles.titleRow}>
         <h2>{t("signMethod.title", { code: contractId })}</h2>
         <span className={cx(shared.pill, styles.stepChip)}>
@@ -216,7 +173,7 @@ function MethodSelection({
               />
             ))}
           </div>
-          {send.error || confirm.error || reject.error || cancel.error ? (
+          {sign.error ? (
             <p role="alert" className={styles.error}>
               {t(`errors.${errorCode}`, { defaultValue: t("errors.UNKNOWN") })}
             </p>
@@ -230,73 +187,18 @@ function MethodSelection({
               {t("signMethod.actions.back")}
             </Link>
             <Button
-              type="primary"
-              size="small"
-              disabled={send.isPending || selectedKind === "IMAGE"}
-              onClick={() => send.mutate()}
+              color="green"
+              variant="solid"
+              loading={sign.isPending}
+              disabled={
+                selected === "IMAGE" && overview.digitalSignatureRequired
+              }
+              onClick={() => sign.mutate()}
+              data-testid="sign-now"
             >
-              {t(
-                selectedKind === "USB"
-                  ? "signMethod.actions.sendUsb"
-                  : "signMethod.actions.sendRemote",
-              )}
+              {t("lite.signNow")}
             </Button>
           </div>
-        </section>
-
-        <section className={cx(shared.card, styles.progress)}>
-          <div className={styles.progressMain}>
-            <div className={styles.progressHeader}>
-              <h2>{t("signMethod.progress.title")}</h2>
-              <span
-                className={cx(
-                  shared.pill,
-                  styles.phaseBadge,
-                  styles[`phase${phase}`],
-                )}
-              >
-                {t(`signMethod.progress.badge.${phase}`)}
-              </span>
-            </div>
-            <ProgressList request={current} now={now} />
-            {pending ? (
-              <div className={styles.progressFooter}>
-                <Button
-                  danger
-                  size="small"
-                  disabled={cancel.isPending}
-                  onClick={() => cancel.mutate()}
-                >
-                  {t("signMethod.actions.cancel")}
-                </Button>
-              </div>
-            ) : null}
-          </div>
-          {!overview.simulated ? (
-            <div style={{ padding: 24 }}>
-              <Button
-                color="green"
-                variant="solid"
-                loading={confirm.isPending}
-                disabled={!pending}
-                onClick={() => confirm.mutate()}
-              >
-                {t("localProof.bridgeConfirm")}
-              </Button>
-            </div>
-          ) : current && methodKind(current.method) === "USB" ? null : (
-            <PhoneFrame
-              request={current}
-              step={step}
-              overview={overview}
-              fallbackMethod={
-                selectedKind === "REMOTE" ? selected : "VNPT_SMARTCA"
-              }
-              busy={confirm.isPending || reject.isPending}
-              onConfirm={() => confirm.mutate()}
-              onReject={() => reject.mutate()}
-            />
-          )}
         </section>
       </div>
     </ContractSideLayout>
@@ -339,231 +241,5 @@ function MethodCard({
         </span>
       </span>
     </button>
-  );
-}
-
-type ItemState = "done" | "current" | "wait" | "todo" | "failed";
-
-interface ProgressItem {
-  state: ItemState;
-  marker: string;
-  title: string;
-  description: ReactNode;
-}
-
-function ProgressList({
-  request,
-  now,
-}: {
-  request: SigningRequest | null;
-  now: number;
-}) {
-  const { t } = useTranslation("signing");
-  const kind = request
-    ? methodKind(request.method) === "USB"
-      ? "USB"
-      : "REMOTE"
-    : "REMOTE";
-
-  const done: ProgressItem = {
-    state: "todo",
-    marker: "3",
-    title: t("signMethod.progress.done.title"),
-    description: null,
-  };
-
-  let items: ProgressItem[];
-  if (request?.status === "PENDING" || request?.status === "COMPLETED") {
-    const sent: ProgressItem = {
-      state: "done",
-      marker: "✓",
-      title: t("signMethod.progress.sent.title"),
-      description: null,
-    };
-    if (request.status === "COMPLETED") {
-      items = [
-        sent,
-        {
-          state: "done",
-          marker: "✓",
-          title: t("signMethod.progress.confirmed.title"),
-          description: null,
-        },
-        { ...done, state: "done", marker: "✓" },
-      ];
-    } else {
-      const remaining = new Date(request.expiresAt).getTime() - now;
-      items = [
-        sent,
-        {
-          state: "wait",
-          marker: "2",
-          title: t(`signMethod.progress.wait.${kind}.title`),
-          description: (
-            <Trans
-              t={t}
-              i18nKey={`lite.wait.${kind}`}
-              values={{
-                app: t(`method.${request.method}.app`, { defaultValue: "" }),
-                time: formatTime(request.sentAt),
-                remaining: formatCountdown(remaining),
-                code: spaceCode(request.code),
-              }}
-              components={{ code: <b className={styles.mono} /> }}
-            />
-          ),
-        },
-        done,
-      ];
-    }
-  } else {
-    const ended = request
-      ? (request.status as "CANCELLED" | "REJECTED" | "EXPIRED")
-      : null;
-    items = [
-      ended
-        ? {
-            state: "failed",
-            marker: "✕",
-            title: t(`signMethod.progress.ended.${ended}.title`),
-            description: null,
-          }
-        : {
-            state: "current",
-            marker: "1",
-            title: t("signMethod.progress.idle.title"),
-            description: null,
-          },
-      {
-        state: "todo",
-        marker: "2",
-        title: t("signMethod.progress.wait.REMOTE.title"),
-        description: null,
-      },
-      done,
-    ];
-  }
-
-  return (
-    <ol className={styles.progressList}>
-      {items.map((item) => (
-        <li
-          key={item.marker + item.title}
-          className={cx(
-            styles.progressItem,
-            item.state === "todo" && styles.progressTodo,
-          )}
-        >
-          <span
-            className={cx(
-              styles.progressMarker,
-              styles[`marker_${item.state}`],
-            )}
-            aria-hidden="true"
-          >
-            {item.marker}
-          </span>
-          <div>
-            <b>{item.title}</b>
-            {item.description ? (
-              <div className={styles.progressText}>{item.description}</div>
-            ) : null}
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-function PhoneFrame({
-  request,
-  step,
-  overview,
-  fallbackMethod,
-  busy,
-  onConfirm,
-  onReject,
-}: {
-  request: SigningRequest | null;
-  step: SignStepView;
-  overview: SigningOverview;
-  fallbackMethod: SignMethod;
-  busy: boolean;
-  onConfirm: () => void;
-  onReject: () => void;
-}) {
-  const { t } = useTranslation("signing");
-  const method = request ? request.method : fallbackMethod;
-  const active = request?.status === "PENDING";
-
-  return (
-    <div className={styles.phoneColumn}>
-      <div className={styles.phoneCaption}>{t("lite.phoneCaption")}</div>
-      <div
-        className={cx(
-          styles.phone,
-          method === "VIETTEL_MYSIGN"
-            ? styles.phoneMySign
-            : styles.phoneSmartCa,
-        )}
-      >
-        <div className={styles.phoneHeader}>
-          <div className={styles.phoneProvider}>
-            {t(`method.${method}.name`)}
-          </div>
-          <b>{t("signMethod.phone.title")}</b>
-        </div>
-        {active && request ? (
-          <div className={styles.phoneBody}>
-            <div className={styles.phoneCard}>
-              <div className={styles.phoneLabel}>
-                {t("signMethod.phone.document")}
-              </div>
-              <b>
-                {t("signMethod.phone.documentName", {
-                  code: overview.contractCode,
-                })}
-              </b>
-              <div className={styles.phoneSub}>{overview.title}</div>
-            </div>
-            <div className={styles.phoneCard}>
-              <div className={styles.phoneLabel}>
-                {t("signMethod.phone.signer")}
-              </div>
-              <b>{step.signerName}</b>
-              <div className={styles.phoneSub}>{step.organizationName}</div>
-            </div>
-            <div className={cx(styles.phoneCard, styles.phoneCodeCard)}>
-              <div className={styles.phoneLabel}>
-                {t("lite.phoneCodeLabel")}
-              </div>
-              <b className={styles.phoneCode}>{request.code}</b>
-            </div>
-            <div className={styles.phoneActions}>
-              <button
-                type="button"
-                className={styles.phoneReject}
-                disabled={busy}
-                onClick={onReject}
-              >
-                {t("signMethod.phone.reject")}
-              </button>
-              <button
-                type="button"
-                className={styles.phoneConfirm}
-                disabled={busy}
-                onClick={onConfirm}
-              >
-                {t("signMethod.phone.confirm")}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className={styles.phoneBody}>
-            <p className={styles.phoneIdle}>{t("signMethod.phone.idle")}</p>
-          </div>
-        )}
-      </div>
-    </div>
   );
 }

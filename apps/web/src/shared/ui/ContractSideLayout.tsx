@@ -4,6 +4,7 @@ import { FileTextOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { ContractPreviewPane } from "./ContractPreviewPane";
 import { Panel } from "./Panel";
+import { WorkflowContext } from "./WorkflowContext";
 import styles from "./ContractSideLayout.module.css";
 
 /**
@@ -13,30 +14,38 @@ import styles from "./ContractSideLayout.module.css";
  */
 export function ContractSideLayout({
   contractId,
-  focus,
+  context,
   children,
 }: {
   contractId: string;
-  focus?: ReactNode;
+  /** One line naming the contract, shown above both columns so their tops line up. */
+  context?: ReactNode;
   children: ReactNode;
 }) {
   const { t } = useTranslation("common");
   const wide = Grid.useBreakpoint().xl;
   const [open, setOpen] = useState(false);
-  const pane = <ContractPreviewPane contractId={contractId} focus={focus} />;
+  const pane = <ContractPreviewPane contractId={contractId} />;
+  const contextLine = context ? (
+    <WorkflowContext>{context}</WorkflowContext>
+  ) : null;
   if (wide)
     return (
-      <div data-testid="contract-side-layout" className={styles.columns}>
-        <aside>
-          <Panel as="div" className={styles.aside}>
-            {pane}
-          </Panel>
-        </aside>
-        <div className={styles.main}>{children}</div>
-      </div>
+      <>
+        {contextLine}
+        <div data-testid="contract-side-layout" className={styles.columns}>
+          <aside>
+            <Panel as="div" className={styles.aside}>
+              {pane}
+            </Panel>
+          </aside>
+          <div className={styles.main}>{children}</div>
+        </div>
+      </>
     );
   return (
     <>
+      {contextLine}
       <Button
         icon={<FileTextOutlined />}
         onClick={() => setOpen(true)}

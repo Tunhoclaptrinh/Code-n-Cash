@@ -85,7 +85,33 @@ export const OUTPUT_FILES = [
 ] as const;
 export type OutputFile = (typeof OUTPUT_FILES)[number];
 
+/** 95% Wilson interval as [lower, upper] fractions. */
+type Interval = [number, number];
+interface BenchmarkShare {
+  correct: number;
+  total: number;
+  wilson95: Interval;
+}
+/** Results on one half (development or test) of the generated benchmark cases. */
+export interface BenchmarkSplit {
+  cases: number;
+  decisionAccuracy: BenchmarkShare;
+  fullMatch: BenchmarkShare;
+  macroF1: number | null;
+  macroF1Bootstrap95: Interval | null;
+  unauthorizedPayment: { count: number; total: number; wilson95: Interval };
+}
+export interface Benchmark {
+  synthetic: {
+    scenarios: Record<string, number>;
+    dev: BenchmarkSplit;
+    test: BenchmarkSplit;
+    failureCount: number;
+  };
+}
+
 export const getDecisions = () => platform.get<Evaluation>("/engine/decisions");
+export const getBenchmark = () => platform.get<Benchmark>("/engine/benchmark");
 export const evaluateDataPack = () =>
   platform.post<Evaluation>("/engine/evaluate", {});
 export const listDatasets = () => platform.get<Dataset[]>("/engine/datasets");

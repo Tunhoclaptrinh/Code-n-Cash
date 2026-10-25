@@ -157,10 +157,7 @@ export function ContractModal({
       key: "type",
       title: t("contractList.modal.event"),
       render: (_: unknown, e: EventRow) => (
-        <Space direction="vertical" size={0}>
-          <Typography.Text strong>{td(`eventType.${e.type}`)}</Typography.Text>
-          <TrackingCode code={e.id} />
-        </Space>
+        <Typography.Text strong>{td(`eventType.${e.type}`)}</Typography.Text>
       ),
     },
     {

@@ -1,6 +1,5 @@
 {
   "wizard": {
-    "label": "Các bước tạo hợp đồng",
     "steps": {
       "UPLOAD": "Tải lên",
       "SIGN_POSITIONS": "Vị trí ký",
@@ -24,13 +23,7 @@
     }
   },
   "slot": {
-    "label": "Ô ký {{stepNo}}",
-    "state": {
-      "MINE": "Đến lượt bạn",
-      "CURRENT": "Đang đến lượt",
-      "WAITING": "Chưa đến lượt",
-      "SIGNED": "Đã ký"
-    }
+    "label": "Ô ký {{stepNo}}"
   },
   "method": {
     "USB_TOKEN": {
@@ -83,11 +76,8 @@
       "parent": "Tải hợp đồng lên",
       "current": "Cấu hình vị trí ký"
     },
-    "title": "Gán vị trí ký cho từng bước",
-    "fileMeta": "{{fileName}} · Trang {{page}} / {{total}}",
     "stepChip": "Bước {{stepNo}} · {{party}}",
     "stepChipActive": "Đang gán: Bước {{stepNo}} · {{party}}",
-    "hint": "Bấm vào chỗ trống để đặt ô, hoặc kéo để vẽ ô. Kéo ô để dời, kéo góc dưới phải để đổi cỡ.",
     "slot": {
       "aria": "Ô ký {{stepNo}}, {{party}}. Dùng phím mũi tên để dời, Shift cộng mũi tên để đổi cỡ, Delete để xóa.",
       "signDate": "Ký ngày: dd/mm/yyyy"
@@ -98,7 +88,6 @@
       "current": "Trang <b>{{page}}</b> / {{total}}"
     },
     "zoom": {
-      "label": "Thu phóng",
       "out": "Thu nhỏ",
       "in": "Phóng to"
     },
@@ -112,7 +101,6 @@
         "ASSIGNED": "Đã gán"
       },
       "position": "Trang {{page}} · cách mép trên {{top}} mm, mép trái {{left}} mm · cỡ {{width}}×{{height}} mm",
-      "empty": "Chưa có ô ký. Chọn bước này rồi bấm hoặc kéo trên trang PDF.",
       "look": {
         "label": "Giao diện",
         "NAME_AND_TIME": "Tên và thời điểm ký",
@@ -120,44 +108,22 @@
       },
       "remove": "Xóa ô"
     },
-    "tip": {
-      "label": "Mẹo:",
-      "body": "chọn ô, rồi dùng phím mũi tên để dời, Shift + mũi tên để đổi cỡ, Delete để xóa. Đổi tệp thì phải gán lại."
-    },
-    "checks": {
-      "title": "Kiểm tra trước khi tiếp tục",
-      "ONE_SLOT_PER_STEP": "Mỗi bước ký có đúng một ô.",
-      "NO_OVERLAP": "Hai ô ký không chồng lên nhau.",
-      "NO_CONTENT_COVERED": "Ô ký không đè lên nội dung điều khoản hoặc tên người ký.",
-      "CORRECT_SIGNER": "Ô ký đúng người và đúng vùng ký in sẵn (nếu nhận diện được)."
-    },
     "actions": {
       "back": "Quay lại",
-      "continue": "Lưu vị trí ký và tiếp tục",
-      "blocked": "Hoàn tất các mục kiểm tra để tiếp tục"
+      "continue": "Lưu vị trí ký và tiếp tục"
     },
     "pdfPage": "Trang PDF {{page}}",
     "pdfError": "Không tải được ảnh trang. Hãy tải lại trước khi đặt ô ký.",
-    "realDocumentNotice": "Đặt ô ký trên trang tài liệu thật. Kiểm tra đúng người, đúng trang và vùng trống trước khi lưu.",
-    "seedDocumentNotice": "Hồ sơ mẫu chưa có tệp gốc: đây là sơ đồ minh họa. Tải một hợp đồng thật để đặt ô ký trên PDF.",
-    "scanNotice": "Trang này chưa nhận diện được văn bản. Tự kiểm tra ô ký không che nội dung trên ảnh trang.",
     "reviewPlacement": "Xem vị trí ký trên trang {{page}}",
     "reviewTitle": "Vị trí chữ ký của bạn",
     "reviewNotice": "Đối chiếu tài liệu và vị trí ô ký trước khi gửi yêu cầu ký.",
-    "coordinateInfo": "Tọa độ theo trang rộng 520 đơn vị: x={{x}}, y={{y}}, rộng={{w}}, cao={{h}}.",
     "mismatch": "Tài liệu chưa có vùng ký khớp với: {{names}}",
-    "mismatchHelp": "Kiểm tra đúng tệp, đúng nhà cung cấp và danh sách người ký. Quay lại bước tải lên để sửa người ký hoặc tạo lại tài liệu; không đặt chữ ký của người này dưới tên người khác.",
     "missingPrintedName": "Tên hoặc bên ký không khớp với vùng ký trong PDF.",
-    "choosePage": "Chọn trang PDF",
-    "pageNo": "Trang {{page}}",
     "fitPage": "Vừa trang",
     "fitWidth": "Vừa chiều ngang",
     "expandWorkspace": "Mở rộng",
     "collapseWorkspace": "Thu gọn",
     "showArea": "Đến vùng ký",
-    "identityRole": "Vai trò: {{role}} · Chức danh: {{title}}",
-    "identityManual": "Chưa nhận diện được tên/bên ký in sẵn trên PDF. Kiểm tra thủ công từng người và vùng ký; hệ thống chỉ kiểm được tọa độ, chữ nhận diện được và chồng lấn.",
-    "unconfiguredPrinted": "Tài liệu còn người ký chưa được cấu hình: {{names}}. Quay lại bước tải lên để khớp đủ danh sách hoặc tạo lại tài liệu.",
     "mismatchSummary": "Danh sách người ký chưa khớp tài liệu",
     "unconfiguredShort": "Tên trên PDF chưa được cấu hình: {{names}}.",
     "correctSigners": "Sửa người ký hoặc tài liệu"
@@ -168,10 +134,7 @@
       "current": "Số hóa và rà soát điều khoản"
     },
     "source": {
-      "title": "Điều khoản theo mẫu quy trình",
-      "badge": "Minh họa từ mẫu quy trình",
       "location": "Mục minh họa {{article}}",
-      "hint": "Phần này diễn giải các mốc theo mẫu quy trình, không phải đoạn trích của tệp. Nguồn PDF thực nằm trong bảng trích xuất bên trên. Bấm một dòng mốc để xem diễn giải tương ứng.",
       "vnd": "{{value}} triệu đồng",
       "clause": {
         "TOTAL_VALUE": "Tổng giá trị hợp đồng là <mark>{{value}}</mark>, thanh toán theo {{milestones}} mốc.",
@@ -182,8 +145,6 @@
     },
     "result": {
       "title_other": "Bản số hóa: {{count}} mốc thanh toán",
-      "pendingBadge_other": "{{count}} điểm cần xác nhận",
-      "reviewedBadge": "Đã xác nhận đầy đủ",
       "columns": {
         "milestone": "Mốc",
         "value": "Giá trị (triệu VND)",
@@ -206,31 +167,24 @@
     },
     "ambiguity": {
       "title": "MS{{no}}: hợp đồng chỉ ghi \"sau {{months}} tháng bảo hành\"",
-      "body": "Chưa có ngày cụ thể nên hệ thống không tự suy ra được. Nhập ngày hạn, hoặc để trống và mốc này sẽ luôn ở trạng thái HOLD cho tới khi có ngày.",
       "label": "Hạn MS{{no}}",
       "invalid": "Ngày không hợp lệ.",
       "loadSuggestion": "Nạp ngày gợi ý"
     },
     "approvers": {
       "title": "Người phê duyệt theo hợp đồng",
-      "none": "Không cần phê duyệt",
-      "note_one": "Cần {{count}} vai trò phê duyệt cho mỗi mốc.",
-      "note_other": "Cần {{count}} vai trò phê duyệt cho mỗi mốc."
+      "none": "Không cần phê duyệt"
     },
     "total": {
       "title": "Tổng các mốc",
       "value": "{{value}} triệu VND",
-      "match": "Khớp tổng giá trị hợp đồng đã xác nhận.",
       "mismatch": "Không khớp với giá trị hợp đồng ({{value}} triệu VND)."
     },
     "footer": {
-      "lockNote": "Khi xác nhận, bản số hóa bị khóa. Muốn sửa phải tạo phiên bản mới và ký lại.",
-      "locked": "Bản số hóa đã được xác nhận và khóa.",
       "back": "Quay lại",
       "confirm": "Xác nhận bản số hóa và chuyển sang ký",
       "continue": "Chuyển sang ký"
     },
-    "extractionFirst": "Hoàn thành đọc tệp, trích xuất và xác nhận điều khoản ở trên trước khi khóa bản số hóa.",
     "goExtraction": "Đến bước cần làm"
   },
   "flow": {
@@ -242,7 +196,6 @@
       "WAITING": "Chờ ký",
       "SIGNED": "Đã ký đủ"
     },
-    "meta_other": "{{code}} · {{supplier}} · {{value}} triệu VND",
     "sequence": {
       "title": "Trình tự ký",
       "stepTitle": "{{party}} · {{person}}",
@@ -252,24 +205,7 @@
         "WAITING": "Chờ bước {{stepNo}}",
         "SIGNED": "Đã ký"
       },
-      "description": {
-        "intermediate": "{{role}}, {{organization}}. Ký bằng chữ ký số có chứng thư còn hiệu lực.",
-        "final": "{{organization}}. Là bước cuối, bắt buộc chữ ký số, không dùng ảnh chữ ký."
-      },
-      "note": {
-        "lastMethod": "Phương thức đã dùng lần trước: {{method}}",
-        "notifyNext": "Sau khi bạn ký, hệ thống gửi thông báo cho người này.",
-        "queued": "Hệ thống sẽ thông báo cho người này khi đến lượt.",
-        "awaiting": "Hệ thống đang chờ người này ký.",
-        "signed": "Đã ký lúc {{dateTime}} bằng {{method}}."
-      },
       "account": "Tài khoản ký: {{email}}"
-    },
-    "rules": {
-      "title": "Quy tắc của trình tự",
-      "turn": "Chỉ người đang đến lượt mới ký được. Người khác mở ra chỉ xem.",
-      "lock": "Tệp không được sửa sau khi có chữ ký đầu tiên.",
-      "cancel": "Hủy yêu cầu ký chỉ làm được khi chưa có ai ký."
     },
     "actions": {
       "cancelRequest": "Hủy yêu cầu ký",
@@ -289,82 +225,8 @@
       "label": "Phương thức ký",
       "lastUsed": "Dùng lần trước"
     },
-    "file": {
-      "title": "Tệp sẽ được ký",
-      "meta_other": "{{fileName}}"
-    },
     "actions": {
-      "back": "Quay lại",
-      "sendRemote": "Gửi yêu cầu ký đến điện thoại",
-      "sendUsb": "Bắt đầu ký bằng token",
-      "cancel": "Hủy yêu cầu"
-    },
-    "progress": {
-      "title": "Tiến trình ký",
-      "badge": {
-        "IDLE": "Chưa gửi",
-        "PENDING": "Đang chờ xác nhận",
-        "COMPLETED": "Đã ký",
-        "CANCELLED": "Đã hủy",
-        "REJECTED": "Bị từ chối",
-        "EXPIRED": "Đã hết hạn"
-      },
-      "idle": {
-        "title": "Chưa gửi yêu cầu ký",
-        "description": "Chọn phương thức rồi bấm gửi yêu cầu ký."
-      },
-      "ended": {
-        "CANCELLED": {
-          "title": "Yêu cầu ký đã bị hủy",
-          "description": "Bạn đã hủy yêu cầu. Gửi lại khi sẵn sàng."
-        },
-        "REJECTED": {
-          "title": "Yêu cầu bị từ chối trên điện thoại",
-          "description": "Gửi lại yêu cầu nếu bạn muốn ký tiếp."
-        },
-        "EXPIRED": {
-          "title": "Yêu cầu đã hết hạn",
-          "description": "Gửi lại yêu cầu để nhận mã xác nhận mới."
-        }
-      },
-      "sent": {
-        "title": "Đã gửi yêu cầu ký",
-        "REMOTE": "Yêu cầu đã đến ứng dụng trên điện thoại của bạn.",
-        "USB": "Yêu cầu đã đến phần mềm ký trên máy này."
-      },
-      "wait": {
-        "REMOTE": {
-          "title": "Chờ bạn xác nhận trên điện thoại",
-          "description": "Đã gửi đến ứng dụng {{app}} lúc {{time}}. Còn {{remaining}} trước khi yêu cầu hết hạn. Kiểm tra mã xác nhận trên điện thoại trùng với mã <code>{{code}}</code>."
-        },
-        "USB": {
-          "title": "Chờ bạn nhập mã PIN trên token",
-          "description": "Đã gửi đến phần mềm ký lúc {{time}}. Còn {{remaining}} trước khi yêu cầu hết hạn."
-        }
-      },
-      "done": {
-        "title": "Hoàn tất",
-        "description": "Chữ ký của bạn được ghi vào hợp đồng, {{nextParty}} nhận thông báo đến lượt ký.",
-        "descriptionFinal": "Chữ ký của bạn được ghi vào hợp đồng, hợp đồng đủ chữ ký và có hiệu lực."
-      },
-      "confirmed": {
-        "title": "Đã xác nhận"
-      }
-    },
-    "lock": {
-      "title": "Trong lúc chờ, tệp bị khóa",
-      "body": "Không ai tải tệp mới hay sửa vị trí ký được. Bấm \"Hủy yêu cầu\" để mở khóa. Nếu gặp sự cố, xem <b>các ngoại lệ khi ký</b>."
-    },
-    "phone": {
-      "caption": "Màn hình trên điện thoại của người ký<br/>(ứng dụng của nhà cấp chứng thư, ngoài hệ thống)",
-      "title": "Yêu cầu ký số",
-      "document": "Văn bản",
-      "documentName": "Hợp đồng {{code}}",
-      "signer": "Người ký",
-      "codeLabel": "Mã xác nhận, phải trùng với màn hình máy tính",
-      "reject": "Từ chối",
-      "confirm": "Xác nhận",
-      "idle": "Chưa có yêu cầu ký nào gửi đến điện thoại."
+      "back": "Quay lại"
     }
   },
   "verify": {
@@ -391,18 +253,11 @@
         "INVALID": "Không hợp lệ",
         "UNVERIFIED": "Chưa xác minh"
       },
-      "signedAt": "Thời điểm ký",
-      "method": "Phương thức",
-      "certificate": "Chứng thư",
-      "certificateValid": "Còn hiệu lực đến {{expiry}}",
       "certificateExpired": "Đã hết hạn từ {{expiry}}",
-      "content": "Nội dung sau khi ký",
-      "contentIntact": "Không bị thay đổi",
       "contentChanged": "Đã bị thay đổi"
     },
     "check": {
       "title": "Kiểm tra một tệp bất kỳ",
-      "description": "Bên thứ ba, kiểm toán hoặc đối tác kéo tệp PDF vào đây để biết các chữ ký còn đúng hay không, không cần đăng nhập vào hợp đồng.",
       "dropzone": "Kéo thả tệp PDF vào đây hoặc chọn tệp",
       "aria": "Chọn tệp PDF để kiểm tra",
       "checking": "Đang kiểm tra…",
@@ -412,15 +267,6 @@
         "NOT_PDF": "Đây không phải tệp PDF.",
         "UNVERIFIED": "Phát hiện cấu trúc chữ ký; chưa xác minh mật mã hoặc chứng thư."
       }
-    },
-    "invalid": {
-      "title": "Khi nào kết quả báo không hợp lệ",
-      "reasons": {
-        "CONTENT_EDITED": "Nội dung tệp bị sửa sau khi ký, kể cả một ký tự.",
-        "WRONG_SIGNER": "Người ký không phải người được chỉ định cho bước đó.",
-        "CERT_REVOKED": "Chứng thư đã bị thu hồi, hoặc hết hạn trước thời điểm ký."
-      },
-      "exceptions": "Xem màn hình từng ngoại lệ"
     },
     "pick": "Hợp đồng:"
   },
@@ -435,7 +281,6 @@
       "TERMS_SNAPSHOT": "Gắn với bản điều khoản đã chốt"
     },
     "bridgeNotice": "Chữ ký được gửi tới dịch vụ ký đã cấu hình và chỉ ghi nhận khi kết quả trả về hợp lệ. Chưa bao gồm xác thực chứng thư của tổ chức CA.",
-    "bridgeConfirm": "Xác nhận và gửi đến dịch vụ ký",
     "basisLabel": "Đối tượng được ký"
   },
   "prepLite": {
@@ -477,13 +322,8 @@
       "VIETTEL_MYSIGN": "Xác nhận trên ứng dụng điện thoại.",
       "IMAGE": "Chỉ vẽ ảnh lên trang, không có chữ ký số."
     },
-    "wait": {
-      "REMOTE": "Gửi đến {{app}} lúc {{time}}, còn {{remaining}}. Mã phải trùng: <code>{{code}}</code>.",
-      "USB": "Gửi lúc {{time}}, còn {{remaining}}."
-    },
-    "phoneCaption": "Điện thoại của người ký",
-    "phoneCodeLabel": "Mã xác nhận",
     "verifyMeta": "{{dateTime}} · {{method}}",
-    "checkHint": "Xem các chữ ký trong tệp còn đúng hay không."
+    "checkHint": "Xem các chữ ký trong tệp còn đúng hay không.",
+    "signNow": "Ký hợp đồng"
   }
 }

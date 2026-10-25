@@ -45,6 +45,7 @@ import {
   downloadDatasetFile,
   evaluateDataPack,
   evaluateDataset,
+  getBenchmark,
   getDatasetResult,
   getDecisions,
   listDatasets,
@@ -56,6 +57,7 @@ import {
   type Share,
   type Trace,
 } from "./api/engine.api";
+import { BenchmarkCard } from "./components/BenchmarkCard";
 import { DATA_PACK, DatasetPanel } from "./components/DatasetPanel";
 
 const DECISIONS: Decision[] = ["RELEASE", "PENALTY", "HOLD", "REJECT"];
@@ -132,6 +134,14 @@ export default function DataPage() {
     queryKey: ["engine", "result", user.id, source],
     queryFn: () => (official ? getDecisions() : getDatasetResult(source)),
     enabled: official || !!dataset?.lastRun,
+  });
+  // Computed by the API once per process from the official data only: never for uploaded datasets.
+  const benchmark = useQuery({
+    queryKey: ["engine", "benchmark", user.id],
+    queryFn: getBenchmark,
+    enabled: official,
+    staleTime: Infinity,
+    retry: false,
   });
   const evaluate = useMutation({
     mutationFn: () => (official ? evaluateDataPack() : evaluateDataset(source)),
@@ -473,6 +483,15 @@ export default function DataPage() {
           </BaseCard>
         ) : null}
         {summary?.kpi ? <KpiCard summary={summary} kpi={summary.kpi} /> : null}
+        {official && summary ? (
+          <BenchmarkCard
+            milestones={summary.milestones}
+            data={benchmark.data}
+            loading={benchmark.isPending}
+            failed={benchmark.isError}
+            onRetry={() => void benchmark.refetch()}
+          />
+        ) : null}
         <DataTable<Row>
           rowKey="milestone_id"
           columns={columns}
@@ -503,7 +522,7 @@ export default function DataPage() {
             )(options)
           }
           onView={(row) => setTraceRow(row)}
-          actionsWidth={72}
+          actionsWidth={96}
           customActions={(row) => (
             <TableRowActions
               primary={{
@@ -571,7 +590,7 @@ function SourceNotes({ summary }: { summary: EvaluationSummary }) {
   );
 }
 
-/** KPIs of spec section 15 as the engine measured them, each with the set it was measured on. */
+/** KPIs as the engine measured them, each with the set it was measured on. */
 function KpiCard({ summary, kpi }: { summary: EvaluationSummary; kpi: Kpi }) {
   const { t } = useTranslation("platform");
   const ratio = (share: Share | null) =>

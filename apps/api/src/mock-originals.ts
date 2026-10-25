@@ -37,7 +37,11 @@ const generatorVersion = (() => {
   let version: string | undefined;
   return () =>
     (version ??= hash(
-      ["apps/engine/sample_contract.py", "apps/engine/templates/sample-vi.json"]
+      [
+        "apps/engine/sample_contract.py",
+        "apps/engine/pdf_geometry.py",
+        "apps/engine/templates/sample-vi.json",
+      ]
         .map((path) => readFileSync(resolve(repoRoot(), path), "utf8"))
         .join("\n"),
     ));

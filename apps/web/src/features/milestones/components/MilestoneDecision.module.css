@@ -1,0 +1,89 @@
+/* Decision headline inside the side card. */
+.bannerHeadline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.bannerHeadline h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.next {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.next b {
+  color: var(--color-text);
+}
+
+/* Actions sit on the right edge of the column, the main one last. */
+.bannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ruleTable {
+  min-width: 0;
+}
+
+.panelNote {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* Secondary details */
+
+.more {
+  margin-top: -4px;
+}
+
+.more :global(.ant-collapse-header),
+.more :global(.ant-collapse-body),
+.trace :global(.ant-collapse-header) {
+  padding-inline: 0 !important;
+}
+
+.trace {
+  padding: 4px 20px;
+}
+
+.traceHeading {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.matchedRule {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.ruleToggle {
+  padding-inline: 0;
+  height: auto;
+}
+
+@media (max-width: 760px) {
+  .bannerActions {
+    justify-content: stretch;
+  }
+  .bannerActions > * {
+    flex: 1 1 auto;
+    white-space: normal;
+    height: auto;
+    min-height: 32px;
+  }
+}

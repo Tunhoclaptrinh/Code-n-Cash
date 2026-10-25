@@ -25,10 +25,8 @@
   },
   "extraction": {
     "title": "Extract and review terms",
-    "notice": "Document reading produces suggestions. Review values, pages and quotes; correct or complete them before confirming and locking terms.",
     "extract": "Extract terms",
     "document": "Download source document",
-    "noDocument": "This demo record has a filename but no original bytes. Review the values manually.",
     "noText": "No readable text is available for automatic quote matching. For a scan, check the proposed value and quote against the page image.",
     "field": "Field",
     "suggestion": "Suggestion",

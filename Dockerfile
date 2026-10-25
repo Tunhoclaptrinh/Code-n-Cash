@@ -34,7 +34,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 FROM ${NODE_IMAGE} AS api
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 poppler-utils libreoffice-writer fonts-dejavu-core \
+    && apt-get install -y --no-install-recommends python3 poppler-utils libreoffice-writer fonts-dejavu-core fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production \
     API_HOST=0.0.0.0 \
@@ -55,6 +55,7 @@ COPY apps/engine/cli.py apps/engine/dataset.py apps/engine/server.py ./apps/engi
 COPY apps/engine/validate_rules.py apps/engine/rule_language.json apps/engine/sample_contract.py ./apps/engine/
 COPY apps/engine/pdf_geometry.py ./apps/engine/
 COPY apps/engine/templates ./apps/engine/templates
+COPY apps/engine/codecash_engine ./apps/engine/codecash_engine
 COPY tools/kiem_chung_nghiep_vu.py ./tools/
 COPY BangD-Case4/DataPack-CASE4_SmartContractWorkflow ./BangD-Case4/DataPack-CASE4_SmartContractWorkflow
 RUN mkdir -p /data && chown node:node /data

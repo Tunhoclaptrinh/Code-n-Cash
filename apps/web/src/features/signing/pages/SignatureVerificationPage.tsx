@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Alert, Button, Select, Tag, Tooltip, Typography } from "antd";
 import { downloadBlob } from "@codecash/ui";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { getContractList } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { ApiError } from "@/shared/api/client";
@@ -14,6 +14,7 @@ import { checkFile, getVerification } from "../api/verification.api";
 import { contractHeading } from "@/shared/lib/domain";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
+import { SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
 import { cx, formatMonthYear, isCertificateExpired } from "../lib/helpers";
 import { toneClass } from "../lib/tone";
@@ -98,6 +99,7 @@ function Verification({
 }) {
   const { t } = useTranslation("signing");
   const { t: td } = useTranslation("domain");
+  const navigate = useNavigate();
   const download = useMutation({
     mutationFn: () => trustApi.signatureBundle(contractId),
     onSuccess: (data) =>
@@ -112,72 +114,78 @@ function Verification({
   const effective = result.effectiveAt !== null;
 
   return (
-    <>
-      <div className={styles.proofRow}>
-        <Tooltip title={t("localProof.notice")}>
-          <Tag variant="filled" tabIndex={0} className={styles.proofTag}>
-            {t("lite.simulatedTag")}
-          </Tag>
-        </Tooltip>
-        <Button onClick={() => download.mutate()} loading={download.isPending}>
-          {t("localProof.export")}
-        </Button>
-      </div>
-      {download.isError ? (
-        <Alert type="error" title={td("errors.UNKNOWN")} />
-      ) : null}
-      <div className={cx(styles.banner, !effective && styles.bannerOpen)}>
-        <span className={styles.bannerIcon} aria-hidden="true">
-          {effective ? "✓" : "!"}
-        </span>
-        <div>
-          {effective && result.effectiveAt ? (
-            <>
-              <b className={styles.bannerTitle}>
-                {t("verify.banner.EFFECTIVE.title", {
-                  dateTime: formatDateTime(result.effectiveAt),
-                })}
-              </b>
-              <div className={styles.bannerBody}>
-                {t("verify.banner.EFFECTIVE.body", {
-                  count: result.milestonesOpened,
-                })}
-              </div>
-            </>
-          ) : (
-            <>
-              <b className={styles.bannerTitle}>
-                {t("verify.banner.INCOMPLETE.title")}
-              </b>
-              <div className={styles.bannerBody}>
-                {t("verify.banner.INCOMPLETE.body", {
-                  signed: validCount,
-                  total: result.stepCount,
-                })}
-              </div>
-            </>
-          )}
+    <SideCard>
+      <SideSection>
+        <div className={cx(styles.banner, !effective && styles.bannerOpen)}>
+          <span className={styles.bannerIcon} aria-hidden="true">
+            {effective ? "✓" : "!"}
+          </span>
+          <div>
+            {effective && result.effectiveAt ? (
+              <>
+                <b className={styles.bannerTitle}>
+                  {t("verify.banner.EFFECTIVE.title", {
+                    dateTime: formatDateTime(result.effectiveAt),
+                  })}
+                </b>
+                <div className={styles.bannerBody}>
+                  {t("verify.banner.EFFECTIVE.body", {
+                    count: result.milestonesOpened,
+                  })}
+                </div>
+              </>
+            ) : (
+              <>
+                <b className={styles.bannerTitle}>
+                  {t("verify.banner.INCOMPLETE.title")}
+                </b>
+                <div className={styles.bannerBody}>
+                  {t("verify.banner.INCOMPLETE.body", {
+                    signed: validCount,
+                    total: result.stepCount,
+                  })}
+                </div>
+              </>
+            )}
+          </div>
         </div>
-        {effective ? (
-          <Link to={`/contracts/${contractId}`} className={styles.bannerAction}>
-            {t("verify.banner.action")}
-          </Link>
+        {download.isError ? (
+          <Alert type="error" title={td("errors.UNKNOWN")} />
         ) : null}
-      </div>
+        <div className={styles.actions}>
+          <Tooltip title={t("localProof.notice")}>
+            <Tag variant="filled" tabIndex={0} className={styles.proofTag}>
+              {t("lite.simulatedTag")}
+            </Tag>
+          </Tooltip>
+          <Button
+            onClick={() => download.mutate()}
+            loading={download.isPending}
+          >
+            {t("localProof.export")}
+          </Button>
+          {effective ? (
+            <Button
+              color="green"
+              variant="solid"
+              onClick={() => navigate(`/contracts/${contractId}`)}
+            >
+              {t("verify.banner.action")}
+            </Button>
+          ) : null}
+        </div>
+      </SideSection>
 
-      <div className={styles.layout} data-testid="verification-layout">
-        <section className={cx(shared.card, styles.signatures)}>
-          <h2>{t("verify.signatures.title")}</h2>
+      <SideSection title={t("verify.signatures.title")}>
+        <div className={styles.signatures} data-testid="verification-layout">
           {result.signatures.map((signature) => (
             <SignatureCard key={signature.stepNo} signature={signature} />
           ))}
-        </section>
-
-        <div className={styles.side}>
-          <FileCheck contractId={contractId} />
         </div>
-      </div>
-    </>
+      </SideSection>
+
+      <FileCheck contractId={contractId} />
+    </SideCard>
   );
 }
 
@@ -284,8 +292,7 @@ function FileCheck({ contractId }: { contractId: string }) {
   const outcome = check.isError ? "NOT_PDF" : check.data?.outcome;
 
   return (
-    <section className={cx(shared.card, styles.panel)}>
-      <h2>{t("verify.check.title")}</h2>
+    <SideSection title={t("verify.check.title")}>
       <div className={styles.checkDescription}>{t("lite.checkHint")}</div>
       <label
         className={cx(styles.dropzone, dragging && styles.dropzoneOn)}
@@ -330,6 +337,6 @@ function FileCheck({ contractId }: { contractId: string }) {
           ) : null}
         </div>
       ) : null}
-    </section>
+    </SideSection>
   );
 }

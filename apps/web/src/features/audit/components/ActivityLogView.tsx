@@ -257,7 +257,7 @@ export function ActivityLogView({
         exportFilename={t("export.fileName")}
         onExport={(options) => void onExport(options)}
         onView={(e) => setDetail(e)}
-        actionsWidth={72}
+        actionsWidth={96}
         customActions={(e) => (
           <TableRowActions
             primary={{

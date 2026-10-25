@@ -1,6 +1,6 @@
 """Kiểm chứng đặc tả nghiệp vụ Case 4 trên Data Pack.
 
-Script tham chiếu cho docs/04_DAC_TA_NGHIEP_VU.md (SPEC_VERSION bên dưới phải trùng phiên bản
+Script tham chiếu cho docs/NGHIEP_VU.md (chi tiết v1.1: docs/archive/04_DAC_TA_NGHIEP_VU.md) (SPEC_VERSION bên dưới phải trùng phiên bản
 tài liệu): cài đúng các quy tắc BR-01..BR-20, đọc rule từ payment_rules.csv, in mọi con số được
 gắn nhãn [DỮ LIỆU] / [SAMPLE] và kiểm các bất biến đầu ra. Đây không phải engine nộp bài.
 Chỉ dùng thư viện chuẩn Python 3.9+.
@@ -13,479 +13,24 @@ Chạy từ thư mục gốc repo:
 """
 
 import argparse
-import ast
 import csv
 import hashlib
 import math
-import operator
 import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
-from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 from pathlib import Path
 
-SPEC_VERSION = "1.1"
-DEFAULT_DATA = Path(__file__).resolve().parent.parent / "BangD-Case4" / "DataPack-CASE4_SmartContractWorkflow"
-SNAPSHOT = date(2026, 10, 18)
-CENT = Decimal("0.01")
-
-# Mục 4.2: loại required event -> loại bên được tạo.
-AUTHORITY = {
-    "CONTRACT_SIGNED": "BUYER", "KICKOFF_CONFIRMED": "BUYER", "REQUIREMENTS_APPROVED": "BUYER",
-    "UAT_PASSED": "BUYER", "ACCEPTANCE": "BUYER",
-    "DELIVERY": "SUPPLIER", "INVOICE": "SUPPLIER", "GO_LIVE": "SUPPLIER",
-    "SERVICE_ACTIVATED": "SUPPLIER", "SERVICE_COMPLETED": "SUPPLIER", "WARRANTY_COMPLETED": "SUPPLIER",
-}
-# BR-05: trạng thái hợp lệ theo loại event.
-VALID_STATUS = {t: "CONFIRMED" for t in AUTHORITY}
-VALID_STATUS.update(APPROVAL="APPROVED", REJECTION="REJECTED", DISPUTE_OPENED="OPEN", DISPUTE_RESOLVED="RESOLVED")
-SUPPORT_TYPES = {"APPROVAL", "REJECTION", "DISPUTE_OPENED", "DISPUTE_RESOLVED"}
-
-# Mục 9.2: ánh xạ trạng thái milestone, đúng tên README mục 15.
-STATUS = {
-    "ALL_CONDITIONS_MET": "ELIGIBLE_FOR_PAYMENT", "LATE_COMPLETION": "PAID_WITH_PENALTY",
-    "REJECTION_PRESENT": "REJECTED", "MISSING_REQUIRED_EVENT": "WAITING_EVIDENCE",
-    "APPROVAL_QUORUM_NOT_MET": "WAITING_APPROVAL", "OPEN_DISPUTE": "ON_HOLD",
-    "UNAUTHORIZED_EVENT": "ON_HOLD", "UNRESOLVED_CONDITION": "ON_HOLD",
-}
-DECISIONS = {"RELEASE", "HOLD", "REJECT", "PENALTY"}
-PRIORITIES = [10, 20, 30, 40, 50, 60, 70, 80]
+# The evaluator lives in the codecash_engine package (apps/engine); this module is the spec check command.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "apps" / "engine"))
+from codecash_engine import (  # noqa: E402,F401  (re-exported for the tests and the engine adapter)
+    AUTHORITY, CENT, DECISIONS, DEFAULT_DATA, PRIORITIES, SNAPSHOT, SPEC_VERSION, STATUS, SUPPORT_TYPES,
+    VALID_STATUS, Pack, _eval, assumption_flags, check_invariants, compare_samples, confidence_score, confidence_scores,
+    evaluate, evaluate_all, evaluate_expr, read)
 
 
-def read(base, rel):
-    with open(base / rel, encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
-
-
-class Pack:
-    """Dữ liệu đầu vào. Dựng từ thư mục Data Pack (load) hoặc từ danh sách dòng (dùng trong test)."""
-
-    def __init__(self, contracts, parties, milestones, events, rules, decisions=(), template=(), base=None):
-        self.base = base
-        self.contracts = {r["contract_id"]: r for r in contracts}
-        self.parties = {r["party_id"]: r for r in parties}
-        self.milestones = {r["milestone_id"]: r for r in milestones}
-        self.events = list(events)
-        self.rules = list(rules)
-        self.decisions = list(decisions)
-        self.template = list(template)
-        self.event_by_id = {e["event_id"]: e for e in self.events}
-        self.events_by_ms = defaultdict(list)
-        for e in self.events:
-            self.events_by_ms[e["milestone_id"]].append(e)
-        for lst in self.events_by_ms.values():
-            lst.sort(key=lambda e: (e["event_timestamp"], e["event_id"]))
-        self.rules_by_scope = defaultdict(list)
-        for r in self.rules:
-            if r["active"] == "TRUE":
-                self.rules_by_scope[r["release_rule_code"]].append(r)
-        for lst in self.rules_by_scope.values():
-            lst.sort(key=lambda r: int(r["priority"]))
-
-    @classmethod
-    def load(cls, base):
-        return cls(read(base, "01_data/contracts.csv"), read(base, "01_data/parties.csv"),
-                   read(base, "01_data/milestones.csv"), read(base, "01_data/events.csv"),
-                   read(base, "01_data/payment_rules.csv"), read(base, "03_labels_sample/decision_sample.csv"),
-                   read(base, "04_output_templates/submission_output_template.csv"), base)
-
-
-# ---------- Bộ đánh giá biểu thức rule (whitelist AST, không dùng eval) ----------
-
-_CMP = {ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
-        ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge}
-_ARITH = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
-
-
-def _eval(node, env, source=None):
-    if isinstance(node, ast.Expression):
-        return _eval(node.body, env, source)
-    if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And):
-        return all(_eval(v, env, source) for v in node.values)
-    if isinstance(node, ast.Compare) and len(node.ops) == 1:
-        left, right = _eval(node.left, env, source), _eval(node.comparators[0], env, source)
-        if left is None or right is None:
-            return False
-        return _CMP[type(node.ops[0])](left, right)
-    if isinstance(node, ast.BinOp) and type(node.op) in _ARITH:
-        left, right = _eval(node.left, env, source), _eval(node.right, env, source)
-        if left is None or right is None:
-            return None
-        if isinstance(left, date) and isinstance(node.op, ast.Add):
-            if not isinstance(right, Decimal) or not right.is_finite() or right != right.to_integral_value():
-                raise ValueError("RULE_NON_INTEGER_DAYS")
-            return left + timedelta(days=int(right))
-        if isinstance(node.op, ast.Div) and right == 0:
-            raise ValueError("RULE_DIVISION_BY_ZERO")
-        return _ARITH[type(node.op)](left, right)
-    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("MIN", "MAX"):
-        args = [_eval(a, env, source) for a in node.args]
-        return min(args) if node.func.id == "MIN" else max(args)
-    if isinstance(node, ast.Name):
-        if node.id in ("TRUE", "FALSE"):
-            return node.id == "TRUE"
-        return env[node.id]
-    if isinstance(node, ast.Constant) and type(node.value) in (int, float):
-        # Read the original token, never round it through a binary float.
-        token = ast.get_source_segment(source, node) if source is not None else str(node.value)
-        value = Decimal(token)
-        if not value.is_finite():
-            raise ValueError("RULE_NON_FINITE_NUMBER")
-        return value
-    raise ValueError(f"Biểu thức không được hỗ trợ: {ast.dump(node)}")
-
-
-def evaluate_expr(text, env):
-    if text.strip() == "ELSE":
-        return True
-    source = text.replace(" AND ", " and ")
-    return _eval(ast.parse(source, mode="eval"), env, source)
-
-
-# ---------- Đánh giá một milestone theo đặc tả ----------
-
-def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=False,
-             completion_includes_approval=False, rounding=ROUND_HALF_UP, enforce_invoice_flag=False,
-             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False):
-    """Trả về quyết định và toàn bộ fact của một milestone.
-
-    Tham số mặc định là đặc tả. Các cờ còn lại chỉ dùng để đo độ nhạy (mục 13).
-    as_of: chế độ as-of (BR-16). voided: event_id đã có quyết định ngoại lệ được duyệt (BR-19).
-    """
-    m = pack.milestones[mid]
-    parties = pack.parties
-    issues, anomalies, notes = [], [], []
-    c = pack.contracts.get(m["contract_id"])
-    if c is None:
-        issues.append("milestone trỏ tới hợp đồng không tồn tại")
-        c = {"contract_id": m["contract_id"], "buyer_id": "", "supplier_id": ""}
-    raw = pack.events_by_ms[mid]
-    if as_of:
-        raw = [e for e in raw if e["event_timestamp"] <= as_of]
-
-    # BR-03: khử trùng lặp, giữ bản sớm nhất (đã sắp theo timestamp, event_id).
-    seen, uniq, dups = {}, [], []
-    for e in raw:
-        key = (e["contract_id"], e["milestone_id"], e["event_type"], e["document_id"],
-               e["actor_party_id"], e["event_status"], e["reference_event_id"])
-        if e["document_id"] and key in seen:
-            dups.append((e["event_id"], seen[key]))
-            continue
-        seen[key] = e["event_id"]
-        uniq.append(e)
-
-    # BR-15: lỗi cấu trúc.
-    req = [t for t in m["required_event_types"].split(";") if t]
-    roles = [r for r in m["required_approval_roles"].split(";") if r]
-    approval_required = m["approval_required"] == "TRUE"
-    try:
-        quorum = int(m["required_approval_quorum"])
-    except ValueError:
-        issues.append("required_approval_quorum không đọc được")
-        quorum = 0
-    if not req:
-        issues.append("required_event_types trống")
-    if approval_required and quorum != len(roles):
-        issues.append("quorum khác số vai trò bắt buộc")
-    if not approval_required and quorum != 0:
-        issues.append("approval_required=FALSE nhưng quorum > 0")
-    scope_rules = pack.rules_by_scope.get(m["release_rule_code"], [])
-    if [int(r["priority"]) for r in scope_rules] != PRIORITIES:
-        issues.append("phạm vi rule không đủ 8 rule priority 10..80")
-    for e in uniq:
-        if e["contract_id"] != m["contract_id"]:
-            issues.append(f"{e['event_id']}: contract_id lệch milestone")
-
-    def party(e):
-        return parties.get(e["actor_party_id"])
-
-    def required_authorized(e):
-        p = party(e)
-        if p is None:
-            return False
-        if literal_permissions:
-            return e["event_type"] in p["allowed_event_types"].split(";")
-        needed = AUTHORITY.get(e["event_type"])
-        if p["party_type"] != needed or p["status"] != "ACTIVE":
-            return False
-        return e["actor_party_id"] == (c["buyer_id"] if needed == "BUYER" else c["supplier_id"])
-
-    def approver_of_contract(e):
-        p = party(e)
-        return (p is not None and p["party_type"] == "APPROVER" and p["status"] == "ACTIVE"
-                and p["parent_party_id"] == c["buyer_id"] and p["can_approve_payment"] == "TRUE")
-
-    def valid_rejection(e):
-        return (e["event_status"] == "REJECTED" and approver_of_contract(e)
-                and "REJECTION" in party(e)["allowed_event_types"].split(";"))
-
-    # BR-19: chỉ event sai thẩm quyền hoặc bất thường mới được vô hiệu bằng quyết định ngoại lệ.
-    def void_eligible(e):
-        if party(e) is None or e["event_type"] not in VALID_STATUS:
-            return True
-        if e["event_type"] in req and not required_authorized(e):
-            return True
-        return e["event_type"] == "REJECTION" and not valid_rejection(e)
-
-    applied = [e for e in uniq if e["event_id"] in voided and void_eligible(e)]
-    refused = sorted({e["event_id"] for e in raw if e["event_id"] in voided} - {e["event_id"] for e in applied})
-    if refused:
-        notes.append("yêu cầu vô hiệu không hợp lệ, bị bỏ qua: " + ";".join(refused))
-    uniq = [e for e in uniq if e not in applied]
-
-    # BR-15: bất thường.
-    for e in uniq:
-        if party(e) is None:
-            anomalies.append(f"{e['event_id']}: actor không tồn tại")
-        if e["event_type"] not in VALID_STATUS:
-            anomalies.append(f"{e['event_id']}: event_type lạ")
-
-    # BR-04..BR-07, BR-20: required event hợp lệ / sai thẩm quyền / không liên quan.
-    valid_req, unauthorized, unrelated = {}, [], []
-    for e in uniq:
-        if e["event_type"] in req:
-            if not required_authorized(e):
-                unauthorized.append(e)
-            elif e["event_status"] == VALID_STATUS[e["event_type"]]:
-                valid_req.setdefault(e["event_type"], e)
-        elif e["event_type"] not in SUPPORT_TYPES:
-            unrelated.append(e)
-    missing = [t for t in req if t not in valid_req]
-    if enforce_invoice_flag and m["invoice_required"] == "TRUE" and "INVOICE" not in req:
-        missing.append("INVOICE")
-    completion_rate = Decimal(len(req) - len(missing)) / Decimal(len(req)) if req else Decimal(0)
-
-    # BR-08: tranh chấp. Mở thì dễ (mọi DISPUTE_OPENED), đóng thì khó (resolve phải hợp lệ).
-    def valid_resolution(r):
-        o = pack.event_by_id.get(r["reference_event_id"])
-        p = party(r)
-        buyer_side = p is not None and (r["actor_party_id"] == c["buyer_id"] or (
-            p["party_type"] == "APPROVER" and p["parent_party_id"] == c["buyer_id"]
-            and "DISPUTE" in p["allowed_event_types"].split(";")))
-        return (o is not None and o["event_type"] == "DISPUTE_OPENED" and o["milestone_id"] == r["milestone_id"]
-                and o["contract_id"] == r["contract_id"] == m["contract_id"]
-                and r["event_status"] == "RESOLVED" and r["event_timestamp"] >= o["event_timestamp"]
-                and (not strict_resolution or (buyer_side and p["status"] == "ACTIVE")))
-
-    scope_events = uniq
-    if contract_scope_dispute:
-        scope_events = [e for ms in pack.milestones.values() if ms["contract_id"] == m["contract_id"]
-                        for e in pack.events_by_ms[ms["milestone_id"]] if not as_of or e["event_timestamp"] <= as_of]
-    closed = set() if ignore_resolutions else {
-        r["reference_event_id"] for r in scope_events if r["event_type"] == "DISPUTE_RESOLVED" and valid_resolution(r)}
-    open_disputes = [e for e in scope_events if e["event_type"] == "DISPUTE_OPENED" and e["event_id"] not in closed]
-
-    # BR-09: rejection. Không phụ thuộc required_approval_roles (SC015).
-    rejections = [e for e in uniq if e["event_type"] == "REJECTION" and valid_rejection(e)]
-    anomalies += [f"{e['event_id']}: REJECTION không hợp lệ" for e in uniq
-                  if e["event_type"] == "REJECTION" and not valid_rejection(e)]
-
-    # BR-10: approval — mỗi approver một lần, đếm số vai trò bắt buộc được phủ.
-    approvals = {}
-    for e in uniq:
-        if (e["event_type"] == "APPROVAL" and e["event_status"] == "APPROVED" and approver_of_contract(e)
-                and party(e)["approval_role"] in roles):
-            approvals.setdefault(e["actor_party_id"], e)
-    valid_approval_count = len({parties[a]["approval_role"] for a in approvals})
-
-    # BR-11: thời điểm hoàn thành = muộn nhất trong các required event hợp lệ (bản sớm nhất mỗi loại).
-    completion_ts = None
-    if not missing and valid_req:
-        stamps = [e["event_timestamp"] for e in valid_req.values()]
-        if completion_includes_approval:
-            stamps += [e["event_timestamp"] for e in approvals.values()]
-        completion_ts = max(stamps)
-    completion_date = datetime.fromisoformat(completion_ts).date() if completion_ts else None
-    try:
-        due = date.fromisoformat(m["due_date"])
-        grace = int(m["grace_period_days"])
-        rate, cap = Decimal(m["penalty_rate_pct_per_day"]), Decimal(m["max_penalty_pct"])
-        planned = Decimal(m["planned_payment_vnd_mn"])
-    except (ValueError, ArithmeticError):
-        issues.append("tham số ngày/tiền của milestone không đọc được")
-        due, grace, rate, cap, planned = None, 0, Decimal(0), Decimal(0), Decimal(0)
-    days_late = max(0, (completion_date - (due + timedelta(days=grace))).days) if completion_date and due else 0
-
-    all_met = completion_rate == 1 and not unauthorized and (not approval_required or valid_approval_count >= quorum)
-    env = {
-        "open_dispute": bool(open_disputes),
-        "valid_rejection_event_count": Decimal(len(rejections)),
-        "unauthorized_required_event_count": Decimal(len(unauthorized)),
-        "required_event_completion_rate": completion_rate,
-        "approval_required": approval_required,
-        "valid_approval_count": Decimal(valid_approval_count),
-        "required_approval_quorum": Decimal(quorum),
-        "late_penalty_applicable": m["late_penalty_applicable"] == "TRUE",
-        "actual_completion_date": completion_date,
-        "due_date": due,
-        "grace_period_days": Decimal(grace),
-        "all_required_conditions_met": all_met,
-        "days_late_after_grace": Decimal(days_late),
-        "penalty_rate_pct_per_day": rate,
-        "max_penalty_pct": cap,
-        "planned_payment_vnd_mn": planned,
-    }
-
-    # BR-02: first-match; BR-15: lỗi cấu trúc -> rule 80, bất thường chỉ hạ lệnh trả tiền xuống rule 80.
-    fallback = next((r for r in scope_rules if r["condition_expression"].strip() == "ELSE"), None)
-    if issues:
-        rule = fallback
-    else:
-        rule = next(r for r in scope_rules if evaluate_expr(r["condition_expression"], env))
-        if anomalies and rule["decision"] in ("RELEASE", "PENALTY"):
-            rule = fallback
-    decision = rule["decision"] if rule else "HOLD"
-    reason = rule["reason_code"] if rule else "UNRESOLVED_CONDITION"
-
-    # BR-12, BR-13: tiền theo công thức của rule thắng, Decimal + ROUND_HALF_UP.
-    if rule:
-        penalty = Decimal(evaluate_expr(rule["penalty_amount_formula"], env)).quantize(CENT, rounding=rounding)
-        env["penalty_amount_vnd_mn"] = penalty
-        payable = Decimal(evaluate_expr(rule["payable_amount_formula"], env)).quantize(CENT, rounding=rounding)
-    else:
-        penalty = payable = Decimal("0.00")
-    raw_penalty = min(Decimal(days_late) * rate / 100 * planned, cap / 100 * planned)
-
-    # BR-17: bằng chứng.
-    evidence = [e["event_id"] for e in valid_req.values()] + [e["event_id"] for e in approvals.values()]
-    if reason == "OPEN_DISPUTE":
-        evidence += [e["event_id"] for e in open_disputes]
-    if reason == "REJECTION_PRESENT":
-        evidence += [e["event_id"] for e in rejections]
-
-    # Mục 14.3: token điều kiện theo DSL required_condition của BTC.
-    met, miss = [], []
-    for token in m["required_condition"].split(" AND "):
-        kind, _, arg = token.partition(":")
-        ok = {"EVENT": lambda: arg in valid_req,
-              "APPROVAL_QUORUM": lambda: valid_approval_count >= int(arg),
-              "NO_OPEN_DISPUTE": lambda: not open_disputes}.get(kind, lambda: False)()
-        (met if ok else miss).append(token)
-
-    # Mục 9.2 / 9.4: trạng thái; PLANNED và IN_PROGRESS chỉ có ở chế độ as-of.
-    status = STATUS[reason]
-    if as_of and reason == "MISSING_REQUIRED_EVENT":
-        if not raw:
-            status = "PLANNED"
-        elif due and date.fromisoformat(as_of[:10]) <= due:
-            status = "IN_PROGRESS"
-
-    return {
-        "milestone_id": mid, "contract_id": m["contract_id"], "decision": decision, "reason_code": reason,
-        "rule_id": rule["rule_id"] if rule else "", "status": status, "payable": payable, "penalty": penalty,
-        "raw_penalty": raw_penalty, "evidence": sorted(set(evidence)),
-        "required_event_count": len(req), "valid_required_event_count": len(req) - len(missing),
-        "missing": missing, "unauthorized": [e["event_id"] for e in unauthorized], "duplicates": dups,
-        "unrelated": [e["event_id"] for e in unrelated], "voided": [e["event_id"] for e in applied],
-        "open_dispute": bool(open_disputes), "open_dispute_ids": [e["event_id"] for e in open_disputes],
-        "valid_rejection_count": len(rejections), "approval_required": approval_required,
-        "valid_approval_count": valid_approval_count, "quorum": quorum, "days_late": days_late,
-        "completion_ts": completion_ts, "conditions_met": met, "missing_conditions": miss,
-        "issues": issues + anomalies, "notes": notes,
-    }
-
-
-def evaluate_all(pack, **kw):
-    return {mid: evaluate(pack, mid, **kw) for mid in pack.milestones}
-
-
-# ---------- Bất biến đầu ra (mục 14.6) ----------
-
-def check_invariants(pack, results):
-    """Trả về danh sách vi phạm; rỗng nghĩa là đạt."""
-    bad = []
-    rule_by_id = {r["rule_id"]: r for r in pack.rules}
-    for mid, m in pack.milestones.items():
-        r = results.get(mid)
-        if r is None:
-            bad.append(f"{mid}: không có kết quả")
-            continue
-        P = Decimal(m["planned_payment_vnd_mn"])
-        if r["decision"] not in DECISIONS or r["reason_code"] not in STATUS:
-            bad.append(f"{mid}: decision/reason ngoài miền giá trị")
-        if r["status"] != STATUS[r["reason_code"]]:
-            bad.append(f"{mid}: trạng thái không khớp ánh xạ 9.2")
-        rule = rule_by_id.get(r["rule_id"])
-        if rule is None or rule["release_rule_code"] != m["release_rule_code"] \
-                or (rule["decision"], rule["reason_code"]) != (r["decision"], r["reason_code"]):
-            bad.append(f"{mid}: rule_id không thuộc phạm vi hoặc không khớp quyết định")
-        if not all(value.is_finite() and value >= 0 for value in (r["payable"], r["penalty"])):
-            bad.append(f"{mid}: số tiền không hữu hạn hoặc âm")
-            continue
-        amounts = {"RELEASE": (P, Decimal(0)), "HOLD": (Decimal(0), Decimal(0)), "REJECT": (Decimal(0), Decimal(0))}
-        if r["decision"] in amounts and (r["payable"], r["penalty"]) != amounts[r["decision"]]:
-            bad.append(f"{mid}: số tiền sai với {r['decision']}")
-        if r["decision"] == "PENALTY":
-            rounded_zero = r["penalty"] == 0 and r["raw_penalty"].quantize(CENT, ROUND_HALF_UP) == 0
-            cap = (Decimal(m["max_penalty_pct"]) / 100 * P).quantize(CENT, ROUND_HALF_UP)
-            if not ((r["penalty"] > 0 or rounded_zero) and r["penalty"] <= cap
-                    and r["payable"] == max(Decimal(0), P - r["penalty"])):
-                bad.append(f"{mid}: PENALTY không đối soát được hoặc vượt trần")
-        if r["decision"] in ("RELEASE", "PENALTY"):  # chống unauthorized payment
-            if r["missing_conditions"] or r["unauthorized"] or r["valid_rejection_count"] or r["open_dispute"] or r["issues"]:
-                bad.append(f"{mid}: trả tiền khi chưa đủ điều kiện")
-        own = {e["event_id"] for e in pack.events_by_ms[mid]}
-        excluded = {d for d, _ in r["duplicates"]} | set(r["unauthorized"])
-        if not set(r["evidence"]) <= own or set(r["evidence"]) & excluded:
-            bad.append(f"{mid}: evidence ngoài mốc hoặc chứa bản lặp/event sai quyền")
-        if sorted(r["conditions_met"] + r["missing_conditions"]) != sorted(m["required_condition"].split(" AND ")):
-            bad.append(f"{mid}: token điều kiện không phủ đủ required_condition")
-    return bad
-
-
-def compare_samples(pack, results):
-    """So 17 cột của decision_sample.csv. Trả về (số sample khớp hoàn toàn, danh sách lệch)."""
-    fields = [("expected_decision", "decision", str), ("reason_code", "reason_code", str),
-              ("payable_amount_vnd_mn", "payable", Decimal), ("penalty_amount_vnd_mn", "penalty", Decimal),
-              ("required_event_count", "required_event_count", int),
-              ("valid_required_event_count", "valid_required_event_count", int),
-              ("unauthorized_required_event_count", None, int), ("duplicate_event_count", None, int),
-              ("open_dispute", "open_dispute", lambda v: v == "TRUE"), ("valid_rejection_count", "valid_rejection_count", int),
-              ("approval_required", "approval_required", lambda v: v == "TRUE"),
-              ("valid_approval_count", "valid_approval_count", int), ("required_approval_quorum", "quorum", int),
-              ("days_late_after_grace", "days_late", int)]
-    full, mismatches = 0, []
-    for d in pack.decisions:
-        r = results[d["milestone_id"]]
-        got = dict(r, unauthorized_required_event_count=len(r["unauthorized"]), duplicate_event_count=len(r["duplicates"]))
-        bad = [f"{col}: {d[col]} vs {got[key or col]}" for col, key, conv in fields if conv(d[col]) != got[key or col]]
-        if Decimal(d["planned_payment_vnd_mn"]) != Decimal(pack.milestones[d["milestone_id"]]["planned_payment_vnd_mn"]):
-            bad.append("planned_payment_vnd_mn")
-        if sorted(filter(None, d["evidence_event_ids"].split(";"))) != r["evidence"]:
-            bad.append(f"evidence: {d['evidence_event_ids']} vs {';'.join(r['evidence'])}")
-        if d["missing_required_events"] != ";".join(r["missing"]):
-            bad.append(f"missing_required_events: {d['missing_required_events']} vs {';'.join(r['missing'])}")
-        if bad:
-            mismatches.append((d["scenario_id"], d["milestone_id"], bad))
-        else:
-            full += 1
-    return full, mismatches
-
-
-def assumption_flags(pack, results):
-    """Mốc có kết quả có thể đổi nếu BTC trả lời khác một giả định Mở (A05, A07, A08)."""
-    M = pack.milestones
-    open_c = {M[k]["contract_id"] for k, r in results.items() if r["open_dispute"]}
-    flags = defaultdict(list)
-    for k, r in results.items():
-        paid = r["decision"] in ("RELEASE", "PENALTY")
-        if paid and M[k]["contract_id"] in open_c:
-            flags[k].append("A05")
-        if r["decision"] == "PENALTY" and r["raw_penalty"].quantize(CENT, ROUND_HALF_UP) != r["raw_penalty"].quantize(CENT, ROUND_HALF_EVEN):
-            flags[k].append("A07")
-        if paid and M[k]["invoice_required"] == "TRUE" and "INVOICE" not in M[k]["required_event_types"].split(";"):
-            flags[k].append("A08")
-    return flags
-
-
-def confidence_score(result, flags):
-    """Mục 14.2: thang chắc chắn của đội, không phải xác suất."""
-    if result["issues"]:
-        return "0.50"
-    return "0.80" if flags else "1.00"
-
-
-# ---------- Báo cáo ----------
+# ---------- Report ----------
 
 def h(title):
     print(f"\n=== {title} ===")
@@ -740,11 +285,13 @@ def report(pack, export=None):
           dict(Counter((p["approval_role"], p["approval_limit_vnd_mn"]) for p in P.values() if p["party_type"] == "APPROVER")),
           "| planned lớn nhất:", max(Decimal(m["planned_payment_vnd_mn"]) for m in M.values()))
 
-    h("9. Mốc phụ thuộc giả định Mở (confidence_score, mục 14.2)")
+    h("9. Mốc phụ thuộc giả định Mở và confidence_score (mục 14.2)")
     flags = assumption_flags(pack, results)
     print("số mốc bị gắn cờ:", len(flags), "| theo giả định:", dict(Counter(a for v in flags.values() for a in v)),
           "| gắn >1 cờ:", sum(1 for v in flags.values() if len(v) > 1))
-    print("confidence_score:", dict(Counter(confidence_score(results[k], flags.get(k)) for k in M)))
+    scores = confidence_scores(pack, results, evaluate)
+    print("confidence_score:", dict(sorted(Counter(scores[k][0] for k in M).items(), reverse=True)))
+    print("yếu tố hạ điểm:", dict(Counter(f for k in M for f in scores[k][1])))
     print("cảnh báo dashboard (không đổi quyết định): mốc đủ điều kiện nhưng có mốc trước bị HOLD/REJECT:", len(blocked))
 
     if export:
@@ -759,7 +306,7 @@ def report(pack, export=None):
                 r = dict(results[t["milestone_id"]])
                 r["duplicates"] = [f"{dup}>{kept}" for dup, kept in r["duplicates"]]
                 r["assumption_flags"] = flags.get(t["milestone_id"], [])
-                r["confidence_score"] = confidence_score(r, r["assumption_flags"])
+                r["confidence_score"] = scores[t["milestone_id"]][0]
                 w.writerow([";".join(map(str, v)) if isinstance(v, list) else v for v in (r[c] for c in cols)])
         print(f"\nĐã ghi {export}")
     return full == len(pack.decisions) and not invariants

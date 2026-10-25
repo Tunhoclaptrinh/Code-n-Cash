@@ -1,12 +1,12 @@
 # CodeCash project guidance
 
-Smart Contract Workflow, Case 4. The official brief and `docs/04_DAC_TA_NGHIEP_VU.md` are the business sources of truth.
+Smart Contract Workflow, Case 4. The official brief and `docs/NGHIEP_VU.md` (the single business specification; older documents are in `docs/archive/`) are the business sources of truth.
 
 ## Workspace
 
 - `apps/web`: React 19, Router 7, Ant Design 6, TanStack Query, i18next.
 - `apps/api`: NestJS API, resource CRUD, authentication, scoped workflow actions and persistence. `src/domain` imports the Data Pack as tables, adds marked seed data (origin `DATA_PACK` | `SEED` | `APP`), and re-runs the Python engine after every workflow action.
-- `apps/engine`: Python adapter around the tested Data Pack evaluator.
+- `apps/engine`: Python adapter around the tested Data Pack evaluator. The evaluator is the `codecash_engine` package (one module per stage); `tools/kiem_chung_nghiep_vu.py` is the spec check command on top of it.
 - `packages/ui`: reusable components migrated from UniFlow and adapted for CodeCash.
 - `packages/contracts`: public types and resource definitions.
 - `packages/api-client`: typed HTTP/resource client.

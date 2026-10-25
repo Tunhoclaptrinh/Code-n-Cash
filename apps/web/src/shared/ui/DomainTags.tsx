@@ -53,8 +53,10 @@ export function DecisionTag({ decision }: { decision: Decision }) {
   const { t } = useTranslation("domain");
   return (
     <Tooltip title={t(`decisionHint.${decision}`)}>
-      <span>
-        <ToneTag tone={decisionTone[decision]}>{decision}</ToneTag>
+      <span data-decision={decision}>
+        <ToneTag tone={decisionTone[decision]}>
+          {t(`decision.${decision}`)}
+        </ToneTag>
       </span>
     </Tooltip>
   );

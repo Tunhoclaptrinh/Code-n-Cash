@@ -1,7 +1,7 @@
 /**
  * Workflow domain shared by the API and the web app. The web copy is
  * packages/contracts/src/workflow.ts and must stay identical (tests/foundation/domain-types.test.mjs).
- * Vocabulary follows the organiser's Data Pack and docs/04_DAC_TA_NGHIEP_VU.md.
+ * Vocabulary follows the organiser's Data Pack and docs/NGHIEP_VU.md.
  * Money is a decimal string in millions of VND ("1290.00"), never a float.
  */
 

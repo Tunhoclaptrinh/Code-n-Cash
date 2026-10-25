@@ -3,21 +3,24 @@ import { App as AntApp, Button, Input, Radio } from "antd";
 import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { Evaluation } from "@codecash/contracts";
 import { ApiError } from "@/shared/api/client";
 import { openDispute, resolveDispute } from "@/shared/api/domain";
 import type { DisputeView } from "../types";
+import { SideSection } from "@/shared/ui/SidePanel";
 import styles from "./DecisionPanel.module.css";
 
 type Option = "RESOLVE" | "REQUEST_INFO" | "OPEN";
 
-/** Right column: the buyer (or its contract owner) closes disputes (BR-08); either party may open one. */
+/** The buyer (or its contract owner) closes disputes (BR-08); either party may open one. */
 export function DecisionPanel({ view }: { view: DisputeView }) {
   const { t } = useTranslation("disputes");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const { message } = AntApp.useApp();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const ids = useId();
   const options: Option[] = [
     ...(view.canResolve ? (["RESOLVE", "REQUEST_INFO"] as const) : []),
@@ -73,10 +76,7 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
   const headingId = `${ids}-heading`;
   const noteId = `${ids}-note`;
   return (
-    <section className={styles.panel}>
-      <h2 id={headingId} className={styles.heading}>
-        {t("decision.title")}
-      </h2>
+    <SideSection title={<span id={headingId}>{t("decision.title")}</span>}>
       {options.length ? (
         <div
           className={styles.options}
@@ -112,22 +112,31 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
         <div className={styles.pending}>{t("decision.readOnly")}</div>
       )}
       {options.length ? (
-        <div>
+        <div className={styles.noteBlock}>
           <label htmlFor={noteId} className={styles.label}>
             {t("decision.note.label")}{" "}
             <DemoFillButton
               disabled={!!note.trim()}
               onClick={() => {
-                setNote(t("decision.note.demo"));
+                // A sentence for the chosen action, naming only this milestone.
+                setNote(
+                  t(`lite.demoNote.${option ?? options[0]}`, {
+                    milestone: `${td("milestoneNo", { no: view.milestone.sequence })} · ${td(`milestoneType.${view.milestone.type}`)}`,
+                  }),
+                );
                 setNoteMissing(false);
               }}
-            />
-            <span className={styles.required}>*</span>
+            >
+              {tc("demoFill.action")}
+            </DemoFillButton>
+            <span className={styles.required} aria-hidden="true">
+              *
+            </span>
           </label>
           <Input.TextArea
             id={noteId}
-            className={styles.note}
             rows={3}
+            status={noteMissing ? "error" : undefined}
             value={note}
             placeholder={t("decision.note.placeholder")}
             maxLength={2000}
@@ -148,17 +157,19 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
         </div>
       ) : null}
       <div className={styles.actions}>
-        <Link
-          to={`/contracts/${view.contract.id}/milestones/${view.milestone.sequence}/decision`}
-          className={styles.later}
+        <Button
+          onClick={() =>
+            navigate(
+              `/contracts/${view.contract.id}/milestones/${view.milestone.sequence}/decision`,
+            )
+          }
         >
           {t("decision.actions.trace")}
-        </Link>
+        </Button>
         <Button
           {...(option === "OPEN" || option === "REQUEST_INFO"
             ? { color: "orange" as const, variant: "outlined" as const }
             : { color: "green" as const, variant: "solid" as const })}
-          size="small"
           disabled={!option || act.isPending}
           loading={act.isPending}
           onClick={onConfirm}
@@ -167,6 +178,6 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
           {t("decision.actions.confirm")}
         </Button>
       </div>
-    </section>
+    </SideSection>
   );
 }

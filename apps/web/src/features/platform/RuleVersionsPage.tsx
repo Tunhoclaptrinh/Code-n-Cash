@@ -292,7 +292,7 @@ export default function RuleVersionsPage() {
           onTabChange={(key) =>
             list.setFilter("status", key === "ALL" ? undefined : [key])
           }
-          actionsWidth={72}
+          actionsWidth={96}
           customActions={(row) => (
             <TableRowActions
               primary={{

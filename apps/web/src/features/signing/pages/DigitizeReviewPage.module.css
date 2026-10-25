@@ -62,80 +62,8 @@
   border-radius: 3px;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.table thead tr {
-  background: var(--color-bg);
-  text-align: left;
-  color: var(--color-text-muted);
-}
-
-.table th {
-  padding: 9px 8px;
-  font-weight: 700;
-}
-
-.table th:first-child {
-  padding: 9px 10px;
-}
-
-.row {
-  border-top: 1px solid var(--color-border);
-  cursor: pointer;
-}
-
-.row:nth-child(even) {
-  background: var(--signing-card-zebra);
-}
-
-.row td {
-  padding: 10px 8px;
-}
-
-.row td:first-child {
-  padding: 10px;
-}
-
-.row:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: -2px;
-}
-
-.rowPending,
-.rowPending:nth-child(even) {
-  background: var(--signing-warn-row);
-}
-
-.rowOn {
-  box-shadow: inset 3px 0 0 var(--color-primary);
-}
-
-.numeric {
-  text-align: right;
-}
-
 .tabular {
   font-variant-numeric: tabular-nums;
-}
-
-.unknownDate {
-  border: 1.5px solid var(--signing-warn-line);
-  border-radius: 6px;
-  padding: 1px 8px;
-}
-
-.sourceOk {
-  color: var(--color-success);
-  font-weight: 700;
-}
-
-.sourcePending {
-  color: var(--color-warning);
-  font-weight: 700;
 }
 
 .ambiguity {

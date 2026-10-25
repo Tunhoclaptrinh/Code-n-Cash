@@ -104,6 +104,7 @@ export default function LoginPage() {
         account.organization,
         account.partyId,
         t(`roles.${account.role}.name`),
+        ...(account.contracts ?? []),
       ].join(" "),
     ).includes(fold(demoSearch.trim())),
   );

@@ -1,47 +1,20 @@
-.panel {
+.message {
   --avatar-bg: #ffe8c7;
   --avatar-text: #8f4a06;
-  --file-border: var(--color-border);
-  --good-border: color-mix(
-    in srgb,
-    var(--color-success) 30%,
-    var(--color-border)
-  );
-  --good-bg: color-mix(in srgb, var(--color-success) 4%, var(--color-surface));
-
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  min-height: 0;
-  padding: 16px 20px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.heading {
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.headingSpaced {
-  margin-top: 6px;
-}
-
-.message {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 18px;
+  gap: 6px;
+  padding: 10px 12px;
   background: var(--color-surface-muted);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .author {
   display: flex;
   align-items: center;
-  gap: 8px 10px;
+  gap: 6px 10px;
   flex-wrap: wrap;
 }
 
@@ -49,8 +22,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--avatar-bg);
   color: var(--avatar-text);
@@ -67,57 +40,67 @@
 .file {
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: fit-content;
+  flex-wrap: wrap;
+  gap: 6px 10px;
   max-width: 100%;
   overflow-wrap: anywhere;
-  padding: 8px 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--file-border);
-  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .fileKind {
-  padding: 2px 7px;
-  background: var(--color-bg);
-  border: 1px solid var(--file-border);
+  padding: 1px 7px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   color: var(--color-text-muted);
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .impact {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
 }
 
 .impactCard {
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
+  --good-bg: color-mix(in srgb, var(--color-success) 8%, var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--color-surface-muted);
   border-radius: var(--radius-md);
 }
 
 .impactCardGood {
-  border-color: var(--good-border);
   background: var(--good-bg);
 }
 
+.impactLine {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .impactLabel {
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-size: 13px;
+  line-height: 1.45;
 }
 
 .impactValue {
-  font-size: 18px;
+  font-size: 17px;
   font-variant-numeric: tabular-nums;
 }
 
 .impactValueGood {
-  color: var(--color-success);
+  color: var(--color-success-strong);
 }
 
 .unit {
   color: var(--color-text-muted);
+  font-size: 13px;
 }

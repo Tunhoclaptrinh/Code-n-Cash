@@ -12,7 +12,7 @@ Dùng cho phần Demo/Mockup của buổi trình bày (slide 12) và cho buổi 
 
 | Thời lượng | Tài khoản | Màn hình | Nói gì |
 | --- | --- | --- | --- |
-| 20 giây | `finance@novaan.vn` | CT0103, mốc 2 (giao hàng): văn bản hợp đồng bên trái, điều kiện và tính tiền bên phải | Giao hàng trễ 2 ngày sau ân hạn; phê duyệt muộn không làm tăng phạt. Bấm phê duyệt: engine chạy lại, ra PENALTY, phạt 2,22 triệu |
+| 20 giây | `finance@novaan.vn` | CT0103, mốc 2 (giao hàng): văn bản hợp đồng bên trái; bên phải là kết quả nếu phê duyệt, bằng chứng, vai trò phê duyệt | Trước khi bấm, engine chạy thử: Chi sau trừ phạt (PENALTY), phạt 2,22 triệu vì giao hàng trễ 2 ngày sau ân hạn; phê duyệt muộn không làm tăng phạt. Bấm phê duyệt: engine chạy lại và ghi nhận |
 | 20 giây | `controller@codecash.vn` | Kết quả Data Pack | 405 mốc, KPI kèm cỡ mẫu, bộ ca tổng hợp; tải CSV đầu ra |
 | 20 giây | `auditor@codecash.vn` | Nhật ký hoạt động, Kiểm tra toàn vẹn | Thao tác vừa rồi có trong nhật ký, chuỗi băm hợp lệ; kiểm toán chỉ đọc |
 
@@ -21,8 +21,8 @@ Dùng cho phần Demo/Mockup của buổi trình bày (slide 12) và cho buổi 
 | # | Tài khoản | Việc | Điểm nhấn |
 | --- | --- | --- | --- |
 | 1 | `supplier@phuminh.vn` | Việc cần làm, CT0102, ký bước 2 bằng một lần bấm; sang trang kiểm tra chữ ký | Ký theo trình tự, chữ ký gắn với nội dung văn bản |
-| 2 | `finance@novaan.vn` | CT0103 mốc 2, phê duyệt | Ngày hoàn thành không tính phê duyệt; PENALTY 2,22 triệu |
-| 3 | `supplier@phuminh.vn` | Mở tranh chấp ở một mốc đang đủ điều kiện | Mốc chuyển HOLD; không mở được tranh chấp thứ hai khi đang có tranh chấp |
+| 2 | `finance@novaan.vn` | CT0103 mốc 2, phê duyệt | Ngày hoàn thành không tính phê duyệt; Chi sau trừ phạt (PENALTY) 2,22 triệu |
+| 3 | `supplier@phuminh.vn` | Mở tranh chấp ở một mốc đang đủ điều kiện | Mốc chuyển Tạm giữ (HOLD); không mở được tranh chấp thứ hai khi đang có tranh chấp |
 | 4 | `owner@novaan.vn` | Giải quyết tranh chấp đó | Engine đánh giá lại; mốc trở lại quyết định trước tranh chấp |
 | 5 | `controller@codecash.vn` | Kết quả Data Pack, mở một dòng PENALTY | Luật áp dụng, bằng chứng, điều kiện đạt và thiếu, confidence |
 | 6 | `auditor@codecash.vn` | Nhật ký hoạt động, Kiểm tra toàn vẹn | Mọi thao tác đã ghi, chuỗi băm hợp lệ |

@@ -11,8 +11,6 @@
     "upload": "Tải hợp đồng lên",
     "activity": "Nhật ký hoạt động",
     "verify": "Kiểm tra chữ ký",
-    "submissions": "Chứng từ đã nộp",
-    "approvals": "Chờ tôi phê duyệt",
     "groups": {
       "workflow": "Nghiệp vụ hợp đồng",
       "data": "Dữ liệu & quản trị",
@@ -25,7 +23,6 @@
     "guide": "Hướng dẫn sử dụng"
   },
   "topbar": {
-    "role": "Vai trò",
     "notifications": "Thông báo",
     "account": "Menu tài khoản",
     "language": "Ngôn ngữ",
@@ -33,8 +30,6 @@
     "openMenu": "Mở điều hướng",
     "collapse": "Thu gọn thanh bên",
     "expand": "Mở rộng thanh bên",
-    "pendingTasks_one": "{{count}} việc đang chờ bạn",
-    "pendingTasks_other": "{{count}} việc đang chờ bạn",
     "noPendingTasks": "Không có việc đang chờ",
     "themeLight": "Chuyển sang giao diện sáng",
     "themeDark": "Chuyển sang giao diện tối",
@@ -93,8 +88,7 @@
     "password": "Mật khẩu",
     "submit": "Đăng nhập",
     "errors": {
-      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
-      "UNKNOWN": "Không đăng nhập được. Vui lòng thử lại."
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng."
     },
     "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
     "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
@@ -243,7 +237,6 @@
     "action": "Điền mẫu",
     "all": "Điền mẫu toàn bộ",
     "hint": "Chỉ điền ô trống; không tự lưu hoặc gửi.",
-    "notice": "Nhập thông tin hoặc dùng dữ liệu mẫu để thử nhanh.",
     "completeFirst": "Điền đầy đủ các trường bắt buộc trước khi tạo tệp."
   },
   "tableActions": {

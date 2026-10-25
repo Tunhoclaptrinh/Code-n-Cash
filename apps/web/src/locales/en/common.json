@@ -11,8 +11,6 @@
     "upload": "Upload contract",
     "activity": "Activity log",
     "verify": "Verify signature",
-    "submissions": "Submitted documents",
-    "approvals": "Awaiting my approval",
     "groups": {
       "workflow": "Contract workflow",
       "data": "Data & administration",
@@ -25,7 +23,6 @@
     "guide": "User guide"
   },
   "topbar": {
-    "role": "Role",
     "notifications": "Notifications",
     "account": "Account menu",
     "language": "Language",
@@ -33,8 +30,6 @@
     "openMenu": "Open navigation",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
-    "pendingTasks_one": "{{count}} task waiting for you",
-    "pendingTasks_other": "{{count}} tasks waiting for you",
     "noPendingTasks": "No pending tasks",
     "themeLight": "Switch to light theme",
     "themeDark": "Switch to dark theme",
@@ -93,8 +88,7 @@
     "password": "Password",
     "submit": "Sign in",
     "errors": {
-      "INVALID_CREDENTIALS": "Email or password is incorrect.",
-      "UNKNOWN": "Could not sign in. Please try again."
+      "INVALID_CREDENTIALS": "Email or password is incorrect."
     },
     "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
     "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
@@ -243,7 +237,6 @@
     "action": "Fill sample",
     "all": "Fill sample data",
     "hint": "Fill empty fields only; does not save or submit.",
-    "notice": "Enter your details or use sample input to try the flow.",
     "completeFirst": "Complete required fields before generating a file."
   },
   "tableActions": {

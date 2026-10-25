@@ -1,14 +1,9 @@
 {
   "breadcrumb": {
-    "home": "Home",
     "contracts": "Contracts",
     "upload": "Upload contract"
   },
   "contractList": {
-    "title": "Contracts",
-    "subtitle_one": "{{count}} contract · {{organization}}",
-    "subtitle_other": "{{count}} contracts · {{organization}}",
-    "intro": "The organiser's 100 sample contracts plus demo contracts. A contract's status summarises the evaluation of each payment milestone.",
     "upload": "Upload a contract",
     "disputeFlag": "Dispute",
     "tiles": {
@@ -22,8 +17,7 @@
       "searchPlaceholder": "Search code, title, buyer or supplier",
       "typeLabel": "Contract type",
       "policyLabel": "Approval policy",
-      "originLabel": "Data source",
-      "statusLabel": "Status"
+      "originLabel": "Data source"
     },
     "table": {
       "columns": {
@@ -37,8 +31,7 @@
         "status": "Status",
         "waiting": "Waiting for",
         "actions": "Actions"
-      },
-      "empty": "No matching contracts"
+      }
     },
     "progress": {
       "eligible": "{{eligible}}/{{total}} milestones eligible",
@@ -71,12 +64,9 @@
     },
     "modal": {
       "overview": "Overview",
-      "kind": "Type and workflow",
       "term": "Term",
       "penaltyTerms": "Penalty terms",
       "penaltyValue": "Grace {{grace}} days · {{rate}}%/day · cap {{cap}}%",
-      "ruleSet": "Rule set",
-      "payment": "Payment per the evaluation",
       "eligible": "Eligible",
       "penalty": "Penalty",
       "held": "Held",
@@ -109,22 +99,16 @@
       "sign": "Digital signing",
       "effective": "In force"
     },
-    "title": "Register a new contract",
     "form": {
       "type": {
-        "label": "Contract type",
-        "stages": "Milestones of the workflow:"
+        "label": "Contract type"
       },
       "code": {
         "label": "Contract code",
         "value": "{{code}} (assigned by the system)"
       },
       "title": {
-        "label": "Contract title",
-        "counter": "{{count}}/{{max}} characters",
-        "errors": {
-          "required": "Enter a contract title."
-        }
+        "label": "Contract title"
       },
       "supplier": {
         "label": "Supplier"
@@ -133,14 +117,8 @@
         "label": "Digitization reviewer",
         "option": "{{role}}, {{organization}}"
       },
-      "positionsNotice": {
-        "title": "Signature positions are assigned in the next step",
-        "body": "Positions are not detected automatically. Next, you place one slot on the PDF page for each signer, in the order above.",
-        "compact": "Next: place signing fields on the document."
-      },
       "file": {
         "label": "Contract file",
-        "constraint": "PDF or DOCX, up to 20 MB",
         "meta": "{{size}} · {{pages}} pages",
         "metaNoPages": "{{size}}",
         "replace": "Replace file",
@@ -150,7 +128,6 @@
           "size": "The file is larger than 20 MB.",
           "required": "Choose the contract file."
         },
-        "empty": "No file chosen",
         "choose": "Choose a file",
         "sizeKb": "{{size}} KB",
         "sizeMb": "{{size}} MB"
@@ -158,8 +135,6 @@
       "appendix": {
         "label": "Attached appendices",
         "optional": "optional",
-        "drop": "Drag and drop or choose appendix files",
-        "remove": "Remove file {{name}}",
         "invalid": "Use non-empty PDF/DOCX files, up to 20 MB per file and 20 appendices.",
         "add": "Add appendix"
       },
@@ -188,13 +163,6 @@
       "signers": {
         "label": "Signers and signing order",
         "hint": "One to four signers. A single signature completes the workflow; two or more signers must represent both parties. Sign in order; the final step requires digital signing.",
-        "presetLabel": "Presets:",
-        "presets": {
-          "BUYER_FIRST": "Buyer signs first",
-          "SUPPLIER_FIRST": "Supplier signs first",
-          "THREE_PARTY": "3 people: supplier → finance → owner",
-          "SINGLE_SIGNER": "Single signer"
-        },
         "person": "Pick the signer",
         "up": "Up",
         "down": "Down",
@@ -206,13 +174,9 @@
           "duplicate": "A person signs only once.",
           "bothSides": "With two or more signers, both buyer and supplier must be represented."
         },
-        "singleNotice": "Single-signer workflow: the contract becomes effective after this person signs digitally. The contract editor explicitly chooses this workflow.",
-        "actions": "Actions",
-        "actionsAt": "Actions for signer {{index}}",
         "sideAt": "Party for signer {{index}}",
         "personAt": "Signer {{index}}",
-        "count": "{{count}}/{{max}} signers",
-        "compactHint": "Sign in order from top to bottom; the last signer uses a digital signature."
+        "count": "{{count}}/{{max}} signers"
       },
       "errors": {
         "TITLE_REQUIRED": "Enter the contract title.",
@@ -243,63 +207,29 @@
         "grace": "0–60",
         "rate": "0.00–5.00",
         "cap": "0.00–100.00"
-      },
-      "ruleVersion": "Pinned rule version: {{id}}. Later configuration changes do not replace this draft’s version."
-    },
-    "checks": {
-      "title": "Current file and configuration",
-      "readable": {
-        "title": "Content is readable.",
-        "detail": "{{pages}} pages, not a scan."
-      },
-      "ready": {
-        "title": "Ready to assign signature positions.",
-        "detail": "{{steps}} signers in the selected order."
-      },
-      "unsigned": {
-        "title": "No digital signature yet",
-        "detail": "in the file: expected for a new contract."
-      },
-      "noFile": "No file selected",
-      "storage": "Storage",
-      "uploaded": "File saved on server",
-      "local": "File changes not yet saved to server",
-      "pendingVerification": "This is file metadata and configuration only. Content, terms and signatures are checked in later steps."
+      }
     },
     "preview": {
       "title": "Preview",
-      "page": "Page {{page}} / {{total}}",
-      "partyA": "PARTY A REPRESENTATIVE",
-      "partyB": "PARTY B REPRESENTATIVE",
-      "schematic": "Illustration of signature areas; this is not a rendering of the selected file.",
       "selectFile": "Select a file or generate a sample to preview the actual document.",
       "loading": "Rendering document…",
       "unavailable": "The document could not be rendered. Check the file or download it to open in your editor.",
       "downloadPdf": "Download preview PDF",
       "noStoredFile": "No original file has been stored. The organiser dataset does not include contract files.",
       "downloadOriginal": "Download original file",
-      "partialNote": "This draft PDF follows the form and has not been saved. Fields not filled in yet are shown as “……” until you complete them.",
       "updating": "Updating…",
-      "unsaved": "This draft PDF follows the form and has not been saved. Generate and use the sample to select it as the signing document.",
       "working": "Working draft",
-      "selected": "Selected document",
-      "fileBasis": "This file is the signing document. Form changes do not modify it; regenerate the sample or upload the revised file."
+      "selected": "Selected document"
     },
-    "intro": "Step 1/5. A new contract is split into milestones by the workflow of its type and evaluated with the same payment rules as the sample contracts.",
     "sample": {
-      "defaultTitle": "Sample contract — {{type}}",
       "generate": "Generate sample contract",
-      "download": "Download file",
-      "notice": "Generate a real DOCX using the current terms and 1–4 signers. Download, edit and upload it again; it is marked as an unsigned test fixture.",
-      "compactNotice": "Create a DOCX with the current content and signers."
+      "download": "Download file"
     },
     "templates": {
       "choose": "Choose a contract template",
       "notice": "Administrators manage templates. Adjust signers and terms for this draft without changing the source template.",
       "body": "Contract content override",
-      "bodyHint": "Variables: title, buyer, supplier, valueMillion, startDate, endDate; enclose in double braces. Leave blank for default content.",
-      "stale": "Terms or signers changed after generation. Regenerate the document before saving.",
-      "bodyEmptyHint": "Leave blank to use the default content."
+      "bodyHint": "Variables: title, buyer, supplier, valueMillion, startDate, endDate; enclose in double braces. Leave blank for default content."
     },
     "demo": {
       "title": "Equipment supply agreement — demo",

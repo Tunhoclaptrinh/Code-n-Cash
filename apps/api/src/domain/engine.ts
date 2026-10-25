@@ -18,13 +18,13 @@ import {
 } from "./records";
 import type {
   Evaluation,
-  MilestoneStatus,
   Preview,
   ReasonCode,
   TimelinePoint,
   Trigger,
 } from "./types";
 import { repoRoot } from "../common/paths";
+import { ENGINE_OUTPUT_COLUMNS, parseEngineOutput } from "./engine-contract";
 
 /** Stdout of `apps/engine/cli.py`; exit code 2 means the input was rejected (message on stderr). */
 export function python(args: string[], timeoutMs: number): Promise<string> {
@@ -54,36 +54,6 @@ export function python(args: string[], timeoutMs: number): Promise<string> {
       else reject(new Error(err));
     });
   });
-}
-
-/** One milestone as returned by the specification evaluator (tools/kiem_chung_nghiep_vu.py). */
-interface EngineResult {
-  milestone_id: string;
-  contract_id: string;
-  decision: Evaluation["decision"];
-  reason_code: ReasonCode;
-  rule_id: string;
-  status: MilestoneStatus;
-  payable: string;
-  penalty: string;
-  raw_penalty: string;
-  evidence: string[];
-  missing: Evaluation["missing"];
-  unauthorized: string[];
-  duplicates: Array<[string, string]>;
-  unrelated: string[];
-  voided: string[];
-  open_dispute_ids: string[];
-  valid_rejection_count: number;
-  approval_required: boolean;
-  valid_approval_count: number;
-  quorum: number;
-  days_late: number;
-  completion_ts: string | null;
-  conditions_met: string[];
-  missing_conditions: string[];
-  issues: string[];
-  notes: string[];
 }
 
 export interface EngineOutcome {
@@ -176,9 +146,27 @@ export async function runEngine(
 ): Promise<EngineOutcome> {
   const started = Date.now();
   return withDataset(tables, extraEvents, async (dir) => {
-    const output = JSON.parse(
+    const contractTypes = new Map(
+      tables[TABLE.contracts].map((c) => [c.contract_id, c.contract_type]),
+    );
+    const expected = tables[TABLE.milestones].map((m) =>
+      Object.fromEntries(
+        ENGINE_OUTPUT_COLUMNS.slice(0, 6).map((key) => [
+          key,
+          String(
+            key === "contract_type" ? contractTypes.get(m.contract_id) : m[key],
+          ),
+        ]),
+      ),
+    );
+    const raw = JSON.parse(
       await python(["--data", dir, "--workflow", "--json"], 60000),
     );
+    const output = parseEngineOutput(raw, {
+      profile: "WORKFLOW",
+      rows: expected,
+      diagnostic: true,
+    });
     const evaluatedAt = new Date().toISOString();
     const confidence = new Map<string, string>(
       output.rows.map((row: Record<string, string>) => [
@@ -187,10 +175,7 @@ export async function runEngine(
       ]),
     );
     const evaluations = new Map<string, Evaluation>();
-    for (const trace of output.traces as Array<{
-      result: EngineResult;
-      specVersion: string;
-    }>) {
+    for (const trace of output.traces) {
       const r = trace.result;
       evaluations.set(r.milestone_id, {
         milestoneId: r.milestone_id,

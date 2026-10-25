@@ -14,8 +14,8 @@ import * as drafts from "../domain/drafts";
 import { outcome } from "../domain/actions";
 import { repoRoot } from "../common/paths";
 import { digestBytes } from "./crypto";
-import { documentText, LocalTermExtractor } from "./extraction";
-import { extractionProvider, geminiExtract } from "./gemini-extractor";
+import { documentText } from "./extraction";
+import { configuredTermProvider } from "./term-provider";
 import { can } from "../common/permissions";
 import { ForbiddenException } from "@nestjs/common";
 import type { ExtractionProposal } from "./types";
@@ -41,7 +41,7 @@ export class ExtractionService {
   async extract(code: string, actor: Actor) {
     if (!can(actor.role, "contracts:digitize"))
       throw new ForbiddenException("PERMISSION_DENIED");
-    const provider = extractionProvider();
+    const provider = configuredTermProvider();
     const snapshot = await this.domain.read(actor, (ctx) => {
       ctx.contract(code);
       drafts.currentDraft(ctx, code); // Check buyer editor/organisation before any external request.
@@ -49,11 +49,7 @@ export class ExtractionService {
     });
     if (!snapshot || snapshot.state !== "DRAFT")
       throw new BadRequestException("DRAFT_LOCKED");
-    const identity = {
-      kind: provider.kind === "gemini" ? "GEMINI" : "TEXT_RULES",
-      version: provider.version,
-      ...(provider.kind === "gemini" ? { model: provider.model } : {}),
-    };
+    const identity = provider.identity;
     const existing = (await this.repo.list("extraction-proposals")).find(
       (row) =>
         row.contractCode === code &&
@@ -63,7 +59,6 @@ export class ExtractionService {
         (row.extractor as typeof identity)?.version === identity.version &&
         (row.extractor as typeof identity)?.model === identity.model,
     );
-    const extractor = new LocalTermExtractor();
     let text = "",
       pdf: Buffer | undefined,
       pageCount = 1;
@@ -98,26 +93,21 @@ export class ExtractionService {
     } else warnings.push("TEMPLATE_FALLBACK");
     if (!text.trim()) warnings.push("NO_TEXT");
     if (existing) return existing;
-    if (provider.kind === "gemini" && !pdf)
-      throw new BadRequestException("GEMINI_DOCUMENT_REQUIRED");
-    const ai =
-      provider.kind === "gemini"
-        ? await geminiExtract({
-            pdf: pdf!,
-            text,
-            pageCount,
-            jobKey: [
-              actor.organizationId,
-              code,
-              snapshot.file.sha256,
-              snapshot.version,
-              provider.model,
-              provider.version,
-            ].join(":"),
-          })
-        : undefined;
-    const fields = ai?.fields ?? extractor.extract(text);
-    warnings.push(...(ai?.warnings ?? []));
+    const extracted = await provider.extract({
+      pdf,
+      text,
+      pageCount,
+      jobKey: [
+        actor.organizationId,
+        code,
+        snapshot.file.sha256,
+        snapshot.version,
+        identity.model ?? identity.kind,
+        identity.version,
+      ].join(":"),
+    });
+    const fields = extracted.fields;
+    warnings.push(...extracted.warnings);
     for (const field of fields)
       if (field.value === null) warnings.push(`NEEDS_REVIEW:${field.path}`);
     return this.domain.write(actor, "EXTRACT_TERMS", (ctx) => {
@@ -151,9 +141,14 @@ export class ExtractionService {
         draftVersion: current.version,
         extractor: {
           ...identity,
-          kind: ai ? "GEMINI" : text.trim() ? "TEXT_RULES" : "TEMPLATE",
+          kind:
+            identity.kind === "GEMINI"
+              ? "GEMINI"
+              : text.trim()
+                ? "TEXT_RULES"
+                : "TEMPLATE",
         },
-        ...(ai ? { usage: ai.usage } : {}),
+        ...(extracted.usage ? { usage: extracted.usage } : {}),
         fields,
         warnings,
         confirmedBy: null,

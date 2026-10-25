@@ -1,6 +1,6 @@
 # Xác nhận BTC và những điều chưa được xác nhận
 
-Nguồn: nội dung đội đã hỏi và BTC trả lời, do người dùng chuyển nguyên văn trong phiên làm việc ngày 24/10/2026 (giờ Bangkok). Đây là nguồn đội cung cấp; repo chưa kèm ảnh/link/thời điểm gốc của cuộc trao đổi. Khi đưa vào hồ sơ nộp, đội giữ lại bằng chứng kênh hỏi đáp. Không suy rộng bốn câu trả lời thành xác nhận mọi giả định của hệ thống.
+Nguồn: nội dung đội đã hỏi và BTC trả lời, do người dùng chuyển nguyên văn trong phiên làm việc ngày 24 và 25/10/2026 (giờ Bangkok). Đây là nguồn đội cung cấp; repo chưa kèm ảnh/link/thời điểm gốc của cuộc trao đổi. Khi đưa vào hồ sơ nộp, đội giữ lại bằng chứng kênh hỏi đáp. Không suy rộng những câu trả lời này thành xác nhận mọi giả định của hệ thống.
 
 ## 1. Ngày hoàn thành thực tế — A03 đã được làm rõ
 
@@ -45,7 +45,27 @@ BTC xác nhận **405 milestone = 20 PUBLIC + 250 HIDDEN + 135 HOLDOUT**. Hidden
 
 Áp dụng: xử lý tất cả milestone trong `submission_output_template.csv`, xuất đủ 405 dòng, không hard-code 20 scenario và không tự chọn 250 dòng. 385 mốc không có nhãn không thể phân loại mốc nào HIDDEN hoặc HOLDOUT bằng suy đoán. Tệp metadata trong manifest chỉ cho biết một artifact tồn tại, không cung cấp nội dung artifact BTC giữ riêng.
 
-## 5. Những điều bốn câu trả lời chưa giải quyết
+## 5. ELSE là nhánh mặc định, không phải event
+
+BTC làm rõ ngày 25/10: khi không có rule nào trước đó khớp thì dùng rule cuối. Trạng thái chưa đủ rõ để trả tiền cần HOLD để kiểm tra; không tạo event, loại mốc hay scenario mang tên ELSE. Sample công khai không bắt buộc có ca đi vào nhánh này.
+
+Áp dụng: giữ first-match theo priority; ELSE cuối phạm vi (priority 80) → HOLD / UNRESOLVED_CONDITION, payable và penalty đều bằng 0. Test bổ sung dựng ca mà các điều kiện trước đều FALSE, kiểm rule mặc định chạy dù chỉ có DELIVERY/INVOICE, không có event ELSE. Dữ liệu này là test tự tạo; không sửa Data Pack hay sample công khai.
+
+## 6. Ground truth và câu hỏi có phải huấn luyện mô hình không
+
+BTC giải thích ground truth là đáp án chuẩn/tham chiếu để chấm kết quả milestone, ví dụ decision, reason và payable. BTC không cung cấp toàn bộ nhãn và đội không phải tự tạo ground truth cho toàn bộ dữ liệu.
+
+**Diễn giải của đội:** đoạn BTC nhắc thuật ngữ trong học máy không bổ sung một yêu cầu bắt buộc huấn luyện mô hình. Chưa có chỉ dẫn nào trong phần trao đổi được cung cấp buộc thay rule engine bằng ML. Lõi Bronze tiếp tục chạy luật công khai trên toàn bộ Data Pack. Hai mươi mẫu dùng để kiểm chứng, không biến thành bảng tra quyết định hay bộ huấn luyện cho 405 mốc.
+
+AI đọc hợp đồng là phần bổ trợ khác: đề xuất trường và nguồn trang/đoạn trích; không sinh quyết định thanh toán. Dùng model có sẵn qua adapter không có nghĩa đội đã tự huấn luyện model. Nếu sau này làm training/fine-tuning thì cần kế hoạch dữ liệu gán nhãn và đánh giá riêng; không gọi dự đoán của chính engine là ground truth BTC.
+
+## 7. Slide và thời gian trình bày
+
+BTC nhắc slide tối đa 15 trang, phần Trình bày & vấn đáp tính 10 điểm; thời lượng chính thức sẽ thông báo cùng phương án sơ khảo. **Dự kiến không quá 5 phút**, chưa phải xác nhận lịch/giờ cụ thể.
+
+Đội dùng 8 slide chính trong 5 phút, phần còn lại làm phụ lục, theo Bài toán → Giải pháp → Logic xử lý → KPI → Demo/Mockup → Kế hoạch MVP. Khung và thời lượng từng slide ở [khung slide](templates/SLIDE_STRUCTURE.md).
+
+## 8. Những điều các câu trả lời chưa giải quyết
 
 | Mã | Điều còn mở | Cách đang dùng | Ảnh hưởng đo được |
 | --- | --- | --- | --- |

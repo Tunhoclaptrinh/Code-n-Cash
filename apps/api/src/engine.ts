@@ -11,6 +11,7 @@ import {
   Req,
   Res,
   UnprocessableEntityException,
+  ServiceUnavailableException,
   UploadedFiles,
   UseInterceptors,
 } from "@nestjs/common";
@@ -25,6 +26,9 @@ import { BaseService } from "./common/services/base.service";
 import type { RecordEntity, SessionRequest } from "./common/types";
 import { RequirePermission } from "./common/permissions";
 import { repoRoot } from "./common/paths";
+import { dataPackDir } from "./domain/datapack";
+import { readRecords } from "./domain/csv";
+import { parseEngineOutput } from "./domain/engine-contract";
 
 /** Files the engine writes for a dataset run (cli.py --output). */
 const OUTPUTS: Record<string, string> = {
@@ -72,15 +76,37 @@ export class EngineController {
     @Inject(BaseService) private base: BaseService,
     @Inject(Repository) private repo: Repository,
   ) {}
-  private run(): Promise<any> {
-    if (process.env.ENGINE_URL)
-      return fetch(process.env.ENGINE_URL.replace(/\/$/, "") + "/decisions", {
-        signal: AbortSignal.timeout(30000),
-      }).then((response) => {
+  private async run() {
+    const template = readRecords(
+      await readFile(
+        resolve(
+          dataPackDir(),
+          "04_output_templates/submission_output_template.csv",
+        ),
+        "utf8",
+      ),
+    ).rows;
+    let raw: unknown;
+    if (process.env.ENGINE_URL) {
+      // A provider failure must never silently turn into another engine's answer.
+      try {
+        const response = await fetch(
+          process.env.ENGINE_URL.replace(/\/$/, "") + "/decisions",
+          { signal: AbortSignal.timeout(30000) },
+        );
         if (!response.ok) throw new Error("ENGINE_REQUEST_FAILED");
-        return response.json();
-      });
-    return python(["--json"], 30000).then((out) => JSON.parse(out));
+        raw = await response.json();
+      } catch {
+        throw new ServiceUnavailableException("ENGINE_UNAVAILABLE");
+      }
+    } else raw = JSON.parse(await python(["--json"], 30000));
+    const result = parseEngineOutput(raw, {
+      profile: "BTC_SUBMISSION",
+      rows: template,
+    });
+    if (result.summary.invariantViolations.length)
+      throw new UnprocessableEntityException("ENGINE_INVARIANT_VIOLATION");
+    return result;
   }
   private folder(id: string) {
     if (!/^[a-f0-9-]{36}$/.test(id))
@@ -192,7 +218,9 @@ export class EngineController {
       ],
       55000,
     );
-    const result = JSON.parse(out);
+    const result = parseEngineOutput(JSON.parse(out), {
+      profile: "BTC_SUBMISSION",
+    });
     // The full run (rows and traces) is kept beside the official output files for reopening.
     await writeFile(resolve(folder, "result.json"), out);
     const now = new Date().toISOString();

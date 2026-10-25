@@ -59,3 +59,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [27 — Khung ký lớn và trình tự đọc/trích xuất](27_KHUNG_KY_LON_VA_TRINH_TU_TRICH_XUAT.md)
 
 - [28 — Rà soát bố cục toàn ứng dụng](28_RA_SOAT_BO_CUC_TOAN_UNG_DUNG.md)
+
+- [29 — Bàn giao tích hợp engine và AI cho Hoàng, Lâm](29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md)

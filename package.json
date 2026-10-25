@@ -20,7 +20,7 @@
     "format:check": "prettier --check apps packages scripts",
     "test": "pnpm test:python && pnpm test:unit",
     "test:python": "python3 -m unittest discover -s tests -v",
-    "test:unit": "pnpm --filter @codecash/api build && node tests/foundation/resource.test.mjs && node tests/foundation/workflow.test.mjs && node tests/foundation/trust.test.mjs && node tests/foundation/domain-types.test.mjs && node tests/foundation/listing.test.mjs && node tests/foundation/demo-input.test.mjs && node tests/foundation/i18n.test.mjs && node tests/foundation/pdf-gemini.test.mjs",
+    "test:unit": "pnpm --filter @codecash/api build && node tests/foundation/resource.test.mjs && node tests/foundation/workflow.test.mjs && node tests/foundation/trust.test.mjs && node tests/foundation/domain-types.test.mjs && node tests/foundation/listing.test.mjs && node tests/foundation/demo-input.test.mjs && node tests/foundation/i18n.test.mjs && node tests/foundation/pdf-gemini.test.mjs && node tests/foundation/engine-integration.test.mjs",
     "test:workflow": "pnpm --filter @codecash/api build && node tests/foundation/workflow.test.mjs",
     "test:e2e": "node scripts/smoke.mjs",
     "test:browser": "node scripts/browser-smoke.mjs",
@@ -36,7 +36,8 @@
     "test:rules:browser": "node scripts/rule-editor-smoke.mjs",
     "samples:generate": "node scripts/generate-contract-samples.mjs",
     "test:gemini:live": "pnpm --filter @codecash/api build && RUN_GEMINI_LIVE=1 node tests/foundation/pdf-gemini.test.mjs",
-    "samples:guide": "pnpm --filter @codecash/api build && node scripts/generate-guide-samples.mjs"
+    "samples:guide": "pnpm --filter @codecash/api build && node scripts/generate-guide-samples.mjs",
+    "integration:check": "pnpm --filter @codecash/api build && node scripts/check-engine-integration.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

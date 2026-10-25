@@ -292,7 +292,9 @@
     "SLOT_OVER_TEXT": "A signature area covers contract text. Move it to blank space.",
     "SLOT_OVERLAP": "Signature areas overlap. Give each signer a separate area.",
     "SIGNER_DOCUMENT_MISMATCH": "The signer does not match the printed name/party. Check the signer list or regenerate the document.",
-    "SLOT_WRONG_SIGNER_AREA": "The box is outside this signer’s printed area. Select the correct area or use the suggestion."
+    "SLOT_WRONG_SIGNER_AREA": "The box is outside this signer’s printed area. Select the correct area or use the suggestion.",
+    "ENGINE_OUTPUT_INVALID": "The engine response does not match the data contract or consistency checks. No changes were saved.",
+    "ENGINE_UNAVAILABLE": "The configured engine is unavailable. Check the service; the system will not silently use another engine."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

@@ -10,6 +10,20 @@ from test_dac_ta_nghiep_vu import Case, PACK, approver, spec
 
 
 class OrganizerClarificationTests(unittest.TestCase):
+    def test_else_is_the_last_default_rule_without_an_else_event(self):
+        case = Case().delivered()
+        scope = case.milestone['release_rule_code']
+        rules = [dict(rule, condition_expression='FALSE')
+                 if rule['release_rule_code'] == scope and rule['condition_expression'] != 'ELSE'
+                 else dict(rule) for rule in PACK.rules]
+        pack = spec.Pack([case.contract], case.parties, [case.milestone], case.events, rules)
+        result = spec.evaluate(pack, 'MS9001')
+        fallback = next(rule for rule in rules if rule['release_rule_code'] == scope and rule['condition_expression'] == 'ELSE')
+        self.assertEqual(result['rule_id'], fallback['rule_id'])
+        self.assertEqual((result['decision'], result['reason_code'], result['payable'], result['penalty']),
+                         ('HOLD', 'UNRESOLVED_CONDITION', Decimal('0.00'), Decimal('0.00')))
+        self.assertTrue(all(event['event_type'] != 'ELSE' for event in case.events))
+
     def test_completion_excludes_later_approval_and_dispute_resolution(self):
         case = Case(required='DELIVERY;INVOICE;ACCEPTANCE', roles='CONTRACT_OWNER', due='2026-10-10', grace=2, rate='0.25')
         case.ev('DELIVERY', Case.SUPPLIER, '2026-10-10T09:00:00')

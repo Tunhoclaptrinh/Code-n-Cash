@@ -51,7 +51,7 @@ scripts/                 Smoke test HTTP và trình duyệt
 BangD-Case4/              Đề và dữ liệu BTC, giữ nguyên
 ```
 
-Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md), [09 — Tính năng và vai trò](docs/09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Nghiệp vụ: [hồ sơ](docs/README.md), [đặc tả v1.0](docs/04_DAC_TA_NGHIEP_VU.md).
+Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md), [09 — Tính năng và vai trò](docs/09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Nghiệp vụ: [hồ sơ](docs/README.md), [đặc tả v1.1](docs/04_DAC_TA_NGHIEP_VU.md).
 
 ## Kiểm tra
 
@@ -109,10 +109,14 @@ Stack gồm nginx (SPA + proxy `/api`), API (kèm engine Python) và MongoDB rep
 
 ## Phạm vi cần hiểu đúng
 
-- Mọi quyết định (RELEASE/HOLD/REJECT/PENALTY, số tiền, phạt) do engine Python theo đặc tả v1.0 đưa ra trên toàn bộ dữ liệu sau mỗi thao tác; trình duyệt và API không tự quyết định.
+- Mọi quyết định (RELEASE/HOLD/REJECT/PENALTY, số tiền, phạt) do engine Python theo đặc tả v1.1 đưa ra trên toàn bộ dữ liệu sau mỗi thao tác; trình duyệt và API không tự quyết định.
 - Ký số là mô phỏng, chưa tích hợp CA thật. Kiểm một PDF bên ngoài không báo VALID chỉ vì có `/ByteRange`: trạng thái là **chưa xác minh** nếu mới nhận diện cấu trúc.
-- Rà soát điều khoản dựng mốc từ mẫu quy trình của Data Pack và dữ liệu nhập ở form; chưa có OCR/AI đọc PDF.
+- Rà soát điều khoản có extractor local và adapter Gemini đọc PDF thật, đề xuất sáu trường kèm trang/đoạn trích để người dùng đối chiếu. Mốc vẫn theo mẫu quy trình Data Pack; AI không quyết định thanh toán.
 - Accuracy chỉ đo trên 20 mẫu công khai; không suy ra cho 405 mốc hay hidden test.
-- MongoDB có adapter và cấu hình nhưng phải chạy integration test với Mongo thực trước khi triển khai; kiểm thử mặc định dùng kho file.
+- Kiểm thử cục bộ mặc định dùng kho file riêng; CI có smoke MongoDB qua compose/nginx và image standalone. Cấu hình môi trường triển khai vẫn phải kiểm riêng.
 
 Rà soát theo trả lời BTC: `python3 tools/ra_soat_btc.py` tạo báo cáo kiểm tra 405 mốc và giới hạn kết luận. Xem [14 — Đồng/Bạc/Vàng](docs/14_RA_SOAT_BTC_DONG_BAC_VANG.md) và [15 — Xác nhận BTC](docs/15_XAC_NHAN_BTC_VA_GIA_DINH.md). Profile `BTC_SUBMISSION` không áp ngoại lệ của ứng dụng; `--workflow` dành cho nghiệp vụ Silver.
+
+## Bàn giao engine và AI cho Hoàng, Lâm
+
+Không có yêu cầu bắt buộc huấn luyện mô hình trong trả lời BTC đội cung cấp. Ground truth là đáp án chấm; lõi hiện tại chạy luật Data Pack. `pnpm integration:check` sinh JSON/CSV tham chiếu và kiểm 405 mốc; `pnpm integration:check --candidate /tmp/engine-response.json` kiểm module thay thế. Xem [hướng dẫn tích hợp](docs/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md), [xác nhận BTC](docs/15_XAC_NHAN_BTC_VA_GIA_DINH.md) và [khung 8 slide/5 phút](docs/templates/SLIDE_STRUCTURE.md).

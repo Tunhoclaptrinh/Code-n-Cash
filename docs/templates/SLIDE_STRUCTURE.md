@@ -1,25 +1,29 @@
-# Khung slide — tối đa 15 trang PDF
+# Khung slide — tối đa 15 trang PDF, dự kiến trình bày không quá 5 phút
 
-**Nội dung:** Thúy tổng hợp; **hình ảnh/demo:** Hà Phương; số liệu và chuyên môn do người phụ trách review. Không cần dùng đủ 15 slide nếu có thể trình bày rõ hơn với ít trang.
+BTC trả lời ngày 25/10/2026: tối đa 15 trang; phần Trình bày & vấn đáp tính 10 điểm; dự kiến mỗi đội trình bày không quá 5 phút. Thời lượng/lịch chính thức còn chờ thông báo thống nhất. Chọn **8 slide chính**, thêm tối đa 7 trang phụ lục nếu cần, không cố đọc đủ 15 trang trong 5 phút.
 
-| Slide | Thông điệp chính |
-| --- | --- |
-| 1 | Tên đề án, đội, phạm vi mô phỏng |
-| 2 | Bài toán và rủi ro của kiểm soát hợp đồng thủ công |
-| 3 | Insight và ý tưởng giải pháp |
-| 4 | Kiến trúc, dữ liệu và các vai trò |
-| 5 | Workflow/state và quyết định theo priority |
-| 6 | Ngoại lệ: thiếu/lặp event, sai quyền, quorum, dispute/rejection |
-| 7 | Ví dụ tính penalty: due/grace/completion/rate/cap |
-| 8 | Audit trace và kiểm soát an toàn; nâng cấp trust nếu đã làm |
-| 9 | Dashboard và kịch bản demo xuyên suốt |
-| 10 | Output CSV, kết quả mẫu và bằng chứng chạy |
-| 11 | KPI, tập đo, kết quả thật và giới hạn |
-| 12 | Use case khoa/trường, giá trị dự kiến và cách đo |
-| 13 | Roadmap MVP 2–3 tuần, phân vai sáu người |
-| 14 | Rủi ro, phương án dự phòng và hướng mở rộng |
-| 15 | Thông điệp kết thúc, sẵn sàng Q&A |
+**Thúy** tổng hợp; **Hà Phương** chuẩn bị ảnh/demo; **Hoàng** duyệt logic và **Lâm** duyệt KPI/phạm vi tuyên bố. Bố cục đi theo gợi ý BTC: Bài toán → Giải pháp → Logic xử lý → KPI → Demo/Mockup → Kế hoạch MVP.
 
-Dùng ảnh/KPI từ cùng phiên bản chạy. Chưa đo thì ghi [cần đo], chưa triển khai thì ghi đề xuất/roadmap. Không gán sẵn “khớp 20/20”, “100% trên 405” hay tuyên bố ngăn mọi thất thoát. AI/blockchain/ký số chỉ xuất hiện với vai trò và bằng chứng phù hợp.
+| Slide chính | Nội dung và bằng chứng | Ngân sách thời gian |
+| --- | --- | --- |
+| 1 | Tên giải pháp, đội và một câu mô tả rủi ro thanh toán sai điều kiện | 20 giây |
+| 2 | Bài toán, bên mua/NCC, insight từ Data Pack và giá trị dự kiến | 30 giây |
+| 3 | Giải pháp: Contract → Milestone → Events → Validate → Rule → Decision → Amount → Audit | 45 giây |
+| 4 | Logic: first-match, dispute/quorum, completion từ required events, ví dụ penalty Decimal | 60 giây |
+| 5 | KPI thật: 20 mẫu có nhãn, độ phủ 405 mốc, giới hạn HIDDEN/HOLDOUT; dẫn run/fingerprint | 35 giây |
+| 6 | Demo ngắn hoặc clip: HOLD → thêm đúng chứng từ/phê duyệt → engine tính lại → trace/tiền; có dự phòng ảnh | 45 giây |
+| 7 | Phần làm thật và mô phỏng; AI chỉ đề xuất có nguồn, ký số demo; điểm nối cho engine/AI | 40 giây |
+| 8 | Kế hoạch MVP, phân công và bước tiếp theo; thông điệp kết thúc | 25 giây |
 
-Luyện demo khoảng 5 phút: bài toán → dashboard → RELEASE/HOLD/REJECT/PENALTY → trace/tiền → KPI/giới hạn. Chuẩn bị ảnh/video offline và câu trả lời ngắn về quyền, duplicate, dispute, tập nhãn và lý do chọn công nghệ.
+Tổng ngân sách 300 giây. Luyện trình bày dưới ngân sách này để có khoảng chuyển slide; không coi 5 phút là lịch chính thức hay tự gộp thời gian vấn đáp khi BTC chưa xác nhận.
+
+Phụ lục có thể gồm: tám rule và ELSE; biến/công thức/ràng buộc; phân quyền/audit; phạm vi dữ liệu và giả định; kiến trúc/contract tích hợp; KPI chi tiết; roadmap/rủi ro. Dừng ở tối đa 15 trang cả phụ lục.
+
+Dùng ảnh/KPI từ cùng phiên bản chạy. Chưa đo thì ghi [cần đo], chưa triển khai thì ghi đề xuất/roadmap. Không viết “accuracy 100% trên 405”, “đã huấn luyện AI” hoặc “chữ ký số pháp lý đã xác minh” nếu chưa có bằng chứng tương ứng.
+
+Câu trả lời chuẩn bị cho Q&A:
+
+- **Có phải train model?** Chưa có yêu cầu bắt buộc trong phần BTC trả lời. Lõi là rule engine; AI đọc tài liệu là tùy chọn, không thay quyết định.
+- **ELSE đâu trong event?** ELSE là nhánh cuối khi các rule trước không khớp, trả HOLD để kiểm tra; không có event ELSE.
+- **Ground truth đâu?** BTC công khai 20 mẫu; phần còn lại giữ để chấm. Dự đoán/baseline do đội sinh không phải ground truth ẩn.
+- **Module Hoàng/Lâm tích hợp thế nào?** Theo [bàn giao 29](../29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md), có contract/gate riêng, giữ profile BTC và transaction/audit của ứng dụng.

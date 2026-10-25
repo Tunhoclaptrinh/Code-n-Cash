@@ -246,3 +246,126 @@ python3 apps/engine/benchmark.py --report out  # bộ ca tổng hợp
 python3 tools/kiem_chung_nghiep_vu.py --check  # kiểm mẫu và bất biến
 pnpm test                                      # toàn bộ test Python và Node
 ```
+
+## 14. Từ điển trạng thái: mã kỹ thuật và từ nghiệp vụ
+
+Engine, API và Data Pack dùng mã (cột "Mã"). Màn hình nghiệp vụ chỉ hiển thị từ nghiệp vụ tương ứng. Mã được giữ nguyên ở những nơi phục vụ đối chiếu và chấm điểm: phần "Chi tiết kỹ thuật" và bảng luật trên màn truy vết quyết định, Nhật ký hoạt động, màn Toàn vẹn dữ liệu, Kết quả Data Pack và file CSV xuất ra. Nhãn được lấy từ `apps/web/src/locales/{vi,en}/domain.json`; khi đổi nhãn, cập nhật bảng này cùng lúc.
+
+### 14.1. Quyết định thanh toán của engine
+
+Bốn quyết định engine trả về cho mỗi mốc. Màn hình hiển thị nhãn ngắn; khi rê chuột vào nhãn sẽ thấy phần ý nghĩa.
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI | Ý nghĩa |
+|---|---|---|---|
+| `RELEASE` | Chi đủ | Pay in full | Đủ điều kiện chi toàn bộ |
+| `PENALTY` | Chi sau trừ phạt | Pay less penalty | Đủ điều kiện chi sau khi trừ phạt trễ hạn |
+| `HOLD` | Tạm giữ | Hold | Tạm giữ, chưa chi |
+| `REJECT` | Không chi | Do not pay | Không chi: người có thẩm quyền đã từ chối |
+
+### 14.2. Lý do quyết định
+
+Mỗi quyết định kèm đúng một lý do, theo thứ tự ưu tiên của luật (mục 6).
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `OPEN_DISPUTE` | Đang có tranh chấp chưa đóng | A dispute is still open |
+| `REJECTION_PRESENT` | Người phê duyệt đã từ chối | An approver rejected it |
+| `UNAUTHORIZED_EVENT` | Có chứng từ do bên không có thẩm quyền tạo | Evidence created by a party without authority |
+| `MISSING_REQUIRED_EVENT` | Còn thiếu chứng từ bắt buộc | Required evidence is missing |
+| `APPROVAL_QUORUM_NOT_MET` | Chưa đủ vai trò phê duyệt | Approval roles not complete |
+| `LATE_COMPLETION` | Hoàn thành sau hạn và ân hạn | Completed after the due date and grace period |
+| `ALL_CONDITIONS_MET` | Đủ mọi điều kiện | All conditions met |
+| `UNRESOLVED_CONDITION` | Không đánh giá tự động được, giữ để kiểm tra | Cannot be evaluated automatically; held for review |
+
+### 14.3. Trạng thái mốc thanh toán
+
+Trạng thái là vị trí của mốc trong vòng đời (mục 4), khác với quyết định: ví dụ mốc "Chờ phê duyệt" có quyết định "Tạm giữ".
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `WAITING_EVIDENCE` | Chờ chứng từ | Waiting for evidence |
+| `WAITING_APPROVAL` | Chờ phê duyệt | Waiting for approval |
+| `ON_HOLD` | Tạm giữ | On hold |
+| `REJECTED` | Bị từ chối | Rejected |
+| `ELIGIBLE_FOR_PAYMENT` | Đủ điều kiện chi | Eligible for payment |
+| `PAID_WITH_PENALTY` | Đủ điều kiện chi, trừ phạt | Payable after penalty |
+| `COMPLETED` | Đã chuyển chi | Payment transferred |
+| `PLANNED` | Chưa bắt đầu | Planned |
+| `IN_PROGRESS` | Đang thực hiện | In progress |
+
+### 14.4. Trạng thái hợp đồng
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `DRAFT` | Bản nháp | Draft |
+| `AWAITING_SIGNATURE` | Đang ký | Signing |
+| `PENDING_CONDITIONS` | Chờ điều kiện | Pending conditions |
+| `NEEDS_REVIEW` | Cần xem xét | Needs review |
+| `ALL_MILESTONES_ELIGIBLE` | Mọi mốc đủ điều kiện | All milestones eligible |
+| `CLOSED` | Đã đóng | Closed |
+
+### 14.5. Phân loại sự kiện khi engine lọc bằng chứng
+
+Kết quả bước lọc bằng chứng (mục 5) cho từng sự kiện của mốc.
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `EVIDENCE` | Bằng chứng hợp lệ | Valid evidence |
+| `ADDITIONAL` | Hợp lệ, đã có bản sớm hơn | Valid, earlier copy counted |
+| `APPROVAL` | Phê duyệt được tính | Approval counted |
+| `APPROVAL_NOT_COUNTED` | Phê duyệt không được tính | Approval not counted |
+| `REJECTION` | Từ chối | Rejection |
+| `OPEN_DISPUTE` | Tranh chấp đang mở | Open dispute |
+| `CLOSED_DISPUTE` | Tranh chấp đã đóng | Closed dispute |
+| `RESOLUTION` | Đóng tranh chấp | Dispute resolution |
+| `DUPLICATE` | Bản lặp (bị loại) | Duplicate (excluded) |
+| `UNAUTHORIZED` | Sai thẩm quyền | Unauthorised |
+| `WRONG_STATUS` | Sai trạng thái | Wrong status |
+| `UNRELATED` | Không liên quan | Unrelated |
+| `VOIDED` | Đã vô hiệu | Voided |
+
+### 14.6. Trạng thái sự kiện
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `CONFIRMED` | Đã xác nhận | Confirmed |
+| `APPROVED` | Đã duyệt | Approved |
+| `REJECTED` | Từ chối | Rejected |
+| `OPEN` | Đang mở | Open |
+| `RESOLVED` | Đã đóng | Resolved |
+
+### 14.7. Nguồn dữ liệu
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `DATA_PACK` | Dữ liệu BTC | Organiser data |
+| `SEED` | Dữ liệu bổ sung | Demo seed |
+| `APP` | Tạo trong app | Created in app |
+
+### 14.8. Vai trò phê duyệt trong Data Pack
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `CONTRACT_OWNER` | Chủ hợp đồng | Contract owner |
+| `FINANCE_APPROVER` | Phê duyệt tài chính | Finance approver |
+| `SECONDARY_APPROVER` | Phê duyệt cấp 2 | Secondary approver |
+
+### 14.9. Bên của hợp đồng
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `BUYER` | Bên mua | Buyer |
+| `SUPPLIER` | Nhà cung cấp | Supplier |
+
+### 14.10. Vai trò người dùng hệ thống
+
+| Mã | Tên trên UI |
+|---|---|
+| `CONTRACT_OWNER` | Chủ hợp đồng |
+| `LEGAL_REVIEWER` | Cán bộ hợp đồng bên mua |
+| `SUPPLIER` | Nhà cung cấp |
+| `FINANCE_APPROVER` | Phê duyệt tài chính |
+| `ADMIN_AUDITOR` | Kiểm soát viên |
+| `SECONDARY_APPROVER` | Phê duyệt cấp 2 |
+| `SYSTEM_ADMIN` | Quản trị hệ thống |
+| `AUDITOR` | Kiểm toán |

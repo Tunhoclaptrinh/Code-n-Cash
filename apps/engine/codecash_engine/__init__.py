@@ -6,7 +6,7 @@ the confidence helpers. Every stage module states its input, output and the busi
 implements; ``docs/04_DAC_TA_NGHIEP_VU.md`` is the source of truth.
 """
 from .checks import check_invariants, compare_samples
-from .confidence import assumption_flags, confidence_score
+from .confidence import assumption_flags, confidence_score, confidence_scores
 from .pipeline import evaluate, evaluate_all
 from .expressions import _eval, evaluate_expr
 from .pack import (AUTHORITY, CENT, DECISIONS, DEFAULT_DATA, PRIORITIES, SNAPSHOT, SPEC_VERSION, STATUS,
@@ -15,5 +15,5 @@ from .pack import (AUTHORITY, CENT, DECISIONS, DEFAULT_DATA, PRIORITIES, SNAPSHO
 __all__ = [
     "AUTHORITY", "CENT", "DECISIONS", "DEFAULT_DATA", "PRIORITIES", "SNAPSHOT", "SPEC_VERSION", "STATUS",
     "SUPPORT_TYPES", "VALID_STATUS", "Pack", "assumption_flags", "check_invariants", "compare_samples",
-    "confidence_score", "evaluate", "evaluate_all", "evaluate_expr", "read",
+    "confidence_score", "confidence_scores", "evaluate", "evaluate_all", "evaluate_expr", "read",
 ]

@@ -43,12 +43,27 @@ class OrganizerClarificationTests(unittest.TestCase):
         result = case.run()
         before = copy.deepcopy(result)
         self.assertEqual(result['decision'], 'HOLD')
-        self.assertEqual(spec.confidence_score(result, []), '1.00')
-        for issues, flags in [([], []), ([], ['A05']), (['bad evidence'], [])]:
-            score = Decimal(spec.confidence_score(dict(result, issues=issues), flags))
-            self.assertGreaterEqual(score, 0)
-            self.assertLessEqual(score, 1)
+        self.assertEqual(spec.confidence_score(result)[0], '1.00')
+        cases = [([], ()), ([], ('A05',)), ([], ('A05', 'A06', 'A07', 'A08')), (['bad evidence'], ('A05',))]
+        for issues, changed in cases:
+            score, factors = spec.confidence_score(dict(result, issues=issues), changed, PACK.milestones['MS0002'])
+            self.assertGreaterEqual(Decimal(score), 0)
+            self.assertLessEqual(Decimal(score), 1)
+            self.assertTrue(set(changed) <= set(factors))
+        self.assertEqual(spec.confidence_score(dict(result, issues=['bad evidence']))[0], '0.50')
         self.assertEqual(result, before)
+
+    def test_confidence_lowers_only_for_open_readings_and_record_quality(self):
+        results = spec.evaluate_all(PACK)
+        scores = spec.confidence_scores(PACK, results, spec.evaluate)
+        self.assertEqual(set(scores), set(PACK.milestones))
+        flags = spec.assumption_flags(PACK, results)
+        for mid, (score, factors) in scores.items():
+            self.assertTrue(Decimal(0) <= Decimal(score) <= Decimal(1))
+            self.assertEqual(Decimal(score) < 1, bool(factors), mid)
+            # Every open assumption flagged for a paid milestone shows up as a lowering factor.
+            self.assertTrue(set(flags.get(mid, [])) <= set(factors), mid)
+        self.assertEqual(spec.evaluate_all(PACK), results)
 
     def test_full_pack_has_identical_decisions_without_labels_or_event_order(self):
         baseline = spec.evaluate_all(PACK)

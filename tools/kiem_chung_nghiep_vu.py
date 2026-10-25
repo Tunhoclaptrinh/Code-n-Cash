@@ -26,7 +26,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "apps" / "engine"))
 from codecash_engine import (  # noqa: E402,F401  (re-exported for the tests and the engine adapter)
     AUTHORITY, CENT, DECISIONS, DEFAULT_DATA, PRIORITIES, SNAPSHOT, SPEC_VERSION, STATUS, SUPPORT_TYPES,
-    VALID_STATUS, Pack, _eval, assumption_flags, check_invariants, compare_samples, confidence_score,
+    VALID_STATUS, Pack, _eval, assumption_flags, check_invariants, compare_samples, confidence_score, confidence_scores,
     evaluate, evaluate_all, evaluate_expr, read)
 
 
@@ -285,11 +285,13 @@ def report(pack, export=None):
           dict(Counter((p["approval_role"], p["approval_limit_vnd_mn"]) for p in P.values() if p["party_type"] == "APPROVER")),
           "| planned lớn nhất:", max(Decimal(m["planned_payment_vnd_mn"]) for m in M.values()))
 
-    h("9. Mốc phụ thuộc giả định Mở (confidence_score, mục 14.2)")
+    h("9. Mốc phụ thuộc giả định Mở và confidence_score (mục 14.2)")
     flags = assumption_flags(pack, results)
     print("số mốc bị gắn cờ:", len(flags), "| theo giả định:", dict(Counter(a for v in flags.values() for a in v)),
           "| gắn >1 cờ:", sum(1 for v in flags.values() if len(v) > 1))
-    print("confidence_score:", dict(Counter(confidence_score(results[k], flags.get(k)) for k in M)))
+    scores = confidence_scores(pack, results, evaluate)
+    print("confidence_score:", dict(sorted(Counter(scores[k][0] for k in M).items(), reverse=True)))
+    print("yếu tố hạ điểm:", dict(Counter(f for k in M for f in scores[k][1])))
     print("cảnh báo dashboard (không đổi quyết định): mốc đủ điều kiện nhưng có mốc trước bị HOLD/REJECT:", len(blocked))
 
     if export:
@@ -304,7 +306,7 @@ def report(pack, export=None):
                 r = dict(results[t["milestone_id"]])
                 r["duplicates"] = [f"{dup}>{kept}" for dup, kept in r["duplicates"]]
                 r["assumption_flags"] = flags.get(t["milestone_id"], [])
-                r["confidence_score"] = confidence_score(r, r["assumption_flags"])
+                r["confidence_score"] = scores[t["milestone_id"]][0]
                 w.writerow([";".join(map(str, v)) if isinstance(v, list) else v for v in (r[c] for c in cols)])
         print(f"\nĐã ghi {export}")
     return full == len(pack.decisions) and not invariants

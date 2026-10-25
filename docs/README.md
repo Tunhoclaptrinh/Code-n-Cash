@@ -5,6 +5,7 @@ Festival Chuyển đổi số 2026, Bảng D, Case 4: Smart Contract Workflow.
 | Tài liệu | Nội dung |
 | --- | --- |
 | [Đặc tả nghiệp vụ](NGHIEP_VU.md) | **Tài liệu nghiệp vụ duy nhất**: phạm vi, vai trò và quyền, dữ liệu, vòng đời, engine chín bước, luật, tính tiền, confidence, đầu ra, KPI, đối chiếu đề bài và BTC |
+| [Kịch bản demo](KICH_BAN_DEMO.md) | Bản 60 giây và bản đầy đủ, tài khoản dùng ở từng bước, câu hỏi thường gặp |
 | [Kế hoạch hoàn thiện](KE_HOACH_HOAN_THIEN.md) | Hạng mục, thứ tự và tiêu chí nghiệm thu đợt hoàn thiện |
 | [06 Kiến trúc monorepo](06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md) | Web, API, engine; phần tái sử dụng từ UniFlow; ranh giới trách nhiệm |
 | [07 Triển khai](07_HUONG_DAN_TRIEN_KHAI.md) | Biến môi trường, Docker, HTTPS, sao lưu, xử lý sự cố |

@@ -25,10 +25,8 @@
   },
   "extraction": {
     "title": "Trích xuất và đối chiếu điều khoản",
-    "notice": "Kết quả đọc tài liệu chỉ là đề xuất. Đối chiếu giá trị, trang và đoạn trích; sửa hoặc bổ sung trước khi xác nhận và khóa điều khoản.",
     "extract": "Trích xuất điều khoản",
     "document": "Tải tài liệu gốc",
-    "noDocument": "Hồ sơ demo chỉ có tên tệp, chưa có tệp gốc. Dữ liệu dưới đây cần xác nhận thủ công.",
     "noText": "Tệp chưa có văn bản để đối chiếu tự động. Với bản scan, hãy kiểm tra giá trị và đoạn trích trên ảnh trang.",
     "field": "Trường",
     "suggestion": "Đề xuất",

@@ -143,15 +143,6 @@
   color: var(--color-warning);
 }
 
-.outcome {
-  padding: 10px 14px;
-  background: var(--outcome-bg);
-  border: 1px solid var(--outcome-border);
-  border-radius: var(--radius-md);
-  font-size: 13.5px;
-  color: var(--color-success);
-}
-
 .actions {
   margin-top: auto;
   display: flex;

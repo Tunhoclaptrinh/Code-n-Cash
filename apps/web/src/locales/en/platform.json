@@ -1,8 +1,6 @@
 {
   "title": "Administration",
-  "navigation": "Toggle navigation",
   "theme": "Toggle light/dark theme",
-  "notificationsHint": "Open My tasks to view and handle assigned work.",
   "yes": "Yes",
   "no": "No",
   "error": "Operation failed",
@@ -76,7 +74,6 @@
       "reason_code": "Reason code"
     },
     "evaluateForbidden": "Your role can view results but not run an evaluation.",
-    "subtitle": "Evaluates {{milestones}} milestones across {{contracts}} contracts in the Data Pack with the specification-driven Python engine.",
     "summary": {
       "payable": "Total payable (million VND)",
       "penalty": "Total penalty (million VND)",
@@ -106,7 +103,6 @@
       "missing": "Missing conditions",
       "raw": "Full trace"
     },
-    "subtitleDataset": "{{name}}: {{milestones}} milestones exported; the dataset has {{contracts}} contracts.",
     "download": "Download results",
     "downloadItems": {
       "submission_output.csv": "submission_output.csv (22-column submission)",
@@ -125,7 +121,6 @@
       "incomplete": "Incomplete",
       "uploadedBy": "Uploaded by {{name}} at {{time}}",
       "lastRun": "last run {{time}}",
-      "checklist": "Input files the engine found",
       "status": {
         "ok": "Found",
         "missing": "Missing",
@@ -137,19 +132,13 @@
       "rows_other": "{{count}} rows",
       "missingColumns": "Missing columns: {{columns}}",
       "scope": "Scored milestone list",
-      "noScope": "None: every milestone is exported",
-      "templateHint": "No submission_output_template.csv: the 22 columns are built in milestones.csv order, like the official template.",
-      "scopeHint": "Detected a reference list of {{count}} milestones. Submission still exports the full template; this list does not filter app output.",
-      "unknownScope": "{{count}} milestone IDs in the scored list are not in milestones.csv: {{ids}}",
-      "notReady": "The dataset lacks a required file or column. Add it and upload again.",
-      "runFirst": "No results yet. Click “Evaluate dataset” to run the engine on this dataset."
+      "unknownScope": "{{count}} milestone IDs in the scored list are not in milestones.csv: {{ids}}"
     },
     "upload": {
       "title": "Upload a dataset to run from scratch",
       "name": "Dataset name",
       "namePlaceholder": "For example: Hidden test 22/10",
       "drop": "Drop or click to choose CSV / ZIP files",
-      "hint": "Required: contracts.csv, parties.csv, milestones.csv, events.csv, payment_rules.csv. Optional: decision_sample.csv, submission_output_template.csv, hidden_test_ids_*.csv. You can zip the whole Data Pack folder into one file. Up to 20 files, 25 MB in total.",
       "chooseFiles": "Choose at least one file",
       "done": "Dataset uploaded",
       "incomplete": "Uploaded, but a required file or column is missing",
@@ -187,15 +176,6 @@
   "download": "Download",
   "chooseFile": "Choose a PDF file (up to 20 MB)",
   "draftId": "Contract draft ID",
-  "descriptions": {
-    "organizations": "Buyers and suppliers that take part in contracts.",
-    "users": "Sign-in accounts with each person's role and organization.",
-    "contract-drafts": "Contracts being prepared before they enter the signing flow.",
-    "milestone-templates": "Payment milestone templates and approval rules.",
-    "settings": "Shared operating parameters.",
-    "documents": "Uploaded PDF files with their SHA-256 hash.",
-    "audit": "Append-only log of every administrative action."
-  },
   "options": {
     "kind": {
       "BUYER": "Buyer",
@@ -233,8 +213,6 @@
   "deleted_other": "{{count}} records deleted",
   "permissions": {
     "title": "Permission matrix",
-    "subtitle": "{{count}} permissions by module across the 5 system roles.",
-    "source": "The matrix comes from packages/contracts/permissions.json and is the only source the API uses to check access. Under spec section 17 (SoD-4) a change must update the specification and be approved by a second person before release, so this page is read-only.",
     "columns": {
       "permission": "Permission",
       "module": "Module",
@@ -358,7 +336,6 @@
     "CONTRACT_TEMPLATE_INVALID": "Invalid template. Check terms, amount limits and signer roles."
   },
   "searchPlaceholder": "Search every column, organisation names included",
-  "managedNote": "Records from {{origins}} can only be viewed and exported; records added here can be edited and deleted.",
   "managedDraftsNote": "Contract drafts are edited on the Upload contract screen.",
   "placeholders": {
     "code": "e.g. ORG_NEW",

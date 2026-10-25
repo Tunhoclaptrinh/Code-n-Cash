@@ -6,7 +6,6 @@
   "submission": {
     "title_one": "{{count}} dispute on this milestone",
     "title_other": "{{count}} disputes on this milestone",
-    "none": "No dispute on this milestone.",
     "author": "{{name}} · {{organization}}",
     "quote": "\"{{message}}\"",
     "resolution": "{{by}} · {{at}}: {{note}}",
@@ -28,9 +27,7 @@
     "now": "Now",
     "afterResolve": "If every dispute is closed (dry run)",
     "unit": "million",
-    "penalty": "penalty {{penalty}}",
-    "noPreview": "Only the buyer or contract owner sees the dry run while a dispute is open.",
-    "footnote": "While a dispute is open the milestone is held. Nobody edits the penalty by hand: the amount is recomputed after the dispute closes."
+    "penalty": "penalty {{penalty}}"
   },
   "decision": {
     "title": "Handle the dispute",
@@ -51,11 +48,9 @@
     "note": {
       "label": "Reason",
       "required": "Write a reason.",
-      "placeholder": "Describe the issue, supporting evidence and resolution (up to 2,000 characters).",
-      "demo": "Demo note: compare the delivery scope and provide relevant documents before handling the dispute."
+      "placeholder": "Describe the issue, supporting evidence and resolution (up to 2,000 characters)."
     },
     "readOnly": "You can only view the disputes of this milestone.",
-    "rule": "\"Easy to open, hard to close\": every DISPUTE_OPENED blocks payment; only a DISPUTE_RESOLVED by the buyer (or its contract owner), referencing that dispute and not earlier than it, lifts the block.",
     "done": "Recorded. Re-evaluated: {{status}} ({{reason}}).",
     "noted": "Note recorded.",
     "actions": {

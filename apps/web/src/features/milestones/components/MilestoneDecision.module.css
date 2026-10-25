@@ -1,0 +1,123 @@
+/* The banner sits in the narrower column beside the contract, so the actions go under the text. */
+.banner {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.bannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bannerHeadline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.bannerText {
+  min-width: 0;
+}
+
+.bannerHeadline h2 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.bannerSummary {
+  color: var(--color-text-secondary);
+}
+
+.bannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: none;
+}
+
+.panel {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel h2 {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.panelNote {
+  margin-top: auto;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+}
+
+/* Amounts */
+
+/* Reasons */
+
+/* History */
+
+/* Secondary details */
+
+.more {
+  margin-top: 8px;
+}
+
+.more :global(.ant-collapse-header),
+.more :global(.ant-collapse-body),
+.trace :global(.ant-collapse-header) {
+  padding-inline: 0 !important;
+}
+
+.trace {
+  padding: 4px 20px;
+}
+
+.traceHeading {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.matchedRule {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.ruleToggle {
+  align-self: flex-start;
+  padding-inline: 0;
+}
+
+@media (max-width: 760px) {
+  .banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
+  .bannerHeadline h2 {
+    font-size: 18px;
+  }
+  .bannerActions {
+    margin-left: 0;
+    flex: initial;
+    flex-wrap: wrap;
+  }
+  .bannerActions > * {
+    max-width: 100%;
+    white-space: normal;
+    height: auto;
+    min-height: 36px;
+  }
+}

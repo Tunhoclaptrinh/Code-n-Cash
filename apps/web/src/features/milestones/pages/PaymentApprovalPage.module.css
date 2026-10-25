@@ -142,11 +142,6 @@
   font-size: 13px;
 }
 
-.documentLink {
-  color: var(--color-primary-dark);
-  font-weight: 700;
-}
-
 /* Right column: progress and decision */
 
 .decisionPanel {

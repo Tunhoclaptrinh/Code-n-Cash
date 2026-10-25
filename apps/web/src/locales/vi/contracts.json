@@ -1,14 +1,9 @@
 {
   "breadcrumb": {
-    "home": "Trang chủ",
     "contracts": "Hợp đồng",
     "upload": "Tải hợp đồng lên"
   },
   "contractList": {
-    "title": "Hợp đồng",
-    "subtitle_one": "{{count}} hợp đồng · {{organization}}",
-    "subtitle_other": "{{count}} hợp đồng · {{organization}}",
-    "intro": "Danh sách gồm 100 hợp đồng mẫu của Ban tổ chức và các hợp đồng bổ sung để demo. Trạng thái hợp đồng được tổng hợp từ kết quả đánh giá từng mốc thanh toán.",
     "upload": "Tải hợp đồng lên",
     "disputeFlag": "Có tranh chấp",
     "tiles": {
@@ -22,8 +17,7 @@
       "searchPlaceholder": "Tìm theo mã, tên hợp đồng, bên mua, nhà cung cấp (không cần dấu)",
       "typeLabel": "Loại hợp đồng",
       "policyLabel": "Chính sách phê duyệt",
-      "originLabel": "Nguồn dữ liệu",
-      "statusLabel": "Trạng thái"
+      "originLabel": "Nguồn dữ liệu"
     },
     "table": {
       "columns": {
@@ -37,8 +31,7 @@
         "status": "Trạng thái",
         "waiting": "Đang chờ",
         "actions": "Thao tác"
-      },
-      "empty": "Không có hợp đồng phù hợp"
+      }
     },
     "progress": {
       "eligible": "{{eligible}}/{{total}} mốc đủ điều kiện",
@@ -71,12 +64,9 @@
     },
     "modal": {
       "overview": "Tổng quan",
-      "kind": "Loại và workflow",
       "term": "Thời hạn",
       "penaltyTerms": "Điều khoản phạt",
       "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
-      "ruleSet": "Bộ rule",
-      "payment": "Thanh toán theo kết quả đánh giá",
       "eligible": "Đủ điều kiện chi",
       "penalty": "Phạt",
       "held": "Đang giữ",
@@ -109,22 +99,16 @@
       "sign": "Ký số",
       "effective": "Có hiệu lực"
     },
-    "title": "Đăng ký hợp đồng mới",
     "form": {
       "type": {
-        "label": "Loại hợp đồng",
-        "stages": "Các mốc theo workflow:"
+        "label": "Loại hợp đồng"
       },
       "code": {
         "label": "Mã hợp đồng",
         "value": "{{code}} (hệ thống cấp)"
       },
       "title": {
-        "label": "Tên hợp đồng",
-        "counter": "{{count}}/{{max}} ký tự",
-        "errors": {
-          "required": "Nhập tên hợp đồng."
-        }
+        "label": "Tên hợp đồng"
       },
       "supplier": {
         "label": "Nhà cung cấp"
@@ -133,14 +117,8 @@
         "label": "Người rà soát bản số hóa",
         "option": "{{role}}, {{organization}}"
       },
-      "positionsNotice": {
-        "title": "Vị trí ký được gán ở bước sau",
-        "body": "Hệ thống không tự nhận diện vị trí ký. Bước sau, bạn gán một ô ký trên trang PDF cho từng người ký theo đúng thứ tự trên.",
-        "compact": "Bước tiếp theo: đặt vị trí ký trên tài liệu."
-      },
       "file": {
         "label": "Tệp hợp đồng",
-        "constraint": "PDF hoặc DOCX, tối đa 20 MB",
         "meta": "{{size}} · {{pages}} trang",
         "metaNoPages": "{{size}}",
         "replace": "Thay tệp",
@@ -150,7 +128,6 @@
           "size": "Tệp vượt quá 20 MB.",
           "required": "Chọn tệp hợp đồng."
         },
-        "empty": "Chưa chọn tệp",
         "choose": "Chọn tệp",
         "sizeKb": "{{size}} KB",
         "sizeMb": "{{size}} MB"
@@ -158,8 +135,6 @@
       "appendix": {
         "label": "Phụ lục đính kèm",
         "optional": "không bắt buộc",
-        "drop": "Kéo thả hoặc chọn tệp phụ lục",
-        "remove": "Bỏ tệp {{name}}",
         "invalid": "Chỉ nhận PDF/DOCX có nội dung, tối đa 20 MB mỗi tệp và 20 phụ lục.",
         "add": "Thêm phụ lục"
       },
@@ -188,13 +163,6 @@
       "signers": {
         "label": "Người ký và thứ tự ký",
         "hint": "Từ 1 đến 4 người. Một người ký sẽ hoàn tất quy trình; từ 2 người phải có đại diện mỗi bên. Ký lần lượt; lượt cuối bắt buộc ký số.",
-        "presetLabel": "Mẫu nhanh:",
-        "presets": {
-          "BUYER_FIRST": "Bên mua ký trước",
-          "SUPPLIER_FIRST": "Nhà cung cấp ký trước",
-          "THREE_PARTY": "3 người: NCC → Tài chính → Chủ HĐ",
-          "SINGLE_SIGNER": "1 người ký"
-        },
         "person": "Chọn người ký",
         "up": "Lên",
         "down": "Xuống",
@@ -206,13 +174,9 @@
           "duplicate": "Một người chỉ ký một lần.",
           "bothSides": "Khi có từ 2 người ký, cần đại diện của cả bên mua và nhà cung cấp."
         },
-        "singleNotice": "Luồng một người ký: sau khi người duy nhất ký số, hợp đồng sẽ có hiệu lực. Đây là lựa chọn rõ ràng của người lập hợp đồng.",
-        "actions": "Thao tác",
-        "actionsAt": "Thao tác người ký {{index}}",
         "sideAt": "Bên ký {{index}}",
         "personAt": "Người ký {{index}}",
-        "count": "{{count}}/{{max}} người ký",
-        "compactHint": "Ký lần lượt từ trên xuống; lượt cuối ký số."
+        "count": "{{count}}/{{max}} người ký"
       },
       "errors": {
         "TITLE_REQUIRED": "Nhập tên hợp đồng.",
@@ -243,63 +207,29 @@
         "grace": "0–60",
         "rate": "0.00–5.00",
         "cap": "0.00–100.00"
-      },
-      "ruleVersion": "Phiên bản quy tắc đã gắn: {{id}}. Thay đổi cấu hình sau này không thay phiên bản của hồ sơ này."
-    },
-    "checks": {
-      "title": "Tệp và cấu hình hiện tại",
-      "readable": {
-        "title": "Đọc được nội dung.",
-        "detail": "{{pages}} trang, không phải bản scan."
-      },
-      "ready": {
-        "title": "Sẵn sàng gán vị trí ký.",
-        "detail": "{{steps}} người ký theo thứ tự đang chọn."
-      },
-      "unsigned": {
-        "title": "Chưa có chữ ký số nào",
-        "detail": "trong tệp: đúng với hợp đồng mới."
-      },
-      "noFile": "Chưa chọn tệp",
-      "storage": "Lưu trữ",
-      "uploaded": "Đã lưu tệp trên server",
-      "local": "Chưa lưu thay đổi tệp lên server",
-      "pendingVerification": "Chỉ hiển thị thông tin tệp và cấu hình. Nội dung, điều khoản và chữ ký được kiểm tra ở các bước sau."
+      }
     },
     "preview": {
       "title": "Xem trước",
-      "page": "Trang {{page}} / {{total}}",
-      "partyA": "ĐẠI DIỆN BÊN A",
-      "partyB": "ĐẠI DIỆN BÊN B",
-      "schematic": "Sơ đồ minh họa vùng ký; không phải bản kết xuất của tệp đang chọn.",
       "selectFile": "Chọn tệp hoặc tạo hợp đồng mẫu để xem tài liệu thật.",
       "loading": "Đang kết xuất tài liệu…",
       "unavailable": "Không kết xuất được tài liệu. Hãy kiểm tra tệp hoặc tải xuống để mở bằng trình soạn thảo.",
       "downloadPdf": "Tải bản PDF xem trước",
       "noStoredFile": "Hồ sơ chưa có tệp gốc được lưu. Dữ liệu mẫu của ban tổ chức không kèm bản hợp đồng.",
       "downloadOriginal": "Tải tệp gốc",
-      "partialNote": "PDF nháp cập nhật theo form, chưa lưu vào hợp đồng. Các trường chưa điền hiển thị là “……” và sẽ được thay khi bạn nhập đủ.",
       "updating": "Đang cập nhật…",
-      "unsaved": "PDF nháp cập nhật theo form, chưa lưu vào hợp đồng. Bấm “Tạo và dùng hợp đồng mẫu” để chọn bản này làm tài liệu ký.",
       "working": "Nội dung đang soạn",
-      "selected": "Tài liệu đã chọn",
-      "fileBasis": "Đây là nội dung tệp sẽ được ký. Sửa form không sửa tệp; hãy tạo lại mẫu hoặc tải tệp đã chỉnh sửa."
+      "selected": "Tài liệu đã chọn"
     },
-    "intro": "Bước 1/5. Hợp đồng mới được chia thành các mốc theo quy trình của loại hợp đồng và được đánh giá bằng cùng bộ quy tắc thanh toán với các hợp đồng mẫu.",
     "sample": {
-      "defaultTitle": "Hợp đồng mẫu — {{type}}",
       "generate": "Tạo hợp đồng mẫu",
-      "download": "Tải tệp",
-      "notice": "Tạo DOCX thực từ điều khoản và 1–4 người ký đang chọn. Bạn có thể tải, sửa rồi tải lên lại; tệp được đánh dấu kiểm thử và chưa có chữ ký.",
-      "compactNotice": "Tạo DOCX theo nội dung và người ký đã chọn."
+      "download": "Tải tệp"
     },
     "templates": {
       "choose": "Chọn mẫu hợp đồng",
       "notice": "Mẫu do quản trị cấu hình. Bạn có thể thêm/bớt người ký và chỉnh điều khoản riêng; thay đổi ở đây không sửa mẫu gốc.",
       "body": "Nội dung riêng của hợp đồng",
-      "bodyHint": "Tên biến: title, buyer, supplier, valueMillion, startDate, endDate; đặt trong hai cặp ngoặc nhọn. Để trống dùng nội dung mặc định.",
-      "stale": "Điều khoản hoặc người ký đã thay đổi sau khi tạo tệp. Hãy tạo lại mẫu để nội dung khớp trước khi lưu.",
-      "bodyEmptyHint": "Để trống để dùng nội dung mặc định."
+      "bodyHint": "Tên biến: title, buyer, supplier, valueMillion, startDate, endDate; đặt trong hai cặp ngoặc nhọn. Để trống dùng nội dung mặc định."
     },
     "demo": {
       "title": "Hợp đồng cung cấp thiết bị — dùng thử",

@@ -3,21 +3,15 @@
     "activityLog": "Activity log"
   },
   "title": "Activity log",
-  "subtitle": "Data Pack events, in-app events and every status change by the engine; append-only",
   "export": {
-    "button": "Export CSV",
     "fileName": "activity-log.csv"
   },
   "filters": {
     "contract": "Contract",
-    "allContracts": "All contracts",
     "actor": "Performed by",
-    "category": "Type",
     "all": "All",
     "from": "From date",
     "to": "To date",
-    "rowCount_one": "{{count}} row",
-    "rowCount_other": "{{count}} rows",
     "searchPlaceholder": "Search actor, contract, milestone or event ID"
   },
   "table": {
@@ -93,15 +87,12 @@
     "decideException": "Decided an exception",
     "getSigningRequest": "Signing request updated"
   },
-  "appendOnly": "Append-only log: entries cannot be edited or deleted.",
   "detail": {
     "view": "View details",
     "entryId": "Entry ID"
   },
   "exceptions": {
     "title": "BR-19 exceptions",
-    "subtitle": "Milestones held by an unauthorised event or a data anomaly",
-    "intro": "The controllers' queue (spec 9.5). One proposes to void an unauthorised event, a second approves (SoD-2). Nobody forces a decision or an amount; the engine re-evaluates after each decision.",
     "tiles": {
       "OPEN": "No proposal yet",
       "PROPOSED": "Waiting for a second controller",
@@ -128,19 +119,15 @@
   },
   "integrity": {
     "title": "Integrity check",
-    "subtitle": "Whether the log, the evidence or the decisions were changed outside the application",
     "rerun": "Check again",
-    "checkedAt": "Checked at {{time}}. Read-only: nothing is written.",
     "ok": "Intact",
     "broken": "Tampered",
     "chain": {
       "title": "Audit log chain",
-      "subtitle": "Each entry carries the SHA-256 hash of the previous one",
       "sealed": "Sealed entries",
       "unsealed": "Older entries, before the chain",
       "head": "Chain head",
       "firstBroken": "First break",
-      "none": "None",
       "problems": {
         "SEQUENCE_GAP": "Entry removed or inserted",
         "LINK_BROKEN": "Link to the previous entry broken",
@@ -161,7 +148,6 @@
     },
     "evidence": {
       "title": "Evidence recorded in the app",
-      "subtitle": "Each event is sealed with a hash in its audit entry when it is recorded",
       "sealed": "Sealed events",
       "unsealed": "Older events, before sealing",
       "columns": {
@@ -176,7 +162,6 @@
     },
     "decisions": {
       "title": "Decision reconciliation",
-      "subtitle": "Runs the engine again on the current data and compares every stored decision",
       "matched": "Matching",
       "run": "Run",
       "fingerprint": "Input SHA-256",
@@ -189,15 +174,12 @@
       "frozen": "Paid or rejected",
       "missing": "No longer in the data"
     },
-    "note": "The check finds entries edited, deleted or inserted when the data is touched outside the application. It does not replace backups or access control on the data store; someone able to rewrite the whole log is caught only against a chain head saved elsewhere.",
     "errors": {
       "INVALID_ANCHOR": "The saved head must be number:hash (64 hex characters).",
       "UNKNOWN": "The check failed. Try again later."
     },
     "dataPack": {
       "title": "Organiser's original data",
-      "subtitle": "Data Pack rows against the hash sealed at import",
-      "sealedAt": "Sealed when the data was imported, {{time}}.",
       "columns": {
         "table": "Table",
         "rows": "Rows",

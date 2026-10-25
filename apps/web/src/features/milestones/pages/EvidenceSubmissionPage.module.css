@@ -83,39 +83,6 @@
   font-size: 13.5px;
 }
 
-.fileSide {
-  text-align: right;
-}
-
-.fileSignature {
-  color: var(--color-text-muted);
-  font-size: 12.5px;
-}
-
-.options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.optionLabel {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  font-weight: 700;
-}
-
-.optionValue {
-  border: 1px solid var(--color-border-input);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: 9px 12px;
-}
-
-.optionLink {
-  color: var(--color-primary-dark);
-  font-weight: 700;
-}
-
 .textButton {
   padding: 0;
   border: 0;
@@ -158,11 +125,6 @@
   height: 1px;
   opacity: 0;
   overflow: hidden;
-}
-
-.error {
-  color: var(--color-danger-strong);
-  font-size: 13.5px;
 }
 
 /* Footer actions */

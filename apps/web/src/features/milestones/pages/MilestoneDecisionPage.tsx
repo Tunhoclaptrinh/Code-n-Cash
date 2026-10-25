@@ -148,16 +148,12 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
             · {contract.buyer.name}
           </div>
           <div className={styles.bannerHeadline}>
-            <h1>
-              {td("milestoneNo", { no: milestone.sequence })} ·{" "}
-              {td(`milestoneType.${milestone.type}`)}
-            </h1>
+            <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
             <DecisionTag decision={evaluation.decision} />
             <MilestoneStatusTag status={milestone.status} />
             <OriginTag origin={milestone.origin} />
           </div>
           <div className={styles.bannerSummary}>
-            <b>{td(`reason.${evaluation.reasonCode}`)}</b> ·{" "}
             {t("decision.summaryLine", {
               rule: evaluation.ruleId,
               payable: formatDecimalString(evaluation.payableMillion),

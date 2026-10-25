@@ -48,6 +48,7 @@ export default function ExceptionQueuePage() {
   const changeTab = (key: string) =>
     setFilter("state", key === "ALL" ? undefined : [key]);
   const statistics: StatisticsItem[] = tiles.map((tile) => ({
+    colSpan: { xs: 12, sm: 12, md: 6 },
     title: t(`exceptions.tiles.${tile.key}`),
     value: count("state", tile.key),
     backgroundColor: tile.bg,

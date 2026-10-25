@@ -89,7 +89,7 @@ function Flow({
       <div className={styles.layout}>
         <section className={cx(shared.card, styles.documentCard)}>
           <div className={styles.titleRow}>
-            <h1>{overview.title}</h1>
+            <h2>{overview.title}</h2>
             <span
               className={cx(
                 shared.pill,

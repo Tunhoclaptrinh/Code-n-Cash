@@ -72,6 +72,8 @@ New upload forms start empty; generated IDs and system fields remain read-only. 
 
 ## Download demo files and preview current input
 
+Expand **Instructions and signer accounts** below the download buttons to check the supplier, names and emails before configuring the signers.
+
 Open **Guide** on the page or the header help button. Download one of the 1–4 signer PDFs or the PDF/DOCX ZIP. These files are **unsigned** and intended for upload/signing demos. Select supplier **S015 — Phú Minh** and use the first N names: Nguyễn Văn An, Vũ Thanh Hà, Lê Quốc Dũng, Trần Thị Mai. Find the accounts by name/email in **Demo accounts**.
 
 ![Demo downloads: 1 — individual PDFs and PDF/DOCX ZIP](../../../public/guide/images/review-guide-downloads.png)

@@ -22,7 +22,7 @@
   flex-wrap: wrap;
 }
 
-.canvasHeader h1 {
+.canvasHeader h2 {
   font-size: 18px;
   font-weight: 800;
 }
@@ -496,9 +496,22 @@
 }
 
 @media (min-width: 1101px) {
-  .listCard {
-    max-height: clamp(240px, calc(100dvh - 560px), 600px);
+  .side {
+    max-height: var(--editor-side-height);
     overflow-y: auto;
     scrollbar-gutter: stable;
+  }
+
+  .side > * {
+    flex-shrink: 0;
+  }
+
+  .footer {
+    position: sticky;
+    bottom: 0;
+    padding: 8px 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    z-index: 4;
   }
 }

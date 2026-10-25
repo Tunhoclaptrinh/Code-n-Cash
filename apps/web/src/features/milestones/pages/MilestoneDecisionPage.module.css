@@ -1,8 +1,8 @@
 .banner {
-  padding: 22px 28px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
 }
 
 .bannerText {
@@ -13,7 +13,8 @@
 
 .bannerMeta {
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .bannerHeadline {
@@ -27,9 +28,10 @@
   min-width: 0;
 }
 
-.bannerHeadline h1 {
-  font-size: 28px;
-  font-weight: 800;
+.bannerHeadline h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .bannerSummary {
@@ -273,8 +275,8 @@
     gap: 16px;
     padding: 16px;
   }
-  .bannerHeadline h1 {
-    font-size: 21px;
+  .bannerHeadline h2 {
+    font-size: 18px;
   }
   .bannerActions {
     margin-left: 0;

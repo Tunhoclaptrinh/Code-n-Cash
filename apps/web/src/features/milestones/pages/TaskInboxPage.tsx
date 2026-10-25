@@ -100,6 +100,7 @@ export default function TaskInboxPage() {
   const changeTab = (key: string) =>
     setFilter("badge", key === "ALL" ? undefined : [key]);
   const statistics: StatisticsItem[] = BADGES.map((badge) => ({
+    colSpan: { xs: 12, sm: 12, md: 6 },
     title: t(`inbox.badge.${badge}`),
     value: count("badge", badge),
     backgroundColor: badgeColor[badge].bg,

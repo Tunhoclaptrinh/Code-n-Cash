@@ -1,5 +1,7 @@
 # Getting started and signing in
 
+The sample kit at the top provides PDFs for 1–4 signers. Expand **Instructions and signer accounts** for the supplier and each signer's email; the details start collapsed so the guide stays readable on a phone.
+
 CodeCash tracks contract milestones, evidence and payment eligibility. Choose the account responsible for the next action; the engine evaluates the result and assigns the next task.
 
 ## Choose a demo account

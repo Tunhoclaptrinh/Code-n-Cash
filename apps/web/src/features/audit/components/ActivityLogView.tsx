@@ -91,6 +91,7 @@ export function ActivityLogView({
   const statistics: StatisticsItem[] = categories
     .filter((category) => category !== "SYSTEM")
     .map((category) => ({
+      colSpan: { xs: 12, sm: 12, md: 6 },
       title: t(`categories.${category}`),
       value: count("category", category),
       backgroundColor: categoryColor[category].bg,

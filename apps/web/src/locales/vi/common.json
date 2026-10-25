@@ -218,6 +218,8 @@
     },
     "samples": {
       "title": "Tải hợp đồng để thử luồng ký",
+      "summary": "PDF chưa ký · Mẫu cho 1–4 người.",
+      "details": "Cách dùng và tài khoản người ký",
       "notice": "Tệp mẫu chưa ký. Tải PDF, chọn nhà cung cấp Phú Minh (S015), cấu hình đúng người ký dưới đây rồi tải tệp vào hợp đồng mới.",
       "pdf": "PDF · {{count}} người ký",
       "all": "Tải trọn bộ PDF + DOCX",

@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
@@ -38,7 +39,7 @@ import { Alert } from "antd";
 const PAGE_WIDTH = 520;
 const PAGE_HEIGHT = 620;
 const PAGE_WIDTH_MM = 210;
-const ZOOM_MIN = 40;
+const ZOOM_MIN = 25;
 const ZOOM_MAX = 125;
 const ZOOM_STEP = 25;
 const KEY_STEP = 4;
@@ -173,6 +174,8 @@ function Editor({ contractId, config }: EditorProps) {
   const [zoom, setZoom] = useState(100);
   const [autoFit, setAutoFit] = useState(true);
   const [canvasHeight, setCanvasHeight] = useState(420);
+  const [sideHeight, setSideHeight] = useState(620);
+  const layoutRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 560, height: 580 });
   useEffect(() => {
@@ -470,7 +473,7 @@ function Editor({ contractId, config }: EditorProps) {
       if (canvasRef.current)
         setCanvasHeight(
           Math.max(
-            300,
+            220,
             Math.min(
               760,
               window.innerHeight -
@@ -479,10 +482,24 @@ function Editor({ contractId, config }: EditorProps) {
             ),
           ),
         );
+      if (layoutRef.current)
+        setSideHeight(
+          Math.max(
+            300,
+            window.innerHeight -
+              layoutRef.current.getBoundingClientRect().top -
+              16,
+          ),
+        );
     };
     update();
+    const observer = new ResizeObserver(update);
+    if (layoutRef.current) observer.observe(layoutRef.current);
     window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+    };
   }, [incompatible.length, unconfiguredPrinted.length]);
   const selectStep = (stepNo: number) => {
     setActiveStep(stepNo);
@@ -580,10 +597,14 @@ function Editor({ contractId, config }: EditorProps) {
           style={{ marginBottom: 12 }}
         />
       ) : null}
-      <div className={styles.layout}>
+      <div
+        className={styles.layout}
+        ref={layoutRef}
+        style={{ "--editor-side-height": `${sideHeight}px` } as CSSProperties}
+      >
         <section className={cx(shared.card, styles.canvasCard)}>
           <div className={styles.canvasHeader}>
-            <h1>{t("positions.title")}</h1>
+            <h2>{t("positions.title")}</h2>
             <span className={styles.fileMeta}>
               {t("positions.fileMeta", {
                 fileName: config.fileName,
@@ -983,7 +1004,7 @@ function Editor({ contractId, config }: EditorProps) {
             })}
           </section>
 
-          <div className={styles.footer}>
+          <div className={styles.footer} data-testid="positions-footer">
             <Link
               to={`/contracts/new?draft=${encodeURIComponent(contractId)}`}
               className={shared.btnSecondary}

@@ -79,6 +79,8 @@ Sau khi tải tài liệu, **Nạp đề xuất** dùng giá trị trích xuất
 
 ## Tải mẫu và xem PDF theo dữ liệu đang nhập
 
+Phần **Cách dùng và tài khoản người ký** được thu gọn bên dưới các nút tải; mở ra để đối chiếu nhà cung cấp, tên và email trước khi cấu hình người ký.
+
 Mở **Hướng dẫn** ở đầu trang hoặc nút trợ giúp trên thanh trên cùng. Chọn PDF 1–4 người ký hoặc **Tải trọn bộ PDF + DOCX**; đây là tệp **chưa ký**, dùng để tải lên và đi qua quy trình ký. Với bộ này chọn nhà cung cấp **S015 — Phú Minh**; danh sách theo số người lần lượt là Nguyễn Văn An, Vũ Thanh Hà, Lê Quốc Dũng, Trần Thị Mai. Tìm tài khoản bằng tên/email trong menu **Tài khoản demo**.
 
 ![Tải bộ mẫu: 1 — PDF theo số người và ZIP chứa cả PDF/DOCX](../../../public/guide/images/review-guide-downloads.png)

@@ -174,7 +174,7 @@ function MethodSelection({
   return (
     <>
       <div className={styles.titleRow}>
-        <h1>{t("signMethod.title", { code: contractId })}</h1>
+        <h2>{t("signMethod.title", { code: contractId })}</h2>
         <span className={cx(shared.pill, styles.stepChip)}>
           {t("signMethod.stepChip", {
             stepNo,

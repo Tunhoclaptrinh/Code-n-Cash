@@ -3,6 +3,12 @@
  * Design tokens come from @codecash/ui/tokens.css, imported first in main.tsx.
  */
 
+/* Keep helper text readable in both themes using the existing feature palette. */
+:root,
+:root[data-theme] {
+  --text-muted: var(--color-text-muted);
+}
+
 *,
 *::before,
 *::after {

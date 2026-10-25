@@ -218,6 +218,8 @@
     },
     "samples": {
       "title": "Download contracts to try signing",
+      "summary": "Unsigned PDFs · Templates for 1–4 signers.",
+      "details": "Instructions and signer accounts",
       "notice": "Unsigned demo files. Download a PDF, select Phú Minh (S015), configure the matching signers below, then upload to a new contract.",
       "pdf": "PDF · {{count}} signers",
       "all": "Download all PDFs + DOCX",

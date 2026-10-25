@@ -212,6 +212,7 @@ export default function DataPage() {
   const changeTab = (key: string) =>
     setFilter("predicted_decision", key === "ALL" ? undefined : [key]);
   const statistics: StatisticsItem[] = DECISIONS.map((key) => ({
+    colSpan: { xs: 12, sm: 12, md: 6 },
     title: (
       <Tooltip title={t(`data.decisionHint.${key}`)}>
         <span>{key}</span>

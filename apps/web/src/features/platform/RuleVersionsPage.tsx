@@ -275,6 +275,7 @@ export default function RuleVersionsPage() {
           onRefresh={() => void refresh()}
           searchPlaceholder={t("rules.search")}
           statisticsData={states.map((state) => ({
+            colSpan: { xs: 12, sm: 12, md: 6 },
             title: t(`rules.states.${state}`),
             value:
               query.data?.filter((row) => row.status === state).length ?? 0,

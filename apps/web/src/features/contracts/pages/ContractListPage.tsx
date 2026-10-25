@@ -119,7 +119,8 @@ export default function ContractListPage() {
     tile.statuses
       ? sameSet(filters.status, tile.statuses)
       : filters.yourTurn?.[0] === true;
-  const statistics: StatisticsItem[] = tiles.map((tile) => ({
+  const statistics: StatisticsItem[] = tiles.map((tile, index) => ({
+    colSpan: { xs: index === tiles.length - 1 ? 24 : 12, sm: 12, md: 6 },
     title: t(`contractList.tiles.${tile.key}`),
     value: tile.statuses
       ? tile.statuses.reduce((sum, s) => sum + count("status", s), 0)

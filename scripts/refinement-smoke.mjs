@@ -358,6 +358,14 @@ try {
     ),
     5,
   );
+  await click("[data-testid=guide-demo-contracts] .ant-collapse-header");
+  await until(
+    'document.querySelector("[data-testid=guide-demo-contracts]").innerText.includes("supplier@phuminh.vn")',
+  );
+  await click("[data-testid=guide-demo-contracts] .ant-collapse-header");
+  await until(
+    'document.querySelector("[data-testid=guide-demo-contracts] [aria-expanded]")?.getAttribute("aria-expanded") === "false"',
+  );
   await shot(
     "review-guide-downloads",
     "Hướng dẫn",

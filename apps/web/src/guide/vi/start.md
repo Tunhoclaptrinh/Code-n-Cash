@@ -1,5 +1,7 @@
 # Bắt đầu và đăng nhập
 
+Bộ PDF mẫu ở đầu hướng dẫn có nút tải cho 1–4 người ký. Mở **Cách dùng và tài khoản người ký** để xem nhà cung cấp cần chọn và email từng người; phần này thu gọn để nội dung hướng dẫn vẫn dễ đọc trên điện thoại.
+
 CodeCash theo dõi hợp đồng, chứng từ và thanh toán theo từng mốc. Hãy bắt đầu bằng tài khoản đúng vai trò; sau mỗi thao tác, hệ thống đánh giá lại điều kiện và giao việc tiếp theo cho người có trách nhiệm.
 
 ## Chọn tài khoản demo

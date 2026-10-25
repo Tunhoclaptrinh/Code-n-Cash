@@ -90,6 +90,46 @@ h4.heading {
   vertical-align: middle;
 }
 
+.samples {
+  margin-bottom: 20px;
+}
+
+.samplesIntro:global(.ant-typography) {
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.sampleDownloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sampleDetails:global(.ant-collapse) {
+  margin-top: 4px;
+}
+
+.sampleDetails :global(.ant-collapse-header) {
+  padding-inline: 0 !important;
+  color: var(--text-secondary) !important;
+  font-size: 13px;
+}
+
+.sampleDetails :global(.ant-collapse-body) {
+  padding-inline: 0;
+}
+
+@media (max-width: 575px) {
+  .sampleDownloads {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sampleBundle {
+    grid-column: 1 / -1;
+  }
+}
+
 .tableWrap {
   margin: 0 0 16px;
   overflow-x: auto;

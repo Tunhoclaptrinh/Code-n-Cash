@@ -135,6 +135,7 @@ export function ContractUploadForm({
   onPreviewFileChange,
 }: ContractUploadFormProps) {
   const { t, i18n } = useTranslation("contracts");
+  const { t: tl } = useTranslation("contracts", { keyPrefix: "lite" });
   const { t: tc } = useTranslation("common");
   const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
@@ -467,23 +468,10 @@ export function ContractUploadForm({
       ),
     },
   );
-  const stages = value.type
-    ? (options.workflows[value.type]?.stages ?? [])
-    : [];
   const errorCode = save.error instanceof ApiError ? save.error.code : null;
 
   return (
     <BaseCard bodyStyle={{ padding: 20 }}>
-      {value.ruleVersion ? (
-        <Alert
-          type="info"
-          showIcon
-          title={t("contractUpload.form.ruleVersion", {
-            id: value.ruleVersion.id.slice(0, 8),
-          })}
-          style={{ marginBottom: 16 }}
-        />
-      ) : null}
       <Form
         className={styles.form}
         disabled={save.isPending || sample.isPending}
@@ -518,18 +506,6 @@ export function ContractUploadForm({
                   label: td(`contractType.${type}`),
                 }))}
               />
-              {stages.length ? (
-                <Space size={[4, 4]} wrap className={styles.hint}>
-                  <Typography.Text type="secondary">
-                    {t("contractUpload.form.type.stages")}
-                  </Typography.Text>
-                  {stages.map((stage, index) => (
-                    <Tag key={stage} style={{ margin: 0 }}>
-                      {index + 1}. {td(`milestoneType.${stage}`)}
-                    </Tag>
-                  ))}
-                </Space>
-              ) : null}
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
@@ -660,13 +636,15 @@ export function ContractUploadForm({
         <Row gutter={16}>
           <Col xs={24}>
             <Form.Item
-              label={t("contractUpload.form.policy.label")}
-              required
-              extra={
+              label={
                 value.approvalPolicy
-                  ? td(`policyHint.${value.approvalPolicy}`)
-                  : undefined
+                  ? helpLabel(
+                      t("contractUpload.form.policy.label"),
+                      td(`policyHint.${value.approvalPolicy}`),
+                    )
+                  : t("contractUpload.form.policy.label")
               }
+              required
             >
               <Select<ApprovalPolicy>
                 placeholder={placeholder("policy")}
@@ -732,7 +710,7 @@ export function ContractUploadForm({
           <Alert
             type="warning"
             showIcon
-            title={t("contractUpload.form.signers.singleNotice")}
+            title={tl("singleSigner")}
             style={{ marginBottom: 16 }}
           />
         ) : null}
@@ -899,17 +877,8 @@ export function ContractUploadForm({
                 })}
               </Typography.Text>
             </div>
-            <Typography.Text type="secondary" className={styles.hint}>
-              {t("contractUpload.form.signers.compactHint")}
-            </Typography.Text>
           </Form.Item>
         </div>
-        <Typography.Paragraph type="secondary" className={styles.positionHint}>
-          {helpLabel(
-            t("contractUpload.form.positionsNotice.compact"),
-            t("contractUpload.form.positionsNotice.body"),
-          )}
-        </Typography.Paragraph>
         <div data-testid="contract-document-section">
           <Divider className={styles.divider} titlePlacement="start">
             {t("contractUpload.sections.document")}
@@ -919,7 +888,7 @@ export function ContractUploadForm({
               type="warning"
               showIcon
               data-testid="contract-document-stale"
-              title={t("contractUpload.templates.stale")}
+              title={tl("stale")}
               style={{ marginBottom: 16 }}
             />
           ) : null}
@@ -937,9 +906,6 @@ export function ContractUploadForm({
               onChange={(event) => set("documentBody", event.target.value)}
             />
             <div className={styles.bodyFooter}>
-              <Typography.Text type="secondary">
-                {t("contractUpload.templates.bodyEmptyHint")}
-              </Typography.Text>
               <Typography.Text type="secondary">
                 {(value.documentBody ?? "").length}/20000
               </Typography.Text>
@@ -979,19 +945,12 @@ export function ContractUploadForm({
               style={{ marginBottom: 16 }}
             />
           ) : null}
-          <Typography.Paragraph type="secondary" className={styles.hint}>
-            {helpLabel(
-              t("contractUpload.sample.compactNotice"),
-              t("contractUpload.sample.notice"),
-            )}
-          </Typography.Paragraph>
           <Form.Item
             label={helpLabel(
               t("contractUpload.form.file.label"),
               t("contractUpload.form.file.replaceHint"),
             )}
             required
-            extra={t("contractUpload.form.file.constraint")}
             validateStatus={
               fileError || (touched && !value.file.name) ? "error" : undefined
             }
@@ -1030,7 +989,7 @@ export function ContractUploadForm({
                   </>
                 ) : (
                   <Typography.Text type="secondary">
-                    {t("contractUpload.form.file.empty")}
+                    {tl("fileEmpty")}
                   </Typography.Text>
                 )}
               </div>

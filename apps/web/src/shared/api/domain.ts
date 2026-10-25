@@ -39,6 +39,7 @@ export const WORKFLOW_KEYS = [
   "dispute",
   "exceptions",
   "signing",
+  "contract-view",
   "contract-draft",
   "integrity",
 ];

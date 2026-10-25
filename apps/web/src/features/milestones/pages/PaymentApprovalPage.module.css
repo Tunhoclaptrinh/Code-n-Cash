@@ -7,7 +7,8 @@
   align-items: start;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  /* The contract document takes the second column, so the panels stack. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -146,11 +147,6 @@
   font-weight: 700;
 }
 
-.documentsNote {
-  font-size: 13.5px;
-  color: var(--color-text-muted);
-}
-
 /* Right column: progress and decision */
 
 .decisionPanel {
@@ -256,34 +252,6 @@
   font-size: 13px;
 }
 
-.consequences {
-  background: var(--color-surface-muted);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  font-size: 14px;
-}
-
-.consequence {
-  margin-top: 4px;
-}
-
-.consequenceFirst {
-  margin-top: 6px;
-}
-
-.approveText {
-  color: var(--color-success);
-}
-
-.holdText {
-  color: var(--color-warning);
-}
-
-.rejectText {
-  color: var(--color-danger-strong);
-}
-
 .noteLabel {
   font-weight: 700;
   font-size: 13.5px;
@@ -322,10 +290,4 @@
   flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
-}
-
-@media (max-width: 1200px) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

@@ -11,10 +11,6 @@
   row-gap: 8px;
 }
 
-.fingerprint {
-  margin-bottom: 12px;
-}
-
 .hash {
   overflow-wrap: anywhere;
   word-break: break-all;

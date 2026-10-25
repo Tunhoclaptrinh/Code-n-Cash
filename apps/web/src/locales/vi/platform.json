@@ -381,5 +381,9 @@
     "contract-templates": "Mẫu cung cấp thiết bị — dùng thử",
     "description": "Dữ liệu gợi ý để thử form; cần rà soát trước khi lưu.",
     "documentBody": "{{supplier}} cung cấp thiết bị cho {{buyer}} theo {{title}}, giá trị {{valueMillion}} triệu VND."
+  },
+  "lite": {
+    "previewFirst": "Chạy thử trước khi gửi duyệt.",
+    "uploadHint": "Cần: contracts, parties, milestones, events, payment_rules (.csv hoặc một tệp ZIP)."
   }
 }

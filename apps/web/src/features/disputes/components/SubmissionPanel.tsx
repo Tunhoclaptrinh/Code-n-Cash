@@ -15,13 +15,12 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
   const { evaluation, preview } = view;
   return (
     <section className={styles.panel}>
-      <h2 className={styles.heading}>
-        {t("submission.title", { count: view.disputes.length })}
-      </h2>
-      {view.disputes.length ? null : (
-        <Typography.Text type="secondary">
-          {t("submission.none")}
-        </Typography.Text>
+      {view.disputes.length ? (
+        <h2 className={styles.heading}>
+          {t("submission.title", { count: view.disputes.length })}
+        </h2>
+      ) : (
+        <Typography.Text type="secondary">{t("lite.none")}</Typography.Text>
       )}
       {view.disputes.map(({ opened, resolution, state }) => (
         <div
@@ -118,11 +117,10 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
               </div>
             </>
           ) : (
-            <div className={styles.impactLabel}>{t("impact.noPreview")}</div>
+            <div className={styles.impactLabel}>{t("lite.noPreview")}</div>
           )}
         </div>
       </div>
-      <div className={styles.footnote}>{t("impact.footnote")}</div>
     </section>
   );
 }

@@ -127,7 +127,7 @@
     "SUBMIT": "{{side}} nộp {{events}}",
     "APPROVE": "Chờ {{roles}} phê duyệt",
     "RESOLVE_DISPUTE": "Chủ hợp đồng giải quyết tranh chấp",
-    "REVIEW_EXCEPTION": "Kiểm soát viên xem xét event sai thẩm quyền",
+    "REVIEW_EXCEPTION": "Kiểm soát viên xem xét chứng từ sai thẩm quyền",
     "MANUAL_REVIEW": "Kiểm tra thủ công (rule 80)",
     "OUTSIDE_SYSTEM": "Đã từ chối, xử lý ngoài hệ thống",
     "TRANSFER": "Kế toán chuyển chi",
@@ -147,7 +147,7 @@
     "UNAUTHORIZED": "Sai thẩm quyền",
     "WRONG_STATUS": "Sai trạng thái",
     "UNRELATED": "Không liên quan",
-    "VOIDED": "Đã vô hiệu (BR-19)"
+    "VOIDED": "Đã vô hiệu"
   },
   "trigger": {
     "IMPORT": "Dữ liệu ban đầu",
@@ -304,5 +304,15 @@
     "R_SERVICE_STD": "Dịch vụ tiêu chuẩn",
     "R_SOFTWARE_STD": "Phần mềm tiêu chuẩn",
     "R_MAINTENANCE_STD": "Bảo trì tiêu chuẩn"
+  },
+  "ruleCondition": {
+    "OPEN_DISPUTE": "Đang có tranh chấp chưa đóng thì tạm giữ thanh toán.",
+    "REJECTION_PRESENT": "Có ý kiến từ chối hợp lệ thì mốc bị từ chối, chưa được thanh toán.",
+    "UNAUTHORIZED_EVENT": "Chứng từ do bên không có thẩm quyền tạo thì không được tính; tạm giữ để kiểm tra.",
+    "MISSING_REQUIRED_EVENT": "Chưa đủ các chứng từ bắt buộc của mốc thì chưa được giải ngân.",
+    "APPROVAL_QUORUM_NOT_MET": "Mốc cần phê duyệt mà chưa đủ số lượng hoặc vai trò hợp lệ thì tạm giữ thanh toán.",
+    "LATE_COMPLETION": "Hoàn thành quá hạn và hết thời gian ân hạn thì bị phạt chậm, thanh toán sau khi trừ phạt.",
+    "ALL_CONDITIONS_MET": "Đủ mọi điều kiện, không có tranh chấp và không bị từ chối thì thanh toán đủ giá trị mốc.",
+    "UNRESOLVED_CONDITION": "Trường hợp không khớp các điều trên thì giữ lại để kiểm tra thủ công, không tự động thanh toán."
   }
 }

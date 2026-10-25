@@ -391,5 +391,49 @@
       "cancel": "Quay lại",
       "body": "Ghi phê duyệt của bạn cho mốc {{no}} · {{name}}. Dự kiến: {{decision}}, đủ điều kiện chi {{payable}} triệu VND."
     }
+  },
+  "workLite": {
+    "evidence": {
+      "lockNote": "Không sửa được sau khi nộp.",
+      "penalty": "Hạn {{due}}, ân hạn đến {{deadline}}; sau đó phạt {{rate}}%/ngày, tối đa {{cap}}%."
+    },
+    "approve": {
+      "blocked": {
+        "MILESTONE_CLOSED": "Mốc đã chốt.",
+        "NOT_APPROVER": "Bạn chỉ xem được mốc này.",
+        "APPROVAL_NOT_REQUIRED": "Mốc này không cần phê duyệt.",
+        "NOT_REQUIRED_ROLE": "Vai trò của bạn không bắt buộc duyệt; vẫn có thể từ chối.",
+        "ALREADY_APPROVED": "Bạn đã phê duyệt mốc này."
+      }
+    }
+  },
+  "decisionLite": {
+    "summaryLine": "Luật áp dụng {{rule}} · Đủ điều kiện chi {{payable}} · Phạt {{penalty}} triệu",
+    "more": "Xem chi tiết",
+    "facts": {
+      "unauthorized": "Chứng từ ghi nhận sai thẩm quyền",
+      "voided": "Chứng từ đã vô hiệu"
+    },
+    "amounts": {
+      "milestoneValue": "Giá trị mốc",
+      "penalty": "Tiền phạt",
+      "how": "Cách tính"
+    },
+    "rules": {
+      "title": "Luật áp dụng",
+      "showAll": "Xem cả {{count}} luật",
+      "hideAll": "Chỉ xem luật áp dụng"
+    },
+    "trace": {
+      "title": "Truy vết chi tiết",
+      "events": "Sự kiện của mốc ({{total}})"
+    },
+    "exceptions": {
+      "title": "Ngoại lệ",
+      "pick": "Chọn chứng từ sai thẩm quyền"
+    }
+  },
+  "detailLite": {
+    "due": "Hạn {{due}}"
   }
 }

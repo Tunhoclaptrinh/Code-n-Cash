@@ -1,7 +1,7 @@
 import { useState, type DragEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Alert, Button, Select, Typography } from "antd";
+import { Alert, Button, Select, Tag, Tooltip, Typography } from "antd";
 import { downloadBlob } from "@codecash/ui";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { getContractList } from "@/shared/api/domain";
@@ -12,6 +12,7 @@ import { formatDateTime } from "@/shared/lib/format";
 import { signingKeys } from "../api/signingConfig.api";
 import { checkFile, getVerification } from "../api/verification.api";
 import { contractHeading } from "@/shared/lib/domain";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
 import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
 import { cx, formatMonthYear, isCertificateExpired } from "../lib/helpers";
@@ -25,12 +26,6 @@ import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SignatureVerificationPage.module.css";
 import { trustApi } from "@/shared/api/trust";
-
-const INVALID_REASONS = [
-  "CONTENT_EDITED",
-  "WRONG_SIGNER",
-  "CERT_REVOKED",
-] as const;
 
 export default function SignatureVerificationPage() {
   const { t } = useTranslation("signing");
@@ -80,7 +75,9 @@ export default function SignatureVerificationPage() {
         />
       </div>
       {verification.data ? (
-        <Verification contractId={contractId} result={verification.data} />
+        <ContractSideLayout contractId={contractId}>
+          <Verification contractId={contractId} result={verification.data} />
+        </ContractSideLayout>
       ) : routeId ? (
         <PageState kind={verification.isError ? "error" : "loading"} />
       ) : (
@@ -116,20 +113,16 @@ function Verification({
 
   return (
     <>
-      <Alert
-        className={styles.proofNotice}
-        type="info"
-        showIcon
-        title={t("localProof.notice")}
-        action={
-          <Button
-            onClick={() => download.mutate()}
-            loading={download.isPending}
-          >
-            {t("localProof.export")}
-          </Button>
-        }
-      />
+      <div className={styles.proofRow}>
+        <Tooltip title={t("localProof.notice")}>
+          <Tag variant="filled" tabIndex={0} className={styles.proofTag}>
+            {t("lite.simulatedTag")}
+          </Tag>
+        </Tooltip>
+        <Button onClick={() => download.mutate()} loading={download.isPending}>
+          {t("localProof.export")}
+        </Button>
+      </div>
       {download.isError ? (
         <Alert type="error" title={td("errors.UNKNOWN")} />
       ) : null}
@@ -182,20 +175,6 @@ function Verification({
 
         <div className={styles.side}>
           <FileCheck contractId={contractId} />
-          <section className={cx(shared.card, styles.panel)}>
-            <h2>{t("verify.invalid.title")}</h2>
-            {INVALID_REASONS.map((reason) => (
-              <div key={reason} className={styles.reason}>
-                <span className={styles.reasonMark} aria-hidden="true">
-                  ✕
-                </span>
-                <span>{t(`verify.invalid.reasons.${reason}`)}</span>
-              </div>
-            ))}
-            <span className={styles.exceptions}>
-              {t("verify.invalid.exceptions")}
-            </span>
-          </section>
         </div>
       </div>
     </>
@@ -213,6 +192,27 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
     signature.certExpiryYear,
   );
   const valid = signature.status === "VALID";
+  // Only what explains a problem is shown; a fully valid signature needs no extra line.
+  const problems = [
+    expired ? t("verify.signatures.certificateExpired", { expiry }) : null,
+    signature.status === "UNVERIFIED"
+      ? t("localProof.unverifiedContent")
+      : signature.contentIntact
+        ? null
+        : t("verify.signatures.contentChanged"),
+  ].filter(Boolean);
+  const status = (
+    <span
+      className={cx(
+        shared.pill,
+        styles.cardStatus,
+        valid ? styles.statusValid : styles.statusInvalid,
+      )}
+      tabIndex={signature.certificateTrusted === false ? 0 : undefined}
+    >
+      {t(`verify.signatures.status.${signature.status}`)}
+    </span>
+  );
 
   return (
     <div className={cx(toneClass(signature.stepNo), styles.card)}>
@@ -224,63 +224,21 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
             party: t(`party.${signature.party}`),
           })}
         </b>
-        <span
-          className={cx(
-            shared.pill,
-            styles.cardStatus,
-            valid ? styles.statusValid : styles.statusInvalid,
-          )}
-        >
-          {t(`verify.signatures.status.${signature.status}`)}
-        </span>
+        {signature.certificateTrusted === false ? (
+          <Tooltip title={t("localProof.untrusted")}>{status}</Tooltip>
+        ) : (
+          status
+        )}
       </div>
-      <div className={styles.fields}>
-        <div>
-          <span className={styles.fieldLabel}>
-            {t("verify.signatures.signedAt")}
-          </span>
-          <br />
-          <b>{formatDateTime(signature.signedAt)}</b>
-        </div>
-        <div>
-          <span className={styles.fieldLabel}>
-            {t("verify.signatures.method")}
-          </span>
-          <br />
-          <b>{t(`method.${signature.method}.name`)}</b>
-        </div>
-        <div>
-          <span className={styles.fieldLabel}>
-            {t("verify.signatures.certificate")}
-          </span>
-          <br />
-          <b className={expired ? styles.bad : undefined}>
-            {signature.certificateTrusted === false
-              ? t("localProof.untrusted")
-              : t(
-                  expired
-                    ? "verify.signatures.certificateExpired"
-                    : "verify.signatures.certificateValid",
-                  { expiry },
-                )}
-          </b>
-        </div>
-        <div>
-          <span className={styles.fieldLabel}>
-            {t("verify.signatures.content")}
-          </span>
-          <br />
-          <b className={signature.contentIntact ? styles.good : styles.bad}>
-            {signature.status === "UNVERIFIED"
-              ? t("localProof.unverifiedContent")
-              : t(
-                  signature.contentIntact
-                    ? "verify.signatures.contentIntact"
-                    : "verify.signatures.contentChanged",
-                )}
-          </b>
-        </div>
+      <div className={styles.cardMeta}>
+        {t("lite.verifyMeta", {
+          dateTime: formatDateTime(signature.signedAt),
+          method: t(`method.${signature.method}.name`),
+        })}
       </div>
+      {problems.length ? (
+        <div className={styles.problem}>{problems.join(" · ")}</div>
+      ) : null}
       <TechnicalDetails
         items={[
           {
@@ -328,9 +286,7 @@ function FileCheck({ contractId }: { contractId: string }) {
   return (
     <section className={cx(shared.card, styles.panel)}>
       <h2>{t("verify.check.title")}</h2>
-      <div className={styles.checkDescription}>
-        {t("verify.check.description")}
-      </div>
+      <div className={styles.checkDescription}>{t("lite.checkHint")}</div>
       <label
         className={cx(styles.dropzone, dragging && styles.dropzoneOn)}
         onDragOver={(event) => {

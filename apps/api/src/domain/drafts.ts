@@ -215,14 +215,23 @@ const decimal = (value: unknown, max: number) => {
 };
 const isoDate = (value: unknown) => (validIsoDate(value) ? value : null);
 
-/** Shared by draft saving and document generation; never trust client signer names or parties. */
-export function validateDraftSigners(ctx: Ctx, input: ContractDraft) {
+/**
+ * Shared by draft saving and document generation; never trust client signer names or parties.
+ * `partial` serves live previews of an unfinished draft: the supplier may be unset, signer count
+ * and both-sides rules are not enforced, but every provided signer is still checked for this actor.
+ */
+export function validateDraftSigners(
+  ctx: Ctx,
+  input: ContractDraft,
+  options: { partial?: boolean } = {},
+) {
+  const partial = options.partial === true;
   const buyer = ctx.actor.organizationId;
   const supplier = ctx.party(String(input.supplierId));
-  if (supplier?.party_type !== "SUPPLIER")
+  if ((!partial || input.supplierId) && supplier?.party_type !== "SUPPLIER")
     throw new BadRequestException("INVALID_SUPPLIER");
   const signers = Array.isArray(input.signers) ? input.signers : [];
-  if (signers.length < 1 || signers.length > MAX_SIGNERS)
+  if (signers.length > MAX_SIGNERS || (!partial && signers.length < 1))
     throw new BadRequestException("SIGNER_COUNT");
   const seen = new Set<string>();
   for (const signer of signers) {
@@ -241,12 +250,14 @@ export function validateDraftSigners(ctx: Ctx, input: ContractDraft) {
         ? user.organizationId === buyer &&
           BUYER_SIGNER_ROLES.includes(String(user.role))
         : signer.party === "SUPPLIER" &&
+          supplier?.party_type === "SUPPLIER" &&
           user.organizationId === supplier.party_id &&
           user.role === "SUPPLIER");
     if (!ok) throw new BadRequestException("INVALID_SIGNER");
     seen.add(user.id);
   }
   if (
+    !partial &&
     signers.length > 1 &&
     (!signers.some((s) => s.party === "BUYER") ||
       !signers.some((s) => s.party === "SUPPLIER"))

@@ -381,5 +381,9 @@
     "contract-templates": "Equipment supply template — demo",
     "description": "Suggested input for trying the form; review before saving.",
     "documentBody": "{{supplier}} supplies equipment to {{buyer}} under {{title}}, valued at {{valueMillion}} million VND."
+  },
+  "lite": {
+    "previewFirst": "Run a preview before submitting for review.",
+    "uploadHint": "Required: contracts, parties, milestones, events, payment_rules (.csv or one ZIP)."
   }
 }

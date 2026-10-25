@@ -962,3 +962,40 @@ test("an invalid rule result rolls back workflow changes and cannot enter a live
     });
   }
 });
+
+test("organiser contracts get a deterministic simulated original that leaves signatures alone", async () => {
+  const { mockInput, mockOriginal, mockRendering, needsMockOriginal } =
+    await import("../../apps/api/dist/mock-originals.js");
+  const verificationBefore = await call(
+    "u-owner",
+    "signing",
+    "getVerification",
+    "CT0084",
+  );
+  const input = await domain.read(actor("u-owner"), (ctx) => {
+    assert.equal(needsMockOriginal(ctx, "CT0084"), true);
+    return mockInput(ctx, "CT0084");
+  });
+  // The document is rebuilt from the contract's own data: its signers and milestones.
+  assert.deepEqual(
+    input.signers.map((s) => s.name),
+    verificationBefore.signatures.map((s) => s.signerName),
+  );
+  assert.equal(input.stages.length, 4);
+  const first = await mockOriginal(input);
+  const again = await mockOriginal(structuredClone(input));
+  assert.equal(first.sha256, again.sha256);
+  assert.equal(first.docx.subarray(0, 2).toString(), "PK");
+  // Rendering finds one signing area per signer on the real PDF pages.
+  const rendering = await mockRendering(input);
+  const anchors = rendering.pages.flatMap((page) => page.anchors ?? []);
+  assert.deepEqual(
+    anchors.map((anchor) => anchor.stepNo),
+    input.signers.map((_, index) => index + 1),
+  );
+  // Viewing never changes what the signatures are bound to.
+  assert.deepEqual(
+    await call("u-owner", "signing", "getVerification", "CT0084"),
+    verificationBefore,
+  );
+});

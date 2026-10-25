@@ -5,10 +5,9 @@ import {
   Alert,
   App as AntApp,
   Button,
-  Col,
+  Collapse,
   Descriptions,
   Input,
-  Row,
   Select,
   Space,
   Table,
@@ -20,7 +19,7 @@ import {
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type {
   ClassifiedEvent,
   ExceptionRequest,
@@ -40,7 +39,6 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import {
   actorName,
-  contractTitle,
   describeNext,
   eventClassTone,
   statusTone,
@@ -55,6 +53,7 @@ import {
   MilestoneStatusTag,
   OriginTag,
 } from "@/shared/ui/DomainTags";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
 import {
@@ -146,286 +145,361 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
     },
     onError: failed,
   });
+  const user = useCurrentUser();
+  const [allRules, setAllRules] = useState(false);
+  const matchedRule = data.rules.find((rule) => rule.outcome === "MATCHED");
+  const ruleSentence = (rule: MilestoneDetail["rules"][number]) =>
+    td(`ruleCondition.${rule.reasonCode}`, {
+      defaultValue: i18n.language.startsWith("vi")
+        ? rule.description
+        : rule.name,
+    });
+  // A controller with something to act on (a proposal to decide, an unauthorised record) gets the trace open.
+  const traceOpen =
+    user.role === "ADMIN_AUDITOR" &&
+    (data.exceptions.some((x) => x.status === "PROPOSED") ||
+      (data.actions.proposeException &&
+        data.events.some((e) => e.classification === "UNAUTHORIZED")));
+  const valid = milestone.requirements.filter((r) => r.state === "VALID");
 
   return (
-    <Space direction="vertical" size={20} style={{ width: "100%" }}>
-      <Panel as="div" className={styles.banner}>
-        <div className={styles.bannerText}>
-          <div className={styles.bannerMeta}>
-            {t("decision.meta", {
-              contractId: contract.id,
-              title: contractTitle(contract),
-              supplier: contract.supplier.name,
-            })}{" "}
-            · {contract.buyer.name}
-          </div>
-          <div className={styles.bannerHeadline}>
-            <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
-            <DecisionTag decision={evaluation.decision} />
-            <MilestoneStatusTag status={milestone.status} />
-          </div>
-          <Space size={12} wrap>
-            <TrackingCode code={milestone.id} />
-            <TrackingCode code={evaluation.reasonCode} />
-          </Space>
-          <div className={styles.bannerSummary}>
-            {t("decision.summaryLine", {
-              rule: evaluation.ruleId,
-              payable: formatDecimalString(evaluation.payableMillion),
-              penalty: formatDecimalString(evaluation.penaltyMillion),
-            })}
-          </div>
-          <Typography.Text>
-            {t("decision.next")} <b>{describeNext(td, milestone.next)}</b>
-          </Typography.Text>
-          <TechnicalDetails
-            items={[
-              {
-                key: "run",
-                label: tc("technical.run"),
-                value: t("decision.runLine", {
-                  run: evaluation.runId,
-                  at: formatDateTime(evaluation.evaluatedAt),
-                  spec: evaluation.specVersion,
-                  confidence: evaluation.confidence,
-                }),
-              },
-              {
-                key: "source",
-                label: tc("technical.source"),
-                value: <OriginTag origin={milestone.origin} />,
-              },
-            ]}
-          />
-        </div>
-        <div className={styles.bannerActions}>
-          <Space wrap>
-            {actions.submit ? (
-              <Button
-                type="primary"
-                onClick={() =>
-                  navigate(`/submissions/${contract.id}/${milestone.sequence}`)
-                }
-              >
-                {t("decision.actions.submit")}
-              </Button>
-            ) : null}
-            {actions.approve || actions.reject ? (
-              <Button
-                type="primary"
-                onClick={() =>
-                  navigate(`/approvals/${contract.id}/${milestone.sequence}`)
-                }
-              >
-                {t("decision.actions.approve")}
-              </Button>
-            ) : null}
-            {actions.resolveDispute || actions.openDispute ? (
-              <Button onClick={() => navigate(`${base}/dispute`)}>
-                {actions.resolveDispute
-                  ? t("decision.actions.resolveDispute")
-                  : t("decision.actions.openDispute")}
-              </Button>
-            ) : null}
-            {actions.transfer ? (
-              <Button
-                color="green"
-                variant="solid"
-                loading={transfer.isPending}
-                onClick={() => transfer.mutate()}
-                data-testid="transfer-payment"
-              >
-                {t("decision.actions.transfer")}
-              </Button>
-            ) : null}
-            <Button onClick={() => window.print()}>
-              {t("decision.actions.export")}
-            </Button>
-          </Space>
-        </div>
-      </Panel>
-
-      {data.payment ? (
-        <Alert
-          type="success"
-          showIcon
-          title={t("decision.payment.title", {
-            amount: formatDecimalString(data.payment.amountMillion),
-            by: data.payment.transferredBy,
-            at: formatDateTime(data.payment.transferredAt),
-          })}
-          description={t("decision.payment.body", { id: data.payment.id })}
-        />
-      ) : null}
-      {evaluation.issues.length || evaluation.notes.length ? (
-        <Alert
-          type="warning"
-          showIcon
-          title={t("decision.issues")}
-          description={[...evaluation.issues, ...evaluation.notes].join(" · ")}
-        />
-      ) : null}
-
-      <Row gutter={[20, 20]}>
-        <Col xs={24} lg={12}>
-          <Panel className={styles.panel}>
-            <h2>{t("decision.conditions.title")}</h2>
-            <Space direction="vertical" size={6} style={{ width: "100%" }}>
-              {evaluation.conditionsMet.map((token) => (
-                <span key={token}>
-                  <CheckCircleFilled
-                    style={{ color: "var(--color-success-strong)" }}
-                  />{" "}
-                  {tokenText(t, token)}
-                </span>
-              ))}
-              {evaluation.missingConditions.map((token) => (
-                <span key={token}>
-                  <CloseCircleFilled
-                    style={{ color: "var(--color-danger-strong)" }}
-                  />{" "}
-                  {tokenText(t, token)}
-                </span>
-              ))}
+    <ContractSideLayout
+      contractId={contract.id}
+      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
+    >
+      <Space direction="vertical" size={20} style={{ width: "100%" }}>
+        <Panel as="div" className={styles.banner}>
+          <div className={styles.bannerText}>
+            <div className={styles.bannerHeadline}>
+              <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
+              <DecisionTag decision={evaluation.decision} />
+              <MilestoneStatusTag status={milestone.status} />
+            </div>
+            <Space size={12} wrap>
+              <TrackingCode code={milestone.id} />
+              <TrackingCode code={evaluation.reasonCode} />
             </Space>
-            <Descriptions
-              size="small"
-              column={1}
-              style={{ marginTop: 16 }}
+            <div className={styles.bannerSummary}>
+              {t("decisionLite.summaryLine", {
+                rule: evaluation.ruleId,
+                payable: formatDecimalString(evaluation.payableMillion),
+                penalty: formatDecimalString(evaluation.penaltyMillion),
+              })}
+            </div>
+            <Typography.Text>
+              {t("decision.next")} <b>{describeNext(td, milestone.next)}</b>
+            </Typography.Text>
+            <TechnicalDetails
               items={[
                 {
-                  key: "events",
-                  label: t("decision.facts.requiredEvents"),
-                  children: `${milestone.requirements.filter((r) => r.state === "VALID").length}/${milestone.requirements.length}`,
-                },
-                {
-                  key: "missing",
-                  label: t("decision.facts.missing"),
-                  children:
-                    evaluation.missing
-                      .map((type) => td(`eventType.${type}`))
-                      .join(", ") || "—",
-                },
-                {
-                  key: "unauthorized",
-                  label: t("decision.facts.unauthorized"),
-                  children: evaluation.unauthorized.join(", ") || "0",
-                },
-                {
-                  key: "duplicates",
-                  label: t("decision.facts.duplicates"),
-                  children:
-                    evaluation.duplicates
-                      .map(([dup, of]) => `${dup} → ${of}`)
-                      .join(", ") || "0",
-                },
-                {
-                  key: "dispute",
-                  label: t("decision.facts.openDispute"),
-                  children:
-                    evaluation.openDisputeIds.join(", ") ||
-                    t("decision.facts.none"),
-                },
-                {
-                  key: "rejections",
-                  label: t("decision.facts.rejections"),
-                  children: evaluation.validRejectionCount,
-                },
-                {
-                  key: "approvals",
-                  label: t("decision.facts.approvals"),
-                  children: evaluation.approvalRequired
-                    ? t("decision.facts.approvalValue", {
-                        done: evaluation.validApprovalCount,
-                        quorum: evaluation.quorum,
-                        roles: milestone.approvalRoles
-                          .map((role) => td(`approvalRole.${role}`))
-                          .join(", "),
-                      })
-                    : t("decision.facts.noApproval"),
-                },
-                {
-                  key: "voided",
-                  label: t("decision.facts.voided"),
-                  children: evaluation.voided.join(", ") || "0",
-                },
-              ]}
-            />
-          </Panel>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Panel className={styles.panel}>
-            <h2>{t("decision.amounts.title")}</h2>
-            <Descriptions
-              size="small"
-              column={1}
-              items={[
-                {
-                  key: "planned",
-                  label: t("decision.amounts.milestoneValue"),
-                  children: formatDecimalString(money.plannedMillion),
-                },
-                {
-                  key: "due",
-                  label: t("decision.amounts.deadline"),
-                  children: money.dueDate
-                    ? t("decision.amounts.deadlineValue", {
-                        due: formatDate(money.dueDate),
-                        grace: money.graceDays,
-                        deadline: formatDate(money.deadline),
-                      })
-                    : t("decision.amounts.noDue"),
-                },
-                {
-                  key: "completed",
-                  label: t("decision.amounts.completed"),
-                  children: money.completedAt
-                    ? formatDateTime(money.completedAt)
-                    : t("decision.amounts.notCompleted"),
-                },
-                {
-                  key: "late",
-                  label: t("decision.amounts.lateDays"),
-                  children: t("decision.amounts.lateDaysValue", {
-                    count: money.daysLate,
+                  key: "run",
+                  label: tc("technical.run"),
+                  value: t("decision.runLine", {
+                    run: evaluation.runId,
+                    at: formatDateTime(evaluation.evaluatedAt),
+                    spec: evaluation.specVersion,
+                    confidence: evaluation.confidence,
                   }),
                 },
                 {
-                  key: "rate",
-                  label: t("decision.amounts.rate"),
-                  children: money.latePenalty
-                    ? t("decision.amounts.rateValue", {
-                        rate: money.penaltyRatePct,
-                        cap: money.maxPenaltyPct,
-                        capAmount: formatDecimalString(money.capMillion),
-                      })
-                    : t("decision.amounts.noPenalty"),
-                },
-                {
-                  key: "raw",
-                  label: t("decision.amounts.raw"),
-                  children: money.rawPenaltyMillion,
-                },
-                {
-                  key: "penalty",
-                  label: t("decision.amounts.penalty"),
-                  children: <b>{formatDecimalString(money.penaltyMillion)}</b>,
-                },
-                {
-                  key: "payable",
-                  label: t("decision.amounts.payable"),
-                  children: <b>{formatDecimalString(money.payableMillion)}</b>,
+                  key: "source",
+                  label: tc("technical.source"),
+                  value: <OriginTag origin={milestone.origin} />,
                 },
               ]}
             />
-            <div className={styles.panelNote}>{t("decision.amounts.note")}</div>
-          </Panel>
-        </Col>
-        <Col xs={24}>
+          </div>
+          <div className={styles.bannerActions}>
+            <Space wrap>
+              {actions.submit ? (
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    navigate(
+                      `/submissions/${contract.id}/${milestone.sequence}`,
+                    )
+                  }
+                >
+                  {t("decision.actions.submit")}
+                </Button>
+              ) : null}
+              {actions.approve || actions.reject ? (
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    navigate(`/approvals/${contract.id}/${milestone.sequence}`)
+                  }
+                >
+                  {t("decision.actions.approve")}
+                </Button>
+              ) : null}
+              {actions.resolveDispute || actions.openDispute ? (
+                <Button
+                  // Both open the dispute screen: handling one is the next step, raising one flags a problem.
+                  {...(actions.resolveDispute
+                    ? { type: "primary" as const }
+                    : {
+                        color: "orange" as const,
+                        variant: "outlined" as const,
+                      })}
+                  onClick={() => navigate(`${base}/dispute`)}
+                >
+                  {actions.resolveDispute
+                    ? t("decision.actions.resolveDispute")
+                    : t("decision.actions.openDispute")}
+                </Button>
+              ) : null}
+              {actions.transfer ? (
+                <Button
+                  color="green"
+                  variant="solid"
+                  loading={transfer.isPending}
+                  onClick={() => transfer.mutate()}
+                  data-testid="transfer-payment"
+                >
+                  {t("decision.actions.transfer")}
+                </Button>
+              ) : null}
+              <Button onClick={() => window.print()}>
+                {t("decision.actions.export")}
+              </Button>
+            </Space>
+          </div>
+        </Panel>
+
+        {data.payment ? (
+          <Alert
+            type="success"
+            showIcon
+            title={t("decision.payment.title", {
+              amount: formatDecimalString(data.payment.amountMillion),
+              by: data.payment.transferredBy,
+              at: formatDateTime(data.payment.transferredAt),
+            })}
+          />
+        ) : null}
+        {evaluation.issues.length || evaluation.notes.length ? (
+          <Alert
+            type="warning"
+            showIcon
+            title={t("decision.issues")}
+            description={[...evaluation.issues, ...evaluation.notes].join(
+              " · ",
+            )}
+          />
+        ) : null}
+
+        <Panel className={styles.panel}>
+          <h2>{t("decision.conditions.title")}</h2>
+          <Space direction="vertical" size={6} style={{ width: "100%" }}>
+            {evaluation.conditionsMet.map((token) => (
+              <span key={token}>
+                <CheckCircleFilled
+                  style={{ color: "var(--color-success-strong)" }}
+                />{" "}
+                {tokenText(t, token)}
+              </span>
+            ))}
+            {evaluation.missingConditions.map((token) => (
+              <span key={token}>
+                <CloseCircleFilled
+                  style={{ color: "var(--color-danger-strong)" }}
+                />{" "}
+                {tokenText(t, token)}
+              </span>
+            ))}
+          </Space>
+          <Collapse
+            ghost
+            size="small"
+            className={styles.more}
+            items={[
+              {
+                key: "facts",
+                label: t("decisionLite.more"),
+                children: (
+                  <Descriptions
+                    size="small"
+                    column={1}
+                    items={[
+                      {
+                        key: "events",
+                        label: t("decision.facts.requiredEvents"),
+                        children: `${valid.length}/${milestone.requirements.length}`,
+                      },
+                      {
+                        key: "missing",
+                        label: t("decision.facts.missing"),
+                        children:
+                          evaluation.missing
+                            .map((type) => td(`eventType.${type}`))
+                            .join(", ") || "—",
+                      },
+                      {
+                        key: "unauthorized",
+                        label: t("decisionLite.facts.unauthorized"),
+                        children: evaluation.unauthorized.join(", ") || "0",
+                      },
+                      {
+                        key: "duplicates",
+                        label: t("decision.facts.duplicates"),
+                        children:
+                          evaluation.duplicates
+                            .map(([dup, of]) => `${dup} → ${of}`)
+                            .join(", ") || "0",
+                      },
+                      {
+                        key: "dispute",
+                        label: t("decision.facts.openDispute"),
+                        children:
+                          evaluation.openDisputeIds.join(", ") ||
+                          t("decision.facts.none"),
+                      },
+                      {
+                        key: "rejections",
+                        label: t("decision.facts.rejections"),
+                        children: evaluation.validRejectionCount,
+                      },
+                      {
+                        key: "approvals",
+                        label: t("decision.facts.approvals"),
+                        children: evaluation.approvalRequired
+                          ? t("decision.facts.approvalValue", {
+                              done: evaluation.validApprovalCount,
+                              quorum: evaluation.quorum,
+                              roles: milestone.approvalRoles
+                                .map((role) => td(`approvalRole.${role}`))
+                                .join(", "),
+                            })
+                          : t("decision.facts.noApproval"),
+                      },
+                      {
+                        key: "voided",
+                        label: t("decisionLite.facts.voided"),
+                        children: evaluation.voided.join(", ") || "0",
+                      },
+                    ]}
+                  />
+                ),
+              },
+            ]}
+          />
+        </Panel>
+
+        <Panel className={styles.panel}>
+          <h2>{t("decision.amounts.title")}</h2>
+          <Descriptions
+            size="small"
+            column={1}
+            items={[
+              {
+                key: "planned",
+                label: t("decisionLite.amounts.milestoneValue"),
+                children: formatDecimalString(money.plannedMillion),
+              },
+              {
+                key: "due",
+                label: t("decision.amounts.deadline"),
+                children: money.dueDate
+                  ? t("decision.amounts.deadlineValue", {
+                      due: formatDate(money.dueDate),
+                      grace: money.graceDays,
+                      deadline: formatDate(money.deadline),
+                    })
+                  : t("decision.amounts.noDue"),
+              },
+              {
+                key: "penalty",
+                label: t("decisionLite.amounts.penalty"),
+                children: <b>{formatDecimalString(money.penaltyMillion)}</b>,
+              },
+              {
+                key: "payable",
+                label: t("decision.amounts.payable"),
+                children: <b>{formatDecimalString(money.payableMillion)}</b>,
+              },
+            ]}
+          />
+          <Collapse
+            ghost
+            size="small"
+            className={styles.more}
+            items={[
+              {
+                key: "how",
+                label: t("decisionLite.amounts.how"),
+                children: (
+                  <>
+                    <Descriptions
+                      size="small"
+                      column={1}
+                      items={[
+                        {
+                          key: "completed",
+                          label: t("decision.amounts.completed"),
+                          children: money.completedAt
+                            ? formatDateTime(money.completedAt)
+                            : t("decision.amounts.notCompleted"),
+                        },
+                        {
+                          key: "late",
+                          label: t("decision.amounts.lateDays"),
+                          children: t("decision.amounts.lateDaysValue", {
+                            count: money.daysLate,
+                          }),
+                        },
+                        {
+                          key: "rate",
+                          label: t("decision.amounts.rate"),
+                          children: money.latePenalty
+                            ? t("decision.amounts.rateValue", {
+                                rate: money.penaltyRatePct,
+                                cap: money.maxPenaltyPct,
+                                capAmount: formatDecimalString(
+                                  money.capMillion,
+                                ),
+                              })
+                            : t("decision.amounts.noPenalty"),
+                        },
+                        {
+                          key: "raw",
+                          label: t("decision.amounts.raw"),
+                          children: money.rawPenaltyMillion,
+                        },
+                      ]}
+                    />
+                    <div className={styles.panelNote}>
+                      {t("decision.amounts.note")}
+                    </div>
+                  </>
+                ),
+              },
+            ]}
+          />
+        </Panel>
+
+        {matchedRule ? (
           <Panel className={styles.panel}>
-            <h2>
-              {t("decision.rules.title", { scope: milestone.releaseRuleCode })}
-            </h2>
+            <h2>{t("decisionLite.rules.title")}</h2>
+            <div className={styles.matchedRule}>
+              <TrackingCode code={matchedRule.id} />
+              <span>{ruleSentence(matchedRule)}</span>
+            </div>
+            <Button
+              type="link"
+              size="small"
+              className={styles.ruleToggle}
+              aria-expanded={allRules}
+              onClick={() => setAllRules((open) => !open)}
+            >
+              {allRules
+                ? t("decisionLite.rules.hideAll")
+                : t("decisionLite.rules.showAll", { count: data.rules.length })}
+            </Button>
+          </Panel>
+        ) : null}
+        {allRules || !matchedRule ? (
+          <Panel className={styles.panel}>
             <Table
               size="small"
               rowKey="id"
@@ -458,11 +532,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
                         </Typography.Text>
                       }
                     >
-                      <span>
-                        {i18n.language.startsWith("vi")
-                          ? r.description
-                          : r.name}
-                      </span>
+                      <span>{ruleSentence(r)}</span>
                     </Tooltip>
                   ),
                 },
@@ -497,69 +567,89 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
               ]}
             />
           </Panel>
-        </Col>
-        <Col xs={24}>
-          <Panel className={styles.panel}>
-            <h2>{t("decision.events.title", { count: data.events.length })}</h2>
-            <EventTable events={data.events} evidence={evaluation.evidence} />
-          </Panel>
-        </Col>
-        <Col xs={24}>
-          <ReplayPanel contractId={contract.id} sequence={milestone.sequence} />
-        </Col>
-        <Col xs={24} lg={12}>
-          <Panel className={styles.panel}>
-            <h2>{t("decision.history.title")}</h2>
-            <Timeline
-              items={[...data.history].reverse().map((change) => ({
-                key: change.id,
-                color:
-                  change.to.decision === "REJECT"
-                    ? "red"
-                    : change.to.decision === "HOLD"
-                      ? "orange"
-                      : "green",
-                children: (
-                  <>
-                    <Typography.Text type="secondary">
-                      {formatDateTime(change.at)}
-                    </Typography.Text>
-                    <div>
-                      {change.from
-                        ? `${td(`status.${change.from.status}`)} → `
-                        : ""}
-                      <b>{td(`status.${change.to.status}`)}</b> ·{" "}
-                      {td(`reason.${change.to.reasonCode}`)}
-                    </div>
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      {td(`trigger.${change.trigger.kind}`)}
-                      {"actorName" in change.trigger
-                        ? ` · ${change.trigger.actorName}`
-                        : ""}
-                      {change.trigger.kind === "EVENTS"
-                        ? ` · ${change.trigger.eventIds.join(", ")}`
-                        : ""}
-                    </Typography.Text>
-                  </>
-                ),
-              }))}
-            />
-            <div className={styles.panelNote}>{t("decision.history.note")}</div>
-          </Panel>
-        </Col>
-        <Col xs={24} lg={12}>
-          <ExceptionPanel data={data} onChanged={refresh} />
-        </Col>
-      </Row>
+        ) : null}
 
-      <Panel as="div" className={styles.dispute}>
-        <b className={styles.disputeTitle}>{t("decision.dispute.title")}</b>
-        <span className={styles.disputeText}>{t("decision.dispute.body")}</span>
-        <Link to={`${base}/dispute`} className={styles.disputeLink}>
-          {t("decision.dispute.link")}
-        </Link>
-      </Panel>
-    </Space>
+        <Panel as="div" className={styles.trace}>
+          <Collapse
+            ghost
+            data-testid="trace-details"
+            defaultActiveKey={traceOpen ? ["trace"] : []}
+            items={[
+              {
+                key: "trace",
+                label: <b>{t("decisionLite.trace.title")}</b>,
+                children: (
+                  <Space
+                    direction="vertical"
+                    size={24}
+                    style={{ width: "100%" }}
+                  >
+                    <section>
+                      <h3 className={styles.traceHeading}>
+                        {t("decisionLite.trace.events", {
+                          total: data.events.length,
+                        })}
+                      </h3>
+                      <EventTable
+                        events={data.events}
+                        evidence={evaluation.evidence}
+                      />
+                    </section>
+                    <ReplayPanel
+                      contractId={contract.id}
+                      sequence={milestone.sequence}
+                    />
+                    <section>
+                      <h3 className={styles.traceHeading}>
+                        {t("decision.history.title")}
+                      </h3>
+                      <Timeline
+                        items={[...data.history].reverse().map((change) => ({
+                          key: change.id,
+                          color:
+                            change.to.decision === "REJECT"
+                              ? "red"
+                              : change.to.decision === "HOLD"
+                                ? "orange"
+                                : "green",
+                          children: (
+                            <>
+                              <Typography.Text type="secondary">
+                                {formatDateTime(change.at)}
+                              </Typography.Text>
+                              <div>
+                                {change.from
+                                  ? `${td(`status.${change.from.status}`)} → `
+                                  : ""}
+                                <b>{td(`status.${change.to.status}`)}</b> ·{" "}
+                                {td(`reason.${change.to.reasonCode}`)}
+                              </div>
+                              <Typography.Text
+                                type="secondary"
+                                style={{ fontSize: 12 }}
+                              >
+                                {td(`trigger.${change.trigger.kind}`)}
+                                {"actorName" in change.trigger
+                                  ? ` · ${change.trigger.actorName}`
+                                  : ""}
+                                {change.trigger.kind === "EVENTS"
+                                  ? ` · ${change.trigger.eventIds.join(", ")}`
+                                  : ""}
+                              </Typography.Text>
+                            </>
+                          ),
+                        }))}
+                      />
+                    </section>
+                    <ExceptionPanel data={data} onChanged={refresh} />
+                  </Space>
+                ),
+              },
+            ]}
+          />
+        </Panel>
+      </Space>
+    </ContractSideLayout>
   );
 }
 
@@ -710,13 +800,13 @@ function ReplayPanel({
     enabled: requested,
   });
   return (
-    <Panel className={styles.panel}>
+    <section>
       <Space
         wrap
         style={{ width: "100%", justifyContent: "space-between" }}
         align="center"
       >
-        <h2>{t("decision.replay.title")}</h2>
+        <h3 className={styles.traceHeading}>{t("decision.replay.title")}</h3>
         <Button
           loading={replay.isFetching}
           onClick={() =>
@@ -727,9 +817,6 @@ function ReplayPanel({
           {t(requested ? "decision.replay.again" : "decision.replay.run")}
         </Button>
       </Space>
-      <Typography.Paragraph type="secondary">
-        {t("decision.replay.body")}
-      </Typography.Paragraph>
       {replay.isError ? (
         <Alert type="error" showIcon title={t("decision.replay.error")} />
       ) : null}
@@ -824,8 +911,7 @@ function ReplayPanel({
           />
         </div>
       ) : null}
-      <div className={styles.panelNote}>{t("decision.replay.note")}</div>
-    </Panel>
+    </section>
   );
 }
 
@@ -886,11 +972,10 @@ function ExceptionPanel({
     onError: failed,
   });
   return (
-    <Panel className={styles.panel}>
-      <h2>{t("decision.exceptions.title")}</h2>
-      <Typography.Paragraph type="secondary">
-        {t("decision.exceptions.body")}
-      </Typography.Paragraph>
+    <section>
+      <h3 className={styles.traceHeading}>
+        {t("decisionLite.exceptions.title")}
+      </h3>
       {data.exceptions.length ? (
         data.exceptions.map((request) => (
           <div
@@ -940,7 +1025,8 @@ function ExceptionPanel({
                 <Space style={{ marginTop: 6 }}>
                   <Button
                     size="small"
-                    type="primary"
+                    color="green"
+                    variant="solid"
                     loading={decide.isPending}
                     onClick={() => decide.mutate({ request, approve: true })}
                     data-testid="exception-approve"
@@ -968,7 +1054,7 @@ function ExceptionPanel({
       {controller && data.actions.proposeException ? (
         <Space direction="vertical" style={{ width: "100%", marginTop: 12 }}>
           <Select
-            placeholder={t("decision.exceptions.pick")}
+            placeholder={t("decisionLite.exceptions.pick")}
             value={eventId}
             onChange={setEventId}
             options={candidates.map((e) => ({
@@ -991,7 +1077,8 @@ function ExceptionPanel({
             data-testid="exception-reason"
           />
           <Button
-            type="primary"
+            color="orange"
+            variant="outlined"
             disabled={!eventId || !reason.trim()}
             loading={propose.isPending}
             onClick={() => propose.mutate()}
@@ -1001,6 +1088,6 @@ function ExceptionPanel({
           </Button>
         </Space>
       ) : null}
-    </Panel>
+    </section>
   );
 }

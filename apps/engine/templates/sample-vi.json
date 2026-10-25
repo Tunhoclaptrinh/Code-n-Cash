@@ -71,5 +71,27 @@
   },
   "page": "Mục {page}/14",
   "signatures": "Xác nhận và chữ ký",
-  "signHere": "Vị trí ký — họ tên, ngày giờ, phương thức ký"
+  "signHere": "Vị trí ký — họ tên, ngày giờ, phương thức ký",
+  "original": {
+    "notice": "BẢN HỢP ĐỒNG MÔ PHỎNG — lập từ dữ liệu hợp đồng của Ban tổ chức để xem và đối chiếu",
+    "closing": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Bản này được lập lại từ dữ liệu hợp đồng để xem trên hệ thống.",
+    "footer": "Bản mô phỏng · Trang "
+  },
+  "milestoneTypes": {
+    "SIGNING": "Ký hợp đồng",
+    "DELIVERY": "Giao hàng",
+    "ACCEPTANCE": "Nghiệm thu",
+    "WARRANTY": "Bảo hành",
+    "KICKOFF": "Khởi động dịch vụ",
+    "INTERIM_DELIVERY": "Bàn giao giữa kỳ",
+    "FINAL_ACCEPTANCE": "Nghiệm thu cuối",
+    "WARRANTY_CLOSE": "Đóng bảo hành/hỗ trợ",
+    "REQUIREMENTS_APPROVAL": "Duyệt yêu cầu",
+    "UAT_PASS": "Đạt kiểm thử UAT",
+    "GO_LIVE_ACCEPTANCE": "Nghiệm thu vận hành",
+    "ACTIVATION": "Kích hoạt dịch vụ",
+    "SERVICE_COMPLETION": "Hoàn thành dịch vụ"
+  },
+  "pendingSigners": "Chưa chọn người ký: danh sách và thứ tự ký sẽ hiển thị tại đây sau khi bạn chọn người ký.",
+  "pendingSignerBlock": "NGƯỜI KÝ — CHƯA CHỌN"
 }

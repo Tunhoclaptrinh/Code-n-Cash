@@ -32,6 +32,7 @@ import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { EngineController } from "./engine";
 import { PermissionsController } from "./permissions.controller";
 import { DomainService } from "./domain/service";
+import { warmMockOriginals } from "./mock-originals";
 import { auditContext } from "./common/audit-events";
 import { AuditReadsInterceptor } from "./common/audit-http";
 import { TrustService } from "./trust/service";
@@ -173,5 +174,6 @@ async function main() {
   const host =
     process.env.API_HOST ?? (process.env.PORT ? "0.0.0.0" : "127.0.0.1");
   await app.listen(port, host);
+  void warmMockOriginals(app.get(DomainService));
 }
 void main();

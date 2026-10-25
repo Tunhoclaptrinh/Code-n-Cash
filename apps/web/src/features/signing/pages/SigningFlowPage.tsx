@@ -1,5 +1,6 @@
-import { ContractDocuments } from "@/shared/ui/ContractDocuments";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppPage } from "@/shared/layout/AppPage";
@@ -10,14 +11,13 @@ import { cancelSigning } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
 import { WizardStepper } from "../components/WizardStepper";
 import { useCurrentUser } from "@/shared/auth/session";
+import { useDemoMode } from "@/shared/auth/useDemoMode";
 import { cx } from "../lib/helpers";
 import { toneClass } from "../lib/tone";
 import type { SignStepView, SigningOverview } from "../types";
 import shared from "../components/shared.module.css";
 import "../signingTokens.css";
 import styles from "./SigningFlowPage.module.css";
-
-const RULES = ["turn", "lock", "cancel"] as const;
 
 type StepState = "MINE" | "CURRENT" | "WAITING" | "SIGNED";
 
@@ -81,8 +81,22 @@ function Flow({
     },
   });
 
+  const currentStep = steps.find(
+    (step) => step.stepNo === overview.currentStepNo,
+  );
+
   return (
-    <>
+    <ContractSideLayout
+      contractId={contractId}
+      focus={
+        currentStep && !allSigned
+          ? t("flow.sequence.stepTitle", {
+              party: t(`party.${currentStep.party}`),
+              person: currentStep.signerName,
+            })
+          : undefined
+      }
+    >
       <WizardStepper current={allSigned ? "EFFECTIVE" : "SIGN"} />
 
       <div className={styles.layout}>
@@ -100,14 +114,11 @@ function Flow({
             </span>
           </div>
           <div className={styles.meta}>
-            {t("flow.meta", {
-              code: overview.contractCode,
+            {t("lite.flowMeta", {
               supplier: overview.supplierName,
               value: formatDecimalString(overview.valueMillion),
-              count: overview.pageCount,
             })}
           </div>
-          <ContractDocuments contractId={contractId} />
         </section>
 
         <section className={cx(shared.card, styles.sequenceCard)}>
@@ -118,23 +129,16 @@ function Flow({
             ))}
           </ol>
 
-          <div className={styles.rules}>
-            <b>{t("flow.rules.title")}</b>
-            {RULES.map((rule) => (
-              <span key={rule}>{t(`flow.rules.${rule}`)}</span>
-            ))}
-          </div>
-
           <div className={styles.footer}>
             {canCancel ? (
-              <button
-                type="button"
+              <Button
+                danger
                 className={styles.cancel}
                 disabled={cancel.isPending}
                 onClick={() => cancel.mutate()}
               >
                 {t("flow.actions.cancelRequest")}
-              </button>
+              </Button>
             ) : null}
             <Link to="/contracts" className={shared.btnSecondary}>
               {t("flow.actions.later")}
@@ -154,7 +158,7 @@ function Flow({
           </div>
         </section>
       </div>
-    </>
+    </ContractSideLayout>
   );
 }
 
@@ -167,44 +171,12 @@ function StepItem({
 }) {
   const { t } = useTranslation("signing");
   const { t: tc } = useTranslation("common");
+  const demoMode = useDemoMode();
   const state = stepState(step, overview);
   const active = state === "MINE" || state === "CURRENT";
-  const previousIsMyTurn =
-    overview.currentStepNo !== null &&
-    overview.currentStepNo === step.stepNo - 1 &&
-    overview.myStepNo === overview.currentStepNo;
-
   const role = step.signerRole
     ? tc(`roles.${step.signerRole}.name`)
     : t(`party.${step.party}`);
-  const description = step.isFinal
-    ? t("flow.sequence.description.final", {
-        organization: step.organizationName,
-      })
-    : t("flow.sequence.description.intermediate", {
-        role,
-        organization: step.organizationName,
-      });
-
-  let note: string;
-  if (state === "SIGNED") {
-    note = t("flow.sequence.note.signed", {
-      dateTime: step.signedAt ? formatDateTime(step.signedAt) : "",
-      method: step.method ? t(`method.${step.method}.name`) : "",
-    });
-  } else if (state === "MINE") {
-    note = t("flow.sequence.note.lastMethod", {
-      method: t(`method.${overview.lastMethod}.name`),
-    });
-  } else if (state === "CURRENT") {
-    note = t("flow.sequence.note.awaiting");
-  } else {
-    note = t(
-      previousIsMyTurn
-        ? "flow.sequence.note.notifyNext"
-        : "flow.sequence.note.queued",
-    );
-  }
 
   return (
     <li
@@ -235,16 +207,25 @@ function StepItem({
             {t(`flow.sequence.badge.${state}`, { stepNo: step.stepNo - 1 })}
           </span>
         </div>
-        <div className={styles.stepDescription}>{description}</div>
         <div className={styles.stepNote}>
-          {t("positions.identityRole", { role, title: step.signerTitle })}
+          {t("lite.stepSub", {
+            title: step.signerTitle || role,
+            organization: step.organizationName,
+          })}
         </div>
-        {step.signerEmail ? (
+        {state === "SIGNED" ? (
           <div className={styles.stepNote}>
+            {t("lite.stepSigned", {
+              dateTime: step.signedAt ? formatDateTime(step.signedAt) : "",
+              method: step.method ? t(`method.${step.method}.name`) : "",
+            })}
+          </div>
+        ) : null}
+        {active && demoMode && step.signerEmail ? (
+          <div className={styles.stepAccount}>
             {t("flow.sequence.account", { email: step.signerEmail })}
           </div>
         ) : null}
-        <div className={styles.stepNote}>{note}</div>
       </div>
     </li>
   );

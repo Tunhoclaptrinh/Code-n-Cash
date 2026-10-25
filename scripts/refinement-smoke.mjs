@@ -518,20 +518,20 @@ try {
   );
   await go(
     "/contracts/CT0084",
-    '!!document.querySelector("[data-testid=signed-pending-conditions]")',
+    '!!document.querySelector("[data-testid=milestone-item]")',
   );
-  const status = await evaluate(
-    'document.querySelector("[data-testid=signed-pending-conditions]").innerText',
+  // The signed contract keeps one milestone on hold; its card states what is missing.
+  const held = await evaluate(
+    `(() => { const item = Array.from(document.querySelectorAll("[data-testid=milestone-item]")).find((x) => x.innerText.includes("MS0337")); if (!item) return ""; item.setAttribute("data-smoke-hold", "1"); item.scrollIntoView({ block: "center" }); return item.innerText; })()`,
   );
-  assert.ok(status.includes("MS0337"));
-  assert.ok(!status.includes("detail.signedPending"));
-  assert.ok(status.toLowerCase().includes("đã ký"));
-  assert.ok(status.includes("nghiệm thu") || status.includes("ACCEPTANCE"));
+  assert.ok(held.includes("MS0337"));
+  assert.ok(held.toLowerCase().includes("nghiệm thu"));
+  await pause(300);
   await shot(
     "review-signed-hold",
     "Cán bộ hợp đồng",
     "Đã ký hợp đồng; mốc nghiệm thu còn thiếu điều kiện",
-    ["[data-testid=signed-pending-conditions]"],
+    ["[data-smoke-hold]"],
   );
   await go(
     "/guide/signing",

@@ -601,6 +601,14 @@ try {
       "location.pathname === '/contracts/CT0103/milestones/2/decision'",
     );
   });
+  // The trace section of the decision screen is collapsed by default.
+  const openTrace = async () => {
+    await until("!!document.querySelector('[data-testid=trace-details]')");
+    await evaluate(
+      "(() => { const c = document.querySelector('[data-testid=trace-details]'); if (!c.querySelector('.ant-collapse-item-active')) c.querySelector('.ant-collapse-header').click(); })()",
+    );
+    await pause(400);
+  };
   await attempt("decision", async () => {
     await go(
       "/contracts/CT0103/milestones/2/decision",
@@ -610,19 +618,24 @@ try {
     await shot("decision-amounts", {
       clip: { text: "Tính tiền", contains: true, up: "[class*=panel]" },
     });
+    await evaluate(
+      "[...document.querySelectorAll('button')].find((b) => b.textContent.includes('Xem cả'))?.click()",
+    );
+    await pause(400);
     await wideShot("decision-rules", {
       clip: {
-        text: "8 rule của phạm vi",
+        text: "Luật áp dụng",
         contains: true,
         tag: "h2",
         up: "section",
       },
     });
+    await openTrace();
     await wideShot("decision-events", {
       clip: {
-        text: "event của mốc và cách engine phân loại",
+        text: "Sự kiện của mốc",
         contains: true,
-        tag: "h2",
+        tag: "h3",
         up: "section",
       },
     });
@@ -638,7 +651,7 @@ try {
       margin: 80,
     });
     await shot("decision-history", {
-      clip: { text: "Lịch sử chuyển trạng thái", tag: "h2", up: "section" },
+      clip: { text: "Lịch sử chuyển trạng thái", tag: "h3", up: "section" },
     });
   });
   await attempt("transfer", async () => {
@@ -929,8 +942,9 @@ try {
   await attempt("exception propose", async () => {
     await go(
       "/contracts/CT0090/milestones/3/decision",
-      "!!document.querySelector('[data-testid=exception-propose]')",
+      "!!document.querySelector('[data-testid=trace-details]')",
     );
+    await openTrace();
     await evaluate(
       "document.querySelector('[data-testid=exception-event]').closest('.ant-select').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))",
     );
@@ -989,8 +1003,9 @@ try {
     await loginAs("controller@codecash.vn");
     await go(
       "/contracts/CT0090/milestones/3/decision",
-      "!!document.querySelector('[data-testid=exception-approve]')",
+      "!!document.querySelector('[data-testid=trace-details]')",
     );
+    await openTrace();
     await shot("exception-decide", {
       clip: "[data-testid=exception-approve]",
       margin: 220,

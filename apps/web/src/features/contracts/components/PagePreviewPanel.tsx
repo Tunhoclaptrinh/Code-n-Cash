@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Alert, Spin, Tabs } from "antd";
+import { SyncOutlined } from "@ant-design/icons";
+import { Alert, Spin, Tabs, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 import { BaseCard } from "@codecash/ui";
 import { draftProblems } from "@codecash/contracts";
@@ -20,27 +21,14 @@ export function PagePreviewPanel({
   name: string;
 }) {
   const { t, i18n } = useTranslation("contracts");
+  const { t: tl } = useTranslation("contracts", { keyPrefix: "lite" });
   const [active, setActive] = useState("draft");
-  const [result, setResult] = useState<{
-    key: string;
-    file?: File;
-    failed?: boolean;
-  }>();
+  // Last successful PDF stays on screen while a newer one is generated.
+  const [result, setResult] = useState<{ key: string; file: File }>();
+  const [failedKey, setFailedKey] = useState<string>();
+  const [converting, setConverting] = useState(false);
   const language = i18n.language.startsWith("vi") ? "vi" : "en";
-  const key = JSON.stringify(
-    draft
-      ? {
-          language,
-          draft: {
-            ...draft,
-            file: undefined,
-            appendixNames: [],
-            appendixDocuments: [],
-          },
-        }
-      : null,
-  );
-  const valid =
+  const complete =
     !!draft?.type &&
     !!draft.approvalPolicy &&
     !!draft.supplierId &&
@@ -49,11 +37,30 @@ export function PagePreviewPanel({
     !Object.keys(
       draftProblems({ ...draft, graceDays: draft.graceDays ?? Number.NaN }),
     ).length;
+  const key = JSON.stringify(
+    draft
+      ? {
+          language,
+          // The API fills unfinished fields with placeholders only when asked to.
+          ...(complete ? {} : { partial: true }),
+          draft: {
+            ...draft,
+            file: undefined,
+            appendixNames: [],
+            appendixDocuments: [],
+            signers: complete
+              ? draft.signers
+              : draft.signers.filter((s) => s.userId),
+          },
+        }
+      : null,
+  );
   useEffect(() => {
     if (file || documentId) setActive("file");
   }, [file, documentId]);
+  const hasDraft = !!draft;
   useEffect(() => {
-    if (!valid || active !== "draft") return;
+    if (!hasDraft || active !== "draft") return;
     let current = true;
     const timer = setTimeout(() => {
       const input = JSON.parse(key);
@@ -67,47 +74,61 @@ export function PagePreviewPanel({
           const bytes = Uint8Array.from(atob(data.base64), (c) =>
             c.charCodeAt(0),
           );
+          setFailedKey(undefined);
+          setConverting(true);
           setResult({
             key,
             file: new File([bytes], data.fileName, { type: data.mimeType }),
           });
         })
         .catch(() => {
-          if (current) setResult({ key, failed: true });
+          if (current) setFailedKey(key);
         });
-    }, 1200);
+    }, 800);
     return () => {
       current = false;
       clearTimeout(timer);
     };
-  }, [key, valid, active]);
-  const working = !valid ? (
-    <Alert
-      type="info"
-      showIcon
-      title={t("contractUpload.preview.completeForm")}
-    />
+  }, [key, active, hasDraft]);
+  const updating =
+    !!draft && failedKey !== key && (result?.key !== key || converting);
+  const working = !draft ? (
+    <Spin>
+      <div style={{ height: 220 }} />
+    </Spin>
   ) : (
     <>
-      <Alert
-        type="info"
-        showIcon
-        title={t("contractUpload.preview.unsaved")}
-        style={{ marginBottom: 12 }}
-      />
-      {result?.key !== key ? (
-        <Spin>
-          <div style={{ height: 220 }} />
-        </Spin>
-      ) : result.failed ? (
+      <div style={{ minHeight: 26, textAlign: "right" }}>
+        {updating && (
+          <Tag
+            color="processing"
+            icon={<SyncOutlined spin />}
+            data-testid="draft-preview-updating"
+          >
+            {t("contractUpload.preview.updating")}
+          </Tag>
+        )}
+      </div>
+      {failedKey === key && (
         <Alert
           type="warning"
           showIcon
-          title={t("contractUpload.preview.unavailable")}
+          title={tl("previewFailed")}
+          style={{ marginBottom: 8 }}
         />
-      ) : (
-        <DocumentPreview file={result.file} name={result.file?.name ?? ""} />
       )}
+      {result ? (
+        <DocumentPreview
+          file={result.file}
+          name={result.file.name}
+          keepPrevious
+          onLoadingChange={setConverting}
+        />
+      ) : failedKey !== key ? (
+        <Spin>
+          <div style={{ height: 220 }} />
+        </Spin>
+      ) : null}
     </>
   );
   return (
@@ -125,18 +146,11 @@ export function PagePreviewPanel({
             key: "file",
             label: t("contractUpload.preview.selected"),
             children: (
-              <>
-                <Alert
-                  type="info"
-                  title={t("contractUpload.preview.fileBasis")}
-                  style={{ marginBottom: 12 }}
-                />
-                <DocumentPreview
-                  file={file}
-                  documentId={documentId}
-                  name={name}
-                />
-              </>
+              <DocumentPreview
+                file={file}
+                documentId={documentId}
+                name={name}
+              />
             ),
           },
         ]}

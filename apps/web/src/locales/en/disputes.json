@@ -61,5 +61,14 @@
       "trace": "Open the decision trace",
       "confirm": "Confirm"
     }
+  },
+  "lite": {
+    "none": "This milestone has no disputes.",
+    "noPreview": "No dry-run result yet.",
+    "options": {
+      "RESOLVE": "Mark as settled; the milestone is recalculated right away.",
+      "REQUEST_INFO": "Leave a note for the party who opened it; the milestone stays on hold.",
+      "OPEN": "Payment is on hold until the dispute is closed."
+    }
   }
 }

@@ -64,6 +64,7 @@ test("every code shown on screen has a label", async () => {
       eventType: [...businessEvents, ...supportEvents],
       eventStatus: await union("EventStatus"),
       reason: await union("ReasonCode"),
+      ruleCondition: await union("ReasonCode"),
       status: await union("MilestoneStatus"),
       contractStatus: await union("ContractStatus"),
       milestoneType: await union("MilestoneType"),

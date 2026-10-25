@@ -529,7 +529,7 @@ try {
   assert.ok(status.includes("nghiệm thu") || status.includes("ACCEPTANCE"));
   await shot(
     "review-signed-hold",
-    "Chủ hợp đồng",
+    "Cán bộ hợp đồng",
     "Đã ký hợp đồng; mốc nghiệm thu còn thiếu điều kiện",
     ["[data-testid=signed-pending-conditions]"],
   );

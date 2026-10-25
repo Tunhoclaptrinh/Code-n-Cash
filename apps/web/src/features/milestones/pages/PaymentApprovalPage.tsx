@@ -1,7 +1,7 @@
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useId, useState } from "react";
 import { Alert, App as AntApp, Button, Input, Modal, Space, Tag } from "antd";
-import { PageHeader } from "@codecash/ui";
+import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -53,8 +53,7 @@ export default function PaymentApprovalPage() {
         { label: tc("nav.tasks"), to: "/tasks" },
         {
           label: data
-            ? t("approve.breadcrumb", {
-                contractId: data.contract.id,
+            ? t("approve.title", {
                 no: data.milestone.sequence,
                 name: td(`milestoneType.${data.milestone.type}`),
               })
@@ -62,6 +61,15 @@ export default function PaymentApprovalPage() {
         },
       ]}
       contentClassName={styles.content}
+      tags={
+        data ? (
+          <Space size={6} wrap>
+            <MilestoneStatusTag status={data.milestone.status} />
+            <DecisionTag decision={data.evaluation.decision} />
+            <OriginTag origin={data.contract.origin} />
+          </Space>
+        ) : undefined
+      }
     >
       {view.isPending ? <PageState kind="loading" /> : null}
       {view.isError ? (
@@ -87,7 +95,6 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   const [noteMissing, setNoteMissing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const { milestone, contract, evaluation, preview } = data;
-  const name = td(`milestoneType.${milestone.type}`);
   const decisionPath = `/contracts/${contract.id}/milestones/${milestone.sequence}/decision`;
 
   const vote = useMutation({
@@ -135,17 +142,9 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
 
   return (
     <>
-      <PageHeader
-        title={t("approve.title", { no: milestone.sequence, name })}
-        subtitle={`${contract.id} · ${contract.title} · ${contract.supplier.name}`}
-        tags={
-          <Space size={6}>
-            <MilestoneStatusTag status={milestone.status} />
-            <DecisionTag decision={evaluation.decision} />
-            <OriginTag origin={contract.origin} />
-          </Space>
-        }
-      />
+      <WorkflowContext>
+        {contract.id} · {contract.title} · {contract.supplier.name}
+      </WorkflowContext>
       {data.blockedReason ? (
         <Alert
           type="info"
@@ -242,7 +241,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                     })}
                   </div>
                 </div>
-                <Space size={4}>
+                <Space size={4} wrap>
                   <ToneTag tone="success">{td("eventClass.EVIDENCE")}</ToneTag>
                   <OriginTag origin={event.origin} />
                 </Space>

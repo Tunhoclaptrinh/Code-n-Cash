@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { Space } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@codecash/ui";
+import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { getDispute } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
@@ -26,6 +26,14 @@ export default function DisputePage() {
     <AppPage
       guide="dispute"
       active="contracts"
+      tags={
+        data ? (
+          <Space size={6} wrap>
+            <MilestoneStatusTag status={data.milestone.status} />
+            <OriginTag origin={data.contract.origin} />
+          </Space>
+        ) : undefined
+      }
       breadcrumb={[
         { label: contractId, to: `/contracts/${contractId}` },
         { label: t("breadcrumb.dispute", { milestoneNo: sequence }) },
@@ -37,19 +45,10 @@ export default function DisputePage() {
       ) : null}
       {data ? (
         <>
-          <PageHeader
-            title={t("title", {
-              milestoneNo: sequence,
-              milestone: td(`milestoneType.${data.milestone.type}`),
-            })}
-            subtitle={`${data.contract.id} · ${data.contract.title} · ${data.contract.buyer.name} ↔ ${data.contract.supplier.name}`}
-            tags={
-              <Space size={6}>
-                <MilestoneStatusTag status={data.milestone.status} />
-                <OriginTag origin={data.contract.origin} />
-              </Space>
-            }
-          />
+          <WorkflowContext>
+            {td(`milestoneType.${data.milestone.type}`)} · {data.contract.title}{" "}
+            · {data.contract.buyer.name} ↔ {data.contract.supplier.name}
+          </WorkflowContext>
           <div className={styles.columns}>
             <SubmissionPanel view={data} />
             <DecisionPanel

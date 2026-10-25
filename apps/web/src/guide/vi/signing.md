@@ -43,6 +43,8 @@ Với tệp thật, thực hiện lần lượt bốn bước ở thẻ **Trích
 
 Mở lại hồ sơ chưa xác nhận vẫn thấy hướng dẫn và cần xác nhận đã đọc; không tự gọi AI lại. Hồ sơ đã xác nhận hiển thị bước hoàn tất. Mẫu dữ liệu cũ không có bytes tệp được ghi rõ là cần rà soát thủ công; hệ thống không giả vờ đã đọc một PDF không tồn tại.
 
+Đọc lại hoặc tải tài liệu gốc ngay trên thẻ trích xuất. Mục **Dấu vân tay tài liệu (SHA-256)** có thể mở ra để xem và sao chép mã đối chiếu tệp; các đoạn trích và cảnh báo vẫn hiển thị trực tiếp trong bảng.
+
 ![Rà soát: 1 — hạn cần xác nhận; 2 — xác nhận điều khoản](../../../public/guide/images/upload-digitize.webp)
 
 Đối chiếu tổng giá trị, tỷ lệ và số tiền từng mốc, loại chứng từ, chính sách phê duyệt, phạt và ngày đến hạn. Mốc có thuật ngữ tương đối như “12 tháng” cần nhập ngày cụ thể. Nếu để trống hạn được phép thiếu, mốc có thể bị HOLD vì thiếu cấu trúc; không tự suy ra ngày để hoàn tất demo.

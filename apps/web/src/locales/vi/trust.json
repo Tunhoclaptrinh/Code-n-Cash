@@ -67,7 +67,8 @@
         "review": "Bước 3 · Kiểm tra đủ sáu giá trị, sửa khi cần và đánh dấu đã đối chiếu trước khi xác nhận.",
         "confirm": "Bước 4 · Bấm “Xác nhận và áp dụng vào hồ sơ”. Sau đó kiểm tra bảng mốc và chuyển sang ký."
       }
-    }
+    },
+    "fingerprint": "Dấu vân tay tài liệu (SHA-256)"
   },
   "rules": {
     "title": "Phiên bản quy tắc và mẫu mốc",

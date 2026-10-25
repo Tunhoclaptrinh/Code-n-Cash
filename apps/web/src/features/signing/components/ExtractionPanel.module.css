@@ -3,7 +3,21 @@
 }
 
 .steps {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.actions {
+  margin-bottom: 12px;
+  row-gap: 8px;
+}
+
+.fingerprint {
+  margin-bottom: 12px;
+}
+
+.hash {
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
 .nextAction {

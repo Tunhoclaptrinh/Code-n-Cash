@@ -67,7 +67,8 @@
         "review": "Step 3 · Check all six values, correct them if needed, and acknowledge your review before confirming.",
         "confirm": "Step 4 · Select “Confirm and apply to draft”, then review the milestones and continue to signing."
       }
-    }
+    },
+    "fingerprint": "Document fingerprint (SHA-256)"
   },
   "rules": {
     "title": "Rule and template versions",

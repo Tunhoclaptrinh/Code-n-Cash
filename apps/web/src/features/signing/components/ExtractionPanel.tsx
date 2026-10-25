@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Checkbox,
+  Collapse,
   Form,
   Input,
   Grid,
@@ -162,6 +163,8 @@ export function ExtractionPanel({
   return (
     <Card
       title={t("extraction.title")}
+      size="small"
+      styles={{ body: { padding: 16 }, header: { paddingInline: 16 } }}
       data-testid="extraction-panel"
       className={styles.panel}
     >
@@ -195,7 +198,7 @@ export function ExtractionPanel({
         }
         style={{ marginBottom: 12 }}
       />
-      <Space wrap style={{ marginBottom: 12 }}>
+      <Space wrap className={styles.actions}>
         {hasFile ? (
           <Button
             icon={<ReadOutlined />}
@@ -290,9 +293,22 @@ export function ExtractionPanel({
             />
           ) : null}
           {proposal.data.documentSha256 ? (
-            <Typography.Paragraph copyable code>
-              {proposal.data.documentSha256}
-            </Typography.Paragraph>
+            <Collapse
+              size="small"
+              ghost
+              className={styles.fingerprint}
+              items={[
+                {
+                  key: "fingerprint",
+                  label: t("extraction.fingerprint"),
+                  children: (
+                    <Typography.Text copyable code className={styles.hash}>
+                      {proposal.data.documentSha256}
+                    </Typography.Text>
+                  ),
+                },
+              ]}
+            />
           ) : (
             <Alert type="warning" showIcon title={t("extraction.noDocument")} />
           )}
@@ -340,7 +356,11 @@ export function ExtractionPanel({
                         </Tag>
                       ) : null}
                       <Typography.Paragraph
-                        style={{ maxWidth: 400, whiteSpace: "pre-wrap" }}
+                        style={{
+                          maxWidth: 400,
+                          whiteSpace: "pre-wrap",
+                          marginBottom: 0,
+                        }}
                       >
                         {row.evidence.quote}
                       </Typography.Paragraph>

@@ -1,3 +1,16 @@
+.picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.contractSelect {
+  width: min(480px, 100%);
+  min-width: 0;
+}
+
 .banner {
   display: flex;
   align-items: center;
@@ -5,7 +18,7 @@
   background: var(--signing-success-banner-bg);
   border: 1px solid var(--signing-line-success);
   border-radius: var(--radius-lg);
-  padding: 16px 22px;
+  padding: 16px 20px;
 }
 
 .bannerOpen {
@@ -54,8 +67,11 @@
   background: var(--color-success-strong);
   color: #fff;
   font-weight: 700;
-  border-radius: var(--radius-md);
-  padding: 11px 22px;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  text-align: center;
+  flex: none;
 }
 
 .layout {
@@ -64,10 +80,15 @@
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   gap: 20px;
+  align-items: start;
+}
+
+.layout > * {
+  min-width: 0;
 }
 
 .signatures {
-  padding: 20px 26px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -76,7 +97,7 @@
 
 .signatures h2,
 .panel h2 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
 }
 
@@ -93,6 +114,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .cardHead b {
@@ -100,6 +122,7 @@
 }
 
 .cardNumber {
+  flex: none;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -129,9 +152,14 @@
 
 .fields {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px 20px;
   font-size: 14px;
+}
+
+.fields > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .fieldLabel {
@@ -154,7 +182,7 @@
 }
 
 .panel {
-  padding: 20px 26px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -209,4 +237,42 @@
   color: var(--color-primary-dark);
   font-weight: 700;
   margin-top: 4px;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .banner {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px;
+  }
+  .banner > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .bannerAction {
+    margin: 0;
+    width: 100%;
+  }
+  .proofNotice {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 8px;
+  }
+  .proofNotice :global(.ant-alert-actions) {
+    width: 100%;
+    margin-left: 0;
+  }
+  .signatures,
+  .panel {
+    padding: 16px;
+  }
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

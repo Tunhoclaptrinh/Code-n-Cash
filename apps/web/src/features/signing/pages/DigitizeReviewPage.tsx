@@ -1,5 +1,4 @@
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
-import { ContractDocumentPanel } from "@/shared/ui/ContractDocumentPanel";
 import { Alert, Button, Input, Table, Tag } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +56,6 @@ export default function DigitizeReviewPage() {
         { label: t("digitize.breadcrumb.current") },
       ]}
     >
-      <ContractDocumentPanel contractId={contractId} />
       {digitization.data ? (
         <Review contractId={contractId} data={digitization.data} />
       ) : (

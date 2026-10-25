@@ -14,7 +14,7 @@ const out = resolve(
 const health = await fetch(base + "/api/v1/health").then((r) => r.json());
 assert.equal(health.data.storage, "file", "ISOLATED_FILE_FIXTURE_REQUIRED");
 await mkdir(out, { recursive: true });
-const cases = [
+const allCases = [
   ["tasks", "Cán bộ hợp đồng", "legal@novaan.vn", "/tasks", ".ant-table-row"],
   [
     "contracts",
@@ -72,13 +72,93 @@ const cases = [
     "/platform/organizations",
     ".ant-table-row",
   ],
+  [
+    "detail",
+    "Chủ hợp đồng",
+    "owner@novaan.vn",
+    "/contracts/CT0019",
+    ".ant-tabs",
+  ],
+  [
+    "approval",
+    "Phê duyệt tài chính",
+    "finance@novaan.vn",
+    "/approvals/CT0103/2",
+    "[data-testid=approve-payment]",
+  ],
+  [
+    "dispute",
+    "Chủ hợp đồng",
+    "owner@novaan.vn",
+    "/contracts/CT0019/milestones/3/dispute",
+    "textarea",
+  ],
+  [
+    "digitize",
+    "Cán bộ hợp đồng",
+    "legal@novaan.vn",
+    "/contracts/CT0105/digitize",
+    "[data-testid=extraction-panel]",
+  ],
+  [
+    "verification",
+    "Cán bộ hợp đồng",
+    "legal@novaan.vn",
+    "/verify/CT0103",
+    "[data-testid=verification-layout]",
+  ],
+  [
+    "evidence",
+    "Nhà cung cấp",
+    "supplier@phuminh.vn",
+    "/submissions/CT0103/2",
+    "[data-testid=evidence-slot]",
+  ],
+  [
+    "activity",
+    "Kiểm toán viên",
+    "auditor@codecash.vn",
+    "/activity-log",
+    ".ant-table-row",
+  ],
+  [
+    "permissions",
+    "Quản trị hệ thống",
+    "sysadmin@codecash.vn",
+    "/platform/permissions",
+    ".ant-table-row",
+  ],
+  [
+    "templates",
+    "Quản trị hệ thống",
+    "sysadmin@codecash.vn",
+    "/platform/contract-templates",
+    ".ant-table-row",
+  ],
 ];
+const selected = process.env.VISUAL_CASES?.split(",");
+assert.ok(
+  !selected || selected.every((name) => allCases.some(([id]) => id === name)),
+  "UNKNOWN_REVIEW_CASE",
+);
+const cases = allCases.filter(([name]) => !selected || selected.includes(name));
+assert.ok(cases.length, "NO_REVIEW_CASES_SELECTED");
 const sizes = [
   [1440, 900],
   [1280, 720],
   [768, 1024],
   [390, 844],
-];
+].filter(
+  ([width]) =>
+    !process.env.VISUAL_WIDTHS ||
+    process.env.VISUAL_WIDTHS.split(",").includes(String(width)),
+);
+const themes = process.env.VISUAL_THEMES?.split(",") ?? ["light", "dark"];
+assert.ok(sizes.length, "NO_REVIEW_WIDTHS_SELECTED");
+assert.ok(
+  themes.length && themes.every((theme) => ["light", "dark"].includes(theme)),
+  "INVALID_REVIEW_THEME",
+);
 const profile = await mkdtemp(join(tmpdir(), "codecash-visual-"));
 const chrome = spawn(
   process.env.CHROME_BIN ?? "google-chrome",
@@ -152,7 +232,7 @@ try {
   await until("!!document.querySelector('#root')");
   const inventory = cases.flatMap(([name, role]) =>
     sizes.flatMap(([w, h]) =>
-      ["light", "dark"].map((theme) => ({
+      themes.map((theme) => ({
         id: `${name}-${w}-${theme}`,
         role,
         title: `${name} · ${w}×${h} · ${theme}`,
@@ -179,7 +259,7 @@ try {
         `!!document.querySelector('h1') && !!document.querySelector(${JSON.stringify(selector)}) && !document.querySelector('.ant-spin-spinning')`,
       );
       await pause(300);
-      for (const theme of ["light", "dark"]) {
+      for (const theme of themes) {
         if (
           (await evaluate("document.documentElement.dataset.theme")) !== theme
         ) {

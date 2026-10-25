@@ -1,7 +1,7 @@
 import { useState, type DragEvent } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Alert, Button, Select, Space, Typography } from "antd";
+import { Alert, Button, Select, Typography } from "antd";
 import { downloadBlob } from "@codecash/ui";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { getContractList } from "@/shared/api/domain";
@@ -63,12 +63,12 @@ export default function SignatureVerificationPage() {
         { label: t("verify.breadcrumb.current", { code: contractId }) },
       ]}
     >
-      <Space wrap style={{ marginBottom: 16 }}>
+      <div className={styles.picker}>
         <Typography.Text strong>{t("verify.pick")}</Typography.Text>
         <Select
           showSearch
           optionFilterProp="label"
-          style={{ minWidth: 320 }}
+          className={styles.contractSelect}
           value={routeId}
           onChange={(id: string) => navigate(`/verify/${id}`)}
           options={signed.map((c) => ({
@@ -80,7 +80,7 @@ export default function SignatureVerificationPage() {
         {verification.data ? (
           <OriginTag origin={verification.data.origin} />
         ) : null}
-      </Space>
+      </div>
       {verification.data ? (
         <Verification contractId={contractId} result={verification.data} />
       ) : routeId ? (
@@ -119,6 +119,7 @@ function Verification({
   return (
     <>
       <Alert
+        className={styles.proofNotice}
         type="info"
         showIcon
         title={t("localProof.notice")}
@@ -130,7 +131,6 @@ function Verification({
             {t("localProof.export")}
           </Button>
         }
-        style={{ marginBottom: 16 }}
       />
       {download.isError ? (
         <Alert type="error" title={td("errors.UNKNOWN")} />
@@ -174,7 +174,7 @@ function Verification({
         ) : null}
       </div>
 
-      <div className={styles.layout}>
+      <div className={styles.layout} data-testid="verification-layout">
         <section className={cx(shared.card, styles.signatures)}>
           <h2>{t("verify.signatures.title")}</h2>
           {result.signatures.map((signature) => (

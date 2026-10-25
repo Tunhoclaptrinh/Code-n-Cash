@@ -71,7 +71,7 @@
 .milestoneCard {
   flex: 1;
   min-width: 0;
-  padding: 18px 22px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -181,7 +181,7 @@
 }
 
 .sideCard {
-  padding: 18px 22px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
 }
@@ -280,7 +280,7 @@
 /* Other tabs */
 
 .tabPanel {
-  padding: 20px 26px;
+  padding: 16px 20px;
 }
 
 .panelBody {

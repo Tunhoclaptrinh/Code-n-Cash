@@ -1,24 +1,44 @@
 .panel {
-  --option-selected-bg: #f6f9ff;
-  --option-border: #d9dfee;
-  --pending-bg: #fff7e6;
-  --pending-border: #f0d79a;
-  --pending-text: #5c3b00;
-  --outcome-bg: #f1faf5;
-  --outcome-border: #bfe3cf;
+  --option-selected-bg: color-mix(
+    in srgb,
+    var(--color-primary) 5%,
+    var(--color-surface)
+  );
+  --option-border: var(--color-border);
+  --pending-bg: color-mix(
+    in srgb,
+    var(--color-warning) 7%,
+    var(--color-surface)
+  );
+  --pending-border: color-mix(
+    in srgb,
+    var(--color-warning) 35%,
+    var(--color-border)
+  );
+  --pending-text: var(--color-text-secondary);
+  --outcome-bg: color-mix(
+    in srgb,
+    var(--color-success) 7%,
+    var(--color-surface)
+  );
+  --outcome-border: color-mix(
+    in srgb,
+    var(--color-success) 30%,
+    var(--color-border)
+  );
 
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-height: 0;
-  padding: 22px 28px;
+  padding: 16px 20px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
 
 .heading {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
 }
 
@@ -95,6 +115,7 @@
 .note {
   width: 100%;
   margin-top: 4px;
+  margin-bottom: 18px;
   padding: 10px 12px;
   background: var(--color-surface);
   border: 1px solid var(--color-border-input);

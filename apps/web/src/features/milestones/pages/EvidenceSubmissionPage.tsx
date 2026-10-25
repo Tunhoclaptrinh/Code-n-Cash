@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type DragEvent } from "react";
 import { Alert, App as AntApp, Button, Space, Tag, Typography } from "antd";
-import { PageHeader } from "@codecash/ui";
+import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -108,13 +108,25 @@ export default function EvidenceSubmissionPage() {
     <AppPage
       guide="evidence"
       active="tasks"
+      tags={
+        data ? (
+          <Space size={6} wrap>
+            {data.overdueDays > 0 ? (
+              <ToneTag tone="danger">
+                {td("overdue", { count: data.overdueDays })}
+              </ToneTag>
+            ) : null}
+            <OriginTag origin={data.contract.origin} />
+          </Space>
+        ) : undefined
+      }
       breadcrumb={[
         { label: tc("nav.tasks"), to: "/tasks" },
         {
           label: data
-            ? t("submit.breadcrumb", {
-                contractId: data.contract.id,
+            ? t("submit.title", {
                 no: data.milestone.sequence,
+                name: td(`milestoneType.${data.milestone.type}`),
               })
             : (routeContractId ?? ""),
         },
@@ -207,23 +219,10 @@ function Workspace({
 
   return (
     <>
-      <PageHeader
-        title={t("submit.title", {
-          no: milestone.sequence,
-          name: td(`milestoneType.${milestone.type}`),
-        })}
-        subtitle={`${contract.id} · ${contract.title} · ${td(`side.${data.side}`)}`}
-        tags={
-          <Space size={6}>
-            {data.overdueDays > 0 ? (
-              <ToneTag tone="danger">
-                {td("overdue", { count: data.overdueDays })}
-              </ToneTag>
-            ) : null}
-            <OriginTag origin={contract.origin} />
-          </Space>
-        }
-      />
+      <WorkflowContext>
+        {contract.id} · {contract.title} ·{" "}
+        {td(`milestoneType.${milestone.type}`)} · {td(`side.${data.side}`)}
+      </WorkflowContext>
       <div className={styles.grid}>
         <Panel className={`${styles.panel} ${styles.panelLeft}`}>
           <h2>{t("submit.required.title")}</h2>

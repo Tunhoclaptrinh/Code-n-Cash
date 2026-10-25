@@ -4,6 +4,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: 20px;
+  align-items: start;
+}
+
+.columns > * {
+  min-width: 0;
 }
 
 @media (max-width: 1200px) {

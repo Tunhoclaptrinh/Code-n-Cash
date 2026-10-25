@@ -57,3 +57,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [26 — Kiểm tra trực quan và tinh gọn giao diện](26_KIEM_TRA_TRUC_QUAN_VA_TINH_GON_GIAO_DIEN.md)
 
 - [27 — Khung ký lớn và trình tự đọc/trích xuất](27_KHUNG_KY_LON_VA_TRINH_TU_TRICH_XUAT.md)
+
+- [28 — Rà soát bố cục toàn ứng dụng](28_RA_SOAT_BO_CUC_TOAN_UNG_DUNG.md)

@@ -45,6 +45,8 @@ Before signing, complete the four steps in **Extract and review terms** for an u
 
 Reopening an unconfirmed draft shows the guidance and reading step again without automatically calling AI. Confirmed proposals show the completed stage. Legacy fixtures with no stored file explicitly require manual review; the app does not claim to have read a missing PDF.
 
+Read again or download the original file from the extraction card. Expand **Document fingerprint (SHA-256)** to inspect or copy its hash; source quotations and warnings remain visible in the table.
+
 ## Sign in order
 
 ![Signing order](../../../public/guide/images/signing-flow.webp)

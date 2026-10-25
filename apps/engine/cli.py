@@ -1,4 +1,4 @@
-"""Application adapter around the independently tested specification evaluator."""
+"""Application adapter around the codecash_engine package (the independently tested specification evaluator)."""
 import argparse
 import csv
 import hashlib
@@ -18,9 +18,8 @@ from pathlib import Path
 from time import perf_counter
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import kiem_chung_nghiep_vu as spec
+import codecash_engine as spec
 import dataset
 import validate_rules
 

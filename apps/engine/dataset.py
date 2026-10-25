@@ -4,7 +4,7 @@ import hashlib
 import zipfile
 from pathlib import Path
 
-import kiem_chung_nghiep_vu as spec
+import codecash_engine as spec
 
 # role -> file name in the official Data Pack, relative path there, required
 FILES = {

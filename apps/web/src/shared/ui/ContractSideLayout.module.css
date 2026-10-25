@@ -1,0 +1,19 @@
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 42%);
+  gap: 20px;
+  align-items: start;
+}
+
+.main {
+  min-width: 0;
+}
+
+/* The document stays in view while the action column scrolls. */
+.aside {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+  padding: 16px;
+}

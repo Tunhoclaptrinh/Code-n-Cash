@@ -248,5 +248,23 @@
     "channel": "Recorded via",
     "run": "Evaluation run",
     "party": "Party code"
+  },
+  "contractPane": {
+    "title": "Contract document",
+    "simulated": "Simulated copy",
+    "simulatedHint": "The organiser provides contract data only; this document is rebuilt from the contract's own terms, milestones and signers.",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "download": "Download original",
+    "toSignatures": "Go to signatures",
+    "focus": "Working on:",
+    "loading": "Preparing the document…",
+    "unavailable": "The contract document cannot be shown right now. Download the original or try again later.",
+    "signedCaption": "Digitally signed · {{method}} · {{at}}",
+    "imageCaption": "Signed with an image · {{at}}",
+    "current": "Step {{step}} · waiting for {{name}}",
+    "waiting": "Step {{step}} · {{name}}",
+    "seal": "DEMO",
+    "open": "View contract"
   }
 }

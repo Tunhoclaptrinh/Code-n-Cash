@@ -248,5 +248,22 @@
     "channel": "Kênh ghi nhận",
     "run": "Lượt đánh giá",
     "party": "Mã bên"
+  },
+  "contractPane": {
+    "title": "Văn bản hợp đồng",
+    "simulated": "Bản mô phỏng",
+    "simulatedHint": "Ban tổ chức chỉ cung cấp dữ liệu hợp đồng; văn bản này được lập lại từ chính điều khoản, các mốc và người ký của hợp đồng.",
+    "pages_other": "{{count}} trang",
+    "download": "Tải tệp gốc",
+    "toSignatures": "Đến trang ký",
+    "focus": "Đang xử lý:",
+    "loading": "Đang chuẩn bị văn bản…",
+    "unavailable": "Chưa hiển thị được văn bản hợp đồng. Thử tải tệp gốc hoặc mở lại sau.",
+    "signedCaption": "Đã ký số · {{method}} · {{at}}",
+    "imageCaption": "Ký bằng ảnh · {{at}}",
+    "current": "Bước {{step}} · đang chờ {{name}} ký",
+    "waiting": "Bước {{step}} · {{name}}",
+    "seal": "MẪU",
+    "open": "Xem hợp đồng"
   }
 }

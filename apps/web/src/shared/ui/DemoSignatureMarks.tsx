@@ -103,7 +103,8 @@ export function DemoSeal({
 }: {
   organization: string;
   label?: string;
-  size?: number;
+  /** Pixels, or "100%" to fill a sized parent. */
+  size?: number | string;
 }) {
   const pathId = useId();
   const name = organization.toUpperCase();

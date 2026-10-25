@@ -406,5 +406,31 @@
         "ALREADY_APPROVED": "Bạn đã phê duyệt mốc này."
       }
     }
+  },
+  "decisionLite": {
+    "summaryLine": "Luật áp dụng {{rule}} · Đủ điều kiện chi {{payable}} · Phạt {{penalty}} triệu",
+    "more": "Xem chi tiết",
+    "facts": {
+      "unauthorized": "Chứng từ ghi nhận sai thẩm quyền",
+      "voided": "Chứng từ đã vô hiệu"
+    },
+    "amounts": {
+      "milestoneValue": "Giá trị mốc",
+      "penalty": "Tiền phạt",
+      "how": "Cách tính"
+    },
+    "rules": {
+      "title": "Luật áp dụng",
+      "showAll": "Xem cả {{count}} luật",
+      "hideAll": "Chỉ xem luật áp dụng"
+    },
+    "trace": {
+      "title": "Truy vết chi tiết",
+      "events": "Sự kiện của mốc ({{total}})"
+    },
+    "exceptions": {
+      "title": "Ngoại lệ",
+      "pick": "Chọn chứng từ sai thẩm quyền"
+    }
   }
 }

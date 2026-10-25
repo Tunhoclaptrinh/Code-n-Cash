@@ -406,5 +406,31 @@
         "ALREADY_APPROVED": "You already approved this milestone."
       }
     }
+  },
+  "decisionLite": {
+    "summaryLine": "Applied rule {{rule}} · Payable {{payable}} · Penalty {{penalty}} million",
+    "more": "Show details",
+    "facts": {
+      "unauthorized": "Records entered without authority",
+      "voided": "Records voided"
+    },
+    "amounts": {
+      "milestoneValue": "Milestone value",
+      "penalty": "Penalty",
+      "how": "How it is calculated"
+    },
+    "rules": {
+      "title": "Applied rule",
+      "showAll": "Show all {{count}} rules",
+      "hideAll": "Show applied rule only"
+    },
+    "trace": {
+      "title": "Detailed trace",
+      "events": "Milestone events ({{total}})"
+    },
+    "exceptions": {
+      "title": "Exceptions",
+      "pick": "Select the record entered without authority"
+    }
   }
 }

@@ -15,6 +15,8 @@ export function WizardStepper({ current }: { current: WizardStep }) {
     <Steps
       size="small"
       responsive={false}
+      // Labels under the dots so they do not break word by word in the side column.
+      titlePlacement="vertical"
       current={WIZARD_STEPS.indexOf(current)}
       items={WIZARD_STEPS.map((s, index) => ({
         title:

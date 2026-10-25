@@ -25,7 +25,7 @@
   "impact": {
     "title": "Tác động đến thanh toán",
     "now": "Hiện tại",
-    "afterResolve": "Nếu đóng mọi tranh chấp (chạy thử)",
+    "afterResolve": "Nếu đóng mọi tranh chấp",
     "unit": "triệu",
     "penalty": "phạt {{penalty}}"
   },
@@ -60,7 +60,6 @@
   },
   "lite": {
     "none": "Mốc chưa có tranh chấp.",
-    "noPreview": "Chưa có kết quả chạy thử.",
     "options": {
       "RESOLVE": "Ghi nhận đã giải quyết; mốc được tính lại ngay.",
       "REQUEST_INFO": "Ghi chú cho bên mở tranh chấp; mốc vẫn bị giữ.",

@@ -73,6 +73,12 @@
     "OPEN": "Đang mở",
     "RESOLVED": "Đã đóng"
   },
+  "decision": {
+    "RELEASE": "Chi đủ",
+    "PENALTY": "Chi sau trừ phạt",
+    "HOLD": "Tạm giữ",
+    "REJECT": "Không chi"
+  },
   "decisionHint": {
     "RELEASE": "Đủ điều kiện chi toàn bộ",
     "PENALTY": "Đủ điều kiện chi sau khi trừ phạt trễ hạn",
@@ -95,7 +101,7 @@
     "ON_HOLD": "Tạm giữ",
     "REJECTED": "Bị từ chối",
     "ELIGIBLE_FOR_PAYMENT": "Đủ điều kiện chi",
-    "PAID_WITH_PENALTY": "Chi sau khấu trừ",
+    "PAID_WITH_PENALTY": "Đủ điều kiện chi, trừ phạt",
     "COMPLETED": "Đã chuyển chi",
     "PLANNED": "Chưa bắt đầu",
     "IN_PROGRESS": "Đang thực hiện"

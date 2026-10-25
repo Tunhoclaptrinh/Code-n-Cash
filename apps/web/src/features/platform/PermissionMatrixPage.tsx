@@ -317,7 +317,7 @@ export default function PermissionMatrixPage() {
           exportable
           exportFilename="permission-matrix"
           onExport={(options) => void onExport(options)}
-          actionsWidth={72}
+          actionsWidth={96}
           customActions={(row) => (
             <TableRowActions
               primary={{

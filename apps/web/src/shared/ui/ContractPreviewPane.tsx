@@ -1,4 +1,5 @@
-import { useRef, type ReactNode } from "react";
+import { useRef } from "react";
+import styles from "./ContractPreviewPane.module.css";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Alert, Button, Space, Spin, Tag, Tooltip, Typography } from "antd";
 import { DownloadOutlined, EditOutlined } from "@ant-design/icons";
@@ -43,14 +44,7 @@ const SEAL_GAP = 10;
  * The contract document beside an action: every page as an image, with demo signatures and seals
  * drawn over the signing areas by signing state. Drawing never changes the stored file.
  */
-export function ContractPreviewPane({
-  contractId,
-  focus,
-}: {
-  contractId: string;
-  /** What the screen is working on, e.g. "Mốc 3 · Nghiệm thu". */
-  focus?: ReactNode;
-}) {
+export function ContractPreviewPane({ contractId }: { contractId: string }) {
   const { t } = useTranslation("common");
   const { t: ts } = useTranslation("signing");
   const user = useCurrentUser();
@@ -85,11 +79,7 @@ export function ContractPreviewPane({
 
   return (
     <section data-testid="contract-preview-pane">
-      <Space
-        align="center"
-        wrap
-        style={{ justifyContent: "space-between", width: "100%" }}
-      >
+      <div className={styles.header}>
         <Space size={6} wrap>
           <Typography.Text strong>{t("contractPane.title")}</Typography.Text>
           {data?.document.simulated ? (
@@ -99,14 +89,9 @@ export function ContractPreviewPane({
               </Tag>
             </Tooltip>
           ) : null}
-          {data ? (
-            <Typography.Text type="secondary">
-              {t("contractPane.pages", { count: data.pages.length })}
-            </Typography.Text>
-          ) : null}
         </Space>
         {data ? (
-          <Space size={4} wrap>
+          <Space size={4} wrap className={styles.actions}>
             {signingPage ? (
               <Button
                 size="small"
@@ -130,16 +115,7 @@ export function ContractPreviewPane({
             </Button>
           </Space>
         ) : null}
-      </Space>
-      {focus ? (
-        <Typography.Paragraph
-          type="secondary"
-          style={{ margin: "6px 0 0" }}
-          data-testid="contract-preview-focus"
-        >
-          {t("contractPane.focus")} <b>{focus}</b>
-        </Typography.Paragraph>
-      ) : null}
+      </div>
       {view.isPending ? (
         <Spin tip={t("contractPane.loading")}>
           <div style={{ height: 240 }} />

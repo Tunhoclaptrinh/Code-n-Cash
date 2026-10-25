@@ -280,8 +280,9 @@
       "milestoneValue": "Giá trị mốc",
       "penalty": "Tiền phạt",
       "payable": "Đủ điều kiện chi",
-      "preview_one": "Chạy thử với phê duyệt của bạn: {{decision}} · {{reason}} · trễ {{count}} ngày.",
-      "preview_other": "Chạy thử với phê duyệt của bạn: {{decision}} · {{reason}} · trễ {{count}} ngày.",
+      "preview_zero": "Nếu bạn phê duyệt: {{reason}}.",
+      "preview_one": "Nếu bạn phê duyệt: {{reason}}, trễ {{count}} ngày.",
+      "preview_other": "Nếu bạn phê duyệt: {{reason}}, trễ {{count}} ngày.",
       "current": "Hiện tại: {{reason}}.",
       "trace": "Xem truy vết quyết định",
       "currentTitle": "Kết quả hiện tại của mốc"

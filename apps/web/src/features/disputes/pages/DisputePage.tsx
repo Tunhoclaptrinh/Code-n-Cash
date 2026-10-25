@@ -1,17 +1,15 @@
 import { useParams } from "react-router-dom";
-import { Space } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { getDispute } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
-import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
+import { contractHeading } from "@/shared/lib/domain";
+import { MilestoneStatusTag } from "@/shared/ui/DomainTags";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
-import { TrackingCode } from "@/shared/ui/TechnicalInfo";
+import { SideCard } from "@/shared/ui/SidePanel";
 import { DecisionPanel } from "../components/DecisionPanel";
 import { SubmissionPanel } from "../components/SubmissionPanel";
-import styles from "./DisputePage.module.css";
 
 export default function DisputePage() {
   const { t } = useTranslation("disputes");
@@ -29,16 +27,18 @@ export default function DisputePage() {
       guide="dispute"
       active="contracts"
       tags={
-        data ? (
-          <Space size={6} wrap>
-            <MilestoneStatusTag status={data.milestone.status} />
-            <OriginTag origin={data.contract.origin} />
-          </Space>
-        ) : undefined
+        data ? <MilestoneStatusTag status={data.milestone.status} /> : undefined
       }
       breadcrumb={[
         { label: contractId, to: `/contracts/${contractId}` },
-        { label: t("breadcrumb.dispute", { milestoneNo: sequence }) },
+        {
+          label: data
+            ? t("title", {
+                milestoneNo: sequence,
+                milestone: td(`milestoneType.${data.milestone.type}`),
+              })
+            : t("breadcrumb.dispute", { milestoneNo: sequence }),
+        },
       ]}
     >
       {dispute.isPending ? <PageState kind="loading" /> : null}
@@ -48,19 +48,19 @@ export default function DisputePage() {
       {data ? (
         <ContractSideLayout
           contractId={data.contract.id}
-          focus={`${td("milestoneNo", { no: data.milestone.sequence })} · ${td(`milestoneType.${data.milestone.type}`)}`}
+          context={
+            <>
+              {contractHeading(data.contract)} · {data.contract.supplier.name}
+            </>
+          }
         >
-          <WorkflowContext>
-            {td(`milestoneType.${data.milestone.type}`)} ·{" "}
-            <TrackingCode code={data.milestone.id} />
-          </WorkflowContext>
-          <div className={styles.columns}>
+          <SideCard>
             <SubmissionPanel view={data} />
             <DecisionPanel
               key={`${data.evaluation.runId}-${data.disputes.length}`}
               view={data}
             />
-          </div>
+          </SideCard>
         </ContractSideLayout>
       ) : null}
     </AppPage>

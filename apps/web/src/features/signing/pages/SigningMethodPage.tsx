@@ -124,13 +124,7 @@ function MethodSelection({
     sign.error instanceof ApiError ? sign.error.code : "UNKNOWN";
 
   return (
-    <ContractSideLayout
-      contractId={contractId}
-      focus={t("flow.sequence.stepTitle", {
-        party: t(`party.${step.party}`),
-        person: step.signerName,
-      })}
-    >
+    <ContractSideLayout contractId={contractId}>
       <div className={styles.titleRow}>
         <h2>{t("signMethod.title", { code: contractId })}</h2>
         <span className={cx(shared.pill, styles.stepChip)}>

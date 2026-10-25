@@ -1,7 +1,6 @@
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useId, useState } from "react";
-import { Alert, App as AntApp, Button, Input, Modal, Space } from "antd";
-import { WorkflowContext } from "@/shared/ui/WorkflowContext";
+import { Alert, App as AntApp, Button, Input, Modal } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -13,20 +12,21 @@ import {
   type VoteChoice,
 } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
-import { actorName, contractHeading } from "@/shared/lib/domain";
+import {
+  actorName,
+  contractHeading,
+  statusRepeatsDecision,
+} from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
-import {
-  DecisionTag,
-  MilestoneStatusTag,
-  OriginTag,
-} from "@/shared/ui/DomainTags";
+import { DecisionTag, MilestoneStatusTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
-import { Panel } from "@/shared/ui/Panel";
-import { TrackingCode } from "@/shared/ui/TechnicalInfo";
+import { KeyFigures, SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
 import styles from "./PaymentApprovalPage.module.css";
+
+const isZero = (amount: string) => /^0(\.0+)?$/.test(amount);
 
 /** Approval of a milestone payment by one of the buyer's approvers (BR-10: one role, one approval). */
 export default function PaymentApprovalPage() {
@@ -65,12 +65,13 @@ export default function PaymentApprovalPage() {
       ]}
       contentClassName={styles.content}
       tags={
-        data ? (
-          <Space size={6} wrap>
-            <MilestoneStatusTag status={data.milestone.status} />
-            <DecisionTag decision={data.evaluation.decision} />
-            <OriginTag origin={data.contract.origin} />
-          </Space>
+        // The result card names the decision; the status is shown only when it adds something.
+        data &&
+        !statusRepeatsDecision(
+          data.milestone.status,
+          data.preview?.decision ?? data.evaluation.decision,
+        ) ? (
+          <MilestoneStatusTag status={data.milestone.status} />
         ) : undefined
       }
     >
@@ -99,6 +100,8 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   const [noteMissing, setNoteMissing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const { milestone, contract, evaluation, preview } = data;
+  const penalty = preview?.penaltyMillion ?? evaluation.penaltyMillion;
+  const payable = preview?.payableMillion ?? evaluation.payableMillion;
   const decisionPath = `/contracts/${contract.id}/milestones/${milestone.sequence}/decision`;
 
   const vote = useMutation({
@@ -147,153 +150,127 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   return (
     <ContractSideLayout
       contractId={contract.id}
-      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
+      context={
+        <>
+          {contractHeading(contract)} · {contract.supplier.name}
+        </>
+      }
     >
-      <WorkflowContext>
-        {contractHeading(contract)} · {contract.supplier.name} ·{" "}
-        <TrackingCode code={milestone.id} />
-      </WorkflowContext>
       {data.blockedReason ? (
         <Alert
           type="info"
           showIcon
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 12 }}
           title={t(`workLite.approve.blocked.${data.blockedReason}`, {
             defaultValue: data.blockedReason,
           })}
         />
       ) : null}
-      <div className={styles.grid}>
-        <div className={styles.column}>
-          <Panel className={`${styles.panel} ${styles.proposal}`}>
-            <div className={styles.proposalTitle}>
-              <h2>
-                {t(
-                  preview
-                    ? "approve.proposal.title"
-                    : "approve.proposal.currentTitle",
-                )}
-              </h2>
-              {preview ? <DecisionTag decision={preview.decision} /> : null}
-            </div>
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <div className={styles.statLabel}>
-                  {t("approve.proposal.milestoneValue")}
-                </div>
-                <b className={styles.statValue}>
-                  {formatDecimalString(milestone.plannedMillion)}
-                </b>
-                <span className={styles.statUnit}>
-                  {" "}
-                  {t("common.millionUnit")}
-                </span>
-              </div>
-              <div className={`${styles.stat} ${styles.statPenalty}`}>
-                <div className={styles.statLabel}>
-                  {t("approve.proposal.penalty")}
-                </div>
-                <b className={`${styles.statValue} ${styles.statValuePenalty}`}>
-                  {formatDecimalString(
-                    preview?.penaltyMillion ?? evaluation.penaltyMillion,
-                  )}
-                </b>
-                <span className={styles.statUnit}>
-                  {" "}
-                  {t("common.millionUnit")}
-                </span>
-              </div>
-              <div className={`${styles.stat} ${styles.statPayable}`}>
-                <div className={styles.statLabel}>
-                  {t("approve.proposal.payable")}
-                </div>
-                <b className={`${styles.statValue} ${styles.statValuePayable}`}>
-                  {formatDecimalString(
-                    preview?.payableMillion ?? evaluation.payableMillion,
-                  )}
-                </b>
-                <span className={styles.statUnit}>
-                  {" "}
-                  {t("common.millionUnit")}
-                </span>
-              </div>
-            </div>
-            <div className={styles.explain}>
-              {preview
-                ? t("approve.proposal.preview", {
-                    decision: preview.decision,
-                    reason: td(`reason.${preview.reasonCode}`),
-                    count: preview.daysLate,
-                  })
-                : t("approve.proposal.current", {
-                    reason: td(`reason.${evaluation.reasonCode}`),
-                  })}{" "}
-              <TrackingCode
-                code={preview ? preview.reasonCode : evaluation.reasonCode}
+      <SideCard>
+        <SideSection
+          title={
+            <span className={styles.titleRow}>
+              {t(
+                preview
+                  ? "approve.proposal.title"
+                  : "approve.proposal.currentTitle",
+              )}
+              <DecisionTag
+                decision={preview?.decision ?? evaluation.decision}
               />
-            </div>
-            <div className={styles.reason}>
-              <Link to={decisionPath}>{t("approve.proposal.trace")}</Link>
-            </div>
-          </Panel>
+            </span>
+          }
+          extra={<Link to={decisionPath}>{t("approve.proposal.trace")}</Link>}
+        >
+          <KeyFigures
+            items={[
+              {
+                key: "planned",
+                label: `${t("approve.proposal.milestoneValue")} (${t("common.millionUnit")})`,
+                value: formatDecimalString(milestone.plannedMillion),
+              },
+              {
+                key: "penalty",
+                label: `${t("approve.proposal.penalty")} (${t("common.millionUnit")})`,
+                value: formatDecimalString(penalty),
+                tone: isZero(penalty) ? undefined : "warning",
+              },
+              {
+                key: "payable",
+                label: `${t("approve.proposal.payable")} (${t("common.millionUnit")})`,
+                value: formatDecimalString(payable),
+                tone: isZero(payable) ? undefined : "success",
+              },
+            ]}
+          />
+          <p className={styles.explain}>
+            {preview
+              ? t("approve.proposal.preview", {
+                  reason: td(`reason.${preview.reasonCode}`),
+                  count: preview.daysLate,
+                })
+              : t("approve.proposal.current", {
+                  reason: td(`reason.${evaluation.reasonCode}`),
+                })}
+          </p>
+        </SideSection>
 
-          <Panel className={`${styles.panel} ${styles.documents}`}>
-            <h2>{t("approve.documents.title")}</h2>
+        <SideSection title={t("approve.documents.title")}>
+          <ul className={styles.documents}>
             {data.evidence.map((event) => (
-              <div key={event.id} className={styles.document}>
+              <li key={event.id} className={styles.document}>
                 <PdfTile variant="plain" />
                 <div className={styles.documentInfo}>
                   <b>{td(`eventType.${event.type}`)}</b>
-                  <div className={styles.documentMeta}>
+                  <span className={styles.documentMeta}>
                     {t("approve.documents.recorded", {
                       by: event.recordedBy ?? actorName(td, event.actor),
                       at: formatDateTime(event.at),
                     })}
-                  </div>
+                  </span>
                 </div>
-                <Space size={4} wrap>
-                  <ToneTag tone="success">{td("eventClass.EVIDENCE")}</ToneTag>
-                </Space>
-              </div>
+              </li>
             ))}
             {milestone.requirements
               .filter((r) => r.state !== "VALID")
               .map((r) => (
-                <div key={r.eventType} className={styles.document}>
+                <li key={r.eventType} className={styles.document}>
                   <PdfTile variant="plain" />
                   <div className={styles.documentInfo}>
                     <b>{td(`eventType.${r.eventType}`)}</b>
-                    <div className={styles.documentMeta}>
+                    <span className={styles.documentMeta}>
                       {t("approve.documents.missing", {
                         side: td(`side.${r.side}`),
                       })}
-                    </div>
+                    </span>
                   </div>
                   <ToneTag tone="danger">
                     {td(
                       `eventClass.${r.state === "UNAUTHORIZED" ? "UNAUTHORIZED" : "WRONG_STATUS"}`,
                     )}
                   </ToneTag>
-                </div>
+                </li>
               ))}
-          </Panel>
-        </div>
+          </ul>
+        </SideSection>
 
-        <Panel className={`${styles.panel} ${styles.decisionPanel}`}>
-          <h2>
-            {t("approve.progress.title", {
-              quorum: milestone.quorum,
-              roles: milestone.approvalRoles.length,
-            })}
-          </h2>
+        <SideSection
+          title={t("approve.progress.title", {
+            quorum: milestone.quorum,
+            roles: milestone.approvalRoles.length,
+          })}
+        >
           <ol className={styles.steps}>
             {data.slots.map((slot, index) => (
               <StepItem key={slot.role} slot={slot} index={index} />
             ))}
           </ol>
-          <div>
+        </SideSection>
+
+        <SideSection>
+          <div className={styles.noteBlock}>
             <label htmlFor={noteId} className={styles.noteLabel}>
-              {t("approve.note.label")}{" "}
+              {t("approve.note.label")}
               <DemoFillButton
                 disabled={!!note.trim()}
                 onClick={() => {
@@ -312,7 +289,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
             <Input.TextArea
               id={noteId}
               rows={2}
-              className={`${styles.noteInput} ${noteMissing ? styles.noteInputInvalid : ""}`}
+              status={noteMissing ? "error" : undefined}
               value={note}
               placeholder={t("approve.note.placeholder")}
               maxLength={2000}
@@ -358,8 +335,8 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               {t("approve.actions.approve")}
             </Button>
           </div>
-        </Panel>
-      </div>
+        </SideSection>
+      </SideCard>
       <Modal
         open={confirming}
         title={t("approve.confirm.title")}
@@ -373,7 +350,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
         {t("approve.confirm.body", {
           no: milestone.sequence,
           name: td(`milestoneType.${milestone.type}`),
-          decision: preview?.decision ?? evaluation.decision,
+          decision: td(`decision.${preview?.decision ?? evaluation.decision}`),
           payable: formatDecimalString(
             preview?.payableMillion ?? evaluation.payableMillion,
           ),
@@ -421,7 +398,6 @@ function StepItem({ slot, index }: { slot: ApprovalSlot; index: number }) {
             : t(`approve.progress.state.${slot.state}`, {
                 time: slot.at ? formatDateTime(slot.at) : "",
               })}
-          {slot.eventId ? ` · ${slot.eventId}` : ""}
         </div>
       </div>
     </li>

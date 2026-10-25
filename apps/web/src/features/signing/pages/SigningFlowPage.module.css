@@ -1,30 +1,8 @@
-.layout {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  /* The contract document takes the second column, so the cards stack. */
-  grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
-}
-
-.documentCard {
-  padding: 18px 24px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-height: 0;
-}
-
 .titleRow {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px 10px;
   flex-wrap: wrap;
-}
-
-.titleRow h2 {
-  font-size: 18px;
-  font-weight: 700;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -32,8 +10,9 @@
 .statusPill {
   background: var(--color-primary-soft);
   color: var(--color-primary-dark);
-  font-size: 12.5px;
-  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 1px 8px;
 }
 
 .statusPillDone {
@@ -42,21 +21,9 @@
 }
 
 .meta {
-  color: var(--color-text-muted);
-  font-size: 13.5px;
-}
-
-.sequenceCard {
-  padding: 22px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 0;
-}
-
-.sequenceCard h2 {
-  font-size: 20px;
-  font-weight: 800;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .steps {
@@ -65,31 +32,33 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 .step {
-  border-radius: var(--radius-lg);
-  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
   display: flex;
-  gap: 14px;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .stepActive {
-  border: 2px solid var(--color-primary);
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
   background: var(--signing-card-active);
 }
 
 .stepIdle {
-  border: 1px solid var(--color-border);
-  opacity: 0.95;
+  background: var(--color-surface-muted);
 }
 
 .stepNumber {
   flex: none;
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
+  font-size: 13px;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -120,16 +89,14 @@
 .stepHead {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.stepHead b {
-  font-size: 16px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
 }
 
 .stepBadge {
-  font-size: 12.5px;
-  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 1px 8px;
 }
 
 .stepBadgeMINE,
@@ -150,37 +117,25 @@
 
 .stepNote {
   color: var(--color-text-muted);
-  margin-top: 2px;
+  font-size: 13px;
 }
 
 .stepAccount {
   color: var(--color-text-faint);
-  font-size: 12.5px;
-  margin-top: 4px;
+  font-size: 12px;
+  margin-top: 2px;
 }
 
+/* Actions on the right edge, the main one last; cancelling stays apart on the left. */
 .footer {
-  margin-top: auto;
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: flex-end;
   align-items: center;
+  padding-top: 6px;
 }
 
 .cancel {
   margin: 0 auto 0 0;
-}
-
-@media (max-width: 760px) {
-  .documentCard {
-    padding: 16px;
-  }
-  .titleRow,
-  .stepHead,
-  .footer {
-    flex-wrap: wrap;
-  }
-  .step {
-    padding: 14px;
-  }
 }

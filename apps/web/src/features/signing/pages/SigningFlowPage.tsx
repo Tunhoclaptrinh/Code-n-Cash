@@ -9,6 +9,7 @@ import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import { cancelSigning } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
+import { SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { WizardStepper } from "../components/WizardStepper";
 import { useCurrentUser } from "@/shared/auth/session";
 import { useDemoMode } from "@/shared/auth/useDemoMode";
@@ -81,48 +82,37 @@ function Flow({
     },
   });
 
-  const currentStep = steps.find(
-    (step) => step.stepNo === overview.currentStepNo,
-  );
-
   return (
-    <ContractSideLayout
-      contractId={contractId}
-      focus={
-        currentStep && !allSigned
-          ? t("flow.sequence.stepTitle", {
-              party: t(`party.${currentStep.party}`),
-              person: currentStep.signerName,
-            })
-          : undefined
-      }
-    >
-      <WizardStepper current={allSigned ? "EFFECTIVE" : "SIGN"} />
-
-      <div className={styles.layout}>
-        <section className={cx(shared.card, styles.documentCard)}>
-          <div className={styles.titleRow}>
-            <h2>{overview.title}</h2>
-            <span
-              className={cx(
-                shared.pill,
-                styles.statusPill,
-                allSigned && styles.statusPillDone,
-              )}
-            >
-              {t(`flow.status.${allSigned ? "SIGNED" : "WAITING"}`)}
+    <ContractSideLayout contractId={contractId}>
+      <SideCard>
+        <SideSection>
+          <WizardStepper current={allSigned ? "EFFECTIVE" : "SIGN"} />
+        </SideSection>
+        <SideSection
+          title={
+            <span className={styles.titleRow}>
+              {overview.title}
+              <span
+                className={cx(
+                  shared.pill,
+                  styles.statusPill,
+                  allSigned && styles.statusPillDone,
+                )}
+              >
+                {t(`flow.status.${allSigned ? "SIGNED" : "WAITING"}`)}
+              </span>
             </span>
-          </div>
+          }
+        >
           <div className={styles.meta}>
             {t("lite.flowMeta", {
               supplier: overview.supplierName,
               value: formatDecimalString(overview.valueMillion),
             })}
           </div>
-        </section>
+        </SideSection>
 
-        <section className={cx(shared.card, styles.sequenceCard)}>
-          <h2>{t("flow.sequence.title")}</h2>
+        <SideSection title={t("flow.sequence.title")}>
           <ol className={styles.steps}>
             {steps.map((step) => (
               <StepItem key={step.stepNo} step={step} overview={overview} />
@@ -156,8 +146,8 @@ function Flow({
               </Link>
             ) : null}
           </div>
-        </section>
-      </div>
+        </SideSection>
+      </SideCard>
     </ContractSideLayout>
   );
 }

@@ -287,7 +287,7 @@ try {
     if (route === "/contracts")
       await until("document.body.innerText.includes('CT0001')");
     if (route === "/contracts/CT0019/milestones/3/decision")
-      await until("document.body.innerText.includes('PR00')");
+      await until("!!document.querySelector('[data-decision]')");
     if (route === "/data")
       await until("document.body.innerText.includes('405')");
     await pause(200);
@@ -309,8 +309,12 @@ try {
     await checkBothThemes();
     screens.push({ route: screen.route, overflow: screen.overflow });
     if (route === "/contracts") assert.ok(screen.text.includes("CT0001"));
+    // The decision reads in business words; rule codes stay in the trace details.
     if (route === "/contracts/CT0019/milestones/3/decision")
-      assert.ok(screen.text.includes("PR00"));
+      assert.ok(
+        await evaluate("!!document.querySelector('[data-decision]')"),
+        "decision shown as a business label",
+      );
     const screenshot = await send("Page.captureScreenshot", { format: "png" });
     await writeFile(
       `artifacts/browser/${route.slice(1).replaceAll("/", "-")}.png`,
@@ -669,9 +673,7 @@ try {
   await until(
     "location.pathname === '/contracts/CT0103/milestones/2/decision'",
   );
-  await until(
-    "document.body.innerText.includes('PENALTY') && document.body.innerText.includes('PR00')",
-  );
+  await until("!!document.querySelector('[data-decision=PENALTY]')");
   // The buyer's contract officer: the upload form refuses an empty title.
   await loginAs("legal@novaan.vn");
   await send("Page.navigate", { url: base + "/contracts/new" });

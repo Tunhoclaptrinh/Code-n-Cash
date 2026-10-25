@@ -280,8 +280,9 @@
       "milestoneValue": "Milestone value",
       "penalty": "Penalty",
       "payable": "Eligible",
-      "preview_one": "Dry run with your approval: {{decision}} · {{reason}} · {{count}} day late.",
-      "preview_other": "Dry run with your approval: {{decision}} · {{reason}} · {{count}} days late.",
+      "preview_zero": "If you approve: {{reason}}.",
+      "preview_one": "If you approve: {{reason}}, {{count}} day late.",
+      "preview_other": "If you approve: {{reason}}, {{count}} days late.",
       "current": "Now: {{reason}}.",
       "trace": "Open the decision trace",
       "currentTitle": "Current result of the milestone"

@@ -522,7 +522,7 @@ export default function DataPage() {
             )(options)
           }
           onView={(row) => setTraceRow(row)}
-          actionsWidth={72}
+          actionsWidth={96}
           customActions={(row) => (
             <TableRowActions
               primary={{

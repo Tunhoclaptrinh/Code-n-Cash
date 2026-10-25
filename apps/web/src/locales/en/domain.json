@@ -73,6 +73,12 @@
     "OPEN": "Open",
     "RESOLVED": "Resolved"
   },
+  "decision": {
+    "RELEASE": "Pay in full",
+    "PENALTY": "Pay less penalty",
+    "HOLD": "Hold",
+    "REJECT": "Do not pay"
+  },
   "decisionHint": {
     "RELEASE": "Eligible for full payment",
     "PENALTY": "Eligible for payment after the late penalty",

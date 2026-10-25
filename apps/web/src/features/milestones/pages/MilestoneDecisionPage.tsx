@@ -58,7 +58,6 @@ export default function MilestoneDecisionPage() {
 
 function DecisionContent({ data }: { data: MilestoneDetail }) {
   const { t } = useTranslation("milestones");
-  const { t: td } = useTranslation("domain");
   const { message } = AntApp.useApp();
   const queryClient = useQueryClient();
   const { contract, milestone, evaluation, money } = data;
@@ -79,10 +78,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
   });
 
   return (
-    <ContractSideLayout
-      contractId={contract.id}
-      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
-    >
+    <ContractSideLayout contractId={contract.id}>
       <Space direction="vertical" size={12} style={{ width: "100%" }}>
         {data.payment ? (
           <Alert

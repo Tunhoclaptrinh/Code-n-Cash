@@ -45,10 +45,7 @@ export function RulesPanel({ data }: { data: MilestoneDetail }) {
       }
     >
       {matchedRule ? (
-        <div className={styles.matchedRule}>
-          <TrackingCode code={matchedRule.id} />
-          <span>{ruleSentence(matchedRule)}</span>
-        </div>
+        <p className={styles.matchedRule}>{ruleSentence(matchedRule)}</p>
       ) : null}
       {allRules || !matchedRule ? (
         <div className={styles.ruleTable}>

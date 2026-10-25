@@ -13,10 +13,6 @@
   line-height: 1.4;
 }
 
-.bannerCodes {
-  margin-top: -4px;
-}
-
 .next {
   font-size: 14px;
   line-height: 1.5;
@@ -88,6 +84,6 @@
     flex: 1 1 auto;
     white-space: normal;
     height: auto;
-    min-height: 36px;
+    min-height: 32px;
   }
 }

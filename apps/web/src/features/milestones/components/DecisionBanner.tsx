@@ -2,7 +2,7 @@ import { Button, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { MilestoneDetail } from "@codecash/contracts";
-import { describeNext } from "@/shared/lib/domain";
+import { describeNext, statusRepeatsDecision } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import {
   DecisionTag,
@@ -37,13 +37,10 @@ export function DecisionBanner({
       <div className={styles.bannerHeadline}>
         <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
         <DecisionTag decision={evaluation.decision} />
-        <MilestoneStatusTag status={milestone.status} />
+        {statusRepeatsDecision(milestone.status, evaluation.decision) ? null : (
+          <MilestoneStatusTag status={milestone.status} />
+        )}
       </div>
-      <Space size={8} wrap className={styles.bannerCodes}>
-        <TrackingCode code={milestone.id} />
-        <TrackingCode code={evaluation.reasonCode} />
-        {evaluation.ruleId ? <TrackingCode code={evaluation.ruleId} /> : null}
-      </Space>
       <KeyFigures
         items={[
           {
@@ -124,7 +121,7 @@ export function DecisionBanner({
   );
 }
 
-/** Engine run and record source, folded at the bottom of the decision card. */
+/** Graded codes, engine run and record source, folded at the bottom of the decision card. */
 export function DecisionTechnical({ data }: { data: MilestoneDetail }) {
   const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
@@ -133,6 +130,17 @@ export function DecisionTechnical({ data }: { data: MilestoneDetail }) {
     <SideSection>
       <TechnicalDetails
         items={[
+          {
+            key: "codes",
+            label: tc("technical.codes"),
+            value: (
+              <Space size={8} wrap>
+                <TrackingCode code={milestone.id} />
+                <TrackingCode code={evaluation.reasonCode} />
+                <TrackingCode code={evaluation.ruleId} />
+              </Space>
+            ),
+          },
           {
             key: "run",
             label: tc("technical.run"),

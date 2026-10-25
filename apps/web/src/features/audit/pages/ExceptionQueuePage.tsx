@@ -233,7 +233,7 @@ export default function ExceptionQueuePage() {
           exportable
           exportFilename="exceptions"
           onExport={(options) => void onExport(options)}
-          actionsWidth={72}
+          actionsWidth={96}
           customActions={(row) => (
             <TableRowActions
               primary={{

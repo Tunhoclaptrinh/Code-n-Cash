@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Typography, Descriptions } from "antd";
+import { Alert, Space } from "antd";
 import { BaseCard } from "@codecash/ui";
 import type { ContractFile } from "../types";
 
-/** Selection metadata is not proof that text extraction or signature verification succeeded. */
+/** Lists only what is still missing before the signing positions can be placed. */
 export function FileChecksPanel({
   file,
   signingSteps,
@@ -11,39 +11,21 @@ export function FileChecksPanel({
   file: ContractFile;
   signingSteps: number;
 }) {
-  const { t } = useTranslation("contracts");
+  const { t } = useTranslation("contracts", { keyPrefix: "lite" });
+  // Nothing chosen yet: the form's own required markers already say what to do.
+  if (!file.name && signingSteps === 0) return null;
+  const missing = [
+    ...(file.name ? [] : [t("checks.noFile")]),
+    ...(signingSteps > 0 ? [] : [t("checks.noSigners")]),
+  ];
+  if (!missing.length) return null;
   return (
-    <BaseCard title={t("contractUpload.checks.title")}>
-      <Descriptions
-        size="small"
-        column={1}
-        items={[
-          {
-            key: "file",
-            label: t("contractUpload.form.file.label"),
-            children: file.name || t("contractUpload.checks.noFile"),
-          },
-          {
-            key: "status",
-            label: t("contractUpload.checks.storage"),
-            children: t(
-              file.documentId
-                ? "contractUpload.checks.uploaded"
-                : "contractUpload.checks.local",
-            ),
-          },
-          {
-            key: "signers",
-            label: t("contractUpload.form.signers.label"),
-            children: t("contractUpload.checks.ready.detail", {
-              steps: signingSteps,
-            }),
-          },
-        ]}
-      />
-      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-        {t("contractUpload.checks.pendingVerification")}
-      </Typography.Text>
+    <BaseCard title={t("checks.title")}>
+      <Space direction="vertical" size={8} style={{ width: "100%" }}>
+        {missing.map((text) => (
+          <Alert key={text} type="warning" showIcon title={text} />
+        ))}
+      </Space>
     </BaseCard>
   );
 }

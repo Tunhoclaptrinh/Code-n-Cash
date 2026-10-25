@@ -432,5 +432,8 @@
       "title": "Ngoại lệ",
       "pick": "Chọn chứng từ sai thẩm quyền"
     }
+  },
+  "detailLite": {
+    "due": "Hạn {{due}}"
   }
 }

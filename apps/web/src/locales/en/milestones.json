@@ -432,5 +432,8 @@
       "title": "Exceptions",
       "pick": "Select the record entered without authority"
     }
+  },
+  "detailLite": {
+    "due": "Due {{due}}"
   }
 }

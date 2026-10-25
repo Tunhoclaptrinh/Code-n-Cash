@@ -88,6 +88,7 @@ const sameSet = (a: readonly unknown[] = [], b: readonly unknown[] = []) =>
  */
 export default function ContractListPage() {
   const { t } = useTranslation("contracts");
+  const { t: tl } = useTranslation("contracts", { keyPrefix: "lite" });
   const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
   const navigate = useNavigate();
@@ -263,7 +264,7 @@ export default function ContractListPage() {
           </Space>
           <div>{c.title}</div>
           <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-            {td(`contractType.${c.type}`)} · {td(`policy.${c.approvalPolicy}`)}
+            {td(`contractType.${c.type}`)}
           </Typography.Text>
         </div>
       ),
@@ -324,7 +325,10 @@ export default function ContractListPage() {
               size="small"
             />
             <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-              {progressText(c)}
+              {tl("progress", {
+                eligible: c.milestones.eligible,
+                total: c.milestones.total,
+              })}
               {c.milestones.hold
                 ? ` · ${t("contractList.progress.hold", { count: c.milestones.hold })}`
                 : ""}

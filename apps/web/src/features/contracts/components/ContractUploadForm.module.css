@@ -11,8 +11,6 @@
 }
 
 .form :global(.ant-form-item-extra),
-.hint,
-.positionHint,
 .bodyFooter {
   font-size: 12px;
   line-height: 1.6;
@@ -69,18 +67,8 @@
   margin-bottom: 4px;
 }
 
-.hint {
-  display: block;
-  margin-top: 6px;
-  margin-bottom: 12px;
-}
-
-.positionHint:global(.ant-typography) {
-  margin-top: -4px;
-  margin-bottom: 16px;
-}
-
 .bodyFooter {
+  justify-content: flex-end;
   align-items: flex-start;
   flex-wrap: nowrap;
   margin-top: 4px;
@@ -91,7 +79,7 @@
 }
 
 .documentActions {
-  margin-bottom: 4px;
+  margin-bottom: 16px;
 }
 
 .fileCard {

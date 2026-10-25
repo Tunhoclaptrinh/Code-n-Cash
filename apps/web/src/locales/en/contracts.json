@@ -311,5 +311,17 @@
       "signing": "Signing setup",
       "document": "Contract document"
     }
+  },
+  "lite": {
+    "singleSigner": "Single signer: the contract takes effect as soon as they sign.",
+    "stale": "The content changed after the file was generated. Generate the sample again.",
+    "fileEmpty": "No file selected · PDF or DOCX, up to 20 MB",
+    "previewFailed": "The document cannot be previewed.",
+    "progress": "{{eligible}}/{{total}} milestones",
+    "checks": {
+      "title": "To complete",
+      "noFile": "No contract file selected.",
+      "noSigners": "No signers selected."
+    }
   }
 }

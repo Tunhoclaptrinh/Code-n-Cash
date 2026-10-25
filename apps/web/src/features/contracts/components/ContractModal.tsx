@@ -36,11 +36,7 @@ import {
   formatDateTime,
   formatDecimalString,
 } from "@/shared/lib/format";
-import {
-  DecisionTag,
-  MilestoneStatusTag,
-  OriginTag,
-} from "@/shared/ui/DomainTags";
+import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { ExpandableModal } from "@/shared/ui/ExpandableModal";
 import { PageState } from "@/shared/ui/PageState";
 import { TrackingCode } from "@/shared/ui/TechnicalInfo";
@@ -114,10 +110,7 @@ export function ContractModal({
             {td("milestoneNo", { no: m.sequence })} ·{" "}
             {td(`milestoneType.${m.type}`)}
           </Typography.Text>
-          <Space size={8}>
-            <TrackingCode code={m.id} />
-            <TrackingCode code={m.ruleId} />
-          </Space>
+          <TrackingCode code={m.id} />
         </Space>
       ),
     },
@@ -138,10 +131,7 @@ export function ContractModal({
       key: "status",
       title: t("contractList.table.columns.status"),
       render: (_: unknown, m: MilestoneRow) => (
-        <Space size={4} wrap>
-          <MilestoneStatusTag status={m.status} />
-          <DecisionTag decision={m.decision} />
-        </Space>
+        <MilestoneStatusTag status={m.status} />
       ),
     },
     {
@@ -274,8 +264,8 @@ export function ContractModal({
                         },
                         {
                           key: "kind",
-                          label: t("contractList.modal.kind"),
-                          children: `${td(`contractType.${contract.type}`)} · ${td(`workflow.${data.workflowTemplate}`)}`,
+                          label: t("contractList.filters.typeLabel"),
+                          children: td(`contractType.${contract.type}`),
                         },
                         {
                           key: "policy",
@@ -301,19 +291,9 @@ export function ContractModal({
                             cap: data.maxPenaltyPct,
                           }),
                         },
-                        {
-                          key: "rules",
-                          label: t("contractList.modal.ruleSet"),
-                          children: td(`ruleSet.${data.ruleSetId}`, {
-                            defaultValue: data.ruleSetId,
-                          }),
-                        },
                       ]}
                     />
                     <div>
-                      <Typography.Text strong>
-                        {t("contractList.modal.payment")}
-                      </Typography.Text>
                       <Progress
                         percent={percentOf(
                           data.totals.eligibleMillion,
@@ -331,15 +311,17 @@ export function ContractModal({
                           {t("contractList.modal.eligible")}:{" "}
                           {formatDecimalString(data.totals.eligibleMillion)}
                         </Tag>
-                        <Tag color="warning">
-                          {t("contractList.modal.penalty")}:{" "}
-                          {formatDecimalString(data.totals.penaltyMillion)}
-                        </Tag>
+                        {Number(data.totals.penaltyMillion) !== 0 ? (
+                          <Tag color="warning">
+                            {t("contractList.modal.penalty")}:{" "}
+                            {formatDecimalString(data.totals.penaltyMillion)}
+                          </Tag>
+                        ) : null}
                         <Tag color="processing">
                           {t("contractList.modal.held")}:{" "}
                           {formatDecimalString(data.totals.heldMillion)}
                         </Tag>
-                        {data.totals.rejectedMillion !== "0.00" ? (
+                        {Number(data.totals.rejectedMillion) !== 0 ? (
                           <Tag color="error">
                             {t("contractList.modal.rejected")}:{" "}
                             {formatDecimalString(data.totals.rejectedMillion)}

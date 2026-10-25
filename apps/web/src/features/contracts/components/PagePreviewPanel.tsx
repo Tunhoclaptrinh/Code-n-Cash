@@ -21,6 +21,7 @@ export function PagePreviewPanel({
   name: string;
 }) {
   const { t, i18n } = useTranslation("contracts");
+  const { t: tl } = useTranslation("contracts", { keyPrefix: "lite" });
   const [active, setActive] = useState("draft");
   // Last successful PDF stays on screen while a newer one is generated.
   const [result, setResult] = useState<{ key: string; file: File }>();
@@ -97,16 +98,6 @@ export function PagePreviewPanel({
     </Spin>
   ) : (
     <>
-      <Alert
-        type="info"
-        showIcon
-        title={t(
-          complete
-            ? "contractUpload.preview.unsaved"
-            : "contractUpload.preview.partialNote",
-        )}
-        style={{ marginBottom: 8 }}
-      />
       <div style={{ minHeight: 26, textAlign: "right" }}>
         {updating && (
           <Tag
@@ -122,7 +113,7 @@ export function PagePreviewPanel({
         <Alert
           type="warning"
           showIcon
-          title={t("contractUpload.preview.unavailable")}
+          title={tl("previewFailed")}
           style={{ marginBottom: 8 }}
         />
       )}
@@ -155,18 +146,11 @@ export function PagePreviewPanel({
             key: "file",
             label: t("contractUpload.preview.selected"),
             children: (
-              <>
-                <Alert
-                  type="info"
-                  title={t("contractUpload.preview.fileBasis")}
-                  style={{ marginBottom: 12 }}
-                />
-                <DocumentPreview
-                  file={file}
-                  documentId={documentId}
-                  name={name}
-                />
-              </>
+              <DocumentPreview
+                file={file}
+                documentId={documentId}
+                name={name}
+              />
             ),
           },
         ]}

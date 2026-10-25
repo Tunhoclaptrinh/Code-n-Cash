@@ -311,5 +311,17 @@
       "signing": "Thiết lập ký",
       "document": "Tài liệu hợp đồng"
     }
+  },
+  "lite": {
+    "singleSigner": "Chỉ một người ký: hợp đồng có hiệu lực ngay khi người đó ký.",
+    "stale": "Nội dung đã đổi sau khi tạo tệp. Hãy tạo lại hợp đồng mẫu.",
+    "fileEmpty": "Chưa chọn tệp · PDF hoặc DOCX, tối đa 20 MB",
+    "previewFailed": "Không xem trước được tài liệu.",
+    "progress": "{{eligible}}/{{total}} mốc",
+    "checks": {
+      "title": "Cần bổ sung",
+      "noFile": "Chưa chọn tệp hợp đồng.",
+      "noSigners": "Chưa chọn người ký."
+    }
   }
 }

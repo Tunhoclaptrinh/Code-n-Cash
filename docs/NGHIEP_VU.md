@@ -45,11 +45,22 @@ Loại bên và vai trò luôn tra trong `parties.csv`, không tin cột `actor_
 | --- | --- | --- | --- |
 | Chủ hợp đồng (`CONTRACT_OWNER`) | Bên mua | Tải hợp đồng, ký, xác nhận chứng từ phía bên mua, phê duyệt theo vai trò, mở và giải quyết tranh chấp | Thao tác trên hợp đồng của tổ chức khác |
 | Phê duyệt tài chính, phê duyệt thứ hai | Bên mua | Phê duyệt hoặc từ chối mốc đúng vai trò | Duyệt thay vai trò khác |
-| Pháp chế (`LEGAL_REVIEWER`) | Bên mua | Soạn và rà điều khoản, thiết lập vị trí ký, mở tranh chấp | Phê duyệt chi |
+| Cán bộ hợp đồng bên mua (`LEGAL_REVIEWER`) | Bên mua | Soạn và rà điều khoản, thiết lập vị trí ký, mở tranh chấp | Phê duyệt chi |
 | Nhà cung cấp (`SUPPLIER`) | Nhà cung cấp | Ký, nộp chứng từ phía nhà cung cấp, mở tranh chấp | Giải quyết tranh chấp, phê duyệt |
 | Kiểm soát viên (`ADMIN_AUDITOR`) | Nội bộ | Xem mọi hợp đồng, xử lý hàng đợi ngoại lệ, đề xuất hoặc duyệt vô hiệu event sai thẩm quyền (không duyệt đề xuất của chính mình) | Tạo event nghiệp vụ, sửa luật, sửa quyết định |
 | Quản trị hệ thống (`SYSTEM_ADMIN`) | Nội bộ | Quản lý tài khoản, cấu hình, phiên bản luật (có người thứ hai duyệt), khôi phục dữ liệu demo | Xử lý ngoại lệ, phê duyệt chi |
 | Kiểm toán (`AUDITOR`) | Nội bộ | Chỉ đọc: hợp đồng, audit, sổ ngoại lệ, kết quả engine | Mọi thao tác ghi |
+
+Data Pack chỉ có các bên của hợp đồng: bên mua, nhà cung cấp và ba vai trò phê duyệt. Để quy trình chạy khép kín và tách nhiệm, đội bổ sung bốn vai trò; mỗi vai trò lấp một khoảng trống cụ thể:
+
+| Vai trò bổ sung | Khoảng trống cần lấp |
+| --- | --- |
+| Cán bộ hợp đồng bên mua | Điều khoản số hoá sai thì mọi quyết định sau đó đều sai; cần người rà điều khoản trước khi khoá và đưa đi ký, tách khỏi người duyệt chi |
+| Kiểm soát viên | Mốc bị kẹt vì chứng từ do bên không có thẩm quyền tạo cần người xử lý có kiểm soát: một người đề xuất, người thứ hai duyệt, không ai sửa trực tiếp kết quả |
+| Quản trị hệ thống | Tài khoản, mẫu hợp đồng và phiên bản luật cần người quản lý tách khỏi nghiệp vụ, để người cấu hình không đồng thời xử lý ngoại lệ hay duyệt chi |
+| Kiểm toán | Cần một bên độc lập kiểm tra hồ sơ, nhật ký và kết quả engine mà không thể thay đổi gì |
+
+Toàn bộ quyền nằm trong một ma trận duy nhất (`packages/contracts/permissions.json`), được kiểm ở API theo tài khoản đăng nhập và hiển thị cho quản trị tại màn Ma trận phân quyền.
 
 Tách nhiệm: SoD-1 người cấu hình không xử lý ngoại lệ; SoD-2 quyết định ngoại lệ cần hai kiểm soát viên khác nhau; SoD-3 không vai trò nào sửa trực tiếp quyết định, tiền, trạng thái, audit; SoD-4 phiên bản luật chỉ hiệu lực sau khi người thứ hai duyệt.
 
@@ -130,6 +141,24 @@ Tám luật giống nhau ở cả 16 phạm vi, chạy first-match theo `priorit
 
 ELSE là nhánh mặc định cuối cùng, không phải một event hay scenario: mọi trường hợp không khớp luật 10 đến 70 hoặc không đánh giá được đều HOLD để người kiểm tra (BTC xác nhận). Các yếu tố chặn (10 đến 50) luôn xét trước phạt (60).
 
+### 6.1. Tính động của engine
+
+Engine không gắn cứng với một hợp đồng hay một bộ luật. Bốn cơ chế giữ cho quyết định luôn theo dữ liệu mới nhất:
+
+1. **Đánh giá lại sau mỗi thao tác.** Mỗi thao tác ghi (nộp chứng từ, phê duyệt, từ chối, mở hoặc đóng tranh chấp, duyệt ngoại lệ) chạy lại engine Python cho các mốc liên quan trong cùng giao dịch; trạng thái mốc và hợp đồng cập nhật ngay, lịch sử trạng thái ghi lại lượt chạy gây ra thay đổi.
+2. **Chạy thử trước khi hành động.** Màn phê duyệt, nộp chứng từ và tranh chấp gọi engine ở chế độ chạy thử với event giả định, nên người dùng thấy quyết định và số tiền sẽ ra sao trước khi xác nhận. Kết quả chạy thử không được lưu.
+3. **Xem lại tại một thời điểm.** Chế độ as-of cắt event theo thời điểm chọn và chạy lại, cho thấy mốc đã được quyết định thế nào tại thời điểm đó.
+4. **Luật là dữ liệu có phiên bản.** Luật viết bằng ngôn ngữ điều kiện `BTC_DSL_V1` (`apps/engine/rule_language.json`), không cần sửa code khi đổi luật. Vòng đời một phiên bản:
+
+| Bước | Kiểm soát |
+| --- | --- |
+| Bản nháp | Kiểm cú pháp và tên biến theo từ vựng của engine |
+| Xem trước tác động | Chạy phiên bản mới trên cả 405 mốc, so với phiên bản đang hiệu lực, liệt kê từng mốc đổi quyết định hoặc số tiền; không ghi gì |
+| Gửi duyệt | Bị chặn nếu làm sai kết quả trên Data Pack (`RULE_VERSION_REGRESSION`), kể cả khi 20 mẫu công khai vẫn đúng |
+| Công bố | Phải do người thứ hai, khác người soạn (`SECOND_REVIEWER_REQUIRED`); nội dung được khoá bằng băm, phiên bản cũ chuyển sang ngừng hiệu lực |
+
+Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
+
 ## 7. Tính tiền
 
 Với P là giá trị mốc (`planned_payment_vnd_mn`):
@@ -207,8 +236,18 @@ Phân bố quyết định trên 405 mốc: RELEASE 348, HOLD 36, PENALTY 15, RE
 ## 11. Ký số và tài liệu
 
 - Mỗi hợp đồng có tệp gốc: tệp tải lên, hoặc văn bản mô phỏng dựng từ điều khoản trong dữ liệu (đánh dấu là mô phỏng, cố định byte để băm ổn định).
-- Chữ ký theo trình tự các bên, gắn với băm nội dung tệp (hoặc băm điều khoản khi chưa có tệp); tệp đổi thì chữ ký cũ không còn hợp lệ.
-- Bản demo dùng chứng thư mô phỏng; tích hợp nhà cung cấp ký số thật là bước sau MVP.
+- Văn bản sinh ra theo thể thức văn bản hành chính (Nghị định 30/2020/NĐ-CP): khổ A4, lề trên và dưới 20 mm, trái 30 mm, phải 15 mm; Times New Roman 13; căn đều hai bên, thụt đầu dòng 1 cm, giãn dòng 1,15; có quốc hiệu, tiêu ngữ, căn cứ pháp lý, bảng mốc thanh toán và khối chữ ký theo từng bên.
+- Chữ ký theo trình tự các bên, gắn với băm SHA-256 nội dung tệp (hoặc băm điều khoản khi chưa có tệp).
+
+Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không có:
+
+| Giá trị | Cách hệ thống bảo đảm |
+| --- | --- |
+| Toàn vẹn dữ liệu | Chữ ký gắn với băm nội dung; sửa dù một ký tự thì chữ ký không còn khớp và hệ thống báo tài liệu đã thay đổi (`DOCUMENT_CHANGED`). Văn bản bị khoá sau chữ ký đầu tiên. Màn Kiểm tra chữ ký kiểm lại bất kỳ lúc nào, kể cả với một tệp PDF do người dùng tải lên |
+| Giá trị pháp lý | Theo Luật Giao dịch điện tử số 20/2023/QH15, chữ ký số hợp lệ có giá trị như chữ ký tay, và chữ ký số của cơ quan, tổ chức đáp ứng yêu cầu đóng dấu; người ký không thể chối bỏ việc đã ký |
+| Truy vết | Trình tự ký, người ký, thời điểm và phương thức được ghi vào nhật ký chuỗi băm; quyền ký lấy từ tài khoản đăng nhập |
+
+- Bản demo dùng chứng thư mô phỏng và ghi rõ trên màn hình; giá trị pháp lý nói trên chỉ có khi ký qua nhà cung cấp dịch vụ chứng thực chữ ký số được cấp phép, là bước tích hợp của MVP.
 - AI đọc PDF chỉ đề xuất trường kèm trang và đoạn trích; người dùng xác nhận; AI không tham gia quyết định thanh toán.
 
 ## 12. Đối chiếu đề bài và câu trả lời BTC

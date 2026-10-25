@@ -266,6 +266,8 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 | BTC, tập ẩn | 405 = 20 công khai + 250 hidden + 135 holdout; pipeline tổng quát | Xuất đủ 405 dòng, không hard-code | Test 405 dòng, bộ ca tổng hợp trên mọi mốc |
 | BTC, ELSE | Nhánh mặc định cuối, HOLD | Mục 6 | Tình huống `UNREADABLE_PARAMETER_HOLD`, `CONTRACT_MISMATCH_HOLD` |
 | BTC, trình bày | Slide tối đa 15 trang, khoảng 5 phút: Bài toán, Giải pháp, Logic xử lý, KPI, Demo, Kế hoạch MVP | Hồ sơ nộp | |
+| BTC, phụ lục | Tùy chọn, không bắt buộc PDF; gồm wireframe, sơ đồ kiến trúc và workflow, ảnh màn hình, dữ liệu mẫu, tài liệu kỹ thuật; nhiều tệp thì nén thành 01 tệp `.zip`, ví dụ `HSSK_TenDoi_D_PhuLuc.zip` | Phụ lục 5 thư mục: sơ đồ, màn hình, dữ liệu mẫu, kịch bản kiểm thử, tài liệu kỹ thuật | `HSSK_<TenDoi>_D_PhuLuc.zip` |
+| BTC, scenario test Silver | Đội tự xây dựng hoặc giả lập; có thể lấy scenario mẫu của Data Pack làm baseline rồi bổ sung | Baseline 20 nhãn công khai; bổ sung bộ ca tổng hợp 28 tình huống và ma trận 79 kịch bản workflow | `apps/engine/benchmark.py`, `tests/foundation/business-rules.test.mjs` |
 
 Điểm diễn giải còn mở và ảnh hưởng đo được trên 405 mốc:
 

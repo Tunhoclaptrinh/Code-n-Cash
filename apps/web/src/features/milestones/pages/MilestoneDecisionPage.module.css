@@ -1,8 +1,10 @@
+/* The banner sits in the narrower column beside the contract, so the actions go under the text. */
 .banner {
   padding: 16px 20px;
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
 }
 
 .bannerText {
@@ -39,8 +41,8 @@
 }
 
 .bannerActions {
-  margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   flex: none;
 }

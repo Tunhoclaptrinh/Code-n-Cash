@@ -425,16 +425,17 @@
     "pick": "Hợp đồng:"
   },
   "localProof": {
-    "notice": "Demo tạo bằng chứng ký Ed25519 cục bộ, gắn với tệp gốc hoặc snapshot điều khoản và thứ tự người ký. Các tên phương thức VNPT/Viettel vẫn là mô phỏng; khóa thử chưa được CA tin cậy.",
+    "notice": "Bản demo: chữ ký số được mô phỏng trong hệ thống và gắn với đúng nội dung hợp đồng, thứ tự người ký. Các phương thức VNPT SmartCA/Viettel MySign chưa kết nối nhà cung cấp thật và chưa được tổ chức chứng thực (CA) công nhận.",
     "export": "Xuất bằng chứng ký",
-    "untrusted": "Khóa thử cục bộ, chưa tin cậy bởi CA",
-    "unverifiedContent": "Chưa có bằng chứng mật mã",
+    "untrusted": "Chứng thư thử nghiệm, chưa được CA công nhận",
+    "unverifiedContent": "Chưa có bằng chứng ký số",
     "key": "Mã khóa",
     "basis": {
       "DOCUMENT_BYTES": "Gắn với tệp gốc",
-      "TERMS_SNAPSHOT": "Gắn với snapshot điều khoản"
+      "TERMS_SNAPSHOT": "Gắn với bản điều khoản đã chốt"
     },
-    "bridgeNotice": "Chữ ký được gửi đến dịch vụ ký đã cấu hình và chỉ ghi nhận sau khi kiểm tra bằng chứng trả về. Kết quả chưa bao gồm xác thực chứng thư CA/PAdES.",
-    "bridgeConfirm": "Xác nhận và gửi đến dịch vụ ký"
+    "bridgeNotice": "Chữ ký được gửi tới dịch vụ ký đã cấu hình và chỉ ghi nhận khi kết quả trả về hợp lệ. Chưa bao gồm xác thực chứng thư của tổ chức CA.",
+    "bridgeConfirm": "Xác nhận và gửi đến dịch vụ ký",
+    "basisLabel": "Đối tượng được ký"
   }
 }

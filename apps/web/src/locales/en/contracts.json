@@ -8,7 +8,7 @@
     "title": "Contracts",
     "subtitle_one": "{{count}} contract · {{organization}}",
     "subtitle_other": "{{count}} contracts · {{organization}}",
-    "intro": "The organiser's Data Pack (100 contracts) plus demo seed contracts. A contract's status aggregates the engine's decision on each milestone (spec section 9.3).",
+    "intro": "The organiser's 100 sample contracts plus demo contracts. A contract's status summarises the evaluation of each payment milestone.",
     "upload": "Upload a contract",
     "disputeFlag": "Dispute",
     "tiles": {
@@ -76,7 +76,7 @@
       "penaltyTerms": "Penalty terms",
       "penaltyValue": "Grace {{grace}} days · {{rate}}%/day · cap {{cap}}%",
       "ruleSet": "Rule set",
-      "payment": "Payment per the engine's decisions",
+      "payment": "Payment per the evaluation",
       "eligible": "Eligible",
       "penalty": "Penalty",
       "held": "Held",
@@ -86,8 +86,8 @@
       "milestones_one": "{{count}} milestone",
       "milestones_other": "{{count}} milestones",
       "participants": "Participants",
-      "events_one": "{{count}} event",
-      "events_other": "{{count}} events",
+      "events_one": "Records & events ({{count}})",
+      "events_other": "Records & events ({{count}})",
       "at": "Time",
       "event": "Event",
       "actor": "By",
@@ -97,8 +97,7 @@
       "cancelSigning": "Cancel signing",
       "cancelBody": "Cancel the signing of {{code}} and return it to draft. Only possible while nobody has signed; the action is logged.",
       "cancelled": "Signing cancelled; the contract is a draft again",
-      "openPage": "Open the detail page",
-      "demoIdentity": "Demo identity"
+      "openPage": "Open the detail page"
     }
   },
   "contractUpload": {
@@ -222,7 +221,7 @@
         "INVALID_VALUE": "The value must be positive with at most two decimals.",
         "INVALID_DATES": "The start date must not be after the end date.",
         "INVALID_PENALTY": "Invalid penalty terms (grace 0–60 days, 0–5%/day, cap 0–100%).",
-        "INVALID_SUPPLIER": "Pick a supplier of the Data Pack.",
+        "INVALID_SUPPLIER": "Pick a supplier from the list.",
         "SIGNER_COUNT": "One to four signers are required.",
         "INVALID_SIGNER": "Signers must belong to their side and not repeat.",
         "SIGNERS_BOTH_SIDES": "With two or more signers, both buyer and supplier must be represented.",
@@ -285,7 +284,7 @@
       "selected": "Selected document",
       "fileBasis": "This file is the signing document. Form changes do not modify it; regenerate the sample or upload the revised file."
     },
-    "intro": "Step 1/5. A new contract is cut into milestones by the Data Pack workflow of its type, so the same rules as the organiser's 405 milestones apply.",
+    "intro": "Step 1/5. A new contract is split into milestones by the workflow of its type and evaluated with the same payment rules as the sample contracts.",
     "sample": {
       "defaultTitle": "Sample contract — {{type}}",
       "generate": "Generate sample contract",

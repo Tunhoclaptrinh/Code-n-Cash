@@ -5,7 +5,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppPage } from "@/shared/layout/AppPage";
 import { useAccess } from "@codecash/ui";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
-import { OriginTag } from "@/shared/ui/DomainTags";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import { cancelSigning } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
@@ -99,7 +98,6 @@ function Flow({
             >
               {t(`flow.status.${allSigned ? "SIGNED" : "WAITING"}`)}
             </span>
-            <OriginTag origin={overview.origin} />
           </div>
           <div className={styles.meta}>
             {t("flow.meta", {

@@ -1,6 +1,6 @@
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useId, useState } from "react";
-import { Alert, App as AntApp, Button, Input, Modal, Space, Tag } from "antd";
+import { Alert, App as AntApp, Button, Input, Modal, Space } from "antd";
 import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,7 @@ import {
   type VoteChoice,
 } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
+import { actorName, contractHeading } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import {
   DecisionTag,
@@ -21,6 +22,7 @@ import {
 } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
+import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
 import styles from "./PaymentApprovalPage.module.css";
@@ -143,7 +145,8 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   return (
     <>
       <WorkflowContext>
-        {contract.id} · {contract.title} · {contract.supplier.name}
+        {contractHeading(contract)} · {contract.supplier.name} ·{" "}
+        <TrackingCode code={milestone.id} />
       </WorkflowContext>
       {data.blockedReason ? (
         <Alert
@@ -219,7 +222,10 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   })
                 : t("approve.proposal.current", {
                     reason: td(`reason.${evaluation.reasonCode}`),
-                  })}
+                  })}{" "}
+              <TrackingCode
+                code={preview ? preview.reasonCode : evaluation.reasonCode}
+              />
             </div>
             <div className={styles.reason}>
               <Link to={decisionPath}>{t("approve.proposal.trace")}</Link>
@@ -236,14 +242,13 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   <div className={styles.documentMeta}>
                     {t("approve.documents.recorded", {
                       id: event.id,
-                      by: event.recordedBy ?? event.actor.name,
+                      by: event.recordedBy ?? actorName(td, event.actor),
                       at: formatDateTime(event.at),
                     })}
                   </div>
                 </div>
                 <Space size={4} wrap>
                   <ToneTag tone="success">{td("eventClass.EVIDENCE")}</ToneTag>
-                  <OriginTag origin={event.origin} />
                 </Space>
               </div>
             ))}
@@ -410,8 +415,7 @@ function StepItem({ slot, index }: { slot: ApprovalSlot; index: number }) {
       </span>
       <div className={styles.stepBody}>
         <b>{td(`approvalRole.${slot.role}`)}</b> ·{" "}
-        {slot.isYou ? t("approve.progress.you") : slot.personName}{" "}
-        <Tag style={{ margin: 0 }}>{slot.partyId}</Tag>
+        {slot.isYou ? t("approve.progress.you") : slot.personName}
         <div className={styles.stepSub}>
           {slot.state === "PENDING"
             ? t(

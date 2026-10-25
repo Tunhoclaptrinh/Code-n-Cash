@@ -8,7 +8,7 @@
     "title": "Hợp đồng",
     "subtitle_one": "{{count}} hợp đồng · {{organization}}",
     "subtitle_other": "{{count}} hợp đồng · {{organization}}",
-    "intro": "Danh sách lấy từ Data Pack của BTC (100 hợp đồng) cùng các hợp đồng bổ sung để demo. Trạng thái hợp đồng được tổng hợp từ quyết định của engine trên từng mốc (đặc tả mục 9.3).",
+    "intro": "Danh sách gồm 100 hợp đồng mẫu của Ban tổ chức và các hợp đồng bổ sung để demo. Trạng thái hợp đồng được tổng hợp từ kết quả đánh giá từng mốc thanh toán.",
     "upload": "Tải hợp đồng lên",
     "disputeFlag": "Có tranh chấp",
     "tiles": {
@@ -76,7 +76,7 @@
       "penaltyTerms": "Điều khoản phạt",
       "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
       "ruleSet": "Bộ rule",
-      "payment": "Thanh toán theo quyết định của engine",
+      "payment": "Thanh toán theo kết quả đánh giá",
       "eligible": "Đủ điều kiện chi",
       "penalty": "Phạt",
       "held": "Đang giữ",
@@ -86,10 +86,10 @@
       "milestones_one": "{{count}} mốc",
       "milestones_other": "{{count}} mốc",
       "participants": "Người tham gia",
-      "events_one": "{{count}} event",
-      "events_other": "{{count}} event",
+      "events_one": "Hồ sơ & sự kiện ({{count}})",
+      "events_other": "Hồ sơ & sự kiện ({{count}})",
       "at": "Thời điểm",
-      "event": "Event",
+      "event": "Sự kiện",
       "actor": "Người thực hiện",
       "due": "Hạn",
       "paid": "Đủ điều kiện chi",
@@ -97,8 +97,7 @@
       "cancelSigning": "Hủy luồng ký",
       "cancelBody": "Hủy luồng ký của {{code}} và đưa hợp đồng về bản nháp. Chỉ làm được khi chưa ai ký; thao tác được ghi nhật ký.",
       "cancelled": "Đã hủy luồng ký, hợp đồng về bản nháp",
-      "openPage": "Mở trang chi tiết",
-      "demoIdentity": "Danh tính demo"
+      "openPage": "Mở trang chi tiết"
     }
   },
   "contractUpload": {
@@ -222,7 +221,7 @@
         "INVALID_VALUE": "Giá trị phải là số dương, tối đa 2 chữ số thập phân.",
         "INVALID_DATES": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.",
         "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–100%).",
-        "INVALID_SUPPLIER": "Chọn nhà cung cấp trong Data Pack.",
+        "INVALID_SUPPLIER": "Chọn nhà cung cấp trong danh sách.",
         "SIGNER_COUNT": "Cần từ 1 đến 4 người ký.",
         "INVALID_SIGNER": "Người ký phải thuộc đúng bên và không trùng nhau.",
         "SIGNERS_BOTH_SIDES": "Khi có từ 2 người ký, cần đại diện của cả bên mua và nhà cung cấp.",
@@ -285,7 +284,7 @@
       "selected": "Tài liệu đã chọn",
       "fileBasis": "Đây là nội dung tệp sẽ được ký. Sửa form không sửa tệp; hãy tạo lại mẫu hoặc tải tệp đã chỉnh sửa."
     },
-    "intro": "Bước 1/5. Hợp đồng mới được cắt thành mốc theo đúng workflow của loại hợp đồng trong Data Pack, nên được đánh giá bằng cùng bộ rule với 405 mốc của BTC.",
+    "intro": "Bước 1/5. Hợp đồng mới được chia thành các mốc theo quy trình của loại hợp đồng và được đánh giá bằng cùng bộ quy tắc thanh toán với các hợp đồng mẫu.",
     "sample": {
       "defaultTitle": "Hợp đồng mẫu — {{type}}",
       "generate": "Tạo hợp đồng mẫu",

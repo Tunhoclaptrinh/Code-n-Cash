@@ -5,8 +5,10 @@ import { useTranslation } from "react-i18next";
 import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { getDispute } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
+import { contractHeading } from "@/shared/lib/domain";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
+import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { DecisionPanel } from "../components/DecisionPanel";
 import { SubmissionPanel } from "../components/SubmissionPanel";
 import styles from "./DisputePage.module.css";
@@ -46,8 +48,10 @@ export default function DisputePage() {
       {data ? (
         <>
           <WorkflowContext>
-            {td(`milestoneType.${data.milestone.type}`)} · {data.contract.title}{" "}
-            · {data.contract.buyer.name} ↔ {data.contract.supplier.name}
+            {td(`milestoneType.${data.milestone.type}`)} ·{" "}
+            {contractHeading(data.contract)} · {data.contract.buyer.name} ↔{" "}
+            {data.contract.supplier.name} ·{" "}
+            <TrackingCode code={data.milestone.id} />
           </WorkflowContext>
           <div className={styles.columns}>
             <SubmissionPanel view={data} />

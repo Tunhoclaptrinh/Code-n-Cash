@@ -24,15 +24,21 @@ import type {
   EventRow,
   MilestoneRow,
   MilestoneStatus,
-  Participant,
   Requirement,
   Role,
+  Side,
   TimelineEntry,
 } from "@codecash/contracts";
 import { getContractOverview } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
+import { useDemoMode } from "@/shared/auth/useDemoMode";
 import { AppPage } from "@/shared/layout/AppPage";
-import { describeNext } from "@/shared/lib/domain";
+import {
+  actorName,
+  contractHeading,
+  describeNext,
+  peopleOf,
+} from "@/shared/lib/domain";
 import {
   formatDate,
   formatDateTime,
@@ -47,6 +53,11 @@ import {
 } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
+import {
+  TechnicalDetails,
+  TechnicalList,
+  TrackingCode,
+} from "@/shared/ui/TechnicalInfo";
 import styles from "./ContractDetailPage.module.css";
 
 type TabKey =
@@ -127,7 +138,7 @@ export default function ContractDetailPage() {
         { label: tc("nav.contracts"), to: "/contracts" },
         {
           label: contract
-            ? `${contract.id} · ${contract.title}`
+            ? contractHeading(contract)
             : t("detail.breadcrumb", { contractId }),
         },
       ]}
@@ -245,8 +256,14 @@ export default function ContractDetailPage() {
                 <Panel className={`${styles.sideCard} ${styles.people}`}>
                   <h2>{t("detail.terms.title")}</h2>
                   <TermRow
-                    label={td(`workflow.${data.workflowTemplate}`)}
-                    value={data.ruleSetId}
+                    label={t("detail.terms.workflow")}
+                    value={td(`workflow.${data.workflowTemplate}`)}
+                  />
+                  <TermRow
+                    label={t("detail.terms.ruleSet")}
+                    value={td(`ruleSet.${data.ruleSetId}`, {
+                      defaultValue: data.ruleSetId,
+                    })}
                   />
                   <TermRow
                     label={t("detail.terms.policy")}
@@ -264,17 +281,36 @@ export default function ContractDetailPage() {
                       cap: data.maxPenaltyPct,
                     })}
                   />
+                  <TechnicalDetails
+                    items={[
+                      {
+                        key: "workflow",
+                        label: t("detail.terms.workflow"),
+                        value: data.workflowTemplate,
+                      },
+                      {
+                        key: "ruleSet",
+                        label: t("detail.terms.ruleSet"),
+                        value: data.ruleSetId,
+                      },
+                    ]}
+                  />
                 </Panel>
               </div>
             </div>
           ) : null}
           {tab === "events" ? (
-            <EventsTable events={data.events} milestones={data.milestones} />
+            <EventsTable
+              events={data.events}
+              milestones={data.milestones}
+              people={peopleOf(data.participants)}
+            />
           ) : null}
           {tab === "history" ? (
             <HistoryTimeline
               entries={data.timeline}
               milestones={data.milestones}
+              people={peopleOf(data.participants)}
             />
           ) : null}
           {tab === "signing" ? <SigningPanel data={data} /> : null}
@@ -282,7 +318,7 @@ export default function ContractDetailPage() {
             <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>
                 <h2>{t("detail.participants.title")}</h2>
-                <ParticipantRows participants={data.participants} />
+                <ParticipantRows data={data} />
               </div>
             </Panel>
           ) : null}
@@ -382,9 +418,7 @@ function MilestoneItem({
             </b>
             <MilestoneStatusTag status={row.status} />
             <DecisionTag decision={row.decision} />
-            {row.origin !== "DATA_PACK" ? (
-              <OriginTag origin={row.origin} />
-            ) : null}
+            <TrackingCode code={row.id} />
           </div>
           <div className={styles.amountBlock}>
             <b className={styles.amount}>
@@ -437,11 +471,11 @@ function MilestoneItem({
               <span className={styles.factLabel}>
                 {t("detail.milestone.reason")}{" "}
               </span>
-              <b>{td(`reason.${row.reasonCode}`)}</b>
-              <Typography.Text type="secondary">
-                {" "}
-                · {row.ruleId}
-              </Typography.Text>
+              <b>{td(`reason.${row.reasonCode}`)}</b>{" "}
+              <Space size={8} wrap>
+                <TrackingCode code={row.reasonCode} />
+                <TrackingCode code={row.ruleId} />
+              </Space>
             </div>
             {row.decision === "RELEASE" || row.decision === "PENALTY" ? (
               <div className={styles.fact}>
@@ -547,12 +581,15 @@ function PaymentOverview({ data }: { data: ContractOverview }) {
 function EventsTable({
   events,
   milestones,
+  people,
 }: {
   events: EventRow[];
   milestones: MilestoneRow[];
+  people: ReadonlyMap<string, string>;
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const sequenceOf = new Map(milestones.map((m) => [m.id, m.sequence]));
   const types = [...new Set(events.map((e) => e.type))];
   return (
@@ -564,6 +601,35 @@ function EventsTable({
           dataSource={[...events].reverse()}
           pagination={{ pageSize: 10, hideOnSinglePage: true }}
           scroll={{ x: "max-content" }}
+          expandable={{
+            // Source, document reference and channel stay one click away for reviewers.
+            expandedRowRender: (e) => (
+              <TechnicalList
+                items={[
+                  {
+                    key: "source",
+                    label: tc("technical.source"),
+                    value: <OriginTag origin={e.origin} />,
+                  },
+                  {
+                    key: "document",
+                    label: tc("technical.document"),
+                    value: e.documentId,
+                  },
+                  {
+                    key: "channel",
+                    label: tc("technical.channel"),
+                    value: e.source,
+                  },
+                  {
+                    key: "party",
+                    label: tc("technical.party"),
+                    value: e.actor.partyId,
+                  },
+                ]}
+              />
+            ),
+          }}
           columns={[
             {
               key: "at",
@@ -580,14 +646,19 @@ function EventsTable({
               })),
               onFilter: (value, e) => e.type === value,
               render: (_, e) => (
-                <Space size={4} wrap>
-                  <Typography.Text strong>
-                    {td(`eventType.${e.type}`)}
-                  </Typography.Text>
-                  <Tag style={{ margin: 0 }}>
-                    {td(`eventStatus.${e.status}`)}
-                  </Tag>
-                </Space>
+                <>
+                  <Space size={4} wrap>
+                    <Typography.Text strong>
+                      {td(`eventType.${e.type}`)}
+                    </Typography.Text>
+                    <Tag style={{ margin: 0 }}>
+                      {td(`eventStatus.${e.status}`)}
+                    </Tag>
+                  </Space>
+                  <div>
+                    <TrackingCode code={e.id} />
+                  </div>
+                </>
               ),
             },
             {
@@ -601,13 +672,14 @@ function EventsTable({
               title: t("detail.events.actor"),
               render: (_, e) => (
                 <>
-                  <div>{e.actor.name}</div>
+                  <div>{actorName(td, e.actor, people)}</div>
                   <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    {e.actor.partyId}
-                    {e.actor.type
-                      ? ` · ${td(`partyType.${e.actor.type}`)}`
-                      : ""}
-                    {e.recordedBy ? ` · ${e.recordedBy}` : ""}
+                    {[
+                      e.actor.type ? td(`partyType.${e.actor.type}`) : "",
+                      e.recordedBy ?? "",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </Typography.Text>
                 </>
               ),
@@ -617,26 +689,13 @@ function EventsTable({
               title: t("detail.events.document"),
               render: (_, e) => (
                 <>
-                  <Typography.Text code>{e.documentId}</Typography.Text>
-                  {e.fileName ? (
-                    <div style={{ fontSize: 12 }}>{e.fileName}</div>
-                  ) : null}
+                  {e.fileName ?? "—"}
                   {e.referenceEventId ? (
                     <div style={{ fontSize: 12 }}>
                       {t("detail.events.reference", { id: e.referenceEventId })}
                     </div>
                   ) : null}
                 </>
-              ),
-            },
-            {
-              key: "id",
-              title: "ID",
-              render: (_, e) => (
-                <Space size={4}>
-                  <Typography.Text code>{e.id}</Typography.Text>
-                  <OriginTag origin={e.origin} />
-                </Space>
               ),
             },
           ]}
@@ -649,9 +708,11 @@ function EventsTable({
 function HistoryTimeline({
   entries,
   milestones,
+  people,
 }: {
   entries: TimelineEntry[];
   milestones: MilestoneRow[];
+  people: ReadonlyMap<string, string>;
 }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
@@ -674,12 +735,14 @@ function HistoryTimeline({
                       </Typography.Text>{" "}
                       <b>{td(`eventType.${entry.event.type}`)}</b>{" "}
                       {t("detail.history.byParty", {
-                        actor: entry.event.recordedBy ?? entry.event.actor.name,
+                        actor:
+                          entry.event.recordedBy ??
+                          actorName(td, entry.event.actor, people),
                         milestone: td("milestoneNo", {
                           no: sequenceOf.get(entry.event.milestoneId) ?? "?",
                         }),
                       })}{" "}
-                      <Typography.Text code>{entry.event.id}</Typography.Text>
+                      <TrackingCode code={entry.event.id} />
                     </>
                   ),
                 }
@@ -708,8 +771,7 @@ function HistoryTimeline({
                       <b>{td(`status.${entry.change.to.status}`)}</b> (
                       {td(`reason.${entry.change.to.reasonCode}`)}) ·{" "}
                       <Typography.Text type="secondary">
-                        {td(`trigger.${entry.change.trigger.kind}`)} ·{" "}
-                        {entry.change.runId}
+                        {td(`trigger.${entry.change.trigger.kind}`)}
                       </Typography.Text>
                     </>
                   ),
@@ -727,23 +789,41 @@ function SigningPanel({ data }: { data: ContractOverview }) {
   const { t: ts } = useTranslation("signing");
   const { t: roleText } = useTranslation("common");
   const signing = data.signing;
+  // The Data Pack signing date can differ from when the last signature was recorded; show both.
+  const completedAt =
+    signing && signing.signed === signing.total
+      ? signing.steps
+          .map((s) => s.signedAt ?? "")
+          .sort()
+          .at(-1)
+      : undefined;
   return (
     <Panel className={styles.tabPanel}>
       <div className={styles.panelBody}>
         {signing ? (
           <>
-            <Space size={8} style={{ marginBottom: 12 }}>
-              <h2 style={{ margin: 0 }}>
-                {t("detail.signing.title", {
-                  signed: signing.signed,
-                  total: signing.total,
-                })}
-              </h2>
-              <OriginTag origin={signing.origin} />
-            </Space>
+            <h2 style={{ marginBottom: 12 }}>
+              {t("detail.signing.title", {
+                signed: signing.signed,
+                total: signing.total,
+              })}
+            </h2>
             <Typography.Paragraph type="secondary">
               {t("detail.signing.note")}
             </Typography.Paragraph>
+            {data.contract.signingDate &&
+            completedAt &&
+            completedAt.slice(0, 10) !== data.contract.signingDate ? (
+              <Typography.Paragraph
+                type="secondary"
+                data-testid="signing-dates"
+              >
+                {t("detail.signing.dates", {
+                  document: formatDate(data.contract.signingDate),
+                  completed: formatDate(completedAt),
+                })}
+              </Typography.Paragraph>
+            ) : null}
             {signing.steps.map((step) => (
               <div key={step.stepNo} className={styles.person}>
                 <span className={styles.avatar}>{step.stepNo}</span>
@@ -784,41 +864,65 @@ function SigningPanel({ data }: { data: ContractOverview }) {
   );
 }
 
-function ParticipantRows({ participants }: { participants: Participant[] }) {
+/** One row per organisation or person, with every responsibility they hold on this contract. */
+function ParticipantRows({ data }: { data: ContractOverview }) {
+  const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
   const { t: tc } = useTranslation("common");
+  const demo = useDemoMode();
+  const steps = data.signing?.steps ?? [];
+  const organizationOf = (side: Side) =>
+    side === "BUYER" ? data.contract.buyer.name : data.contract.supplier.name;
   return (
     <>
-      {participants.map((person) => (
-        <div key={`${person.kind}-${person.partyId}`} className={styles.person}>
-          <span className={styles.avatar}>
-            {initialsOf(person.personName ?? person.name)}
-          </span>
-          <div className={styles.personInfo}>
-            <b>{person.personName ?? person.name}</b>
-            <div className={styles.personRole}>
-              {person.approvalRole
-                ? td(`approvalRole.${person.approvalRole}`)
-                : person.role
-                  ? tc(`roles.${person.role}.name`)
-                  : td(`side.${person.side}`)}
-              {" · "}
-              {person.partyId}
-              {person.personName ? ` · ${person.name}` : ""}
-              {person.email ? ` · ${person.email}` : ""}
+      {data.participants.map((person) => {
+        const signs = person.email
+          ? steps.filter((step) => step.signerEmail === person.email)
+          : [];
+        const role = person.approvalRole
+          ? t("detail.participants.approves", {
+              role: td(`approvalRole.${person.approvalRole}`),
+            })
+          : person.role
+            ? tc(`roles.${person.role}.name`)
+            : null;
+        const line = person.personName
+          ? [
+              signs[0]?.signerTitle,
+              organizationOf(person.side),
+              demo ? person.email : null,
+            ]
+          : [td(`side.${person.side}`)];
+        return (
+          <div
+            key={`${person.kind}-${person.partyId}`}
+            className={styles.person}
+            data-testid="participant"
+          >
+            <span className={styles.avatar}>
+              {initialsOf(person.personName ?? person.name)}
+            </span>
+            <div className={styles.personInfo}>
+              <b>{person.personName ?? person.name}</b>
+              <div className={styles.personRole}>
+                {line.filter(Boolean).join(" · ")}
+              </div>
             </div>
+            <Space size={4} wrap>
+              {person.personName && role ? (
+                <Tag color="blue" style={{ margin: 0 }}>
+                  {role}
+                </Tag>
+              ) : null}
+              {signs.map((step) => (
+                <Tag key={step.stepNo} color="purple" style={{ margin: 0 }}>
+                  {t("detail.signing.step", { step: step.stepNo })}
+                </Tag>
+              ))}
+            </Space>
           </div>
-          <Space size={4} wrap>
-            {person.identityOrigin ? (
-              <span>{tc("identity.roleSource")}</span>
-            ) : null}
-            <OriginTag origin={person.origin} />
-            {person.identityOrigin ? (
-              <Tag>{tc("identity.demoPerson")}</Tag>
-            ) : null}
-          </Space>
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 }

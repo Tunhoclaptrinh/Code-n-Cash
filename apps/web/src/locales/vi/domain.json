@@ -150,8 +150,8 @@
     "VOIDED": "Đã vô hiệu (BR-19)"
   },
   "trigger": {
-    "IMPORT": "Nhập Data Pack",
-    "EVENTS": "Event mới",
+    "IMPORT": "Dữ liệu ban đầu",
+    "EVENTS": "Sự kiện mới",
     "EXCEPTION": "Quyết định ngoại lệ",
     "PAYMENT": "Chuyển chi",
     "CONTRACT": "Cập nhật hợp đồng"
@@ -298,5 +298,11 @@
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",
-  "overdue_other": "Quá hạn {{count}} ngày"
+  "overdue_other": "Quá hạn {{count}} ngày",
+  "ruleSet": {
+    "R_GOODS_STD": "Hàng hoá tiêu chuẩn",
+    "R_SERVICE_STD": "Dịch vụ tiêu chuẩn",
+    "R_SOFTWARE_STD": "Phần mềm tiêu chuẩn",
+    "R_MAINTENANCE_STD": "Bảo trì tiêu chuẩn"
+  }
 }

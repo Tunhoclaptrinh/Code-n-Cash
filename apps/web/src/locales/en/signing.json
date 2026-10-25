@@ -431,16 +431,17 @@
     "pick": "Contract:"
   },
   "localProof": {
-    "notice": "The demo creates local Ed25519 proofs bound to document bytes or a terms snapshot and signer order. VNPT/Viettel methods remain simulated; test keys are not CA-trusted.",
+    "notice": "Demo: digital signatures are simulated in the system and bound to the exact contract content and signer order. VNPT SmartCA/Viettel MySign are not connected to real providers and are not recognised by a certificate authority (CA).",
     "export": "Export signature proofs",
-    "untrusted": "Local test key, not CA-trusted",
-    "unverifiedContent": "No cryptographic proof available",
+    "untrusted": "Test certificate, not recognised by a CA",
+    "unverifiedContent": "No digital signature proof yet",
     "key": "Key fingerprint",
     "basis": {
-      "DOCUMENT_BYTES": "Bound to document bytes",
-      "TERMS_SNAPSHOT": "Bound to terms snapshot"
+      "DOCUMENT_BYTES": "Bound to the original file",
+      "TERMS_SNAPSHOT": "Bound to the agreed terms"
     },
-    "bridgeNotice": "Signing uses the configured bridge and records only a verified response. CA certificate and PAdES validation are not included.",
-    "bridgeConfirm": "Confirm and submit to signing service"
+    "bridgeNotice": "Signatures go to the configured signing service and are recorded only when its response is valid. CA certificate validation is not included.",
+    "bridgeConfirm": "Confirm and submit to signing service",
+    "basisLabel": "What was signed"
   }
 }

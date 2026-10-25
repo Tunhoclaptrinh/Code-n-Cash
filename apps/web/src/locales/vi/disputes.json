@@ -25,18 +25,18 @@
   "impact": {
     "title": "Tác động đến thanh toán",
     "now": "Hiện tại",
-    "afterResolve": "Nếu đóng mọi tranh chấp (engine chạy thử)",
+    "afterResolve": "Nếu đóng mọi tranh chấp (chạy thử)",
     "unit": "triệu",
     "penalty": "phạt {{penalty}}",
     "noPreview": "Chỉ bên mua hoặc chủ hợp đồng xem được kết quả chạy thử khi có tranh chấp mở.",
-    "footnote": "Trong lúc tranh chấp mở, mốc bị giữ (rule 10). Không ai sửa tay tiền phạt: số tiền luôn do engine tính lại sau khi đóng tranh chấp."
+    "footnote": "Trong lúc tranh chấp mở, mốc bị tạm giữ. Không ai sửa tay tiền phạt: số tiền được tính lại tự động sau khi đóng tranh chấp."
   },
   "decision": {
     "title": "Xử lý tranh chấp",
     "options": {
       "RESOLVE": {
         "name": "Đóng tranh chấp",
-        "description": "Ghi DISPUTE_RESOLVED tham chiếu từng tranh chấp đang mở (BR-08). Engine đánh giá lại mốc ngay."
+        "description": "Ghi nhận đã giải quyết cho từng tranh chấp đang mở; hệ thống đánh giá lại mốc ngay."
       },
       "REQUEST_INFO": {
         "name": "Yêu cầu bổ sung",
@@ -55,7 +55,7 @@
     },
     "readOnly": "Bạn chỉ xem được tranh chấp của mốc này.",
     "rule": "Nguyên tắc \"mở dễ, đóng khó\": mọi DISPUTE_OPENED đều chặn chi; chỉ DISPUTE_RESOLVED do bên mua (hoặc chủ hợp đồng) tạo, tham chiếu đúng tranh chấp và không sớm hơn lúc mở mới gỡ được chặn.",
-    "done": "Đã ghi event. Engine đánh giá lại: {{status}} ({{reason}}).",
+    "done": "Đã ghi nhận. Kết quả đánh giá lại: {{status}} ({{reason}}).",
     "noted": "Đã ghi chú.",
     "actions": {
       "trace": "Xem truy vết quyết định",

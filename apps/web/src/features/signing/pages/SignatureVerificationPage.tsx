@@ -6,13 +6,14 @@ import { downloadBlob } from "@codecash/ui";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { getContractList } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
-import { OriginTag } from "@/shared/ui/DomainTags";
 import { ApiError } from "@/shared/api/client";
 import { AppPage } from "@/shared/layout/AppPage";
 import { formatDateTime } from "@/shared/lib/format";
 import { signingKeys } from "../api/signingConfig.api";
 import { checkFile, getVerification } from "../api/verification.api";
+import { contractHeading } from "@/shared/lib/domain";
 import { PageState } from "@/shared/ui/PageState";
+import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
 import { cx, formatMonthYear, isCertificateExpired } from "../lib/helpers";
 import { toneClass } from "../lib/tone";
 import type {
@@ -73,13 +74,10 @@ export default function SignatureVerificationPage() {
           onChange={(id: string) => navigate(`/verify/${id}`)}
           options={signed.map((c) => ({
             value: c.id,
-            label: `${c.id} · ${c.title} (${c.signing?.signed}/${c.signing?.total})`,
+            label: `${contractHeading(c)} (${c.signing?.signed}/${c.signing?.total})`,
           }))}
           data-testid="verify-contract"
         />
-        {verification.data ? (
-          <OriginTag origin={verification.data.origin} />
-        ) : null}
       </div>
       {verification.data ? (
         <Verification contractId={contractId} result={verification.data} />
@@ -283,15 +281,28 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
           </b>
         </div>
       </div>
-      {signature.keyFingerprint ? (
-        <Typography.Paragraph
-          copyable
-          style={{ marginTop: 8, overflowWrap: "anywhere" }}
-        >
-          {t("localProof.key")}: {signature.keyFingerprint} ·{" "}
-          {t(`localProof.basis.${signature.proofBasis ?? "TERMS_SNAPSHOT"}`)}
-        </Typography.Paragraph>
-      ) : null}
+      <TechnicalDetails
+        items={[
+          {
+            key: "key",
+            label: t("localProof.key"),
+            value: signature.keyFingerprint ? (
+              <Typography.Text copyable style={{ overflowWrap: "anywhere" }}>
+                {signature.keyFingerprint}
+              </Typography.Text>
+            ) : null,
+          },
+          {
+            key: "basis",
+            label: t("localProof.basisLabel"),
+            value: signature.keyFingerprint
+              ? t(
+                  `localProof.basis.${signature.proofBasis ?? "TERMS_SNAPSHOT"}`,
+                )
+              : null,
+          },
+        ]}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type {
   ContractStatus,
   Decision,
+  EventActor,
   EventClass,
   MilestoneStatus,
   NextStep,
@@ -71,3 +72,39 @@ export function describeNext(t: TFunction, step: NextStep): string {
       return t(`domain:next.${step.kind}`);
   }
 }
+
+/** Data Pack titles end with their own code ("… - CT0084"); drop it where the code is shown anyway. */
+export function contractTitle(contract: { id: string; title: string }) {
+  const suffix = new RegExp(`\\s*[-–]\\s*${contract.id}$`);
+  return contract.title.replace(suffix, "") || contract.title;
+}
+
+/** "CT0084 · Cung cấp thiết bị hội nghị", with the code shown once. */
+export const contractHeading = (contract: { id: string; title: string }) =>
+  `${contract.id} · ${contractTitle(contract)}`;
+
+/**
+ * Who recorded an event, in business terms. Data Pack approver parties are named like
+ * "Contract Owner - Nova An Business JSC"; show the person when known, otherwise the role.
+ */
+export function actorName(
+  td: TFunction,
+  actor: EventActor,
+  people?: ReadonlyMap<string, string>,
+) {
+  if (actor.type !== "APPROVER") return actor.name;
+  return (
+    people?.get(actor.partyId) ??
+    (actor.approvalRole ? td(`approvalRole.${actor.approvalRole}`) : actor.name)
+  );
+}
+
+/** Person names of a contract's approver parties, for `actorName`. */
+export const peopleOf = (
+  participants: { kind: string; partyId: string; personName: string | null }[],
+) =>
+  new Map(
+    participants
+      .filter((p) => p.kind === "APPROVER" && p.personName)
+      .map((p) => [p.partyId, p.personName!] as const),
+  );

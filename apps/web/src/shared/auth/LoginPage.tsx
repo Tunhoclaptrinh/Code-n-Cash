@@ -84,8 +84,7 @@ export default function LoginPage() {
         <span className={styles.demoText}>
           <b>{account.displayName}</b>
           <small>
-            {account.email}
-            {account.partyId ? ` · ${account.partyId}` : ""}
+            {account.email} · {account.organization}
           </small>
         </span>
         <Tag color="blue" style={{ margin: 0 }}>
@@ -179,7 +178,7 @@ export default function LoginPage() {
                           label: t("login.demoAll"),
                           children: organizations.map((org) => ({
                             key: org.id,
-                            label: `${org.id} · ${org.name}`,
+                            label: org.name,
                             children: org.accounts.map(accountItem),
                           })),
                         },

@@ -89,7 +89,7 @@
       "UNKNOWN": "Could not sign in. Please try again."
     },
     "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
-    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly. People are seed data; organisations and approvers come from the Data Pack.",
+    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
     "highlights": {
       "sign": "Sequential digital signing, document locked after the first signature",
       "evidence": "Evidence submission, validation and two-person approval",
@@ -99,7 +99,7 @@
     "demoUnavailable": "Could not connect to load demo accounts.",
     "demoEmpty": "No demo accounts are currently available.",
     "demoFeatured": "Suggested (Nova An · Phú Minh)",
-    "demoAll": "Every Data Pack organisation",
+    "demoAll": "All organizations",
     "emailPlaceholder": "name@example.com",
     "demoSearch": "Search name, email or company…"
   },
@@ -122,9 +122,7 @@
     }
   },
   "sider": {
-    "environment": "Environment",
-    "demoShort": "Demo",
-    "demoBody": "Demo build: sample data, simulated signing."
+    "organization": "Organization"
   },
   "onboarding": {
     "title": "Welcome to CodeCash",
@@ -243,8 +241,12 @@
   "tableActions": {
     "more": "More actions"
   },
-  "identity": {
-    "demoPerson": "Demo identity",
-    "roleSource": "Role/organisation:"
+  "technical": {
+    "title": "Technical details",
+    "source": "Data source",
+    "document": "Document reference",
+    "channel": "Recorded via",
+    "run": "Evaluation run",
+    "party": "Party code"
   }
 }

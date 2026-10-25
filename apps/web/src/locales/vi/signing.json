@@ -437,5 +437,32 @@
     "bridgeNotice": "Chữ ký được gửi tới dịch vụ ký đã cấu hình và chỉ ghi nhận khi kết quả trả về hợp lệ. Chưa bao gồm xác thực chứng thư của tổ chức CA.",
     "bridgeConfirm": "Xác nhận và gửi đến dịch vụ ký",
     "basisLabel": "Đối tượng được ký"
+  },
+  "prepLite": {
+    "positions": {
+      "seedNotice": "Chưa có tệp gốc: đây là sơ đồ minh họa.",
+      "scanNotice": "Trang này chưa đọc được chữ. Tự kiểm tra ô ký không che nội dung.",
+      "identityManual": "Chưa nhận diện được tên người ký in sẵn. Hãy kiểm tra từng ô thủ công.",
+      "hint": "Bấm hoặc kéo trên trang để đặt ô ký.",
+      "page": "Trang {{page}}",
+      "checks": {
+        "NO_OVERLAP": "Hai ô ký đang chồng nhau.",
+        "NO_CONTENT_COVERED": "Ô ký đang đè lên nội dung hoặc tên người ký.",
+        "CORRECT_SIGNER": "Ô ký chưa đúng người hoặc vùng ký in sẵn."
+      }
+    },
+    "digitize": {
+      "sourceToggle": "Điều khoản theo mẫu quy trình (minh họa)",
+      "ambiguityHint": "Để trống: mốc này chờ đến khi có ngày.",
+      "totalMatch": "Khớp giá trị hợp đồng",
+      "lockNote": "Không sửa được sau khi xác nhận.",
+      "locked": "Đã xác nhận và khóa.",
+      "extractionFirst": "Hoàn tất rà soát điều khoản ở trên trước."
+    },
+    "extraction": {
+      "noFile": "Chưa có tệp gốc: nhập và xác nhận giá trị thủ công.",
+      "reviewAck": "Tôi đã đối chiếu các giá trị với tài liệu.",
+      "method": "Cách trích xuất"
+    }
   }
 }

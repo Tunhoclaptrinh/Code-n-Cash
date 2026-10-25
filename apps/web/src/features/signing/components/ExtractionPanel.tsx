@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Collapse,
   Form,
   Input,
   Grid,
@@ -26,6 +25,7 @@ import { getContractDraft } from "@/shared/api/domain";
 import { platform } from "@/shared/api/platform";
 import { useCurrentUser } from "@/shared/auth/session";
 import { DocumentPreview } from "@/shared/ui/DocumentPreview";
+import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
 import styles from "./ExtractionPanel.module.css";
 
 const paths = [
@@ -45,6 +45,7 @@ export function ExtractionPanel({
 }) {
   const { t } = useTranslation("trust");
   const { t: td } = useTranslation("domain");
+  const { t: ts } = useTranslation("signing");
   const user = useCurrentUser();
   const { hasPermission } = useAccess(user);
   const allowed = hasPermission("contracts:digitize");
@@ -185,19 +186,14 @@ export function ExtractionPanel({
             : {}),
         }))}
       />
-      <Alert
-        type={confirmed ? "success" : "info"}
-        showIcon
-        title={t(
-          confirmed
-            ? "extraction.flow.done"
-            : `extraction.flow.hints.${nextAction}`,
-        )}
-        description={
-          !hasFile && draft.isSuccess ? t("extraction.noDocument") : undefined
-        }
-        style={{ marginBottom: 12 }}
-      />
+      {!hasFile && draft.isSuccess ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={ts("prepLite.extraction.noFile")}
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
       <Space wrap className={styles.actions}>
         {hasFile ? (
           <Button
@@ -265,12 +261,6 @@ export function ExtractionPanel({
             {t("extraction.loadSuggestions")}
           </Button>
         ) : null}
-        {proposal.data ? (
-          <Tag>
-            {t(`extraction.kinds.${proposal.data.extractor.kind}`)} ·{" "}
-            {proposal.data.extractor.version}
-          </Tag>
-        ) : null}
       </Space>
       {error ? (
         <Alert
@@ -292,26 +282,24 @@ export function ExtractionPanel({
               style={{ marginBottom: 12 }}
             />
           ) : null}
-          {proposal.data.documentSha256 ? (
-            <Collapse
-              size="small"
-              ghost
-              className={styles.fingerprint}
-              items={[
-                {
-                  key: "fingerprint",
-                  label: t("extraction.fingerprint"),
-                  children: (
-                    <Typography.Text copyable code className={styles.hash}>
-                      {proposal.data.documentSha256}
-                    </Typography.Text>
-                  ),
-                },
-              ]}
-            />
-          ) : (
-            <Alert type="warning" showIcon title={t("extraction.noDocument")} />
-          )}
+          <TechnicalDetails
+            items={[
+              {
+                key: "method",
+                label: ts("prepLite.extraction.method"),
+                value: `${t(`extraction.kinds.${proposal.data.extractor.kind}`)} · ${proposal.data.extractor.version}`,
+              },
+              {
+                key: "fingerprint",
+                label: t("extraction.fingerprint"),
+                value: proposal.data.documentSha256 ? (
+                  <Typography.Text copyable code className={styles.hash}>
+                    {proposal.data.documentSha256}
+                  </Typography.Text>
+                ) : null,
+              },
+            ]}
+          />
           {proposal.data.warnings.some(
             (warning) =>
               warning === "NO_TEXT" || warning === "EXTRACTION_UNAVAILABLE",
@@ -436,7 +424,7 @@ export function ExtractionPanel({
                       : undefined
                   }
                 >
-                  {t("extraction.flow.reviewAck")}
+                  {ts("prepLite.extraction.reviewAck")}
                 </Checkbox>
               </div>
               <Button
@@ -489,12 +477,6 @@ export function ExtractionPanel({
           </Space>
         }
       >
-        <Alert
-          type="info"
-          showIcon
-          title={t("extraction.flow.readHint")}
-          style={{ marginBottom: 12 }}
-        />
         <DocumentPreview
           documentId={draft.data?.file.documentId}
           name={draft.data?.file.name ?? ""}

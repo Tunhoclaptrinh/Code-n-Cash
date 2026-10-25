@@ -1,4 +1,4 @@
-import { Button, Select } from "antd";
+import { Button } from "antd";
 import { ExpandOutlined, CompressOutlined } from "@ant-design/icons";
 import { printedAreas, wrongSignerArea } from "../lib/signer-placement";
 import {
@@ -437,20 +437,14 @@ function Editor({ contractId, config }: EditorProps) {
     unconfiguredPrinted.length > 0 ||
     incompatible.length > 0 ||
     assigned.some((step) => flags[step.stepNo].wrong);
-  const checks = [
-    { code: "CORRECT_SIGNER", ok: !anyWrong, pending: !hasNamedAreas },
-    { code: "ONE_SLOT_PER_STEP", ok: allAssigned, pending: false },
-    {
-      code: "NO_OVERLAP",
-      ok: !anyOverlap,
-      pending: assigned.length < steps.length,
-    },
-    {
-      code: "NO_CONTENT_COVERED",
-      ok: !anyOver,
-      pending: assigned.length === 0,
-    },
-  ];
+  // Only unmet checks are listed; a missing slot is already shown by the step status.
+  const problems = (
+    [
+      anyWrong && "CORRECT_SIGNER",
+      anyOverlap && "NO_OVERLAP",
+      anyOver && "NO_CONTENT_COVERED",
+    ] as const
+  ).filter((code) => code !== false);
   const canContinue =
     allAssigned &&
     !anyOver &&
@@ -572,6 +566,8 @@ function Editor({ contractId, config }: EditorProps) {
     const target = boxes[stepNo]?.page ?? area?.page;
     if (target) setPage(target);
   };
+  const widthPt = (pageNo: number) =>
+    previewPages.find((p) => p.pageNo === pageNo)?.widthPt;
   const visibleSteps = steps.filter(
     (step) => boxes[step.stepNo]?.page === page,
   );
@@ -590,30 +586,27 @@ function Editor({ contractId, config }: EditorProps) {
           style={{ marginBottom: 12 }}
         />
       ) : null}
-      <Alert
-        type={config.documentId ? "info" : "warning"}
-        showIcon
-        title={t(
-          config.documentId
-            ? "positions.realDocumentNotice"
-            : "positions.seedDocumentNotice",
-        )}
-        style={{ marginBottom: 12 }}
-      />
+      {!config.documentId ? (
+        <Alert
+          type="warning"
+          showIcon
+          title={t("prepLite.positions.seedNotice")}
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
       {pageData?.contentCheck === "MANUAL" ? (
         <Alert
           type="warning"
           showIcon
-          title={t("positions.scanNotice")}
+          title={t("prepLite.positions.scanNotice")}
           style={{ marginBottom: 12 }}
         />
       ) : null}
-
       {config.documentId && !hasNamedAreas ? (
         <Alert
           type="warning"
           showIcon
-          title={t("positions.identityManual")}
+          title={t("prepLite.positions.identityManual")}
           style={{ marginBottom: 12 }}
         />
       ) : null}
@@ -666,7 +659,7 @@ function Editor({ contractId, config }: EditorProps) {
       >
         <section className={cx(shared.card, styles.canvasCard)}>
           <div className={styles.canvasHeader}>
-            <h2>{t("positions.title")}</h2>
+            <span className={styles.fileMeta}>{config.fileName}</span>
             <Button
               size="small"
               icon={expanded ? <CompressOutlined /> : <ExpandOutlined />}
@@ -680,13 +673,6 @@ function Editor({ contractId, config }: EditorProps) {
                   : "positions.expandWorkspace",
               )}
             </Button>
-            <span className={styles.fileMeta}>
-              {t("positions.fileMeta", {
-                fileName: config.fileName,
-                page,
-                total: config.pageCount,
-              })}
-            </span>
           </div>
           <div className={styles.chips}>
             {steps.map((step) => {
@@ -711,7 +697,7 @@ function Editor({ contractId, config }: EditorProps) {
                 </button>
               );
             })}
-            <span className={styles.hint}>{t("positions.hint")}</span>
+            <span className={styles.hint}>{t("prepLite.positions.hint")}</span>
           </div>
           <div
             className={styles.canvas}
@@ -895,17 +881,6 @@ function Editor({ contractId, config }: EditorProps) {
             >
               ▶
             </button>
-            <Select
-              size="small"
-              aria-label={t("positions.choosePage")}
-              value={page}
-              onChange={setPage}
-              style={{ width: 110 }}
-              options={previewPages.map((p) => ({
-                value: p.pageNo,
-                label: t("positions.pageNo", { page: p.pageNo }),
-              }))}
-            />
             <Button
               size="small"
               onClick={() => setFitMode("width")}
@@ -923,7 +898,6 @@ function Editor({ contractId, config }: EditorProps) {
               {t("positions.fitPage")}
             </Button>
             <span className={styles.zoom}>
-              {t("positions.zoom.label")}
               <button
                 type="button"
                 className={styles.pagerButton}
@@ -1016,33 +990,20 @@ function Editor({ contractId, config }: EditorProps) {
                       {t("positions.missingPrintedName")}
                     </span>
                   ) : null}
-                  <div className={styles.cardPosition}>
-                    {box
-                      ? t("positions.list.position", {
-                          page: box.page,
-                          top: toMm(
-                            box.y,
-                            previewPages.find((p) => p.pageNo === box.page)
-                              ?.widthPt,
-                          ),
-                          left: toMm(
-                            box.x,
-                            previewPages.find((p) => p.pageNo === box.page)
-                              ?.widthPt,
-                          ),
-                          width: toMm(
-                            box.w,
-                            previewPages.find((p) => p.pageNo === box.page)
-                              ?.widthPt,
-                          ),
-                          height: toMm(
-                            box.h,
-                            previewPages.find((p) => p.pageNo === box.page)
-                              ?.widthPt,
-                          ),
-                        })
-                      : t("positions.list.empty")}
-                  </div>
+                  {box ? (
+                    <div
+                      className={styles.cardPosition}
+                      title={t("positions.list.position", {
+                        page: box.page,
+                        top: toMm(box.y, widthPt(box.page)),
+                        left: toMm(box.x, widthPt(box.page)),
+                        width: toMm(box.w, widthPt(box.page)),
+                        height: toMm(box.h, widthPt(box.page)),
+                      })}
+                    >
+                      {t("prepLite.positions.page", { page: box.page })}
+                    </div>
+                  ) : null}
                   <div className={styles.cardActions}>
                     <span className={styles.cardLookLabel}>
                       {t("positions.list.look.label")}
@@ -1068,50 +1029,32 @@ function Editor({ contractId, config }: EditorProps) {
                         </button>
                       ),
                     )}
-                    <button
-                      type="button"
-                      className={cx(
-                        styles.removeButton,
-                        !box && styles.removeButtonOff,
-                      )}
-                      onClick={() => put(step.stepNo, null)}
-                    >
-                      {t("positions.list.remove")}
-                    </button>
+                    {box ? (
+                      <button
+                        type="button"
+                        className={styles.removeButton}
+                        onClick={() => put(step.stepNo, null)}
+                      >
+                        {t("positions.list.remove")}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               );
             })}
           </section>
 
-          <div className={cx(shared.notice, styles.tip)}>
-            <b className={shared.noticeTitle}>{t("positions.tip.label")}</b>{" "}
-            {t("positions.tip.body")}
+          <div aria-live="polite">
+            {problems.map((code) => (
+              <Alert
+                key={code}
+                type="error"
+                showIcon
+                title={t(`prepLite.positions.checks.${code}`)}
+                style={{ marginBottom: 8 }}
+              />
+            ))}
           </div>
-
-          <section
-            className={cx(shared.card, styles.checksCard)}
-            aria-live="polite"
-          >
-            <h2>{t("positions.checks.title")}</h2>
-            {checks.map((check) => {
-              const pending = check.pending && check.ok;
-              const state = pending ? "Pending" : check.ok ? "Ok" : "Fail";
-              return (
-                <div key={check.code} className={styles.check}>
-                  <span
-                    className={styles[`checkIcon${state}`]}
-                    aria-hidden="true"
-                  >
-                    {pending ? "•" : check.ok ? "✓" : "✕"}
-                  </span>
-                  <span className={styles[`checkText${state}`]}>
-                    {t(`positions.checks.${check.code}`)}
-                  </span>
-                </div>
-              );
-            })}
-          </section>
 
           <div className={styles.footer} data-testid="positions-footer">
             <Link
@@ -1131,9 +1074,9 @@ function Editor({ contractId, config }: EditorProps) {
                 {t("positions.actions.continue")}
               </Button>
             ) : (
-              <span className={styles.blocked} role="status">
-                {t("positions.actions.blocked")}
-              </span>
+              <Button type="primary" size="small" disabled>
+                {t("positions.actions.continue")}
+              </Button>
             )}
           </div>
         </div>

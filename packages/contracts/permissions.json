@@ -512,6 +512,12 @@
           }
         },
         {
+          "key": "demo:reset",
+          "grants": {
+            "SYSTEM_ADMIN": "all"
+          }
+        },
+        {
           "key": "audit:read",
           "grants": {
             "ADMIN_AUDITOR": "all",

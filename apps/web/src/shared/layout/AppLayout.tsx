@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import {
+  App,
   Avatar,
   Badge,
   Button,
@@ -18,8 +19,9 @@ import {
   LogoutOutlined,
   MenuOutlined,
   RightOutlined,
+  UndoOutlined,
 } from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Link,
@@ -28,8 +30,10 @@ import {
   useNavigate,
   useNavigation,
 } from "react-router-dom";
-import { useLocalStorage } from "@codecash/ui";
+import { useAccess, useLocalStorage } from "@codecash/ui";
+import { resetDemoData } from "../api/auth.api";
 import { listPendingTasks } from "../api/tasks.api";
+import { useDemoMode } from "../auth/useDemoMode";
 import { useCurrentUser, useSession } from "../auth/session";
 import { initialsOf } from "../lib/initials";
 import { useOnboarding } from "../onboarding/OnboardingContext";
@@ -82,6 +86,27 @@ export function AppLayout() {
     queryFn: listPendingTasks,
   });
   const pendingCount = pending.data?.length ?? 0;
+
+  // Demo deployments only: the system administrator restores the initial data before a session.
+  const { modal, message } = App.useApp();
+  const { hasPermission } = useAccess(user);
+  const canResetDemo = useDemoMode() && hasPermission("demo:reset");
+  const resetDemo = useMutation({
+    mutationFn: resetDemoData,
+    onSuccess: () => {
+      void message.success(t("topbar.resetDemo.done"));
+      signOut();
+    },
+    onError: () => void message.error(t("topbar.resetDemo.failed")),
+  });
+  const confirmResetDemo = () =>
+    modal.confirm({
+      title: t("topbar.resetDemo.title"),
+      content: t("topbar.resetDemo.body"),
+      okText: t("topbar.resetDemo.ok"),
+      okButtonProps: { danger: true },
+      onOk: () => resetDemo.mutateAsync(),
+    });
   const sections = navByRole[user.role];
   const navItems = sections.flatMap((section) => section.items);
   const inbox = navItems.find((item) => item.badge);
@@ -151,6 +176,16 @@ export function AppLayout() {
       ),
     },
     { type: "divider" },
+    ...(canResetDemo
+      ? [
+          {
+            key: "reset-demo",
+            icon: <UndoOutlined />,
+            label: t("topbar.resetDemo.action"),
+            onClick: confirmResetDemo,
+          },
+        ]
+      : []),
     {
       key: "logout",
       icon: <LogoutOutlined />,

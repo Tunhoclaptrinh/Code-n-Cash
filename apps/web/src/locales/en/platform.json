@@ -330,6 +330,7 @@
       "settings:delete": "Delete settings",
       "settings:import": "Import settings from a file",
       "settings:export": "Export settings",
+      "demo:reset": "Reset demo data (previous data archived)",
       "disputes:open": "Open a dispute",
       "exceptions:read": "View the BR-19 exception queue",
       "exceptions:propose": "Propose voiding an unauthorised event",

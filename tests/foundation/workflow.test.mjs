@@ -1011,3 +1011,38 @@ test("organiser contracts get a deterministic simulated original that leaves sig
     verificationBefore,
   );
 });
+
+// Runs last: it replaces the data every other test works on.
+test("the demo reset archives the data and its audit chain instead of deleting them", async () => {
+  const { readFile, readdir } = await import("node:fs/promises");
+  const { can } = await import("../../apps/api/dist/common/permissions.js");
+  const { verifyChain } =
+    await import("../../apps/api/dist/common/audit-chain.js");
+  assert.equal(can("SYSTEM_ADMIN", "demo:reset"), true);
+  for (const role of ["ADMIN_AUDITOR", "AUDITOR", "CONTRACT_OWNER", "SUPPLIER"])
+    assert.equal(can(role, "demo:reset"), false, role);
+  await call("u-owner", "signing", "getVerification", "CT0084");
+  const before = await repo.list("audit");
+  assert.ok(before.length > 1);
+
+  const { archive } = await domain.resetDemo(actor("u-sysadmin"));
+  const archived = JSON.parse(
+    await readFile(join(dir, `records.${archive}.json`), "utf8"),
+  );
+  assert.deepEqual(archived.audit, before);
+  assert.ok((await readdir(dir)).includes("records.json"));
+
+  const audit = await repo.list("audit");
+  assert.equal(verifyChain(audit).ok, true);
+  assert.ok(audit.some((entry) => entry.action === "IMPORT_DATA_PACK"));
+  const reset = audit.find((entry) => entry.action === "RESET_DEMO_DATA");
+  assert.equal(reset.actorId, "u-sysadmin");
+  assert.equal(reset.recordId, archive);
+  assert.equal(reset.archivedEntries, before.length);
+  assert.equal(reset.archivedHeadHash, before.at(-1).hash);
+  // The initial data is back.
+  const official = (await repo.list("events")).filter(
+    (e) => e.origin !== "APP",
+  );
+  assert.equal((await repo.list("events")).length, official.length);
+});

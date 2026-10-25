@@ -39,7 +39,15 @@
     "themeLight": "Chuyển sang giao diện sáng",
     "themeDark": "Chuyển sang giao diện tối",
     "guide": "Hướng dẫn nhanh",
-    "openInbox": "Mở danh sách việc cần làm"
+    "openInbox": "Mở danh sách việc cần làm",
+    "resetDemo": {
+      "action": "Khôi phục dữ liệu demo",
+      "title": "Khôi phục dữ liệu demo về ban đầu?",
+      "body": "Toàn bộ thao tác trong phiên demo hiện tại được lưu trữ kèm nhật ký, sau đó hệ thống nạp lại dữ liệu ban đầu. Mọi người dùng cần đăng nhập lại.",
+      "ok": "Khôi phục",
+      "done": "Đã khôi phục dữ liệu ban đầu. Vui lòng đăng nhập lại.",
+      "failed": "Không khôi phục được dữ liệu demo."
+    }
   },
   "languages": {
     "vi": "Tiếng Việt",

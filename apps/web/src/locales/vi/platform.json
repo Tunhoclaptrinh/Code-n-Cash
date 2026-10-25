@@ -330,6 +330,7 @@
       "settings:delete": "Xóa cấu hình",
       "settings:import": "Nhập cấu hình từ tệp",
       "settings:export": "Xuất cấu hình",
+      "demo:reset": "Khôi phục dữ liệu demo (lưu trữ dữ liệu cũ)",
       "disputes:open": "Mở tranh chấp",
       "exceptions:read": "Xem hàng đợi ngoại lệ BR-19",
       "exceptions:propose": "Đề xuất vô hiệu sự kiện sai thẩm quyền",

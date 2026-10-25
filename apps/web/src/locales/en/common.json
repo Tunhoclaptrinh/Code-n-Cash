@@ -39,7 +39,15 @@
     "themeLight": "Switch to light theme",
     "themeDark": "Switch to dark theme",
     "guide": "Quick guide",
-    "openInbox": "Open my tasks"
+    "openInbox": "Open my tasks",
+    "resetDemo": {
+      "action": "Reset demo data",
+      "title": "Reset the demo data to its initial state?",
+      "body": "Everything done in the current demo is archived together with its log, then the initial data is loaded again. Everyone has to sign in again.",
+      "ok": "Reset",
+      "done": "The initial data is restored. Please sign in again.",
+      "failed": "The demo data could not be reset."
+    }
   },
   "languages": {
     "vi": "Tiếng Việt",

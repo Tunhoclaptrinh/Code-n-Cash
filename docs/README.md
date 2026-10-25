@@ -65,3 +65,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [29 — Bàn giao tích hợp engine và AI cho Hoàng, Lâm](29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md)
 
 - [30 — Hướng dẫn tiếp quản và phát triển tiếp cho cả đội](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md)
+
+- [31 — Lược bớt thông tin kỹ thuật trên UI](31_LUOC_BOT_THONG_TIN_KY_THUAT_UI.md)

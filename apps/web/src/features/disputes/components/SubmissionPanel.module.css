@@ -121,9 +121,3 @@
 .unit {
   color: var(--color-text-muted);
 }
-
-.footnote {
-  margin-top: auto;
-  font-size: 13.5px;
-  color: var(--color-text-muted);
-}

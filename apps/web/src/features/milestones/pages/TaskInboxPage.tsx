@@ -84,14 +84,13 @@ export default function TaskInboxPage() {
   const kinds = KINDS.filter((kind) => count("kind", kind));
   const tab = filters.badge?.length === 1 ? String(filters.badge[0]) : "ALL";
 
+  // What is still needed; empty when the task name already says it.
   const what = (r: TaskRow) =>
     r.eventTypes.length
       ? r.eventTypes.map((type) => td(`eventType.${type}`)).join(", ")
       : r.roles.length
         ? r.roles.map((role) => td(`approvalRole.${role}`)).join(", ")
-        : r.reasonCode
-          ? td(`reason.${r.reasonCode}`)
-          : "—";
+        : "";
   const where = (r: TaskRow) =>
     r.sequence && r.milestoneType
       ? `${td("milestoneNo", { no: r.sequence })} · ${td(`milestoneType.${r.milestoneType}`)}`
@@ -167,11 +166,13 @@ export default function TaskInboxPage() {
       render: (_: unknown, r: TaskRow) => (
         <div style={{ cursor: "pointer" }} onClick={() => setDetail(r)}>
           <Typography.Text strong>{td(`taskKind.${r.kind}`)}</Typography.Text>
-          <div>
-            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-              {what(r)}
-            </Typography.Text>
-          </div>
+          {what(r) ? (
+            <div>
+              <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+                {what(r)}
+              </Typography.Text>
+            </div>
+          ) : null}
         </div>
       ),
     },
@@ -184,9 +185,11 @@ export default function TaskInboxPage() {
         <>
           <Typography.Text strong>{r.contractId}</Typography.Text>
           <div>{where(r)}</div>
-          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-            {r.contractTitle}
-          </Typography.Text>
+          {r.sequence && r.milestoneType ? (
+            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+              {r.contractTitle}
+            </Typography.Text>
+          ) : null}
         </>
       ),
     },
@@ -261,17 +264,17 @@ export default function TaskInboxPage() {
         ) : null}
         <DataTable<TaskRow>
           rowKey="id"
-          scroll={{ x: 1400 }}
+          scroll={{ x: 1050 }}
           columns={columns.map((column) => ({
             ...column,
             width:
               (
                 {
-                  kind: 270,
-                  contract: 280,
-                  amount: 160,
-                  dueDate: 160,
-                  badge: 220,
+                  kind: 230,
+                  contract: 250,
+                  amount: 150,
+                  dueDate: 140,
+                  badge: 180,
                 } as Record<string, number>
               )[String(column.key)] ?? 200,
           }))}
@@ -302,9 +305,6 @@ export default function TaskInboxPage() {
             />
           )}
         />
-        <Typography.Paragraph type="secondary">
-          {t("inbox.footer")}
-        </Typography.Paragraph>
       </PageContainer>
       <DetailModal
         open={!!detail}
@@ -314,24 +314,16 @@ export default function TaskInboxPage() {
         items={
           detail
             ? [
-                {
-                  key: "contract",
-                  label: t("inbox.columns.contract"),
-                  value: `${detail.contractId} · ${detail.contractTitle}`,
-                  span: 2,
-                },
-                {
-                  key: "milestone",
-                  label: t("inbox.columns.milestone"),
-                  value: where(detail),
-                  span: 2,
-                },
-                {
-                  key: "required",
-                  label: t("inbox.columns.required"),
-                  value: what(detail),
-                  span: 2,
-                },
+                ...(what(detail)
+                  ? [
+                      {
+                        key: "required",
+                        label: t("inbox.columns.required"),
+                        value: what(detail),
+                        span: 2,
+                      },
+                    ]
+                  : []),
                 ...(detail.reasonCode
                   ? [
                       {
@@ -342,24 +334,6 @@ export default function TaskInboxPage() {
                       },
                     ]
                   : []),
-                {
-                  key: "due",
-                  label: t("inbox.columns.due"),
-                  value:
-                    (detail.dueDate ? formatDate(detail.dueDate) : "—") +
-                    (detail.overdueDays > 0
-                      ? ` · ${td("overdue", { count: detail.overdueDays })}`
-                      : ""),
-                },
-                {
-                  key: "status",
-                  label: t("inbox.columns.status"),
-                  value: (
-                    <Tag color={badgeColor[detail.badge].tag}>
-                      {t(`inbox.badge.${detail.badge}`)}
-                    </Tag>
-                  ),
-                },
                 {
                   key: "origin",
                   label: t("inbox.detail.origin"),

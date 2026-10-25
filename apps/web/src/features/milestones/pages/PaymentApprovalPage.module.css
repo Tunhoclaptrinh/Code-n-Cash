@@ -147,11 +147,6 @@
   font-weight: 700;
 }
 
-.documentsNote {
-  font-size: 13.5px;
-  color: var(--color-text-muted);
-}
-
 /* Right column: progress and decision */
 
 .decisionPanel {
@@ -255,34 +250,6 @@
 .stepSub {
   color: var(--color-text-muted);
   font-size: 13px;
-}
-
-.consequences {
-  background: var(--color-surface-muted);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  font-size: 14px;
-}
-
-.consequence {
-  margin-top: 4px;
-}
-
-.consequenceFirst {
-  margin-top: 6px;
-}
-
-.approveText {
-  color: var(--color-success);
-}
-
-.holdText {
-  color: var(--color-warning);
-}
-
-.rejectText {
-  color: var(--color-danger-strong);
 }
 
 .noteLabel {

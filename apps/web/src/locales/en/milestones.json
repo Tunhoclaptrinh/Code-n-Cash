@@ -391,5 +391,20 @@
       "cancel": "Back",
       "body": "Record your approval of milestone {{no}} · {{name}}. Expected: {{decision}}, eligible {{payable}} million VND."
     }
+  },
+  "workLite": {
+    "evidence": {
+      "lockNote": "Cannot be changed after submitting.",
+      "penalty": "Due {{due}}, grace until {{deadline}}; then {{rate}}%/day penalty, capped at {{cap}}%."
+    },
+    "approve": {
+      "blocked": {
+        "MILESTONE_CLOSED": "This milestone is closed.",
+        "NOT_APPROVER": "You can only view this milestone.",
+        "APPROVAL_NOT_REQUIRED": "This milestone needs no approval.",
+        "NOT_REQUIRED_ROLE": "Your role is not required to approve; you can still reject.",
+        "ALREADY_APPROVED": "You already approved this milestone."
+      }
+    }
   }
 }

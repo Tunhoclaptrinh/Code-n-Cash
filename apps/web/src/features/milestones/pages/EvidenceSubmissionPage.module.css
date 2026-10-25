@@ -1,26 +1,14 @@
-.grid {
-  flex: none;
-  align-items: start;
-  min-height: 0;
-  display: grid;
-  /* The contract document takes the second column, so the panels stack. */
-  grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
-}
-
 .panel {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
+  gap: 14px;
   min-height: 0;
 }
 
-.panelLeft {
-  gap: 14px;
-}
-
-.panelRight {
-  gap: 12px;
+.penaltyLine {
+  color: var(--color-text-secondary);
+  font-size: 14px;
 }
 
 .panel h2 {
@@ -193,45 +181,7 @@
   margin-right: auto;
 }
 
-/* What happens next */
-
-.steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.step {
-  display: flex;
-  gap: 12px;
-  padding: 10px 0;
-}
-
-.step + .step {
-  border-top: 1px solid var(--color-border);
-}
-
-.actor {
-  flex: none;
-  font-weight: 800;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  height: fit-content;
-}
-
-.actorSystem {
-  background: var(--color-neutral-badge-soft);
-  color: var(--color-neutral-badge);
-}
-
-.actorHuman {
-  background: var(--color-warning-soft);
-  color: var(--color-warning);
-}
+/* Dry-run result */
 
 .note {
   --ms-note-bg: color-mix(
@@ -251,7 +201,6 @@
   padding: 12px 16px;
   color: var(--ms-note-text);
   font-size: 14px;
-  margin-top: auto;
 }
 
 .noteTitle {

@@ -12,11 +12,7 @@ import styles from "./DecisionPanel.module.css";
 
 type Option = "RESOLVE" | "REQUEST_INFO" | "OPEN";
 
-/**
- * Right column. The buyer (or its contract owner) closes disputes with DISPUTE_RESOLVED events
- * that reference them (BR-08); either party may open a new one. Nobody edits the penalty by hand:
- * the engine re-evaluates the milestone after every event (spec 9.5).
- */
+/** Right column: the buyer (or its contract owner) closes disputes (BR-08); either party may open one. */
 export function DecisionPanel({ view }: { view: DisputeView }) {
   const { t } = useTranslation("disputes");
   const { t: td } = useTranslation("domain");
@@ -106,7 +102,7 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
               <div>
                 <b>{t(`decision.options.${value}.name`)}</b>
                 <div className={styles.optionHint}>
-                  {t(`decision.options.${value}.description`)}
+                  {t(`lite.options.${value}`)}
                 </div>
               </div>
             </label>
@@ -151,7 +147,6 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
           ) : null}
         </div>
       ) : null}
-      <div className={styles.pending}>{t("decision.rule")}</div>
       <div className={styles.actions}>
         <Link
           to={`/contracts/${view.contract.id}/milestones/${view.milestone.sequence}/decision`}

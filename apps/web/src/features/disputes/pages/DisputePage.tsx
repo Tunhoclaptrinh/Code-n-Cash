@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { WorkflowContext } from "@/shared/ui/WorkflowContext";
 import { getDispute } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
-import { contractHeading } from "@/shared/lib/domain";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
@@ -53,8 +52,6 @@ export default function DisputePage() {
         >
           <WorkflowContext>
             {td(`milestoneType.${data.milestone.type}`)} ·{" "}
-            {contractHeading(data.contract)} · {data.contract.buyer.name} ↔{" "}
-            {data.contract.supplier.name} ·{" "}
             <TrackingCode code={data.milestone.id} />
           </WorkflowContext>
           <div className={styles.columns}>

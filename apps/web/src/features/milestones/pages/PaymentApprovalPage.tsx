@@ -157,7 +157,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          title={t(`approve.blocked.${data.blockedReason}`, {
+          title={t(`workLite.approve.blocked.${data.blockedReason}`, {
             defaultValue: data.blockedReason,
           })}
         />
@@ -276,9 +276,6 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                   </ToneTag>
                 </div>
               ))}
-            <div className={styles.documentsNote}>
-              {t("approve.documents.note")}
-            </div>
           </Panel>
         </div>
 
@@ -294,18 +291,6 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
               <StepItem key={slot.role} slot={slot} index={index} />
             ))}
           </ol>
-          <div className={styles.consequences}>
-            <b>{t("approve.consequences.title")}</b>
-            <div className={styles.consequenceFirst}>
-              {t("approve.consequences.approve")}
-            </div>
-            <div className={styles.consequence}>
-              {t("approve.consequences.requestInfo")}
-            </div>
-            <div className={styles.consequence}>
-              {t("approve.consequences.reject")}
-            </div>
-          </div>
           <div>
             <label htmlFor={noteId} className={styles.noteLabel}>
               {t("approve.note.label")}{" "}
@@ -381,7 +366,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
       >
         {t("approve.confirm.body", {
           no: milestone.sequence,
-          name,
+          name: td(`milestoneType.${milestone.type}`),
           decision: preview?.decision ?? evaluation.decision,
           payable: formatDecimalString(
             preview?.payableMillion ?? evaluation.payableMillion,

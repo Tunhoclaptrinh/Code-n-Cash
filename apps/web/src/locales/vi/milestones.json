@@ -391,5 +391,20 @@
       "cancel": "Quay lại",
       "body": "Ghi phê duyệt của bạn cho mốc {{no}} · {{name}}. Dự kiến: {{decision}}, đủ điều kiện chi {{payable}} triệu VND."
     }
+  },
+  "workLite": {
+    "evidence": {
+      "lockNote": "Không sửa được sau khi nộp.",
+      "penalty": "Hạn {{due}}, ân hạn đến {{deadline}}; sau đó phạt {{rate}}%/ngày, tối đa {{cap}}%."
+    },
+    "approve": {
+      "blocked": {
+        "MILESTONE_CLOSED": "Mốc đã chốt.",
+        "NOT_APPROVER": "Bạn chỉ xem được mốc này.",
+        "APPROVAL_NOT_REQUIRED": "Mốc này không cần phê duyệt.",
+        "NOT_REQUIRED_ROLE": "Vai trò của bạn không bắt buộc duyệt; vẫn có thể từ chối.",
+        "ALREADY_APPROVED": "Bạn đã phê duyệt mốc này."
+      }
+    }
   }
 }

@@ -61,5 +61,14 @@
       "trace": "Xem truy vết quyết định",
       "confirm": "Xác nhận"
     }
+  },
+  "lite": {
+    "none": "Mốc chưa có tranh chấp.",
+    "noPreview": "Chưa có kết quả chạy thử.",
+    "options": {
+      "RESOLVE": "Ghi nhận đã giải quyết; mốc được tính lại ngay.",
+      "REQUEST_INFO": "Ghi chú cho bên mở tranh chấp; mốc vẫn bị giữ.",
+      "OPEN": "Mốc tạm giữ thanh toán đến khi đóng tranh chấp."
+    }
   }
 }

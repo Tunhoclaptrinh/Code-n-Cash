@@ -573,6 +573,111 @@ test("rule publication rejects unlabelled regressions even when all 20 public sa
   );
 });
 
+test("partial sample DOCX previews an unfinished draft with placeholders but keeps scope checks", async () => {
+  const { SampleDocumentsController } =
+    await import("../../apps/api/dist/sample-documents.js");
+  const { documentText } =
+    await import("../../apps/api/dist/trust/extraction.js");
+  const samples = new SampleDocumentsController(domain);
+  const current = await call("u-legal", "drafts", "getContractDraft");
+  const options = await call("u-legal", "drafts", "getUploadFormOptions");
+  const blank = {
+    ...current,
+    title: "",
+    type: undefined,
+    supplierId: "",
+    valueMillion: "",
+    startDate: "",
+    endDate: "",
+    approvalPolicy: undefined,
+    graceDays: undefined,
+    penaltyRatePct: "",
+    maxPenaltyPct: "",
+    signers: [{ party: "BUYER", userId: "" }],
+  };
+  const legal = { user: actors["u-legal"] };
+  const partial = (draft) =>
+    samples.create({ draft, language: "en", partial: true }, legal);
+  const textOf = async (generated, name) => {
+    const bytes = Buffer.from(generated.base64, "base64");
+    assert.equal(bytes.subarray(0, 2).toString(), "PK");
+    const path = join(dir, name);
+    await writeFile(path, bytes);
+    return documentText(path, "DOCX");
+  };
+
+  const empty = await partial(blank);
+  assert.equal(empty.fileName, "CodeCash-0-signers.docx");
+  const emptyText = await textOf(empty, "partial-empty.docx");
+  assert.ok(emptyText.includes("……"));
+  assert.ok(emptyText.includes("Signers have not been chosen yet"));
+  assert.ok(
+    !emptyText.includes("Contract Signing"),
+    "no type renders no milestone rows",
+  );
+  assert.ok(!emptyText.includes("Article 2. Scope of work\n……"));
+  await assert.rejects(
+    samples.create({ draft: blank, language: "en" }, legal),
+    "the full request still rejects an incomplete draft",
+  );
+
+  const half = await partial({
+    ...blank,
+    title: "Half <done>",
+    type: "GOODS_SUPPLY",
+    valueMillion: "abc",
+    startDate: "2027-01-10",
+    graceDays: 5,
+    signers: [
+      { party: "BUYER", userId: "u-owner" },
+      { party: "SUPPLIER", userId: "" },
+    ],
+  });
+  assert.equal(half.fileName, "CodeCash-1-signers.docx");
+  const text = await textOf(half, "partial-some.docx");
+  assert.ok(text.includes("Half <done>"));
+  assert.ok(text.includes("2027-01-10"));
+  assert.ok(text.includes("Contract Signing") && text.includes("2027-01-15"));
+  assert.ok(!text.includes("abc"), "invalid values never reach the document");
+
+  const supplierId = "S015";
+  const supplierSigner = options.supplierSigners[supplierId][0].userId;
+  await partial({
+    ...blank,
+    supplierId,
+    signers: [{ party: "SUPPLIER", userId: supplierSigner }],
+  });
+  for (const draft of [
+    { ...blank, type: "NOT_A_TYPE" },
+    { ...blank, approvalPolicy: "NOT_A_POLICY" },
+    { ...blank, supplierId: "S-UNKNOWN" },
+    { ...blank, supplierId: "u-owner" },
+    { ...blank, signers: [{ party: "BUYER", userId: "u-unknown" }] },
+    { ...blank, signers: [{ party: "SUPPLIER", userId: supplierSigner }] },
+    {
+      ...blank,
+      supplierId,
+      signers: [{ party: "BUYER", userId: supplierSigner }],
+    },
+    {
+      ...blank,
+      signers: [
+        { party: "BUYER", userId: "u-owner" },
+        { party: "BUYER", userId: "u-owner" },
+      ],
+    },
+    { ...blank, documentBody: "x".repeat(20001) },
+  ])
+    await assert.rejects(partial(draft), JSON.stringify(draft.signers));
+  await assert.rejects(
+    samples.create(
+      { draft: blank, language: "en", partial: true },
+      { user: actors["u-supplier"] },
+    ),
+    "partial previews are limited to buyer editors",
+  );
+});
+
 test("real sample DOCX supports 1–4 signers through upload, extraction, sequential signing and activation", async () => {
   const { SampleDocumentsController } =
     await import("../../apps/api/dist/sample-documents.js");

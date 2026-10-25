@@ -91,5 +91,7 @@
     "GO_LIVE_ACCEPTANCE": "Go-live acceptance",
     "ACTIVATION": "Service activation",
     "SERVICE_COMPLETION": "Service completion"
-  }
+  },
+  "pendingSigners": "Signers have not been chosen yet: the signing list and order will appear here once signers are selected.",
+  "pendingSignerBlock": "SIGNERS — NOT CHOSEN YET"
 }

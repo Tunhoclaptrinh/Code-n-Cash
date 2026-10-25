@@ -91,5 +91,7 @@
     "GO_LIVE_ACCEPTANCE": "Nghiệm thu vận hành",
     "ACTIVATION": "Kích hoạt dịch vụ",
     "SERVICE_COMPLETION": "Hoàn thành dịch vụ"
-  }
+  },
+  "pendingSigners": "Chưa chọn người ký: danh sách và thứ tự ký sẽ hiển thị tại đây sau khi bạn chọn người ký.",
+  "pendingSignerBlock": "NGƯỜI KÝ — CHƯA CHỌN"
 }

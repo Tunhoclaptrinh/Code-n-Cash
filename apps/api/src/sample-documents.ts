@@ -56,23 +56,42 @@ export const generateSampleDocx = (input: unknown): Promise<Buffer> =>
     child.stdin.end(JSON.stringify(input));
   });
 
+/** Shown in place of any display field a partial (live preview) draft has not completed yet. */
+export const SAMPLE_PLACEHOLDER = "……";
+
+const provided = (value: unknown) =>
+  value !== undefined && value !== null && value !== "";
+
 @Controller("contract-samples")
 export class SampleDocumentsController {
   constructor(@Inject(DomainService) private domain: DomainService) {}
+  /**
+   * `partial: true` renders an unfinished draft for the live preview: missing or invalid display
+   * fields become placeholders and signers without a userId are skipped. Everything that IS provided
+   * is still checked against this actor (type, policy, supplier, signers).
+   */
   @Post()
   @RequirePermission("documents:upload")
   async create(
-    @Body() body: { draft?: ContractDraft; language?: string },
+    @Body()
+    body: { draft?: ContractDraft; language?: string; partial?: boolean },
     @Req() req: SessionRequest,
   ) {
     if (!body?.draft || !["vi", "en"].includes(body.language ?? "vi"))
       throw new BadRequestException("INVALID_INPUT");
+    const partial = body.partial === true;
     const input = await this.domain.read(req.user, (ctx) => {
       const options = uploadFormOptions(ctx); // Buyer editor and organisation checks.
       const draft = body.draft!;
-      if (!options.types.includes(draft.type))
+      if (
+        (!partial || provided(draft.type)) &&
+        !options.types.includes(draft.type)
+      )
         throw new BadRequestException("INVALID_TYPE");
-      if (!options.policies.includes(draft.approvalPolicy))
+      if (
+        (!partial || provided(draft.approvalPolicy)) &&
+        !options.policies.includes(draft.approvalPolicy)
+      )
         throw new BadRequestException("INVALID_POLICY");
       if (
         draft.documentBody !== undefined &&
@@ -80,36 +99,69 @@ export class SampleDocumentsController {
           draft.documentBody.length > 20000)
       )
         throw new BadRequestException("CONTRACT_TEMPLATE_INVALID");
+      if (
+        partial &&
+        provided(draft.supplierId) &&
+        !options.suppliers.some((supplier) => supplier.id === draft.supplierId)
+      )
+        throw new BadRequestException("INVALID_SUPPLIER");
       const selected = templateSnapshot(ctx, draft);
-      const problems = draftProblems(draft);
-      if (Object.keys(problems).length)
+      const problems = draftProblems({
+        ...draft,
+        graceDays: typeof draft.graceDays === "number" ? draft.graceDays : NaN,
+      });
+      if (!partial && Object.keys(problems).length)
         throw new BadRequestException(Object.values(problems)[0]);
-      const signers = validateDraftSigners(ctx, draft);
+      const signers = validateDraftSigners(
+        ctx,
+        partial
+          ? {
+              ...draft,
+              signers: Array.isArray(draft.signers)
+                ? draft.signers.filter(
+                    (signer) => signer && provided(signer.userId),
+                  )
+                : [],
+            }
+          : draft,
+        { partial },
+      );
+      // Only complete, valid fields reach the document; the engine never sees unvalidated values.
+      const shown = <K extends keyof ContractDraft>(key: K) =>
+        partial && problems[key] ? SAMPLE_PLACEHOLDER : draft[key];
+      const validStart = !problems.startDate;
       return {
+        ...(partial ? { partial } : {}),
         documentBody: draft.documentBody ?? selected?.documentBody ?? "",
         language: body.language ?? "vi",
-        title: draft.title,
+        title: shown("title"),
         code: draft.code,
         buyer: ctx.partyName(ctx.actor.organizationId),
-        supplier: ctx.partyName(draft.supplierId),
-        valueMillion: draft.valueMillion,
-        startDate: draft.startDate,
-        endDate: draft.endDate,
-        graceDays: draft.graceDays,
-        penaltyRatePct: draft.penaltyRatePct,
-        maxPenaltyPct: draft.maxPenaltyPct,
+        supplier: provided(draft.supplierId)
+          ? ctx.partyName(draft.supplierId)
+          : SAMPLE_PLACEHOLDER,
+        valueMillion: shown("valueMillion"),
+        startDate: shown("startDate"),
+        endDate: shown("endDate"),
+        graceDays: shown("graceDays"),
+        penaltyRatePct: shown("penaltyRatePct"),
+        maxPenaltyPct: shown("maxPenaltyPct"),
         approvalPolicy: draft.approvalPolicy,
         signers: signers.map((signer) => ({
           party: signer.party,
           name: String(ctx.user(signer.userId)!.displayName),
         })),
-        stages: stagesOf(ctx, draft.type).map((stage) => ({
-          type: stage.type,
-          name: stage.name,
-          paymentPercent: stage.paymentPercent,
-          dueDate: addDays(draft.startDate, stage.offsetDays),
-          requiredEvents: stage.eventTypes.join(", "),
-        })),
+        stages: options.types.includes(draft.type)
+          ? stagesOf(ctx, draft.type).map((stage) => ({
+              type: stage.type,
+              name: stage.name,
+              paymentPercent: stage.paymentPercent,
+              dueDate: validStart
+                ? addDays(draft.startDate, stage.offsetDays)
+                : SAMPLE_PLACEHOLDER,
+              requiredEvents: stage.eventTypes.join(", "),
+            }))
+          : [],
       };
     });
     const bytes = await generateSampleDocx(input);

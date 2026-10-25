@@ -2,7 +2,7 @@
 
 Monorepo cho Case 4, Bảng D: số hóa hợp đồng, ký theo trình tự, nộp bằng chứng, phê duyệt, xử lý tranh chấp và đánh giá điều kiện thanh toán.
 
-**Nhận việc hoặc sửa tiếp:** bắt đầu ở [hướng dẫn tiếp quản](docs/30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md): cách chạy, bản đồ mã nguồn, điểm nối, fixture kiểm thử, việc còn mở và mẫu bàn giao. Tích hợp engine/AI xem thêm [tài liệu 29](docs/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md).
+**Nhận việc hoặc sửa tiếp:** bắt đầu ở [hướng dẫn tiếp quản](docs/30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md): cách chạy, bản đồ mã nguồn, điểm nối, fixture kiểm thử, việc còn mở và mẫu bàn giao. Tích hợp engine/AI xem thêm [tài liệu 29](docs/archive/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md).
 
 ## Khởi chạy
 
@@ -33,7 +33,7 @@ Chế độ local mặc định lưu dữ liệu ở `.data/`, không cần Dock
 | `sysadmin@codecash.vn` | Quản trị hệ thống: tài khoản, tổ chức, mẫu mốc, tham số |
 | `auditor@codecash.vn` | Kiểm toán: chỉ đọc, Kiểm tra toàn vẹn |
 
-Mỗi tổ chức khác trong Data Pack cũng có tài khoản (69 tài khoản). Vai trò nào thấy và làm gì, kịch bản demo, KPI: [09 — Tính năng và vai trò](docs/09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Muốn về dữ liệu ban đầu: dừng API, chuyển thư mục `.data/` đi chỗ khác rồi chạy lại.
+Mỗi tổ chức khác trong Data Pack cũng có tài khoản (69 tài khoản). Vai trò và quyền: [đặc tả nghiệp vụ](docs/NGHIEP_VU.md) mục 2. Muốn về dữ liệu ban đầu: đăng nhập tài khoản quản trị hệ thống, mở menu tài khoản, chọn "Khôi phục dữ liệu demo"; dữ liệu và nhật ký cũ được lưu trữ, không bị xoá.
 
 ## Cấu trúc
 
@@ -53,7 +53,7 @@ scripts/                 Smoke test HTTP và trình duyệt
 BangD-Case4/              Đề và dữ liệu BTC, giữ nguyên
 ```
 
-Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md), [09 — Tính năng và vai trò](docs/09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Nghiệp vụ: [hồ sơ](docs/README.md), [đặc tả v1.1](docs/04_DAC_TA_NGHIEP_VU.md).
+Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIEN_TRUC_MONOREPO_VA_TAI_SU_DUNG.md), [07 — Triển khai](docs/07_HUONG_DAN_TRIEN_KHAI.md), [08 — Phát triển giao diện](docs/08_HUONG_DAN_PHAT_TRIEN_UI.md). Nghiệp vụ: [đặc tả nghiệp vụ](docs/NGHIEP_VU.md); tài liệu cũ ở [docs/archive](docs/archive/).
 
 ## Kiểm tra
 
@@ -117,8 +117,8 @@ Stack gồm nginx (SPA + proxy `/api`), API (kèm engine Python) và MongoDB rep
 - Accuracy chỉ đo trên 20 mẫu công khai; không suy ra cho 405 mốc hay hidden test.
 - Kiểm thử cục bộ mặc định dùng kho file riêng; CI có smoke MongoDB qua compose/nginx và image standalone. Cấu hình môi trường triển khai vẫn phải kiểm riêng.
 
-Rà soát theo trả lời BTC: `python3 tools/ra_soat_btc.py` tạo báo cáo kiểm tra 405 mốc và giới hạn kết luận. Xem [14 — Đồng/Bạc/Vàng](docs/14_RA_SOAT_BTC_DONG_BAC_VANG.md) và [15 — Xác nhận BTC](docs/15_XAC_NHAN_BTC_VA_GIA_DINH.md). Profile `BTC_SUBMISSION` không áp ngoại lệ của ứng dụng; `--workflow` dành cho nghiệp vụ Silver.
+Rà soát theo trả lời BTC: `python3 tools/ra_soat_btc.py` tạo báo cáo kiểm tra 405 mốc và giới hạn kết luận. Xem [đặc tả nghiệp vụ](docs/NGHIEP_VU.md) mục 12. Profile `BTC_SUBMISSION` không áp ngoại lệ của ứng dụng; `--workflow` dành cho nghiệp vụ Silver.
 
 ## Bàn giao engine và AI cho Hoàng, Lâm
 
-Không có yêu cầu bắt buộc huấn luyện mô hình trong trả lời BTC đội cung cấp. Ground truth là đáp án chấm; lõi hiện tại chạy luật Data Pack. `pnpm integration:check` sinh JSON/CSV tham chiếu và kiểm 405 mốc; `pnpm integration:check --candidate /tmp/engine-response.json` kiểm module thay thế. Xem [hướng dẫn tích hợp](docs/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md), [xác nhận BTC](docs/15_XAC_NHAN_BTC_VA_GIA_DINH.md) và [khung 8 slide/5 phút](docs/templates/SLIDE_STRUCTURE.md).
+Không có yêu cầu bắt buộc huấn luyện mô hình trong trả lời BTC đội cung cấp. Ground truth là đáp án chấm; lõi hiện tại chạy luật Data Pack. `pnpm integration:check` sinh JSON/CSV tham chiếu và kiểm 405 mốc; `pnpm integration:check --candidate /tmp/engine-response.json` kiểm module thay thế. Xem [hướng dẫn tích hợp](docs/archive/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md) và [đặc tả nghiệp vụ](docs/NGHIEP_VU.md) mục 10, 12.

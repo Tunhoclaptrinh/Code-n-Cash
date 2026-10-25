@@ -1,6 +1,6 @@
 # CodeCash project guidance
 
-Smart Contract Workflow, Case 4. The official brief and `docs/04_DAC_TA_NGHIEP_VU.md` are the business sources of truth.
+Smart Contract Workflow, Case 4. The official brief and `docs/NGHIEP_VU.md` (the single business specification; older documents are in `docs/archive/`) are the business sources of truth.
 
 ## Workspace
 

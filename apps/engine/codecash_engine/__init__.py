@@ -3,7 +3,7 @@
 Public API (re-exported here): Data Pack loading (``Pack``, ``read``), the rule expression evaluator,
 ``evaluate`` / ``evaluate_all`` (the orchestration of the stages in ``evaluate.py``), output checks and
 the confidence helpers. Every stage module states its input, output and the business rules (BR-xx) it
-implements; ``docs/04_DAC_TA_NGHIEP_VU.md`` is the source of truth.
+implements; ``docs/NGHIEP_VU.md`` is the source of truth.
 """
 from .checks import check_invariants, compare_samples
 from .confidence import assumption_flags, confidence_score, confidence_scores

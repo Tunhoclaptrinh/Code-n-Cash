@@ -1,6 +1,6 @@
 """Kiểm chứng đặc tả nghiệp vụ Case 4 trên Data Pack.
 
-Script tham chiếu cho docs/04_DAC_TA_NGHIEP_VU.md (SPEC_VERSION bên dưới phải trùng phiên bản
+Script tham chiếu cho docs/NGHIEP_VU.md (chi tiết v1.1: docs/archive/04_DAC_TA_NGHIEP_VU.md) (SPEC_VERSION bên dưới phải trùng phiên bản
 tài liệu): cài đúng các quy tắc BR-01..BR-20, đọc rule từ payment_rules.csv, in mọi con số được
 gắn nhãn [DỮ LIỆU] / [SAMPLE] và kiểm các bất biến đầu ra. Đây không phải engine nộp bài.
 Chỉ dùng thư viện chuẩn Python 3.9+.

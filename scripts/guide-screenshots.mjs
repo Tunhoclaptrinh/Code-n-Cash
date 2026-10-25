@@ -639,6 +639,7 @@ try {
         up: "section",
       },
     });
+    await until("!!document.querySelector('[data-testid=replay-timeline]')");
     await evaluate(
       "document.querySelector('[data-testid=replay-timeline]').click()",
     );
@@ -674,7 +675,7 @@ try {
       ],
     });
     await shot("data-kpi", {
-      clip: { text: "Chỉ số KPI (đặc tả mục 15)", up: ".ant-card" },
+      clip: { text: "Chỉ số KPI", up: ".ant-card" },
     });
     await evaluate(
       "document.querySelector('[data-testid=dataset-upload]').click()",

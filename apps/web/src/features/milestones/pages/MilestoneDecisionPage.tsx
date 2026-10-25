@@ -228,7 +228,15 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
                 </Button>
               ) : null}
               {actions.resolveDispute || actions.openDispute ? (
-                <Button onClick={() => navigate(`${base}/dispute`)}>
+                <Button
+                  {...(actions.resolveDispute
+                    ? { color: "green" as const, variant: "solid" as const }
+                    : {
+                        color: "orange" as const,
+                        variant: "outlined" as const,
+                      })}
+                  onClick={() => navigate(`${base}/dispute`)}
+                >
                   {actions.resolveDispute
                     ? t("decision.actions.resolveDispute")
                     : t("decision.actions.openDispute")}
@@ -975,7 +983,8 @@ function ExceptionPanel({
                 <Space style={{ marginTop: 6 }}>
                   <Button
                     size="small"
-                    type="primary"
+                    color="green"
+                    variant="solid"
                     loading={decide.isPending}
                     onClick={() => decide.mutate({ request, approve: true })}
                     data-testid="exception-approve"
@@ -1026,7 +1035,8 @@ function ExceptionPanel({
             data-testid="exception-reason"
           />
           <Button
-            type="primary"
+            color="orange"
+            variant="outlined"
             disabled={!eventId || !reason.trim()}
             loading={propose.isPending}
             onClick={() => propose.mutate()}

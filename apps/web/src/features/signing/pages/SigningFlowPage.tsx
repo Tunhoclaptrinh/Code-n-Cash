@@ -1,5 +1,6 @@
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppPage } from "@/shared/layout/AppPage";
@@ -140,14 +141,14 @@ function Flow({
 
           <div className={styles.footer}>
             {canCancel ? (
-              <button
-                type="button"
+              <Button
+                danger
                 className={styles.cancel}
                 disabled={cancel.isPending}
                 onClick={() => cancel.mutate()}
               >
                 {t("flow.actions.cancelRequest")}
-              </button>
+              </Button>
             ) : null}
             <Link to="/contracts" className={shared.btnSecondary}>
               {t("flow.actions.later")}

@@ -343,8 +343,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
           </div>
           <div className={styles.actions}>
             <Button
-              color="danger"
-              variant="outlined"
+              danger
               disabled={!data.canReject || vote.isPending}
               onClick={() => needNote("REJECT")}
             >
@@ -376,6 +375,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
         okText={t("approve.confirm.submit")}
         cancelText={t("approve.confirm.cancel")}
         confirmLoading={vote.isPending}
+        okButtonProps={{ color: "green", variant: "solid" }}
         onOk={() => vote.mutate("APPROVE")}
         onCancel={() => setConfirming(false)}
       >

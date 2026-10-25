@@ -160,7 +160,9 @@ export function DecisionPanel({ view }: { view: DisputeView }) {
           {t("decision.actions.trace")}
         </Link>
         <Button
-          type="primary"
+          {...(option === "OPEN" || option === "REQUEST_INFO"
+            ? { color: "orange" as const, variant: "outlined" as const }
+            : { color: "green" as const, variant: "solid" as const })}
           size="small"
           disabled={!option || act.isPending}
           loading={act.isPending}

@@ -86,6 +86,8 @@ export function ContractModal({
     contract?.status === "AWAITING_SIGNATURE" &&
     contract.signing?.signed === 0 &&
     hasPermission("signing:cancel");
+  const canCompleteDraft =
+    contract?.status === "DRAFT" && hasPermission("contracts:draft-write");
   const cancel = useMutation({
     mutationFn: () => cancelSigning(id),
     onSuccess: async () => {
@@ -206,9 +208,9 @@ export function ContractModal({
                   {t("contractList.modal.cancelSigning")}
                 </Button>
               ) : null}
-              {contract.status === "DRAFT" &&
-              hasPermission("contracts:draft-write") ? (
+              {canCompleteDraft ? (
                 <Button
+                  type="primary"
                   icon={<FormOutlined />}
                   onClick={() =>
                     navigate(
@@ -228,7 +230,7 @@ export function ContractModal({
                 </Button>
               ) : null}
               <Button
-                type="primary"
+                type={canCompleteDraft ? "default" : "primary"}
                 icon={<ArrowRightOutlined />}
                 iconPlacement="end"
                 onClick={() => navigate(`/contracts/${contract.id}`)}

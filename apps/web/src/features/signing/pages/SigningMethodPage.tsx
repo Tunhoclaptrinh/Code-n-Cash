@@ -301,7 +301,8 @@ function MethodSelection({
                 style={{ marginBottom: 16 }}
               />
               <Button
-                type="primary"
+                color="green"
+                variant="solid"
                 loading={confirm.isPending}
                 disabled={!pending}
                 onClick={() => confirm.mutate()}

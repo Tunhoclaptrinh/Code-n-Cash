@@ -193,7 +193,7 @@ try {
         await pause(200);
         const id = `${name}-${width}-${theme}`;
         const layout = await evaluate(
-          `({overflow:document.documentElement.scrollWidth>innerWidth+1,headings:[...document.querySelectorAll('h1')].filter(x=>x.checkVisibility()).map(x=>x.innerText),guideIntroTop:document.querySelector('article h2')?.getBoundingClientRect().top,tableTop:document.querySelector('.ant-table-thead')?.getBoundingClientRect().top,footerBottom:document.querySelector('[data-testid=positions-footer]')?.getBoundingClientRect().bottom,pdfBottom:document.querySelector('[data-testid=real-pdf-page]')?.getBoundingClientRect().bottom,viewport:innerHeight})`,
+          `({overflow:document.documentElement.scrollWidth>innerWidth+1,headings:[...document.querySelectorAll('h1')].filter(x=>x.checkVisibility()).map(x=>x.innerText),guideIntroTop:document.querySelector('article h2')?.getBoundingClientRect().top,tableTop:document.querySelector('.ant-table-thead')?.getBoundingClientRect().top,footerBottom:document.querySelector('[data-testid=positions-footer]')?.getBoundingClientRect().bottom,pdfWidth:document.querySelector('[data-pagearea]')?.getBoundingClientRect().width,canvasWidth:document.querySelector('[data-testid=signature-canvas]')?.clientWidth,canvasHeight:document.querySelector('[data-testid=signature-canvas]')?.clientHeight,viewport:innerHeight})`,
         );
         const buttons = await evaluate(`(${inspectButtons.toString()})()`);
         const issues = [];
@@ -213,8 +213,10 @@ try {
           layout.footerBottom > height
         )
           issues.push("SIGNATURE_ACTIONS_BELOW_FOLD");
-        if (name === "positions" && width > 1100 && layout.pdfBottom > height)
-          issues.push("FIT_PAGE_CLIPPED");
+        if (name === "positions" && layout.canvasHeight < 380)
+          issues.push("SIGNATURE_CANVAS_TOO_SHORT");
+        if (name === "positions" && layout.pdfWidth < layout.canvasWidth * 0.85)
+          issues.push("SIGNATURE_DOCUMENT_TOO_SMALL");
         for (const b of buttons.filter((b) => b.issue))
           issues.push(`${b.label}: ${b.issue}`);
         const screenshot = await send("Page.captureScreenshot", {

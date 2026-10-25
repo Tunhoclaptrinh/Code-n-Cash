@@ -1,0 +1,21 @@
+.panel {
+  scroll-margin-top: 80px;
+}
+
+.steps {
+  margin-bottom: 16px;
+}
+
+.nextAction {
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.reviewAck {
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}

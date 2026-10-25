@@ -55,3 +55,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [25 — Preview, vùng ký đúng người và bộ mẫu tải trong hướng dẫn](25_RA_SOAT_PREVIEW_VUNG_KY_VA_BO_MAU.md)
 
 - [26 — Kiểm tra trực quan và tinh gọn giao diện](26_KIEM_TRA_TRUC_QUAN_VA_TINH_GON_GIAO_DIEN.md)
+
+- [27 — Khung ký lớn và trình tự đọc/trích xuất](27_KHUNG_KY_LON_VA_TRINH_TU_TRICH_XUAT.md)

@@ -10,11 +10,13 @@ export function DocumentPreview({
   file,
   documentId,
   name,
+  onReady,
 }: {
   previewPath?: string;
   file?: File;
   documentId?: string;
   name: string;
+  onReady?: (ready: boolean) => void;
 }) {
   const { t } = useTranslation("contracts");
   const [result, setResult] = useState<{
@@ -28,6 +30,7 @@ export function DocumentPreview({
     let active = true;
     let url: string | undefined;
     setFailed(false);
+    onReady?.(false);
     if (!source) return;
     const load = async () => {
       try {
@@ -61,7 +64,7 @@ export function DocumentPreview({
       active = false;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [source, file, documentId, previewPath]);
+  }, [source, file, documentId, previewPath, onReady]);
   if (!source)
     return <Alert type="info" title={t("contractUpload.preview.selectFile")} />;
   if (failed)
@@ -99,6 +102,8 @@ export function DocumentPreview({
           borderRadius: 8,
         }}
         data-testid="real-document-preview"
+        onLoad={() => onReady?.(true)}
+        onError={() => onReady?.(false)}
       />
     </Space>
   );

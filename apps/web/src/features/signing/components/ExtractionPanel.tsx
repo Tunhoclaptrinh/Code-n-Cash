@@ -1,13 +1,17 @@
 import { fillEmptyInputs } from "@/shared/lib/form-input";
-import { ImportOutlined } from "@ant-design/icons";
+import { ImportOutlined, ReadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import {
   Alert,
   Button,
   Card,
+  Checkbox,
   Form,
   Input,
+  Grid,
+  Modal,
   Space,
+  Steps,
   Table,
   Tag,
   Typography,
@@ -20,6 +24,8 @@ import { trustApi } from "@/shared/api/trust";
 import { getContractDraft } from "@/shared/api/domain";
 import { platform } from "@/shared/api/platform";
 import { useCurrentUser } from "@/shared/auth/session";
+import { DocumentPreview } from "@/shared/ui/DocumentPreview";
+import styles from "./ExtractionPanel.module.css";
 
 const paths = [
   "valueMillion",
@@ -29,7 +35,13 @@ const paths = [
   "startDate",
   "endDate",
 ] as const;
-export function ExtractionPanel({ code }: { code: string }) {
+export function ExtractionPanel({
+  code,
+  onReadyChange,
+}: {
+  code: string;
+  onReadyChange?: (ready: boolean) => void;
+}) {
   const { t } = useTranslation("trust");
   const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
@@ -48,6 +60,29 @@ export function ExtractionPanel({ code }: { code: string }) {
     enabled: allowed,
   });
   const [values, setValues] = useState<Record<string, string>>({});
+  const [readOpen, setReadOpen] = useState(false);
+  const [previewReady, setPreviewReady] = useState(false);
+  const [reviewedSource, setReviewedSource] = useState<string>();
+  const [reviewedProposal, setReviewedProposal] = useState<string>();
+  const small = Grid.useBreakpoint().xs;
+  const sourceKey = `${code}:${draft.data?.file.documentId ?? ""}:${draft.data?.file.sha256 ?? ""}`;
+  const hasFile = !!draft.data?.file.documentId;
+  const confirmed = !!proposal.data?.confirmedBy;
+  const readDone = !hasFile || reviewedSource === sourceKey || confirmed;
+  useEffect(() => {
+    onReadyChange?.(
+      draft.isSuccess &&
+        proposal.isSuccess &&
+        (!hasFile || confirmed || draft.data.state !== "DRAFT"),
+    );
+  }, [
+    onReadyChange,
+    draft.isSuccess,
+    proposal.isSuccess,
+    hasFile,
+    confirmed,
+    draft.data?.state,
+  ]);
   useEffect(() => {
     if (!proposal.data || !draft.data) return;
     setValues(
@@ -94,20 +129,102 @@ export function ExtractionPanel({ code }: { code: string }) {
       })
     : {};
   const ready = paths.every((path) => values[path]?.trim() && !problems[path]);
-  const error = extract.error ?? confirm.error ?? download.error;
+  const canLoad = !!proposal.data?.fields.some((field) => field.value !== null);
+  const nextField = paths.find(
+    (path) => !values[path]?.trim() || problems[path],
+  );
+  const error =
+    extract.error ??
+    confirm.error ??
+    download.error ??
+    proposal.error ??
+    draft.error;
+  const acknowledged =
+    reviewedProposal === proposal.data?.id && !!proposal.data;
+  const currentStep = confirmed
+    ? 3
+    : !readDone
+      ? 0
+      : !proposal.data
+        ? 1
+        : !acknowledged
+          ? 2
+          : 3;
+  const nextAction = !readDone
+    ? "read"
+    : !proposal.data
+      ? "extract"
+      : !ready && canLoad
+        ? "load"
+        : !acknowledged
+          ? "review"
+          : "confirm";
   return (
-    <Card title={t("extraction.title")} data-testid="extraction-panel">
+    <Card
+      title={t("extraction.title")}
+      data-testid="extraction-panel"
+      className={styles.panel}
+    >
+      <Steps
+        current={currentStep}
+        status={confirmed ? "finish" : "process"}
+        size="small"
+        responsive={false}
+        className={styles.steps}
+        items={["read", "extract", "review", "confirm"].map((step, index) => ({
+          title:
+            small && index !== currentStep ? "" : t(`extraction.flow.${step}`),
+          ...(index === 0 && !hasFile
+            ? {
+                status: "wait" as const,
+                title: small ? "" : t("extraction.flow.noFile"),
+              }
+            : {}),
+        }))}
+      />
       <Alert
-        type="info"
+        type={confirmed ? "success" : "info"}
         showIcon
-        title={t("extraction.notice")}
+        title={t(
+          confirmed
+            ? "extraction.flow.done"
+            : `extraction.flow.hints.${nextAction}`,
+        )}
+        description={
+          !hasFile && draft.isSuccess ? t("extraction.noDocument") : undefined
+        }
         style={{ marginBottom: 12 }}
       />
       <Space wrap style={{ marginBottom: 12 }}>
+        {hasFile ? (
+          <Button
+            icon={<ReadOutlined />}
+            type={!readDone ? "primary" : "default"}
+            className={!readDone ? styles.nextAction : undefined}
+            onClick={() => {
+              setPreviewReady(false);
+              setReadOpen(true);
+            }}
+            data-testid="extraction-read-document"
+          >
+            {t(
+              readDone
+                ? "extraction.flow.readAgain"
+                : "extraction.flow.readDocument",
+            )}
+          </Button>
+        ) : null}
         <Button
           onClick={() => extract.mutate()}
           loading={extract.isPending}
-          disabled={draft.data?.state !== "DRAFT"}
+          disabled={
+            draft.data?.state !== "DRAFT" ||
+            !readDone ||
+            confirmed ||
+            proposal.isPending
+          }
+          type={nextAction === "extract" ? "primary" : "default"}
+          className={nextAction === "extract" ? styles.nextAction : undefined}
           data-testid="extract-terms"
         >
           {t("extraction.extract")}
@@ -124,10 +241,10 @@ export function ExtractionPanel({ code }: { code: string }) {
           <Button
             size="small"
             icon={<ImportOutlined />}
-            disabled={
-              !proposal.data.fields.some((field) => field.value !== null)
-            }
-            onClick={() =>
+            className={nextAction === "load" ? styles.nextAction : undefined}
+            disabled={!canLoad}
+            onClick={() => {
+              setReviewedProposal(undefined);
               setValues((current) =>
                 fillEmptyInputs(
                   current,
@@ -138,8 +255,8 @@ export function ExtractionPanel({ code }: { code: string }) {
                     ]),
                   ),
                 ),
-              )
-            }
+              );
+            }}
             data-testid="extraction-load-suggestions"
           >
             {t("extraction.loadSuggestions")}
@@ -249,16 +366,24 @@ export function ExtractionPanel({ code }: { code: string }) {
                     }
                   >
                     <Input
+                      className={
+                        !ready && readDone && row.path === nextField
+                          ? styles.nextAction
+                          : undefined
+                      }
+                      aria-label={t(`fields.${row.path}`)}
+                      data-testid={`extraction-value-${row.path}`}
                       disabled={!!proposal.data?.confirmedBy}
                       value={values[row.path] ?? ""}
                       placeholder={t(`placeholders.${row.path}`)}
                       maxLength={30}
-                      onChange={(event) =>
+                      onChange={(event) => {
+                        setReviewedProposal(undefined);
                         setValues((current) => ({
                           ...current,
                           [row.path]: event.target.value,
-                        }))
-                      }
+                        }));
+                      }}
                     />
                   </Form.Item>
                 ),
@@ -274,18 +399,88 @@ export function ExtractionPanel({ code }: { code: string }) {
               })}
             />
           ) : (
-            <Button
-              type="primary"
-              onClick={() => confirm.mutate()}
-              loading={confirm.isPending}
-              disabled={!ready}
-              data-testid="extraction-confirm"
-            >
-              {t("extraction.confirm")}
-            </Button>
+            <>
+              <div className={styles.reviewAck}>
+                <Checkbox
+                  checked={acknowledged}
+                  disabled={!ready || !readDone}
+                  onChange={(event) =>
+                    setReviewedProposal(
+                      event.target.checked ? proposal.data!.id : undefined,
+                    )
+                  }
+                  data-testid="extraction-review-ack"
+                  className={
+                    nextAction === "review" && ready
+                      ? styles.nextAction
+                      : undefined
+                  }
+                >
+                  {t("extraction.flow.reviewAck")}
+                </Checkbox>
+              </div>
+              <Button
+                type="primary"
+                onClick={() => confirm.mutate()}
+                loading={confirm.isPending}
+                disabled={!ready || !readDone || !acknowledged}
+                className={
+                  nextAction === "confirm" ? styles.nextAction : undefined
+                }
+                data-testid="extraction-confirm"
+              >
+                {t("extraction.confirm")}
+              </Button>
+            </>
           )}
         </>
       ) : null}
+      <Modal
+        open={readOpen}
+        onCancel={() => setReadOpen(false)}
+        title={t("extraction.flow.readDocument")}
+        width={1000}
+        style={{ top: 20 }}
+        styles={{
+          body: { maxHeight: "calc(100dvh - 180px)", overflowY: "auto" },
+        }}
+        destroyOnHidden
+        footer={
+          <Space>
+            <Button onClick={() => setReadOpen(false)}>
+              {t("extraction.flow.close")}
+            </Button>
+            <Button
+              type="primary"
+              disabled={!previewReady}
+              data-testid="extraction-read-ack"
+              onClick={() => {
+                setReviewedSource(sourceKey);
+                setReadOpen(false);
+                requestAnimationFrame(() =>
+                  document
+                    .querySelector<HTMLElement>('[data-testid="extract-terms"]')
+                    ?.focus(),
+                );
+              }}
+            >
+              {t("extraction.flow.readDone")}
+            </Button>
+          </Space>
+        }
+      >
+        <Alert
+          type="info"
+          showIcon
+          title={t("extraction.flow.readHint")}
+          style={{ marginBottom: 12 }}
+        />
+        <DocumentPreview
+          documentId={draft.data?.file.documentId}
+          name={draft.data?.file.name ?? ""}
+          onReady={setPreviewReady}
+        />
+      </Modal>
     </Card>
   );
 }

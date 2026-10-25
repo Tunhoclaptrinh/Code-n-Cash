@@ -14,6 +14,10 @@ Choose one to four signers. A single signer completes the configured signing flo
 
 ## Position signatures and review terms
 
+The PDF starts at **Fit width** so text and signature boxes stay large; scroll inside the canvas. Use **Expand** for a nearly full-screen workspace, then **Collapse** or Escape to return. **Fit page** provides an overview; manual zoom supports up to 300%. Selecting a signer or **Go to signing area** jumps to their page/area.
+
+![Expanded PDF workspace: 1 — a larger signing canvas with its own scroll](../../../public/guide/images/review-signature-expanded.png)
+
 ![Signature positioning](../../../public/guide/images/upload-positions.webp)
 
 The background displays the actual uploaded PDF pages. Suggest signature areas, then review every signer, page and rectangle. Move or resize boxes; the server rejects page overflow, detected-text coverage and overlapping signatures. Save, then review milestone amounts, percentages, evidence types, approvals, penalties and dates. A relative warranty term needs an explicit confirmed deadline.
@@ -23,6 +27,23 @@ The background displays the actual uploaded PDF pages. Suggest signature areas, 
 > When Gemini is enabled, the API sends the rendered PDF to Google and suggests six terms with page quotations. Quotes are checked against text on the claimed page; values still require human review. Scan quotations require manual checking. Local mode extracts text without AI. Milestone templates still come from the Data Pack. Placement uses actual PDF page coordinates; simulated signatures remain detached proofs rather than embedded PAdES signatures.
 
 Confirmation creates milestones, locks terms and starts signing. The final milestone absorbs rounding remainder so amounts add to the contract value. An unresolved structural gap can leave a milestone on HOLD.
+
+## Read, extract and confirm terms
+
+Before signing, complete the four steps in **Extract and review terms** for an uploaded file. The active step and next action are highlighted, with instructions beside the controls:
+
+1. **Read document first**, review the PDF, then **I have read it · Continue**. The acknowledgement becomes available after the viewer loads.
+2. **Extract terms**, wait for the result, then **Load suggestions** into empty fields.
+3. Compare all six values with the page/quote, correct or complete them, and acknowledge your review below the table.
+4. **Confirm and apply to draft**, review the payment milestones/dates, then confirm digitised terms to continue to signing.
+
+![Guided review: 1 — four steps; 2 — read the PDF first](../../../public/guide/images/review-extraction-start.png)
+
+![Read the actual PDF: 1 — acknowledge reading before continuing](../../../public/guide/images/review-extraction-read.png)
+
+![Compare extracted values and sources: 1 — load suggestions](../../../public/guide/images/review-extraction-values.png)
+
+Reopening an unconfirmed draft shows the guidance and reading step again without automatically calling AI. Confirmed proposals show the completed stage. Legacy fixtures with no stored file explicitly require manual review; the app does not claim to have read a missing PDF.
 
 ## Sign in order
 

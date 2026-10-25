@@ -26,7 +26,7 @@
   "extraction": {
     "title": "Trích xuất và đối chiếu điều khoản",
     "notice": "Kết quả đọc tài liệu chỉ là đề xuất. Đối chiếu giá trị, trang và đoạn trích; sửa hoặc bổ sung trước khi xác nhận và khóa điều khoản.",
-    "extract": "Đọc và trích xuất tệp",
+    "extract": "Trích xuất điều khoản",
     "document": "Tải tài liệu gốc",
     "noDocument": "Hồ sơ demo chỉ có tên tệp, chưa có tệp gốc. Dữ liệu dưới đây cần xác nhận thủ công.",
     "noText": "Tệp chưa có văn bản để đối chiếu tự động. Với bản scan, hãy kiểm tra giá trị và đoạn trích trên ảnh trang.",
@@ -46,7 +46,28 @@
     "loadSuggestions": "Nạp đề xuất",
     "quoteVerified": "Đã tìm thấy đoạn trích trên trang",
     "scanReview": "Cần đối chiếu ảnh trang",
-    "aiNotice": "AI đề xuất; người rà soát xác nhận. Không tự phê duyệt hoặc thay đổi quyết định thanh toán."
+    "aiNotice": "AI đề xuất; người rà soát xác nhận. Không tự phê duyệt hoặc thay đổi quyết định thanh toán.",
+    "flow": {
+      "read": "Đọc tệp",
+      "extract": "Trích xuất",
+      "review": "Đối chiếu",
+      "confirm": "Xác nhận",
+      "noFile": "Chưa có tệp",
+      "done": "Đã xác nhận điều khoản. Tiếp tục rà soát các mốc thanh toán bên dưới.",
+      "readAgain": "Đọc lại tài liệu",
+      "readDocument": "Đọc tài liệu trước",
+      "close": "Đóng",
+      "readDone": "Đã đọc · Tiếp tục",
+      "readHint": "Đọc các điều khoản về giá trị, thời hạn, ân hạn và phạt trong PDF. Chỉ tiếp tục khi bạn đã xem và hiểu tài liệu.",
+      "reviewAck": "Tôi đã đối chiếu các giá trị xác nhận với trang và nội dung của tài liệu.",
+      "hints": {
+        "read": "Bước 1 · Bấm “Đọc tài liệu trước”, xem PDF rồi xác nhận đã đọc.",
+        "extract": "Bước 2 · Bấm “Trích xuất điều khoản” để đọc dữ liệu từ tệp.",
+        "load": "Bước 3 · Nạp đề xuất vào các ô trống, rồi đối chiếu từng giá trị với nguồn trong tệp. Bổ sung trường chưa đọc được.",
+        "review": "Bước 3 · Kiểm tra đủ sáu giá trị, sửa khi cần và đánh dấu đã đối chiếu trước khi xác nhận.",
+        "confirm": "Bước 4 · Bấm “Xác nhận và áp dụng vào hồ sơ”. Sau đó kiểm tra bảng mốc và chuyển sang ký."
+      }
+    }
   },
   "rules": {
     "title": "Phiên bản quy tắc và mẫu mốc",

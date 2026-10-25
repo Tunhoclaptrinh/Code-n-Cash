@@ -149,6 +149,17 @@ try {
             "review-signature-mismatch": [
               "Danh sách lệch tài liệu; sửa người ký hoặc tạo lại tệp.",
             ],
+            "review-signature-expanded": [
+              "Khung PDF mở rộng để đặt ô ký; Escape để thu gọn.",
+            ],
+            "review-extraction-start": [
+              "Các bước đọc, trích xuất, đối chiếu và xác nhận.",
+              "Đọc PDF trước khi trích xuất.",
+            ],
+            "review-extraction-read": ["Xác nhận đã đọc sau khi PDF tải xong."],
+            "review-extraction-values": [
+              "Nạp đề xuất rồi đối chiếu sáu trường với nguồn trong PDF.",
+            ],
             "review-signed-hold": [
               "Mốc nghiệm thu còn thiếu chứng từ, hợp đồng đã ký đủ.",
             ],
@@ -284,7 +295,7 @@ try {
   );
   assert.equal(
     await evaluate(
-      `(()=>{const page=document.querySelector('[data-pagearea]').getBoundingClientRect(),canvas=document.querySelector('[data-pagearea]').parentElement.parentElement.getBoundingClientRect();return page.width<=canvas.width&&page.height<=canvas.height;})()`,
+      `(()=>{const page=document.querySelector('[data-pagearea]').getBoundingClientRect(),canvas=document.querySelector('[data-testid=signature-canvas]');return page.width>=canvas.clientWidth*.85&&canvas.clientHeight>=380;})()`,
     ),
     true,
   );
@@ -292,7 +303,7 @@ try {
     "review-signature-match",
     "Cán bộ hợp đồng",
     "Vùng ký khớp tên, kể cả khi đổi thứ tự",
-    ["[data-testid=real-pdf-page]", "[data-testid=positions-suggest]"],
+    ["[data-testid=signature-canvas]", "[data-testid=positions-suggest]"],
   );
   const bad = await call("drafts", "saveContractDraft", {
     ...(await call("drafts", "getContractDraft", saved.code)),
@@ -330,6 +341,180 @@ try {
     "Cán bộ hợp đồng",
     "Chặn người ký không khớp tài liệu",
     ["[data-testid=signer-document-mismatch]"],
+  );
+  // A separate draft goes through the complete guided review without changing the mismatch fixture.
+  const guided = {
+    ...input,
+    code: (await call("drafts", "getContractDraft", undefined, true)).code,
+  };
+  const guidedSample = await post("/contract-samples", {
+    draft: guided,
+    language: "vi",
+  });
+  const guidedBytes = Buffer.from(guidedSample.base64, "base64");
+  const guidedSaved = await call("drafts", "saveContractDraft", {
+    ...guided,
+    file: {
+      name: guidedSample.fileName,
+      sizeBytes: guidedBytes.length,
+      kind: "DOCX",
+    },
+  });
+  const guidedUpload = new FormData();
+  guidedUpload.append(
+    "file",
+    new Blob([guidedBytes], { type: guidedSample.mimeType }),
+    guidedSample.fileName,
+  );
+  await post("/documents/" + guidedSaved.code, guidedUpload);
+  await go(
+    `/contracts/${guidedSaved.code}/sign-positions`,
+    '!!document.querySelector("[data-testid=positions-suggest]")',
+  );
+  await click("[data-testid=positions-suggest]");
+  await until(
+    '!!document.querySelector("[data-testid=positions-save]") && !!document.querySelector("[data-testid=real-pdf-page]")?.naturalWidth',
+  );
+  const normalWidth = await evaluate(
+    'document.querySelector("[data-testid=signature-canvas]").clientWidth',
+  );
+  await click("[data-testid=signature-expand]");
+  await until(
+    'document.querySelector("[data-testid=signature-expand]").getAttribute("aria-pressed")==="true"',
+  );
+  await pause(300);
+  assert.ok(
+    await evaluate(
+      `document.querySelector('[data-testid=signature-canvas]').clientWidth>${normalWidth}+100`,
+    ),
+  );
+  await shot(
+    "review-signature-expanded",
+    "Cán bộ hợp đồng",
+    "Khung đặt chữ ký mở rộng",
+    ["[data-testid=signature-canvas]"],
+  );
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape" });
+  await until(
+    'document.querySelector("[data-testid=signature-expand]").getAttribute("aria-pressed")==="false"',
+  );
+  assert.notEqual(await evaluate("document.body.style.overflow"), "hidden");
+  await click("[data-testid=signature-fit-page]");
+  await pause(300);
+  assert.ok(
+    await evaluate(
+      '(()=>{const p=document.querySelector("[data-pagearea]").getBoundingClientRect(),c=document.querySelector("[data-testid=signature-canvas]");return p.height<c.clientHeight&&p.width<c.clientWidth;})()',
+    ),
+  );
+  await click("[data-testid=signature-fit-width]");
+  await click("[data-testid=positions-save]");
+  const digitizePath = `/contracts/${guidedSaved.code}/digitize`;
+  await until(
+    '!!document.querySelector("[data-testid=extraction-read-document]")',
+  );
+  assert.equal(
+    await evaluate(
+      'document.querySelector("[data-testid=extract-terms]").disabled',
+    ),
+    true,
+  );
+  assert.equal(
+    await evaluate(
+      'document.querySelector("[data-testid=digitize-confirm]").disabled',
+    ),
+    true,
+  );
+  await shot(
+    "review-extraction-start",
+    "Cán bộ hợp đồng",
+    "Bắt đầu đọc và trích xuất đúng trình tự",
+    [
+      "[data-testid=extraction-panel] .ant-steps",
+      "[data-testid=extraction-read-document]",
+    ],
+  );
+  async function readDocument(capture = false) {
+    await click("[data-testid=extraction-read-document]");
+    await until(
+      '!!document.querySelector(".ant-modal [data-testid=real-document-preview]") && !document.querySelector("[data-testid=extraction-read-ack]").disabled',
+    );
+    if (capture)
+      await shot(
+        "review-extraction-read",
+        "Cán bộ hợp đồng",
+        "Đọc PDF thật trước khi trích xuất",
+        ["[data-testid=extraction-read-ack]"],
+      );
+    await click("[data-testid=extraction-read-ack]");
+    await until(
+      '!document.querySelector(".ant-modal") && !document.querySelector("[data-testid=extract-terms]").disabled',
+    );
+  }
+  await readDocument(true);
+  await click("[data-testid=extract-terms]");
+  await until(
+    '!!document.querySelector("[data-testid=extraction-load-suggestions]") && !document.querySelector("[data-testid=extract-terms]").classList.contains("ant-btn-loading")',
+  );
+  // Reopening an unconfirmed proposal must show the read step again, with guidance still present.
+  await go(
+    digitizePath,
+    '!!document.querySelector("[data-testid=extraction-read-document]")',
+  );
+  assert.equal(
+    await evaluate(
+      'document.querySelector("[data-testid=extract-terms]").disabled',
+    ),
+    true,
+  );
+  await readDocument();
+  await click("[data-testid=extraction-load-suggestions]");
+  await until(
+    '!!document.querySelector("[data-testid=extraction-value-valueMillion]")?.value',
+  );
+  assert.equal(
+    await evaluate(
+      'document.querySelector("[data-testid=extraction-confirm]").disabled',
+    ),
+    true,
+  );
+  await shot(
+    "review-extraction-values",
+    "Cán bộ hợp đồng",
+    "Nạp đề xuất và đối chiếu nguồn",
+    ["[data-testid=extraction-load-suggestions]"],
+  );
+  await click("[data-testid=extraction-review-ack]");
+  await until(
+    '!document.querySelector("[data-testid=extraction-confirm]").disabled',
+  );
+  await evaluate(
+    'document.querySelector("[data-testid=extraction-value-valueMillion]").focus();document.querySelector("[data-testid=extraction-value-valueMillion]").select()',
+  );
+  await send("Input.insertText", { text: "1250.51" });
+  await until(
+    'document.querySelector("[data-testid=extraction-confirm]").disabled',
+  );
+  await evaluate(
+    'document.querySelector("[data-testid=extraction-value-valueMillion]").select()',
+  );
+  await send("Input.insertText", { text: "1250.50" });
+  await click("[data-testid=extraction-review-ack]");
+  await until(
+    '!document.querySelector("[data-testid=extraction-confirm]").disabled',
+  );
+  await click("[data-testid=extraction-confirm]");
+  await until(
+    '!document.querySelector("[data-testid=digitize-confirm]").disabled && !document.querySelector("[data-testid=extraction-confirm]")',
+  );
+  if (
+    await evaluate(
+      '!!document.querySelector("[data-testid=load-deadline-suggestion]")',
+    )
+  )
+    await click("[data-testid=load-deadline-suggestion]");
+  await click("[data-testid=digitize-confirm]");
+  await until(
+    `location.pathname===${JSON.stringify(`/contracts/${guidedSaved.code}/signing`)}`,
   );
   await go(
     "/contracts/CT0084",

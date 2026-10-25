@@ -87,6 +87,7 @@ function Review({
   const [deadlineText, setDeadlineText] = useState("");
   const [deadlineInvalid, setDeadlineInvalid] = useState(false);
   const [highlighted, setHighlighted] = useState<SourceClauseKind | null>(null);
+  const [extractionReady, setExtractionReady] = useState(false);
   const confirm = useMutation({
     mutationFn: (dueDate: string | null) =>
       confirmDigitization(contractId, { dueDate }),
@@ -106,6 +107,7 @@ function Review({
       void navigate(`/contracts/${contractId}/signing`);
       return;
     }
+    if (!extractionReady) return;
     const dueDate = pending ? inputTextToDate(deadlineText) : null;
     if (dueDate === undefined) {
       setDeadlineInvalid(true);
@@ -120,8 +122,8 @@ function Review({
   return (
     <>
       <WizardStepper current="REVIEW" />
-      <ExtractionPanel code={contractId} />
-      <div className={styles.layout}>
+      <ExtractionPanel code={contractId} onReadyChange={setExtractionReady} />
+      <div className={styles.layout} data-testid="digitization-milestones">
         <section className={cx(shared.card, styles.panel)}>
           <div className={styles.panelHeader}>
             <h2>{t("digitize.source.title")}</h2>
@@ -341,7 +343,7 @@ function Review({
             <Button
               type="primary"
               size="small"
-              disabled={confirm.isPending}
+              disabled={confirm.isPending || (!data.locked && !extractionReady)}
               onClick={onConfirm}
               data-testid="digitize-confirm"
             >
@@ -350,6 +352,25 @@ function Review({
                 : t("digitize.footer.confirm")}
             </Button>
           </div>
+          {!data.locked && !extractionReady ? (
+            <Alert
+              type="info"
+              showIcon
+              title={t("digitize.extractionFirst")}
+              action={
+                <Button
+                  size="small"
+                  onClick={() =>
+                    document
+                      .querySelector('[data-testid="extraction-panel"]')
+                      ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
+                >
+                  {t("digitize.goExtraction")}
+                </Button>
+              }
+            />
+          ) : null}
         </section>
       </div>
     </>

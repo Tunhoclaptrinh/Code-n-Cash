@@ -26,7 +26,7 @@
   "extraction": {
     "title": "Extract and review terms",
     "notice": "Document reading produces suggestions. Review values, pages and quotes; correct or complete them before confirming and locking terms.",
-    "extract": "Extract document terms",
+    "extract": "Extract terms",
     "document": "Download source document",
     "noDocument": "This demo record has a filename but no original bytes. Review the values manually.",
     "noText": "No readable text is available for automatic quote matching. For a scan, check the proposed value and quote against the page image.",
@@ -46,7 +46,28 @@
     "loadSuggestions": "Load suggestions",
     "quoteVerified": "Quote found on the page",
     "scanReview": "Review against the page image",
-    "aiNotice": "AI suggests; the reviewer confirms. AI does not approve or change payment decisions."
+    "aiNotice": "AI suggests; the reviewer confirms. AI does not approve or change payment decisions.",
+    "flow": {
+      "read": "Read file",
+      "extract": "Extract",
+      "review": "Review",
+      "confirm": "Confirm",
+      "noFile": "No file",
+      "done": "Terms confirmed. Continue reviewing the payment milestones below.",
+      "readAgain": "Read document again",
+      "readDocument": "Read document first",
+      "close": "Close",
+      "readDone": "I have read it · Continue",
+      "readHint": "Read the value, dates, grace period and penalty terms in the actual PDF. Continue after you have reviewed and understood the document.",
+      "reviewAck": "I have compared the confirmed values with their pages and the document contents.",
+      "hints": {
+        "read": "Step 1 · Open “Read document first”, review the PDF, then acknowledge that you have read it.",
+        "extract": "Step 2 · Select “Extract terms” to read the data from the file.",
+        "load": "Step 3 · Load suggestions into empty fields, then compare each value with its source. Complete anything that could not be extracted.",
+        "review": "Step 3 · Check all six values, correct them if needed, and acknowledge your review before confirming.",
+        "confirm": "Step 4 · Select “Confirm and apply to draft”, then review the milestones and continue to signing."
+      }
+    }
   },
   "rules": {
     "title": "Rule and template versions",

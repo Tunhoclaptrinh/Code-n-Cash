@@ -780,8 +780,6 @@ try {
       const body = new FormData(); body.append('file',new Blob([bytes],{type:sample.mimeType}),sample.fileName);
       const uploaded = await fetch('/api/v1/documents/CT0101',{method:'POST',headers:{Authorization:headers.Authorization},body});
       if(!uploaded.ok) throw new Error('GUIDE_REAL_UPLOAD_FAILED');
-      const proposal = await post('/trust/contracts/CT0101/extraction');
-      await post('/trust/contracts/CT0101/extraction/'+proposal.id+'/confirm', {values:Object.fromEntries(proposal.fields.map(field=>[field.path,field.value]))});
     })()`);
     await go(
       "/contracts/CT0101/sign-positions",
@@ -794,13 +792,40 @@ try {
     await until("!!document.querySelector('[data-testid=positions-save]')");
     await shot("upload-positions", {
       marks: [
-        { n: 1, target: "[data-testid=real-pdf-page]" },
+        { n: 1, target: "[data-testid=signature-canvas]" },
         { n: 2, target: "[data-testid=positions-suggest]", badge: "right" },
       ],
     });
     await click("[data-testid=positions-save]");
-    await until("!!document.querySelector('[data-testid=digitize-confirm]')");
+    await until(
+      "!!document.querySelector('[data-testid=extraction-read-document]')",
+    );
+    await click("[data-testid=extraction-read-document]");
+    await until(
+      "!!document.querySelector('[data-testid=extraction-read-ack]') && !document.querySelector('[data-testid=extraction-read-ack]').disabled",
+    );
+    await click("[data-testid=extraction-read-ack]");
+    await until(
+      "!document.querySelector('.ant-modal') && !document.querySelector('[data-testid=extract-terms]').disabled",
+    );
+    await click("[data-testid=extract-terms]");
+    await until(
+      "!!document.querySelector('[data-testid=extraction-load-suggestions]')",
+    );
+    await click("[data-testid=extraction-load-suggestions]");
+    await until(
+      "!!document.querySelector('[data-testid=extraction-review-ack]') && !document.querySelector('[data-testid=extraction-review-ack]').disabled",
+    );
+    await click("[data-testid=extraction-review-ack]");
+    await until(
+      "!document.querySelector('[data-testid=extraction-confirm]').disabled",
+    );
+    await click("[data-testid=extraction-confirm]");
+    await until(
+      "!document.querySelector('[data-testid=digitize-confirm]').disabled",
+    );
     await shot("upload-digitize", {
+      clip: "[data-testid=digitization-milestones]",
       marks: [
         { n: 1, target: "#milestone-deadline" },
         { n: 2, target: "[data-testid=digitize-confirm]" },

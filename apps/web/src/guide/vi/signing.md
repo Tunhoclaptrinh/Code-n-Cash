@@ -18,11 +18,30 @@ Người ký và vai trò phê duyệt thanh toán là hai cấu hình khác nha
 
 ## 2. Đặt vị trí ký
 
+Khung PDF mặc định **Vừa chiều ngang** để chữ và ô ký đủ lớn; cuộn trong khung để xem phần còn lại. Chọn **Mở rộng** để dùng gần toàn màn hình (bấm **Thu gọn** hoặc Escape để trở lại). **Vừa trang** dùng khi muốn xem tổng thể; có thể phóng to tới 300%. Chọn người ký hoặc **Đến vùng ký** để chuyển đến đúng trang/vùng đang thao tác.
+
+![Khung PDF mở rộng: 1 — vùng đặt chữ ký lớn và có cuộn riêng](../../../public/guide/images/review-signature-expanded.png)
+
 ![Vị trí các chữ ký trên tài liệu](../../../public/guide/images/upload-positions.webp)
 
 Ảnh nền là từng trang PDF thật của tài liệu đã tải lên. Bấm **Điền vị trí ký mẫu** để gợi ý vùng ký in sẵn, rồi chọn từng người ký và đối chiếu lại. Có thể chuyển trang, phóng to, kéo hoặc đổi kích thước ô ký. Hệ thống chặn ô nằm ngoài trang, đè lên chữ nhận diện được hoặc chồng với ô khác. Lưu vị trí rồi sang bước rà soát. Nếu hồ sơ chưa đủ dữ liệu hoặc vị trí chưa hợp lệ, sửa tại bước tương ứng trước khi tiếp tục.
 
 ## 3. Rà soát điều khoản và khoá
+
+Với tệp thật, thực hiện lần lượt bốn bước ở thẻ **Trích xuất và đối chiếu điều khoản**. Bước hiện tại và thao tác cần bấm có viền nhấn, kèm hướng dẫn ngay trên các nút.
+
+1. Bấm **Đọc tài liệu trước**. Xem PDF và bấm **Đã đọc · Tiếp tục**; nút chỉ bật khi trình xem đã tải tệp.
+2. Bấm **Trích xuất điều khoản**, chờ kết quả rồi **Nạp đề xuất** vào các ô trống.
+3. Đối chiếu sáu giá trị với trang/đoạn trích; sửa hoặc bổ sung rồi đánh dấu **Tôi đã đối chiếu…** bên dưới bảng.
+4. Bấm **Xác nhận và áp dụng vào hồ sơ**. Tiếp tục rà bảng mốc/ngày cần xác nhận, rồi **Xác nhận bản số hóa và chuyển sang ký**.
+
+![Trình tự: 1 — bốn bước; 2 — mở PDF để đọc trước](../../../public/guide/images/review-extraction-start.png)
+
+![Đọc PDF thật: 1 — xác nhận đã đọc để tiếp tục](../../../public/guide/images/review-extraction-read.png)
+
+![Đề xuất và nguồn để đối chiếu: 1 — nạp các giá trị đọc được](../../../public/guide/images/review-extraction-values.png)
+
+Mở lại hồ sơ chưa xác nhận vẫn thấy hướng dẫn và cần xác nhận đã đọc; không tự gọi AI lại. Hồ sơ đã xác nhận hiển thị bước hoàn tất. Mẫu dữ liệu cũ không có bytes tệp được ghi rõ là cần rà soát thủ công; hệ thống không giả vờ đã đọc một PDF không tồn tại.
 
 ![Rà soát: 1 — hạn cần xác nhận; 2 — xác nhận điều khoản](../../../public/guide/images/upload-digitize.webp)
 

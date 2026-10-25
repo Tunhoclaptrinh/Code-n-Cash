@@ -1,4 +1,5 @@
 import { Button, Select } from "antd";
+import { ExpandOutlined, CompressOutlined } from "@ant-design/icons";
 import { printedAreas, wrongSignerArea } from "../lib/signer-placement";
 import {
   useEffect,
@@ -40,7 +41,7 @@ const PAGE_WIDTH = 520;
 const PAGE_HEIGHT = 620;
 const PAGE_WIDTH_MM = 210;
 const ZOOM_MIN = 25;
-const ZOOM_MAX = 125;
+const ZOOM_MAX = 300;
 const ZOOM_STEP = 25;
 const KEY_STEP = 4;
 const LINE_WIDTHS = [94, 88, 91, 62, 90, 86, 93, 70, 88, 92, 84, 60];
@@ -172,7 +173,9 @@ function Editor({ contractId, config }: EditorProps) {
     initial.boxes[steps[0]?.stepNo ?? 1]?.page ?? lastPage,
   );
   const [zoom, setZoom] = useState(100);
-  const [autoFit, setAutoFit] = useState(true);
+  const [fitMode, setFitMode] = useState<"width" | "page" | null>("width");
+  const [expanded, setExpanded] = useState(false);
+  const [focusRevision, setFocusRevision] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(420);
   const [sideHeight, setSideHeight] = useState(620);
   const layoutRef = useRef<HTMLDivElement>(null);
@@ -456,24 +459,82 @@ function Editor({ contractId, config }: EditorProps) {
     (!config.documentId || imageReady);
 
   const pageData = previewPages.find((candidate) => candidate.pageNo === page);
+  const widthZoom = ((canvasSize.width - 8) / PAGE_WIDTH) * 100;
   const fitZoom = clamp(
     Math.floor(
-      Math.min(
-        (canvasSize.width - 8) / PAGE_WIDTH,
-        (canvasSize.height - 8) / pageHeight(page),
-      ) * 100,
+      Math.min(widthZoom / 100, (canvasSize.height - 8) / pageHeight(page)) *
+        100,
     ),
     ZOOM_MIN,
     ZOOM_MAX,
   );
-  const viewZoom = autoFit ? fitZoom : zoom;
+  const viewZoom =
+    fitMode === "page"
+      ? fitZoom
+      : fitMode === "width"
+        ? clamp(Math.floor(widthZoom), ZOOM_MIN, ZOOM_MAX)
+        : zoom;
   const scale = viewZoom / 100;
+  useEffect(() => {
+    if (!expanded) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const close = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+    window.addEventListener("keydown", close);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", close);
+    };
+  }, [expanded]);
+  useEffect(() => {
+    if (fitMode === "page" || drag.current) return;
+    const frame = requestAnimationFrame(() => {
+      const canvas = canvasRef.current;
+      const area =
+        canvas?.querySelector<HTMLElement>(
+          `[data-slot-step="${activeStep}"]`,
+        ) ??
+        canvas?.querySelector<HTMLElement>(
+          `[data-anchor-step="${activeStep}"]`,
+        );
+      if (!canvas || !area) return;
+      const target = area.getBoundingClientRect(),
+        viewport = canvas.getBoundingClientRect();
+      canvas.scrollTo({
+        top:
+          canvas.scrollTop +
+          target.top +
+          target.height / 2 -
+          viewport.top -
+          canvas.clientHeight / 2,
+        left:
+          canvas.scrollLeft +
+          target.left +
+          target.width / 2 -
+          viewport.left -
+          canvas.clientWidth / 2,
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    activeStep,
+    page,
+    viewZoom,
+    imageReady,
+    fitMode,
+    expanded,
+    focusRevision,
+  ]);
   useEffect(() => {
     const update = () => {
       if (canvasRef.current)
         setCanvasHeight(
           Math.max(
-            220,
+            expanded
+              ? 220
+              : Math.min(520, Math.max(380, window.innerHeight * 0.55)),
             Math.min(
               760,
               window.innerHeight -
@@ -500,9 +561,10 @@ function Editor({ contractId, config }: EditorProps) {
       observer.disconnect();
       window.removeEventListener("resize", update);
     };
-  }, [incompatible.length, unconfiguredPrinted.length]);
+  }, [incompatible.length, unconfiguredPrinted.length, expanded]);
   const selectStep = (stepNo: number) => {
     setActiveStep(stepNo);
+    setFocusRevision((value) => value + 1);
     const area = printedAreas(
       config,
       steps.find((step) => step.stepNo === stepNo)!,
@@ -598,13 +660,26 @@ function Editor({ contractId, config }: EditorProps) {
         />
       ) : null}
       <div
-        className={styles.layout}
+        className={cx(styles.layout, expanded && styles.layoutExpanded)}
         ref={layoutRef}
         style={{ "--editor-side-height": `${sideHeight}px` } as CSSProperties}
       >
         <section className={cx(shared.card, styles.canvasCard)}>
           <div className={styles.canvasHeader}>
             <h2>{t("positions.title")}</h2>
+            <Button
+              size="small"
+              icon={expanded ? <CompressOutlined /> : <ExpandOutlined />}
+              onClick={() => setExpanded((value) => !value)}
+              aria-pressed={expanded}
+              data-testid="signature-expand"
+            >
+              {t(
+                expanded
+                  ? "positions.collapseWorkspace"
+                  : "positions.expandWorkspace",
+              )}
+            </Button>
             <span className={styles.fileMeta}>
               {t("positions.fileMeta", {
                 fileName: config.fileName,
@@ -641,6 +716,7 @@ function Editor({ contractId, config }: EditorProps) {
           <div
             className={styles.canvas}
             ref={canvasRef}
+            data-testid="signature-canvas"
             style={{ height: canvasHeight }}
           >
             <div
@@ -708,6 +784,25 @@ function Editor({ contractId, config }: EditorProps) {
                   </>
                 ) : null}
 
+                {steps.flatMap((step) =>
+                  printedAreas(config, step)
+                    .filter((area) => area.page === page)
+                    .map((area, index) => (
+                      <span
+                        key={`${step.stepNo}-${index}`}
+                        data-anchor-step={step.stepNo}
+                        aria-hidden="true"
+                        style={{
+                          position: "absolute",
+                          left: area.x,
+                          top: area.y,
+                          width: area.w,
+                          height: area.h,
+                          pointerEvents: "none",
+                        }}
+                      />
+                    )),
+                )}
                 {visibleSteps.map((step) => {
                   const box = boxes[step.stepNo] as Box;
                   const flag = flags[step.stepNo];
@@ -718,6 +813,7 @@ function Editor({ contractId, config }: EditorProps) {
                     <div
                       key={step.stepNo}
                       data-box="1"
+                      data-slot-step={step.stepNo}
                       className={cx(
                         toneClass(step.stepNo),
                         styles.slot,
@@ -810,7 +906,20 @@ function Editor({ contractId, config }: EditorProps) {
                 label: t("positions.pageNo", { page: p.pageNo }),
               }))}
             />
-            <Button size="small" onClick={() => setAutoFit(true)}>
+            <Button
+              size="small"
+              onClick={() => setFitMode("width")}
+              aria-pressed={fitMode === "width"}
+              data-testid="signature-fit-width"
+            >
+              {t("positions.fitWidth")}
+            </Button>
+            <Button
+              size="small"
+              onClick={() => setFitMode("page")}
+              aria-pressed={fitMode === "page"}
+              data-testid="signature-fit-page"
+            >
               {t("positions.fitPage")}
             </Button>
             <span className={styles.zoom}>
@@ -820,7 +929,7 @@ function Editor({ contractId, config }: EditorProps) {
                 className={styles.pagerButton}
                 aria-label={t("positions.zoom.out")}
                 onClick={() => {
-                  setAutoFit(false);
+                  setFitMode(null);
                   setZoom(Math.max(ZOOM_MIN, viewZoom - ZOOM_STEP));
                 }}
               >
@@ -832,7 +941,7 @@ function Editor({ contractId, config }: EditorProps) {
                 className={styles.pagerButton}
                 aria-label={t("positions.zoom.in")}
                 onClick={() => {
-                  setAutoFit(false);
+                  setFitMode(null);
                   setZoom(Math.min(ZOOM_MAX, viewZoom + ZOOM_STEP));
                 }}
               >

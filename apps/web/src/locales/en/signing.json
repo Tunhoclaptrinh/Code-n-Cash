@@ -151,6 +151,9 @@
     "choosePage": "Choose PDF page",
     "pageNo": "Page {{page}}",
     "fitPage": "Fit page",
+    "fitWidth": "Fit width",
+    "expandWorkspace": "Expand",
+    "collapseWorkspace": "Collapse",
     "showArea": "Go to signing area",
     "identityRole": "Role: {{role}} · Job title: {{title}}",
     "identityManual": "Printed signer names/parties could not be identified. Manually review each signer and area; automatic checks cover coordinates, detectable text and overlap only.",
@@ -165,10 +168,10 @@
       "current": "Digitisation and clause review"
     },
     "source": {
-      "title": "Source text in the PDF",
+      "title": "Terms from the workflow template",
       "badge": "Workflow template illustration",
-      "location": "Article {{article}}, page {{page}}",
-      "hint": "Yellow areas are where the system read out figures. Click a row on the right to see where it came from.",
+      "location": "Illustrative section {{article}}",
+      "hint": "This panel explains workflow-template milestones, rather than quoting the file. Actual PDF evidence is in the extraction table above. Select a milestone to highlight its explanation.",
       "vnd": "{{value}} million VND",
       "clause": {
         "TOTAL_VALUE": "The total contract value is <mark>{{value}}</mark>, paid in {{milestones}} milestones.",
@@ -219,7 +222,7 @@
     "total": {
       "title": "Sum of milestones",
       "value": "{{value}} million VND",
-      "match": "Matches the contract value in Article {{article}}.",
+      "match": "Matches the confirmed contract value.",
       "mismatch": "Does not match the contract value ({{value}} million VND)."
     },
     "footer": {
@@ -228,7 +231,9 @@
       "back": "Back",
       "confirm": "Confirm digitised terms and continue to signing",
       "continue": "Continue to signing"
-    }
+    },
+    "extractionFirst": "Read the file, extract and confirm the terms above before locking digitised terms.",
+    "goExtraction": "Go to the next step"
   },
   "flow": {
     "breadcrumb": {

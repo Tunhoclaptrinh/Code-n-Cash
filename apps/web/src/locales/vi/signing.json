@@ -151,6 +151,9 @@
     "choosePage": "Chọn trang PDF",
     "pageNo": "Trang {{page}}",
     "fitPage": "Vừa trang",
+    "fitWidth": "Vừa chiều ngang",
+    "expandWorkspace": "Mở rộng",
+    "collapseWorkspace": "Thu gọn",
     "showArea": "Đến vùng ký",
     "identityRole": "Vai trò: {{role}} · Chức danh: {{title}}",
     "identityManual": "Chưa nhận diện được tên/bên ký in sẵn trên PDF. Kiểm tra thủ công từng người và vùng ký; hệ thống chỉ kiểm được tọa độ, chữ nhận diện được và chồng lấn.",
@@ -165,10 +168,10 @@
       "current": "Số hóa và rà soát điều khoản"
     },
     "source": {
-      "title": "Văn bản gốc trong PDF",
+      "title": "Điều khoản theo mẫu quy trình",
       "badge": "Minh họa từ mẫu quy trình",
-      "location": "Điều {{article}}, trang {{page}}",
-      "hint": "Vùng tô vàng là chỗ hệ thống đã đọc ra số liệu. Bấm vào một dòng bên phải để xem nó lấy từ đâu.",
+      "location": "Mục minh họa {{article}}",
+      "hint": "Phần này diễn giải các mốc theo mẫu quy trình, không phải đoạn trích của tệp. Nguồn PDF thực nằm trong bảng trích xuất bên trên. Bấm một dòng mốc để xem diễn giải tương ứng.",
       "vnd": "{{value}} triệu đồng",
       "clause": {
         "TOTAL_VALUE": "Tổng giá trị hợp đồng là <mark>{{value}}</mark>, thanh toán theo {{milestones}} mốc.",
@@ -217,7 +220,7 @@
     "total": {
       "title": "Tổng các mốc",
       "value": "{{value}} triệu VND",
-      "match": "Khớp với giá trị hợp đồng ở Điều {{article}}.",
+      "match": "Khớp tổng giá trị hợp đồng đã xác nhận.",
       "mismatch": "Không khớp với giá trị hợp đồng ({{value}} triệu VND)."
     },
     "footer": {
@@ -226,7 +229,9 @@
       "back": "Quay lại",
       "confirm": "Xác nhận bản số hóa và chuyển sang ký",
       "continue": "Chuyển sang ký"
-    }
+    },
+    "extractionFirst": "Hoàn thành đọc tệp, trích xuất và xác nhận điều khoản ở trên trước khi khóa bản số hóa.",
+    "goExtraction": "Đến bước cần làm"
   },
   "flow": {
     "breadcrumb": {

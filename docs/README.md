@@ -69,3 +69,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [31 — Lược bớt thông tin kỹ thuật trên UI](31_LUOC_BOT_THONG_TIN_KY_THUAT_UI.md)
 
 - [32 — Văn bản hợp đồng bên cạnh thao tác](32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md)
+
+- [33 — Giản lược màn hình theo nguyên tắc UI/UX](33_GIAN_LUOC_MAN_HINH_THEO_UX.md)

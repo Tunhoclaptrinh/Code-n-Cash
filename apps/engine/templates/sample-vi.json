@@ -1,5 +1,22 @@
 {
-  "sample": "TÀI LIỆU MẪU DÙNG THỬ — CHƯA KÝ",
+  "sample": "Tài liệu mẫu dùng thử, chưa ký",
+  "header": {
+    "nation": "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+    "motto": "Độc lập - Tự do - Hạnh phúc",
+    "title": "HỢP ĐỒNG HÀNG HÓA / DỊCH VỤ"
+  },
+  "numberPrefix": "Số: ",
+  "basis": [
+    "Căn cứ Bộ luật Dân sự số 91/2015/QH13;",
+    "Căn cứ Luật Thương mại số 36/2005/QH11;",
+    "Căn cứ nhu cầu và khả năng của các bên."
+  ],
+  "dateLine": "Hôm nay, ngày ... tháng ... năm ..., các bên gồm:",
+  "parties": {
+    "BUYER": "BÊN MUA (Bên A):",
+    "SUPPLIER": "NHÀ CUNG CẤP (Bên B):"
+  },
+  "intro": "Các bên thống nhất nội dung hợp đồng và cơ chế ký xác nhận dưới đây.",
   "sections": [
     {
       "title": "Chủ thể và mục đích",
@@ -55,27 +72,57 @@
     }
   ],
   "fields": {
-    "valueMillion": "Giá trị hợp đồng: {value} triệu VND",
-    "startDate": "Ngày bắt đầu: {value}",
-    "endDate": "Ngày kết thúc: {value}",
-    "graceDays": "Ân hạn: {value} ngày",
-    "penaltyRatePct": "Phạt trễ hạn: {value}% mỗi ngày",
-    "maxPenaltyPct": "Trần phạt: {value}%"
+    "valueMillion": {
+      "label": "Giá trị hợp đồng",
+      "value": "{value} triệu VND"
+    },
+    "startDate": {
+      "label": "Ngày bắt đầu",
+      "value": "{value}"
+    },
+    "endDate": {
+      "label": "Ngày kết thúc",
+      "value": "{value}"
+    },
+    "graceDays": {
+      "label": "Ân hạn",
+      "value": "{value} ngày"
+    },
+    "penaltyRatePct": {
+      "label": "Phạt trễ hạn",
+      "value": "{value}% mỗi ngày"
+    },
+    "maxPenaltyPct": {
+      "label": "Trần phạt",
+      "value": "{value}%"
+    }
   },
-  "stage": "{name} — {paymentPercent}% — {dueDate} — {requiredEvents}",
+  "article": "Điều {number}. {title}",
+  "table": {
+    "index": "STT",
+    "milestone": "Mốc",
+    "share": "Tỷ lệ",
+    "due": "Thời hạn",
+    "evidence": "Hồ sơ cần có"
+  },
   "single": "Một người ký: chữ ký duy nhất hoàn tất quy trình ký của tài liệu này.",
   "multiple": "Nhiều người ký: cần hoàn thành tất cả lượt theo thứ tự, có đại diện của hai bên.",
   "sides": {
     "BUYER": "Bên mua",
     "SUPPLIER": "Nhà cung cấp"
   },
-  "page": "Mục {page}/14",
   "signatures": "Xác nhận và chữ ký",
-  "signHere": "Vị trí ký — họ tên, ngày giờ, phương thức ký",
+  "continued": "(tiếp)",
+  "review": "Đối chiếu toàn bộ tài liệu trước khi ký. Vùng trống bên dưới dành cho chữ ký; họ tên và thời gian ký được lưu cùng hồ sơ.",
+  "representative": {
+    "BUYER": "ĐẠI DIỆN BÊN MUA",
+    "SUPPLIER": "ĐẠI DIỆN NHÀ CUNG CẤP"
+  },
+  "signatureNote": "(Ký, ghi rõ họ tên và đóng dấu)",
+  "anchor": "VỊ TRÍ KÝ",
   "original": {
-    "notice": "BẢN HỢP ĐỒNG MÔ PHỎNG — lập từ dữ liệu hợp đồng của Ban tổ chức để xem và đối chiếu",
-    "closing": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Bản này được lập lại từ dữ liệu hợp đồng để xem trên hệ thống.",
-    "footer": "Bản mô phỏng · Trang "
+    "notice": "Bản hợp đồng mô phỏng, lập từ dữ liệu hợp đồng của Ban tổ chức để xem và đối chiếu",
+    "closing": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Bản này được lập lại từ dữ liệu hợp đồng để xem trên hệ thống."
   },
   "milestoneTypes": {
     "SIGNING": "Ký hợp đồng",
@@ -93,7 +140,7 @@
     "SERVICE_COMPLETION": "Hoàn thành dịch vụ"
   },
   "pendingSigners": "Chưa chọn người ký: danh sách và thứ tự ký sẽ hiển thị tại đây sau khi bạn chọn người ký.",
-  "pendingSignerBlock": "NGƯỜI KÝ — CHƯA CHỌN",
+  "pendingSignerBlock": "NGƯỜI KÝ: CHƯA CHỌN",
   "eventTypes": {
     "CONTRACT_SIGNED": "Hợp đồng đã ký",
     "KICKOFF_CONFIRMED": "Xác nhận khởi động",

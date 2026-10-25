@@ -1,5 +1,22 @@
 {
-  "sample": "CODECASH TEST FIXTURE — UNSIGNED",
+  "sample": "CodeCash test fixture, unsigned",
+  "header": {
+    "nation": "SOCIALIST REPUBLIC OF VIET NAM",
+    "motto": "Independence - Freedom - Happiness",
+    "title": "GOODS AND SERVICES AGREEMENT"
+  },
+  "numberPrefix": "Reference: ",
+  "basis": [
+    "Pursuant to the Civil Code No. 91/2015/QH13;",
+    "Pursuant to the Law on Commerce No. 36/2005/QH11;",
+    "Pursuant to the needs and capacity of the parties."
+  ],
+  "dateLine": "On ... / ... / ......, the parties are:",
+  "parties": {
+    "BUYER": "BUYER (Party A):",
+    "SUPPLIER": "SUPPLIER (Party B):"
+  },
+  "intro": "The parties agree on the following terms and execution order.",
   "sections": [
     {
       "title": "Parties and purpose",
@@ -11,7 +28,7 @@
     },
     {
       "title": "Contract value",
-      "body": "Value is stated in million VND with two decimal places. Payment follows the rule version pinned to the contract."
+      "body": "Contract value: {valueMillion} million VND. Value is stated in million VND with two decimal places. Payment follows the rule version pinned to the contract."
     },
     {
       "title": "Milestones and payment",
@@ -55,27 +72,57 @@
     }
   ],
   "fields": {
-    "valueMillion": "Contract value: {value} million VND",
-    "startDate": "Start date: {value}",
-    "endDate": "End date: {value}",
-    "graceDays": "Grace period: {value} days",
-    "penaltyRatePct": "Penalty rate: {value}% per day",
-    "maxPenaltyPct": "Penalty cap: {value}%"
+    "valueMillion": {
+      "label": "Contract value",
+      "value": "{value} million VND"
+    },
+    "startDate": {
+      "label": "Start date",
+      "value": "{value}"
+    },
+    "endDate": {
+      "label": "End date",
+      "value": "{value}"
+    },
+    "graceDays": {
+      "label": "Grace period",
+      "value": "{value} days"
+    },
+    "penaltyRatePct": {
+      "label": "Penalty rate",
+      "value": "{value}% per day"
+    },
+    "maxPenaltyPct": {
+      "label": "Penalty cap",
+      "value": "{value}%"
+    }
   },
-  "stage": "{name} — {paymentPercent}% — {dueDate} — {requiredEvents}",
+  "article": "Article {number}. {title}",
+  "table": {
+    "index": "No.",
+    "milestone": "Milestone",
+    "share": "Share",
+    "due": "Due date",
+    "evidence": "Required evidence"
+  },
   "single": "Single signer: this signature completes the configured signing workflow.",
   "multiple": "Multiple signers: all steps must complete in order, representing both parties.",
   "sides": {
     "BUYER": "Buyer",
     "SUPPLIER": "Supplier"
   },
-  "page": "Section {page}/14",
   "signatures": "Confirmation and signatures",
-  "signHere": "Signature area — name, timestamp and method",
+  "continued": "(continued)",
+  "review": "Review the entire document before signing. The blank areas below are reserved for signatures; signer identity and time are retained with the record.",
+  "representative": {
+    "BUYER": "FOR THE BUYER",
+    "SUPPLIER": "FOR THE SUPPLIER"
+  },
+  "signatureNote": "(Sign, write full name and affix seal)",
+  "anchor": "SIGNING AREA",
   "original": {
-    "notice": "SIMULATED CONTRACT — rebuilt from the organiser's contract data for viewing and cross-checking",
-    "closing": "The contract becomes effective when all agreed signing steps complete. The parties keep the original and its records. This copy is rebuilt from the contract data for viewing in the system.",
-    "footer": "Simulated copy · Page "
+    "notice": "Simulated contract, rebuilt from the organiser's contract data for viewing and cross-checking",
+    "closing": "The contract becomes effective when all agreed signing steps complete. The parties keep the original and its records. This copy is rebuilt from the contract data for viewing in the system."
   },
   "milestoneTypes": {
     "SIGNING": "Contract signing",
@@ -93,7 +140,7 @@
     "SERVICE_COMPLETION": "Service completion"
   },
   "pendingSigners": "Signers have not been chosen yet: the signing list and order will appear here once signers are selected.",
-  "pendingSignerBlock": "SIGNERS — NOT CHOSEN YET",
+  "pendingSignerBlock": "SIGNERS: NOT CHOSEN YET",
   "eventTypes": {
     "CONTRACT_SIGNED": "Contract signed",
     "KICKOFF_CONFIRMED": "Kickoff confirmed",

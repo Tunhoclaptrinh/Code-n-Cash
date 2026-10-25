@@ -2,6 +2,8 @@
 
 Monorepo cho Case 4, Bảng D: số hóa hợp đồng, ký theo trình tự, nộp bằng chứng, phê duyệt, xử lý tranh chấp và đánh giá điều kiện thanh toán.
 
+**Nhận việc hoặc sửa tiếp:** bắt đầu ở [hướng dẫn tiếp quản](docs/30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md): cách chạy, bản đồ mã nguồn, điểm nối, fixture kiểm thử, việc còn mở và mẫu bàn giao. Tích hợp engine/AI xem thêm [tài liệu 29](docs/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md).
+
 ## Khởi chạy
 
 Yêu cầu: Node.js 24 (xem `.nvmrc`), pnpm 12.14.0 (qua corepack), Python 3.9+. Không cần cài thư viện Python cho engine hiện tại.

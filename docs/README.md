@@ -4,6 +4,8 @@
 
 Đội **6 người**, chuẩn bị bài trong **7 ngày**. Đọc [note tổng thể](note.md), sau đó dùng [kế hoạch và checklist](03_LO_TRINH_VA_CHECKLIST_NOP_BAI.md) để thống nhất phạm vi, phân vai và tiến độ.
 
+**Dành cho người tiếp quản:** [30 — Hướng dẫn làm tiếp và chỉnh sửa](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md) là điểm bắt đầu chung; [29 — Tích hợp engine/AI](29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md) đi sâu vào module; dùng [mẫu bàn giao](templates/HANDOFF_TEMPLATE.md) khi chuyển việc.
+
 | Tài liệu | Nội dung |
 | --- | --- |
 | [01 — Đề bài và thuật ngữ](01_DE_BAI_VA_THUAT_NGU.md) | Giải thích bài toán, decision flow và ví dụ đối chiếu sample |
@@ -61,3 +63,5 @@ Dữ liệu đã đếm từ CSV: **100 contracts, 65 parties, 405 milestones, 1
 - [28 — Rà soát bố cục toàn ứng dụng](28_RA_SOAT_BO_CUC_TOAN_UNG_DUNG.md)
 
 - [29 — Bàn giao tích hợp engine và AI cho Hoàng, Lâm](29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md)
+
+- [30 — Hướng dẫn tiếp quản và phát triển tiếp cho cả đội](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md)

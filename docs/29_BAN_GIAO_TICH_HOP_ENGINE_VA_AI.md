@@ -2,6 +2,8 @@
 
 Ngày 25/10/2026, giờ Bangkok. Hai module riêng của Hoàng/Lâm chưa được cung cấp; tài liệu này chốt điểm nối, cách kiểm và phạm vi hiện có, không coi module tương lai là đã tích hợp.
 
+Người mới nhận việc hoặc muốn sửa phần khác bắt đầu từ [hướng dẫn tiếp quản chung](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md). Tên Hoàng/Lâm là đầu mối dự kiến; cả đội có thể đổi người phụ trách hoặc cách triển khai, bàn giao bằng [mẫu ghi việc](templates/HANDOFF_TEMPLATE.md).
+
 ## 1. Có bắt buộc huấn luyện mô hình không?
 
 **Theo nội dung BTC đội gửi: chưa có yêu cầu bắt buộc huấn luyện mô hình.** Ground truth là đáp án chuẩn để đánh giá; thuật ngữ này không đồng nghĩa bài thi phải dùng ML. Lõi hiện tại là rule engine, không cần huấn luyện để đưa ra RELEASE/HOLD/REJECT/PENALTY. ELSE là nhánh mặc định cuối cùng → HOLD, không phải event cần thêm vào dữ liệu.

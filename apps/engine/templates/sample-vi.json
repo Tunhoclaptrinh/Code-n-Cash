@@ -93,5 +93,23 @@
     "SERVICE_COMPLETION": "Hoàn thành dịch vụ"
   },
   "pendingSigners": "Chưa chọn người ký: danh sách và thứ tự ký sẽ hiển thị tại đây sau khi bạn chọn người ký.",
-  "pendingSignerBlock": "NGƯỜI KÝ — CHƯA CHỌN"
+  "pendingSignerBlock": "NGƯỜI KÝ — CHƯA CHỌN",
+  "eventTypes": {
+    "CONTRACT_SIGNED": "Hợp đồng đã ký",
+    "KICKOFF_CONFIRMED": "Xác nhận khởi động",
+    "REQUIREMENTS_APPROVED": "Biên bản duyệt yêu cầu",
+    "UAT_PASSED": "Biên bản UAT đạt",
+    "ACCEPTANCE": "Biên bản nghiệm thu",
+    "DELIVERY": "Biên bản giao hàng",
+    "INVOICE": "Hoá đơn",
+    "GO_LIVE": "Xác nhận go-live",
+    "SERVICE_ACTIVATED": "Xác nhận kích hoạt",
+    "SERVICE_COMPLETED": "Xác nhận hoàn thành dịch vụ",
+    "WARRANTY_COMPLETED": "Hoàn tất bảo hành",
+    "APPROVAL": "Phê duyệt chi",
+    "REJECTION": "Từ chối",
+    "DISPUTE_OPENED": "Mở tranh chấp",
+    "DISPUTE_RESOLVED": "Đóng tranh chấp",
+    "OTHER": "Tài liệu kèm theo"
+  }
 }

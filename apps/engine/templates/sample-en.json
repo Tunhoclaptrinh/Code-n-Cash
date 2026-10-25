@@ -93,5 +93,23 @@
     "SERVICE_COMPLETION": "Service completion"
   },
   "pendingSigners": "Signers have not been chosen yet: the signing list and order will appear here once signers are selected.",
-  "pendingSignerBlock": "SIGNERS — NOT CHOSEN YET"
+  "pendingSignerBlock": "SIGNERS — NOT CHOSEN YET",
+  "eventTypes": {
+    "CONTRACT_SIGNED": "Contract signed",
+    "KICKOFF_CONFIRMED": "Kickoff confirmed",
+    "REQUIREMENTS_APPROVED": "Requirements approved",
+    "UAT_PASSED": "UAT passed",
+    "ACCEPTANCE": "Acceptance report",
+    "DELIVERY": "Delivery note",
+    "INVOICE": "Invoice",
+    "GO_LIVE": "Go-live",
+    "SERVICE_ACTIVATED": "Service activated",
+    "SERVICE_COMPLETED": "Service completed",
+    "WARRANTY_COMPLETED": "Warranty completed",
+    "APPROVAL": "Payment approval",
+    "REJECTION": "Rejection",
+    "DISPUTE_OPENED": "Dispute opened",
+    "DISPUTE_RESOLVED": "Dispute resolved",
+    "OTHER": "Supporting file"
+  }
 }

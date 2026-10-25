@@ -484,6 +484,7 @@
     "phoneCaption": "Điện thoại của người ký",
     "phoneCodeLabel": "Mã xác nhận",
     "verifyMeta": "{{dateTime}} · {{method}}",
-    "checkHint": "Xem các chữ ký trong tệp còn đúng hay không."
+    "checkHint": "Xem các chữ ký trong tệp còn đúng hay không.",
+    "signNow": "Ký hợp đồng"
   }
 }

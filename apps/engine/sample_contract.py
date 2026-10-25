@@ -75,13 +75,12 @@ def build_document(data):
     content.append(p('Các bên thống nhất nội dung hợp đồng và cơ chế ký xác nhận dưới đây.' if vi else 'The parties agree on the following terms and execution order.'))
     for key in ('valueMillion', 'startDate', 'endDate', 'graceDays', 'penaltyRatePct', 'maxPenaltyPct'):
         content.append(p(labels['fields'][key].format(value=data[key])))
-    events = {'CONTRACT_SIGNED':'Hợp đồng đã ký', 'DELIVERY':'Biên bản bàn giao', 'INVOICE':'Hóa đơn', 'ACCEPTANCE':'Biên bản nghiệm thu', 'WARRANTY_COMPLETED':'Xác nhận hoàn tất bảo hành', 'KICKOFF_CONFIRMED':'Xác nhận khởi động', 'SERVICE_COMPLETED':'Xác nhận hoàn thành dịch vụ'}
     for index, section in enumerate(labels['sections']):
         content += [p(f"Điều {index + 1}. {section['title']}" if vi else f"Article {index + 1}. {section['title']}", 'Heading1'), p(section['body'].format(**data))]
         if index == 3:
             rows = [['Mốc' if vi else 'Milestone', 'Tỷ lệ' if vi else 'Share', 'Thời hạn' if vi else 'Due date', 'Hồ sơ cần có' if vi else 'Required evidence']]
             for stage in data['stages']:
-                required = ', '.join(events.get(event.strip(), event.strip()) if vi else event.strip().replace('_',' ').title() for event in stage['requiredEvents'].split(','))
+                required = ', '.join(labels['eventTypes'].get(event.strip(), event.strip()) for event in stage['requiredEvents'].split(',') if event.strip())
                 name = labels['milestoneTypes'].get(stage.get('type', ''), stage['name'])
                 rows.append([name, stage['paymentPercent']+'%', stage['dueDate'], required])
             content.append(table(rows, [2200, 1000, 1800, 4400]))

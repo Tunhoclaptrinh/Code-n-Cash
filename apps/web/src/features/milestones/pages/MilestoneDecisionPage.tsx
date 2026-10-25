@@ -459,9 +459,11 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
                       }
                     >
                       <span>
-                        {i18n.language.startsWith("vi")
-                          ? r.description
-                          : r.name}
+                        {td(`ruleCondition.${r.reasonCode}`, {
+                          defaultValue: i18n.language.startsWith("vi")
+                            ? r.description
+                            : r.name,
+                        })}
                       </span>
                     </Tooltip>
                   ),

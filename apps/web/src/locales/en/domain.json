@@ -304,5 +304,15 @@
     "R_SERVICE_STD": "Standard services",
     "R_SOFTWARE_STD": "Standard software",
     "R_MAINTENANCE_STD": "Standard maintenance"
+  },
+  "ruleCondition": {
+    "OPEN_DISPUTE": "An open dispute puts the payment on hold.",
+    "REJECTION_PRESENT": "A rejection means the milestone is rejected and not paid.",
+    "UNAUTHORIZED_EVENT": "Evidence from a party without authority does not count; held for review.",
+    "MISSING_REQUIRED_EVENT": "Without all required evidence for the milestone, no payment is released.",
+    "APPROVAL_QUORUM_NOT_MET": "If approval is required but the roles or number of approvals are incomplete, payment is held.",
+    "LATE_COMPLETION": "Completed after the due date and grace period: a late penalty is deducted from the payment.",
+    "ALL_CONDITIONS_MET": "All conditions met, no dispute and no rejection: the full milestone value is paid.",
+    "UNRESOLVED_CONDITION": "Anything not covered above is held for manual review, never paid automatically."
   }
 }

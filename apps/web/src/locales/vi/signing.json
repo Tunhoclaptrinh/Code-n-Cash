@@ -242,7 +242,7 @@
       "WAITING": "Chờ ký",
       "SIGNED": "Đã ký đủ"
     },
-    "meta_other": "{{code}} · {{supplier}} · {{value}} triệu VND · {{count}} trang",
+    "meta_other": "{{code}} · {{supplier}} · {{value}} triệu VND",
     "sequence": {
       "title": "Trình tự ký",
       "stepTitle": "{{party}} · {{person}}",
@@ -291,7 +291,7 @@
     },
     "file": {
       "title": "Tệp sẽ được ký",
-      "meta_other": "{{fileName}} · {{count}} trang"
+      "meta_other": "{{fileName}}"
     },
     "actions": {
       "back": "Quay lại",

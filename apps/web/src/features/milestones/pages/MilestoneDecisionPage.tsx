@@ -229,8 +229,9 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
               ) : null}
               {actions.resolveDispute || actions.openDispute ? (
                 <Button
+                  // Both open the dispute screen: handling one is the next step, raising one flags a problem.
                   {...(actions.resolveDispute
-                    ? { color: "green" as const, variant: "solid" as const }
+                    ? { type: "primary" as const }
                     : {
                         color: "orange" as const,
                         variant: "outlined" as const,

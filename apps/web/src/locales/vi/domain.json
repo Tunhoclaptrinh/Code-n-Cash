@@ -127,7 +127,7 @@
     "SUBMIT": "{{side}} nộp {{events}}",
     "APPROVE": "Chờ {{roles}} phê duyệt",
     "RESOLVE_DISPUTE": "Chủ hợp đồng giải quyết tranh chấp",
-    "REVIEW_EXCEPTION": "Kiểm soát viên xem xét event sai thẩm quyền",
+    "REVIEW_EXCEPTION": "Kiểm soát viên xem xét chứng từ sai thẩm quyền",
     "MANUAL_REVIEW": "Kiểm tra thủ công (rule 80)",
     "OUTSIDE_SYSTEM": "Đã từ chối, xử lý ngoài hệ thống",
     "TRANSFER": "Kế toán chuyển chi",
@@ -147,7 +147,7 @@
     "UNAUTHORIZED": "Sai thẩm quyền",
     "WRONG_STATUS": "Sai trạng thái",
     "UNRELATED": "Không liên quan",
-    "VOIDED": "Đã vô hiệu (BR-19)"
+    "VOIDED": "Đã vô hiệu"
   },
   "trigger": {
     "IMPORT": "Dữ liệu ban đầu",

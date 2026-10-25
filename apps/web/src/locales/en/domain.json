@@ -127,7 +127,7 @@
     "SUBMIT": "{{side}} submits {{events}}",
     "APPROVE": "Waiting for {{roles}} to approve",
     "RESOLVE_DISPUTE": "Contract owner resolves the dispute",
-    "REVIEW_EXCEPTION": "Controllers review the unauthorised event",
+    "REVIEW_EXCEPTION": "Controllers review the record filed by the wrong party",
     "MANUAL_REVIEW": "Manual review (rule 80)",
     "OUTSIDE_SYSTEM": "Rejected; handled outside the system",
     "TRANSFER": "Finance transfers the payment",
@@ -147,7 +147,7 @@
     "UNAUTHORIZED": "Unauthorised",
     "WRONG_STATUS": "Wrong status",
     "UNRELATED": "Unrelated",
-    "VOIDED": "Voided (BR-19)"
+    "VOIDED": "Voided"
   },
   "trigger": {
     "IMPORT": "Initial data",

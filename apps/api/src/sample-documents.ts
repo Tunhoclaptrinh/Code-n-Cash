@@ -104,6 +104,7 @@ export class SampleDocumentsController {
           name: String(ctx.user(signer.userId)!.displayName),
         })),
         stages: stagesOf(ctx, draft.type).map((stage) => ({
+          type: stage.type,
           name: stage.name,
           paymentPercent: stage.paymentPercent,
           dueDate: addDays(draft.startDate, stage.offsetDays),

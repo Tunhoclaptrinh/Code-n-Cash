@@ -1,6 +1,7 @@
+/* The contract document takes the right column: payment overview and terms sit above the timeline. */
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -173,11 +174,10 @@
 /* Sidebar cards */
 
 .sidebar {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
-  position: sticky;
-  top: 88px;
+  align-items: start;
 }
 
 .sideCard {
@@ -333,15 +333,6 @@
   --ms-amber: #d49b2c;
   --ms-amber-wash: #2a2416;
   --ms-blue-wash: #17213a;
-}
-
-@media (max-width: 1200px) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .sidebar {
-    position: static;
-  }
 }
 
 @media (max-width: 760px) {

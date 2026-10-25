@@ -1,5 +1,5 @@
 import { SignaturePlacementPreview } from "@/shared/ui/SignaturePlacementPreview";
-import { ContractDocumentPanel } from "@/shared/ui/ContractDocumentPanel";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { Alert, Button } from "antd";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -68,7 +68,6 @@ export default function SigningMethodPage() {
         )}
         style={{ marginBottom: 16 }}
       />
-      <ContractDocumentPanel contractId={contractId} />
       {overview.data ? (
         <MethodSelection
           contractId={contractId}
@@ -172,7 +171,13 @@ function MethodSelection({
   const phase = current ? current.status : "IDLE";
 
   return (
-    <>
+    <ContractSideLayout
+      contractId={contractId}
+      focus={t("flow.sequence.stepTitle", {
+        party: t(`party.${step.party}`),
+        person: step.signerName,
+      })}
+    >
       <div className={styles.titleRow}>
         <h2>{t("signMethod.title", { code: contractId })}</h2>
         <span className={cx(shared.pill, styles.stepChip)}>
@@ -319,7 +324,7 @@ function MethodSelection({
           )}
         </section>
       </div>
-    </>
+    </ContractSideLayout>
   );
 }
 

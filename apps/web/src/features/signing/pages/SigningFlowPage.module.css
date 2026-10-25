@@ -2,7 +2,8 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  /* The contract document takes the second column, so the cards stack. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -277,12 +278,6 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-}
-
-@media (max-width: 1100px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 760px) {

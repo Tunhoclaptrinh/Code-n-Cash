@@ -1,4 +1,5 @@
 import { ContractDocuments } from "@/shared/ui/ContractDocuments";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
 import {
   Alert,
@@ -232,72 +233,74 @@ export default function ContractDetailPage() {
             <ContractDocuments contractId={contract.id} />
           ) : null}
           {tab === "milestones" ? (
-            <div className={styles.grid}>
-              {data.milestones.length ? (
-                <ol className={styles.timeline}>
-                  {data.milestones.map((row, index) => (
-                    <MilestoneItem
-                      key={row.id}
-                      row={row}
-                      contractId={contract.id}
-                      isLast={index === data.milestones.length - 1}
+            <ContractSideLayout contractId={contract.id}>
+              <div className={styles.grid}>
+                <div className={styles.sidebar}>
+                  <PaymentOverview data={data} />
+                  <Panel className={`${styles.sideCard} ${styles.people}`}>
+                    <h2>{t("detail.terms.title")}</h2>
+                    <TermRow
+                      label={t("detail.terms.workflow")}
+                      value={td(`workflow.${data.workflowTemplate}`)}
                     />
-                  ))}
-                </ol>
-              ) : (
-                <Panel className={styles.tabPanel}>
-                  <div className={styles.panelBody}>
-                    <p className={styles.empty}>{t("detail.noMilestones")}</p>
-                  </div>
-                </Panel>
-              )}
-              <div className={styles.sidebar}>
-                <PaymentOverview data={data} />
-                <Panel className={`${styles.sideCard} ${styles.people}`}>
-                  <h2>{t("detail.terms.title")}</h2>
-                  <TermRow
-                    label={t("detail.terms.workflow")}
-                    value={td(`workflow.${data.workflowTemplate}`)}
-                  />
-                  <TermRow
-                    label={t("detail.terms.ruleSet")}
-                    value={td(`ruleSet.${data.ruleSetId}`, {
-                      defaultValue: data.ruleSetId,
-                    })}
-                  />
-                  <TermRow
-                    label={t("detail.terms.policy")}
-                    value={td(`policy.${contract.approvalPolicy}`)}
-                  />
-                  <TermRow
-                    label={t("detail.terms.period")}
-                    value={`${formatDate(contract.startDate)} – ${formatDate(contract.endDate)}`}
-                  />
-                  <TermRow
-                    label={t("detail.terms.penalty")}
-                    value={t("detail.terms.penaltyValue", {
-                      grace: data.graceDays,
-                      rate: data.penaltyRatePct,
-                      cap: data.maxPenaltyPct,
-                    })}
-                  />
-                  <TechnicalDetails
-                    items={[
-                      {
-                        key: "workflow",
-                        label: t("detail.terms.workflow"),
-                        value: data.workflowTemplate,
-                      },
-                      {
-                        key: "ruleSet",
-                        label: t("detail.terms.ruleSet"),
-                        value: data.ruleSetId,
-                      },
-                    ]}
-                  />
-                </Panel>
+                    <TermRow
+                      label={t("detail.terms.ruleSet")}
+                      value={td(`ruleSet.${data.ruleSetId}`, {
+                        defaultValue: data.ruleSetId,
+                      })}
+                    />
+                    <TermRow
+                      label={t("detail.terms.policy")}
+                      value={td(`policy.${contract.approvalPolicy}`)}
+                    />
+                    <TermRow
+                      label={t("detail.terms.period")}
+                      value={`${formatDate(contract.startDate)} – ${formatDate(contract.endDate)}`}
+                    />
+                    <TermRow
+                      label={t("detail.terms.penalty")}
+                      value={t("detail.terms.penaltyValue", {
+                        grace: data.graceDays,
+                        rate: data.penaltyRatePct,
+                        cap: data.maxPenaltyPct,
+                      })}
+                    />
+                    <TechnicalDetails
+                      items={[
+                        {
+                          key: "workflow",
+                          label: t("detail.terms.workflow"),
+                          value: data.workflowTemplate,
+                        },
+                        {
+                          key: "ruleSet",
+                          label: t("detail.terms.ruleSet"),
+                          value: data.ruleSetId,
+                        },
+                      ]}
+                    />
+                  </Panel>
+                </div>
+                {data.milestones.length ? (
+                  <ol className={styles.timeline}>
+                    {data.milestones.map((row, index) => (
+                      <MilestoneItem
+                        key={row.id}
+                        row={row}
+                        contractId={contract.id}
+                        isLast={index === data.milestones.length - 1}
+                      />
+                    ))}
+                  </ol>
+                ) : (
+                  <Panel className={styles.tabPanel}>
+                    <div className={styles.panelBody}>
+                      <p className={styles.empty}>{t("detail.noMilestones")}</p>
+                    </div>
+                  </Panel>
+                )}
               </div>
-            </div>
+            </ContractSideLayout>
           ) : null}
           {tab === "events" ? (
             <EventsTable

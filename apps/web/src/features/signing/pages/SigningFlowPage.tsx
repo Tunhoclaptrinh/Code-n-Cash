@@ -1,4 +1,4 @@
-import { ContractDocuments } from "@/shared/ui/ContractDocuments";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -81,8 +81,22 @@ function Flow({
     },
   });
 
+  const currentStep = steps.find(
+    (step) => step.stepNo === overview.currentStepNo,
+  );
+
   return (
-    <>
+    <ContractSideLayout
+      contractId={contractId}
+      focus={
+        currentStep && !allSigned
+          ? t("flow.sequence.stepTitle", {
+              party: t(`party.${currentStep.party}`),
+              person: currentStep.signerName,
+            })
+          : undefined
+      }
+    >
       <WizardStepper current={allSigned ? "EFFECTIVE" : "SIGN"} />
 
       <div className={styles.layout}>
@@ -107,7 +121,6 @@ function Flow({
               count: overview.pageCount,
             })}
           </div>
-          <ContractDocuments contractId={contractId} />
         </section>
 
         <section className={cx(shared.card, styles.sequenceCard)}>
@@ -154,7 +167,7 @@ function Flow({
           </div>
         </section>
       </div>
-    </>
+    </ContractSideLayout>
   );
 }
 

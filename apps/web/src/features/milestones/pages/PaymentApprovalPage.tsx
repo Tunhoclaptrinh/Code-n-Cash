@@ -15,6 +15,7 @@ import {
 import { AppPage } from "@/shared/layout/AppPage";
 import { actorName, contractHeading } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import {
   DecisionTag,
   MilestoneStatusTag,
@@ -143,7 +144,10 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
   };
 
   return (
-    <>
+    <ContractSideLayout
+      contractId={contract.id}
+      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
+    >
       <WorkflowContext>
         {contractHeading(contract)} · {contract.supplier.name} ·{" "}
         <TrackingCode code={milestone.id} />
@@ -384,7 +388,7 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
           ),
         })}
       </Modal>
-    </>
+    </ContractSideLayout>
   );
 }
 

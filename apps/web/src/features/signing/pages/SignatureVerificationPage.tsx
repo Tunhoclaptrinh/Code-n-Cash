@@ -12,6 +12,7 @@ import { formatDateTime } from "@/shared/lib/format";
 import { signingKeys } from "../api/signingConfig.api";
 import { checkFile, getVerification } from "../api/verification.api";
 import { contractHeading } from "@/shared/lib/domain";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
 import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
 import { cx, formatMonthYear, isCertificateExpired } from "../lib/helpers";
@@ -80,7 +81,9 @@ export default function SignatureVerificationPage() {
         />
       </div>
       {verification.data ? (
-        <Verification contractId={contractId} result={verification.data} />
+        <ContractSideLayout contractId={contractId}>
+          <Verification contractId={contractId} result={verification.data} />
+        </ContractSideLayout>
       ) : routeId ? (
         <PageState kind={verification.isError ? "error" : "loading"} />
       ) : (

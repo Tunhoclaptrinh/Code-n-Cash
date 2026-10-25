@@ -7,6 +7,7 @@ import { getDispute } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
 import { contractHeading } from "@/shared/lib/domain";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageState } from "@/shared/ui/PageState";
 import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { DecisionPanel } from "../components/DecisionPanel";
@@ -46,7 +47,10 @@ export default function DisputePage() {
         <PageState kind="error" onRetry={() => void dispute.refetch()} />
       ) : null}
       {data ? (
-        <>
+        <ContractSideLayout
+          contractId={data.contract.id}
+          focus={`${td("milestoneNo", { no: data.milestone.sequence })} · ${td(`milestoneType.${data.milestone.type}`)}`}
+        >
           <WorkflowContext>
             {td(`milestoneType.${data.milestone.type}`)} ·{" "}
             {contractHeading(data.contract)} · {data.contract.buyer.name} ↔{" "}
@@ -60,7 +64,7 @@ export default function DisputePage() {
               view={data}
             />
           </div>
-        </>
+        </ContractSideLayout>
       ) : null}
     </AppPage>
   );

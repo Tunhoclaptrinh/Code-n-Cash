@@ -25,6 +25,7 @@ import {
   formatDecimalString,
   formatNumber,
 } from "@/shared/lib/format";
+import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { DecisionTag, OriginTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
@@ -220,7 +221,10 @@ function Workspace({
   );
 
   return (
-    <>
+    <ContractSideLayout
+      contractId={contract.id}
+      focus={`${td("milestoneNo", { no: milestone.sequence })} · ${td(`milestoneType.${milestone.type}`)}`}
+    >
       <WorkflowContext>
         {contractHeading(contract)} · {td(`milestoneType.${milestone.type}`)} ·{" "}
         {td(`side.${data.side}`)} · <TrackingCode code={milestone.id} />
@@ -335,7 +339,7 @@ function Workspace({
           </div>
         </Panel>
       </div>
-    </>
+    </ContractSideLayout>
   );
 }
 

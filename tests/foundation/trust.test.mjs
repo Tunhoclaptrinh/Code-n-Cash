@@ -127,6 +127,8 @@ test("audit records actual redacted deltas and request context; rollback cannot 
             createdAt: "now",
             updatedAt: "now",
             name: "Before",
+            email: "person@example.vn",
+            signers: [{ signerName: "Nguyễn Văn A", step: 1 }],
             passwordHash: "NEVER_LOG_HASH",
             token: "NEVER_LOG_TOKEN",
           }),
@@ -141,6 +143,14 @@ test("audit records actual redacted deltas and request context; rollback cannot 
     after: "Before",
   });
   assert.doesNotMatch(JSON.stringify(created), /NEVER_LOG|passwordHash|token/);
+  // Personal values are kept only as keyed digests, nested ones included.
+  assert.doesNotMatch(JSON.stringify(created), /person@example|Nguyễn Văn A/);
+  assert.match(created.changes[0].fields.email.after, /^hmac-sha256:[0-9a-f]{64}$/);
+  assert.match(
+    created.changes[0].fields.signers.after[0].signerName,
+    /^hmac-sha256:[0-9a-f]{64}$/,
+  );
+  assert.equal(created.changes[0].fields.signers.after[0].step, 1);
   const count = (await repo.list("audit")).length;
   await assert.rejects(
     repo.mutate(

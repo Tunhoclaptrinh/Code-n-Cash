@@ -169,14 +169,9 @@ export default function LoginPage() {
                   ? foundAccounts.map((account) => accountItem(account))
                   : featured.length || organizations.length
                     ? [
-                        {
-                          type: "group",
-                          key: "featured",
-                          label: t("login.demoFeatured"),
-                          children: featured.map((account) =>
-                            accountItem(account, "featured"),
-                          ),
-                        },
+                        ...featured.map((account) =>
+                          accountItem(account, "featured"),
+                        ),
                         { type: "divider" },
                         // One scrolling list: nested flyouts for 30+
                         // organisations opened off-screen or under the panel.

@@ -98,6 +98,9 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
       views.milestoneTimeline(ctx, str(id), num(sequence)),
     ),
   },
+  dashboard: {
+    getDashboard: read("contracts:read", (ctx) => views.dashboard(ctx)),
+  },
   integrity: {
     verifyIntegrity: read(
       "audit:read",

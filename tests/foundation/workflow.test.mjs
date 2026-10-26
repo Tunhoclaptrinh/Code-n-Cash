@@ -592,6 +592,33 @@ test("the integrity check finds an edited audit entry, event or stored decision"
   );
 });
 
+test("the dashboard sums what each user may see and lists what needs action", async () => {
+  const owner = await call("u-owner", "dashboard", "getDashboard");
+  const auditor = await call("u-auditor", "dashboard", "getDashboard");
+  assert.ok(owner.contractCount > 0);
+  assert.ok(auditor.contractCount > owner.contractCount);
+  const contracts = await repo.list("contracts");
+  const buyerOf = new Map(contracts.map((c) => [c.contract_id, c.buyer_id]));
+  const ownerOrg = actor("u-owner").organizationId;
+  for (const item of owner.attention)
+    assert.equal(buyerOf.get(item.contractId), ownerOrg, item.contractId);
+  // Every stored evaluation is counted once by a user who sees every contract.
+  const counted = Object.values(auditor.byDecision).reduce((a, b) => a + b, 0);
+  const visible = new Set(
+    contracts.filter((c) => c.lifecycle !== "DRAFT").map((c) => c.contract_id),
+  );
+  assert.equal(
+    counted,
+    (await repo.list("evaluations")).filter((e) => visible.has(e.contractId))
+      .length,
+  );
+  for (const value of Object.values(auditor.amounts))
+    assert.match(value, /^\d+\.\d{2}$/);
+  assert.ok(auditor.contracts.length <= 10);
+  assert.ok(auditor.attention.length <= auditor.attentionCount);
+  await assert.rejects(call("u-sysadmin", "dashboard", "getDashboard"));
+});
+
 test("generic CRUD cannot change Data Pack or workflow records; its drafts stay outside the workflow", async () => {
   const { BaseService } =
     await import("../../apps/api/dist/common/services/base.service.js");

@@ -5,6 +5,7 @@ export { disputeView } from "./disputes";
 export { evidenceWorkspace } from "./evidence";
 export { exceptionQueue } from "./exceptions";
 export { integrityReport } from "./integrity";
+export { dashboard } from "./dashboard";
 export {
   milestoneDetail,
   milestoneTimeline,

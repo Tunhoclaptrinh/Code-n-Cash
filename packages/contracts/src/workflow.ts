@@ -671,6 +671,40 @@ export interface IntegrityReport {
   };
 }
 
+/** Many-contract overview of the contracts the signed-in user may see. */
+export interface DashboardView {
+  generatedAt: string;
+  contractCount: number;
+  byStatus: Partial<Record<ContractStatus, number>>;
+  byDecision: Partial<Record<Decision, number>>;
+  /** Million VND, two decimals: planned value, payable not yet paid, paid, held and penalties. */
+  amounts: {
+    plannedMillion: string;
+    payableMillion: string;
+    paidMillion: string;
+    heldMillion: string;
+    penaltyMillion: string;
+  };
+  /** Milestones that need a person now (at most 50; attentionCount is the total). */
+  attention: Array<{
+    contractId: string;
+    sequence: number;
+    kind: "OPEN_DISPUTE" | "DUE_SOON" | "SEQUENCE_WARNING" | "LOW_CONFIDENCE";
+    dueDate?: string;
+  }>;
+  attentionCount: number;
+  /** The ten contracts with the most held milestones. */
+  contracts: Array<{
+    contractId: string;
+    title: string;
+    status: ContractStatus;
+    milestones: number;
+    held: number;
+    openDisputes: number;
+    payableMillion: string;
+  }>;
+}
+
 export interface ExceptionQueueRow {
   contract: ContractRow;
   milestone: MilestoneRow;

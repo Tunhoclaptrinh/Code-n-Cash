@@ -20,6 +20,7 @@ import type {
   Evaluation,
   Preview,
   ReasonCode,
+  RuleOutcome,
   TimelinePoint,
   Trigger,
 } from "./types";
@@ -59,6 +60,7 @@ export function python(args: string[], timeoutMs: number): Promise<string> {
 export interface EngineOutcome {
   runId: string;
   fingerprint: string;
+  engineBuild?: string;
   evaluatedAt: string;
   durationMs: number;
   violations: string[];
@@ -175,8 +177,14 @@ export async function runEngine(
       ]),
     );
     const evaluations = new Map<string, Evaluation>();
+    const engineBuild =
+      typeof output.summary.engineBuild === "string"
+        ? output.summary.engineBuild
+        : undefined;
     for (const trace of output.traces) {
       const r = trace.result;
+      const explanation = trace.explanation as
+        { rules?: Array<{ ruleId: string; outcome: RuleOutcome }> } | undefined;
       evaluations.set(r.milestone_id, {
         milestoneId: r.milestone_id,
         contractId: r.contract_id,
@@ -207,6 +215,13 @@ export async function runEngine(
         issues: r.issues,
         notes: r.notes,
         warnings: r.warnings ?? [],
+        ...(explanation?.rules
+          ? {
+              ruleTrail: Object.fromEntries(
+                explanation.rules.map((rule) => [rule.ruleId, rule.outcome]),
+              ),
+            }
+          : {}),
         confidence: confidence.get(r.milestone_id) ?? "",
         specVersion: trace.specVersion,
       });
@@ -214,6 +229,7 @@ export async function runEngine(
     return {
       runId: output.runId,
       fingerprint: output.inputFingerprint,
+      engineBuild,
       evaluatedAt,
       durationMs: Date.now() - started,
       violations: output.summary.invariantViolations ?? [],
@@ -296,6 +312,7 @@ export function applyRun(
     entity(`${outcome.runId}:${Date.now().toString(36)}`, {
       runId: outcome.runId,
       inputFingerprint: outcome.fingerprint,
+      engineBuild: outcome.engineBuild,
       trigger: trigger.kind,
       milestones: outcome.evaluations.size,
       changed: changed.length,

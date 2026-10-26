@@ -25,6 +25,19 @@ import validate_rules
 
 
 PAID = ('RELEASE', 'PENALTY')
+ENGINE_DIR = Path(__file__).resolve().parent
+
+
+def engine_build():
+    """SHA-256 over the engine sources and rule catalogue: two runs with the same build ran the same code."""
+    digest = hashlib.sha256()
+    for path in sorted([*ENGINE_DIR.glob('*.py'), *ENGINE_DIR.glob('codecash_engine/*.py'),
+                        ENGINE_DIR / 'rule_language.json']):
+        digest.update(path.relative_to(ENGINE_DIR).as_posix().encode() + b'\0')
+        digest.update(path.read_bytes().replace(b'\r\n', b'\n') + b'\0')
+    return digest.hexdigest()
+
+
 # Cells the output checklist (spec section 9) allows to be empty.
 OPTIONAL_CELLS = {'missing_conditions', 'evidence_event_ids'}
 
@@ -91,10 +104,14 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
     for mid in pack.milestones:
         start = perf_counter()
         try:
-            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided, strict_resolution=workflow)
+            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided, strict_resolution=workflow,
+                                         explain=True)
         except (KeyError, ValueError, ArithmeticError) as error:
             raise ValueError(f'EVALUATION_FAILED {mid}: {type(error).__name__} {error}') from error
         timings[mid] = (perf_counter() - start) * 1000
+    # The explanation goes to the trace, next to the result, not into the result itself.
+    explanations = {mid: result.pop('explanation') for mid, result in results.items()}
+    build = engine_build()
     violations = spec.check_invariants(pack, results) if not as_of else []
     if violations and not workflow:
         raise ValueError('; '.join(violations))
@@ -121,13 +138,16 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
                                    f'as_of:{as_of}' if as_of else 'offline_full_history']).strip(';'))
         rows.append(row)
         traces.append({'id': trace_id, 'inputFingerprint': fingerprint, 'specVersion': spec.SPEC_VERSION,
-                       'evaluatedAt': now, 'result': result, 'actors': sorted({pack.event_by_id[e]['actor_party_id'] for e in result['evidence']}),
+                       'engineBuild': build, 'evaluatedAt': now, 'result': result,
+                       'explanation': {'variables': explanations[mid]['variables'],
+                                       'rules': [{'ruleId': rule_id, 'outcome': outcome}
+                                                 for rule_id, outcome in explanations[mid]['trail']]}, 'actors': sorted({pack.event_by_id[e]['actor_party_id'] for e in result['evidence']}),
                        'parameters': pack.milestones[mid]})
     matched, mismatches = spec.compare_samples(pack, results) if not as_of else (None, [])
     # Totals, like the decision counts, cover the output rows (the scope file can narrow them).
     scored = [results[t['milestone_id']] for t in pack.template]
     return {'runId': run_id, 'inputFingerprint': fingerprint, 'rows': rows, 'traces': traces,
-            'summary': {'source': source, 'milestones': len(rows), 'contracts': len(pack.contracts),
+            'summary': {'source': source, 'engineBuild': build, 'milestones': len(rows), 'contracts': len(pack.contracts),
                         'decisions': dict(Counter(r['decision'] for r in scored)),
                         'sampleMatched': matched, 'sampleTotal': len(pack.decisions), 'sampleMismatches': mismatches,
                         'invariantViolations': violations, 'payableMillion': str(sum(r['payable'] for r in scored)),

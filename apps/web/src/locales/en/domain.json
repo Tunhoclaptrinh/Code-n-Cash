@@ -165,6 +165,7 @@
   "ruleOutcome": {
     "NOT_MATCHED": "Not matched",
     "MATCHED": "Matched, applied",
+    "OVERRIDDEN": "Matched, but sent to ELSE by a data anomaly",
     "NOT_EVALUATED": "Not evaluated (earlier rule matched)"
   },
   "taskKind": {

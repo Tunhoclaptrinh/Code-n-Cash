@@ -165,6 +165,7 @@
   "ruleOutcome": {
     "NOT_MATCHED": "Không khớp",
     "MATCHED": "Khớp, áp dụng",
+    "OVERRIDDEN": "Khớp nhưng bị hạ xuống ELSE do dữ liệu bất thường",
     "NOT_EVALUATED": "Không xét (đã có rule khớp)"
   },
   "taskKind": {

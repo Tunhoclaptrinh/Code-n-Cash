@@ -312,6 +312,19 @@ class RuleSelectionTests(unittest.TestCase):
         held = rules.select_rule(self.scope, env_for(open_dispute=True), [], ['E1: actor không tồn tại'])
         self.assertEqual(held['rule_id'], 'PR10')
 
+    def test_trail_names_the_outcome_of_every_rule(self):
+        self.assertEqual(rules.rule_trail(self.scope, env_for(), [], []),
+                         [('PR10', 'NOT_MATCHED'), ('PR70', 'MATCHED'), ('PR80', 'NOT_EVALUATED')])
+        self.assertEqual(rules.rule_trail(self.scope, env_for(), [], ['E1: actor không tồn tại']),
+                         [('PR10', 'NOT_MATCHED'), ('PR70', 'OVERRIDDEN'), ('PR80', 'MATCHED')])
+        self.assertEqual(rules.rule_trail(self.scope, env_for(), ['issue'], []),
+                         [('PR10', 'NOT_EVALUATED'), ('PR70', 'NOT_EVALUATED'), ('PR80', 'MATCHED')])
+
+    def test_plain_variables_are_json_ready(self):
+        plain = rules.plain_variables(env_for(completion_date=None))
+        self.assertEqual((plain['due_date'], plain['planned_payment_vnd_mn'], plain['actual_completion_date']),
+                         ('2026-01-10', '100.00', None))
+
     def test_without_an_else_rule_there_is_no_rule_and_the_milestone_is_held(self):
         self.assertIsNone(rules.select_rule([DISPUTE, RELEASE], env_for(), ['issue'], []))
         pack = Pack([CONTRACT], PARTIES.values(), [dict(MILESTONE, release_rule_code='R:EMPTY')], [], [])

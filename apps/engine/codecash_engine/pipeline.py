@@ -17,11 +17,12 @@ from .pack import PRIORITIES
 
 def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=False,
              completion_includes_approval=False, rounding=ROUND_HALF_UP, enforce_invoice_flag=False,
-             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False):
+             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False, explain=False):
     """Return the decision and all facts of one milestone.
 
     The default arguments are the specification; the other flags exist only to measure sensitivity
     (section 12). as_of: as-of mode (BR-16). voided: event ids with an approved exception decision (BR-19).
+    explain: also return ``explanation`` (rule variables and the outcome of every rule, BR-17).
     """
     m = pack.milestones[mid]
     parties = pack.parties
@@ -93,7 +94,7 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
     met, miss = trace.condition_tokens(m["required_condition"], valid_req, valid_approval_count, bool(open_disputes))
     status = trace.milestone_status(reason, as_of, bool(raw), terms["due"])
 
-    return {
+    result = {
         "milestone_id": mid, "contract_id": m["contract_id"], "decision": decision, "reason_code": reason,
         "rule_id": rule["rule_id"] if rule else "", "status": status, "payable": payable, "penalty": penalty,
         "raw_penalty": raw_penalty, "evidence": evidence,
@@ -106,6 +107,10 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         "completion_ts": completion_ts, "conditions_met": met, "missing_conditions": miss,
         "issues": issues + anomalies, "notes": notes, "warnings": warnings,
     }
+    if explain:
+        result["explanation"] = {"variables": rules.plain_variables(env),
+                                 "trail": rules.rule_trail(scope_rules, env, issues, anomalies)}
+    return result
 
 
 def evaluate_all(pack, **kw):

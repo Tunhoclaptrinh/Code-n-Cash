@@ -292,6 +292,8 @@ export interface Evaluation {
   notes: string[];
   /** Sequence warnings ("<event id>: <CODE>"); they lower confidence and never change the decision. */
   warnings: string[];
+  /** What happened to each rule of the scope (engine trace); absent on evaluations stored before it. */
+  ruleTrail?: Record<string, RuleOutcome>;
   confidence: string;
   specVersion: string;
 }
@@ -309,7 +311,8 @@ export interface RuleRow {
   description: string;
 }
 
-export type RuleOutcome = "NOT_MATCHED" | "MATCHED" | "NOT_EVALUATED";
+export type RuleOutcome =
+  "NOT_MATCHED" | "MATCHED" | "OVERRIDDEN" | "NOT_EVALUATED";
 
 export type Trigger =
   | { kind: "IMPORT" }

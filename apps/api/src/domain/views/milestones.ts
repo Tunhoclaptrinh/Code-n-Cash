@@ -135,7 +135,9 @@ export function milestoneDetail(
       payableFormula: r.payable_amount_formula,
       penaltyFormula: r.penalty_amount_formula,
       description: r.rule_description_vi,
-      outcome: outcomeOf(Number(r.priority)),
+      // The engine's own trail when stored; older evaluations fall back to the priority order.
+      outcome:
+        evaluation.ruleTrail?.[r.rule_id] ?? outcomeOf(Number(r.priority)),
     })),
     events: ctx.eventsOf(m.milestone_id).map((e) => ({
       ...ctx.eventRow(e),

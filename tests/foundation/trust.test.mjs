@@ -1340,3 +1340,53 @@ test("an independent Python verifier checks the log and one entry's Merkle proof
     /RECORD_NOT_FOUND/,
   );
 });
+
+test("tamper matrix: which edits of the log are found with and without an anchor", async () => {
+  const { seal } = await import("../../apps/api/dist/common/audit-chain.js");
+  await base.audit("TEST_MARK", "anchors", "matrix", actors["u-admin"]);
+  const job = await trust.anchorIfChanged(actors["u-admin"]);
+  const anchor = { seq: job.payload.sequence, hash: job.payload.headHash };
+  const log = (await repo.list("audit")).sort((a, b) => a.seq - b.seq);
+  const without = ({ hash, seq, prevHash, ...rest }) => rest;
+  // Re-seal from scratch: what someone with write access to the database could do.
+  const resealed = (entries) => seal(entries.map(without), undefined);
+  // An entry before the anchored head, and the one after it.
+  const target = anchor.seq - 1;
+  const edit = (l) =>
+    l.map((e) => (e.seq === target ? { ...e, actorId: "x" } : e));
+  const attacks = {
+    EDIT_ENTRY: edit,
+    DELETE_MIDDLE: (l) => l.filter((e) => e.seq !== target),
+    REORDER: (l) =>
+      l.map((e) =>
+        e.seq === target
+          ? { ...e, seq: target + 1 }
+          : e.seq === target + 1
+            ? { ...e, seq: target }
+            : e,
+      ),
+    CUT_BELOW_ANCHOR: (l) => l.filter((e) => e.seq < anchor.seq - 1),
+    REWRITE_WHOLE_CHAIN: (l) => resealed(edit(l)),
+    CUT_AFTER_LAST_ANCHOR: (l) => l.filter((e) => e.seq <= anchor.seq),
+  };
+  const found = (report) =>
+    !report.ok || (report.anchor !== null && report.anchor !== "MATCH");
+  const matrix = Object.fromEntries(
+    Object.entries(attacks).map(([name, attack]) => {
+      const forged = attack(structuredClone(log));
+      return [
+        name,
+        [found(verifyChain(forged)), found(verifyChain(forged, anchor))],
+      ];
+    }),
+  );
+  assert.deepEqual(matrix, {
+    EDIT_ENTRY: [true, true],
+    DELETE_MIDDLE: [true, true],
+    REORDER: [true, true],
+    CUT_BELOW_ANCHOR: [false, true],
+    REWRITE_WHOLE_CHAIN: [false, true],
+    // The known limit: entries written after the latest anchor are protected only by the next one.
+    CUT_AFTER_LAST_ANCHOR: [false, false],
+  });
+});

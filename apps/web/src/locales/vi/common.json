@@ -91,12 +91,12 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng."
     },
-    "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
+    "subtitle": "Số hóa hợp đồng, ký số và theo dõi điều kiện thanh toán của hợp đồng dựa trên dữ liệu. Toàn bộ trong một quy trình xuyên suốt.",
     "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
     "highlights": {
-      "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
-      "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
-      "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
+      "sign": "Ký số theo trình tự, đảm bảo tính toàn vẹn của dữ liệu và pháp lý của hợp đồng",
+      "evidence": "Nộp chứng từ, kiểm tra và phê duyệt nhiều bước",
+      "audit": "Nhật ký kiểm soát tính toàn vẹn và lịch sử xuyên suốt"
     },
     "demoAccounts": "Tài khoản demo",
     "demoUnavailable": "Không kết nối được để tải tài khoản demo.",

@@ -91,12 +91,12 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email or password is incorrect."
     },
-    "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
+    "subtitle": "Digitize contracts, sign them digitally and track their payment conditions from data. All in one end-to-end workflow.",
     "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
     "highlights": {
-      "sign": "Sequential digital signing, document locked after the first signature",
-      "evidence": "Evidence submission, validation and two-person approval",
-      "audit": "Append-only activity log for every action"
+      "sign": "Sequential digital signing that protects data integrity and the contract's legal standing",
+      "evidence": "Evidence submission, checks and multi-step approval",
+      "audit": "Integrity-controlled log with the full history"
     },
     "demoAccounts": "Demo accounts",
     "demoUnavailable": "Could not connect to load demo accounts.",

@@ -76,7 +76,7 @@
     "requirement": {
       "VALID": "Valid at {{at}}",
       "MISSING": "Missing; the {{side}} submits it",
-      "UNAUTHORIZED": "A record was filed by the wrong party; the {{side}} resubmits and controllers handle it"
+      "UNAUTHORIZED": "A record was filed by the wrong party; the {{side}} resubmits or the contract owner proposes how to handle it"
     },
     "milestone": {
       "amountUnit": "million VND",
@@ -212,13 +212,13 @@
       "voidEvent": "void {{id}}",
       "proposedBy": "Proposed: {{name}}, {{at}}",
       "decidedBy": "Decided: {{name}}, {{at}}",
-      "waitSecond": "Waiting for a second controller.",
+      "waitSecond": "Waiting for the organisation's controller to check it.",
       "approve": "Approve voiding",
       "reject": "Reject",
       "none": "No proposal yet.",
       "reason": "Reason (required), e.g. the supplier used the wrong channel and the buyer resubmitted",
       "propose": "Propose voiding",
-      "proposed": "Proposal sent; a second controller decides.",
+      "proposed": "Proposal sent; the organisation's controller checks it.",
       "decided": "Decision recorded; the system re-evaluated."
     },
     "replay": {
@@ -360,7 +360,7 @@
     "exceptions": {
       "title": "Exceptions",
       "pick": "Select the record entered without authority",
-      "demoReason": "Please have a second controller review the record filed by the wrong party for {{milestone}}."
+      "demoReason": "Proposed to void the record filed by a party without authority for {{milestone}}."
     },
     "figures": {
       "planned": "Milestone value (million)",

@@ -207,7 +207,12 @@ export function milestoneDetail(
         ctx.actor.role === "FINANCE_APPROVER" &&
         contract.buyer_id === ctx.actor.organizationId,
       proposeException:
-        ctx.actor.role === "ADMIN_AUDITOR" && voidCandidates(ctx, m).length > 0,
+        ctx.actor.role === "CONTRACT_OWNER" &&
+        contract.buyer_id === ctx.actor.organizationId &&
+        voidCandidates(ctx, m).length > 0,
+      decideException:
+        ctx.actor.role === "ADMIN_AUDITOR" &&
+        contract.buyer_id === ctx.actor.organizationId,
     },
   };
 }

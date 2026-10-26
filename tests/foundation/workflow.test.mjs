@@ -10,6 +10,9 @@ let dir, repo, domain, service, auth, users;
 const actor = (id) => auth.actor(users.find((u) => u.id === id));
 const call = (id, module, action, ...args) =>
   service.call(module, action, { args }, actor(id));
+/** The account of a role inside one organisation (each party has its own owner and controller). */
+const userOf = (organizationId, role) =>
+  users.find((u) => u.organizationId === organizationId && u.role === role).id;
 const evaluationOf = async (milestoneId) =>
   (await repo.list("evaluations")).find((e) => e.milestoneId === milestoneId);
 
@@ -112,8 +115,38 @@ test("each organisation sees only its contracts; direct ids of others are refuse
   assert.ok(supplier.contracts.every((c) => c.status !== "DRAFT"));
   const owner = await call("u-owner", "contracts", "getContractList");
   assert.ok(owner.contracts.every((c) => c.buyer.id === "B010"));
-  const admin = await call("u-admin", "contracts", "getContractList");
-  assert.equal(admin.contracts.length, (await repo.list("contracts")).length);
+  // Each party's controller reads its own organisation's contracts only.
+  const buyerControl = await call(
+    "u-novaan-controller",
+    "contracts",
+    "getContractList",
+  );
+  assert.deepEqual(
+    buyerControl.contracts.map((c) => c.id).sort(),
+    owner.contracts.map((c) => c.id).sort(),
+  );
+  const supplierControl = await call(
+    "u-phuminh-controller",
+    "contracts",
+    "getContractList",
+  );
+  assert.deepEqual(
+    supplierControl.contracts.map((c) => c.id).sort(),
+    supplier.contracts.map((c) => c.id).sort(),
+  );
+  await assert.rejects(
+    call("u-novaan-controller", "contracts", "getContractOverview", "CT0001"),
+    /CONTRACT_ACCESS_DENIED/,
+  );
+  // The platform operator is not a party: it reads no contract.
+  await assert.rejects(
+    call("u-auditor", "contracts", "getContractList"),
+    /ACTION_FORBIDDEN/,
+  );
+  await assert.rejects(
+    call("u-sysadmin", "contracts", "getContractList"),
+    /ACTION_FORBIDDEN/,
+  );
   await assert.rejects(
     call("u-supplier", "contracts", "getContractOverview", "CT0014"),
   );
@@ -142,11 +175,15 @@ test("tasks come from the engine's reasons and match each role", async () => {
   assert.ok((await kinds("u-legal")).includes("SUBMIT_EVIDENCE:CT0084"));
   assert.ok((await kinds("u-finance")).includes("APPROVE_PAYMENT:CT0103"));
   assert.ok((await kinds("u-supplier")).includes("SIGN_CONTRACT:CT0102"));
-  assert.equal(
-    (await kinds("u-admin")).filter((k) => k.startsWith("REVIEW_EXCEPTION"))
-      .length,
-    6,
-  );
+  // Held exceptions go to the owner of the buyer, never to a controller.
+  let review = 0;
+  for (const u of users.filter((x) => x.role === "CONTRACT_OWNER"))
+    review += (await kinds(u.id)).filter((k) =>
+      k.startsWith("REVIEW_EXCEPTION"),
+    ).length;
+  assert.equal(review, 6);
+  for (const id of ["u-novaan-controller", "u-phuminh-controller"])
+    assert.ok(!(await kinds(id)).some((k) => k.startsWith("REVIEW_EXCEPTION")));
 });
 
 test("an approval is an APPROVAL event; the engine then decides, with the late penalty", async () => {
@@ -273,30 +310,74 @@ test("a dispute is closed only by a buyer-side DISPUTE_RESOLVED that references 
   assert.equal(closed.canOpen, true);
 });
 
-test("BR-19 voids an unauthorised event only with two different controllers", async () => {
-  const [row] = await call("u-admin", "exceptions", "listExceptionQueue");
+test("BR-19 voids an unauthorised event when the owner proposes and its own controller checks", async () => {
+  // The first owner with an unauthorised event to handle on its own contracts.
+  let row, owner;
+  for (const u of users.filter((x) => x.role === "CONTRACT_OWNER")) {
+    row = (await call(u.id, "exceptions", "listExceptionQueue")).find(
+      (r) => r.candidates.length,
+    );
+    if (row) {
+      owner = u.id;
+      break;
+    }
+  }
+  const buyer = row.contract.buyer.id;
+  const controller = userOf(buyer, "ADMIN_AUDITOR");
+  const supplierControl = userOf(row.contract.supplier.id, "ADMIN_AUDITOR");
   const eventId = row.candidates[0].id;
   const ref = { contractId: row.contract.id, sequence: row.milestone.sequence };
+  // A controller only checks: it never proposes.
   await assert.rejects(
-    call("u-owner", "exceptions", "proposeException", {
+    call(controller, "exceptions", "proposeException", {
       ...ref,
       eventId,
       reason: "x",
     }),
+    /ACTION_FORBIDDEN/,
   );
-  const { id } = await call("u-admin", "exceptions", "proposeException", {
+  const { id } = await call(owner, "exceptions", "proposeException", {
     ...ref,
     eventId,
     reason: "Nhập nhầm kênh",
   });
+  // The owner cannot check its own proposal; another buyer's controller cannot reach it; the
+  // supplier's controller watches it but does not decide.
   await assert.rejects(
-    call("u-admin", "exceptions", "decideException", {
+    call(owner, "exceptions", "decideException", {
       exceptionId: id,
       approve: true,
     }),
-    /SECOND_CONTROLLER_REQUIRED/,
+    /ACTION_FORBIDDEN/,
   );
-  const decided = await call("u-controller", "exceptions", "decideException", {
+  await assert.rejects(
+    call(
+      userOf(buyer === "B010" ? "B001" : "B010", "ADMIN_AUDITOR"),
+      "exceptions",
+      "decideException",
+      { exceptionId: id, approve: true },
+    ),
+    /CONTRACT_ACCESS_DENIED/,
+  );
+  await assert.rejects(
+    call(supplierControl, "exceptions", "decideException", {
+      exceptionId: id,
+      approve: true,
+    }),
+    /BUYER_ONLY/,
+  );
+  assert.ok(
+    (
+      await call(
+        supplierControl,
+        "contracts",
+        "getMilestoneDetail",
+        ref.contractId,
+        ref.sequence,
+      )
+    ).exceptions.some((x) => x.id === id && x.status === "PROPOSED"),
+  );
+  const decided = await call(controller, "exceptions", "decideException", {
     exceptionId: id,
     approve: true,
   });
@@ -513,7 +594,7 @@ test("the timeline replays a milestone after each of its events (as-of, BR-16)",
 
 test("the integrity check finds an edited audit entry, event or stored decision", async () => {
   const check = (anchor) =>
-    call("u-controller", "integrity", "verifyIntegrity", anchor);
+    call("u-auditor", "integrity", "verifyIntegrity", anchor);
   const clean = await check();
   assert.equal(clean.chain.ok, true);
   assert.ok(clean.chain.sealed > 0);
@@ -576,11 +657,13 @@ test("the integrity check finds an edited audit entry, event or stored decision"
     tampered.evidence.problems.map((p) => [p.eventId, p.problem]),
     [[sealedEvent, "CHANGED"]],
   );
-  assert.ok(
-    tampered.decisions.mismatches.some(
-      (m) => m.milestoneId === "MS0001" && m.stored.decision === "REJECT",
-    ),
+  // The integrity checker learns which milestone differs, never its decision or amounts.
+  const mismatch = tampered.decisions.mismatches.find(
+    (m) => m.milestoneId === "MS0001",
   );
+  assert.ok(mismatch);
+  assert.equal(mismatch.stored, undefined);
+  assert.equal(mismatch.fresh, undefined);
   // The seal finds the edit directly, without trusting a fresh engine run.
   assert.deepEqual(
     tampered.decisions.sealProblems.map((p) => p.milestoneId),
@@ -594,16 +677,22 @@ test("the integrity check finds an edited audit entry, event or stored decision"
 
 test("the dashboard sums what each user may see and lists what needs action", async () => {
   const owner = await call("u-owner", "dashboard", "getDashboard");
-  const auditor = await call("u-auditor", "dashboard", "getDashboard");
   assert.ok(owner.contractCount > 0);
-  assert.ok(auditor.contractCount > owner.contractCount);
   const contracts = await repo.list("contracts");
   const buyerOf = new Map(contracts.map((c) => [c.contract_id, c.buyer_id]));
   const ownerOrg = actor("u-owner").organizationId;
   for (const item of owner.attention)
     assert.equal(buyerOf.get(item.contractId), ownerOrg, item.contractId);
-  // Every stored evaluation is counted once by a user who sees every contract.
-  const counted = Object.values(auditor.byDecision).reduce((a, b) => a + b, 0);
+  // Nobody sees every contract: the owners of all buyers together count each evaluation once.
+  let counted = 0;
+  for (const u of users.filter((x) => x.role === "CONTRACT_OWNER")) {
+    const view = await call(u.id, "dashboard", "getDashboard");
+    counted += Object.values(view.byDecision).reduce((a, b) => a + b, 0);
+    for (const value of Object.values(view.amounts))
+      assert.match(value, /^\d+\.\d{2}$/);
+    assert.ok(view.contracts.length <= 10);
+    assert.ok(view.attention.length <= view.attentionCount);
+  }
   const visible = new Set(
     contracts.filter((c) => c.lifecycle !== "DRAFT").map((c) => c.contract_id),
   );
@@ -612,11 +701,8 @@ test("the dashboard sums what each user may see and lists what needs action", as
     (await repo.list("evaluations")).filter((e) => visible.has(e.contractId))
       .length,
   );
-  for (const value of Object.values(auditor.amounts))
-    assert.match(value, /^\d+\.\d{2}$/);
-  assert.ok(auditor.contracts.length <= 10);
-  assert.ok(auditor.attention.length <= auditor.attentionCount);
-  await assert.rejects(call("u-sysadmin", "dashboard", "getDashboard"));
+  for (const id of ["u-sysadmin", "u-auditor"])
+    await assert.rejects(call(id, "dashboard", "getDashboard"));
 });
 
 test("generic CRUD cannot change Data Pack or workflow records; its drafts stay outside the workflow", async () => {
@@ -671,13 +757,13 @@ test("generic CRUD cannot change Data Pack or workflow records; its drafts stay 
   await crud.remove("contract-drafts", added.id, legal);
 });
 
-test("internal roles are separated (SoD-1): controller, administrator, auditor", async () => {
+test("roles are separated (SoD-1): party controllers, platform administrator, integrity checker", async () => {
   const { BaseService } =
     await import("../../apps/api/dist/common/services/base.service.js");
   const crud = new BaseService(repo);
-  // The controller handles exceptions but manages no account or configuration.
+  // A party's controller checks its own contracts but manages no account or configuration.
   await assert.rejects(
-    crud.list("users", {}, actor("u-admin")),
+    crud.list("users", {}, actor("u-novaan-controller")),
     /PERMISSION_DENIED/,
   );
   // The administrator manages accounts, sees no contract and decides nothing.
@@ -690,18 +776,20 @@ test("internal roles are separated (SoD-1): controller, administrator, auditor",
     call("u-sysadmin", "exceptions", "listExceptionQueue"),
     /ACTION_FORBIDDEN/,
   );
-  // The auditor reads every contract, the queue and the integrity check, and changes nothing.
-  assert.equal(
-    (await call("u-auditor", "contracts", "getContractList")).contracts.length,
-    (await call("u-admin", "contracts", "getContractList")).contracts.length,
-  );
-  assert.ok(
-    (await call("u-auditor", "exceptions", "listExceptionQueue")).length > 0,
+  // The integrity checker runs the integrity check on hashes and reads no contract content.
+  await assert.rejects(
+    call("u-auditor", "exceptions", "listExceptionQueue"),
+    /ACTION_FORBIDDEN/,
   );
   assert.equal(
     (await call("u-auditor", "integrity", "verifyIntegrity")).chain.ok,
     true,
   );
+  const [entry] = (await crud.list("audit", { limit: 1 }, actor("u-auditor")))
+    .items;
+  assert.ok(entry.hash && entry.seq);
+  assert.equal(entry.actorId, undefined);
+  assert.equal(entry.detail, undefined);
   await assert.rejects(
     call("u-auditor", "exceptions", "proposeException", {
       contractId: "CT0017",
@@ -762,7 +850,7 @@ test("workflow lists are read page by page with search, filters and sort on the 
     (await call("u-legal", "tasks", "listTasks", {})).total,
     (await call("u-legal", "tasks", "getTaskInbox")).length,
   );
-  const queue = await call("u-admin", "exceptions", "listExceptions", {
+  const queue = await call("u-a007", "exceptions", "listExceptions", {
     limit: 2,
   });
   assert.equal(queue.items.length, 2);
@@ -823,7 +911,7 @@ test("administrators manage persistent templates; drafts pin a version and survi
     documentBody: "Deliver {{title}} to {{buyer}}",
     active: true,
   };
-  for (const id of ["u-owner", "u-legal", "u-admin", "u-auditor"])
+  for (const id of ["u-owner", "u-legal", "u-novaan-controller", "u-auditor"])
     await assert.rejects(
       base.create("contract-templates", template, actor(id)),
       /PERMISSION_DENIED/,
@@ -944,7 +1032,7 @@ test("live workflow rolls back business changes and success audit when engine in
     await import("../../apps/api/dist/domain/actions/index.js");
   const before = await readFile(repo.path, "utf8");
   await assert.rejects(
-    domain.write(actor("u-admin"), "test-invalid-engine-result", (ctx) => {
+    domain.write(actor("u-owner"), "test-invalid-engine-result", (ctx) => {
       for (const rule of ctx.t["payment-rules"])
         if (rule.priority === "70") rule.payable_amount_formula = "0";
       return outcome(ctx, {}, { evaluate: true });
@@ -1081,7 +1169,11 @@ test("the demo reset archives the data and its audit chain instead of deleting t
   });
   const forged = structuredClone(audit);
   forged[0].archivedHeadHash = "f".repeat(64);
-  assert.equal(verifyChain(forged).ok, false, "the link is covered by the hash");
+  assert.equal(
+    verifyChain(forged).ok,
+    false,
+    "the link is covered by the hash",
+  );
   assert.equal(reset.actorId, "u-sysadmin");
   assert.equal(reset.recordId, archive);
   assert.equal(reset.archivedEntries, before.length);

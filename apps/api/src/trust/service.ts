@@ -10,6 +10,7 @@ import { randomUUID } from "node:crypto";
 import { Repository } from "../common/repository";
 import { BaseService } from "../common/services/base.service";
 import {
+  auditDigest,
   canonical,
   chainHead,
   sha256,
@@ -20,6 +21,7 @@ import { READ_TABLES } from "../domain/context";
 import { LocalWitnessProvider, type AnchorProvider } from "./anchor-provider";
 import { localKey, verifyLocalProof } from "./crypto";
 import { inclusionProof, merkleRoot } from "../common/merkle";
+import { INTERNAL_ROLES } from "../domain/vocabulary";
 import type { AnchorJob, AnchorPayload, AuditProof, LocalProof } from "./types";
 import { DomainService } from "../domain/service";
 
@@ -300,7 +302,8 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
     const hashes = sealedHashes(audit, payload.sequence);
     await this.base.audit("AUDIT_PROOF_EXPORT", "anchors", entryId, actor);
     return {
-      entry,
+      // The leaf is the entry's hash, so a digest is enough to check inclusion (spec 2.2).
+      entry: INTERNAL_ROLES.includes(actor.role) ? auditDigest(entry) : entry,
       leafIndex: Number(entry.seq) - 1,
       treeSize: hashes.length,
       path: inclusionProof(Number(entry.seq) - 1, hashes),

@@ -79,8 +79,8 @@
       "short": "QT"
     },
     "AUDITOR": {
-      "name": "Kiểm toán",
-      "short": "KT"
+      "name": "Kiểm tra toàn vẹn",
+      "short": "TV"
     }
   },
   "login": {

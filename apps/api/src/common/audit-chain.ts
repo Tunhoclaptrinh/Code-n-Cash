@@ -39,6 +39,28 @@ export const sha256 = (text: string) =>
 /** Hash of a stored record as it is (used to seal events the app records). */
 export const recordHash = (record: RecordEntity) => sha256(canonical(record));
 
+/** What platform roles see of an audit entry: enough to check the chain, nothing of its content. */
+const DIGEST_FIELDS = [
+  "id",
+  "seq",
+  "prevHash",
+  "hash",
+  "action",
+  "resource",
+  "recordId",
+  "createdAt",
+] as const;
+
+/**
+ * An audit entry without its content (who, what changed, amounts, sealed hashes of records). The
+ * chain still verifies: each digest keeps its own hash and the previous one (spec 2.2).
+ */
+export function auditDigest(entry: RecordEntity): RecordEntity {
+  return Object.fromEntries(
+    DIGEST_FIELDS.filter((key) => key in entry).map((key) => [key, entry[key]]),
+  ) as RecordEntity;
+}
+
 /** Hash of an audit entry: every field except the hash itself, so the link is covered too. */
 export function entryHash(entry: RecordEntity) {
   const rest: Record<string, unknown> = { ...entry };

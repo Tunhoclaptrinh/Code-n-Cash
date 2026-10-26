@@ -472,6 +472,8 @@ export interface MilestoneDetail {
     resolveDispute: boolean;
     transfer: boolean;
     proposeException: boolean;
+    /** The buyer's controller checks the owner's proposals; the supplier's only watches them. */
+    decideException: boolean;
   };
 }
 
@@ -665,8 +667,9 @@ export interface IntegrityReport {
       sequence: number;
       /** Paid or rejected: the engine no longer changes it. */
       frozen: boolean;
-      stored: DecisionFacts;
-      fresh: DecisionFacts | null;
+      /** Left out for platform roles, which see where a decision differs but not what it is. */
+      stored?: DecisionFacts;
+      fresh?: DecisionFacts | null;
     }>;
   };
 }

@@ -290,6 +290,7 @@ export class AuthService {
     );
     const now = new Date().toISOString();
     await this.repo.mutate("users", (items) => {
+      const kept = new Set<RecordEntity>();
       for (const account of accounts) {
         const fields = {
           email: account.email,
@@ -306,14 +307,15 @@ export class AuthService {
             u.id === account.id ||
             String(u.email).toLowerCase() === account.email,
         );
+        if (existing) kept.add(existing);
         if (existing && existing.partyId !== undefined) continue;
         if (existing)
           Object.assign(existing, fields, {
             version: existing.version + 1,
             updatedAt: now,
           });
-        else
-          items.push({
+        else {
+          const created: RecordEntity = {
             id: account.id,
             ...fields,
             passwordHash,
@@ -321,8 +323,20 @@ export class AuthService {
             version: 1,
             createdAt: now,
             updatedAt: now,
-          });
+          };
+          items.push(created);
+          kept.add(created);
+        }
       }
+      // Seeded accounts the directory no longer has (the platform controllers that once decided
+      // exceptions on every contract) are switched off, never deleted: audit entries name them.
+      for (const user of items)
+        if (user.origin === "SEED" && user.active !== false && !kept.has(user))
+          Object.assign(user, {
+            active: false,
+            version: user.version + 1,
+            updatedAt: now,
+          });
     });
   }
 }

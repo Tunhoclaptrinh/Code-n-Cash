@@ -3,6 +3,7 @@ import type { RecordEntity } from "../../common/types";
 import type { Ctx } from "../context";
 import { decisionHash, runEngine } from "../engine";
 import { dataPackSeal, TABLE } from "../records";
+import { INTERNAL_ROLES } from "../vocabulary";
 import type { DecisionFacts, Evaluation, IntegrityReport } from "../types";
 
 const factsOf = (e: Evaluation): DecisionFacts => ({
@@ -35,9 +36,9 @@ function lastAnchor(ctx: Ctx): IntegrityReport["chain"]["lastAnchor"] {
 }
 
 /**
- * Integrity check for controllers and auditors: the audit hash chain, each app event against the
- * hash sealed with it, and each stored decision against a fresh run of the engine on the same data.
- * Nothing is written.
+ * Integrity check: the audit hash chain, each app event against the hash sealed with it, and each
+ * stored decision against a fresh run of the engine on the same data. Nothing is written. Platform
+ * roles learn which milestone differs, never its decision or amounts (spec 2.2).
  */
 export async function integrityReport(
   ctx: Ctx,
@@ -70,6 +71,7 @@ export async function integrityReport(
       sealedDecisions.set(id, hash);
   const fresh = await runEngine(ctx.t);
   const stored = ctx.t[TABLE.evaluations] as Array<RecordEntity & Evaluation>;
+  const blind = INTERNAL_ROLES.includes(ctx.actor.role);
   const mismatches: IntegrityReport["decisions"]["mismatches"] = [];
   for (const evaluation of stored) {
     const now = fresh.evaluations.get(evaluation.milestoneId);
@@ -87,8 +89,9 @@ export async function integrityReport(
       sequence: Number(m?.milestone_sequence ?? 0),
       frozen:
         ctx.paid(evaluation.milestoneId) || evaluation.status === "REJECTED",
-      stored: factsOf(evaluation),
-      fresh: now ? factsOf(now) : null,
+      ...(blind
+        ? {}
+        : { stored: factsOf(evaluation), fresh: now ? factsOf(now) : null }),
     });
   }
   const sealProblems: IntegrityReport["decisions"]["sealProblems"] = [];

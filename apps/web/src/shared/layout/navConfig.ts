@@ -181,18 +181,16 @@ const byRole: Record<Role, NavSection[]> = {
   LEGAL_REVIEWER: buyer(true),
   FINANCE_APPROVER: buyer(false),
   SECONDARY_APPROVER: buyer(false),
-  // SoD-1: the controller handles exceptions, the administrator configures, the auditor reads.
+  // The buyer's own controller checks exception proposals on its organisation's contracts.
   ADMIN_AUDITOR: [
     workflow([tasks, contracts, verify]),
-    monitoring([dashboard, exceptions, integrity, activity]),
+    monitoring([dashboard, exceptions, activity]),
     dataAndAdmin([data]),
   ],
+  // Platform roles: the administrator configures, the integrity checker sees hashes and proofs
+  // only. Neither opens a contract (spec 2.2).
   SYSTEM_ADMIN: [dataAndAdmin([platform])],
-  AUDITOR: [
-    workflow([contracts, verify]),
-    monitoring([dashboard, integrity, exceptions, activity]),
-    dataAndAdmin([data, platform]),
-  ],
+  AUDITOR: [monitoring([integrity]), dataAndAdmin([platform])],
   SUPPLIER: [
     workflow([tasks, { ...contracts, labelKey: "nav.myContracts" }, verify]),
     monitoring([dashboard, activity]),

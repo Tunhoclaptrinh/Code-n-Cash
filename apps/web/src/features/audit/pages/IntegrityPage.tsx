@@ -2,7 +2,6 @@ import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -437,15 +436,13 @@ function Report({
                         children: (
                           <Space wrap size={[8, 4]}>
                             {decisions.sealProblems.map((p) => (
-                              <Link
+                              <Typography.Text
                                 key={p.milestoneId}
-                                to={`/contracts/${p.contractId}/milestones/${p.sequence}/decision`}
+                                type="danger"
                               >
-                                <Typography.Text type="danger">
-                                  {p.contractId} ·{" "}
-                                  {td("milestoneNo", { no: p.sequence })}
-                                </Typography.Text>
-                              </Link>
+                                {p.contractId} ·{" "}
+                                {td("milestoneNo", { no: p.sequence })}
+                              </Typography.Text>
                             ))}
                           </Space>
                         ),
@@ -487,24 +484,26 @@ function Report({
                   {
                     key: "milestone",
                     title: t("integrity.decisions.columns.milestone"),
-                    render: (_, m) => (
-                      <Link
-                        to={`/contracts/${m.contractId}/milestones/${m.sequence}/decision`}
-                      >
-                        {m.contractId} · {td("milestoneNo", { no: m.sequence })}
-                      </Link>
-                    ),
+                    // The integrity checker cannot open contracts; the parties look them up.
+                    render: (_, m) =>
+                      `${m.contractId} · ${td("milestoneNo", { no: m.sequence })}`,
                   },
-                  {
-                    key: "stored",
-                    title: t("integrity.decisions.columns.stored"),
-                    render: (_, m) => facts(m.stored),
-                  },
-                  {
-                    key: "fresh",
-                    title: t("integrity.decisions.columns.fresh"),
-                    render: (_, m) => facts(m.fresh),
-                  },
+                  ...(decisions.mismatches.some((m) => m.stored)
+                    ? [
+                        {
+                          key: "stored",
+                          title: t("integrity.decisions.columns.stored"),
+                          render: (_: unknown, m: Mismatch) =>
+                            facts(m.stored ?? null),
+                        },
+                        {
+                          key: "fresh",
+                          title: t("integrity.decisions.columns.fresh"),
+                          render: (_: unknown, m: Mismatch) =>
+                            facts(m.fresh ?? null),
+                        },
+                      ]
+                    : []),
                   {
                     key: "frozen",
                     title: t("integrity.decisions.columns.frozen"),

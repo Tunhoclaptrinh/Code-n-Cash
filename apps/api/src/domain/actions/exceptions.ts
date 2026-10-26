@@ -9,6 +9,10 @@ import { type ExceptionRecord, TABLE } from "../records";
 import { voidCandidates } from "../views";
 import { type Outcome, outcome, text } from "./shared";
 
+/**
+ * BR-19: the contract owner, who decides on the buyer's side, proposes to void an unauthorised
+ * event of its own contract. The controller of the same organisation then checks it (SoD-2).
+ */
 export function proposeException(
   ctx: Ctx,
   input: {
@@ -18,8 +22,8 @@ export function proposeException(
     reason: string;
   },
 ): Outcome {
-  if (ctx.actor.role !== "ADMIN_AUDITOR")
-    throw new ForbiddenException("CONTROLLERS_ONLY");
+  if (ctx.actor.role !== "CONTRACT_OWNER")
+    throw new ForbiddenException("CONTRACT_OWNER_ONLY");
   const m = ctx.milestoneAt(input.contractId, Number(input.sequence));
   const reason = text(input.reason);
   if (!reason) throw new BadRequestException("NOTE_REQUIRED");
@@ -68,7 +72,11 @@ export function proposeException(
   );
 }
 
-/** SoD-2: a second controller decides; an approved void is applied by the engine (BR-19). */
+/**
+ * SoD-2: the controller of the buyer's own organisation checks the owner's proposal and approves
+ * or returns it; it never proposes. An approved void is applied by the engine (BR-19). Contracts
+ * of other organisations are out of reach through `ctx.milestone`.
+ */
 export function decideException(
   ctx: Ctx,
   input: { exceptionId: string; approve: boolean; note?: string },
@@ -79,7 +87,10 @@ export function decideException(
     (x) => x.id === input.exceptionId,
   );
   if (!request) throw new NotFoundException("EXCEPTION_NOT_FOUND");
-  ctx.milestone(request.milestoneId);
+  const m = ctx.milestone(request.milestoneId);
+  // The supplier's controller watches the proposal; the buyer's controller checks it.
+  if (ctx.contract(m.contract_id).buyer_id !== ctx.actor.organizationId)
+    throw new ForbiddenException("BUYER_ONLY");
   if (request.status !== "PROPOSED")
     throw new BadRequestException("EXCEPTION_ALREADY_DECIDED");
   if (request.proposedBy.userId === ctx.actor.id)

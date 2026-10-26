@@ -79,8 +79,8 @@
       "short": "SA"
     },
     "AUDITOR": {
-      "name": "Auditor",
-      "short": "AU"
+      "name": "Integrity checker",
+      "short": "IC"
     }
   },
   "login": {

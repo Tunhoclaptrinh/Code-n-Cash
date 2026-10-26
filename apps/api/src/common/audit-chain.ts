@@ -10,6 +10,17 @@ import type { RecordEntity } from "./types";
  */
 export const GENESIS = "0".repeat(64);
 
+/**
+ * The hash the first entry of a chain links to: GENESIS, or, after a demo reset, the head of the
+ * archived chain. The reset entry is then the first entry and carries that head, so the new chain
+ * continues the old one instead of starting from nothing.
+ */
+export const chainOrigin = (first: RecordEntity | undefined) =>
+  first?.action === "RESET_DEMO_DATA" &&
+  typeof first.archivedHeadHash === "string"
+    ? first.archivedHeadHash
+    : GENESIS;
+
 /** JSON with object keys sorted at every level: the exact bytes a hash covers. */
 export function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -52,7 +63,8 @@ export function seal(
   head: RecordEntity | undefined,
 ): RecordEntity[] {
   let seq = Number(head?.seq ?? 0);
-  let previous = typeof head?.hash === "string" ? head.hash : GENESIS;
+  let previous =
+    typeof head?.hash === "string" ? head.hash : chainOrigin(entries[0]);
   return entries.map((entry) => {
     // Round-trip first so the stored record and the hashed bytes match (no undefined fields).
     const linked = JSON.parse(
@@ -64,7 +76,7 @@ export function seal(
   });
 }
 
-export type ChainReport = IntegrityReport["chain"];
+export type ChainReport = Omit<IntegrityReport["chain"], "lastAnchor">;
 type ChainProblem = NonNullable<ChainReport["firstBroken"]>["problem"];
 
 /** Recomputes the chain from its first entry and, optionally, checks a saved head hash. */
@@ -75,7 +87,7 @@ export function verifyChain(
   const sealed = entries
     .filter((entry) => typeof entry.hash === "string")
     .sort((a, b) => Number(a.seq) - Number(b.seq));
-  let previous = GENESIS;
+  let previous = chainOrigin(sealed[0]);
   let firstBroken: ChainReport["firstBroken"] = null;
   for (const [index, entry] of sealed.entries()) {
     const problem: ChainProblem | null =
@@ -101,6 +113,13 @@ export function verifyChain(
     sealed: sealed.length,
     unsealed: entries.length - sealed.length,
     head: last ? { seq: Number(last.seq), hash: String(last.hash) } : null,
+    continuesFrom:
+      sealed[0] && chainOrigin(sealed[0]) !== GENESIS
+        ? {
+            archive: String(sealed[0].recordId),
+            headHash: chainOrigin(sealed[0]),
+          }
+        : null,
     firstBroken,
     anchor: !anchor
       ? null

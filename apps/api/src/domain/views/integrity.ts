@@ -13,6 +13,27 @@ const factsOf = (e: Evaluation): DecisionFacts => ({
   penaltyMillion: e.penaltyMillion,
 });
 
+/** The latest confirmed anchor, checked against the chain as it is now. */
+function lastAnchor(ctx: Ctx): IntegrityReport["chain"]["lastAnchor"] {
+  const latest = (ctx.t["anchor-jobs"] ?? [])
+    .filter((job) => job.status === "CONFIRMED")
+    .map(
+      (job) =>
+        job.payload as {
+          sequence: number;
+          headHash: string;
+          createdAt: string;
+        },
+    )
+    .sort((a, b) => b.sequence - a.sequence)[0];
+  if (!latest) return null;
+  const result = verifyChain(ctx.t["audit"] ?? [], {
+    seq: latest.sequence,
+    hash: latest.headHash,
+  }).anchor!;
+  return { seq: latest.sequence, anchoredAt: latest.createdAt, result };
+}
+
 /**
  * Integrity check for controllers and auditors: the audit hash chain, each app event against the
  * hash sealed with it, and each stored decision against a fresh run of the engine on the same data.
@@ -90,7 +111,7 @@ export async function integrityReport(
   const seal = (imported?.seal ?? {}) as ReturnType<typeof dataPackSeal>;
   return {
     checkedAt: new Date().toISOString(),
-    chain: verifyChain(audit, anchor),
+    chain: { ...verifyChain(audit, anchor), lastAnchor: lastAnchor(ctx) },
     dataPack: imported
       ? {
           sealedAt: imported.createdAt,

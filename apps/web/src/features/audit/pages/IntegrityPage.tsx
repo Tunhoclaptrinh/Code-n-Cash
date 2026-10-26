@@ -159,7 +159,14 @@ function Report({
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.chain.title")}
-            extra={<Verdict ok={chain.ok} />}
+            extra={
+              <Verdict
+                ok={
+                  chain.ok &&
+                  (!chain.lastAnchor || chain.lastAnchor.result === "MATCH")
+                }
+              />
+            }
           >
             <Descriptions
               size="small"
@@ -226,6 +233,51 @@ function Report({
                           >
                             {t(`integrity.chain.anchor.${chain.anchor}`)}
                           </Tag>
+                        ),
+                      },
+                    ]
+                  : []),
+                {
+                  key: "lastAnchor",
+                  label: t("integrity.chain.lastAnchor.label"),
+                  children: chain.lastAnchor ? (
+                    <Space wrap size={[8, 4]}>
+                      <Tag
+                        color={
+                          chain.lastAnchor.result === "MATCH"
+                            ? "success"
+                            : "error"
+                        }
+                        style={{ margin: 0 }}
+                      >
+                        {t(`integrity.chain.anchor.${chain.lastAnchor.result}`)}
+                      </Tag>
+                      <Typography.Text type="secondary">
+                        {t("integrity.chain.lastAnchor.value", {
+                          seq: chain.lastAnchor.seq,
+                          at: formatDateTime(chain.lastAnchor.anchoredAt),
+                        })}
+                      </Typography.Text>
+                    </Space>
+                  ) : (
+                    <Typography.Text type="secondary">
+                      {t("integrity.chain.lastAnchor.none")}
+                    </Typography.Text>
+                  ),
+                },
+                ...(chain.continuesFrom
+                  ? [
+                      {
+                        key: "continuesFrom",
+                        label: t("integrity.chain.continuesFrom"),
+                        children: (
+                          <Typography.Text
+                            code
+                            copyable={{ text: chain.continuesFrom.headHash }}
+                          >
+                            {chain.continuesFrom.archive} ·{" "}
+                            {short(chain.continuesFrom.headHash)}
+                          </Typography.Text>
                         ),
                       },
                     ]

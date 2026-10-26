@@ -1045,6 +1045,16 @@ test("the demo reset archives the data and its audit chain instead of deleting t
   assert.equal(verifyChain(audit).ok, true);
   assert.ok(audit.some((entry) => entry.action === "IMPORT_DATA_PACK"));
   const reset = audit.find((entry) => entry.action === "RESET_DEMO_DATA");
+  // The new chain continues the archived one: its first entry links to the archived head.
+  assert.equal(reset.seq, 1);
+  assert.equal(reset.prevHash, before.at(-1).hash);
+  assert.deepEqual(verifyChain(audit).continuesFrom, {
+    archive,
+    headHash: before.at(-1).hash,
+  });
+  const forged = structuredClone(audit);
+  forged[0].archivedHeadHash = "f".repeat(64);
+  assert.equal(verifyChain(forged).ok, false, "the link is covered by the hash");
   assert.equal(reset.actorId, "u-sysadmin");
   assert.equal(reset.recordId, archive);
   assert.equal(reset.archivedEntries, before.length);

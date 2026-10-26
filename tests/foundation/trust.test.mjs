@@ -467,6 +467,35 @@ test("anchor outbox is durable, idempotent, independently verifiable and detects
   assert.ok(canonical(bundle).includes("AUDIT_ANCHOR"));
 });
 
+test("anchoring runs only when the chain grew, and the latest anchor catches a cut tail", async () => {
+  await base.audit("TEST_MARK", "anchors", "grow", actors["u-admin"]);
+  const job = await trust.anchorIfChanged(null);
+  assert.equal(job.status, "CONFIRMED");
+  assert.equal(
+    await trust.anchorIfChanged(null),
+    null,
+    "the entries of anchoring itself do not call for another anchor",
+  );
+  const request = (await repo.list("audit")).find(
+    (entry) => entry.action === "ANCHOR_REQUEST" && entry.recordId === job.id,
+  );
+  assert.deepEqual([request.actorId, request.actorRole], ["system", "SYSTEM"]);
+  const report = await call("u-controller", "integrity", "verifyIntegrity");
+  assert.deepEqual(
+    [report.chain.lastAnchor.seq, report.chain.lastAnchor.result],
+    [job.payload.sequence, "MATCH"],
+  );
+  // Someone deletes the newest entries, down below the anchored head: the rest still links.
+  const backup = structuredClone(repo.data);
+  repo.data.audit = repo.data.audit.filter(
+    (entry) => Number(entry.seq) < job.payload.sequence,
+  );
+  const cut = await call("u-controller", "integrity", "verifyIntegrity");
+  repo.data = backup;
+  assert.equal(cut.chain.ok, true);
+  assert.equal(cut.chain.lastAnchor.result, "NOT_FOUND");
+});
+
 test("witness outage keeps a failed durable job that can retry without duplicating business work", async () => {
   const actor = actors["u-admin"];
   const witnessDir = join(dir, "unavailable");

@@ -102,7 +102,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     verifyIntegrity: read(
       "audit:read",
       (ctx, [anchor]) => views.integrityReport(ctx, anchorOf(anchor)),
-      ["audit"],
+      ["audit", "anchor-jobs"],
     ),
   },
   tasks: {

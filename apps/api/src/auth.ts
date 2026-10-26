@@ -24,6 +24,7 @@ import type { Actor, SessionRequest, Role, RecordEntity } from "./common/types";
 import { buildDirectory, FEATURED_ACCOUNTS } from "./domain/accounts";
 import { loadDataPack } from "./domain/datapack";
 import { DomainService } from "./domain/service";
+import { TrustService } from "./trust/service";
 import { auditContext } from "./common/audit-events";
 /**
  * One-click demo sign-in: on by default in development, off in production unless DEMO_LOGIN=true.
@@ -354,6 +355,7 @@ export class AuthController {
   constructor(
     @Inject(AuthService) private auth: AuthService,
     @Inject(DomainService) private domain: DomainService,
+    @Inject(TrustService) private trust: TrustService,
   ) {}
   @Public() @Post("login") login(@Body() body: unknown) {
     return this.auth.login(body);
@@ -369,7 +371,9 @@ export class AuthController {
   @Post("reset-demo")
   async resetDemo(@Req() req: SessionRequest) {
     if (!demoLoginEnabled()) throw new NotFoundException("DEMO_LOGIN_DISABLED");
-    const result = await this.domain.resetDemo(req.user);
+    // Anchor the chain about to be archived, so its final head is witnessed outside the database.
+    const anchor = await this.trust.anchorIfChanged(req.user).catch(() => null);
+    const result = await this.domain.resetDemo(req.user, anchor?.id ?? null);
     await this.auth.seed();
     return result;
   }

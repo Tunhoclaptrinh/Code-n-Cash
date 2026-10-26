@@ -128,10 +128,13 @@ export class DomainService {
    * included, is archived rather than deleted; the new chain records who reset it and the head
    * hash of the archived chain.
    */
-  async resetDemo(actor: Actor): Promise<{ archive: string }> {
+  async resetDemo(
+    actor: Actor,
+    anchorId: string | null = null,
+  ): Promise<{ archive: string }> {
     const archived = await this.repo.archiveAndReset();
-    await this.bootstrap();
     const now = new Date().toISOString();
+    // First entry of the new chain: it links to the archived head (audit-chain chainOrigin).
     await this.repo.transact([], () => null, [
       {
         id: `demo-reset-${archived.archive}`,
@@ -146,8 +149,10 @@ export class DomainService {
         archivedEntries: archived.entries,
         archivedHeadHash:
           typeof archived.head?.hash === "string" ? archived.head.hash : null,
+        archivedAnchorId: anchorId,
       },
     ]);
+    await this.bootstrap();
     return { archive: archived.archive };
   }
 

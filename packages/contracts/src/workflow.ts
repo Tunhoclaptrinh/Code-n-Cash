@@ -614,6 +614,17 @@ export interface IntegrityReport {
     } | null;
     /** Against a head hash saved earlier, when one is given. */
     anchor: "MATCH" | "MISMATCH" | "NOT_FOUND" | null;
+    /** After a demo reset: the archived chain this one continues. */
+    continuesFrom: { archive: string; headHash: string } | null;
+    /**
+     * Against the latest confirmed anchor, checked on every report: a rewritten chain no longer
+     * matches it, and a chain cut below it no longer has its entry (NOT_FOUND).
+     */
+    lastAnchor: {
+      seq: number;
+      anchoredAt: string;
+      result: "MATCH" | "MISMATCH" | "NOT_FOUND";
+    } | null;
   };
   evidence: {
     sealed: number;

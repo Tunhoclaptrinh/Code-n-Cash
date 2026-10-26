@@ -528,8 +528,8 @@ export class RulesService {
         const current = tables["rule-versions"].find((row) => row.id === id);
         if (!current) throw new NotFoundException("RECORD_NOT_FOUND");
         checkState(current, expected, "REVIEW");
-        if (current.submittedBy === actor.id || current.createdBy === actor.id)
-          throw new ForbiddenException("SECOND_REVIEWER_REQUIRED");
+        // SoD-4: publishing only makes a checked version available to new contracts. It applies
+        // to a contract once both of its parties sign the contract that pins it (signingDigest).
         if (versionHash(current) !== current.hash)
           throw new BadRequestException("RULE_VERSION_INVALID");
         const validation = current.validation as {

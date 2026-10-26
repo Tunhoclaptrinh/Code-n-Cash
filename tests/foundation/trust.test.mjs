@@ -145,7 +145,10 @@ test("audit records actual redacted deltas and request context; rollback cannot 
   assert.doesNotMatch(JSON.stringify(created), /NEVER_LOG|passwordHash|token/);
   // Personal values are kept only as keyed digests, nested ones included.
   assert.doesNotMatch(JSON.stringify(created), /person@example|Nguyễn Văn A/);
-  assert.match(created.changes[0].fields.email.after, /^hmac-sha256:[0-9a-f]{64}$/);
+  assert.match(
+    created.changes[0].fields.email.after,
+    /^hmac-sha256:[0-9a-f]{64}$/,
+  );
   assert.match(
     created.changes[0].fields.signers.after[0].signerName,
     /^hmac-sha256:[0-9a-f]{64}$/,
@@ -1288,4 +1291,52 @@ test("repeated identical failed requests share one audit entry per window", asyn
   });
   // After the window, the next one is written with the count of those folded before it.
   assert.deepEqual(folder.admit(key, 60_000), { foldedBefore: 50 });
+});
+
+test("an independent Python verifier checks the log and one entry's Merkle proof", async () => {
+  const python = process.env.PYTHON ?? "python3";
+  const verifier = (...args) =>
+    execute(python, ["tools/verify_audit.py", ...args]).then(
+      (done) => ({ code: 0, report: JSON.parse(done.stdout) }),
+      (failed) => ({ code: failed.code, report: JSON.parse(failed.stdout) }),
+    );
+  await base.audit("TEST_MARK", "anchors", "proof", actors["u-admin"]);
+  const job = await trust.anchorIfChanged(actors["u-admin"]);
+  assert.match(job.payload.merkleRoot, /^[0-9a-f]{64}$/);
+  const records = JSON.parse(await readFile(repo.path, "utf8"));
+  const whole = await verifier("--records", repo.path);
+  assert.equal(whole.code, 0);
+  assert.deepEqual(whole.report.head, verifyChain(records.audit).head);
+
+  const target = records.audit.find((entry) => entry.seq === 3);
+  const proof = await trust.proof(target.id, actors["u-auditor"]);
+  assert.equal(proof.treeSize, proof.anchor.payload.sequence);
+  assert.ok(proof.anchor.payload.sequence <= job.payload.sequence);
+  assert.ok(proof.path.length <= Math.ceil(Math.log2(proof.treeSize)));
+  const proofPath = join(dir, "proof.json");
+  await writeFile(proofPath, JSON.stringify(proof));
+  assert.equal((await verifier("--proof", proofPath)).code, 0);
+
+  // An edited entry no longer hashes to its leaf; an edited log no longer links.
+  proof.entry.actorId = "someone-else";
+  await writeFile(proofPath, JSON.stringify(proof));
+  const forged = await verifier("--proof", proofPath);
+  assert.equal(forged.code, 1);
+  assert.equal(forged.report.checks.entryHash, false);
+  records.audit[2].actorId = "someone-else";
+  const logPath = join(dir, "forged-records.json");
+  await writeFile(logPath, JSON.stringify(records));
+  const edited = await verifier("--records", logPath);
+  assert.deepEqual(
+    [
+      edited.code,
+      edited.report.firstBroken.seq,
+      edited.report.firstBroken.problem,
+    ],
+    [1, 3, "CONTENT_CHANGED"],
+  );
+  await assert.rejects(
+    trust.proof("missing", actors["u-auditor"]),
+    /RECORD_NOT_FOUND/,
+  );
 });

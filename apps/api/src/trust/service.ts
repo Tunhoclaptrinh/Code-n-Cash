@@ -19,7 +19,8 @@ import type { Actor, RecordEntity } from "../common/types";
 import { READ_TABLES } from "../domain/context";
 import { LocalWitnessProvider, type AnchorProvider } from "./anchor-provider";
 import { localKey, verifyLocalProof } from "./crypto";
-import type { AnchorJob, AnchorPayload, LocalProof } from "./types";
+import { inclusionProof, merkleRoot } from "../common/merkle";
+import type { AnchorJob, AnchorPayload, AuditProof, LocalProof } from "./types";
 import { DomainService } from "../domain/service";
 
 const hashPattern = /^[0-9a-f]{64}$/;
@@ -66,6 +67,15 @@ const ANCHOR_ACTIONS = new Set([
   "ANCHOR_CONFIRMED",
   "ANCHOR_FAILED",
 ]);
+
+/** Entry hashes of the sealed chain in sequence order: the Merkle leaves. */
+const sealedHashes = (audit: RecordEntity[], upTo = Infinity) =>
+  audit
+    .filter(
+      (entry) => typeof entry.hash === "string" && Number(entry.seq) <= upTo,
+    )
+    .sort((a, b) => Number(a.seq) - Number(b.seq))
+    .map((entry) => String(entry.hash));
 
 @Injectable()
 export class TrustService implements OnModuleInit, OnModuleDestroy {
@@ -180,6 +190,7 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
           sequence: Number(head.seq),
           headHash: String(head.hash),
           snapshotHash: sha256(canonical(manifest)),
+          merkleRoot: merkleRoot(sealedHashes(tables.audit)),
           createdAt: now,
           algorithm: "SHA-256",
           manifest,
@@ -260,6 +271,47 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
       ],
     );
   }
+  /**
+   * Proof that one audit entry is in the chain as anchored: the entry, its audit path and the
+   * earliest confirmed anchor (with a Merkle root) that covers it.
+   */
+  async proof(entryId: string, actor: Actor): Promise<AuditProof> {
+    const [audit, jobs] = await Promise.all([
+      this.repo.list("audit"),
+      this.repo.list("anchor-jobs"),
+    ]);
+    const entry = audit.find((row) => row.id === entryId);
+    if (!entry || typeof entry.hash !== "string")
+      throw new NotFoundException("RECORD_NOT_FOUND");
+    const job = jobs
+      .filter(
+        (row) =>
+          row.status === "CONFIRMED" &&
+          (row.payload as AnchorPayload).merkleRoot &&
+          (row.payload as AnchorPayload).sequence >= Number(entry.seq),
+      )
+      .sort(
+        (a, b) =>
+          (a.payload as AnchorPayload).sequence -
+          (b.payload as AnchorPayload).sequence,
+      )[0];
+    if (!job) throw new NotFoundException("NOT_ANCHORED_YET");
+    const payload = job.payload as AnchorPayload;
+    const hashes = sealedHashes(audit, payload.sequence);
+    await this.base.audit("AUDIT_PROOF_EXPORT", "anchors", entryId, actor);
+    return {
+      entry,
+      leafIndex: Number(entry.seq) - 1,
+      treeSize: hashes.length,
+      path: inclusionProof(Number(entry.seq) - 1, hashes),
+      anchor: {
+        id: job.id,
+        payload,
+        receipt: (job.receipt as LocalProof | null) ?? null,
+      },
+    };
+  }
+
   async bundle(id: string, actor: Actor) {
     const job = await this.job(id);
     await this.base.audit("ANCHOR_EXPORT", "anchors", id, actor);

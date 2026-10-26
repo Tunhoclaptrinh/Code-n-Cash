@@ -14,6 +14,16 @@ export interface AnchorPayload {
   createdAt: string;
   algorithm: "SHA-256";
   manifest: Record<string, { count: number; sha256: string }>;
+  /** Merkle root of entry hashes 1..sequence (common/merkle.ts); absent on older anchors. */
+  merkleRoot?: string;
+}
+/** One audit entry with the path that proves it is in an anchored chain (tools/verify_audit.py). */
+export interface AuditProof {
+  entry: Record<string, unknown>;
+  leafIndex: number;
+  treeSize: number;
+  path: string[];
+  anchor: { id: string; payload: AnchorPayload; receipt: LocalProof | null };
 }
 export interface AnchorJob {
   id: string;

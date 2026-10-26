@@ -115,6 +115,12 @@ export class TrustController {
   ) {
     return this.trust.bundle(id, req.user);
   }
+  @Get("anchors/proof/:entryId") @RequirePermission("anchors:read") proof(
+    @Param("entryId") entryId: string,
+    @Req() req: SessionRequest,
+  ) {
+    return this.trust.proof(entryId, req.user);
+  }
   @Post("anchors/verify") @RequirePermission("anchors:read") check(
     @Body() body: { payload?: AnchorPayload; receipt?: LocalProof },
   ) {

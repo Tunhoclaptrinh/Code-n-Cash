@@ -61,6 +61,8 @@ Tài liệu kỹ thuật: [06 — Kiến trúc và tái sử dụng](docs/06_KIE
 pnpm check             # typecheck + lint (0 warning) + format:check + build + test
 pnpm format            # Prettier cho apps, packages, scripts
 pnpm check:data
+python3 tools/mutation_check.py   # bộ ca tổng hợp có bắt được 16 lỗi cài vào engine không
+python3 tools/verify_audit.py --records .data/records.json   # kiểm độc lập chuỗi audit
 pnpm test:e2e          # Cần API đang chạy; tạo/xóa dữ liệu smoke riêng
 pnpm test:browser      # Cần web + API đang chạy và Google Chrome; ảnh lưu ở artifacts/browser
 ```

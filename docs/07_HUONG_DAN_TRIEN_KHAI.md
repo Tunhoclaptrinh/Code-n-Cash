@@ -48,6 +48,8 @@ Sửa `.env.production`:
 | `WEB_ORIGIN` | Có | Origin công khai, ví dụ `https://codecash.example.com` |
 | `SEED_PASSWORD` | Lần đầu | Mật khẩu cho 69 tài khoản mẫu (mỗi bên trong Data Pack một người, cộng bốn người nội bộ: hai kiểm soát viên, quản trị hệ thống, kiểm toán); xóa sau lần khởi động đầu (mục 4) |
 | `MONGO_URI` | Không | Để trống dùng container `mongo`; điền URI cluster quản lý (Atlas…) nếu có |
+| `ANCHOR_INTERVAL_MINUTES` | Không | Chu kỳ tự neo đầu chuỗi audit khi có mục mới; mặc định 15, `0` để tắt |
+| `AUDIT_PERSONAL_KEY` | Không | Khoá HMAC cho dữ liệu cá nhân trong audit; để trống thì dùng `audit-personal.key` sinh trong thư mục trust. Mất khoá thì không đối chiếu được giá trị cũ (chuỗi vẫn kiểm được) |
 | `ENGINE_URL` | Không | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image. Bộ dữ liệu tải lên luôn chạy bằng CLI trong image |
 | `MOCK_ORIGINALS_WARMUP` | Không | Mặc định `true` khi `NODE_ENV=production`: sau khi khởi động, dựng sẵn trong nền tệp gốc mô phỏng (DOCX/PDF) cho các hợp đồng chưa có tệp, lưu ở `DATA_DIR/mock-originals`. Đặt `false` để chỉ dựng khi có người mở. Xem [32](archive/32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md) |
 | `DEMO_LOGIN` | Không | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng mọi tài khoản mẫu còn hoạt động). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo |
@@ -147,7 +149,7 @@ docker run --rm -v codecash_uploads:/data -v "$PWD/backup":/backup alpine \
   sh -c "cd /data && tar xzf /backup/uploads-YYYY-MM-DD.tgz"
 ```
 
-Đặt hai lệnh sao lưu vào cron hằng ngày và chép bản sao ra ngoài máy chủ. Sau mỗi lần sao lưu, chép **mã đầu chuỗi** ở trang Kiểm tra toàn vẹn ra ngoài (biên bản, email): khi khôi phục hay nghi dữ liệu bị sửa, dán mã đó vào trang để biết nhật ký có bị viết lại không. Lệnh `down -v` **xóa volume**; chỉ dùng khi muốn làm sạch hoàn toàn.
+Đặt hai lệnh sao lưu vào cron hằng ngày và chép bản sao ra ngoài máy chủ. Sao lưu cả thư mục trust (`TRUST_DIR`): khoá làm chứng, biên nhận neo và `audit-personal.key` nằm ở đó, không nằm trong Mongo. Sau mỗi lần sao lưu, chép **mã đầu chuỗi** ở trang Kiểm tra toàn vẹn ra ngoài (biên bản, email): khi khôi phục hay nghi dữ liệu bị sửa, dán mã đó vào trang để biết nhật ký có bị viết lại không. Lệnh `down -v` **xóa volume**; chỉ dùng khi muốn làm sạch hoàn toàn.
 
 ## 9. Nhật ký và theo dõi
 

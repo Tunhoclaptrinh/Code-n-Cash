@@ -4,8 +4,11 @@ Input: the cleaned events of a milestone, the parties lookup, the contract and t
 Output: open dispute events, valid rejections (plus rejection anomalies) and the counted approvals.
 Business rules: BR-08 (a dispute opens easily, closes only by a valid resolution that references it),
 BR-09 (a valid rejection blocks payment regardless of required approval roles), BR-10 (each approver
-counts once; the quorum counts distinct required roles covered).
+counts once; the quorum counts distinct required roles covered; an approver whose ``approval_limit_vnd_mn``
+is below the milestone's planned payment does not count).
 """
+from decimal import Decimal, InvalidOperation
+
 from .events import approver_of_contract, party_of, up_to, valid_rejection
 
 
@@ -56,15 +59,30 @@ def valid_rejections(parties, contract, events):
     return rejections, anomalies
 
 
-def count_approvals(parties, contract, events, roles):
-    """BR-10: return (approvals, covered_role_count).
+def within_limit(party, planned):
+    """BR-10: an empty limit or no planned amount is no limit; an unreadable limit is no authority."""
+    limit = (party.get("approval_limit_vnd_mn") or "").strip()
+    if not limit or planned is None:
+        return True
+    try:
+        return planned <= Decimal(limit)
+    except InvalidOperation:
+        return False
+
+
+def count_approvals(parties, contract, events, roles, planned=None):
+    """BR-10: return (approvals, covered_role_count, over_limit).
 
     approvals maps approver party id -> that approver's earliest valid APPROVAL (one per approver).
     The count is the number of distinct required roles covered, not the number of approvals.
+    over_limit lists approvals from a required approver whose limit is below ``planned``; they do not count.
     """
-    approvals = {}
+    approvals, over_limit = {}, []
     for e in events:
         if (e["event_type"] == "APPROVAL" and e["event_status"] == "APPROVED"
                 and approver_of_contract(parties, contract, e) and party_of(parties, e)["approval_role"] in roles):
-            approvals.setdefault(e["actor_party_id"], e)
-    return approvals, len({parties[a]["approval_role"] for a in approvals})
+            if within_limit(party_of(parties, e), planned):
+                approvals.setdefault(e["actor_party_id"], e)
+            else:
+                over_limit.append(e["event_id"])
+    return approvals, len({parties[a]["approval_role"] for a in approvals}), over_limit

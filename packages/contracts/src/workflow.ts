@@ -290,6 +290,8 @@ export interface Evaluation {
   missingConditions: string[];
   issues: string[];
   notes: string[];
+  /** Sequence warnings ("<event id>: <CODE>"); they lower confidence and never change the decision. */
+  warnings: string[];
   confidence: string;
   specVersion: string;
 }

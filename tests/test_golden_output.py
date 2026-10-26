@@ -30,7 +30,8 @@ class GoldenOutputTests(unittest.TestCase):
     def test_output_matches_golden(self):
         current = snapshot()
         if os.environ.get('CODECASH_UPDATE_GOLDEN') == '1':
-            GOLDEN.write_text(json.dumps(current, ensure_ascii=False, indent=1, sort_keys=True) + '\n', encoding='utf-8')
+            with open(GOLDEN, 'w', encoding='utf-8', newline='\n') as handle:
+                handle.write(json.dumps(current, ensure_ascii=False, indent=1, sort_keys=True) + '\n')
         golden = json.loads(GOLDEN.read_text(encoding='utf-8'))
         self.assertEqual(len(current['rows']), 405)
         for expected, row in zip(golden['rows'], current['rows']):

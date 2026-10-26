@@ -9,7 +9,7 @@ from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'apps/engine'))
-from codecash_engine import amounts, controls, events, requirements, rules, schedule, structure, trace  # noqa: E402
+from codecash_engine import amounts, controls, events, requirements, rules, schedule, sequence, structure, trace  # noqa: E402
 from codecash_engine.pack import PRIORITIES, Pack  # noqa: E402
 from codecash_engine.pipeline import evaluate  # noqa: E402
 
@@ -164,7 +164,7 @@ class ControlTests(unittest.TestCase):
         self.assertEqual(anomalies, ['R2: REJECTION không hợp lệ', 'R3: REJECTION không hợp lệ'])
 
     def count(self, rows, roles=('CONTRACT_OWNER', 'FINANCE')):
-        return controls.count_approvals(PARTIES, CONTRACT, rows, list(roles))
+        return controls.count_approvals(PARTIES, CONTRACT, rows, list(roles))[:2]
 
     def test_quorum_counts_distinct_roles_not_approvals(self):
         same_role = [event('P1', 'APPROVAL', 'A1'), event('P2', 'APPROVAL', 'A2')]
@@ -183,6 +183,59 @@ class ControlTests(unittest.TestCase):
                                event('P2', 'APPROVAL', 'A9'),  # approver of another buyer
                                event('P3', 'APPROVAL', 'A1', event_status='PENDING')])
         self.assertEqual(count, 0)
+
+    def test_an_approval_above_the_approvers_limit_does_not_count(self):
+        parties = dict(PARTIES, A1=dict(PARTIES['A1'], approval_limit_vnd_mn='50'),
+                       A3=dict(PARTIES['A3'], approval_limit_vnd_mn=''))
+        rows = [event('P1', 'APPROVAL', 'A1'), event('P2', 'APPROVAL', 'A3')]
+        approvals, count, over = controls.count_approvals(parties, CONTRACT, rows, ['CONTRACT_OWNER', 'FINANCE'],
+                                                          Decimal('100.00'))
+        self.assertEqual((list(approvals), count, over), (['A3'], 1, ['P1']))
+        self.assertEqual(controls.count_approvals(parties, CONTRACT, rows, ['CONTRACT_OWNER', 'FINANCE'],
+                                                  Decimal('50.00'))[1], 2)
+
+
+class SequenceTests(unittest.TestCase):
+    contract = dict(CONTRACT, signing_date='2026-01-02')
+
+    def warnings(self, rows, completion_ts=None):
+        valid = {e['event_type']: e for e in rows if e['event_type'] in ('DELIVERY', 'ACCEPTANCE')}
+        approvals = {e['actor_party_id']: e for e in rows if e['event_type'] == 'APPROVAL'}
+        resolutions = [e for e in rows if e['event_type'] == 'DISPUTE_RESOLVED']
+        return sequence.sequence_warnings(rows, valid, approvals, resolutions, completion_ts, self.contract)
+
+    def test_a_clean_history_has_no_warning(self):
+        rows = [event('E1', 'DELIVERY', 'S1', '2026-01-03T08:00:00', document_id='DN-1'),
+                event('P1', 'APPROVAL', 'A1', '2026-01-04T09:00:00')]
+        self.assertEqual(self.warnings(rows, '2026-01-03T08:00:00'), [])
+
+    def test_approval_before_the_last_evidence_and_evidence_before_signing_are_reported(self):
+        rows = [event('E1', 'DELIVERY', 'S1', '2026-01-01T08:00:00'),
+                event('P1', 'APPROVAL', 'A1', '2026-01-02T09:00:00'),
+                event('E2', 'ACCEPTANCE', 'B1', '2026-01-05T08:00:00')]
+        self.assertEqual(self.warnings(rows, '2026-01-05T08:00:00'),
+                         ['E1: EVENT_BEFORE_SIGNING', 'P1: APPROVAL_BEFORE_EVIDENCE'])
+
+    def test_resubmission_with_another_document_within_a_day_is_a_possible_duplicate(self):
+        rows = [event('E1', 'DELIVERY', 'S1', '2026-01-03T08:00:00', document_id='DN-1'),
+                event('E2', 'DELIVERY', 'S1', '2026-01-03T20:00:00', document_id='DN-2'),
+                event('E3', 'DELIVERY', 'S1', '2026-01-06T08:00:00', document_id='DN-3')]
+        self.assertEqual(self.warnings(rows), ['E2: POSSIBLE_DUPLICATE'])
+
+    def test_a_dispute_closed_by_the_supplier_is_reported_and_by_the_buyer_is_not(self):
+        rows = [event('D1', 'DISPUTE_OPENED', 'B1', '2026-01-03T08:00:00'),
+                event('D2', 'DISPUTE_RESOLVED', 'B1', '2026-01-04T08:00:00', reference_event_id='D1'),
+                event('D3', 'DISPUTE_OPENED', 'B1', '2026-01-05T08:00:00'),
+                event('D4', 'DISPUTE_RESOLVED', 'S1', '2026-01-06T08:00:00', reference_event_id='D3')]
+        self.assertEqual(self.warnings(rows), ['D4: RESOLVED_BY_PAYEE'])
+
+    def test_warnings_lower_confidence_but_never_change_the_decision(self):
+        rows = PipelineTests().complete_events()
+        rows[2] = event('P1', 'APPROVAL', 'A1', '2026-01-02T09:00:00')
+        result = PipelineTests().run_milestone(rows)
+        self.assertEqual((result['decision'], result['warnings']), ('RELEASE', ['P1: APPROVAL_BEFORE_EVIDENCE']))
+        from codecash_engine.confidence import confidence_score
+        self.assertEqual(confidence_score(result), ('0.90', ['SEQUENCE_WARNING']))
 
 
 class ScheduleTests(unittest.TestCase):
@@ -455,7 +508,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual((result['decision'], result['reason_code'], result['rule_id']),
                          ('HOLD', 'UNRESOLVED_CONDITION', 'PR80'))
         self.assertEqual((result['payable'], result['penalty']), (Decimal('0.00'), Decimal('0.00')))
-        self.assertEqual(result['issues'], ['không đánh giá được luật: ValueError RULE_DIVISION_BY_ZERO'])
+        self.assertEqual(result['issues'], ['không đánh giá được luật (RULE_EVALUATION_ERROR): ValueError RULE_DIVISION_BY_ZERO'])
         # The same rule still evaluates for a milestone whose parameter is not zero.
         self.assertEqual(self.run_milestone(self.complete_events(), MILESTONE, scope)['decision'], 'RELEASE')
 

@@ -9,8 +9,8 @@ measure of how certain a decision is, it never changes the decision.
 The score is robustness times evidence quality:
 - robustness: each reading of the brief that the organiser has not settled is evaluated as well; when
   it would give another decision or amount, the score loses that reading's weight;
-- quality: data issues, duplicates, unrelated events and a completion right at the lateness boundary
-  each lower the score, because a person would want to look at those records before paying.
+- quality: data issues, duplicates, unrelated events, sequence warnings and a completion right at the
+  lateness boundary each lower the score, because a person would want to look at those records before paying.
 """
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -30,6 +30,7 @@ ISSUE_CAP = Decimal("0.50")
 DUPLICATE_FACTOR = Decimal("0.97")
 UNRELATED_FACTOR = Decimal("0.97")
 BOUNDARY_FACTOR = Decimal("0.95")
+SEQUENCE_FACTOR = Decimal("0.90")
 
 
 def assumption_flags(pack, results):
@@ -81,6 +82,9 @@ def confidence_score(result, changed_by=(), milestone=None):
     if result["unrelated"]:
         factors.append("UNRELATED_EVENT")
         score *= UNRELATED_FACTOR
+    if result.get("warnings"):
+        factors.append("SEQUENCE_WARNING")
+        score *= SEQUENCE_FACTOR
     if milestone is not None and at_lateness_boundary(result, milestone):
         factors.append("LATENESS_BOUNDARY")
         score *= BOUNDARY_FACTOR

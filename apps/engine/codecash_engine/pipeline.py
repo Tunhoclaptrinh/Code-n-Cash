@@ -11,7 +11,7 @@ trace (BR-17, sections 4 and 9).
 """
 from decimal import ROUND_HALF_UP
 
-from . import amounts, controls, events, requirements, rules, schedule, structure, trace
+from . import amounts, controls, events, requirements, rules, schedule, sequence, structure, trace
 from .pack import PRIORITIES
 
 
@@ -52,14 +52,20 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
                                            ignore_resolutions, strict_resolution)
     rejections, rejection_anomalies = controls.valid_rejections(parties, contract, uniq)
     anomalies += rejection_anomalies
-    approvals, valid_approval_count = controls.count_approvals(parties, contract, uniq, roles)
+    terms, terms_issues = schedule.parse_terms(m)
+    issues += terms_issues
+    approvals, valid_approval_count, over_limit = controls.count_approvals(
+        parties, contract, uniq, roles, None if terms_issues else terms["planned"])
 
     # BR-11, BR-12: completion date and days late.
     completion_ts = schedule.completion_timestamp(valid_req, approvals, missing, completion_includes_approval)
     completion_date = schedule.completion_date(completion_ts)
-    terms, terms_issues = schedule.parse_terms(m)
-    issues += terms_issues
     days_late = schedule.days_late_after_grace(completion_date, terms["due"], terms["grace"])
+
+    # Sequence checks: warnings for a reviewer, never a change of decision.
+    resolutions = [e for e in uniq if e["event_type"] == "DISPUTE_RESOLVED"]
+    warnings = sequence.sequence_warnings(uniq, valid_req, approvals, resolutions, completion_ts, contract)
+    warnings += [f"{event_id}: APPROVAL_OVER_LIMIT" for event_id in over_limit]
 
     # BR-02, BR-14, BR-15: rule environment and first-match selection.
     env = rules.build_env(
@@ -75,7 +81,7 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         rule = rules.select_rule(scope_rules, env, issues, anomalies)
         penalty, payable = amounts.rule_amounts(rule, env, rounding)
     except (ArithmeticError, TypeError, ValueError, KeyError) as error:
-        issues.append(f"không đánh giá được luật: {type(error).__name__} {error}")
+        issues.append(f"không đánh giá được luật (RULE_EVALUATION_ERROR): {type(error).__name__} {error}")
         rule = rules.fallback_rule(scope_rules)
         penalty, payable = amounts.rule_amounts(rule, env, rounding)
     decision = rule["decision"] if rule else "HOLD"
@@ -98,7 +104,7 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         "valid_rejection_count": len(rejections), "approval_required": approval_required,
         "valid_approval_count": valid_approval_count, "quorum": quorum, "days_late": days_late,
         "completion_ts": completion_ts, "conditions_met": met, "missing_conditions": miss,
-        "issues": issues + anomalies, "notes": notes,
+        "issues": issues + anomalies, "notes": notes, "warnings": warnings,
     }
 
 

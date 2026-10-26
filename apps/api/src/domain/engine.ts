@@ -206,6 +206,7 @@ export async function runEngine(
         missingConditions: r.missing_conditions,
         issues: r.issues,
         notes: r.notes,
+        warnings: r.warnings ?? [],
         confidence: confidence.get(r.milestone_id) ?? "",
         specVersion: trace.specVersion,
       });

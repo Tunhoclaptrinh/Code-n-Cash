@@ -269,6 +269,7 @@
     "RULE_VERSION_LOCKED": "Phiên bản đã khóa; hãy soạn bản nháp mới để thay đổi.",
     "RULE_VERSION_AUTHOR_REQUIRED": "Chỉ người soạn được sửa và gửi duyệt bản nháp này.",
     "RULE_VERSION_REGRESSION": "Cấu hình làm đổi kết quả baseline hoặc không qua mẫu/bất biến nghiệp vụ.",
+    "RULE_VERSION_UNSAFE": "Bộ luật chưa qua kiểm tra an toàn: có trường hợp trả tiền khi còn yếu tố chặn hoặc số tiền ngoài phạm vi. Hãy xem trước tác động và gửi duyệt lại.",
     "SECOND_REVIEWER_REQUIRED": "Cần người quản trị khác rà soát và duyệt phát hành.",
     "SAMPLE_GENERATION_FAILED": "Không tạo được tệp mẫu. Hãy thử lại.",
     "PAYLOAD_TOO_LARGE": "Dữ liệu gửi lên vượt giới hạn 4 MB. Hãy giảm kích thước yêu cầu.",

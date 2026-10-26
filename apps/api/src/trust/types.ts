@@ -115,6 +115,27 @@ export interface RuleLanguage {
   constants: string[];
   fields: RuleExpressionField[];
 }
+/** Static safety proof of a rule set (apps/engine/codecash_engine/safety.py). */
+export interface RuleSafety {
+  safe: boolean;
+  scopes: number;
+  scenarios: number;
+  violationCount: number;
+  violations: Array<{
+    code:
+      | "BLOCKED_PAYMENT"
+      | "AMOUNT_OUT_OF_RANGE"
+      | "PAYMENT_WHILE_HELD"
+      | "EVALUATION_ERROR"
+      | "NO_FALLBACK";
+    scope: string;
+    ruleId: string;
+    facts?: Record<string, unknown>;
+    detail?: string;
+  }>;
+  unreachable: Array<{ scope: string; ruleId: string }>;
+}
+
 export interface RulePreview {
   compatibilityPolicy: "BTC_FULL_PACK_V1";
   evaluated: number;
@@ -125,6 +146,7 @@ export interface RulePreview {
   fingerprint: string;
   changed: number;
   templateChanges: number;
+  safety: RuleSafety;
   canSubmit: boolean;
   changes: Array<{
     milestoneId: string;

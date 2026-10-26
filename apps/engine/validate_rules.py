@@ -225,6 +225,12 @@ if __name__ == '__main__':
     try:
         if '--inspect' in sys.argv:
             print(json.dumps(inspect(json.load(sys.stdin), limit=128)))
+        elif '--safety' in sys.argv:
+            # Static safety proof (codecash_engine/safety.py) of rules that already type-check.
+            from codecash_engine.safety import check_rules
+            candidate = json.load(sys.stdin)
+            validate(candidate)
+            print(json.dumps(check_rules(candidate)))
         else:
             validate(json.load(sys.stdin))
             print('OK')

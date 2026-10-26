@@ -269,6 +269,7 @@
     "RULE_VERSION_LOCKED": "This version is locked; create a new draft to change it.",
     "RULE_VERSION_AUTHOR_REQUIRED": "Only the author can edit and submit this draft.",
     "RULE_VERSION_REGRESSION": "Configuration changes baseline results or fails sample/business checks.",
+    "RULE_VERSION_UNSAFE": "The rule set failed the safety check: it can pay while a blocker holds or pay an amount out of range. Preview the impact and submit it again.",
     "SECOND_REVIEWER_REQUIRED": "A different administrator must review and publish this version.",
     "SAMPLE_GENERATION_FAILED": "The sample document could not be generated. Please retry.",
     "PAYLOAD_TOO_LARGE": "The request exceeds the 4 MB limit. Reduce the payload size.",

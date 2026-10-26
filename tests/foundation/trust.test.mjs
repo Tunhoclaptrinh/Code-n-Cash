@@ -530,6 +530,27 @@ test("rule impact preview compares all 405 inputs, exposes regressions and persi
   assert.equal(await readFile(repo.path, "utf8"), before);
 });
 
+test("the rule safety proof stops a rule set that only misbehaves outside the Data Pack's parameters", async () => {
+  const version = await rules.create(
+    { name: "Large milestone gap", reason: "Disputes above 6000 fall through" },
+    actors["u-sysadmin"],
+  );
+  const candidate = structuredClone(version.rules);
+  for (const rule of candidate.filter((row) => row.priority === "10"))
+    rule.condition_expression =
+      "open_dispute == TRUE AND planned_payment_vnd_mn <= 6000";
+  const impact = await rules.preview(version.id, {
+    version: version.version,
+    rules: candidate,
+    templates: version.templates,
+  });
+  assert.equal(impact.changed, 0, "no Data Pack milestone is above 6000");
+  assert.equal(impact.matched, 20);
+  assert.equal(impact.safety.safe, false);
+  assert.equal(impact.safety.violations[0].code, "BLOCKED_PAYMENT");
+  assert.equal(impact.canSubmit, false);
+});
+
 test("rule publication rejects unlabelled regressions even when all 20 public samples still pass", async () => {
   const author = actors["u-sysadmin"];
   let version = await rules.create(

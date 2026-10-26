@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codecash_engine as spec
 import dataset
+from codecash_engine.safety import check_rules
 import validate_rules
 
 
@@ -147,7 +148,7 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
     # Totals, like the decision counts, cover the output rows (the scope file can narrow them).
     scored = [results[t['milestone_id']] for t in pack.template]
     return {'runId': run_id, 'inputFingerprint': fingerprint, 'rows': rows, 'traces': traces,
-            'summary': {'source': source, 'engineBuild': build, 'milestones': len(rows), 'contracts': len(pack.contracts),
+            'summary': {'source': source, 'engineBuild': build, 'ruleSafety': check_rules(pack.rules), 'milestones': len(rows), 'contracts': len(pack.contracts),
                         'decisions': dict(Counter(r['decision'] for r in scored)),
                         'sampleMatched': matched, 'sampleTotal': len(pack.decisions), 'sampleMismatches': mismatches,
                         'invariantViolations': violations, 'payableMillion': str(sum(r['payable'] for r in scored)),

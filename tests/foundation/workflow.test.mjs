@@ -520,6 +520,9 @@ test("the integrity check finds an edited audit entry, event or stored decision"
   assert.ok(clean.evidence.sealed > 0);
   assert.deepEqual(clean.evidence.problems, []);
   assert.equal(clean.decisions.matched, clean.decisions.checked);
+  // Every stored decision was sealed by the write that stored it (the import, then each action).
+  assert.equal(clean.decisions.sealed, clean.decisions.checked);
+  assert.deepEqual(clean.decisions.sealProblems, []);
   assert.deepEqual(
     clean.dataPack.tables.map((x) => [x.name, x.ok]),
     [
@@ -577,6 +580,11 @@ test("the integrity check finds an edited audit entry, event or stored decision"
     tampered.decisions.mismatches.some(
       (m) => m.milestoneId === "MS0001" && m.stored.decision === "REJECT",
     ),
+  );
+  // The seal finds the edit directly, without trusting a fresh engine run.
+  assert.deepEqual(
+    tampered.decisions.sealProblems.map((p) => p.milestoneId),
+    ["MS0001"],
   );
   assert.deepEqual(
     tampered.dataPack.tables.filter((x) => !x.ok).map((x) => x.name),

@@ -355,7 +355,13 @@ function Report({
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.decisions.title")}
-            extra={<Verdict ok={!decisions.mismatches.length} />}
+            extra={
+              <Verdict
+                ok={
+                  !decisions.mismatches.length && !decisions.sealProblems.length
+                }
+              />
+            }
           >
             <Descriptions
               size="small"
@@ -366,6 +372,34 @@ function Report({
                   label: t("integrity.decisions.matched"),
                   children: `${decisions.matched}/${decisions.checked}`,
                 },
+                {
+                  key: "sealed",
+                  label: t("integrity.decisions.sealed"),
+                  children: `${decisions.sealed}/${decisions.checked}`,
+                },
+                ...(decisions.sealProblems.length
+                  ? [
+                      {
+                        key: "sealProblems",
+                        label: t("integrity.decisions.sealProblems"),
+                        children: (
+                          <Space wrap size={[8, 4]}>
+                            {decisions.sealProblems.map((p) => (
+                              <Link
+                                key={p.milestoneId}
+                                to={`/contracts/${p.contractId}/milestones/${p.sequence}/decision`}
+                              >
+                                <Typography.Text type="danger">
+                                  {p.contractId} ·{" "}
+                                  {td("milestoneNo", { no: p.sequence })}
+                                </Typography.Text>
+                              </Link>
+                            ))}
+                          </Space>
+                        ),
+                      },
+                    ]
+                  : []),
                 {
                   key: "run",
                   label: t("integrity.decisions.run"),

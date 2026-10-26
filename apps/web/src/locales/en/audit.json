@@ -163,6 +163,8 @@
     "decisions": {
       "title": "Decision reconciliation",
       "matched": "Matching",
+      "sealed": "Sealed in the log",
+      "sealProblems": "Edited outside the workflow",
       "run": "Run",
       "fingerprint": "Input SHA-256",
       "columns": {

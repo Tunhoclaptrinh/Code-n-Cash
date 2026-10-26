@@ -638,6 +638,14 @@ export interface IntegrityReport {
   decisions: {
     checked: number;
     matched: number;
+    /** Stored decisions whose hash was sealed in the audit chain when they were stored. */
+    sealed: number;
+    /** Stored decisions that no longer match their sealed hash: edited outside the workflow. */
+    sealProblems: Array<{
+      milestoneId: string;
+      contractId: string;
+      sequence: number;
+    }>;
     runId: string;
     fingerprint: string;
     mismatches: Array<{

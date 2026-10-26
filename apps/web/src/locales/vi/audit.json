@@ -163,6 +163,8 @@
     "decisions": {
       "title": "Đối soát quyết định",
       "matched": "Khớp",
+      "sealed": "Đã niêm phong trong nhật ký",
+      "sealProblems": "Bị sửa ngoài quy trình",
       "run": "Lượt chạy",
       "fingerprint": "SHA-256 dữ liệu đầu vào",
       "columns": {

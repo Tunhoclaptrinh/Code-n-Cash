@@ -306,7 +306,7 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 | A02 | 267 event (tới 27/05/2027) nằm sau ngày snapshot 18/10/2026 | Dùng toàn bộ lịch sử (`offline_full_history` trong `notes`) | Cắt theo snapshot: 92 mốc đổi kết quả (84 đổi quyết định), sai 3 mẫu SC003 đến SC005 (SC005 hoàn thành 13/11/2026 vẫn PENALTY); mẫu bác bỏ nên không hạ confidence |
 | A05 | Tranh chấp theo mốc hay cả hợp đồng | Theo mốc | 31 mốc đổi sang HOLD |
 | A06 | Ai được đóng tranh chấp | Bài nộp BTC chỉ kiểm tham chiếu; workflow bắt buộc bên mua | Bắt buộc bên mua cho bài nộp: 0 mốc đổi trên Data Pack (8 bản đóng đều do bên mua); vẫn tính trong confidence vì tập ẩn có thể khác |
-| A07 | Chế độ làm tròn | ROUND_HALF_UP (quy ước tiền của đội, mục 7) | HALF_EVEN: 1 mốc (MS0396) lệch 0,01 triệu, không đổi quyết định; là quy ước tính tiền chứ không phải cách hiểu nghiệp vụ nên không hạ confidence |
+| A07 | Chế độ làm tròn | ROUND_HALF_UP tới 0,01 (quy ước tiền của đội, mục 7). Phải làm tròn: mẫu SC006 (MS0041) phạt thô 6,624, nhãn 6,62; 7/15 mốc PENALTY có phạt thô lẻ quá 2 chữ số. Luôn làm tròn lên sẽ ra 6,63, sai nhãn | Chỉ MS0396 rơi đúng nửa đơn vị (10,605). Công thức BTC `days × rate / 100 × planned` tính bằng số thực ra 10,605000000000002, làm tròn được 10,61, trùng HALF_UP; chỉ `Decimal` HALF_EVEN cho 10,60. Không đổi quyết định; là quy ước tính tiền nên không hạ confidence |
 | A08 | `invoice_required` nhưng INVOICE không bắt buộc | Theo `required_event_types` | 15 mốc đổi sang HOLD |
 | A13 | Định dạng điều kiện đạt và thiếu | Token của `required_condition` | Không đo được |
 

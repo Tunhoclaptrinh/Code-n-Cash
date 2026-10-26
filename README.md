@@ -6,7 +6,7 @@ Monorepo cho Case 4, Bảng D: số hóa hợp đồng, ký theo trình tự, n�
 
 ## Khởi chạy
 
-Yêu cầu: Node.js 24 (xem `.nvmrc`), pnpm 12.14.0 (qua corepack), Python 3.9+. Không cần cài thư viện Python cho engine hiện tại.
+Yêu cầu: Node.js 24 (xem `.nvmrc`), pnpm 12.14.0 (qua corepack), Python 3.9 trở lên (CI dùng 3.12). Không cần cài thư viện Python cho engine hiện tại.
 
 ```bash
 corepack enable
@@ -86,7 +86,7 @@ Bắt buộc 5 tệp `contracts`, `parties`, `milestones`, `events`, `payment_ru
 
 Đầu ra: `submission_output.csv` đúng 22 cột/405 dòng, `audit.json`, `metrics.json`. Adapter gọi đúng bộ quy tắc đang được kiểm chứng, dùng Decimal, giữ sáu trường BTC điền sẵn. Accuracy chỉ công bố trên 20 mẫu công khai; độ phủ 405 mốc không phải ground truth toàn bộ.
 
-Có thể chạy worker riêng bằng `pnpm dev:engine` và đặt `ENGINE_URL=http://127.0.0.1:8000` để API gọi worker thay vì CLI.
+Có thể chạy worker riêng bằng `pnpm dev:engine` và đặt `ENGINE_URL=http://127.0.0.1:8000` để trang Data Pack gọi worker thay vì CLI; workflow trực tiếp và bộ dữ liệu tải lên vẫn chạy CLI.
 
 ## MongoDB local
 

@@ -97,7 +97,7 @@ Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) l
 - Nguồn duy nhất: [`packages/contracts/permissions.json`](../packages/contracts/permissions.json), khóa dạng `module:action` (Base), mỗi vai trò có phạm vi `own`/`org`/`all`.
 - API: `@RequirePermission("engine:evaluate")` trên route; `BaseService` kiểm `<resource>:<read|create|update|delete|import|export>`; mỗi hành động workflow ánh xạ tới một quyền trong `workflow.controller.ts` (thiếu ánh xạ là bị từ chối).
 - Web: `user.permissions` (API tính từ vai trò) → `useAccess(user)`. Trang **Ma trận phân quyền** (`/platform/permissions`) chỉ đọc: đổi quyền cần người thứ hai duyệt (SoD-3, SoD-4) nên đi qua review mã.
-- Tám vai trò, 61 quyền; ba vai trò nội bộ tách nhau (kiểm soát viên, quản trị hệ thống, kiểm toán, SoD-1); vai trò nào làm gì xem [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md). Thẩm quyền nghiệp vụ (bên nào ghi loại sự kiện nào, ai được duyệt) do API và engine kiểm thêm, không suy từ quyền giao diện.
+- Tám vai trò, 61 quyền; ba vai trò nội bộ tách nhau (kiểm soát viên, quản trị hệ thống, kiểm toán, SoD-1); vai trò nào làm gì xem [đặc tả nghiệp vụ](NGHIEP_VU.md) mục 2. Thẩm quyền nghiệp vụ (bên nào ghi loại sự kiện nào, ai được duyệt) do API và engine kiểm thêm, không suy từ quyền giao diện.
 - Resource có `managedOrigins` trong `resources.json`: bản ghi có nguồn tương ứng chỉ xem và xuất ở `ResourcePage` (ẩn sửa/xóa, API trả `MANAGED_RECORD`); bảng có cột **Nguồn** khi bản ghi mang `origin`.
 
 ## 7. Trang Data Pack và bộ dữ liệu tải lên
@@ -105,14 +105,14 @@ Trang nghiệp vụ không phải danh sách (ký, phê duyệt, tranh chấp) l
 - Nguồn dữ liệu: Data Pack chính thức hoặc bộ dữ liệu người dùng tải lên ([DatasetPanel](../apps/web/src/features/platform/components/DatasetPanel.tsx)). Tải lên nhận CSV rời hoặc ZIP của cả thư mục; engine tìm tệp theo tên và báo tệp nào đủ, thiếu, thiếu cột trước khi chạy.
 - Không có `submission_output_template.csv` thì engine dựng 22 cột theo thứ tự `milestones.csv`. Mặc định xuất đủ template; `*test_ids*.csv` không tự thu hẹp đầu ra. Chỉ CLI chẩn đoán có `--apply-scope` mới lọc mốc; không dùng tùy chọn này cho bài nộp BTC.
 - "Tải kết quả": `submission_output.csv`, `audit.json`, `metrics.json` do engine ghi (`GET /engine/datasets/:id/files/:file`). Quyền `engine:datasets`.
-- Khối **Chỉ số KPI** hiện `summary.kpi` của engine (đặc tả mục 15): độ chính xác, Macro-F1, UPR, giữ thừa, khớp tiền trên mẫu có nhãn; độ phủ, truy vết, thời gian trên mọi mốc. Không có nhãn thì các ô theo nhãn ghi "Không kèm nhãn mẫu".
+- Khối **Chỉ số KPI** hiện `summary.kpi` của engine (đặc tả mục 10): độ chính xác, Macro-F1, UPR, giữ thừa, khớp tiền trên mẫu có nhãn; độ phủ, truy vết, thời gian trên mọi mốc. Không có nhãn thì các ô theo nhãn ghi "Không kèm nhãn mẫu".
 
 ## 8. Dữ liệu, nghiệp vụ, i18n
 
 - Đọc/ghi qua module trong `features/<miền>/api/` hoặc `shared/api`; TanStack Query với `queryKey` chứa `user.id`. Trình duyệt không quyết định nghiệp vụ; ESLint chặn import mã server.
 - Nghiệp vụ hợp đồng gọi qua [`shared/api/domain.ts`](../apps/web/src/shared/api/domain.ts) (`POST /workflow/:module/:action`). Mọi lệnh ghi phát sự kiện `codecash:workflow-changed`, phiên đăng nhập làm mới các khóa trong `WORKFLOW_KEYS`. Kiểu dữ liệu ở `packages/contracts/src/workflow.ts`, bản sao đúng từng chữ của `apps/api/src/domain/types.ts` (có test so khớp).
 - Nhãn nguồn, trạng thái, quyết định: `OriginTag`, `MilestoneStatusTag`, `ContractStatusTag`, `DecisionTag` trong [`shared/ui/DomainTags.tsx`](../apps/web/src/shared/ui/DomainTags.tsx); tông màu và câu "ai làm tiếp" ở `shared/lib/domain.ts`; chuỗi ở namespace `domain`.
-- Màn nghiệp vụ chỉ đặt một `OriginTag` ở cấp hợp đồng (đầu trang, cột/bộ lọc danh sách). Mã cần theo dõi/chấm (CT, MS, EV, mã luật, mã lý do) hiện bằng `TrackingCode`; nguồn từng dòng, mã tài liệu, kênh ghi nhận, run id, mã bên đặt trong `TechnicalDetails`/`TechnicalList` ([`shared/ui/TechnicalInfo.tsx`](../apps/web/src/shared/ui/TechnicalInfo.tsx)). Câu chữ dùng ngôn ngữ nghiệp vụ, không dùng engine/Data Pack/schema; màn nhật ký, toàn vẹn, quản trị vẫn giữ đầy đủ chi tiết kỹ thuật. Chi tiết: [31 — Lược bớt thông tin kỹ thuật trên UI](31_LUOC_BOT_THONG_TIN_KY_THUAT_UI.md).
+- Màn nghiệp vụ chỉ đặt một `OriginTag` ở cấp hợp đồng (đầu trang, cột/bộ lọc danh sách). Mã cần theo dõi/chấm (CT, MS, EV, mã luật, mã lý do) hiện bằng `TrackingCode`; nguồn từng dòng, mã tài liệu, kênh ghi nhận, run id, mã bên đặt trong `TechnicalDetails`/`TechnicalList` ([`shared/ui/TechnicalInfo.tsx`](../apps/web/src/shared/ui/TechnicalInfo.tsx)). Câu chữ dùng ngôn ngữ nghiệp vụ, không dùng engine/Data Pack/schema; màn nhật ký, toàn vẹn, quản trị vẫn giữ đầy đủ chi tiết kỹ thuật. Chi tiết: [31 — Lược bớt thông tin kỹ thuật trên UI](archive/31_LUOC_BOT_THONG_TIN_KY_THUAT_UI.md).
 - Mọi số tiền là chuỗi thập phân (triệu VND): hiển thị bằng `formatDecimalString`, cộng bằng `sumDecimalStrings`; không đổi sang số thực. Ngày giờ: `formatDate`, `formatDateTime`.
 - Mọi chuỗi hiển thị, gồm `aria-label`, `placeholder`, tooltip, qua i18n; số đếm dùng `key_one`/`key_other`.
 

@@ -14,4 +14,4 @@ Festival Chuyển đổi số 2026, Bảng D, Case 4: Smart Contract Workflow.
 | [Sơ đồ](diagrams/) | Class diagram Data Pack, ERD |
 | [Lưu trữ](archive/) | Đặc tả v1.1 đầy đủ, rà soát, xác nhận BTC, ghi chép thiết kế giao diện các đợt trước |
 
-Nguồn chuẩn: [PDF đề thi](../BangD-Case4/DeThi2026_BangD_SmartContractWorkflow.pdf), [Data Pack README](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/README.md), [dictionary](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/02_metadata/data_dictionary.csv).
+Nguồn chuẩn: [PDF đề thi](../BangD-Case4/DeThi2026_BangD_SmartContractWorkflow.pdf), [Data Pack README](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/README.md), [dictionary](../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/02_metadata/data_dictionary.csv). README của Data Pack ghi thư mục `04_output_template/` và tệp `dataset_manifest.csv`; bản BTC phát hành thực tế là `04_output_templates/` và `dataset_manifest_final.csv`.

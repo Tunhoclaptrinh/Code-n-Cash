@@ -34,8 +34,8 @@ Hai lớp quyền tách biệt: **thẩm quyền nghiệp vụ** (bên nào đư
 | `DELIVERY`, `INVOICE`, `GO_LIVE`, `SERVICE_ACTIVATED`, `SERVICE_COMPLETED`, `WARRANTY_COMPLETED` | Nhà cung cấp của hợp đồng | Đúng `supplier_id`, đang `ACTIVE`, trạng thái `CONFIRMED` |
 | `APPROVAL` | Người phê duyệt của bên mua | `parent_party_id` là bên mua, `can_approve_payment = TRUE`, vai trò thuộc `required_approval_roles`, trạng thái `APPROVED` |
 | `REJECTION` | Người phê duyệt của bên mua | Có `REJECTION` trong `allowed_event_types`, trạng thái `REJECTED`; không giới hạn theo vai trò bắt buộc |
-| `DISPUTE_OPENED` | Bên mua hoặc nhà cung cấp | Mọi bản ghi đều được tính (mở dễ) |
-| `DISPUTE_RESOLVED` | Bên mua (workflow: bên mua hoặc người phê duyệt của bên mua có quyền `DISPUTE`) | Trạng thái `RESOLVED`, tham chiếu đúng `DISPUTE_OPENED` cùng mốc, cùng hợp đồng, không trước lúc mở (đóng khó) |
+| `DISPUTE_OPENED` | Engine: mọi bản ghi của mốc. Ứng dụng: bên mua hoặc nhà cung cấp (`disputes:open`) | Engine không xét người mở hay `can_raise_dispute` (mở dễ): mở tranh chấp chỉ dẫn tới HOLD nên đây là phía an toàn. Ai được mở trong ứng dụng do API kiểm |
+| `DISPUTE_RESOLVED` | Bài nộp BTC: không kiểm người đóng (cách hiểu A06, mục 12). Workflow: bên mua hoặc người phê duyệt của bên mua có quyền `DISPUTE`; trong ứng dụng là chủ hợp đồng hoặc cán bộ hợp đồng (`disputes:resolve`) | Trạng thái `RESOLVED`, tham chiếu đúng `DISPUTE_OPENED` cùng mốc, cùng hợp đồng, không trước lúc mở (đóng khó) |
 
 Loại bên và vai trò luôn tra trong `parties.csv`, không tin cột `actor_party_type` ghi trên event. Cột `allowed_event_types` không dùng nguyên văn cho required event: cách đó làm sai 5 trong 20 mẫu công khai (mục 10).
 
@@ -45,7 +45,7 @@ Loại bên và vai trò luôn tra trong `parties.csv`, không tin cột `actor_
 | --- | --- | --- | --- |
 | Chủ hợp đồng (`CONTRACT_OWNER`) | Bên mua | Tải hợp đồng, ký, xác nhận chứng từ phía bên mua, phê duyệt theo vai trò, mở và giải quyết tranh chấp | Thao tác trên hợp đồng của tổ chức khác |
 | Phê duyệt tài chính, phê duyệt thứ hai | Bên mua | Phê duyệt hoặc từ chối mốc đúng vai trò | Duyệt thay vai trò khác |
-| Cán bộ hợp đồng bên mua (`LEGAL_REVIEWER`) | Bên mua | Soạn và rà điều khoản, thiết lập vị trí ký, mở tranh chấp | Phê duyệt chi |
+| Cán bộ hợp đồng bên mua (`LEGAL_REVIEWER`) | Bên mua | Soạn và rà điều khoản, thiết lập vị trí ký, mở và giải quyết tranh chấp | Phê duyệt chi |
 | Nhà cung cấp (`SUPPLIER`) | Nhà cung cấp | Ký, nộp chứng từ phía nhà cung cấp, mở tranh chấp | Giải quyết tranh chấp, phê duyệt |
 | Kiểm soát viên (`ADMIN_AUDITOR`) | Nội bộ | Xem mọi hợp đồng, xử lý hàng đợi ngoại lệ, đề xuất hoặc duyệt vô hiệu event sai thẩm quyền (không duyệt đề xuất của chính mình) | Tạo event nghiệp vụ, sửa luật, sửa quyết định |
 | Quản trị hệ thống (`SYSTEM_ADMIN`) | Nội bộ | Quản lý tài khoản, cấu hình, phiên bản luật (có người thứ hai duyệt), khôi phục dữ liệu demo | Xử lý ngoại lệ, phê duyệt chi |
@@ -85,7 +85,7 @@ Quy ước: tiền tính bằng triệu VND; phần trăm chia 100 khi tính; th
 
 ## 4. Vòng đời
 
-**Hợp đồng:** Bản nháp (`DRAFT`), Đang ký (`AWAITING_SIGNATURE`), sau khi ký xong thì tổng hợp từ các mốc: có mốc REJECT thì Cần xem xét (`NEEDS_REVIEW`); có mốc HOLD thì Chờ điều kiện (`PENDING_CONDITIONS`); mọi mốc RELEASE hoặc PENALTY thì Mọi mốc đủ điều kiện (`ALL_MILESTONES_ELIGIBLE`); Đã đóng (`CLOSED`). Trạng thái hợp đồng chỉ phục vụ theo dõi, không đổi quyết định của mốc.
+**Hợp đồng:** Bản nháp (`DRAFT`), Đang ký (`AWAITING_SIGNATURE`), sau khi ký xong thì tổng hợp từ các mốc, xét theo thứ tự: mọi mốc đã chuyển chi hoặc bị từ chối thì Đã đóng (`CLOSED`); còn mốc bị từ chối thì Cần xem xét (`NEEDS_REVIEW`); còn mốc chờ chứng từ, chờ phê duyệt hoặc tạm giữ thì Chờ điều kiện (`PENDING_CONDITIONS`); còn lại là Mọi mốc đủ điều kiện (`ALL_MILESTONES_ELIGIBLE`). Trạng thái hợp đồng chỉ phục vụ theo dõi, không đổi quyết định của mốc.
 
 **Mốc:** mỗi mốc được đánh giá độc lập (bộ luật không có điều kiện phụ thuộc mốc trước) và đánh giá lại sau mỗi event mới.
 
@@ -97,6 +97,8 @@ Quy ước: tiền tính bằng triệu VND; phần trăm chia 100 khi tính; th
 | HOLD do thiếu phê duyệt | `WAITING_APPROVAL` |
 | HOLD do tranh chấp, sai thẩm quyền hoặc không xác định | `ON_HOLD` |
 | REJECT | `REJECTED` |
+
+Hai trạng thái không do engine sinh: `COMPLETED` khi kế toán ghi nhận đã chuyển chi một mốc RELEASE hoặc PENALTY (thao tác của ứng dụng, có lịch sử và audit); `PLANNED`, `IN_PROGRESS` chỉ xuất hiện ở chế độ as-of khi mốc chưa có event hoặc chưa tới hạn. Mốc `REJECTED` và `COMPLETED` bị khoá: các lượt chạy sau không ghi đè kết quả đã lưu.
 
 ## 5. Engine: chín bước xử lý một mốc
 
@@ -145,19 +147,19 @@ ELSE là nhánh mặc định cuối cùng, không phải một event hay scenar
 
 Engine không gắn cứng với một hợp đồng hay một bộ luật. Bốn cơ chế giữ cho quyết định luôn theo dữ liệu mới nhất:
 
-1. **Đánh giá lại sau mỗi thao tác.** Mỗi thao tác ghi (nộp chứng từ, phê duyệt, từ chối, mở hoặc đóng tranh chấp, duyệt ngoại lệ) chạy lại engine Python cho các mốc liên quan trong cùng giao dịch; trạng thái mốc và hợp đồng cập nhật ngay, lịch sử trạng thái ghi lại lượt chạy gây ra thay đổi.
+1. **Đánh giá lại sau mỗi thao tác.** Mỗi thao tác ghi (nộp chứng từ, phê duyệt, từ chối, mở hoặc đóng tranh chấp, duyệt ngoại lệ) chạy lại engine Python trên toàn bộ dữ liệu trong cùng giao dịch; chỉ kết quả nào thay đổi mới được ghi, trạng thái mốc và hợp đồng cập nhật ngay, lịch sử trạng thái ghi lại lượt chạy gây ra thay đổi.
 2. **Chạy thử trước khi hành động.** Màn phê duyệt, nộp chứng từ và tranh chấp gọi engine ở chế độ chạy thử với event giả định, nên người dùng thấy quyết định và số tiền sẽ ra sao trước khi xác nhận. Kết quả chạy thử không được lưu.
-3. **Xem lại tại một thời điểm.** Chế độ as-of cắt event theo thời điểm chọn và chạy lại, cho thấy mốc đã được quyết định thế nào tại thời điểm đó.
+3. **Xem lại tại một thời điểm.** Chế độ as-of cắt event theo thời điểm chọn và chạy lại, cho thấy mốc sẽ được quyết định thế nào nếu chỉ có các event tới thời điểm đó. Danh sách bên, luật của hợp đồng và quyết định ngoại lệ vẫn lấy theo hiện tại, nên đây là phát lại theo event, không phải ảnh chụp toàn bộ hệ thống tại thời điểm đó.
 4. **Luật là dữ liệu có phiên bản.** Luật viết bằng ngôn ngữ điều kiện `BTC_DSL_V1` (`apps/engine/rule_language.json`), không cần sửa code khi đổi luật. Vòng đời một phiên bản:
 
 | Bước | Kiểm soát |
 | --- | --- |
 | Bản nháp | Kiểm cú pháp và tên biến theo từ vựng của engine |
 | Xem trước tác động | Chạy phiên bản mới trên cả 405 mốc, so với phiên bản đang hiệu lực, liệt kê từng mốc đổi quyết định hoặc số tiền; không ghi gì |
-| Gửi duyệt | Bị chặn nếu làm sai kết quả trên Data Pack (`RULE_VERSION_REGRESSION`), kể cả khi 20 mẫu công khai vẫn đúng |
+| Gửi duyệt | Bị chặn (`RULE_VERSION_REGRESSION`) nếu đổi **bất kỳ** quyết định, mã lý do, trạng thái hay số tiền nào trên 405 mốc của Data Pack so với luật gốc của BTC, kể cả khi 20 mẫu công khai vẫn đúng |
 | Công bố | Phải do người thứ hai, khác người soạn (`SECOND_REVIEWER_REQUIRED`); nội dung được khoá bằng băm, phiên bản cũ chuyển sang ngừng hiệu lực |
 
-Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
+Luật của BTC là căn cứ cho 405 mốc, nên một phiên bản mới không được đổi kết quả của chúng. Phiên bản mới dùng để viết lại tương đương, thêm phạm vi luật và mẫu mốc cho hợp đồng tạo trong ứng dụng. Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
 
 ## 7. Tính tiền
 
@@ -186,6 +188,8 @@ Ví dụ: mốc 516,00 triệu, phạt 0,10%/ngày, trần 10%, ân hạn 2 ngà
 
 Kết quả trên 405 mốc: 1,00 (354 mốc), 0,97 (5), 0,95 (1), 0,80 (44), 0,60 (1). Cột `notes` liệt kê yếu tố hạ điểm. Đây là thang chắc chắn có giải thích, không phải xác suất đúng; chưa thể hiệu chỉnh thành xác suất vì không có nhãn sai để đối chiếu.
 
+Chỉ cách hiểu còn mở mới hạ điểm. Cách hiểu đã bị mẫu công khai bác bỏ (A01 dùng nguyên văn `allowed_event_types`, A02 cắt event theo snapshot; mục 12) không hạ điểm, vì chọn chúng sẽ làm sai mẫu đã có nhãn.
+
 ## 9. Đầu ra và truy vết
 
 Mỗi lượt chạy xuất đủ 405 dòng theo `submission_output_template.csv` (22 cột), không tự lọc tập ẩn.
@@ -201,7 +205,7 @@ Mỗi lượt chạy xuất đủ 405 dòng theo `submission_output_template.csv
 
 Mỗi dòng có một bản audit trace: dấu vân tay dữ liệu đầu vào, phiên bản đặc tả, toàn bộ fact, người tạo các event bằng chứng và tham số mốc.
 
-Trong ứng dụng, mọi thao tác ghi thêm đúng một mục vào nhật ký audit dạng chuỗi băm (mỗi mục chứa băm của mục trước), ghi cùng giao dịch với dữ liệu. Không sửa, không xoá mục audit. Khôi phục dữ liệu demo chuyển toàn bộ dữ liệu cũ, kể cả chuỗi audit, sang kho lưu trữ, rồi ghi mục `RESET_DEMO_DATA` kèm băm đầu chuỗi cũ vào chuỗi mới.
+Trong ứng dụng, mọi thao tác ghi thành công thêm mục vào nhật ký audit dạng chuỗi băm (mỗi mục chứa băm của mục trước), ghi cùng giao dịch với dữ liệu; thao tác có nhiều hệ quả (ví dụ một quyết định ngoại lệ) có thể ghi nhiều mục cùng `transactionId`. Yêu cầu bị từ chối (lỗi 4xx, kể cả đăng nhập sai) không đổi dữ liệu nghiệp vụ nhưng được ghi một mục `REQUEST_FAILED` để truy vết hành vi bất thường. Không sửa, không xoá mục audit. Khôi phục dữ liệu demo chuyển toàn bộ dữ liệu cũ, kể cả chuỗi audit, sang kho lưu trữ, rồi ghi mục `RESET_DEMO_DATA` kèm băm đầu chuỗi cũ vào chuỗi mới.
 
 Bất biến kiểm trước khi xuất: mỗi mốc đúng một dòng; quyết định và mã lý do khớp luật thắng; tiền không âm, khớp quyết định, phạt không vượt trần; mốc được trả tiền không thiếu điều kiện, không có tranh chấp, từ chối, sai thẩm quyền hay lỗi dữ liệu.
 
@@ -271,8 +275,10 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 
 | Mã | Điểm còn mở | Đội chọn | Nếu chọn khác |
 | --- | --- | --- | --- |
-| A01 | Thẩm quyền 4 loại event chưa có mẫu | Theo loại bên trong quy trình | Dùng nguyên văn `allowed_event_types`: 108 mốc đổi, chỉ khớp 15/20 mẫu |
+| A01 | Thẩm quyền 4 loại event chưa có mẫu | Theo loại bên trong quy trình | Dùng nguyên văn `allowed_event_types`: 108 mốc đổi kết quả (101 đổi quyết định), chỉ khớp 15/20 mẫu; mẫu bác bỏ nên không hạ confidence |
+| A02 | 267 event (tới 27/05/2027) nằm sau ngày snapshot 18/10/2026 | Dùng toàn bộ lịch sử (`offline_full_history` trong `notes`) | Cắt theo snapshot: 92 mốc đổi kết quả (84 đổi quyết định), sai 3 mẫu SC003 đến SC005 (SC005 hoàn thành 13/11/2026 vẫn PENALTY); mẫu bác bỏ nên không hạ confidence |
 | A05 | Tranh chấp theo mốc hay cả hợp đồng | Theo mốc | 31 mốc đổi sang HOLD |
+| A06 | Ai được đóng tranh chấp | Bài nộp BTC chỉ kiểm tham chiếu; workflow bắt buộc bên mua | Bắt buộc bên mua cho bài nộp: 0 mốc đổi trên Data Pack (8 bản đóng đều do bên mua); vẫn tính trong confidence vì tập ẩn có thể khác |
 | A07 | Chế độ làm tròn | ROUND_HALF_UP | 1 mốc lệch 0,01 triệu |
 | A08 | `invoice_required` nhưng INVOICE không bắt buộc | Theo `required_event_types` | 15 mốc đổi sang HOLD |
 | A13 | Định dạng điều kiện đạt và thiếu | Token của `required_condition` | Không đo được |

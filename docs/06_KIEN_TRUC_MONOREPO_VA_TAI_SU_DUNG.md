@@ -37,25 +37,25 @@ Các resource: organizations, users, contract-drafts, milestone-templates, setti
 - Scope tổ chức lấy từ actor đăng nhập, không tin x-tenant-id hoặc role/userId từ request.
 - Password băm; API không trả passwordHash. Admin có thao tác đặt lại mật khẩu; tài khoản bị vô hiệu không dùng được token cũ.
 - Thay đổi tài nguyên và audit lưu cùng snapshot file hoặc cùng transaction Mongo.
-- Audit không cung cấp API sửa/xóa; cơ chế này chưa phải hash chain được neo độc lập.
+- Audit không cung cấp API sửa/xóa và là chuỗi băm (mục 5). Đầu chuỗi được niêm phong bằng bên làm chứng; xem [đặc tả nghiệp vụ](NGHIEP_VU.md) mục 9 về mức độ độc lập của bên làm chứng.
 - Upload PDF vào hợp đồng nháp có kiểm scope, giới hạn 20 MB, hash SHA-256 và download có xác thực.
 
 Kho file local có hàng đợi và ghi file tạm/rename, dùng cho một instance. Mongo dùng transaction, cần replica set; đây là đường mở rộng cho triển khai nhiều tiến trình. Chưa được xem là đã kiểm chứng tải lớn hoặc production.
 
 ## 5. Workflow và dữ liệu thật
 
-Các action được whitelist theo module trong `workflow.controller.ts`, mỗi action ánh xạ tới một quyền; actor lấy từ JWT, phạm vi hợp đồng lấy từ tổ chức của actor. Người ký phải là signer được gán; người phê duyệt phải đúng bên mua và đúng vai trò còn thiếu; mỗi bên chỉ ghi loại sự kiện thuộc thẩm quyền của mình (ma trận 4.2).
+Các action được whitelist theo module trong `workflow.controller.ts`, mỗi action ánh xạ tới một quyền; actor lấy từ JWT, phạm vi hợp đồng lấy từ tổ chức của actor. Người ký phải là signer được gán; người phê duyệt phải đúng bên mua và đúng vai trò còn thiếu; mỗi bên chỉ ghi loại sự kiện thuộc thẩm quyền của mình (bảng 2.1 của [đặc tả nghiệp vụ](NGHIEP_VU.md)).
 
 Một luồng dữ liệu duy nhất:
 
 1. Lần khởi động đầu, `DomainService.bootstrap()` nạp contracts, parties, milestones, events, payment_rules của Data Pack (nguồn `DATA_PACK`) và dữ liệu bổ sung mà Data Pack không có: tài khoản, thứ tự ký, bốn hợp đồng demo CT0101–CT0104 (nguồn `SEED`).
-2. Mỗi hành động ghi sự kiện theo đúng schema `events.csv` (nguồn `APP`), rồi chạy engine trên toàn bộ dữ liệu: ghi bảng ra thư mục tạm, gọi `apps/engine/cli.py --data`, khoảng 0,1 giây. Kết quả, lịch sử trạng thái (mã lượt chạy, nguyên nhân) và audit lưu cùng một giao dịch (`Repository.transact`).
+2. Mỗi hành động ghi sự kiện theo đúng schema `events.csv` (nguồn `APP`), rồi chạy engine trên toàn bộ dữ liệu: ghi bảng ra thư mục tạm, gọi `apps/engine/cli.py --data`; thời gian một lượt phụ thuộc cỡ dữ liệu, gồm cả các lượt chạy lại để tính confidence. Kết quả, lịch sử trạng thái (mã lượt chạy, nguyên nhân) và audit lưu cùng một giao dịch (`Repository.transact`).
 3. Mốc bị từ chối hoặc đã chuyển kế toán bị khoá. Quyết định ngoại lệ BR-19 được duyệt chuyển thành `voided_events.csv` cho engine.
-4. Trang Data Pack vẫn chạy engine trên Data Pack gốc hoặc bộ dữ liệu tải lên để xuất CSV 22 cột, trace và KPI mục 15.
+4. Trang Data Pack vẫn chạy engine trên Data Pack gốc hoặc bộ dữ liệu tải lên để xuất CSV 22 cột, trace và KPI (đặc tả mục 10).
 
 Generic CRUD không sửa được bản ghi của Data Pack và của luồng nghiệp vụ: resource khai báo `managedOrigins` trong `resources.json`, API trả `MANAGED_RECORD`.
 
-Toàn vẹn: `Repository.transact` nối mọi bản ghi nhật ký vào hash chain (`common/audit-chain.ts`: `seq`, `prevHash`, `hash` = SHA-256 của JSON chuẩn hoá) và từ chối sửa, xoá bản ghi cũ (`APPEND_ONLY_RESOURCE`). Bản ghi đầu niêm phong mã băm từng bảng dữ liệu BTC lúc nhập; bản ghi của mỗi thao tác niêm phong mã băm các sự kiện nó tạo. Hành động `integrity.verifyIntegrity` kiểm lại chuỗi, các niêm phong và chạy lại engine để đối soát mọi quyết định đã lưu; `contracts.getMilestoneTimeline` phát lại một mốc theo từng sự kiện (`cli.py --timeline`, chế độ as-of BR-16). Ký số vẫn là mô phỏng, không gọi là CA thật. Tính năng theo vai trò và kịch bản demo ở [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md).
+Toàn vẹn: `Repository.transact` nối mọi bản ghi nhật ký vào hash chain (`common/audit-chain.ts`: `seq`, `prevHash`, `hash` = SHA-256 của JSON chuẩn hoá) và từ chối sửa, xoá bản ghi cũ (`APPEND_ONLY_RESOURCE`). Bản ghi đầu niêm phong mã băm từng bảng dữ liệu BTC lúc nhập; bản ghi của mỗi thao tác niêm phong mã băm các sự kiện nó tạo. Hành động `integrity.verifyIntegrity` kiểm lại chuỗi, các niêm phong và chạy lại engine để đối soát mọi quyết định đã lưu; `contracts.getMilestoneTimeline` phát lại một mốc theo từng sự kiện (`cli.py --timeline`, chế độ as-of BR-16). Ký số vẫn là mô phỏng, không gọi là CA thật. Vai trò ở [đặc tả nghiệp vụ](NGHIEP_VU.md) mục 2, kịch bản demo ở [Kịch bản demo](KICH_BAN_DEMO.md).
 
 ## 6. Cách thêm tính năng
 

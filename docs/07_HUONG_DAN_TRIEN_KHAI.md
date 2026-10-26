@@ -49,7 +49,7 @@ Sửa `.env.production`:
 | `SEED_PASSWORD` | Lần đầu | Mật khẩu cho 69 tài khoản mẫu (mỗi bên trong Data Pack một người, cộng bốn người nội bộ: hai kiểm soát viên, quản trị hệ thống, kiểm toán); xóa sau lần khởi động đầu (mục 4) |
 | `MONGO_URI` | Không | Để trống dùng container `mongo`; điền URI cluster quản lý (Atlas…) nếu có |
 | `ENGINE_URL` | Không | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image. Bộ dữ liệu tải lên luôn chạy bằng CLI trong image |
-| `MOCK_ORIGINALS_WARMUP` | Không | Mặc định `true` khi `NODE_ENV=production`: sau khi khởi động, dựng sẵn trong nền tệp gốc mô phỏng (DOCX/PDF) cho các hợp đồng chưa có tệp, lưu ở `DATA_DIR/mock-originals`. Đặt `false` để chỉ dựng khi có người mở. Xem [32](32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md) |
+| `MOCK_ORIGINALS_WARMUP` | Không | Mặc định `true` khi `NODE_ENV=production`: sau khi khởi động, dựng sẵn trong nền tệp gốc mô phỏng (DOCX/PDF) cho các hợp đồng chưa có tệp, lưu ở `DATA_DIR/mock-originals`. Đặt `false` để chỉ dựng khi có người mở. Xem [32](archive/32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md) |
 | `DEMO_LOGIN` | Không | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng mọi tài khoản mẫu còn hoạt động). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo |
 | `WEB_BIND`, `WEB_PORT` | Không | Mặc định `127.0.0.1:8080`, chỉ reverse proxy trên host truy cập được |
 | `IMAGE_PREFIX`, `IMAGE_TAG` | Không | Tên image khi đẩy lên registry (mục 7) |
@@ -79,7 +79,7 @@ Lần khởi động đầu, API tự nạp Data Pack (100 hợp đồng, 405 m�
 3. Xóa giá trị `SEED_PASSWORD` trong `.env.production`, rồi áp dụng:
    `docker compose -f infra/compose.prod.yaml --env-file .env.production up -d --wait api`
 
-Seed chỉ thêm tài khoản còn thiếu và không đổi mật khẩu của tài khoản đã có. Ở production seed chỉ chạy khi có `SEED_PASSWORD`; xóa biến để tránh lộ mật khẩu mặc định. Danh sách tài khoản và vai trò: [09 — Tính năng và vai trò](09_HUONG_DAN_TINH_NANG_VA_VAI_TRO.md) mục 4.
+Seed chỉ thêm tài khoản còn thiếu và không đổi mật khẩu của tài khoản đã có. Ở production seed chỉ chạy khi có `SEED_PASSWORD`; xóa biến để tránh lộ mật khẩu mặc định. Danh sách tài khoản và vai trò: README gốc và [đặc tả nghiệp vụ](NGHIEP_VU.md) mục 2.
 
 ## 5. HTTPS
 
@@ -168,7 +168,7 @@ docker compose -f infra/compose.prod.yaml --env-file .env.production up -d --bui
 
 ## 11. Chạy không dùng Docker
 
-Cần Node 24, pnpm (theo `packageManager`), Python 3.9+, MongoDB replica set.
+Cần Node 24, pnpm (theo `packageManager`), Python 3.9 trở lên (CI dùng 3.12), MongoDB replica set.
 
 ```bash
 corepack enable && pnpm install --frozen-lockfile && pnpm build
@@ -209,7 +209,7 @@ Bản này đủ cho demo, staging và thử nghiệm nội bộ. Còn các đi�
 
 Bản một container dùng **Dockerfile.standalone**, build từ thư mục gốc repo. Image chứa cả web, API, engine, mẫu DOCX, LibreOffice và Poppler. Health Check Path: `/healthz`. Render cung cấp `PORT`; giữ `API_HOST=0.0.0.0` như trong image. Không đặt `API_HOST=127.0.0.1` trên Render.
 
-1. Mở Render Dashboard → service CodeCash → **Settings → Build & Deploy**. Kiểm tra Branch là nhánh chứa commit vừa push (`feat/rule-expression-editor`) hoặc merge nhánh đó vào nhánh service đang theo dõi. Push nhánh tính năng không tự cập nhật service đang theo dõi `main`.
+1. Mở Render Dashboard → service CodeCash → **Settings → Build & Deploy**. Kiểm tra Branch là nhánh chứa commit vừa push hoặc merge nhánh đó vào nhánh service đang theo dõi. Push nhánh tính năng không tự cập nhật service đang theo dõi `main`.
 2. Mở **Environment → Edit / Add Environment Variable** và thêm:
 
    ```dotenv

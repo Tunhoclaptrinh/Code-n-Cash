@@ -1,6 +1,6 @@
 # Kịch bản demo
 
-Dùng cho phần Demo/Mockup của buổi trình bày (slide 12) và cho buổi chạy thử với BGK nếu có. Mọi bước dùng tài khoản demo (menu "Tài khoản demo" ở trang đăng nhập, tìm được theo tên, email, công ty hoặc mã hợp đồng). Tập trước ít nhất hai lần trên bản deploy sẽ trình bày.
+Dùng cho phần Demo/Mockup của buổi trình bày (slide 11 trong dàn slide của kế hoạch hoàn thiện) và cho buổi chạy thử với BGK nếu có. Mọi bước dùng tài khoản demo (menu "Tài khoản demo" ở trang đăng nhập, tìm được theo tên, email, công ty hoặc mã hợp đồng). Tập trước ít nhất hai lần trên bản deploy sẽ trình bày.
 
 ## Chuẩn bị (trước buổi trình bày)
 
@@ -33,6 +33,6 @@ Dùng cho phần Demo/Mockup của buổi trình bày (slide 12) và cho buổi 
 | --- | --- |
 | Macro-F1 bằng 1 có phải overfit? | Engine là bộ luật, không học từ 20 mẫu. Đội đo thêm trên 5.373 ca kiểm tra dựng từ 405 mốc, chia theo hợp đồng, đáp án suy từ bảng luật; rủi ro còn lại nằm ở cách hiểu đề, được đo bằng độ nhạy và phản ánh vào confidence |
 | ELSE xảy ra khi nào? | Khi không luật nào khớp hoặc dữ liệu lỗi; luôn HOLD để người kiểm tra |
-| Ai đóng tranh chấp? | Bên mua (chủ hợp đồng hoặc pháp chế); sự kiện đóng phải tham chiếu đúng tranh chấp |
+| Ai đóng tranh chấp? | Bên mua (chủ hợp đồng hoặc cán bộ hợp đồng); sự kiện đóng phải tham chiếu đúng tranh chấp |
 | Confidence dùng để làm gì? | Ưu tiên người rà soát; không bao giờ đổi quyết định |
 | Áp dụng ở khoa, trường thế nào? | Thí điểm với hợp đồng mua sắm, dịch vụ của khoa trong 3 tuần (đặc tả nghiệp vụ, mục kế hoạch MVP trong báo cáo) |

@@ -91,7 +91,7 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email or password is incorrect."
     },
-    "subtitle": "Digitize contracts, sign them digitally and track their payment conditions from data. All in one end-to-end workflow.",
+    "subtitle": "Digitize contracts, sign them digitally and track their payment conditions from data.",
     "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
     "highlights": {
       "sign": "Sequential digital signing that protects data integrity and the contract's legal standing",

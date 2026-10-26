@@ -102,7 +102,7 @@
     "demoEmpty": "No demo accounts are currently available.",
     "demoAll": "All organizations",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Search name, email, company or contract code…"
+    "demoSearch": "Search email, company, role or contract code…"
   },
   "common": {
     "loading": "Loading…",
@@ -222,7 +222,7 @@
       "notice": "Unsigned demo files. Download a PDF, select Phú Minh (S015), configure the matching signers below, then upload to a new contract.",
       "pdf": "PDF · {{count}} signers",
       "all": "Download all PDFs + DOCX",
-      "signers": "For the chosen count use: Nguyễn Văn An (owner@novaan.vn), Vũ Thanh Hà (supplier@phuminh.vn), Lê Quốc Dũng (finance@novaan.vn), Trần Thị Mai (legal@novaan.vn). Search by name/email in Demo accounts. These are unsigned workflow test files."
+      "signers": "For the chosen count use: owner@novaan.vn, supplier@phuminh.vn, finance@novaan.vn, legal@novaan.vn. Search by email in Demo accounts. These are unsigned workflow test files."
     }
   },
   "forms": {

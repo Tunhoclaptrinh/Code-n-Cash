@@ -74,20 +74,19 @@ export default function LoginPage() {
   const organizations = demo.data?.organizations ?? [];
   const demoEnabled = demo.data?.enabled !== false;
   // Featured accounts also appear under their organisation, so the menu key
-  // carries the section to stay unique.
+  // carries the section to stay unique. Person names are generated, not from
+  // the Data Pack, so the list identifies accounts by email only.
   const accountItem = (account: DemoAccount, section = "found") => ({
     key: `${section}:${account.email}`,
     onClick: () => void signInWithDemo(account),
     label: (
       <span className={styles.demoItem} data-testid="demo-account">
         <Avatar size={32} className={styles.demoAvatar}>
-          {initialsOf(account.displayName)}
+          {initialsOf(account.email.split("@")[0])}
         </Avatar>
         <span className={styles.demoText}>
-          <b>{account.displayName}</b>
-          <small>
-            {account.email} · {account.organization}
-          </small>
+          <b>{account.email}</b>
+          <small>{account.organization}</small>
         </span>
         <Tag color="blue" style={{ margin: 0 }}>
           {t(`roles.${account.role}.name`)}
@@ -101,7 +100,6 @@ export default function LoginPage() {
   ].filter((account) =>
     fold(
       [
-        account.displayName,
         account.email,
         account.organization,
         account.partyId,

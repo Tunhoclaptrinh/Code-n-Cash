@@ -1264,3 +1264,18 @@ test("rule diagnostics are read-only; full-pack preview catches regressions outs
     /RULE_VERSION_REGRESSION/,
   );
 });
+
+test("repeated identical failed requests share one audit entry per window", async () => {
+  const { FailureFolder } =
+    await import("../../apps/api/dist/common/filters/all-exceptions.filter.js");
+  const folder = new FailureFolder(60_000);
+  const key = "anonymous|10.0.0.1|401|UNAUTHORIZED";
+  assert.deepEqual(folder.admit(key, 0), { foldedBefore: 0 });
+  for (let i = 1; i <= 50; i++) assert.equal(folder.admit(key, i * 100), null);
+  // Another kind of failure is written at once.
+  assert.deepEqual(folder.admit("u-owner|10.0.0.1|403|FORBIDDEN", 200), {
+    foldedBefore: 0,
+  });
+  // After the window, the next one is written with the count of those folded before it.
+  assert.deepEqual(folder.admit(key, 60_000), { foldedBefore: 50 });
+});

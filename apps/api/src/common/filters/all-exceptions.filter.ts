@@ -7,10 +7,38 @@ import {
 } from "@nestjs/common";
 import { randomUUID, createHash } from "node:crypto";
 import { Repository } from "../repository";
+
+/** Identical failures (same actor, client address, status and code) within this window share one entry. */
+export const FAILURE_WINDOW_MS = 60_000;
+
+/**
+ * Decides which failed requests reach the audit chain. The first failure of a kind in a window is
+ * written; repeats are counted and the count is written with the next one after the window. An
+ * anonymous client can then no longer grow the chain by one entry per request.
+ */
+export class FailureFolder {
+  private windows = new Map<string, { start: number; folded: number }>();
+  constructor(private windowMs = FAILURE_WINDOW_MS) {}
+  /** null: fold this one; otherwise write it, with how many were folded before it. */
+  admit(key: string, now = Date.now()): { foldedBefore: number } | null {
+    const window = this.windows.get(key);
+    if (window && now - window.start < this.windowMs) {
+      window.folded++;
+      return null;
+    }
+    this.windows.set(key, { start: now, folded: 0 });
+    if (this.windows.size > 10_000)
+      for (const [k, w] of this.windows)
+        if (now - w.start >= this.windowMs) this.windows.delete(k);
+    return { foldedBefore: window?.folded ?? 0 };
+  }
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   constructor(private repo: Repository) {}
   private log = new Logger("HTTP");
+  private failures = new FailureFolder();
   async catch(error: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp(),
       res = ctx.getResponse(),
@@ -37,7 +65,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
               ? "INVALID_JSON"
               : "INTERNAL_ERROR"));
     if (status === 500) this.log.error(error);
-    if (status >= 400 && status !== 404) {
+    const errorCode =
+      typeof message === "string" ? message : "VALIDATION_ERROR";
+    const admitted =
+      status >= 400 && status !== 404
+        ? this.failures.admit(
+            [req.user?.id ?? "anonymous", req.ip ?? "", status, errorCode].join(
+              "|",
+            ),
+          )
+        : null;
+    if (admitted) {
       try {
         const now = new Date().toISOString();
         await this.repo.mutate("audit", (entries) =>
@@ -55,8 +93,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
             recordId: req.params?.id ?? "",
             outcome: "FAILED",
             statusCode: status,
-            errorCode:
-              typeof message === "string" ? message : "VALIDATION_ERROR",
+            errorCode,
+            ...(admitted.foldedBefore
+              ? { foldedBefore: admitted.foldedBefore }
+              : {}),
             ...(req.body?.email && typeof req.body.email === "string"
               ? {
                   subjectHash: createHash("sha256")

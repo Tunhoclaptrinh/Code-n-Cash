@@ -182,14 +182,14 @@ Ví dụ: mốc 516,00 triệu, phạt 0,10%/ngày, trần 10%, ân hạn 2 ngà
 
 | Thành phần | Cách tính |
 | --- | --- |
-| Cách hiểu chưa được BTC chốt | Engine chạy lại mốc theo từng cách hiểu khác; nếu quyết định hoặc số tiền đổi thì trừ trọng số: A05 tranh chấp lan cả hợp đồng 0,20; A06 chỉ bên mua được đóng tranh chấp 0,10; A07 làm tròn HALF_EVEN 0,05; A08 bắt buộc INVOICE theo `invoice_required` 0,20 |
+| Cách hiểu chưa được BTC chốt | Engine chạy lại mốc theo từng cách hiểu khác; nếu quyết định hoặc số tiền đổi thì trừ trọng số: A05 tranh chấp lan cả hợp đồng 0,20; A06 chỉ bên mua được đóng tranh chấp 0,10; A08 bắt buộc INVOICE theo `invoice_required` 0,20 |
 | Lỗi hoặc bất thường dữ liệu | Điểm tối đa 0,50 |
 | Bản lặp | Nhân 0,97 cho mỗi bản lặp (tối đa 3) |
 | Event không liên quan | Nhân 0,97 |
 | Hoàn thành sát ranh giới trễ hạn (±1 ngày) | Nhân 0,95 |
 | Cảnh báo trình tự (mục 5) | Nhân 0,90 |
 
-Kết quả trên 405 mốc: 1,00 (354 mốc), 0,97 (5), 0,95 (1), 0,80 (44), 0,60 (1). Cột `notes` liệt kê yếu tố hạ điểm. Đây là thang chắc chắn có giải thích, không phải xác suất đúng; chưa thể hiệu chỉnh thành xác suất vì không có nhãn sai để đối chiếu.
+Kết quả trên 405 mốc: 1,00 (355 mốc), 0,97 (5), 0,80 (44), 0,60 (1). Cột `notes` liệt kê yếu tố hạ điểm. Đây là thang chắc chắn có giải thích, không phải xác suất đúng; chưa thể hiệu chỉnh thành xác suất vì không có nhãn sai để đối chiếu.
 
 Chỉ cách hiểu còn mở mới hạ điểm. Cách hiểu đã bị mẫu công khai bác bỏ (A01 dùng nguyên văn `allowed_event_types`, A02 cắt event theo snapshot; mục 12) không hạ điểm, vì chọn chúng sẽ làm sai mẫu đã có nhãn.
 
@@ -306,7 +306,7 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 | A02 | 267 event (tới 27/05/2027) nằm sau ngày snapshot 18/10/2026 | Dùng toàn bộ lịch sử (`offline_full_history` trong `notes`) | Cắt theo snapshot: 92 mốc đổi kết quả (84 đổi quyết định), sai 3 mẫu SC003 đến SC005 (SC005 hoàn thành 13/11/2026 vẫn PENALTY); mẫu bác bỏ nên không hạ confidence |
 | A05 | Tranh chấp theo mốc hay cả hợp đồng | Theo mốc | 31 mốc đổi sang HOLD |
 | A06 | Ai được đóng tranh chấp | Bài nộp BTC chỉ kiểm tham chiếu; workflow bắt buộc bên mua | Bắt buộc bên mua cho bài nộp: 0 mốc đổi trên Data Pack (8 bản đóng đều do bên mua); vẫn tính trong confidence vì tập ẩn có thể khác |
-| A07 | Chế độ làm tròn | ROUND_HALF_UP | 1 mốc lệch 0,01 triệu |
+| A07 | Chế độ làm tròn | ROUND_HALF_UP (quy ước tiền của đội, mục 7) | HALF_EVEN: 1 mốc (MS0396) lệch 0,01 triệu, không đổi quyết định; là quy ước tính tiền chứ không phải cách hiểu nghiệp vụ nên không hạ confidence |
 | A08 | `invoice_required` nhưng INVOICE không bắt buộc | Theo `required_event_types` | 15 mốc đổi sang HOLD |
 | A13 | Định dạng điều kiện đạt và thiếu | Token của `required_condition` | Không đo được |
 

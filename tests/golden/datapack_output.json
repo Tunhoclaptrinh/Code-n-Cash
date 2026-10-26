@@ -25055,7 +25055,7 @@
   {
    "audit_trace_id": "run-70511dadd44b6521:MS0396",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.95",
+   "confidence_score": "1.00",
    "contract_id": "CT0098",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "LATE_COMPLETION",
@@ -25065,7 +25065,7 @@
    "milestone_sequence": "3",
    "milestone_type": "ACCEPTANCE",
    "missing_conditions": "",
-   "notes": "assumptions:A07;confidence:A07;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1504.39",
    "penalty_amount_vnd_mn": "10.61",
    "planned_payment_vnd_mn": "1515.00",

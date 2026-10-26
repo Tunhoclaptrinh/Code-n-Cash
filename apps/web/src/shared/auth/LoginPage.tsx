@@ -73,8 +73,10 @@ export default function LoginPage() {
   const featured = demo.data?.featured ?? [];
   const organizations = demo.data?.organizations ?? [];
   const demoEnabled = demo.data?.enabled !== false;
-  const accountItem = (account: DemoAccount) => ({
-    key: account.email,
+  // Featured accounts also appear under their organisation, so the menu key
+  // carries the section to stay unique.
+  const accountItem = (account: DemoAccount, section = "found") => ({
+    key: `${section}:${account.email}`,
     onClick: () => void signInWithDemo(account),
     label: (
       <span className={styles.demoItem} data-testid="demo-account">
@@ -164,25 +166,33 @@ export default function LoginPage() {
               menu={{
                 style: { maxHeight: "70vh", overflowY: "auto" },
                 items: demoSearch.trim()
-                  ? foundAccounts.map(accountItem)
+                  ? foundAccounts.map((account) => accountItem(account))
                   : featured.length || organizations.length
                     ? [
                         {
                           type: "group",
                           key: "featured",
                           label: t("login.demoFeatured"),
-                          children: featured.map(accountItem),
+                          children: featured.map((account) =>
+                            accountItem(account, "featured"),
+                          ),
                         },
                         { type: "divider" },
+                        // One scrolling list: nested flyouts for 30+
+                        // organisations opened off-screen or under the panel.
                         {
+                          type: "group",
                           key: "all",
                           label: t("login.demoAll"),
-                          children: organizations.map((org) => ({
-                            key: org.id,
-                            label: org.name,
-                            children: org.accounts.map(accountItem),
-                          })),
                         },
+                        ...organizations.map((org) => ({
+                          type: "group" as const,
+                          key: org.id,
+                          label: org.name,
+                          children: org.accounts.map((account) =>
+                            accountItem(account, org.id),
+                          ),
+                        })),
                       ]
                     : [
                         {

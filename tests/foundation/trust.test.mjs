@@ -358,13 +358,8 @@ test("legacy seeded signatures are explicitly unverified and idle polling create
   assert.equal(verification.signatures[0].status, "UNVERIFIED");
 });
 
-test("rule versions validate the DSL and 20 labels, require a second publisher and pin future contracts", async () => {
-  const author = actors["u-sysadmin"],
-    reviewer = {
-      ...author,
-      id: "second-admin",
-      displayName: "Second reviewer",
-    };
+test("rule versions validate the DSL and 20 labels, publish without a second person and pin future contracts", async () => {
+  const author = actors["u-sysadmin"];
   let version = await rules.create(
     { name: "Version one", reason: "Validate local configuration" },
     author,
@@ -392,11 +387,8 @@ test("rule versions validate the DSL and 20 labels, require a second publisher a
   version = await rules.submit(saved.id, saved.version, author);
   assert.equal(version.validation.matched, 20);
   assert.equal(version.validation.evaluated, 405);
-  await assert.rejects(
-    rules.publish(version.id, version.version, author),
-    /SECOND_REVIEWER_REQUIRED/,
-  );
-  version = await rules.publish(version.id, version.version, reviewer);
+  // SoD-4: publishing only makes the version available; it applies once both parties sign.
+  version = await rules.publish(version.id, version.version, author);
   await assert.rejects(
     rules.save(
       version.id,
@@ -425,7 +417,7 @@ test("rule versions validate the DSL and 20 labels, require a second publisher a
     author,
   );
   second = await rules.submit(second.id, second.version, author);
-  await rules.publish(second.id, second.version, reviewer);
+  await rules.publish(second.id, second.version, author);
   const resaved = await call("u-legal", "drafts", "saveContractDraft", draft);
   assert.equal(
     resaved.ruleVersion.id,
@@ -441,7 +433,7 @@ test("rule versions validate the DSL and 20 labels, require a second publisher a
 });
 
 test("anchor outbox is durable, idempotent, independently verifiable and detects rewritten history", async () => {
-  const actor = actors["u-admin"],
+  const actor = actors["u-sysadmin"],
     id = randomUUID();
   const jobs = await Promise.all([
     trust.request(id, actor),
@@ -481,7 +473,7 @@ test("anchor outbox is durable, idempotent, independently verifiable and detects
 });
 
 test("anchoring runs only when the chain grew, and the latest anchor catches a cut tail", async () => {
-  await base.audit("TEST_MARK", "anchors", "grow", actors["u-admin"]);
+  await base.audit("TEST_MARK", "anchors", "grow", actors["u-sysadmin"]);
   const job = await trust.anchorIfChanged(null);
   assert.equal(job.status, "CONFIRMED");
   assert.equal(
@@ -493,7 +485,7 @@ test("anchoring runs only when the chain grew, and the latest anchor catches a c
     (entry) => entry.action === "ANCHOR_REQUEST" && entry.recordId === job.id,
   );
   assert.deepEqual([request.actorId, request.actorRole], ["system", "SYSTEM"]);
-  const report = await call("u-controller", "integrity", "verifyIntegrity");
+  const report = await call("u-auditor", "integrity", "verifyIntegrity");
   assert.deepEqual(
     [report.chain.lastAnchor.seq, report.chain.lastAnchor.result],
     [job.payload.sequence, "MATCH"],
@@ -503,14 +495,14 @@ test("anchoring runs only when the chain grew, and the latest anchor catches a c
   repo.data.audit = repo.data.audit.filter(
     (entry) => Number(entry.seq) < job.payload.sequence,
   );
-  const cut = await call("u-controller", "integrity", "verifyIntegrity");
+  const cut = await call("u-auditor", "integrity", "verifyIntegrity");
   repo.data = backup;
   assert.equal(cut.chain.ok, true);
   assert.equal(cut.chain.lastAnchor.result, "NOT_FOUND");
 });
 
 test("witness outage keeps a failed durable job that can retry without duplicating business work", async () => {
-  const actor = actors["u-admin"];
+  const actor = actors["u-sysadmin"];
   const witnessDir = join(dir, "unavailable");
   await writeFile(witnessDir, "not a directory");
   const originalDir = process.env.TRUST_DIR;
@@ -1300,8 +1292,8 @@ test("an independent Python verifier checks the log and one entry's Merkle proof
       (done) => ({ code: 0, report: JSON.parse(done.stdout) }),
       (failed) => ({ code: failed.code, report: JSON.parse(failed.stdout) }),
     );
-  await base.audit("TEST_MARK", "anchors", "proof", actors["u-admin"]);
-  const job = await trust.anchorIfChanged(actors["u-admin"]);
+  await base.audit("TEST_MARK", "anchors", "proof", actors["u-sysadmin"]);
+  const job = await trust.anchorIfChanged(actors["u-sysadmin"]);
   assert.match(job.payload.merkleRoot, /^[0-9a-f]{64}$/);
   const records = JSON.parse(await readFile(repo.path, "utf8"));
   const whole = await verifier("--records", repo.path);
@@ -1343,8 +1335,8 @@ test("an independent Python verifier checks the log and one entry's Merkle proof
 
 test("tamper matrix: which edits of the log are found with and without an anchor", async () => {
   const { seal } = await import("../../apps/api/dist/common/audit-chain.js");
-  await base.audit("TEST_MARK", "anchors", "matrix", actors["u-admin"]);
-  const job = await trust.anchorIfChanged(actors["u-admin"]);
+  await base.audit("TEST_MARK", "anchors", "matrix", actors["u-sysadmin"]);
+  const job = await trust.anchorIfChanged(actors["u-sysadmin"]);
   const anchor = { seq: job.payload.sequence, hash: job.payload.headHash };
   const log = (await repo.list("audit")).sort((a, b) => a.seq - b.seq);
   const without = ({ hash, seq, prevHash, ...rest }) => rest;

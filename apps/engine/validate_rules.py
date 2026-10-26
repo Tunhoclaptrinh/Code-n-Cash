@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-CATALOG = json.loads(Path(__file__).with_name('rule_language.json').read_text())
+CATALOG = json.loads(Path(__file__).with_name('rule_language.json').read_text(encoding='utf-8'))
 VARIABLES = {row['name']: row for row in CATALOG['variables']}
 FIELDS = tuple(CATALOG['fields'])
 ALLOWED = (ast.Expression, ast.BoolOp, ast.And, ast.Compare, ast.Eq, ast.NotEq,

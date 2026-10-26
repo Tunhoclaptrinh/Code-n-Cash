@@ -4,10 +4,10 @@ Named ``pipeline`` so the module does not shadow the re-exported ``evaluate`` fu
 
 Input: a Pack, a milestone id, and the optional sensitivity switches (defaults are the specification).
 Output: one result dict with the decision and every fact behind it (key order is part of the contract).
-Business rules: the nine-step pipeline of spec section 7 (BR-01..BR-20), one stage module per step:
+Business rules: the nine-step pipeline of spec section 5 (BR-01..BR-20), one stage module per step:
 structure (BR-15) -> events (BR-03, BR-16, BR-19) -> requirements (BR-04..BR-07, BR-20) ->
 controls (BR-08..BR-10) -> schedule (BR-11, BR-12) -> rules (BR-02, BR-14) -> amounts (BR-12, BR-13) ->
-trace (BR-17, sections 9.2 and 14.3).
+trace (BR-17, sections 4 and 9).
 """
 from decimal import ROUND_HALF_UP
 
@@ -21,7 +21,7 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
     """Return the decision and all facts of one milestone.
 
     The default arguments are the specification; the other flags exist only to measure sensitivity
-    (section 13). as_of: as-of mode (BR-16). voided: event ids with an approved exception decision (BR-19).
+    (section 12). as_of: as-of mode (BR-16). voided: event ids with an approved exception decision (BR-19).
     """
     m = pack.milestones[mid]
     parties = pack.parties

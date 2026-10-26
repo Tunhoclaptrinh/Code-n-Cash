@@ -239,7 +239,7 @@ const snapshotOf = (evaluation: Evaluation) => ({
 
 /**
  * Stores a run: changed evaluations are replaced and every status change is appended to the
- * history with its trigger (spec 9.4). REJECTED and paid (COMPLETED) milestones are final.
+ * history with its trigger (spec section 4). REJECTED and paid (COMPLETED) milestones are final.
  */
 export function applyRun(
   tables: Tables,

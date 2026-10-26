@@ -25,7 +25,7 @@ import validate_rules
 
 
 PAID = ('RELEASE', 'PENALTY')
-# Cells the output checklist (spec 14.6) allows to be empty.
+# Cells the output checklist (spec section 9) allows to be empty.
 OPTIONAL_CELLS = {'missing_conditions', 'evidence_event_ids'}
 
 
@@ -34,7 +34,7 @@ def share(count, total):
 
 
 def kpi(pack, results, rows, traces, timings, matched, started):
-    """Spec section 15. Labelled metrics use decision_sample.csv only; coverage, trace and time cover every output row."""
+    """Spec section 10. Labelled metrics use decision_sample.csv only; coverage, trace and time cover every output row."""
     labelled = [(d, results[d['milestone_id']]) for d in pack.decisions] if matched is not None else []
     scores = []
     for decision in sorted(spec.DECISIONS):

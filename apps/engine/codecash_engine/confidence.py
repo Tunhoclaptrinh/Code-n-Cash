@@ -3,7 +3,7 @@
 Input: the evaluated results of a Data Pack (and the Pack for milestone attributes).
 Output: per-milestone flags naming the Open assumptions (A05, A07, A08) that could change the result,
 and a confidence score in [0, 1] with the factors that lowered it.
-Business rule: spec section 14.2 and the organiser's answer on confidence: the score is the team's own
+Business rule: spec section 8 and the organiser's answer on confidence: the score is the team's own
 measure of how certain a decision is, it never changes the decision.
 
 The score is robustness times evidence quality:
@@ -18,7 +18,7 @@ from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 
 from .pack import CENT
 
-# Open readings (spec section 13): weight lost when the reading changes the outcome, and the switches
+# Open readings (spec section 12): weight lost when the reading changes the outcome, and the switches
 # that evaluate it. Settled readings (A02, A03, A09, ...) do not lower the score.
 READINGS = {
     "A05": (Decimal("0.20"), dict(contract_scope_dispute=True)),

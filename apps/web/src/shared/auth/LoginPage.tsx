@@ -317,11 +317,6 @@ export default function LoginPage() {
               {t("login.submit")}
             </Button>
           </Form>
-          {demoEnabled ? (
-            <Typography.Paragraph type="secondary" className={styles.hint}>
-              {t("login.demoHint")}
-            </Typography.Paragraph>
-          ) : null}
         </div>
       </main>
     </div>

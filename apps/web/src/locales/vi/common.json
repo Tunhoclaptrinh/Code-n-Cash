@@ -92,7 +92,6 @@
       "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng."
     },
     "subtitle": "Số hóa hợp đồng, ký số và theo dõi điều kiện thanh toán của hợp đồng dựa trên dữ liệu.",
-    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
     "highlights": {
       "sign": "Ký số theo trình tự, đảm bảo tính toàn vẹn của dữ liệu và pháp lý của hợp đồng",
       "evidence": "Nộp chứng từ, kiểm tra và phê duyệt nhiều bước",

@@ -395,7 +395,13 @@ class PipelineTests(unittest.TestCase):
     """The orchestrator wires the stages in order; one hand-built milestone from event to payable amount."""
 
     def run_milestone(self, rows, milestone=MILESTONE, scope=None):
-        scope = scope or [rule(p, c, d, r, pen, pay) for p, c, d, r, pen, pay in [
+        scope = scope or self.default_scope()
+        rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
+        return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), 'M1')
+
+    @staticmethod
+    def default_scope():
+        return [rule(p, c, d, r, pen, pay) for p, c, d, r, pen, pay in [
             (10, 'open_dispute == TRUE', 'HOLD', 'OPEN_DISPUTE', '0', '0'),
             (20, 'valid_rejection_event_count > 0', 'REJECT', 'REJECTION_PRESENT', '0', '0'),
             (30, 'unauthorized_required_event_count > 0', 'HOLD', 'UNAUTHORIZED_EVENT', '0', '0'),
@@ -408,8 +414,6 @@ class PipelineTests(unittest.TestCase):
             (70, 'all_required_conditions_met == TRUE AND open_dispute == FALSE AND valid_rejection_event_count == 0',
              'RELEASE', 'ALL_CONDITIONS_MET', '0', 'planned_payment_vnd_mn'),
             (80, 'ELSE', 'HOLD', 'UNRESOLVED_CONDITION', '0', '0')]]
-        rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
-        return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), 'M1')
 
     def complete_events(self, delivered='2026-01-03T08:00:00', accepted='2026-01-09T17:30:00'):
         return [event('E1', 'DELIVERY', 'S1', delivered), event('E2', 'ACCEPTANCE', 'B1', accepted),
@@ -443,6 +447,17 @@ class PipelineTests(unittest.TestCase):
         result = self.run_milestone(rows)
         self.assertEqual((result['decision'], result['reason_code']), ('HOLD', 'UNRESOLVED_CONDITION'))
         self.assertEqual(result['issues'], ['E9: event_type lạ'])
+
+    def test_a_rule_that_cannot_be_evaluated_holds_only_that_milestone_through_else(self):
+        scope = self.default_scope()
+        scope[0] = rule(10, 'planned_payment_vnd_mn / grace_period_days > 1000', 'HOLD', 'OPEN_DISPUTE')
+        result = self.run_milestone(self.complete_events(), dict(MILESTONE, grace_period_days='0'), scope)
+        self.assertEqual((result['decision'], result['reason_code'], result['rule_id']),
+                         ('HOLD', 'UNRESOLVED_CONDITION', 'PR80'))
+        self.assertEqual((result['payable'], result['penalty']), (Decimal('0.00'), Decimal('0.00')))
+        self.assertEqual(result['issues'], ['không đánh giá được luật: ValueError RULE_DIVISION_BY_ZERO'])
+        # The same rule still evaluates for a milestone whose parameter is not zero.
+        self.assertEqual(self.run_milestone(self.complete_events(), MILESTONE, scope)['decision'], 'RELEASE')
 
 
 if __name__ == '__main__':

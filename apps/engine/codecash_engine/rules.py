@@ -55,7 +55,9 @@ def select_rule(scope_rules, env, issues, anomalies):
     fallback = fallback_rule(scope_rules)
     if issues:
         return fallback
-    rule = next(r for r in scope_rules if expressions.evaluate_expr(r["condition_expression"], env))
+    rule = next((r for r in scope_rules if expressions.evaluate_expr(r["condition_expression"], env)), fallback)
+    if rule is None:
+        return None
     if anomalies and rule["decision"] in PAYING_DECISIONS:
         return fallback
     return rule

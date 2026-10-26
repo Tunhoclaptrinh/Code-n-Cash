@@ -69,12 +69,17 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         completion_date=completion_date, terms=terms, days_late=days_late,
         all_met=rules.all_conditions_met(completion_rate, len(unauthorized), approval_required,
                                          valid_approval_count, quorum))
-    rule = rules.select_rule(scope_rules, env, issues, anomalies)
+    # BR-12, BR-13: amounts from the winning rule. BR-14: a rule that cannot be evaluated for this
+    # milestone (e.g. a formula dividing by a zero parameter) holds it through ELSE, not the whole run.
+    try:
+        rule = rules.select_rule(scope_rules, env, issues, anomalies)
+        penalty, payable = amounts.rule_amounts(rule, env, rounding)
+    except (ArithmeticError, TypeError, ValueError, KeyError) as error:
+        issues.append(f"không đánh giá được luật: {type(error).__name__} {error}")
+        rule = rules.fallback_rule(scope_rules)
+        penalty, payable = amounts.rule_amounts(rule, env, rounding)
     decision = rule["decision"] if rule else "HOLD"
     reason = rule["reason_code"] if rule else "UNRESOLVED_CONDITION"
-
-    # BR-12, BR-13: amounts from the winning rule.
-    penalty, payable = amounts.rule_amounts(rule, env, rounding)
     raw_penalty = amounts.raw_penalty(days_late, terms["rate"], terms["cap"], terms["planned"])
 
     # BR-17: evidence, condition tokens, status.

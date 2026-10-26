@@ -43,7 +43,7 @@
     "LEGAL_REVIEWER": "Cán bộ hợp đồng",
     "ADMIN_AUDITOR": "Kiểm soát viên",
     "SYSTEM_ADMIN": "Quản trị hệ thống",
-    "AUDITOR": "Kiểm toán"
+    "AUDITOR": "Kiểm tra toàn vẹn"
   },
   "categories": {
     "SYSTEM": "Hệ thống",
@@ -61,7 +61,7 @@
     "DIGITIZATION_CONFIRMED_one": "Khoá điều khoản số hoá, tạo {{count}} mốc",
     "DIGITIZATION_CONFIRMED_other": "Khoá điều khoản số hoá, tạo {{count}} mốc",
     "EXCEPTION_PROPOSED": "Đề xuất vô hiệu event {{id}} (BR-19)",
-    "EXCEPTION_APPROVED": "Kiểm soát viên thứ hai duyệt vô hiệu {{id}}; engine đánh giá lại",
+    "EXCEPTION_APPROVED": "Kiểm soát viên của doanh nghiệp duyệt vô hiệu {{id}}; engine đánh giá lại",
     "EXCEPTION_REJECTED": "Từ chối đề xuất vô hiệu {{id}}",
     "PAYMENT": "Chuyển chi mô phỏng {{amount}} triệu VND (khoá idempotency)",
     "REQUEST_INFO": "Yêu cầu bổ sung: {{text}}",
@@ -144,7 +144,13 @@
         "MISMATCH": "Không khớp: nhật ký đã bị viết lại",
         "NOT_FOUND": "Không thấy bản ghi đó: nhật ký đã bị cắt bớt",
         "loadCurrent": "Nạp mốc hiện tại"
-      }
+      },
+      "lastAnchor": {
+        "label": "Mốc neo gần nhất",
+        "value": "Mục #{{seq}}, neo lúc {{at}}",
+        "none": "Chưa có mốc neo nào được xác nhận"
+      },
+      "continuesFrom": "Nối tiếp chuỗi đã lưu trữ"
     },
     "evidence": {
       "title": "Chứng từ ghi trong app",
@@ -163,6 +169,8 @@
     "decisions": {
       "title": "Đối soát quyết định",
       "matched": "Khớp",
+      "sealed": "Đã niêm phong trong nhật ký",
+      "sealProblems": "Bị sửa ngoài quy trình",
       "run": "Lượt chạy",
       "fingerprint": "SHA-256 dữ liệu đầu vào",
       "columns": {

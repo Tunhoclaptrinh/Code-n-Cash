@@ -6,6 +6,7 @@ Output: the rule-variable environment (Decimal, bool, date or None values only) 
 Business rules: BR-02 (rules are data, first match wins), BR-14 (when nothing is sure, HOLD through the
 ELSE rule), BR-15 (structural issues force the ELSE rule; anomalies only downgrade a paying rule to it).
 """
+from datetime import date
 from decimal import Decimal
 
 from . import expressions
@@ -55,7 +56,36 @@ def select_rule(scope_rules, env, issues, anomalies):
     fallback = fallback_rule(scope_rules)
     if issues:
         return fallback
-    rule = next(r for r in scope_rules if expressions.evaluate_expr(r["condition_expression"], env))
+    rule = next((r for r in scope_rules if expressions.evaluate_expr(r["condition_expression"], env)), fallback)
+    if rule is None:
+        return None
     if anomalies and rule["decision"] in PAYING_DECISIONS:
         return fallback
     return rule
+
+
+def rule_trail(scope_rules, env, issues, anomalies):
+    """BR-17: what happened to each rule of the scope, in priority order: (rule_id, outcome).
+
+    MATCHED is the rule applied; NOT_MATCHED a rule whose condition was false; OVERRIDDEN a paying rule
+    that matched but was downgraded to ELSE by an anomaly; NOT_EVALUATED a rule after the decision, or
+    every rule when a structural issue sent the milestone straight to ELSE.
+    """
+    fallback = fallback_rule(scope_rules)
+    trail, decided, overridden = [], bool(issues), False
+    for r in scope_rules:
+        if decided:
+            outcome = "MATCHED" if r is fallback and (issues or overridden) else "NOT_EVALUATED"
+        elif not expressions.evaluate_expr(r["condition_expression"], env):
+            outcome = "NOT_MATCHED"
+        else:
+            overridden = bool(anomalies) and r["decision"] in PAYING_DECISIONS and r is not fallback
+            outcome = "OVERRIDDEN" if overridden else "MATCHED"
+            decided = True
+        trail.append((r["rule_id"], outcome))
+    return trail
+
+
+def plain_variables(env):
+    """The rule variables as JSON-ready strings, booleans and None (Decimal and date become text)."""
+    return {k: str(v) if isinstance(v, (Decimal, date)) else v for k, v in env.items()}

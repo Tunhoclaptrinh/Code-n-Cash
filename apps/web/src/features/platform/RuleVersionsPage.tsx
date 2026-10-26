@@ -451,6 +451,34 @@ export default function RuleVersionsPage() {
                   changed: currentPreview.changed,
                   violations: currentPreview.invariantViolations,
                 })}
+                description={
+                  <Space orientation="vertical" size={2}>
+                    <Typography.Text data-testid="rule-safety-result">
+                      {t(
+                        currentPreview.safety.safe
+                          ? "rules.safety.passed"
+                          : "rules.safety.failed",
+                        {
+                          scenarios: currentPreview.safety.scenarios,
+                          scopes: currentPreview.safety.scopes,
+                          count: currentPreview.safety.violationCount,
+                        },
+                      )}
+                    </Typography.Text>
+                    {currentPreview.safety.violations
+                      .slice(0, 3)
+                      .map((violation, index) => (
+                        <Typography.Text
+                          key={`${violation.scope}-${index}`}
+                          type="danger"
+                        >
+                          {t(`rules.safety.code.${violation.code}`, {
+                            rule: violation.ruleId || violation.scope,
+                          })}
+                        </Typography.Text>
+                      ))}
+                  </Space>
+                }
               />
             ) : null}
             {currentPreview?.changes.length ? (

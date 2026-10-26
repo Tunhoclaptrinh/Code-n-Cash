@@ -2,7 +2,6 @@ import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -159,7 +158,14 @@ function Report({
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.chain.title")}
-            extra={<Verdict ok={chain.ok} />}
+            extra={
+              <Verdict
+                ok={
+                  chain.ok &&
+                  (!chain.lastAnchor || chain.lastAnchor.result === "MATCH")
+                }
+              />
+            }
           >
             <Descriptions
               size="small"
@@ -226,6 +232,51 @@ function Report({
                           >
                             {t(`integrity.chain.anchor.${chain.anchor}`)}
                           </Tag>
+                        ),
+                      },
+                    ]
+                  : []),
+                {
+                  key: "lastAnchor",
+                  label: t("integrity.chain.lastAnchor.label"),
+                  children: chain.lastAnchor ? (
+                    <Space wrap size={[8, 4]}>
+                      <Tag
+                        color={
+                          chain.lastAnchor.result === "MATCH"
+                            ? "success"
+                            : "error"
+                        }
+                        style={{ margin: 0 }}
+                      >
+                        {t(`integrity.chain.anchor.${chain.lastAnchor.result}`)}
+                      </Tag>
+                      <Typography.Text type="secondary">
+                        {t("integrity.chain.lastAnchor.value", {
+                          seq: chain.lastAnchor.seq,
+                          at: formatDateTime(chain.lastAnchor.anchoredAt),
+                        })}
+                      </Typography.Text>
+                    </Space>
+                  ) : (
+                    <Typography.Text type="secondary">
+                      {t("integrity.chain.lastAnchor.none")}
+                    </Typography.Text>
+                  ),
+                },
+                ...(chain.continuesFrom
+                  ? [
+                      {
+                        key: "continuesFrom",
+                        label: t("integrity.chain.continuesFrom"),
+                        children: (
+                          <Typography.Text
+                            code
+                            copyable={{ text: chain.continuesFrom.headHash }}
+                          >
+                            {chain.continuesFrom.archive} ·{" "}
+                            {short(chain.continuesFrom.headHash)}
+                          </Typography.Text>
                         ),
                       },
                     ]
@@ -355,7 +406,13 @@ function Report({
         <Col xs={24} xl={12}>
           <BaseCard
             title={t("integrity.decisions.title")}
-            extra={<Verdict ok={!decisions.mismatches.length} />}
+            extra={
+              <Verdict
+                ok={
+                  !decisions.mismatches.length && !decisions.sealProblems.length
+                }
+              />
+            }
           >
             <Descriptions
               size="small"
@@ -366,6 +423,32 @@ function Report({
                   label: t("integrity.decisions.matched"),
                   children: `${decisions.matched}/${decisions.checked}`,
                 },
+                {
+                  key: "sealed",
+                  label: t("integrity.decisions.sealed"),
+                  children: `${decisions.sealed}/${decisions.checked}`,
+                },
+                ...(decisions.sealProblems.length
+                  ? [
+                      {
+                        key: "sealProblems",
+                        label: t("integrity.decisions.sealProblems"),
+                        children: (
+                          <Space wrap size={[8, 4]}>
+                            {decisions.sealProblems.map((p) => (
+                              <Typography.Text
+                                key={p.milestoneId}
+                                type="danger"
+                              >
+                                {p.contractId} ·{" "}
+                                {td("milestoneNo", { no: p.sequence })}
+                              </Typography.Text>
+                            ))}
+                          </Space>
+                        ),
+                      },
+                    ]
+                  : []),
                 {
                   key: "run",
                   label: t("integrity.decisions.run"),
@@ -401,24 +484,26 @@ function Report({
                   {
                     key: "milestone",
                     title: t("integrity.decisions.columns.milestone"),
-                    render: (_, m) => (
-                      <Link
-                        to={`/contracts/${m.contractId}/milestones/${m.sequence}/decision`}
-                      >
-                        {m.contractId} · {td("milestoneNo", { no: m.sequence })}
-                      </Link>
-                    ),
+                    // The integrity checker cannot open contracts; the parties look them up.
+                    render: (_, m) =>
+                      `${m.contractId} · ${td("milestoneNo", { no: m.sequence })}`,
                   },
-                  {
-                    key: "stored",
-                    title: t("integrity.decisions.columns.stored"),
-                    render: (_, m) => facts(m.stored),
-                  },
-                  {
-                    key: "fresh",
-                    title: t("integrity.decisions.columns.fresh"),
-                    render: (_, m) => facts(m.fresh),
-                  },
+                  ...(decisions.mismatches.some((m) => m.stored)
+                    ? [
+                        {
+                          key: "stored",
+                          title: t("integrity.decisions.columns.stored"),
+                          render: (_: unknown, m: Mismatch) =>
+                            facts(m.stored ?? null),
+                        },
+                        {
+                          key: "fresh",
+                          title: t("integrity.decisions.columns.fresh"),
+                          render: (_: unknown, m: Mismatch) =>
+                            facts(m.fresh ?? null),
+                        },
+                      ]
+                    : []),
                   {
                     key: "frozen",
                     title: t("integrity.decisions.columns.frozen"),

@@ -1,8 +1,9 @@
 import { recordHash, verifyChain } from "../../common/audit-chain";
 import type { RecordEntity } from "../../common/types";
 import type { Ctx } from "../context";
-import { runEngine } from "../engine";
+import { decisionHash, runEngine } from "../engine";
 import { dataPackSeal, TABLE } from "../records";
+import { INTERNAL_ROLES } from "../vocabulary";
 import type { DecisionFacts, Evaluation, IntegrityReport } from "../types";
 
 const factsOf = (e: Evaluation): DecisionFacts => ({
@@ -13,10 +14,31 @@ const factsOf = (e: Evaluation): DecisionFacts => ({
   penaltyMillion: e.penaltyMillion,
 });
 
+/** The latest confirmed anchor, checked against the chain as it is now. */
+function lastAnchor(ctx: Ctx): IntegrityReport["chain"]["lastAnchor"] {
+  const latest = (ctx.t["anchor-jobs"] ?? [])
+    .filter((job) => job.status === "CONFIRMED")
+    .map(
+      (job) =>
+        job.payload as {
+          sequence: number;
+          headHash: string;
+          createdAt: string;
+        },
+    )
+    .sort((a, b) => b.sequence - a.sequence)[0];
+  if (!latest) return null;
+  const result = verifyChain(ctx.t["audit"] ?? [], {
+    seq: latest.sequence,
+    hash: latest.headHash,
+  }).anchor!;
+  return { seq: latest.sequence, anchoredAt: latest.createdAt, result };
+}
+
 /**
- * Integrity check for controllers and auditors: the audit hash chain, each app event against the
- * hash sealed with it, and each stored decision against a fresh run of the engine on the same data.
- * Nothing is written.
+ * Integrity check: the audit hash chain, each app event against the hash sealed with it, and each
+ * stored decision against a fresh run of the engine on the same data. Nothing is written. Platform
+ * roles learn which milestone differs, never its decision or amounts (spec 2.2).
  */
 export async function integrityReport(
   ctx: Ctx,
@@ -40,8 +62,16 @@ export async function integrityReport(
         problem: event ? "CHANGED" : "MISSING",
       });
   }
+  // The latest sealed hash of each decision, in chain order.
+  const sealedDecisions = new Map<string, string>();
+  for (const entry of [...audit].sort((a, b) => Number(a.seq) - Number(b.seq)))
+    for (const [id, hash] of Object.entries(
+      (entry.decisionHashes ?? {}) as Record<string, string>,
+    ))
+      sealedDecisions.set(id, hash);
   const fresh = await runEngine(ctx.t);
   const stored = ctx.t[TABLE.evaluations] as Array<RecordEntity & Evaluation>;
+  const blind = INTERNAL_ROLES.includes(ctx.actor.role);
   const mismatches: IntegrityReport["decisions"]["mismatches"] = [];
   for (const evaluation of stored) {
     const now = fresh.evaluations.get(evaluation.milestoneId);
@@ -59,8 +89,22 @@ export async function integrityReport(
       sequence: Number(m?.milestone_sequence ?? 0),
       frozen:
         ctx.paid(evaluation.milestoneId) || evaluation.status === "REJECTED",
-      stored: factsOf(evaluation),
-      fresh: now ? factsOf(now) : null,
+      ...(blind
+        ? {}
+        : { stored: factsOf(evaluation), fresh: now ? factsOf(now) : null }),
+    });
+  }
+  const sealProblems: IntegrityReport["decisions"]["sealProblems"] = [];
+  for (const evaluation of stored) {
+    const sealed = sealedDecisions.get(evaluation.milestoneId);
+    if (!sealed || sealed === decisionHash(evaluation)) continue;
+    const m = ctx.milestones.find(
+      (x) => x.milestone_id === evaluation.milestoneId,
+    );
+    sealProblems.push({
+      milestoneId: evaluation.milestoneId,
+      contractId: evaluation.contractId,
+      sequence: Number(m?.milestone_sequence ?? 0),
     });
   }
   const imported = audit
@@ -70,7 +114,7 @@ export async function integrityReport(
   const seal = (imported?.seal ?? {}) as ReturnType<typeof dataPackSeal>;
   return {
     checkedAt: new Date().toISOString(),
-    chain: verifyChain(audit, anchor),
+    chain: { ...verifyChain(audit, anchor), lastAnchor: lastAnchor(ctx) },
     dataPack: imported
       ? {
           sealedAt: imported.createdAt,
@@ -92,6 +136,8 @@ export async function integrityReport(
     decisions: {
       checked: stored.length,
       matched: stored.length - mismatches.length,
+      sealed: stored.filter((e) => sealedDecisions.has(e.milestoneId)).length,
+      sealProblems,
       runId: fresh.runId,
       fingerprint: fresh.fingerprint,
       mismatches,

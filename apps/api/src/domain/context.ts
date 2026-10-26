@@ -30,7 +30,7 @@ import type {
   Side,
   SignStepView,
 } from "./types";
-import { AUTHORITY, isBusinessEvent, SEES_ALL_CONTRACTS } from "./vocabulary";
+import { AUTHORITY, isBusinessEvent } from "./vocabulary";
 
 /** Collections every workflow view or action reads. */
 export const READ_TABLES = [
@@ -213,15 +213,18 @@ export class Ctx {
 
   /* ---------------------------- the actor ---------------------------- */
 
-  /** Controllers and auditors see every contract; everyone else only those of their organisation. */
+  /**
+   * Only the parties see a contract: the supplier side (its controller included) once the
+   * contract leaves draft, the buyer side always. Platform roles see none (spec 2.2).
+   */
   canSee(contract: ContractRecord) {
-    if (SEES_ALL_CONTRACTS.includes(this.actor.role)) return true;
-    if (this.actor.role === "SUPPLIER")
-      return (
-        contract.supplier_id === this.actor.organizationId &&
-        contract.lifecycle !== "DRAFT"
-      );
-    return contract.buyer_id === this.actor.organizationId;
+    if (contract.buyer_id === this.actor.organizationId)
+      return this.actor.role !== "SUPPLIER";
+    return (
+      contract.supplier_id === this.actor.organizationId &&
+      contract.lifecycle !== "DRAFT" &&
+      (this.actor.role === "SUPPLIER" || this.actor.role === "ADMIN_AUDITOR")
+    );
   }
   visibleContracts() {
     return this.contracts.filter((c) => this.canSee(c));
@@ -419,9 +422,13 @@ export class Ctx {
           this.actor.role === "CONTRACT_OWNER" &&
           contract.buyer_id === this.actor.organizationId
         );
+      // The contract owner decides what happens to a held milestone; the controller only checks.
       case "REVIEW_EXCEPTION":
       case "MANUAL_REVIEW":
-        return this.actor.role === "ADMIN_AUDITOR";
+        return (
+          this.actor.role === "CONTRACT_OWNER" &&
+          contract.buyer_id === this.actor.organizationId
+        );
       case "TRANSFER":
         return (
           this.actor.role === "FINANCE_APPROVER" &&

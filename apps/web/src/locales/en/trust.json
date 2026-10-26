@@ -112,6 +112,18 @@
     },
     "preview": "Preview impact",
     "previewSummary": "{{evaluated}} milestones · {{matched}}/{{samples}} samples · {{changed}} changed · {{violations}} violations",
+    "safety": {
+      "passed": "Safety check passed: {{scenarios}} cases across {{scopes}} rule scopes, none pays while a blocker holds.",
+      "failed_one": "Safety check failed: {{count}} violation in {{scenarios}} cases.",
+      "failed_other": "Safety check failed: {{count}} violations in {{scenarios}} cases.",
+      "code": {
+        "BLOCKED_PAYMENT": "{{rule}}: pays while a dispute, rejection, unauthorised event, missing evidence or missing approval holds",
+        "AMOUNT_OUT_OF_RANGE": "{{rule}}: an amount is negative or above the milestone value",
+        "PAYMENT_WHILE_HELD": "{{rule}}: holds or rejects but still pays an amount",
+        "EVALUATION_ERROR": "{{rule}}: a condition or formula cannot be computed for some case",
+        "NO_FALLBACK": "{{rule}}: the rule scope does not end with the ELSE rule"
+      }
+    },
     "previewScope": "{{templates}} template changes (new contracts only). Submission requires unchanged decisions, reasons, statuses and amounts across the full pack.",
     "milestone": "Milestone",
     "before": "Before",

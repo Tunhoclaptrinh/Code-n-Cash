@@ -73,19 +73,20 @@ export default function LoginPage() {
   const featured = demo.data?.featured ?? [];
   const organizations = demo.data?.organizations ?? [];
   const demoEnabled = demo.data?.enabled !== false;
-  const accountItem = (account: DemoAccount) => ({
-    key: account.email,
+  // Featured accounts also appear under their organisation, so the menu key
+  // carries the section to stay unique. Person names are generated, not from
+  // the Data Pack, so the list identifies accounts by email only.
+  const accountItem = (account: DemoAccount, section = "found") => ({
+    key: `${section}:${account.email}`,
     onClick: () => void signInWithDemo(account),
     label: (
       <span className={styles.demoItem} data-testid="demo-account">
         <Avatar size={32} className={styles.demoAvatar}>
-          {initialsOf(account.displayName)}
+          {initialsOf(account.email.split("@")[0])}
         </Avatar>
         <span className={styles.demoText}>
-          <b>{account.displayName}</b>
-          <small>
-            {account.email} · {account.organization}
-          </small>
+          <b>{account.email}</b>
+          <small>{account.organization}</small>
         </span>
         <Tag color="blue" style={{ margin: 0 }}>
           {t(`roles.${account.role}.name`)}
@@ -99,7 +100,6 @@ export default function LoginPage() {
   ].filter((account) =>
     fold(
       [
-        account.displayName,
         account.email,
         account.organization,
         account.partyId,
@@ -164,25 +164,28 @@ export default function LoginPage() {
               menu={{
                 style: { maxHeight: "70vh", overflowY: "auto" },
                 items: demoSearch.trim()
-                  ? foundAccounts.map(accountItem)
+                  ? foundAccounts.map((account) => accountItem(account))
                   : featured.length || organizations.length
                     ? [
+                        ...featured.map((account) =>
+                          accountItem(account, "featured"),
+                        ),
+                        { type: "divider" },
+                        // One scrolling list: nested flyouts for 30+
+                        // organisations opened off-screen or under the panel.
                         {
                           type: "group",
-                          key: "featured",
-                          label: t("login.demoFeatured"),
-                          children: featured.map(accountItem),
-                        },
-                        { type: "divider" },
-                        {
                           key: "all",
                           label: t("login.demoAll"),
-                          children: organizations.map((org) => ({
-                            key: org.id,
-                            label: org.name,
-                            children: org.accounts.map(accountItem),
-                          })),
                         },
+                        ...organizations.map((org) => ({
+                          type: "group" as const,
+                          key: org.id,
+                          label: org.name,
+                          children: org.accounts.map((account) =>
+                            accountItem(account, org.id),
+                          ),
+                        })),
                       ]
                     : [
                         {
@@ -317,11 +320,6 @@ export default function LoginPage() {
               {t("login.submit")}
             </Button>
           </Form>
-          {demoEnabled ? (
-            <Typography.Paragraph type="secondary" className={styles.hint}>
-              {t("login.demoHint")}
-            </Typography.Paragraph>
-          ) : null}
         </div>
       </main>
     </div>

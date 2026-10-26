@@ -8,7 +8,12 @@ import type { Actor, RecordEntity } from "../common/types";
 import type { Outcome } from "./actions";
 import type { AccountSpec } from "./accounts";
 import { Ctx, READ_TABLES } from "./context";
-import { applyRun, assertEngineOutcome, runEngine } from "./engine";
+import {
+  applyRun,
+  assertEngineOutcome,
+  runEngine,
+  sealDecisions,
+} from "./engine";
 import { dataPackSeal, TABLE, type Tables } from "./records";
 import { buildSeed } from "./seed";
 import type { Evaluation } from "./types";
@@ -85,11 +90,15 @@ export class DomainService {
         replace("milestone-templates", seed.templates);
         replace("settings", seed.settings);
         const outcome = await runEngine(tables);
-        applyRun(tables, outcome, { kind: "IMPORT" });
-        return { runId: outcome.runId, seal: dataPackSeal(tables) };
+        const { stored } = applyRun(tables, outcome, { kind: "IMPORT" });
+        return {
+          runId: outcome.runId,
+          seal: dataPackSeal(tables),
+          decisionHashes: sealDecisions(outcome, stored),
+        };
       },
       // First entry of the audit chain: the hash of the organiser's data as imported.
-      ({ runId, seal }) => {
+      ({ runId, seal, decisionHashes }) => {
         const now = new Date().toISOString();
         return [
           {
@@ -103,6 +112,7 @@ export class DomainService {
             resource: "datapack",
             recordId: runId,
             seal,
+            decisionHashes,
           },
         ];
       },
@@ -118,10 +128,13 @@ export class DomainService {
    * included, is archived rather than deleted; the new chain records who reset it and the head
    * hash of the archived chain.
    */
-  async resetDemo(actor: Actor): Promise<{ archive: string }> {
+  async resetDemo(
+    actor: Actor,
+    anchorId: string | null = null,
+  ): Promise<{ archive: string }> {
     const archived = await this.repo.archiveAndReset();
-    await this.bootstrap();
     const now = new Date().toISOString();
+    // First entry of the new chain: it links to the archived head (audit-chain chainOrigin).
     await this.repo.transact([], () => null, [
       {
         id: `demo-reset-${archived.archive}`,
@@ -136,8 +149,10 @@ export class DomainService {
         archivedEntries: archived.entries,
         archivedHeadHash:
           typeof archived.head?.hash === "string" ? archived.head.hash : null,
+        archivedAnchorId: anchorId,
       },
     ]);
+    await this.bootstrap();
     return { archive: archived.archive };
   }
 
@@ -180,6 +195,7 @@ export class DomainService {
   ): Promise<T & { evaluation?: Evaluation | null }> {
     let done!: Outcome<T>;
     let evaluation: Evaluation | null = null;
+    let decisionHashes: Record<string, string> = {};
     await this.repo.transact(
       [...READ_TABLES],
       async (tables) => {
@@ -187,7 +203,8 @@ export class DomainService {
         done = await fn(ctx);
         if (done.evaluate) {
           const outcome = await runEngine(tables);
-          applyRun(tables, outcome, done.trigger);
+          const { stored } = applyRun(tables, outcome, done.trigger);
+          decisionHashes = sealDecisions(outcome, stored);
           if (done.milestoneId)
             evaluation = outcome.evaluations.get(done.milestoneId) ?? null;
         }
@@ -214,6 +231,8 @@ export class DomainService {
             eventHashes: Object.fromEntries(
               result.events.map((e) => [e.event_id, recordHash(e)]),
             ),
+            // Each decision this write stored, so a later direct edit of it is found.
+            ...(Object.keys(decisionHashes).length ? { decisionHashes } : {}),
           },
         ];
         for (const item of result.audit)

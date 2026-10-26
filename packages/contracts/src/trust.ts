@@ -14,6 +14,16 @@ export interface AnchorPayload {
   createdAt: string;
   algorithm: "SHA-256";
   manifest: Record<string, { count: number; sha256: string }>;
+  /** Merkle root of entry hashes 1..sequence (common/merkle.ts); absent on older anchors. */
+  merkleRoot?: string;
+}
+/** One audit entry with the path that proves it is in an anchored chain (tools/verify_audit.py). */
+export interface AuditProof {
+  entry: Record<string, unknown>;
+  leafIndex: number;
+  treeSize: number;
+  path: string[];
+  anchor: { id: string; payload: AnchorPayload; receipt: LocalProof | null };
 }
 export interface AnchorJob {
   id: string;
@@ -115,6 +125,27 @@ export interface RuleLanguage {
   constants: string[];
   fields: RuleExpressionField[];
 }
+/** Static safety proof of a rule set (apps/engine/codecash_engine/safety.py). */
+export interface RuleSafety {
+  safe: boolean;
+  scopes: number;
+  scenarios: number;
+  violationCount: number;
+  violations: Array<{
+    code:
+      | "BLOCKED_PAYMENT"
+      | "AMOUNT_OUT_OF_RANGE"
+      | "PAYMENT_WHILE_HELD"
+      | "EVALUATION_ERROR"
+      | "NO_FALLBACK";
+    scope: string;
+    ruleId: string;
+    facts?: Record<string, unknown>;
+    detail?: string;
+  }>;
+  unreachable: Array<{ scope: string; ruleId: string }>;
+}
+
 export interface RulePreview {
   compatibilityPolicy: "BTC_FULL_PACK_V1";
   evaluated: number;
@@ -125,6 +156,7 @@ export interface RulePreview {
   fingerprint: string;
   changed: number;
   templateChanges: number;
+  safety: RuleSafety;
   canSubmit: boolean;
   changes: Array<{
     milestoneId: string;

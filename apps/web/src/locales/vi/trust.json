@@ -112,6 +112,18 @@
     },
     "preview": "Chạy thử tác động",
     "previewSummary": "Đã tính {{evaluated}} mốc · Khớp {{matched}}/{{samples}} mẫu · {{changed}} mốc thay đổi · {{violations}} vi phạm",
+    "safety": {
+      "passed": "Kiểm tra an toàn đạt: {{scenarios}} tình huống trên {{scopes}} phạm vi luật, không trường hợp nào trả tiền khi còn yếu tố chặn.",
+      "failed_one": "Kiểm tra an toàn không đạt: {{count}} vi phạm trong {{scenarios}} tình huống.",
+      "failed_other": "Kiểm tra an toàn không đạt: {{count}} vi phạm trong {{scenarios}} tình huống.",
+      "code": {
+        "BLOCKED_PAYMENT": "{{rule}}: trả tiền khi còn tranh chấp, từ chối, sai thẩm quyền, thiếu chứng từ hoặc thiếu phê duyệt",
+        "AMOUNT_OUT_OF_RANGE": "{{rule}}: số tiền âm hoặc vượt giá trị mốc",
+        "PAYMENT_WHILE_HELD": "{{rule}}: tạm giữ hoặc không chi nhưng vẫn có số tiền thanh toán",
+        "EVALUATION_ERROR": "{{rule}}: có trường hợp không tính được điều kiện hoặc công thức",
+        "NO_FALLBACK": "{{rule}}: phạm vi luật không kết thúc bằng luật ELSE"
+      }
+    },
     "previewScope": "Mẫu mốc thay đổi: {{templates}} (chỉ cho hồ sơ mới). Gửi duyệt cần giữ nguyên quyết định, lý do, trạng thái và số tiền trên toàn pack.",
     "milestone": "Mã mốc",
     "before": "Trước",

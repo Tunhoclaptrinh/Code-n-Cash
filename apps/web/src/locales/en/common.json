@@ -6,6 +6,7 @@
   "nav": {
     "label": "Main navigation",
     "tasks": "My tasks",
+    "dashboard": "Contract overview",
     "contracts": "Contracts",
     "myContracts": "My contracts",
     "upload": "Upload contract",
@@ -78,8 +79,8 @@
       "short": "SA"
     },
     "AUDITOR": {
-      "name": "Auditor",
-      "short": "AU"
+      "name": "Integrity checker",
+      "short": "IC"
     }
   },
   "login": {
@@ -90,20 +91,18 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email or password is incorrect."
     },
-    "subtitle": "Digitize, sign and track payment conditions of contracts in one workflow.",
-    "demoHint": "Demo environment: pick \"Demo accounts\" at the top right to sign in instantly.",
+    "subtitle": "Digitize contracts, sign them digitally and track their payment conditions from data.",
     "highlights": {
-      "sign": "Sequential digital signing, document locked after the first signature",
-      "evidence": "Evidence submission, validation and two-person approval",
-      "audit": "Append-only activity log for every action"
+      "sign": "Sequential digital signing that protects data integrity and the contract's legal standing",
+      "evidence": "Evidence submission, checks and multi-step approval",
+      "audit": "Integrity-controlled log with the full history"
     },
     "demoAccounts": "Demo accounts",
     "demoUnavailable": "Could not connect to load demo accounts.",
     "demoEmpty": "No demo accounts are currently available.",
-    "demoFeatured": "Suggested (Nova An · Phú Minh)",
     "demoAll": "All organizations",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Search name, email, company or contract code…"
+    "demoSearch": "Search email, company, role or contract code…"
   },
   "common": {
     "loading": "Loading…",
@@ -223,7 +222,7 @@
       "notice": "Unsigned demo files. Download a PDF, select Phú Minh (S015), configure the matching signers below, then upload to a new contract.",
       "pdf": "PDF · {{count}} signers",
       "all": "Download all PDFs + DOCX",
-      "signers": "For the chosen count use: Nguyễn Văn An (owner@novaan.vn), Vũ Thanh Hà (supplier@phuminh.vn), Lê Quốc Dũng (finance@novaan.vn), Trần Thị Mai (legal@novaan.vn). Search by name/email in Demo accounts. These are unsigned workflow test files."
+      "signers": "For the chosen count use: owner@novaan.vn, supplier@phuminh.vn, finance@novaan.vn, legal@novaan.vn. Search by email in Demo accounts. These are unsigned workflow test files."
     }
   },
   "forms": {

@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import {
   AuditOutlined,
+  DashboardOutlined,
   CloudUploadOutlined,
   DatabaseOutlined,
   ExceptionOutlined,
@@ -14,6 +15,7 @@ import {
 import type { Role } from "../api/types";
 
 export type NavKey =
+  | "dashboard"
   | "tasks"
   | "contracts"
   | "upload"
@@ -137,6 +139,12 @@ const dataAndAdmin = (items: NavItem[]): NavSection => ({
   items,
 });
 
+const dashboard: NavItem = {
+  key: "dashboard",
+  to: "/dashboard",
+  icon: DashboardOutlined,
+  labelKey: "nav.dashboard",
+};
 const exceptions: NavItem = {
   key: "exceptions",
   to: "/exceptions",
@@ -164,7 +172,7 @@ const buyer = (withUpload: boolean): NavSection[] => [
       ? [tasks, contracts, upload, verify]
       : [tasks, contracts, verify],
   ),
-  monitoring([activity]),
+  monitoring([dashboard, activity]),
   dataAndAdmin([data]),
 ];
 
@@ -173,21 +181,19 @@ const byRole: Record<Role, NavSection[]> = {
   LEGAL_REVIEWER: buyer(true),
   FINANCE_APPROVER: buyer(false),
   SECONDARY_APPROVER: buyer(false),
-  // SoD-1: the controller handles exceptions, the administrator configures, the auditor reads.
+  // The buyer's own controller checks exception proposals on its organisation's contracts.
   ADMIN_AUDITOR: [
     workflow([tasks, contracts, verify]),
-    monitoring([exceptions, integrity, activity]),
+    monitoring([dashboard, exceptions, activity]),
     dataAndAdmin([data]),
   ],
+  // Platform roles: the administrator configures, the integrity checker sees hashes and proofs
+  // only. Neither opens a contract (spec 2.2).
   SYSTEM_ADMIN: [dataAndAdmin([platform])],
-  AUDITOR: [
-    workflow([contracts, verify]),
-    monitoring([integrity, exceptions, activity]),
-    dataAndAdmin([data, platform]),
-  ],
+  AUDITOR: [monitoring([integrity]), dataAndAdmin([platform])],
   SUPPLIER: [
     workflow([tasks, { ...contracts, labelKey: "nav.myContracts" }, verify]),
-    monitoring([activity]),
+    monitoring([dashboard, activity]),
   ],
 };
 

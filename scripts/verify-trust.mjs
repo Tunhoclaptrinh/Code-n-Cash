@@ -52,7 +52,12 @@ export function verifyBundle(
       snapshotMatched = null;
     if (records) {
       const audit = [...(records.audit ?? [])].sort((a, b) => a.seq - b.seq);
-      let previous = "0".repeat(64);
+      // After a demo reset the first entry continues the archived chain (apps/api audit-chain chainOrigin).
+      let previous =
+        audit[0]?.action === "RESET_DEMO_DATA" &&
+        typeof audit[0].archivedHeadHash === "string"
+          ? audit[0].archivedHeadHash
+          : "0".repeat(64);
       chainMatched = audit.length >= payload.sequence;
       for (let i = 0; i < audit.length; i++) {
         const { hash, ...rest } = audit[i];

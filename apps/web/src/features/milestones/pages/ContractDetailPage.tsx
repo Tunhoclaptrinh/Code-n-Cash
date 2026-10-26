@@ -98,7 +98,7 @@ function actionFor(row: MilestoneRow, role: Role) {
       : null;
   if (step.kind === "TRANSFER" && role === "FINANCE_APPROVER")
     return "transfer" as const;
-  if (step.kind === "REVIEW_EXCEPTION" && role === "ADMIN_AUDITOR")
+  if (step.kind === "REVIEW_EXCEPTION" && role === "CONTRACT_OWNER")
     return "exception" as const;
   return null;
 }

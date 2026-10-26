@@ -21,8 +21,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all",
+            "ADMIN_AUDITOR": "org",
             "SUPPLIER": "own"
           }
         },
@@ -31,8 +30,7 @@
           "grants": {
             "CONTRACT_OWNER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all"
+            "ADMIN_AUDITOR": "org"
           }
         },
         {
@@ -85,8 +83,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all",
+            "ADMIN_AUDITOR": "org",
             "SUPPLIER": "own"
           }
         }
@@ -121,8 +118,7 @@
             "CONTRACT_OWNER": "org",
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all"
+            "ADMIN_AUDITOR": "org"
           }
         },
         {
@@ -151,8 +147,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all",
+            "ADMIN_AUDITOR": "org",
             "SUPPLIER": "own"
           }
         },
@@ -179,20 +174,20 @@
         {
           "key": "exceptions:read",
           "grants": {
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all"
+            "CONTRACT_OWNER": "org",
+            "ADMIN_AUDITOR": "org"
           }
         },
         {
           "key": "exceptions:propose",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "CONTRACT_OWNER": "org"
           }
         },
         {
           "key": "exceptions:decide",
           "grants": {
-            "ADMIN_AUDITOR": "all"
+            "ADMIN_AUDITOR": "org"
           }
         }
       ]
@@ -207,8 +202,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "AUDITOR": "all",
+            "ADMIN_AUDITOR": "org",
             "SUPPLIER": "own"
           }
         }
@@ -224,8 +218,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "org",
-            "AUDITOR": "org"
+            "ADMIN_AUDITOR": "org"
           }
         },
         {
@@ -256,9 +249,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "ADMIN_AUDITOR": "org"
           }
         },
         {
@@ -276,9 +267,7 @@
             "FINANCE_APPROVER": "org",
             "SECONDARY_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "ADMIN_AUDITOR": "org"
           }
         },
         {
@@ -287,9 +276,7 @@
             "CONTRACT_OWNER": "org",
             "FINANCE_APPROVER": "org",
             "LEGAL_REVIEWER": "org",
-            "ADMIN_AUDITOR": "all",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "ADMIN_AUDITOR": "org"
           }
         }
       ]
@@ -303,8 +290,7 @@
             "CONTRACT_OWNER": "all",
             "LEGAL_REVIEWER": "all",
             "ADMIN_AUDITOR": "all",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -334,15 +320,13 @@
         {
           "key": "organizations:export",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "users:read",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -372,8 +356,7 @@
         {
           "key": "users:export",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -387,8 +370,7 @@
           "grants": {
             "CONTRACT_OWNER": "org",
             "LEGAL_REVIEWER": "org",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -428,8 +410,7 @@
           "grants": {
             "CONTRACT_OWNER": "org",
             "LEGAL_REVIEWER": "org",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -438,8 +419,7 @@
             "CONTRACT_OWNER": "all",
             "LEGAL_REVIEWER": "all",
             "ADMIN_AUDITOR": "all",
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -469,15 +449,13 @@
         {
           "key": "milestone-templates:export",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
           "key": "settings:read",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -507,8 +485,7 @@
         {
           "key": "settings:export",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all"
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -520,7 +497,6 @@
         {
           "key": "audit:read",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "SYSTEM_ADMIN": "all",
             "AUDITOR": "all"
           }
@@ -528,7 +504,6 @@
         {
           "key": "audit:export",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "SYSTEM_ADMIN": "all",
             "AUDITOR": "all"
           }
@@ -549,7 +524,6 @@
         {
           "key": "anchors:read",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "SYSTEM_ADMIN": "all",
             "AUDITOR": "all"
           }
@@ -557,7 +531,6 @@
         {
           "key": "anchors:write",
           "grants": {
-            "ADMIN_AUDITOR": "all",
             "SYSTEM_ADMIN": "all"
           }
         },
@@ -589,10 +562,9 @@
         {
           "key": "contract-templates:read",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all",
             "CONTRACT_OWNER": "all",
-            "LEGAL_REVIEWER": "all"
+            "LEGAL_REVIEWER": "all",
+            "SYSTEM_ADMIN": "all"
           }
         },
         {
@@ -622,10 +594,9 @@
         {
           "key": "contract-templates:export",
           "grants": {
-            "SYSTEM_ADMIN": "all",
-            "AUDITOR": "all",
             "CONTRACT_OWNER": "all",
-            "LEGAL_REVIEWER": "all"
+            "LEGAL_REVIEWER": "all",
+            "SYSTEM_ADMIN": "all"
           }
         }
       ]

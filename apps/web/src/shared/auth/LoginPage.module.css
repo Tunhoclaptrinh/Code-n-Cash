@@ -125,12 +125,6 @@
   margin-bottom: 4px !important;
 }
 
-.hint {
-  margin-top: 16px;
-  font-size: 13px;
-  text-align: center;
-}
-
 @media (max-width: 900px) {
   .page {
     grid-template-columns: 1fr;

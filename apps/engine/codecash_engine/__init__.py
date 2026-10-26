@@ -1,9 +1,10 @@
 """CodeCash decision engine: the Case 4 specification evaluator split into small stage modules.
 
 Public API (re-exported here): Data Pack loading (``Pack``, ``read``), the rule expression evaluator,
-``evaluate`` / ``evaluate_all`` (the orchestration of the stages in ``evaluate.py``), output checks and
+``evaluate`` / ``evaluate_all`` (the orchestration of the stages in ``pipeline.py``), output checks and
 the confidence helpers. Every stage module states its input, output and the business rules (BR-xx) it
-implements; ``docs/NGHIEP_VU.md`` is the source of truth.
+implements; ``docs/NGHIEP_VU.md`` is the source of truth;
+section numbers in the module docstrings refer to it.
 """
 from .checks import check_invariants, compare_samples
 from .confidence import assumption_flags, confidence_score, confidence_scores

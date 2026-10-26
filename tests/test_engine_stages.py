@@ -9,7 +9,7 @@ from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'apps/engine'))
-from codecash_engine import amounts, controls, events, requirements, rules, schedule, structure, trace  # noqa: E402
+from codecash_engine import amounts, controls, events, requirements, rules, schedule, sequence, structure, trace  # noqa: E402
 from codecash_engine.pack import PRIORITIES, Pack  # noqa: E402
 from codecash_engine.pipeline import evaluate  # noqa: E402
 
@@ -164,7 +164,7 @@ class ControlTests(unittest.TestCase):
         self.assertEqual(anomalies, ['R2: REJECTION không hợp lệ', 'R3: REJECTION không hợp lệ'])
 
     def count(self, rows, roles=('CONTRACT_OWNER', 'FINANCE')):
-        return controls.count_approvals(PARTIES, CONTRACT, rows, list(roles))
+        return controls.count_approvals(PARTIES, CONTRACT, rows, list(roles))[:2]
 
     def test_quorum_counts_distinct_roles_not_approvals(self):
         same_role = [event('P1', 'APPROVAL', 'A1'), event('P2', 'APPROVAL', 'A2')]
@@ -183,6 +183,59 @@ class ControlTests(unittest.TestCase):
                                event('P2', 'APPROVAL', 'A9'),  # approver of another buyer
                                event('P3', 'APPROVAL', 'A1', event_status='PENDING')])
         self.assertEqual(count, 0)
+
+    def test_an_approval_above_the_approvers_limit_does_not_count(self):
+        parties = dict(PARTIES, A1=dict(PARTIES['A1'], approval_limit_vnd_mn='50'),
+                       A3=dict(PARTIES['A3'], approval_limit_vnd_mn=''))
+        rows = [event('P1', 'APPROVAL', 'A1'), event('P2', 'APPROVAL', 'A3')]
+        approvals, count, over = controls.count_approvals(parties, CONTRACT, rows, ['CONTRACT_OWNER', 'FINANCE'],
+                                                          Decimal('100.00'))
+        self.assertEqual((list(approvals), count, over), (['A3'], 1, ['P1']))
+        self.assertEqual(controls.count_approvals(parties, CONTRACT, rows, ['CONTRACT_OWNER', 'FINANCE'],
+                                                  Decimal('50.00'))[1], 2)
+
+
+class SequenceTests(unittest.TestCase):
+    contract = dict(CONTRACT, signing_date='2026-01-02')
+
+    def warnings(self, rows, completion_ts=None):
+        valid = {e['event_type']: e for e in rows if e['event_type'] in ('DELIVERY', 'ACCEPTANCE')}
+        approvals = {e['actor_party_id']: e for e in rows if e['event_type'] == 'APPROVAL'}
+        resolutions = [e for e in rows if e['event_type'] == 'DISPUTE_RESOLVED']
+        return sequence.sequence_warnings(rows, valid, approvals, resolutions, completion_ts, self.contract)
+
+    def test_a_clean_history_has_no_warning(self):
+        rows = [event('E1', 'DELIVERY', 'S1', '2026-01-03T08:00:00', document_id='DN-1'),
+                event('P1', 'APPROVAL', 'A1', '2026-01-04T09:00:00')]
+        self.assertEqual(self.warnings(rows, '2026-01-03T08:00:00'), [])
+
+    def test_approval_before_the_last_evidence_and_evidence_before_signing_are_reported(self):
+        rows = [event('E1', 'DELIVERY', 'S1', '2026-01-01T08:00:00'),
+                event('P1', 'APPROVAL', 'A1', '2026-01-02T09:00:00'),
+                event('E2', 'ACCEPTANCE', 'B1', '2026-01-05T08:00:00')]
+        self.assertEqual(self.warnings(rows, '2026-01-05T08:00:00'),
+                         ['E1: EVENT_BEFORE_SIGNING', 'P1: APPROVAL_BEFORE_EVIDENCE'])
+
+    def test_resubmission_with_another_document_within_a_day_is_a_possible_duplicate(self):
+        rows = [event('E1', 'DELIVERY', 'S1', '2026-01-03T08:00:00', document_id='DN-1'),
+                event('E2', 'DELIVERY', 'S1', '2026-01-03T20:00:00', document_id='DN-2'),
+                event('E3', 'DELIVERY', 'S1', '2026-01-06T08:00:00', document_id='DN-3')]
+        self.assertEqual(self.warnings(rows), ['E2: POSSIBLE_DUPLICATE'])
+
+    def test_a_dispute_closed_by_the_supplier_is_reported_and_by_the_buyer_is_not(self):
+        rows = [event('D1', 'DISPUTE_OPENED', 'B1', '2026-01-03T08:00:00'),
+                event('D2', 'DISPUTE_RESOLVED', 'B1', '2026-01-04T08:00:00', reference_event_id='D1'),
+                event('D3', 'DISPUTE_OPENED', 'B1', '2026-01-05T08:00:00'),
+                event('D4', 'DISPUTE_RESOLVED', 'S1', '2026-01-06T08:00:00', reference_event_id='D3')]
+        self.assertEqual(self.warnings(rows), ['D4: RESOLVED_BY_PAYEE'])
+
+    def test_warnings_lower_confidence_but_never_change_the_decision(self):
+        rows = PipelineTests().complete_events()
+        rows[2] = event('P1', 'APPROVAL', 'A1', '2026-01-02T09:00:00')
+        result = PipelineTests().run_milestone(rows)
+        self.assertEqual((result['decision'], result['warnings']), ('RELEASE', ['P1: APPROVAL_BEFORE_EVIDENCE']))
+        from codecash_engine.confidence import confidence_score
+        self.assertEqual(confidence_score(result), ('0.90', ['SEQUENCE_WARNING']))
 
 
 class ScheduleTests(unittest.TestCase):
@@ -258,6 +311,19 @@ class RuleSelectionTests(unittest.TestCase):
         self.assertEqual(rules.select_rule(self.scope, env_for(), [], ['E1: actor không tồn tại'])['rule_id'], 'PR80')
         held = rules.select_rule(self.scope, env_for(open_dispute=True), [], ['E1: actor không tồn tại'])
         self.assertEqual(held['rule_id'], 'PR10')
+
+    def test_trail_names_the_outcome_of_every_rule(self):
+        self.assertEqual(rules.rule_trail(self.scope, env_for(), [], []),
+                         [('PR10', 'NOT_MATCHED'), ('PR70', 'MATCHED'), ('PR80', 'NOT_EVALUATED')])
+        self.assertEqual(rules.rule_trail(self.scope, env_for(), [], ['E1: actor không tồn tại']),
+                         [('PR10', 'NOT_MATCHED'), ('PR70', 'OVERRIDDEN'), ('PR80', 'MATCHED')])
+        self.assertEqual(rules.rule_trail(self.scope, env_for(), ['issue'], []),
+                         [('PR10', 'NOT_EVALUATED'), ('PR70', 'NOT_EVALUATED'), ('PR80', 'MATCHED')])
+
+    def test_plain_variables_are_json_ready(self):
+        plain = rules.plain_variables(env_for(completion_date=None))
+        self.assertEqual((plain['due_date'], plain['planned_payment_vnd_mn'], plain['actual_completion_date']),
+                         ('2026-01-10', '100.00', None))
 
     def test_without_an_else_rule_there_is_no_rule_and_the_milestone_is_held(self):
         self.assertIsNone(rules.select_rule([DISPUTE, RELEASE], env_for(), ['issue'], []))
@@ -395,7 +461,13 @@ class PipelineTests(unittest.TestCase):
     """The orchestrator wires the stages in order; one hand-built milestone from event to payable amount."""
 
     def run_milestone(self, rows, milestone=MILESTONE, scope=None):
-        scope = scope or [rule(p, c, d, r, pen, pay) for p, c, d, r, pen, pay in [
+        scope = scope or self.default_scope()
+        rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
+        return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), 'M1')
+
+    @staticmethod
+    def default_scope():
+        return [rule(p, c, d, r, pen, pay) for p, c, d, r, pen, pay in [
             (10, 'open_dispute == TRUE', 'HOLD', 'OPEN_DISPUTE', '0', '0'),
             (20, 'valid_rejection_event_count > 0', 'REJECT', 'REJECTION_PRESENT', '0', '0'),
             (30, 'unauthorized_required_event_count > 0', 'HOLD', 'UNAUTHORIZED_EVENT', '0', '0'),
@@ -408,8 +480,6 @@ class PipelineTests(unittest.TestCase):
             (70, 'all_required_conditions_met == TRUE AND open_dispute == FALSE AND valid_rejection_event_count == 0',
              'RELEASE', 'ALL_CONDITIONS_MET', '0', 'planned_payment_vnd_mn'),
             (80, 'ELSE', 'HOLD', 'UNRESOLVED_CONDITION', '0', '0')]]
-        rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
-        return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), 'M1')
 
     def complete_events(self, delivered='2026-01-03T08:00:00', accepted='2026-01-09T17:30:00'):
         return [event('E1', 'DELIVERY', 'S1', delivered), event('E2', 'ACCEPTANCE', 'B1', accepted),
@@ -443,6 +513,17 @@ class PipelineTests(unittest.TestCase):
         result = self.run_milestone(rows)
         self.assertEqual((result['decision'], result['reason_code']), ('HOLD', 'UNRESOLVED_CONDITION'))
         self.assertEqual(result['issues'], ['E9: event_type lạ'])
+
+    def test_a_rule_that_cannot_be_evaluated_holds_only_that_milestone_through_else(self):
+        scope = self.default_scope()
+        scope[0] = rule(10, 'planned_payment_vnd_mn / grace_period_days > 1000', 'HOLD', 'OPEN_DISPUTE')
+        result = self.run_milestone(self.complete_events(), dict(MILESTONE, grace_period_days='0'), scope)
+        self.assertEqual((result['decision'], result['reason_code'], result['rule_id']),
+                         ('HOLD', 'UNRESOLVED_CONDITION', 'PR80'))
+        self.assertEqual((result['payable'], result['penalty']), (Decimal('0.00'), Decimal('0.00')))
+        self.assertEqual(result['issues'], ['không đánh giá được luật (RULE_EVALUATION_ERROR): ValueError RULE_DIVISION_BY_ZERO'])
+        # The same rule still evaluates for a milestone whose parameter is not zero.
+        self.assertEqual(self.run_milestone(self.complete_events(), MILESTONE, scope)['decision'], 'RELEASE')
 
 
 if __name__ == '__main__':

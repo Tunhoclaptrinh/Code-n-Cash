@@ -1,0 +1,41 @@
+{
+  "title": "Tổng quan hợp đồng",
+  "updated": "Cập nhật lúc {{at}}, tự làm mới mỗi 30 giây",
+  "million": "{{value}} triệu",
+  "cards": {
+    "contracts": "Hợp đồng đang theo dõi",
+    "attention_one": "{{count}} mốc cần xử lý",
+    "attention_other": "{{count}} mốc cần xử lý",
+    "payable": "Đủ điều kiện chi, chưa chuyển",
+    "paid": "Đã chuyển chi {{value}} triệu",
+    "held": "Đang tạm giữ",
+    "planned": "Trên tổng giá trị {{value}} triệu",
+    "penalty": "Tổng tiền phạt trễ hạn"
+  },
+  "decisions": {
+    "title": "Quyết định và trạng thái hợp đồng"
+  },
+  "attention": {
+    "title_one": "Cần xử lý ({{count}})",
+    "title_other": "Cần xử lý ({{count}})",
+    "none": "Không có mốc nào cần xử lý ngay",
+    "due": "hạn {{date}}",
+    "kind": {
+      "OPEN_DISPUTE": "Tranh chấp đang mở",
+      "DUE_SOON": "Sắp tới hạn, chưa đủ chứng từ",
+      "SEQUENCE_WARNING": "Trình tự sự kiện bất thường",
+      "LOW_CONFIDENCE": "Sắp chi, độ chắc chắn thấp"
+    }
+  },
+  "contracts": {
+    "title": "Hợp đồng có nhiều mốc tạm giữ nhất",
+    "none": "Chưa có hợp đồng nào trong phạm vi của bạn.",
+    "columns": {
+      "contract": "Hợp đồng",
+      "status": "Trạng thái",
+      "held": "Mốc tạm giữ",
+      "disputes": "Tranh chấp mở",
+      "payable": "Đủ điều kiện chi (triệu)"
+    }
+  }
+}

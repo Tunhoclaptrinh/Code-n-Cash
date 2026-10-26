@@ -127,6 +127,8 @@ test("audit records actual redacted deltas and request context; rollback cannot 
             createdAt: "now",
             updatedAt: "now",
             name: "Before",
+            email: "person@example.vn",
+            signers: [{ signerName: "Nguyễn Văn A", step: 1 }],
             passwordHash: "NEVER_LOG_HASH",
             token: "NEVER_LOG_TOKEN",
           }),
@@ -141,6 +143,17 @@ test("audit records actual redacted deltas and request context; rollback cannot 
     after: "Before",
   });
   assert.doesNotMatch(JSON.stringify(created), /NEVER_LOG|passwordHash|token/);
+  // Personal values are kept only as keyed digests, nested ones included.
+  assert.doesNotMatch(JSON.stringify(created), /person@example|Nguyễn Văn A/);
+  assert.match(
+    created.changes[0].fields.email.after,
+    /^hmac-sha256:[0-9a-f]{64}$/,
+  );
+  assert.match(
+    created.changes[0].fields.signers.after[0].signerName,
+    /^hmac-sha256:[0-9a-f]{64}$/,
+  );
+  assert.equal(created.changes[0].fields.signers.after[0].step, 1);
   const count = (await repo.list("audit")).length;
   await assert.rejects(
     repo.mutate(
@@ -467,6 +480,35 @@ test("anchor outbox is durable, idempotent, independently verifiable and detects
   assert.ok(canonical(bundle).includes("AUDIT_ANCHOR"));
 });
 
+test("anchoring runs only when the chain grew, and the latest anchor catches a cut tail", async () => {
+  await base.audit("TEST_MARK", "anchors", "grow", actors["u-admin"]);
+  const job = await trust.anchorIfChanged(null);
+  assert.equal(job.status, "CONFIRMED");
+  assert.equal(
+    await trust.anchorIfChanged(null),
+    null,
+    "the entries of anchoring itself do not call for another anchor",
+  );
+  const request = (await repo.list("audit")).find(
+    (entry) => entry.action === "ANCHOR_REQUEST" && entry.recordId === job.id,
+  );
+  assert.deepEqual([request.actorId, request.actorRole], ["system", "SYSTEM"]);
+  const report = await call("u-controller", "integrity", "verifyIntegrity");
+  assert.deepEqual(
+    [report.chain.lastAnchor.seq, report.chain.lastAnchor.result],
+    [job.payload.sequence, "MATCH"],
+  );
+  // Someone deletes the newest entries, down below the anchored head: the rest still links.
+  const backup = structuredClone(repo.data);
+  repo.data.audit = repo.data.audit.filter(
+    (entry) => Number(entry.seq) < job.payload.sequence,
+  );
+  const cut = await call("u-controller", "integrity", "verifyIntegrity");
+  repo.data = backup;
+  assert.equal(cut.chain.ok, true);
+  assert.equal(cut.chain.lastAnchor.result, "NOT_FOUND");
+});
+
 test("witness outage keeps a failed durable job that can retry without duplicating business work", async () => {
   const actor = actors["u-admin"];
   const witnessDir = join(dir, "unavailable");
@@ -528,6 +570,27 @@ test("rule impact preview compares all 405 inputs, exposes regressions and persi
     /VERSION_CONFLICT/,
   );
   assert.equal(await readFile(repo.path, "utf8"), before);
+});
+
+test("the rule safety proof stops a rule set that only misbehaves outside the Data Pack's parameters", async () => {
+  const version = await rules.create(
+    { name: "Large milestone gap", reason: "Disputes above 6000 fall through" },
+    actors["u-sysadmin"],
+  );
+  const candidate = structuredClone(version.rules);
+  for (const rule of candidate.filter((row) => row.priority === "10"))
+    rule.condition_expression =
+      "open_dispute == TRUE AND planned_payment_vnd_mn <= 6000";
+  const impact = await rules.preview(version.id, {
+    version: version.version,
+    rules: candidate,
+    templates: version.templates,
+  });
+  assert.equal(impact.changed, 0, "no Data Pack milestone is above 6000");
+  assert.equal(impact.matched, 20);
+  assert.equal(impact.safety.safe, false);
+  assert.equal(impact.safety.violations[0].code, "BLOCKED_PAYMENT");
+  assert.equal(impact.canSubmit, false);
 });
 
 test("rule publication rejects unlabelled regressions even when all 20 public samples still pass", async () => {
@@ -1213,4 +1276,117 @@ test("rule diagnostics are read-only; full-pack preview catches regressions outs
     rules.submit(saved.id, saved.version, author),
     /RULE_VERSION_REGRESSION/,
   );
+});
+
+test("repeated identical failed requests share one audit entry per window", async () => {
+  const { FailureFolder } =
+    await import("../../apps/api/dist/common/filters/all-exceptions.filter.js");
+  const folder = new FailureFolder(60_000);
+  const key = "anonymous|10.0.0.1|401|UNAUTHORIZED";
+  assert.deepEqual(folder.admit(key, 0), { foldedBefore: 0 });
+  for (let i = 1; i <= 50; i++) assert.equal(folder.admit(key, i * 100), null);
+  // Another kind of failure is written at once.
+  assert.deepEqual(folder.admit("u-owner|10.0.0.1|403|FORBIDDEN", 200), {
+    foldedBefore: 0,
+  });
+  // After the window, the next one is written with the count of those folded before it.
+  assert.deepEqual(folder.admit(key, 60_000), { foldedBefore: 50 });
+});
+
+test("an independent Python verifier checks the log and one entry's Merkle proof", async () => {
+  const python = process.env.PYTHON ?? "python3";
+  const verifier = (...args) =>
+    execute(python, ["tools/verify_audit.py", ...args]).then(
+      (done) => ({ code: 0, report: JSON.parse(done.stdout) }),
+      (failed) => ({ code: failed.code, report: JSON.parse(failed.stdout) }),
+    );
+  await base.audit("TEST_MARK", "anchors", "proof", actors["u-admin"]);
+  const job = await trust.anchorIfChanged(actors["u-admin"]);
+  assert.match(job.payload.merkleRoot, /^[0-9a-f]{64}$/);
+  const records = JSON.parse(await readFile(repo.path, "utf8"));
+  const whole = await verifier("--records", repo.path);
+  assert.equal(whole.code, 0);
+  assert.deepEqual(whole.report.head, verifyChain(records.audit).head);
+
+  const target = records.audit.find((entry) => entry.seq === 3);
+  const proof = await trust.proof(target.id, actors["u-auditor"]);
+  assert.equal(proof.treeSize, proof.anchor.payload.sequence);
+  assert.ok(proof.anchor.payload.sequence <= job.payload.sequence);
+  assert.ok(proof.path.length <= Math.ceil(Math.log2(proof.treeSize)));
+  const proofPath = join(dir, "proof.json");
+  await writeFile(proofPath, JSON.stringify(proof));
+  assert.equal((await verifier("--proof", proofPath)).code, 0);
+
+  // An edited entry no longer hashes to its leaf; an edited log no longer links.
+  proof.entry.actorId = "someone-else";
+  await writeFile(proofPath, JSON.stringify(proof));
+  const forged = await verifier("--proof", proofPath);
+  assert.equal(forged.code, 1);
+  assert.equal(forged.report.checks.entryHash, false);
+  records.audit[2].actorId = "someone-else";
+  const logPath = join(dir, "forged-records.json");
+  await writeFile(logPath, JSON.stringify(records));
+  const edited = await verifier("--records", logPath);
+  assert.deepEqual(
+    [
+      edited.code,
+      edited.report.firstBroken.seq,
+      edited.report.firstBroken.problem,
+    ],
+    [1, 3, "CONTENT_CHANGED"],
+  );
+  await assert.rejects(
+    trust.proof("missing", actors["u-auditor"]),
+    /RECORD_NOT_FOUND/,
+  );
+});
+
+test("tamper matrix: which edits of the log are found with and without an anchor", async () => {
+  const { seal } = await import("../../apps/api/dist/common/audit-chain.js");
+  await base.audit("TEST_MARK", "anchors", "matrix", actors["u-admin"]);
+  const job = await trust.anchorIfChanged(actors["u-admin"]);
+  const anchor = { seq: job.payload.sequence, hash: job.payload.headHash };
+  const log = (await repo.list("audit")).sort((a, b) => a.seq - b.seq);
+  const without = ({ hash, seq, prevHash, ...rest }) => rest;
+  // Re-seal from scratch: what someone with write access to the database could do.
+  const resealed = (entries) => seal(entries.map(without), undefined);
+  // An entry before the anchored head, and the one after it.
+  const target = anchor.seq - 1;
+  const edit = (l) =>
+    l.map((e) => (e.seq === target ? { ...e, actorId: "x" } : e));
+  const attacks = {
+    EDIT_ENTRY: edit,
+    DELETE_MIDDLE: (l) => l.filter((e) => e.seq !== target),
+    REORDER: (l) =>
+      l.map((e) =>
+        e.seq === target
+          ? { ...e, seq: target + 1 }
+          : e.seq === target + 1
+            ? { ...e, seq: target }
+            : e,
+      ),
+    CUT_BELOW_ANCHOR: (l) => l.filter((e) => e.seq < anchor.seq - 1),
+    REWRITE_WHOLE_CHAIN: (l) => resealed(edit(l)),
+    CUT_AFTER_LAST_ANCHOR: (l) => l.filter((e) => e.seq <= anchor.seq),
+  };
+  const found = (report) =>
+    !report.ok || (report.anchor !== null && report.anchor !== "MATCH");
+  const matrix = Object.fromEntries(
+    Object.entries(attacks).map(([name, attack]) => {
+      const forged = attack(structuredClone(log));
+      return [
+        name,
+        [found(verifyChain(forged)), found(verifyChain(forged, anchor))],
+      ];
+    }),
+  );
+  assert.deepEqual(matrix, {
+    EDIT_ENTRY: [true, true],
+    DELETE_MIDDLE: [true, true],
+    REORDER: [true, true],
+    CUT_BELOW_ANCHOR: [false, true],
+    REWRITE_WHOLE_CHAIN: [false, true],
+    // The known limit: entries written after the latest anchor are protected only by the next one.
+    CUT_AFTER_LAST_ANCHOR: [false, false],
+  });
 });

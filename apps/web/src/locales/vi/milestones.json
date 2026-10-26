@@ -76,7 +76,7 @@
     "requirement": {
       "VALID": "Hợp lệ lúc {{at}}",
       "MISSING": "Còn thiếu; {{side}} nộp",
-      "UNAUTHORIZED": "Có chứng từ sai thẩm quyền; cần {{side}} nộp lại và kiểm soát viên xử lý"
+      "UNAUTHORIZED": "Có chứng từ sai thẩm quyền; cần {{side}} nộp lại hoặc chủ hợp đồng đề xuất xử lý"
     },
     "milestone": {
       "amountUnit": "triệu VND",
@@ -212,13 +212,13 @@
       "voidEvent": "vô hiệu {{id}}",
       "proposedBy": "Đề xuất: {{name}}, {{at}}",
       "decidedBy": "Quyết định: {{name}}, {{at}}",
-      "waitSecond": "Chờ kiểm soát viên thứ hai duyệt.",
+      "waitSecond": "Chờ kiểm soát viên của doanh nghiệp kiểm tra.",
       "approve": "Duyệt vô hiệu",
       "reject": "Từ chối",
       "none": "Chưa có đề xuất nào.",
       "reason": "Lý do (bắt buộc), ví dụ: NCC nhập nhầm kênh, bên mua đã nộp lại đúng quyền",
       "propose": "Đề xuất vô hiệu",
-      "proposed": "Đã gửi đề xuất, chờ kiểm soát viên thứ hai.",
+      "proposed": "Đã gửi đề xuất, chờ kiểm soát viên của doanh nghiệp kiểm tra.",
       "decided": "Đã ghi quyết định; hệ thống đánh giá lại."
     },
     "replay": {
@@ -360,7 +360,7 @@
     "exceptions": {
       "title": "Ngoại lệ",
       "pick": "Chọn chứng từ sai thẩm quyền",
-      "demoReason": "Đề nghị kiểm soát viên thứ hai rà soát chứng từ ghi nhận sai thẩm quyền của {{milestone}}."
+      "demoReason": "Đề nghị vô hiệu chứng từ do bên không có thẩm quyền ghi nhận cho {{milestone}}."
     },
     "figures": {
       "planned": "Giá trị mốc (triệu)",

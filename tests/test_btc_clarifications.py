@@ -44,7 +44,7 @@ class OrganizerClarificationTests(unittest.TestCase):
         before = copy.deepcopy(result)
         self.assertEqual(result['decision'], 'HOLD')
         self.assertEqual(spec.confidence_score(result)[0], '1.00')
-        cases = [([], ()), ([], ('A05',)), ([], ('A05', 'A06', 'A07', 'A08')), (['bad evidence'], ('A05',))]
+        cases = [([], ()), ([], ('A05',)), ([], ('A05', 'A06', 'A08')), (['bad evidence'], ('A05',))]
         for issues, changed in cases:
             score, factors = spec.confidence_score(dict(result, issues=issues), changed, PACK.milestones['MS0002'])
             self.assertGreaterEqual(Decimal(score), 0)

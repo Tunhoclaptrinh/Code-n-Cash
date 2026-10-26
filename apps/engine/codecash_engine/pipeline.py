@@ -4,24 +4,25 @@ Named ``pipeline`` so the module does not shadow the re-exported ``evaluate`` fu
 
 Input: a Pack, a milestone id, and the optional sensitivity switches (defaults are the specification).
 Output: one result dict with the decision and every fact behind it (key order is part of the contract).
-Business rules: the nine-step pipeline of spec section 7 (BR-01..BR-20), one stage module per step:
+Business rules: the nine-step pipeline of spec section 5 (BR-01..BR-20), one stage module per step:
 structure (BR-15) -> events (BR-03, BR-16, BR-19) -> requirements (BR-04..BR-07, BR-20) ->
 controls (BR-08..BR-10) -> schedule (BR-11, BR-12) -> rules (BR-02, BR-14) -> amounts (BR-12, BR-13) ->
-trace (BR-17, sections 9.2 and 14.3).
+trace (BR-17, sections 4 and 9).
 """
 from decimal import ROUND_HALF_UP
 
-from . import amounts, controls, events, requirements, rules, schedule, structure, trace
+from . import amounts, controls, events, requirements, rules, schedule, sequence, structure, trace
 from .pack import PRIORITIES
 
 
 def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=False,
              completion_includes_approval=False, rounding=ROUND_HALF_UP, enforce_invoice_flag=False,
-             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False):
+             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False, explain=False):
     """Return the decision and all facts of one milestone.
 
     The default arguments are the specification; the other flags exist only to measure sensitivity
-    (section 13). as_of: as-of mode (BR-16). voided: event ids with an approved exception decision (BR-19).
+    (section 12). as_of: as-of mode (BR-16). voided: event ids with an approved exception decision (BR-19).
+    explain: also return ``explanation`` (rule variables and the outcome of every rule, BR-17).
     """
     m = pack.milestones[mid]
     parties = pack.parties
@@ -52,14 +53,20 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
                                            ignore_resolutions, strict_resolution)
     rejections, rejection_anomalies = controls.valid_rejections(parties, contract, uniq)
     anomalies += rejection_anomalies
-    approvals, valid_approval_count = controls.count_approvals(parties, contract, uniq, roles)
+    terms, terms_issues = schedule.parse_terms(m)
+    issues += terms_issues
+    approvals, valid_approval_count, over_limit = controls.count_approvals(
+        parties, contract, uniq, roles, None if terms_issues else terms["planned"])
 
     # BR-11, BR-12: completion date and days late.
     completion_ts = schedule.completion_timestamp(valid_req, approvals, missing, completion_includes_approval)
     completion_date = schedule.completion_date(completion_ts)
-    terms, terms_issues = schedule.parse_terms(m)
-    issues += terms_issues
     days_late = schedule.days_late_after_grace(completion_date, terms["due"], terms["grace"])
+
+    # Sequence checks: warnings for a reviewer, never a change of decision.
+    resolutions = [e for e in uniq if e["event_type"] == "DISPUTE_RESOLVED"]
+    warnings = sequence.sequence_warnings(uniq, valid_req, approvals, resolutions, completion_ts, contract)
+    warnings += [f"{event_id}: APPROVAL_OVER_LIMIT" for event_id in over_limit]
 
     # BR-02, BR-14, BR-15: rule environment and first-match selection.
     env = rules.build_env(
@@ -69,12 +76,17 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         completion_date=completion_date, terms=terms, days_late=days_late,
         all_met=rules.all_conditions_met(completion_rate, len(unauthorized), approval_required,
                                          valid_approval_count, quorum))
-    rule = rules.select_rule(scope_rules, env, issues, anomalies)
+    # BR-12, BR-13: amounts from the winning rule. BR-14: a rule that cannot be evaluated for this
+    # milestone (e.g. a formula dividing by a zero parameter) holds it through ELSE, not the whole run.
+    try:
+        rule = rules.select_rule(scope_rules, env, issues, anomalies)
+        penalty, payable = amounts.rule_amounts(rule, env, rounding)
+    except (ArithmeticError, TypeError, ValueError, KeyError) as error:
+        issues.append(f"không đánh giá được luật (RULE_EVALUATION_ERROR): {type(error).__name__} {error}")
+        rule = rules.fallback_rule(scope_rules)
+        penalty, payable = amounts.rule_amounts(rule, env, rounding)
     decision = rule["decision"] if rule else "HOLD"
     reason = rule["reason_code"] if rule else "UNRESOLVED_CONDITION"
-
-    # BR-12, BR-13: amounts from the winning rule.
-    penalty, payable = amounts.rule_amounts(rule, env, rounding)
     raw_penalty = amounts.raw_penalty(days_late, terms["rate"], terms["cap"], terms["planned"])
 
     # BR-17: evidence, condition tokens, status.
@@ -82,7 +94,7 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
     met, miss = trace.condition_tokens(m["required_condition"], valid_req, valid_approval_count, bool(open_disputes))
     status = trace.milestone_status(reason, as_of, bool(raw), terms["due"])
 
-    return {
+    result = {
         "milestone_id": mid, "contract_id": m["contract_id"], "decision": decision, "reason_code": reason,
         "rule_id": rule["rule_id"] if rule else "", "status": status, "payable": payable, "penalty": penalty,
         "raw_penalty": raw_penalty, "evidence": evidence,
@@ -93,8 +105,12 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         "valid_rejection_count": len(rejections), "approval_required": approval_required,
         "valid_approval_count": valid_approval_count, "quorum": quorum, "days_late": days_late,
         "completion_ts": completion_ts, "conditions_met": met, "missing_conditions": miss,
-        "issues": issues + anomalies, "notes": notes,
+        "issues": issues + anomalies, "notes": notes, "warnings": warnings,
     }
+    if explain:
+        result["explanation"] = {"variables": rules.plain_variables(env),
+                                 "trail": rules.rule_trail(scope_rules, env, issues, anomalies)}
+    return result
 
 
 def evaluate_all(pack, **kw):

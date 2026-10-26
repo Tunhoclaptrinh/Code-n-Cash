@@ -133,7 +133,7 @@
     "SUBMIT": "{{side}} nộp {{events}}",
     "APPROVE": "Chờ {{roles}} phê duyệt",
     "RESOLVE_DISPUTE": "Chủ hợp đồng giải quyết tranh chấp",
-    "REVIEW_EXCEPTION": "Kiểm soát viên xem xét chứng từ sai thẩm quyền",
+    "REVIEW_EXCEPTION": "Chủ hợp đồng đề xuất xử lý chứng từ sai thẩm quyền; kiểm soát viên của doanh nghiệp kiểm tra",
     "MANUAL_REVIEW": "Kiểm tra thủ công (rule 80)",
     "OUTSIDE_SYSTEM": "Đã từ chối, xử lý ngoài hệ thống",
     "TRANSFER": "Kế toán chuyển chi",
@@ -165,6 +165,7 @@
   "ruleOutcome": {
     "NOT_MATCHED": "Không khớp",
     "MATCHED": "Khớp, áp dụng",
+    "OVERRIDDEN": "Khớp nhưng bị hạ xuống ELSE do dữ liệu bất thường",
     "NOT_EVALUATED": "Không xét (đã có rule khớp)"
   },
   "taskKind": {
@@ -196,9 +197,10 @@
     "ALREADY_TRANSFERRED": "Mốc đã được chuyển chi (khoá idempotency).",
     "NOT_FINANCE_APPROVER": "Chỉ phê duyệt tài chính của bên mua được chuyển chi.",
     "EVENT_NOT_VOIDABLE": "Chỉ event sai thẩm quyền hoặc bất thường mới được đề xuất vô hiệu (BR-19).",
-    "SECOND_CONTROLLER_REQUIRED": "Người đề xuất không được tự duyệt; cần kiểm soát viên thứ hai (SoD-2).",
+    "SECOND_CONTROLLER_REQUIRED": "Người đề xuất không được tự duyệt; kiểm soát viên của doanh nghiệp phải kiểm tra (SoD-2).",
     "EXCEPTION_ALREADY_DECIDED": "Đề xuất này đã được quyết định.",
-    "CONTROLLERS_ONLY": "Chỉ kiểm soát viên được thực hiện.",
+    "CONTROLLERS_ONLY": "Chỉ kiểm soát viên của doanh nghiệp được thực hiện.",
+    "CONTRACT_OWNER_ONLY": "Chỉ chủ hợp đồng được đề xuất xử lý ngoại lệ.",
     "NO_OPEN_TASK": "Bạn không có việc nào loại này.",
     "UNKNOWN": "Không thực hiện được. Thử lại sau.",
     "ACTION_FORBIDDEN": "Vai trò của bạn không được làm thao tác này.",
@@ -268,6 +270,7 @@
     "RULE_VERSION_LOCKED": "Phiên bản đã khóa; hãy soạn bản nháp mới để thay đổi.",
     "RULE_VERSION_AUTHOR_REQUIRED": "Chỉ người soạn được sửa và gửi duyệt bản nháp này.",
     "RULE_VERSION_REGRESSION": "Cấu hình làm đổi kết quả baseline hoặc không qua mẫu/bất biến nghiệp vụ.",
+    "RULE_VERSION_UNSAFE": "Bộ luật chưa qua kiểm tra an toàn: có trường hợp trả tiền khi còn yếu tố chặn hoặc số tiền ngoài phạm vi. Hãy xem trước tác động và gửi duyệt lại.",
     "SECOND_REVIEWER_REQUIRED": "Cần người quản trị khác rà soát và duyệt phát hành.",
     "SAMPLE_GENERATION_FAILED": "Không tạo được tệp mẫu. Hãy thử lại.",
     "PAYLOAD_TOO_LARGE": "Dữ liệu gửi lên vượt giới hạn 4 MB. Hãy giảm kích thước yêu cầu.",

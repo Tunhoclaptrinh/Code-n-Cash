@@ -4,7 +4,8 @@ import type { ApprovalRole, Origin, Role } from "./types";
  * Organisations come from parties.csv. People are not in the Data Pack, so each account is demo
  * seed data (origin SEED): a name, an email and a job title attached to a real party.
  */
-export const INTERNAL_ORG = { id: "OPS", name: "Tổ kiểm soát CodeCash" };
+/** The platform operator; it runs CodeCash and is never a party to a contract. */
+export const INTERNAL_ORG = { id: "OPS", name: "CodeCash · Vận hành nền tảng" };
 
 export interface AccountSpec {
   id: string;
@@ -86,7 +87,17 @@ const FIXED: Record<string, { id: string; name: string; email?: string }> = {
     name: "Trần Thị Mai",
     email: "legal@novaan.vn",
   },
+  "B010:controller": {
+    id: "u-novaan-controller",
+    name: "Đỗ Minh Khoa",
+    email: "controller@novaan.vn",
+  },
   S015: { id: "u-supplier", name: "Vũ Thanh Hà", email: "supplier@phuminh.vn" },
+  "S015:controller": {
+    id: "u-phuminh-controller",
+    name: "Lý Thu Trang",
+    email: "controller@phuminh.vn",
+  },
 };
 
 const ROLE_SLUG: Record<ApprovalRole, string> = {
@@ -101,9 +112,9 @@ const TITLE: Record<Role, string> = {
   SECONDARY_APPROVER: "Phó giám đốc",
   LEGAL_REVIEWER: "Chuyên viên pháp chế hợp đồng",
   SUPPLIER: "Đại diện nhà cung cấp",
-  ADMIN_AUDITOR: "Kiểm soát viên",
+  ADMIN_AUDITOR: "Kiểm soát viên nội bộ",
   SYSTEM_ADMIN: "Quản trị hệ thống",
-  AUDITOR: "Kiểm toán viên nội bộ",
+  AUDITOR: "Chuyên viên kiểm tra toàn vẹn",
 };
 
 export function buildDirectory(parties: Party[]): {
@@ -169,18 +180,25 @@ export function buildDirectory(parties: Party[]): {
         origin: "SEED",
       });
     } else if (party.party_type === "BUYER") {
-      const fixed = FIXED[`${party.party_id}:legal`];
-      accounts.push({
-        id: fixed?.id ?? `u-${party.party_id.toLowerCase()}-legal`,
-        email: fixed?.email ?? `legal@${domains.get(party.party_id)}`,
-        displayName: fixed?.name ?? personName(),
-        title: TITLE.LEGAL_REVIEWER,
-        role: "LEGAL_REVIEWER",
-        organizationId: party.party_id,
-        organizationName: party.party_name,
-        partyId: party.party_id,
-        origin: "SEED",
-      });
+      // The buyer's contract officer, and its internal controller, who checks the owner's
+      // exception proposals on the buyer's own contracts and takes no business action (SoD-2).
+      for (const [slug, role] of [
+        ["legal", "LEGAL_REVIEWER"],
+        ["controller", "ADMIN_AUDITOR"],
+      ] as const) {
+        const fixed = FIXED[`${party.party_id}:${slug}`];
+        accounts.push({
+          id: fixed?.id ?? `u-${party.party_id.toLowerCase()}-${slug}`,
+          email: fixed?.email ?? `${slug}@${domains.get(party.party_id)}`,
+          displayName: fixed?.name ?? personName(),
+          title: TITLE[role],
+          role,
+          organizationId: party.party_id,
+          organizationName: party.party_name,
+          partyId: party.party_id,
+          origin: "SEED",
+        });
+      }
     } else {
       const fixed = FIXED[party.party_id];
       accounts.push({
@@ -194,12 +212,25 @@ export function buildDirectory(parties: Party[]): {
         partyId: party.party_id,
         origin: "SEED",
       });
+      // The supplier's own controller checks that the buyer pays what the contract says and
+      // follows its terms; it reads the supplier's contracts and takes no business action.
+      const controller = FIXED[`${party.party_id}:controller`];
+      accounts.push({
+        id: controller?.id ?? `u-${party.party_id.toLowerCase()}-controller`,
+        email: controller?.email ?? `controller@${domains.get(party.party_id)}`,
+        displayName: controller?.name ?? personName(),
+        title: TITLE.ADMIN_AUDITOR,
+        role: "ADMIN_AUDITOR",
+        organizationId: party.party_id,
+        organizationName: party.party_name,
+        partyId: party.party_id,
+        origin: "SEED",
+      });
     }
   }
-  // Internal team, split for SoD-1: two controllers (BR-19 needs two), one administrator, one auditor.
+  // Platform operator: one administrator and one integrity checker. Neither is a party to, or
+  // reads, any contract.
   for (const [id, email, name, role] of [
-    ["u-admin", "admin@codecash.vn", "Phạm Hoàng Nam", "ADMIN_AUDITOR"],
-    ["u-controller", "controller@codecash.vn", "Đỗ Minh Khoa", "ADMIN_AUDITOR"],
     ["u-sysadmin", "sysadmin@codecash.vn", "Trịnh Hoài Phương", "SYSTEM_ADMIN"],
     ["u-auditor", "auditor@codecash.vn", "Mai Xuân Lộc", "AUDITOR"],
   ] as const)
@@ -223,9 +254,9 @@ export const FEATURED_ACCOUNTS = [
   "u-legal",
   "u-finance",
   "u-secondary",
+  "u-novaan-controller",
   "u-supplier",
-  "u-admin",
-  "u-controller",
+  "u-phuminh-controller",
   "u-sysadmin",
   "u-auditor",
 ];

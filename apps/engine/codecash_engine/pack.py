@@ -4,7 +4,7 @@ Input: a Data Pack directory (``Pack.load``) or hand-built row lists (``Pack(...
 Output: a ``Pack`` with the rows indexed by id, events grouped per milestone and ordered by
 (timestamp, event_id), and active rules grouped per release_rule_code ordered by priority.
 Business rules: BR-04 and BR-05 (authority matrix, valid status per event type) and the
-status mapping of spec section 9.2 are defined here as constants.
+status mapping of spec section 4 are defined here as constants.
 """
 import csv
 from collections import defaultdict
@@ -17,7 +17,7 @@ DEFAULT_DATA = Path(__file__).resolve().parents[3] / "BangD-Case4" / "DataPack-C
 SNAPSHOT = date(2026, 10, 18)
 CENT = Decimal("0.01")
 
-# Section 4.2: required event type -> party type allowed to create it.
+# Spec section 2.1: required event type -> party type allowed to create it.
 AUTHORITY = {
     "CONTRACT_SIGNED": "BUYER", "KICKOFF_CONFIRMED": "BUYER", "REQUIREMENTS_APPROVED": "BUYER",
     "UAT_PASSED": "BUYER", "ACCEPTANCE": "BUYER",
@@ -29,7 +29,7 @@ VALID_STATUS = {t: "CONFIRMED" for t in AUTHORITY}
 VALID_STATUS.update(APPROVAL="APPROVED", REJECTION="REJECTED", DISPUTE_OPENED="OPEN", DISPUTE_RESOLVED="RESOLVED")
 SUPPORT_TYPES = {"APPROVAL", "REJECTION", "DISPUTE_OPENED", "DISPUTE_RESOLVED"}
 
-# Section 9.2: milestone status per reason code, named as in README section 15.
+# Spec section 4: milestone status per reason code, named as in README section 15.
 STATUS = {
     "ALL_CONDITIONS_MET": "ELIGIBLE_FOR_PAYMENT", "LATE_COMPLETION": "PAID_WITH_PENALTY",
     "REJECTION_PRESENT": "REJECTED", "MISSING_REQUIRED_EVENT": "WAITING_EVIDENCE",

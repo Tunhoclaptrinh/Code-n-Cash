@@ -54,6 +54,8 @@ export interface EngineResult {
   missing_conditions: string[];
   issues: string[];
   notes: string[];
+  /** Sequence warnings; optional so an external candidate engine without them still validates. */
+  warnings?: string[];
 }
 
 export interface EngineOutput {
@@ -214,6 +216,10 @@ export function parseEngineOutput(
       "notes",
     ])
       requireValue(strings(result[key]), `trace.result.${key}`);
+    requireValue(
+      result.warnings === undefined || strings(result.warnings),
+      "trace.result.warnings",
+    );
     requireValue(
       Array.isArray(result.duplicates) &&
         result.duplicates.every(

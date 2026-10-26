@@ -3,7 +3,7 @@
 Input: a Pack and the results of ``evaluate_all``.
 Output: a list of invariant violations (empty means pass), and the match count and mismatch list against
 the 20 labelled samples of ``decision_sample.csv``.
-Business rules: spec section 14.6 (output invariants, e.g. no payment before all conditions hold, penalty
+Business rules: spec section 9 (output invariants, e.g. no payment before all conditions hold, penalty
 within the cap, evidence only from the milestone) and BR-17 (evidence reconciles with the sample labels).
 """
 from decimal import ROUND_HALF_UP, Decimal
@@ -12,7 +12,7 @@ from .pack import CENT, DECISIONS, STATUS
 
 
 def check_invariants(pack, results):
-    """Return the violations of the section 14.6 invariants; an empty list means the results pass."""
+    """Return the violations of the section 9 invariants; an empty list means the results pass."""
     bad = []
     rule_by_id = {r["rule_id"]: r for r in pack.rules}
     for mid, m in pack.milestones.items():

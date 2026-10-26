@@ -211,6 +211,7 @@ export interface EngineRunRecord extends RecordEntity {
   changed: number;
   durationMs: number;
   invariantViolations: string[];
+  engineBuild?: string;
 }
 
 export interface SigningRecord extends RecordEntity {

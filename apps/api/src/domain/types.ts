@@ -290,6 +290,10 @@ export interface Evaluation {
   missingConditions: string[];
   issues: string[];
   notes: string[];
+  /** Sequence warnings ("<event id>: <CODE>"); they lower confidence and never change the decision. */
+  warnings: string[];
+  /** What happened to each rule of the scope (engine trace); absent on evaluations stored before it. */
+  ruleTrail?: Record<string, RuleOutcome>;
   confidence: string;
   specVersion: string;
 }
@@ -307,7 +311,8 @@ export interface RuleRow {
   description: string;
 }
 
-export type RuleOutcome = "NOT_MATCHED" | "MATCHED" | "NOT_EVALUATED";
+export type RuleOutcome =
+  "NOT_MATCHED" | "MATCHED" | "OVERRIDDEN" | "NOT_EVALUATED";
 
 export type Trigger =
   | { kind: "IMPORT" }
@@ -467,6 +472,8 @@ export interface MilestoneDetail {
     resolveDispute: boolean;
     transfer: boolean;
     proposeException: boolean;
+    /** The buyer's controller checks the owner's proposals; the supplier's only watches them. */
+    decideException: boolean;
   };
 }
 
@@ -609,6 +616,17 @@ export interface IntegrityReport {
     } | null;
     /** Against a head hash saved earlier, when one is given. */
     anchor: "MATCH" | "MISMATCH" | "NOT_FOUND" | null;
+    /** After a demo reset: the archived chain this one continues. */
+    continuesFrom: { archive: string; headHash: string } | null;
+    /**
+     * Against the latest confirmed anchor, checked on every report: a rewritten chain no longer
+     * matches it, and a chain cut below it no longer has its entry (NOT_FOUND).
+     */
+    lastAnchor: {
+      seq: number;
+      anchoredAt: string;
+      result: "MATCH" | "MISMATCH" | "NOT_FOUND";
+    } | null;
   };
   evidence: {
     sealed: number;
@@ -633,6 +651,14 @@ export interface IntegrityReport {
   decisions: {
     checked: number;
     matched: number;
+    /** Stored decisions whose hash was sealed in the audit chain when they were stored. */
+    sealed: number;
+    /** Stored decisions that no longer match their sealed hash: edited outside the workflow. */
+    sealProblems: Array<{
+      milestoneId: string;
+      contractId: string;
+      sequence: number;
+    }>;
     runId: string;
     fingerprint: string;
     mismatches: Array<{
@@ -641,10 +667,45 @@ export interface IntegrityReport {
       sequence: number;
       /** Paid or rejected: the engine no longer changes it. */
       frozen: boolean;
-      stored: DecisionFacts;
-      fresh: DecisionFacts | null;
+      /** Left out for platform roles, which see where a decision differs but not what it is. */
+      stored?: DecisionFacts;
+      fresh?: DecisionFacts | null;
     }>;
   };
+}
+
+/** Many-contract overview of the contracts the signed-in user may see. */
+export interface DashboardView {
+  generatedAt: string;
+  contractCount: number;
+  byStatus: Partial<Record<ContractStatus, number>>;
+  byDecision: Partial<Record<Decision, number>>;
+  /** Million VND, two decimals: planned value, payable not yet paid, paid, held and penalties. */
+  amounts: {
+    plannedMillion: string;
+    payableMillion: string;
+    paidMillion: string;
+    heldMillion: string;
+    penaltyMillion: string;
+  };
+  /** Milestones that need a person now (at most 50; attentionCount is the total). */
+  attention: Array<{
+    contractId: string;
+    sequence: number;
+    kind: "OPEN_DISPUTE" | "DUE_SOON" | "SEQUENCE_WARNING" | "LOW_CONFIDENCE";
+    dueDate?: string;
+  }>;
+  attentionCount: number;
+  /** The ten contracts with the most held milestones. */
+  contracts: Array<{
+    contractId: string;
+    title: string;
+    status: ContractStatus;
+    milestones: number;
+    held: number;
+    openDisputes: number;
+    payableMillion: string;
+  }>;
 }
 
 export interface ExceptionQueueRow {

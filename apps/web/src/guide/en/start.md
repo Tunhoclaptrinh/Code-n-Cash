@@ -39,4 +39,4 @@ Missing tasks may have been completed already or belong to another organization.
 
 ![Search accounts: 1 — type a name/email/company; 2 — select the demo account](../../../public/guide/images/review-account-search.png)
 
-Search without accents, for example `Bui Van Khanh`, or use an email. Bùi Văn Khánh is `supplier@alphatech.vn` at S001 — AlphaTech; Vũ Thanh Hà is `supplier@phuminh.vn` at S015 — Phú Minh. Match the contract's organisation; a different supplier cannot sign on their behalf. The signing sequence shows each assigned email for comparison.
+Search by email, company name or contract code. For example `supplier@alphatech.vn` is at S001 — AlphaTech; `supplier@phuminh.vn` is at S015 — Phú Minh. Match the contract's organisation; a different supplier cannot sign on their behalf. The signing sequence shows each assigned email for comparison.

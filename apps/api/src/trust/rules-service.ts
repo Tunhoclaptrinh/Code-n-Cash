@@ -30,6 +30,7 @@ import type {
   RuleExpressionValidation,
   RuleLanguage,
   RulePreview,
+  RuleSafety,
 } from "./types";
 
 const mutableRuleKeys = new Set([
@@ -326,6 +327,15 @@ export class RulesService {
         },
       ),
     ]);
+    const safety = await this.checkSafety(body.rules);
+    // The engine holds a milestone whose rule cannot be evaluated; a candidate rule set must not have any.
+    for (const evaluation of candidate.evaluations.values())
+      if (
+        evaluation.issues.some((issue) =>
+          issue.includes("RULE_EVALUATION_ERROR"),
+        )
+      )
+        throw new BadRequestException("RULE_EVALUATION_FAILED");
     const labels = readRecords(
       await readFile(
         resolve(dataPackDir(), "03_labels_sample/decision_sample.csv"),
@@ -394,12 +404,47 @@ export class RulesService {
             ),
           ),
       ).length,
+      safety,
       canSubmit:
+        safety.safe &&
         evaluated === expected &&
         matched === labels.length &&
         !candidate.violations.length &&
         !changes.length,
     };
+  }
+  /** Static safety proof of every scope, including scopes no Data Pack milestone uses yet. */
+  private checkSafety(rules: unknown): Promise<RuleSafety> {
+    return new Promise((ok, reject) => {
+      const child = spawn(
+        processEnvPython(),
+        ["apps/engine/validate_rules.py", "--safety"],
+        { cwd: repoRoot(), stdio: ["pipe", "pipe", "ignore"] },
+      );
+      let output = "";
+      const fail = () =>
+        reject(new BadRequestException("RULE_VERSION_INVALID"));
+      const timer = setTimeout(() => {
+        child.kill();
+        fail();
+      }, 15000);
+      child.stdout.on("data", (chunk) => (output += chunk.toString()));
+      child.on("error", () => {
+        clearTimeout(timer);
+        fail();
+      });
+      child.on("close", (code) => {
+        clearTimeout(timer);
+        if (code !== 0) return fail();
+        try {
+          ok(JSON.parse(output) as RuleSafety);
+        } catch {
+          fail();
+        }
+      });
+      child.stdin.on("error", () => {});
+      child.stdin.end(JSON.stringify(rules));
+    });
   }
   private validateExpressions(rules: unknown): Promise<void> {
     return new Promise((resolveOk, reject) => {
@@ -455,6 +500,7 @@ export class RulesService {
             samples: compatibility.samples,
             evaluated: compatibility.evaluated,
             invariantViolations: compatibility.invariantViolations,
+            safe: compatibility.safety.safe,
             fingerprint: compatibility.fingerprint,
             compatibilityPolicy: compatibility.compatibilityPolicy,
             expected: compatibility.expected,
@@ -482,8 +528,8 @@ export class RulesService {
         const current = tables["rule-versions"].find((row) => row.id === id);
         if (!current) throw new NotFoundException("RECORD_NOT_FOUND");
         checkState(current, expected, "REVIEW");
-        if (current.submittedBy === actor.id || current.createdBy === actor.id)
-          throw new ForbiddenException("SECOND_REVIEWER_REQUIRED");
+        // SoD-4: publishing only makes a checked version available to new contracts. It applies
+        // to a contract once both of its parties sign the contract that pins it (signingDigest).
         if (versionHash(current) !== current.hash)
           throw new BadRequestException("RULE_VERSION_INVALID");
         const validation = current.validation as {
@@ -506,6 +552,9 @@ export class RulesService {
           validation.fingerprint !== current.hash
         )
           throw new BadRequestException("RULE_VERSION_REGRESSION");
+        // Versions submitted before the safety proof existed must be submitted again.
+        if ((current.validation as { safe?: boolean }).safe !== true)
+          throw new BadRequestException("RULE_VERSION_UNSAFE");
         for (const prior of tables["rule-versions"].filter(
           (row) => row.status === "PUBLISHED",
         )) {

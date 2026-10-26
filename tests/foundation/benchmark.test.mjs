@@ -27,7 +27,7 @@ test("the benchmark endpoint returns the test split with no failures and no unau
   assert.ok(synthetic.test.unauthorizedPayment.total > 0);
   assert.equal(synthetic.test.decisionAccuracy.correct, synthetic.test.cases);
   assert.equal(synthetic.test.fullMatch.correct, synthetic.test.cases);
-  assert.equal(Object.keys(synthetic.scenarios).length, 28);
+  assert.equal(Object.keys(synthetic.scenarios).length, 33);
   assert.ok(result.publicSamples.test.cases > 0);
 });
 

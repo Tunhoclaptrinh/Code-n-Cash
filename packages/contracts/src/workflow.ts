@@ -461,6 +461,42 @@ export interface ContractOverview {
   signing: SigningSummary | null;
 }
 
+/**
+ * A contract as a smart contract: what both parties bound themselves to, the engine that executes it and,
+ * clause by clause, the rules each payment milestone runs with and what they decided so far.
+ */
+export interface SmartContractView {
+  contract: ContractRow;
+  binding: {
+    /** DOCUMENT_BYTES: signatures cover the uploaded file; TERMS_SNAPSHOT: the recorded terms only. */
+    basis: "DOCUMENT_BYTES" | "TERMS_SNAPSHOT" | null;
+    /** SHA-256 the signatures cover: the document bytes, or the terms snapshot without a document. */
+    signedDigest: string | null;
+    /** SHA-256 of the terms, signer order, signing areas and, when pinned, the rule version. */
+    termsDigest: string | null;
+    /** False when the stored document no longer matches the signed digest. */
+    intact: boolean;
+    ruleSetId: string;
+    /** The published rule version both parties signed, for contracts made in the application. */
+    ruleVersion: { id: string; hash: string } | null;
+    signed: number;
+    total: number;
+    lastSignedAt: string | null;
+  };
+  engine: {
+    policyId: string;
+    policyVersion: string;
+    /** SHA-256 of the policy pack file the engine and the API read. */
+    policySha256: string;
+    /** SHA-256 of the rules of every scope this contract's milestones run with. */
+    rulesSha256: string;
+  };
+  clauses: Array<{
+    milestone: MilestoneRow;
+    rules: Array<RuleRow & { outcome: RuleOutcome }>;
+  }>;
+}
+
 export interface MilestoneDetail {
   contract: ContractRow;
   milestone: MilestoneRow;

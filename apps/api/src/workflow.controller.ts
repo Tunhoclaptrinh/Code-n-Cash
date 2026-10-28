@@ -91,6 +91,9 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     getContractOverview: read("contracts:read", (ctx, [id]) =>
       views.contractOverview(ctx, str(id)),
     ),
+    getSmartContract: read("contracts:read", (ctx, [id]) =>
+      views.smartContract(ctx, str(id)),
+    ),
     getMilestoneDetail: read("contracts:read", (ctx, [id, sequence]) =>
       views.milestoneDetail(ctx, str(id), num(sequence)),
     ),

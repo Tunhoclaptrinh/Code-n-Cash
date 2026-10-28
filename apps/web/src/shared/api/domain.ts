@@ -14,6 +14,7 @@ import type {
   ExceptionQueueRow,
   IntegrityReport,
   MilestoneDetail,
+  SmartContractView,
   SignMethod,
   SigningConfig,
   SigningOverview,
@@ -62,6 +63,10 @@ export const listContracts = (query: ListQuery) =>
   );
 export const getContractOverview = (contractId: string) =>
   workflowCall<ContractOverview>("contracts", "getContractOverview", [
+    contractId,
+  ]);
+export const getSmartContract = (contractId: string) =>
+  workflowCall<SmartContractView>("contracts", "getSmartContract", [
     contractId,
   ]);
 export const getMilestoneDetail = (contractId: string, sequence: number) =>

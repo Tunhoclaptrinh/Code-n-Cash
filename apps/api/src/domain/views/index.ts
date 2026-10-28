@@ -1,6 +1,11 @@
 export { activity, activityRange } from "./activity";
 export { approvalView } from "./approvals";
-export { contractList, contractOverview, draftsOf } from "./contracts";
+export {
+  contractList,
+  contractOverview,
+  draftsOf,
+  smartContract,
+} from "./contracts";
 export { disputeView } from "./disputes";
 export { evidenceWorkspace } from "./evidence";
 export { exceptionQueue } from "./exceptions";

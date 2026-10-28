@@ -61,7 +61,8 @@
       "history": "Lịch sử trạng thái",
       "signing": "Ký hợp đồng",
       "participants": "Người tham gia",
-      "documents": "Tài liệu gốc"
+      "documents": "Tài liệu gốc",
+      "smart": "Hợp đồng thông minh"
     },
     "noMilestones": "Hợp đồng chưa có mốc. Mốc được tạo khi khoá điều khoản số hoá.",
     "terms": {
@@ -383,5 +384,51 @@
   },
   "detailLite": {
     "due": "Hạn {{due}}"
+  },
+  "smart": {
+    "intro": "Hợp đồng được thực thi như một hợp đồng thông minh: hai bên ký cùng một văn bản và một bộ luật; mỗi khi có chứng từ, phê duyệt hay tranh chấp, hệ thống tự đánh giá lại từng mốc theo đúng bộ luật đó. Quyết định cuối cùng vẫn qua người có thẩm quyền.",
+    "binding": {
+      "title": "Cam kết của hai bên",
+      "allSigned": "Đã đủ chữ ký ({{signed}}/{{total}})",
+      "partlySigned": "Đang ký ({{signed}}/{{total}})",
+      "notSigned": "Chưa có trình tự ký",
+      "intact": "Văn bản khớp chữ ký",
+      "changed": "Văn bản đã đổi sau khi ký",
+      "basis": "Chữ ký bao phủ",
+      "basisKind": {
+        "DOCUMENT_BYTES": "Toàn bộ tệp hợp đồng",
+        "TERMS_SNAPSHOT": "Bản chụp điều khoản đã số hóa"
+      },
+      "digest": "Mã băm được ký",
+      "rules": "Bộ luật thực thi",
+      "ruleVersion": "Phiên bản luật được ghim cho bộ \"{{ruleSet}}\" và nằm trong nội dung hai bên ký",
+      "ruleSet": "Bộ luật \"{{ruleSet}}\" của dữ liệu ban tổ chức",
+      "lastSignedAt": "Lần ký gần nhất"
+    },
+    "engine": {
+      "title": "Bộ máy thực thi",
+      "policy": "Chính sách nghiệp vụ",
+      "policyHash": "Mã băm chính sách",
+      "rulesHash": "Mã băm bộ luật đang chạy",
+      "note": "Hai mã băm này được ghi cùng mỗi lượt đánh giá, nên bất kỳ ai có cùng dữ liệu đều chạy lại và kiểm chứng được quyết định."
+    },
+    "clauses": {
+      "title": "Điều khoản thực thi theo mốc ({{count}})",
+      "none": "Hợp đồng chưa có mốc thanh toán được đánh giá.",
+      "heading": "Mốc {{no}} · {{type}}",
+      "value": "{{value}} triệu VND · hạn {{due}}",
+      "evidence": "Chứng từ bắt buộc:",
+      "approval": "Phê duyệt:",
+      "approvalNeeded": "cần {{quorum}} vai trò ({{roles}})",
+      "approvalNone": "không cần phê duyệt",
+      "penalty": "Phạt chậm:",
+      "penaltyRate": "ân hạn {{grace}} ngày, {{rate}}%/ngày, trần {{cap}}%",
+      "penaltyNone": "không áp dụng",
+      "when": "Khi",
+      "then": "Thì",
+      "outcome": "Lần đánh giá gần nhất",
+      "result": "Kết quả hiện tại:",
+      "payable": "được chi {{value}} triệu VND"
+    }
   }
 }

@@ -76,14 +76,15 @@ export async function milestoneTimeline(
   }));
 }
 
-export function milestoneDetail(
+/**
+ * The active rules of a milestone's rule scope in priority order, each with what it did in the latest
+ * evaluation: the engine's own trail when stored, otherwise inferred from the winning rule's priority.
+ */
+export function ruleRows(
   ctx: Ctx,
-  contractId: string,
-  sequence: number,
-): MilestoneDetail {
-  const m = ctx.milestoneAt(contractId, sequence);
-  const contract = ctx.contract(contractId);
-  const evaluation = ctx.evaluation(m.milestone_id);
+  m: MilestoneRecord,
+  evaluation: Evaluation,
+): MilestoneDetail["rules"] {
   const rules = (ctx.t[TABLE.rules] as RuleRecord[])
     .filter(
       (r) => r.release_rule_code === m.release_rule_code && r.active === "TRUE",
@@ -103,6 +104,30 @@ export function milestoneDetail(
         : priority === Number(winner.priority)
           ? "MATCHED"
           : "NOT_EVALUATED";
+  return rules.map((r) => ({
+    id: r.rule_id,
+    priority: Number(r.priority),
+    name: r.rule_name,
+    group: r.rule_group,
+    condition: r.condition_expression,
+    decision: r.decision as Evaluation["decision"],
+    reasonCode: r.reason_code as Evaluation["reasonCode"],
+    payableFormula: r.payable_amount_formula,
+    penaltyFormula: r.penalty_amount_formula,
+    description: r.rule_description_vi,
+    outcome: evaluation.ruleTrail?.[r.rule_id] ?? outcomeOf(Number(r.priority)),
+  }));
+}
+
+export function milestoneDetail(
+  ctx: Ctx,
+  contractId: string,
+  sequence: number,
+): MilestoneDetail {
+  const m = ctx.milestoneAt(contractId, sequence);
+  const contract = ctx.contract(contractId);
+  const evaluation = ctx.evaluation(m.milestone_id);
+  const rules = ruleRows(ctx, m, evaluation);
   const deadline = addDays(m.due_date, Number(m.grace_period_days));
   const payment = (ctx.t[TABLE.payments] as PaymentRecord[]).find(
     (p) => p.milestoneId === m.milestone_id,
@@ -125,21 +150,7 @@ export function milestoneDetail(
     contract: ctx.contractRow(contract),
     milestone: ctx.milestoneRow(m),
     evaluation,
-    rules: rules.map((r) => ({
-      id: r.rule_id,
-      priority: Number(r.priority),
-      name: r.rule_name,
-      group: r.rule_group,
-      condition: r.condition_expression,
-      decision: r.decision as Evaluation["decision"],
-      reasonCode: r.reason_code as Evaluation["reasonCode"],
-      payableFormula: r.payable_amount_formula,
-      penaltyFormula: r.penalty_amount_formula,
-      description: r.rule_description_vi,
-      // The engine's own trail when stored; older evaluations fall back to the priority order.
-      outcome:
-        evaluation.ruleTrail?.[r.rule_id] ?? outcomeOf(Number(r.priority)),
-    })),
+    rules,
     variables: Object.entries(evaluation.variables ?? {}).map(
       ([name, value]) => ({
         name,

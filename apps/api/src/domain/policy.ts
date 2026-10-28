@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { repoRoot } from "../common/paths";
@@ -33,9 +34,14 @@ export interface EnginePolicy {
 
 export const POLICY_FILE = "apps/engine/policy/case4_btc.json";
 
-export const enginePolicy: EnginePolicy = JSON.parse(
-  readFileSync(resolve(repoRoot(), POLICY_FILE), "utf8"),
-);
+const policyText = readFileSync(resolve(repoRoot(), POLICY_FILE), "utf8");
+
+export const enginePolicy: EnginePolicy = JSON.parse(policyText);
+
+/** SHA-256 of the policy pack file, the same digest the engine records with every run. */
+export const policySha256 = createHash("sha256")
+  .update(policyText)
+  .digest("hex");
 
 /** Business (evidence) event type -> the party type of the contract side that may create it. */
 export const evidenceSides = (policy: EnginePolicy = enginePolicy) =>

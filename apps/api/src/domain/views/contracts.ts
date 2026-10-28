@@ -1,12 +1,18 @@
+import { canonical, sha256 } from "../../common/audit-chain";
 import type { Ctx } from "../context";
+import { enginePolicy, policySha256 } from "../policy";
+import { type RuleRecord, TABLE } from "../records";
+import { signingDigest } from "../signing";
 import { sumMillion } from "../templates";
 import type {
   ContractList,
   ContractOverview,
   Participant,
+  SmartContractView,
   TimelineEntry,
 } from "../types";
 import { INTERNAL_ROLES } from "../vocabulary";
+import { ruleRows } from "./milestones";
 import { historyOf } from "./shared";
 
 export function contractList(ctx: Ctx): ContractList {
@@ -152,3 +158,70 @@ export function contractOverview(
 
 export const draftsOf = (ctx: Ctx) =>
   ctx.drafts().filter((d) => d.organizationId === ctx.actor.organizationId);
+
+/**
+ * The contract as a smart contract (SmartContractView): the digests both parties signed, the policy and rules
+ * the engine executes it with, and each payment milestone with its rules and their latest outcome.
+ */
+export function smartContract(ctx: Ctx, contractId: string): SmartContractView {
+  const contract = ctx.contract(contractId);
+  const draft = ctx.draft(contractId);
+  const signing = ctx.signing(contractId);
+  const steps = signing?.steps ?? [];
+  let digest: ReturnType<typeof signingDigest> | null = null;
+  let intact = true;
+  if (signing)
+    try {
+      digest = signingDigest(ctx, contractId);
+    } catch {
+      // The stored document no longer matches what was signed (DOCUMENT_CHANGED).
+      intact = false;
+    }
+  const clauses = ctx
+    .milestonesOf(contractId)
+    .filter((m) => ctx.hasEvaluation(m.milestone_id))
+    .map((m) => ({
+      milestone: ctx.milestoneRow(m),
+      rules: ruleRows(ctx, m, ctx.evaluation(m.milestone_id)),
+    }));
+  const scopes = [
+    ...new Set(clauses.map((c) => c.milestone.releaseRuleCode)),
+  ].sort();
+  const rules = (ctx.t[TABLE.rules] as RuleRecord[])
+    .filter((r) => scopes.includes(r.release_rule_code) && r.active === "TRUE")
+    .sort(
+      (a, b) =>
+        a.release_rule_code.localeCompare(b.release_rule_code) ||
+        Number(a.priority) - Number(b.priority),
+    );
+  const signedAt = steps
+    .map((s) => s.signedAt)
+    .filter((at): at is string => !!at)
+    .sort();
+  return {
+    contract: ctx.contractRow(contract),
+    binding: {
+      basis: digest?.basis ?? null,
+      signedDigest: digest?.digest ?? null,
+      termsDigest: digest?.termsDigest ?? null,
+      intact,
+      ruleSetId: contract.rule_set_id,
+      ruleVersion: draft?.ruleVersionId
+        ? {
+            id: String(draft.ruleVersionId),
+            hash: String(draft.ruleVersionHash),
+          }
+        : null,
+      signed: steps.filter((s) => s.status === "SIGNED").length,
+      total: steps.length,
+      lastSignedAt: signedAt.at(-1) ?? null,
+    },
+    engine: {
+      policyId: enginePolicy.policy_id,
+      policyVersion: enginePolicy.version,
+      policySha256,
+      rulesSha256: sha256(canonical(rules)),
+    },
+    clauses,
+  };
+}

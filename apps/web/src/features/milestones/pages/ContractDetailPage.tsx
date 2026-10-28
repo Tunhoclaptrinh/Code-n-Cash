@@ -1,6 +1,7 @@
 import { ContractDocuments } from "@/shared/ui/ContractDocuments";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
+import { SmartContractPanel } from "../components/SmartContractPanel";
 import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
 import {
   CheckCircleFilled,
@@ -50,6 +51,7 @@ import styles from "./ContractDetailPage.module.css";
 type TabKey =
   | "documents"
   | "milestones"
+  | "smart"
   | "events"
   | "history"
   | "signing"
@@ -178,6 +180,7 @@ export default function ContractDetailPage() {
             [
               "documents",
               "milestones",
+              "smart",
               "events",
               "history",
               "signing",
@@ -275,6 +278,9 @@ export default function ContractDetailPage() {
               milestones={data.milestones}
               people={peopleOf(data.participants)}
             />
+          ) : null}
+          {tab === "smart" ? (
+            <SmartContractPanel contractId={contract.id} />
           ) : null}
           {tab === "signing" ? <SigningPanel data={data} /> : null}
           {tab === "participants" ? (

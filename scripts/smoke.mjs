@@ -388,6 +388,29 @@ assert.equal(
     .status,
   403,
 );
+// The smart contract view: signed digests, the policy and rules in force, and every clause's rules.
+const smart = await workflow(
+  "contracts",
+  "getSmartContract",
+  ["CT0019"],
+  owner,
+);
+assert.equal(smart.status, 201);
+assert.match(smart.body.data.engine.policySha256, /^[0-9a-f]{64}$/);
+assert.match(smart.body.data.engine.rulesSha256, /^[0-9a-f]{64}$/);
+assert.ok(smart.body.data.clauses.length > 0);
+assert.ok(
+  smart.body.data.clauses.every(
+    (clause) =>
+      clause.rules.length > 0 &&
+      clause.rules.some((rule) => rule.outcome === "MATCHED"),
+  ),
+);
+assert.equal(
+  (await workflow("contracts", "getSmartContract", ["CT0001"], supplier))
+    .status,
+  403,
+);
 const tasks = await workflow("tasks", "getTaskInbox", [], finance);
 assert.ok(
   tasks.body.data.some(

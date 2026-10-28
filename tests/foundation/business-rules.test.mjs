@@ -314,6 +314,13 @@ const WRITE_ACTIONS = [
     reaches: "MILESTONE_NOT_FOUND",
   },
   {
+    name: "retryPaymentDelivery",
+    module: "payments",
+    allowed: ["FINANCE_APPROVER"],
+    args: ["PAY-NONE"],
+    reaches: "PAYMENT_NOT_FOUND",
+  },
+  {
     name: "proposeException",
     module: "exceptions",
     allowed: ["CONTRACT_OWNER"],
@@ -380,14 +387,14 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     "utf8",
   );
   const registered = [
-    ...source.matchAll(/write\(\s*"[\w:-]+",\s*"(\w+)"/g),
+    ...source.matchAll(/(?:write|sends)\(\s*"[\w:-]+",\s*"(\w+)"/g),
   ].map((match) => match[1]);
   assert.deepEqual(
     registered.filter((name) => name !== "getSigningRequest").sort(),
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 17);
+  assert.equal(WRITE_ACTIONS.length, 18);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -4753,6 +4760,7 @@ test("audit: every successful write is sealed in the chain under the signed-in a
     "proposeException",
     "decideException",
     "transferToAccounting",
+    "recordPaymentDelivery",
     "sendSigningRequest",
     "confirmSigningRequest",
   ])
@@ -4766,6 +4774,7 @@ test("audit: every successful write is sealed in the chain under the signed-in a
     proposeException: ownerOf(w, "CT0017"),
     decideException: controllerOf(w, "CT0017"),
     transferToAccounting: U.FINANCE,
+    recordPaymentDelivery: U.FINANCE,
     sendSigningRequest: U.SUPPLIER,
     confirmSigningRequest: U.SUPPLIER,
   };

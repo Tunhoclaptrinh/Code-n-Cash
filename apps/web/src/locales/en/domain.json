@@ -306,7 +306,9 @@
     "SLOT_WRONG_SIGNER_AREA": "The box is outside this signer’s printed area. Select the correct area or use the suggestion.",
     "ENGINE_OUTPUT_INVALID": "The engine response does not match the data contract or consistency checks. No changes were saved.",
     "ENGINE_UNAVAILABLE": "The configured engine is unavailable. Check the service; the system will not silently use another engine.",
-    "DISPUTE_ALREADY_OPEN": "This milestone already has an open dispute; a new one cannot be opened."
+    "DISPUTE_ALREADY_OPEN": "This milestone already has an open dispute; a new one cannot be opened.",
+    "PAYMENT_NOT_FOUND": "The payment instruction was not found.",
+    "ALREADY_DELIVERED": "The payment gateway already accepted this instruction."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

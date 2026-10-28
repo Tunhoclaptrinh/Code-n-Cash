@@ -364,7 +364,35 @@ export interface StatusChange {
   trigger: Trigger;
 }
 
+/**
+ * The payment instruction a paying decision becomes: what to pay, to whom and why. The engine's decision
+ * draws it up; finance approves it and it is sent to the payment gateway.
+ */
+export interface PaymentInstruction {
+  decision: Decision;
+  amountMillion: string;
+  penaltyMillion: string;
+  payer: { id: string; name: string };
+  payee: { id: string; name: string };
+  runId: string;
+  /** The sealed hash of the decision behind the instruction (the audit chain holds it too). */
+  decisionDigest: string;
+}
+
+/** What happened when an approved instruction was sent to the payment gateway. */
+export interface PaymentDelivery {
+  /** SIMULATED when no gateway is configured; WEBHOOK posts to PAYMENT_GATEWAY_URL. */
+  channel: "SIMULATED" | "WEBHOOK";
+  status: "PENDING" | "ACKNOWLEDGED" | "FAILED";
+  attempts: number;
+  lastAttemptAt: string | null;
+  /** The gateway's own reference once it acknowledged the instruction. */
+  reference: string | null;
+  error: string | null;
+}
+
 export interface Payment {
+  /** Also the idempotency key the gateway receives, so a resend never pays twice. */
   id: string;
   milestoneId: string;
   contractId: string;
@@ -373,6 +401,8 @@ export interface Payment {
   amountMillion: string;
   transferredBy: string;
   transferredAt: string;
+  instruction?: PaymentInstruction;
+  delivery?: PaymentDelivery;
 }
 
 export type ExceptionState = "PROPOSED" | "APPROVED" | "REJECTED";
@@ -526,6 +556,8 @@ export interface MilestoneDetail {
   };
   history: StatusChange[];
   payment: Payment | null;
+  /** The instruction a paying decision draws up, before finance approves it; null otherwise. */
+  instruction: PaymentInstruction | null;
   exceptions: ExceptionRequest[];
   actions: {
     submit: boolean;
@@ -801,6 +833,14 @@ export type ActivityAction =
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
   | { kind: "PAYMENT"; amountMillion: string }
+  | {
+      kind: "PAYMENT_DELIVERY";
+      channel: PaymentDelivery["channel"];
+      status: PaymentDelivery["status"];
+      attempts: number;
+      reference: string | null;
+      error: string | null;
+    }
   | { kind: "REQUEST_INFO"; text: string }
   | { kind: "WORKFLOW_ACTION"; code: string };
 

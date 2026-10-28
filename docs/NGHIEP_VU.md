@@ -100,7 +100,7 @@ Quy ước: tiền tính bằng triệu VND; phần trăm chia 100 khi tính; th
 | HOLD do tranh chấp, sai thẩm quyền hoặc không xác định | `ON_HOLD`              |
 | REJECT                                                 | `REJECTED`             |
 
-Hai trạng thái không do engine sinh: `COMPLETED` khi kế toán ghi nhận đã chuyển chi một mốc RELEASE hoặc PENALTY (thao tác của ứng dụng, có lịch sử và audit); `PLANNED`, `IN_PROGRESS` chỉ xuất hiện ở chế độ as-of khi mốc chưa có event hoặc chưa tới hạn. Mốc `REJECTED` và `COMPLETED` bị khoá: các lượt chạy sau không ghi đè kết quả đã lưu.
+Hai trạng thái không do engine sinh: `COMPLETED` khi người phê duyệt tài chính duyệt lệnh chi của một mốc RELEASE hoặc PENALTY (thao tác của ứng dụng, có lịch sử và audit); `PLANNED`, `IN_PROGRESS` chỉ xuất hiện ở chế độ as-of khi mốc chưa có event hoặc chưa tới hạn. Mốc `REJECTED` và `COMPLETED` bị khoá: các lượt chạy sau không ghi đè kết quả đã lưu.
 
 ## 5. Engine: chín bước xử lý một mốc
 
@@ -273,6 +273,19 @@ Tab **Hợp đồng thông minh** của mỗi hợp đồng (`contracts.getSmart
 | Cam kết của hai bên          | Số chữ ký đã có trên tổng số lượt ký; chữ ký bao phủ toàn bộ tệp hay bản chụp điều khoản; mã băm được ký; văn bản còn khớp chữ ký hay đã đổi; bộ luật thực thi, kèm phiên bản và mã băm khi hợp đồng ghim một phiên bản luật (SoD-4) |
 | Bộ máy thực thi              | Mã, phiên bản và mã băm SHA-256 của policy pack; mã băm của các luật thuộc mọi phạm vi mà các mốc của hợp đồng dùng                                                                                                                  |
 | Điều khoản thực thi theo mốc | Với mỗi mốc: chứng từ bắt buộc, phê duyệt, phạt chậm, bảng luật theo dạng "khi … thì …" với kết cục của lần đánh giá gần nhất (mục 14.11) và kết quả hiện tại                                                                        |
+
+### 9.2. Lệnh chi và cổng thanh toán
+
+Quyết định RELEASE hoặc PENALTY tự lập lệnh chi: bên mua trả bên nhà cung cấp số tiền được chi của quyết định, kèm mã băm đã niêm phong của quyết định đó (`decisionHash`). Lệnh chi hiện ngay trên màn quyết định của mốc; chỉ người phê duyệt tài chính của bên mua duyệt được (`payments:transfer`), mỗi mốc một lần.
+
+Sau khi duyệt, lệnh chi được gửi sang cổng thanh toán:
+
+| Cấu hình                        | Cách gửi                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Không đặt `PAYMENT_GATEWAY_URL` | Cổng mô phỏng, nhận ngay với mã tham chiếu `SIM-<mã lệnh>`                                                                                                                                                                                                                                                                                                                                         |
+| `PAYMENT_GATEWAY_URL`           | `POST` JSON (mã lệnh, hợp đồng, mốc, quyết định, số tiền và tiền phạt theo triệu VND dạng chuỗi thập phân, bên trả, bên nhận, lượt chạy, mã băm quyết định, người duyệt); header `Idempotency-Key` là mã lệnh nên gửi lại không chi hai lần; có `PAYMENT_GATEWAY_SECRET` thì kèm `X-CodeCash-Signature: sha256=<HMAC-SHA256 của thân>`. Trả 2xx là đã nhận, `reference` trong thân trả về được lưu |
+
+Mỗi lần gửi ghi số lần thử, thời điểm, kết quả và lỗi (`PAYMENT_DELIVERY` trong nhật ký). Gửi lỗi thì người phê duyệt tài chính gửi lại (`retryPaymentDelivery`); lệnh đã được cổng nhận không gửi lại.
 
 ## 10. KPI và kết quả
 

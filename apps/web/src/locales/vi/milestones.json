@@ -144,13 +144,10 @@
       "approve": "Mở phê duyệt",
       "resolveDispute": "Xử lý tranh chấp",
       "openDispute": "Mở tranh chấp",
-      "transfer": "Chuyển chi (mô phỏng)",
+      "transfer": "Duyệt lệnh chi",
       "export": "In / lưu PDF"
     },
-    "transferred": "Đã ghi lệnh chi mô phỏng; mốc chuyển sang Đã chuyển chi.",
-    "payment": {
-      "title": "Đã chuyển chi {{amount}} triệu VND bởi {{by}} lúc {{at}}"
-    },
+    "transferred": "Đã duyệt lệnh chi và gửi sang cổng thanh toán.",
     "issues": "Ghi chú đánh giá",
     "conditions": {
       "title": "Điều kiện của mốc"
@@ -430,5 +427,26 @@
       "result": "Kết quả hiện tại:",
       "payable": "được chi {{value}} triệu VND"
     }
+  },
+  "instruction": {
+    "drawnUp": "Lệnh chi đã được lập tự động từ quyết định; chờ phê duyệt tài chính để gửi sang cổng thanh toán.",
+    "state": {
+      "ACKNOWLEDGED": "Cổng thanh toán đã nhận lệnh chi do {{by}} duyệt lúc {{at}}.",
+      "FAILED": "Lệnh chi do {{by}} duyệt lúc {{at}} chưa gửi được sang cổng thanh toán.",
+      "PENDING": "Lệnh chi do {{by}} duyệt lúc {{at}} đang chờ gửi."
+    },
+    "channel": {
+      "SIMULATED": "Cổng mô phỏng",
+      "WEBHOOK": "Cổng thanh toán"
+    },
+    "reference": "Mã tham chiếu:",
+    "error": "Lỗi {{error}} · đã gửi {{attempts}} lần",
+    "retry": "Gửi lại lệnh chi",
+    "decision": "Quyết định",
+    "amount": "Số tiền",
+    "amountValue": "{{amount}} triệu VND (đã trừ phạt {{penalty}} triệu)",
+    "parties": "Bên trả → bên nhận",
+    "partiesValue": "{{payer}} → {{payee}}",
+    "digest": "Mã băm quyết định"
   }
 }

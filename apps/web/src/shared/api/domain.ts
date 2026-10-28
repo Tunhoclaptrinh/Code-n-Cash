@@ -150,6 +150,10 @@ export const resolveDispute = (
 
 /* ------------------------- payment and exceptions ------------------------- */
 
+export const retryPaymentDelivery = (paymentId: string) =>
+  workflowCall<{ paymentId: string }>("payments", "retryPaymentDelivery", [
+    paymentId,
+  ]);
 export const transferToAccounting = (input: MilestoneRef) =>
   workflowCall<{ paymentId: string }>("payments", "transferToAccounting", [
     input,

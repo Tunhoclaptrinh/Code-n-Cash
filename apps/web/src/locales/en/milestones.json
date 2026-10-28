@@ -144,13 +144,10 @@
       "approve": "Open approval",
       "resolveDispute": "Handle dispute",
       "openDispute": "Open a dispute",
-      "transfer": "Transfer (simulated)",
+      "transfer": "Approve the payment instruction",
       "export": "Print / save as PDF"
     },
-    "transferred": "Simulated payment recorded; the milestone is now Payment transferred.",
-    "payment": {
-      "title": "{{amount}} million VND transferred by {{by}} at {{at}}"
-    },
+    "transferred": "Instruction approved and sent to the payment gateway.",
     "issues": "Evaluation notes",
     "conditions": {
       "title": "Milestone conditions"
@@ -430,5 +427,26 @@
       "result": "Current result:",
       "payable": "VND {{value}} million payable"
     }
+  },
+  "instruction": {
+    "drawnUp": "The decision has drawn up a payment instruction; it waits for finance approval before it goes to the payment gateway.",
+    "state": {
+      "ACKNOWLEDGED": "The payment gateway accepted the instruction {{by}} approved at {{at}}.",
+      "FAILED": "The instruction {{by}} approved at {{at}} could not be sent to the payment gateway.",
+      "PENDING": "The instruction {{by}} approved at {{at}} is waiting to be sent."
+    },
+    "channel": {
+      "SIMULATED": "Simulated gateway",
+      "WEBHOOK": "Payment gateway"
+    },
+    "reference": "Reference:",
+    "error": "Error {{error}} · {{attempts}} attempt(s)",
+    "retry": "Send the instruction again",
+    "decision": "Decision",
+    "amount": "Amount",
+    "amountValue": "VND {{amount}} million (after a penalty of {{penalty}} million)",
+    "parties": "Payer → payee",
+    "partiesValue": "{{payer}} → {{payee}}",
+    "digest": "Decision digest"
   }
 }

@@ -39,6 +39,13 @@ export function describeAction(t: TFunction, action: ActivityAction): string {
       return t("actions.PAYMENT", {
         amount: formatDecimalString(action.amountMillion),
       });
+    case "PAYMENT_DELIVERY":
+      return t(`actions.PAYMENT_DELIVERY_${action.status}`, {
+        channel: t(`paymentChannel.${action.channel}`),
+        attempts: action.attempts,
+        reference: action.reference ?? "",
+        error: action.error ?? "",
+      });
     case "REQUEST_INFO":
       return t("actions.REQUEST_INFO", { text: action.text });
     case "WORKFLOW_ACTION":

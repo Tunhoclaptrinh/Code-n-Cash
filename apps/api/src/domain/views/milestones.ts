@@ -17,6 +17,7 @@ import type {
   TimelinePoint,
 } from "../types";
 import { isBusinessEvent, TERMINAL } from "../vocabulary";
+import { paymentInstruction } from "../actions/payments";
 import { historyOf, toException } from "./shared";
 import { variableLabels } from "../policy";
 
@@ -188,8 +189,12 @@ export function milestoneDetail(
           amountMillion: payment.amountMillion,
           transferredBy: payment.transferredBy,
           transferredAt: payment.transferredAt,
+          instruction: payment.instruction,
+          delivery: payment.delivery,
         }
       : null,
+    // A paying decision draws up its instruction at once; finance only approves it.
+    instruction: payment ? null : paymentInstruction(ctx, m, evaluation),
     exceptions: ctx.exceptionsOf(m.milestone_id).map(toException),
     actions: {
       submit:

@@ -395,10 +395,20 @@ test("a payment is transferred once per decision, then the milestone is final", 
     1,
   );
   assert.equal(detail.actions.transfer, true);
-  await call("u-finance", "payments", "transferToAccounting", {
+  // The paying decision has drawn up its instruction: buyer pays supplier, bound to the decision hash.
+  assert.equal(
+    detail.instruction.amountMillion,
+    detail.evaluation.payableMillion,
+  );
+  assert.match(detail.instruction.decisionDigest, /^[0-9a-f]{64}$/);
+  const sent = await call("u-finance", "payments", "transferToAccounting", {
     contractId: "CT0103",
     sequence: 1,
   });
+  // Without PAYMENT_GATEWAY_URL the simulated gateway acknowledges at once.
+  assert.equal(sent.delivery.channel, "SIMULATED");
+  assert.equal(sent.delivery.status, "ACKNOWLEDGED");
+  assert.equal(sent.delivery.reference, `SIM-${sent.paymentId}`);
   await assert.rejects(
     call("u-finance", "payments", "transferToAccounting", {
       contractId: "CT0103",
@@ -415,6 +425,8 @@ test("a payment is transferred once per decision, then the milestone is final", 
   );
   assert.equal(after.milestone.status, "COMPLETED");
   assert.ok(after.payment.id.startsWith("PAY-"));
+  assert.equal(after.payment.delivery.status, "ACKNOWLEDGED");
+  assert.equal(after.instruction, null);
 });
 
 test("signers sign in order; the last signature records the buyer's CONTRACT_SIGNED", async () => {

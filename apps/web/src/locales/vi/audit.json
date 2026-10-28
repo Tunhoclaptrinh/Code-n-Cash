@@ -63,9 +63,12 @@
     "EXCEPTION_PROPOSED": "Đề xuất vô hiệu event {{id}} (BR-19)",
     "EXCEPTION_APPROVED": "Kiểm soát viên của doanh nghiệp duyệt vô hiệu {{id}}; engine đánh giá lại",
     "EXCEPTION_REJECTED": "Từ chối đề xuất vô hiệu {{id}}",
-    "PAYMENT": "Chuyển chi mô phỏng {{amount}} triệu VND (khoá idempotency)",
+    "PAYMENT": "Duyệt lệnh chi {{amount}} triệu VND (khoá chống trùng)",
     "REQUEST_INFO": "Yêu cầu bổ sung: {{text}}",
-    "WORKFLOW_ACTION": "{{action}}"
+    "WORKFLOW_ACTION": "{{action}}",
+    "PAYMENT_DELIVERY_ACKNOWLEDGED": "Cổng thanh toán đã nhận lệnh chi ({{channel}}, lần gửi {{attempts}}, mã tham chiếu {{reference}})",
+    "PAYMENT_DELIVERY_FAILED": "Gửi lệnh chi không thành công ({{channel}}, lần gửi {{attempts}}, lỗi {{error}})",
+    "PAYMENT_DELIVERY_PENDING": "Lệnh chi chờ gửi ({{channel}})"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",
@@ -222,7 +225,8 @@
     "EXPORT_REQUEST": "Yêu cầu xuất danh sách",
     "SIGNATURE_EXPORT": "Xuất bằng chứng chữ ký",
     "ANCHOR_EXPORT": "Xuất gói neo hash",
-    "SYSTEM_WRITE": "Ghi dữ liệu hệ thống"
+    "SYSTEM_WRITE": "Ghi dữ liệu hệ thống",
+    "PAYMENT_DELIVERY": "Gửi lệnh chi"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",
@@ -240,5 +244,9 @@
   "lite": {
     "checkedAt": "Kiểm tra lúc {{time}}",
     "exceptionsNote": "Một người đề xuất, người thứ hai duyệt."
+  },
+  "paymentChannel": {
+    "SIMULATED": "cổng mô phỏng",
+    "WEBHOOK": "cổng thanh toán"
   }
 }

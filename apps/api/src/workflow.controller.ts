@@ -15,7 +15,9 @@ import type { Actor, SessionRequest } from "./common/types";
 import * as actions from "./domain/actions";
 import * as drafts from "./domain/drafts";
 import * as lists from "./domain/lists";
+import { type PaymentRecord, TABLE } from "./domain/records";
 import { DomainService } from "./domain/service";
+import { sendInstruction } from "./payment-gateway";
 import * as signing from "./domain/signing";
 import * as views from "./domain/views";
 
@@ -68,6 +70,48 @@ const write = (
               ?.contractId ?? (args[0] as { code?: unknown } | null)?.code,
           ),
     ),
+});
+
+/** Sends an approved instruction to the payment gateway, outside any transaction, then records it. */
+async function deliverPayment(
+  domain: DomainService,
+  actor: Actor,
+  paymentId: string,
+) {
+  const payment = await domain.read(actor, (ctx) => {
+    const found = (ctx.t[TABLE.payments] as PaymentRecord[]).find(
+      (p) => p.id === paymentId,
+    );
+    if (!found) throw new NotFoundException("PAYMENT_NOT_FOUND");
+    ctx.contract(found.contractId);
+    return structuredClone(found);
+  });
+  if (payment.delivery?.status === "ACKNOWLEDGED")
+    return { paymentId, delivery: payment.delivery };
+  const result = await sendInstruction(payment);
+  return domain.write(
+    actor,
+    "recordPaymentDelivery",
+    (ctx) => actions.recordPaymentDelivery(ctx, { paymentId, result }),
+    payment.contractId,
+  );
+}
+
+/** Runs a write that approves an instruction, then sends that instruction to the gateway. */
+const thenDeliver = (handler: Handler): Handler => ({
+  permission: handler.permission,
+  run: async (domain, actor, args) => {
+    const { paymentId } = (await handler.run(domain, actor, args)) as {
+      paymentId: string;
+    };
+    return deliverPayment(domain, actor, paymentId);
+  },
+});
+/** (Re)sends an approved instruction, named by its payment id, to the gateway. */
+const sends = (permission: string, _name: string): Handler => ({
+  permission,
+  run: (domain, actor, [paymentId]) =>
+    deliverPayment(domain, actor, str(paymentId)),
 });
 
 /**
@@ -179,11 +223,14 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     ),
   },
   payments: {
-    transferToAccounting: write(
-      "payments:transfer",
-      "transferToAccounting",
-      (ctx, [value]) => actions.transferToAccounting(ctx, input(value)),
+    // Approving creates the instruction; it is then sent to the gateway and the result recorded.
+    transferToAccounting: thenDeliver(
+      write("payments:transfer", "transferToAccounting", (ctx, [value]) =>
+        actions.transferToAccounting(ctx, input(value)),
+      ),
     ),
+    // A failed send can be retried; the gateway sees the same idempotency key every time.
+    retryPaymentDelivery: sends("payments:transfer", "retryPaymentDelivery"),
   },
   exceptions: {
     listExceptionQueue: read("exceptions:read", (ctx) =>

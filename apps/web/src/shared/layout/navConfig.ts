@@ -202,6 +202,52 @@ export const navByRole = Object.fromEntries(
   Object.entries(byRole).map(([role, sections]) => [role, [...sections, help]]),
 ) as Record<Role, NavSection[]>;
 
+/**
+ * The read permission each screen needs (packages/contracts/permissions.json). A path with no entry
+ * is open to every signed-in user; the API still checks every call.
+ */
+const ROUTE_PERMISSIONS: [path: string, permission: string][] = [
+  ["/contracts/new", "contracts:draft-write"],
+  ["/contracts", "contracts:read"],
+  ["/verify", "signing:verify"],
+  ["/dashboard", "contracts:read"],
+  ["/tasks", "tasks:read"],
+  ["/activity-log", "activity:read"],
+  ["/exceptions", "exceptions:read"],
+  ["/integrity", "audit:read"],
+  ["/data", "engine:read"],
+  ["/platform/anchors", "anchors:read"],
+  ["/platform/rule-versions", "rules:read"],
+  ["/platform/permissions", "permissions:read"],
+  ...PLATFORM_RESOURCES.map((name): [string, string] => [
+    `/platform/${name}`,
+    `${name}:read`,
+  ]),
+];
+
+/** Whether the signed-in user may open a screen: the first (most specific) matching entry decides. */
+export function routeAllowed(path: string, permissions: readonly string[]) {
+  const entry = ROUTE_PERMISSIONS.find(
+    ([prefix]) => path === prefix || path.startsWith(`${prefix}/`),
+  );
+  return !entry || permissions.includes(entry[1]);
+}
+
+/** The role's sidebar without the screens its permissions do not open. */
+export function navFor(role: Role, permissions: readonly string[]) {
+  const open = (to: string) => routeAllowed(to, permissions);
+  return navByRole[role]
+    .map((section) => ({
+      ...section,
+      items: section.items.flatMap((item) => {
+        if (!item.children) return open(item.to) ? [item] : [];
+        const children = item.children.filter((child) => open(child.to));
+        return children.length ? [{ ...item, children }] : [];
+      }),
+    }))
+    .filter((section) => section.items.length > 0);
+}
+
 /** First screen after signing in: the work waiting for the user. */
 export const homeByRole: Record<Role, string> = {
   CONTRACT_OWNER: "/tasks",

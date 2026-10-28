@@ -65,6 +65,7 @@ export default function PermissionMatrixPage() {
     queryFn: () => platform.get<PermissionMatrix>("/permissions"),
   });
   // Every account, page by page (the API serves at most 100 per page), to count holders exactly.
+  const canListUsers = user.permissions.includes("users:read");
   const users = useQuery({
     queryKey: ["resource", "users", user.id, "permission-holders"],
     queryFn: async () => {
@@ -78,6 +79,8 @@ export default function PermissionMatrixPage() {
       }
     },
     retry: false,
+    // Only account administrators list users; the holder counts then show "—".
+    enabled: canListUsers,
   });
   const roles = useMemo(() => matrix.data?.roles ?? [], [matrix.data]);
   const rows = useMemo<Row[]>(
@@ -312,7 +315,7 @@ export default function PermissionMatrixPage() {
           filters={filterConfig}
           onRefresh={() => {
             void matrix.refetch();
-            void users.refetch();
+            if (canListUsers) void users.refetch();
           }}
           exportable
           exportFilename="permission-matrix"

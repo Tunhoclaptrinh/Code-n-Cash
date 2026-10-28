@@ -1,8 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { homeByRole } from "../layout/navConfig";
+import { homeByRole, routeAllowed } from "../layout/navConfig";
 import { useSession } from "./session";
 
-/** Gate for every route except the sign-in page. */
+/** Gate for every route except the sign-in page; a screen the role may not open leads home. */
 export function RequireAuth() {
   const { user, restoring } = useSession();
   const location = useLocation();
@@ -10,6 +10,8 @@ export function RequireAuth() {
   if (restoring) return null;
   if (!user)
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (!routeAllowed(location.pathname, user.permissions))
+    return <Navigate to={homeByRole[user.role]} replace />;
   return <Outlet />;
 }
 

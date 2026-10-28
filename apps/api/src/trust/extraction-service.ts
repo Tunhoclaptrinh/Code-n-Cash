@@ -29,13 +29,20 @@ export class ExtractionService {
   async latest(code: string, actor: Actor) {
     return this.domain.read(actor, (ctx) => {
       ctx.contract(code);
-      return (
-        ([...ctx.t["extraction-proposals"]]
-          .reverse()
-          .find(
-            (proposal) => proposal.contractCode === code,
-          ) as unknown as ExtractionProposal) ?? null
-      );
+      const proposal = [...ctx.t["extraction-proposals"]]
+        .reverse()
+        .find((item) => item.contractCode === code) as unknown as
+        ExtractionProposal | undefined;
+      if (!proposal) return null;
+      // Proposals confirmed before the name was stored still show who confirmed them.
+      return {
+        ...proposal,
+        confirmedByName:
+          proposal.confirmedByName ??
+          (proposal.confirmedBy
+            ? String(ctx.user(proposal.confirmedBy)?.displayName ?? "") || null
+            : null),
+      };
     });
   }
   async extract(code: string, actor: Actor) {
@@ -215,6 +222,7 @@ export class ExtractionService {
       });
       Object.assign(proposal, {
         confirmedBy: actor.id,
+        confirmedByName: actor.displayName,
         confirmedAt: new Date().toISOString(),
         confirmedValues: input,
         confirmedDraftVersion: ctx.draft(code)!.version,

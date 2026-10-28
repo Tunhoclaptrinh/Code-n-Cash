@@ -47,4 +47,4 @@ Chọn ngôn ngữ và giao diện rồi bấm **Bắt đầu**. Các lựa ch�
 
 ![Tìm tài khoản: 1 — gõ tên/email/công ty; 2 — chọn người để đăng nhập demo](../../../public/guide/images/review-account-search.png)
 
-Trong **Tài khoản demo**, tìm theo email, tên công ty hoặc mã hợp đồng. Ví dụ `supplier@alphatech.vn` thuộc S001 — AlphaTech; `supplier@phuminh.vn` thuộc S015 — Phú Minh. Chọn đúng công ty ghi trên hợp đồng; tài khoản nhà cung cấp khác không được ký thay. Danh sách lượt ký hiển thị email để đối chiếu.
+Trong **Tài khoản demo**, tìm theo tên người (gõ không dấu cũng được, ví dụ `Vu Thanh Ha`), email, tên công ty hoặc mã hợp đồng. Mỗi tài khoản hiện họ tên, email và công ty. Ví dụ `supplier@alphatech.vn` thuộc S001 — AlphaTech; `supplier@phuminh.vn` thuộc S015 — Phú Minh. Chọn đúng công ty ghi trên hợp đồng; tài khoản nhà cung cấp khác không được ký thay. Danh sách lượt ký hiển thị email để đối chiếu.

@@ -29,3 +29,30 @@
   border-radius: var(--radius-md);
   background: var(--color-surface-muted);
 }
+
+.readPages {
+  display: grid;
+  gap: 12px;
+}
+
+.readPage {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.quote {
+  max-width: 400px;
+  white-space: pre-wrap;
+  margin-bottom: 0 !important;
+}
+
+/* The label column is wide enough for the longest term label, so every value starts at the same x. */
+.quoteRow {
+  display: grid;
+  grid-template-columns: 10em minmax(0, 1fr);
+  column-gap: 12px;
+  max-width: 400px;
+}

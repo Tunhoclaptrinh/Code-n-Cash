@@ -50,7 +50,6 @@
       "extract": "Trích xuất",
       "review": "Đối chiếu",
       "confirm": "Xác nhận",
-      "noFile": "Chưa có tệp",
       "done": "Đã xác nhận điều khoản. Tiếp tục rà soát các mốc thanh toán bên dưới.",
       "readAgain": "Đọc lại tài liệu",
       "readDocument": "Đọc tài liệu trước",
@@ -64,9 +63,14 @@
         "load": "Bước 3 · Nạp đề xuất vào các ô trống, rồi đối chiếu từng giá trị với nguồn trong tệp. Bổ sung trường chưa đọc được.",
         "review": "Bước 3 · Kiểm tra đủ sáu giá trị, sửa khi cần và đánh dấu đã đối chiếu trước khi xác nhận.",
         "confirm": "Bước 4 · Bấm “Xác nhận và áp dụng vào hồ sơ”. Sau đó kiểm tra bảng mốc và chuyển sang ký."
-      }
+      },
+      "manual": "Nhập tay",
+      "locked": "Hồ sơ đã khóa vì đã bắt đầu ký: điều khoản không thay đổi được nữa. Các giá trị đã xác nhận nằm trong bản số hóa bên dưới.",
+      "pagesLoading": "Đang tải các trang của tài liệu…",
+      "pagesUnavailable": "Chưa hiển thị được các trang. Dùng \"Tải tài liệu gốc\" để đọc tệp."
     },
-    "fingerprint": "Dấu vân tay tài liệu (SHA-256)"
+    "fingerprint": "Dấu vân tay tài liệu (SHA-256)",
+    "manualEntry": "Mở biểu mẫu nhập điều khoản"
   },
   "rules": {
     "title": "Phiên bản quy tắc và mẫu mốc",

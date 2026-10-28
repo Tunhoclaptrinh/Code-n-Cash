@@ -408,6 +408,11 @@ try {
   );
   await click("[data-testid=signature-fit-width]");
   await click("[data-testid=positions-save]");
+  // Continuing first shows the signed preview; the positions are saved on its confirm button.
+  await until(
+    '!!document.querySelector("[data-testid=signed-preview] [data-testid=demo-seal]")',
+  );
+  await click("[data-testid=positions-preview-confirm]");
   const digitizePath = `/contracts/${guidedSaved.code}/digitize`;
   await until(
     '!!document.querySelector("[data-testid=extraction-read-document]")',
@@ -436,7 +441,7 @@ try {
   async function readDocument(capture = false) {
     await click("[data-testid=extraction-read-document]");
     await until(
-      '!!document.querySelector(".ant-modal [data-testid=real-document-preview]") && !document.querySelector("[data-testid=extraction-read-ack]").disabled',
+      '!!document.querySelector(".ant-modal [data-testid=extraction-read-pages] img") && !document.querySelector("[data-testid=extraction-read-ack]").disabled',
     );
     if (capture)
       await shot(

@@ -101,6 +101,8 @@ export class ContractFilesController {
           status: step.status,
           signedAt: step.signedAt,
           method: step.method,
+          // Lets the signer preview their own signature before signing; from the session only.
+          mine: step.signerUserId === req.user.id,
         })),
       };
     });

@@ -4,7 +4,6 @@ import type { CanvasView } from "../hooks/useCanvasView";
 import type { SlotEditor } from "../hooks/useSlotEditor";
 import { cx } from "../lib/helpers";
 import {
-  LINE_WIDTHS,
   PAGE_WIDTH,
   pageHeightOf,
   type Box,
@@ -13,7 +12,7 @@ import {
 import { printedAreas } from "../lib/signer-placement";
 import { toneClass } from "../lib/tone";
 import type { SigningConfig } from "../types";
-import { SignatureBlock } from "./SignatureBlock";
+import { DraftPageContent } from "./DraftPageContent";
 import styles from "./SignaturePositions.module.css";
 
 interface PageSurfaceProps {
@@ -48,7 +47,6 @@ export function PageSurface({
     onBoxKey,
   } = editor;
   const { scale } = view;
-  const pageData = previewPages.find((candidate) => candidate.pageNo === page);
   const visibleSteps = steps.filter(
     (step) => boxes[step.stepNo]?.page === page,
   );
@@ -81,39 +79,9 @@ export function PageSurface({
             page={page}
             onReady={setImageReady}
           />
-        ) : pageData ? (
-          <>
-            <div className={styles.pageHeading}>
-              {t(`document.article.${pageData.heading}`)}
-            </div>
-            {Array.from({ length: pageData.textLineCount }, (_, index) => (
-              <div
-                key={index}
-                className={styles.textLine}
-                style={{
-                  top: 64 + index * 18,
-                  width: (448 * LINE_WIDTHS[index % LINE_WIDTHS.length]) / 100,
-                }}
-              />
-            ))}
-            {pageData.hasSignatureBlock
-              ? steps.map((step) => {
-                  const block = pageData.blocks.find(
-                    (candidate) => candidate.stepNo === step.stepNo,
-                  );
-                  return block ? (
-                    <SignatureBlock
-                      key={step.stepNo}
-                      step={step}
-                      left={block.x}
-                      headingTop={block.headingY + 2}
-                      nameTop={block.nameY + 2}
-                    />
-                  ) : null;
-                })
-              : null}
-          </>
-        ) : null}
+        ) : (
+          <DraftPageContent config={config} page={page} />
+        )}
 
         {steps.flatMap((step) =>
           printedAreas(config, step)

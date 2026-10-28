@@ -54,6 +54,8 @@ export interface ExtractionProposal {
   fields: ExtractionField[];
   warnings: string[];
   confirmedBy: string | null;
+  /** Display name of the user who confirmed, so screens never show a user id. */
+  confirmedByName?: string | null;
   confirmedAt: string | null;
   confirmedValues?: Record<string, string>;
 }

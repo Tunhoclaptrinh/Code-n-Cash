@@ -6,6 +6,57 @@ const SCRIPT_FONT =
   '"Segoe Script", "Brush Script MT", "Snell Roundhand", cursive';
 
 const fillBox: CSSProperties = { position: "absolute", inset: 0 };
+/** The demo signature is drawn in a 240 x 70 view box, the name centred at (120, 38). */
+const VIEW_WIDTH = 240;
+const VIEW_HEIGHT = 70;
+/** Share of the box height the drawing takes when a caption runs below it. */
+const DRAWING_SHARE = 0.78;
+/** Width of the name in view box units: about 60% of the box at most, so it reads as handwriting. */
+const glyphWidth = (name: string) =>
+  Math.min(150, Math.max(56, name.length * 11));
+/** Seal diameter as a share of the box height. */
+const SEAL_SHARE = 0.66;
+
+/** A rectangle in page units: signing slots and the contract view use a 520-unit-wide page. */
+export interface MarkBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/**
+ * Where the seal of a signed box goes, in the box's page units. Nghị định 30/2020/NĐ-CP, Điều 33:
+ * the seal is upright and covers about one third of the signature on its left side. The seal is
+ * centred on the drawn name vertically, and its right edge sits one third into the drawn name.
+ */
+export function sealBox(
+  box: MarkBox,
+  name: string,
+  captioned: boolean,
+): MarkBox {
+  // The view box is fitted into the drawing area and centred in it (preserveAspectRatio meet).
+  const area = captioned ? box.h * DRAWING_SHARE : box.h;
+  const scale = Math.min(box.w / VIEW_WIDTH, area / VIEW_HEIGHT);
+  const drawn = glyphWidth(name) * scale;
+  const nameLeft = box.x + (box.w - drawn) / 2;
+  const nameMiddle = box.y + (area - VIEW_HEIGHT * scale) / 2 + 38 * scale;
+  const size = box.h * SEAL_SHARE;
+  return {
+    x: nameLeft + drawn / 3 - size,
+    y: nameMiddle - size / 2,
+    w: size,
+    h: size,
+  };
+}
+
+/** Ink stroke under the name, as wide as the name plus a little on each side. */
+function flourish(width: number) {
+  const left = 120 - width / 2 - 8;
+  const right = 120 + width / 2 + 8;
+  const third = (right - left) / 3;
+  return `M ${left} 52 C ${left + third} 46, ${left + third} 58, ${120} 51 S ${right - third / 2} 47, ${right} 51`;
+}
 
 /** Handwritten-looking demo signature with an ink flourish and a one-line caption. */
 export function DemoSignatureMark({
@@ -16,14 +67,14 @@ export function DemoSignatureMark({
   caption?: string;
 }) {
   // Stretch the glyphs to a width that suits the name length, capped to the box.
-  const textLength = Math.min(208, Math.max(70, name.length * 15));
+  const textLength = glyphWidth(name);
   return (
     <div
       data-testid="demo-signature"
       style={{ ...fillBox, containerType: "inline-size", overflow: "hidden" }}
     >
       <svg
-        viewBox="0 0 240 70"
+        viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
         preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label={name}
@@ -32,24 +83,24 @@ export function DemoSignatureMark({
           left: 0,
           top: 0,
           width: "100%",
-          height: caption ? "78%" : "100%",
+          height: caption ? `${DRAWING_SHARE * 100}%` : "100%",
         }}
       >
         <g transform="rotate(-4 120 38)">
           <text
             x="120"
-            y="42"
+            y="44"
             textAnchor="middle"
             fill={INK}
             fontFamily={SCRIPT_FONT}
-            fontSize="34"
+            fontSize="26"
             textLength={textLength}
             lengthAdjust="spacingAndGlyphs"
           >
             {name}
           </text>
           <path
-            d="M 22 55 C 60 46, 96 63, 134 53 S 196 48, 220 54"
+            d={flourish(textLength)}
             fill="none"
             stroke={INK}
             strokeWidth="1.6"
@@ -95,7 +146,7 @@ function starPoints(
   }).join(" ");
 }
 
-/** Round red company stamp with the organisation name along the top arc. */
+/** Round red company stamp with the organisation name along the top arc, upright (Nghị định 30/2020). */
 export function DemoSeal({
   organization,
   label,
@@ -117,7 +168,7 @@ export function DemoSeal({
       viewBox="0 0 100 100"
       width={size}
       height={size}
-      style={{ opacity: 0.82, transform: "rotate(-12deg)", flexShrink: 0 }}
+      style={{ opacity: 0.82, flexShrink: 0 }}
     >
       <defs>
         <path id={pathId} d="M 19,50 A 31,31 0 0 1 81,50" />
@@ -212,5 +263,46 @@ export function PendingSignatureSlot({
         {label}
       </span>
     </div>
+  );
+}
+
+/**
+ * A signed box drawn over a page: the demo signature, then the seal stamped over the left third of
+ * it. Positions are percentages of a page `pageWidth` x `pageHeight` units in size.
+ */
+export function SignedMark({
+  box,
+  pageWidth,
+  pageHeight,
+  name,
+  caption,
+  organization,
+  sealLabel,
+}: {
+  box: MarkBox;
+  pageWidth: number;
+  pageHeight: number;
+  name: string;
+  caption?: string;
+  organization: string;
+  sealLabel?: string;
+}) {
+  const at = (area: MarkBox): CSSProperties => ({
+    position: "absolute",
+    left: `${(area.x / pageWidth) * 100}%`,
+    top: `${(area.y / pageHeight) * 100}%`,
+    width: `${(area.w / pageWidth) * 100}%`,
+    height: `${(area.h / pageHeight) * 100}%`,
+  });
+  return (
+    <>
+      <div style={{ ...at(box), zIndex: 4 }}>
+        <DemoSignatureMark name={name} caption={caption} />
+      </div>
+      {/* The seal is stamped after signing, so it lies over the signature. */}
+      <div style={{ ...at(sealBox(box, name, Boolean(caption))), zIndex: 5 }}>
+        <DemoSeal organization={organization} label={sealLabel} size="100%" />
+      </div>
+    </>
   );
 }

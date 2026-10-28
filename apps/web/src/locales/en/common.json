@@ -102,7 +102,7 @@
     "demoEmpty": "No demo accounts are currently available.",
     "demoAll": "All organizations",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Search email, company, role or contract code…"
+    "demoSearch": "Search name, email, company, role or contract code…"
   },
   "common": {
     "loading": "Loading…",
@@ -263,6 +263,7 @@
     "current": "Step {{step}} · waiting for {{name}}",
     "waiting": "Step {{step}} · {{name}}",
     "seal": "DEMO",
-    "open": "View contract"
+    "open": "View contract",
+    "ownPreview": "Preview · your signature appears here when you sign"
   }
 }

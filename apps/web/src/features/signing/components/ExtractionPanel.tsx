@@ -15,6 +15,7 @@ import {
   Table,
   Tag,
   Typography,
+  type TableColumnsType,
 } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -24,7 +25,9 @@ import { trustApi } from "@/shared/api/trust";
 import { getContractDraft } from "@/shared/api/domain";
 import { platform } from "@/shared/api/platform";
 import { useCurrentUser } from "@/shared/auth/session";
-import { DocumentPreview } from "@/shared/ui/DocumentPreview";
+import { PdfPageImage } from "@/shared/ui/PdfPageImage";
+import { getSigningConfig, signingKeys } from "../api/signingConfig.api";
+import { PAGE_WIDTH, pageHeightOf } from "../lib/signature-layout";
 import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
 import styles from "./ExtractionPanel.module.css";
 
@@ -64,12 +67,21 @@ export function ExtractionPanel({
   const [values, setValues] = useState<Record<string, string>>({});
   const [readOpen, setReadOpen] = useState(false);
   const [previewReady, setPreviewReady] = useState(false);
+  // The document is read as page images, which every browser shows (an embedded PDF is blank on
+  // phones and some desktop browsers, so its load would never count as read).
+  const pageList = useQuery({
+    queryKey: signingKeys.config(code),
+    queryFn: () => getSigningConfig(code),
+    enabled: allowed && readOpen,
+  });
   const [reviewedSource, setReviewedSource] = useState<string>();
   const [reviewedProposal, setReviewedProposal] = useState<string>();
   const small = Grid.useBreakpoint().xs;
   const sourceKey = `${code}:${draft.data?.file.documentId ?? ""}:${draft.data?.file.sha256 ?? ""}`;
   const hasFile = !!draft.data?.file.documentId;
   const confirmed = !!proposal.data?.confirmedBy;
+  // Once signing has started the draft is locked: nothing here can change any more.
+  const locked = draft.isSuccess && draft.data.state !== "DRAFT";
   const readDone = !hasFile || reviewedSource === sourceKey || confirmed;
   useEffect(() => {
     onReadyChange?.(
@@ -131,6 +143,14 @@ export function ExtractionPanel({
       })
     : {};
   const ready = paths.every((path) => values[path]?.trim() && !problems[path]);
+  // A field shows its problem once it is filled in; the two dates are checked against each other
+  // only when both are given. Empty fields simply keep the confirm button disabled.
+  const shownProblem = (path: string) =>
+    !!problems[path] &&
+    !!values[path]?.trim() &&
+    (path !== "startDate" && path !== "endDate"
+      ? true
+      : !!values.startDate?.trim() && !!values.endDate?.trim());
   const canLoad = !!proposal.data?.fields.some((field) => field.value !== null);
   const nextField = paths.find(
     (path) => !values[path]?.trim() || problems[path],
@@ -143,15 +163,26 @@ export function ExtractionPanel({
     draft.error;
   const acknowledged =
     reviewedProposal === proposal.data?.id && !!proposal.data;
-  const currentStep = confirmed
-    ? 3
-    : !readDone
-      ? 0
-      : !proposal.data
-        ? 1
-        : !acknowledged
-          ? 2
-          : 3;
+  const currentStep =
+    confirmed || locked
+      ? 3
+      : !readDone
+        ? 0
+        : !proposal.data
+          ? 1
+          : !acknowledged
+            ? 2
+            : 3;
+  const showExtract = !locked && !confirmed && !(!hasFile && proposal.data);
+  const showLoad =
+    !!proposal.data && !proposal.data.confirmedBy && !locked && canLoad;
+  const extractBlocked =
+    !draft.isSuccess || !readDone || confirmed || proposal.isPending;
+  // Without a file there is nothing to read: the terms are typed in by hand.
+  const flowSteps = hasFile
+    ? ["read", "extract", "review", "confirm"]
+    : ["manual", "review", "confirm"];
+  const flowStep = hasFile ? currentStep : Math.max(0, currentStep - 1);
   const nextAction = !readDone
     ? "read"
     : !proposal.data
@@ -161,6 +192,41 @@ export function ExtractionPanel({
         : !acknowledged
           ? "review"
           : "confirm";
+  // Only an extraction from a file has a suggestion and a quoted source per field.
+  const fileColumns: TableColumnsType<ExtractionField> = [
+    {
+      title: t("extraction.suggestion"),
+      render: (_, row) =>
+        row.value ? (
+          <span style={{ whiteSpace: "nowrap" }}>{row.value}</span>
+        ) : (
+          <Tag color="warning">{t("extraction.manual")}</Tag>
+        ),
+    },
+    {
+      title: t("extraction.source"),
+      render: (_, row) =>
+        row.evidence ? (
+          <>
+            <Typography.Text strong>
+              {t("extraction.page", { page: row.evidence.page })}
+            </Typography.Text>
+            {proposal.data?.extractor.kind === "GEMINI" ? (
+              <Tag color={row.evidence.verified ? "green" : "warning"}>
+                {t(
+                  row.evidence.verified
+                    ? "extraction.quoteVerified"
+                    : "extraction.scanReview",
+                )}
+              </Tag>
+            ) : null}
+            <EvidenceQuote quote={row.evidence.quote} />
+          </>
+        ) : (
+          "—"
+        ),
+    },
+  ];
   return (
     <Card
       title={t("extraction.title")}
@@ -170,23 +236,24 @@ export function ExtractionPanel({
       className={styles.panel}
     >
       <Steps
-        current={currentStep}
-        status={confirmed ? "finish" : "process"}
+        current={flowStep}
+        status={confirmed || locked ? "finish" : "process"}
         size="small"
         responsive={false}
         className={styles.steps}
-        items={["read", "extract", "review", "confirm"].map((step, index) => ({
+        items={flowSteps.map((step, index) => ({
           title:
-            small && index !== currentStep ? "" : t(`extraction.flow.${step}`),
-          ...(index === 0 && !hasFile
-            ? {
-                status: "wait" as const,
-                title: small ? "" : t("extraction.flow.noFile"),
-              }
-            : {}),
+            small && index !== flowStep ? "" : t(`extraction.flow.${step}`),
         }))}
       />
-      {!hasFile && draft.isSuccess ? (
+      {locked && !confirmed ? (
+        <Alert
+          type="info"
+          showIcon
+          title={t("extraction.flow.locked")}
+          style={{ marginBottom: 12 }}
+        />
+      ) : !hasFile && draft.isSuccess && !confirmed ? (
         <Alert
           type="warning"
           showIcon
@@ -194,7 +261,11 @@ export function ExtractionPanel({
           style={{ marginBottom: 12 }}
         />
       ) : null}
-      <Space wrap className={styles.actions}>
+      <Space
+        wrap
+        className={styles.actions}
+        hidden={!hasFile && !showExtract && !showLoad}
+      >
         {hasFile ? (
           <Button
             icon={<ReadOutlined />}
@@ -213,21 +284,23 @@ export function ExtractionPanel({
             )}
           </Button>
         ) : null}
-        <Button
-          onClick={() => extract.mutate()}
-          loading={extract.isPending}
-          disabled={
-            draft.data?.state !== "DRAFT" ||
-            !readDone ||
-            confirmed ||
-            proposal.isPending
-          }
-          type={nextAction === "extract" ? "primary" : "default"}
-          className={nextAction === "extract" ? styles.nextAction : undefined}
-          data-testid="extract-terms"
-        >
-          {t("extraction.extract")}
-        </Button>
+        {/* Locked drafts take no action; a manual form, once open, needs no second button. */}
+        {showExtract ? (
+          <Button
+            onClick={() => extract.mutate()}
+            loading={extract.isPending}
+            disabled={extractBlocked}
+            type={nextAction === "extract" ? "primary" : "default"}
+            className={
+              nextAction === "extract" && !extractBlocked
+                ? styles.nextAction
+                : undefined
+            }
+            data-testid="extract-terms"
+          >
+            {t(hasFile ? "extraction.extract" : "extraction.manualEntry")}
+          </Button>
+        ) : null}
         {draft.data?.file.documentId ? (
           <Button
             onClick={() => download.mutate()}
@@ -236,12 +309,11 @@ export function ExtractionPanel({
             {t("extraction.document")}
           </Button>
         ) : null}
-        {proposal.data && !proposal.data.confirmedBy ? (
+        {showLoad ? (
           <Button
             size="small"
             icon={<ImportOutlined />}
             className={nextAction === "load" ? styles.nextAction : undefined}
-            disabled={!canLoad}
             onClick={() => {
               setReviewedProposal(undefined);
               setValues((current) =>
@@ -300,7 +372,8 @@ export function ExtractionPanel({
               },
             ]}
           />
-          {proposal.data.warnings.some(
+          {hasFile &&
+          proposal.data.warnings.some(
             (warning) =>
               warning === "NO_TEXT" || warning === "EXTRACTION_UNAVAILABLE",
           ) ? (
@@ -311,64 +384,25 @@ export function ExtractionPanel({
             size="small"
             dataSource={proposal.data.fields}
             pagination={false}
-            scroll={{ x: 980 }}
+            tableLayout="auto"
+            scroll={hasFile ? { x: 760 } : undefined}
             columns={[
               {
                 title: t("extraction.field"),
                 render: (_, row) => t(`fields.${row.path}`),
               },
-              {
-                title: t("extraction.suggestion"),
-                render: (_, row) =>
-                  row.value ?? (
-                    <Tag color="warning">{t("extraction.manual")}</Tag>
-                  ),
-              },
-              {
-                title: t("extraction.source"),
-                render: (_, row) =>
-                  row.evidence ? (
-                    <>
-                      <Typography.Text strong>
-                        {t("extraction.page", { page: row.evidence.page })}
-                      </Typography.Text>
-                      {proposal.data?.extractor.kind === "GEMINI" ? (
-                        <Tag
-                          color={row.evidence.verified ? "green" : "warning"}
-                        >
-                          {t(
-                            row.evidence.verified
-                              ? "extraction.quoteVerified"
-                              : "extraction.scanReview",
-                          )}
-                        </Tag>
-                      ) : null}
-                      <Typography.Paragraph
-                        style={{
-                          maxWidth: 400,
-                          whiteSpace: "pre-wrap",
-                          marginBottom: 0,
-                        }}
-                      >
-                        {row.evidence.quote}
-                      </Typography.Paragraph>
-                    </>
-                  ) : (
-                    "—"
-                  ),
-              },
+              // A manual form has no suggestion or quoted source to show.
+              ...(hasFile ? fileColumns : []),
               {
                 title: t("extraction.confirmValue"),
                 render: (_, row) => (
                   <Form.Item
                     style={{ margin: 0 }}
                     validateStatus={
-                      !values[row.path]?.trim() || problems[row.path]
-                        ? "error"
-                        : undefined
+                      shownProblem(row.path) ? "error" : undefined
                     }
                     help={
-                      problems[row.path]
+                      shownProblem(row.path)
                         ? td(`errors.${problems[row.path]}`)
                         : undefined
                     }
@@ -381,7 +415,7 @@ export function ExtractionPanel({
                       }
                       aria-label={t(`fields.${row.path}`)}
                       data-testid={`extraction-value-${row.path}`}
-                      disabled={!!proposal.data?.confirmedBy}
+                      disabled={!!proposal.data?.confirmedBy || locked}
                       value={values[row.path] ?? ""}
                       placeholder={t(`placeholders.${row.path}`)}
                       maxLength={30}
@@ -398,13 +432,18 @@ export function ExtractionPanel({
               },
             ]}
           />
-          {proposal.data.confirmedBy ? (
+          {locked && !proposal.data.confirmedBy ? null : proposal.data
+              .confirmedBy ? (
             <Alert
               type="success"
               showIcon
-              title={t("extraction.confirmed", {
-                actor: proposal.data.confirmedBy,
-              })}
+              title={
+                proposal.data.confirmedByName
+                  ? t("extraction.confirmed", {
+                      actor: proposal.data.confirmedByName,
+                    })
+                  : t("extraction.flow.done")
+              }
             />
           ) : (
             <>
@@ -424,7 +463,11 @@ export function ExtractionPanel({
                       : undefined
                   }
                 >
-                  {ts("prepLite.extraction.reviewAck")}
+                  {ts(
+                    hasFile
+                      ? "prepLite.extraction.reviewAck"
+                      : "prepLite.extraction.reviewAckManual",
+                  )}
                 </Checkbox>
               </div>
               <Button
@@ -477,12 +520,59 @@ export function ExtractionPanel({
           </Space>
         }
       >
-        <DocumentPreview
-          documentId={draft.data?.file.documentId}
-          name={draft.data?.file.name ?? ""}
-          onReady={setPreviewReady}
-        />
+        {pageList.data && draft.data?.file.documentId ? (
+          <div className={styles.readPages} data-testid="extraction-read-pages">
+            {pageList.data.previewPages.map((page) => (
+              <div
+                key={page.pageNo}
+                className={styles.readPage}
+                style={{
+                  aspectRatio: `${PAGE_WIDTH} / ${pageHeightOf(pageList.data.previewPages, page.pageNo)}`,
+                }}
+              >
+                <PdfPageImage
+                  contractId={code}
+                  documentId={draft.data!.file.documentId!}
+                  page={page.pageNo}
+                  // The first page on screen is what the reader starts from.
+                  onReady={page.pageNo === 1 ? setPreviewReady : undefined}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Alert
+            type={pageList.isError ? "warning" : "info"}
+            title={t(
+              pageList.isError
+                ? "extraction.flow.pagesUnavailable"
+                : "extraction.flow.pagesLoading",
+            )}
+          />
+        )}
       </Modal>
     </Card>
+  );
+}
+
+/**
+ * A quoted line from the document. A row of a terms table ("label   value", cells kept apart by
+ * runs of spaces or a tab) is shown as a label and a value in fixed columns, so the values of all
+ * rows line up; any other quote is shown as written.
+ */
+function EvidenceQuote({ quote }: { quote: string }) {
+  const cells = quote
+    .split(/\t| {2,}/)
+    .map((cell) => cell.trim())
+    .filter(Boolean);
+  return cells.length === 2 ? (
+    <div className={styles.quoteRow}>
+      <span>{cells[0]}</span>
+      <span>{cells[1]}</span>
+    </div>
+  ) : (
+    <Typography.Paragraph className={styles.quote}>
+      {quote}
+    </Typography.Paragraph>
   );
 }

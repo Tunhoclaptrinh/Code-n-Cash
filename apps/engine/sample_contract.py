@@ -6,7 +6,9 @@ deterministic for the same input, so a regenerated original keeps its SHA-256.
 
 Layout follows the presentation rules of Nghị định 30/2020/NĐ-CP for administrative documents:
 A4 portrait, margins 20 mm top and bottom, 30 mm left, 15 mm right, Times New Roman, 13 pt body,
-justified paragraphs with a 1 cm first-line indent and 1.15 line spacing. Every visible text comes
+justified paragraphs with a 1 cm first-line indent and 1.15 line spacing; national header and motto
+with a rule as long as the motto, document type, number and summary with a short rule below it;
+page numbers in Arabic figures centred in the top margin from the second page on. Every visible text comes
 from the input data or from templates/sample-{vi,en}.json; nothing else is invented.
 """
 import io
@@ -27,6 +29,15 @@ FIRST_LINE = 567  # 1 cm
 SIGNATURE_WIDTH = 5500
 # The empty height after the anchor line must hold the 92 unit overlay plus its 8 unit offset.
 SIGNATURE_SPACE = 2300
+# Indent on both sides that leaves the summary rule about a third of the text width.
+SUMMARY_RULE_INDENT = 3120
+# Page number in the top margin: a PAGE field, shown from the second page on (title page set).
+PAGE_NUMBER_HEADER = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                      '<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                      '<w:p><w:pPr><w:pStyle w:val="PageNumber"/></w:pPr>'
+                      '<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>'
+                      '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>2</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r>'
+                      '</w:p></w:hdr>')
 
 TERM_KEYS = ('valueMillion', 'startDate', 'endDate', 'graceDays', 'penaltyRatePct', 'maxPenaltyPct')
 BORDER = 'w:val="single" w:sz="4" w:space="0" w:color="000000"'
@@ -105,7 +116,13 @@ def build_styles(language):
               character='<w:b/><w:bCs/><w:sz w:val="28"/><w:szCs w:val="28"/>'),
         style('ContractName', 'Contract name', paragraph=f'<w:keepNext/><w:spacing w:after="0"/>{flat}<w:jc w:val="center"/>',
               character='<w:b/><w:bCs/>'),
-        style('ContractNumber', 'Contract number', paragraph=f'<w:spacing w:after="120"/>{flat}<w:jc w:val="center"/>'),
+        style('ContractNumber', 'Contract number', paragraph=f'<w:keepNext/><w:spacing w:after="0"/>{flat}<w:jc w:val="center"/>'),
+        # The summary rule: a solid line about a third of the text width, centred below the summary.
+        style('SummaryRule', 'Summary rule', paragraph='<w:keepNext/><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="000000"/></w:pBdr>'
+                                                       '<w:spacing w:before="0" w:after="120" w:line="120" w:lineRule="exact"/>'
+                                                       f'<w:ind w:left="{SUMMARY_RULE_INDENT}" w:right="{SUMMARY_RULE_INDENT}" w:firstLine="0"/>',
+              character='<w:sz w:val="4"/><w:szCs w:val="4"/>'),
+        style('PageNumber', 'Page number', paragraph=f'<w:spacing w:after="0"/>{flat}<w:jc w:val="center"/>'),
         style('Notice', 'Notice', paragraph=f'<w:spacing w:before="60" w:after="240"/>{flat}<w:jc w:val="center"/>',
               character='<w:i/><w:iCs/><w:sz w:val="22"/><w:szCs w:val="22"/>'),
         style('Basis', 'Legal basis', character='<w:i/><w:iCs/>'),
@@ -129,9 +146,10 @@ def build_styles(language):
               character='<w:i/><w:iCs/>'),
         style('SignatureNote', 'Signature note', paragraph=f'<w:keepNext/><w:spacing w:after="0"/>{flat}<w:jc w:val="center"/>',
               character='<w:i/><w:iCs/><w:sz w:val="22"/><w:szCs w:val="22"/>'),
-        # The anchor text is what the PDF geometry finds; the empty height below it is the signing box.
+        # The anchor text is what the PDF geometry finds; the empty height below it is the signing box. It
+        # stays in the text layer but is not printed, so the page shows only what the decree lays out.
         style('Anchor', 'Signature anchor', paragraph=f'<w:keepNext/><w:spacing w:before="60" w:after="{SIGNATURE_SPACE}"/>{flat}<w:jc w:val="left"/>',
-              character='<w:color w:val="7F7F7F"/><w:sz w:val="22"/><w:szCs w:val="22"/>'),
+              character='<w:color w:val="FFFFFF"/><w:sz w:val="22"/><w:szCs w:val="22"/>'),
         style('SignatureName', 'Signature name', paragraph=f'<w:spacing w:after="60"/>{flat}<w:jc w:val="center"/>',
               character='<w:b/><w:bCs/>'),
     ]
@@ -173,8 +191,9 @@ def build_document(data):
     content = [para(header['nation'], 'NationalHeader'),
                para(header['motto'], 'Motto', indent={'left': motto_indent, 'right': motto_indent, 'firstLine': 0}),
                para(header['title'], 'DocTitle'),
-               para(data['title'], 'ContractName'),
                para(f"{labels['numberPrefix']}{data['code']}", 'ContractNumber'),
+               para(data['title'], 'ContractName'),
+               para('', 'SummaryRule'),
                para(labels['sample'], 'Notice')]
     content += [para(line, 'Basis') for line in labels['basis']]
     content.append(para(labels['dateLine']))
@@ -231,18 +250,19 @@ def build_document(data):
 
     document = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
                 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>' + ''.join(content)
-                + f'<w:sectPr><w:pgSz w:w="{PAGE_WIDTH}" w:h="{PAGE_HEIGHT}"/><w:pgMar w:top="{MARGIN_TOP}" w:right="{MARGIN_RIGHT}" '
-                  f'w:bottom="{MARGIN_BOTTOM}" w:left="{MARGIN_LEFT}" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>')
+                + f'<w:sectPr><w:headerReference w:type="default" r:id="rId2"/><w:pgSz w:w="{PAGE_WIDTH}" w:h="{PAGE_HEIGHT}"/><w:pgMar w:top="{MARGIN_TOP}" w:right="{MARGIN_RIGHT}" '
+                  f'w:bottom="{MARGIN_BOTTOM}" w:left="{MARGIN_LEFT}" w:header="567" w:footer="567" w:gutter="0"/><w:titlePg/></w:sectPr></w:body></w:document>')
     output = io.BytesIO()
     with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as bundle:
         # A fixed timestamp keeps the archive bytes identical for identical input.
         def put(name, text):
             bundle.writestr(zipfile.ZipInfo(name, (1980, 1, 1, 0, 0, 0)), text, zipfile.ZIP_DEFLATED)
-        put('[Content_Types].xml', '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>')
+        put('[Content_Types].xml', '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/></Types>')
         put('_rels/.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>')
-        put('word/_rels/document.xml.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>')
+        put('word/_rels/document.xml.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/></Relationships>')
         put('word/document.xml', document)
         put('word/styles.xml', build_styles(language))
+        put('word/header1.xml', PAGE_NUMBER_HEADER)
     return output.getvalue()
 
 

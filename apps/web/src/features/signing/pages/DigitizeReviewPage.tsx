@@ -126,7 +126,9 @@ function Review({
             rowKey="sequence"
             dataSource={data.milestones}
             pagination={false}
-            scroll={{ x: "max-content" }}
+            tableLayout="auto"
+            // Columns wrap to the card; only a narrow screen scrolls sideways.
+            scroll={{ x: 720 }}
             onRow={(m) => ({
               tabIndex: 0,
               onClick: () => setHighlighted(m.sourceClause),
@@ -187,6 +189,7 @@ function Review({
                 title: t("digitize.result.columns.source"),
                 render: (_, m) => (
                   <Tag
+                    style={{ margin: 0, whiteSpace: "nowrap" }}
                     color={
                       m.source === "NEEDS_CONFIRMATION" ? "warning" : "success"
                     }
@@ -214,7 +217,11 @@ function Review({
                   {t("digitize.ambiguity.label", { no: pending.sequence })}
                   <DemoFillButton
                     testId="load-deadline-suggestion"
-                    disabled={!!deadlineText.trim() || !data.suggestedDueDate}
+                    disabled={
+                      data.locked ||
+                      !!deadlineText.trim() ||
+                      !data.suggestedDueDate
+                    }
                     onClick={() => {
                       setDeadlineText(dateToInputText(data.suggestedDueDate));
                       setDeadlineInvalid(false);
@@ -227,6 +234,10 @@ function Review({
                   id="milestone-deadline"
                   className={styles.deadlineInput}
                   value={deadlineText}
+                  disabled={data.locked}
+                  placeholder={t("digitize.ambiguity.placeholder", {
+                    example: formatDate(new Date(2027, 0, 31)),
+                  })}
                   aria-invalid={deadlineInvalid}
                   onChange={(event) => setDeadlineText(event.target.value)}
                 />

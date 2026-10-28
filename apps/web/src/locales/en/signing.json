@@ -110,7 +110,7 @@
     },
     "actions": {
       "back": "Back",
-      "continue": "Save positions and continue"
+      "continue": "Preview and confirm"
     },
     "pdfPage": "PDF page {{page}}",
     "pdfError": "Page image could not load. Reload before placing signature areas.",
@@ -126,7 +126,13 @@
     "showArea": "Go to signing area",
     "mismatchSummary": "The signer list does not match the document",
     "unconfiguredShort": "Printed names missing from the signer list: {{names}}.",
-    "correctSigners": "Correct signers or document"
+    "correctSigners": "Correct signers or document",
+    "preview": {
+      "title": "Preview of the signed document",
+      "hint": "The signatures and seals are illustrations placed in the signing boxes you configured. Each seal is upright and covers about one third of the signature on its left, as Decree 30/2020/ND-CP requires. Check before saving.",
+      "confirm": "Save positions and continue",
+      "back": "Back to editing"
+    }
   },
   "digitize": {
     "breadcrumb": {
@@ -170,7 +176,8 @@
       "title": "MS{{no}}: the contract only says \"after {{months}} months of warranty\"",
       "label": "MS{{no}} due date",
       "invalid": "That date is not valid.",
-      "loadSuggestion": "Load suggested date"
+      "loadSuggestion": "Load suggested date",
+      "placeholder": "For example {{example}}"
     },
     "approvers": {
       "title": "Approvers named in the contract",
@@ -310,7 +317,8 @@
     "extraction": {
       "noFile": "No original file: enter and confirm values manually.",
       "reviewAck": "I checked these values against the document.",
-      "method": "Extraction method"
+      "method": "Extraction method",
+      "reviewAckManual": "I have checked that the values entered by hand match the terms both parties agreed."
     }
   },
   "lite": {

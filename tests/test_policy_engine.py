@@ -36,7 +36,8 @@ def complete_events():
 def run(rows, scope=None, milestone=MILESTONE, **kw):
     scope = scope or PipelineTests.scope()
     rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
-    return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), milestone['milestone_id'], **kw)
+    return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), milestone['milestone_id'],
+                    explain=True, **kw)
 
 
 def replace(scope, at, **changes):
@@ -122,7 +123,7 @@ class DynamicVocabularyTests(unittest.TestCase):
         small = run(complete_events(), scope=scope, milestone=dict(MILESTONE, payment_percent='20.00'))
         self.assertEqual((large['rule_id'], large['decision']), ('PR65', 'HOLD'))
         self.assertEqual((small['rule_id'], small['decision']), ('PR70', 'RELEASE'))
-        self.assertEqual(large['variables']['payment_percent'], Decimal('60.00'))
+        self.assertEqual(large['explanation']['variables']['payment_percent'], '60.00')
 
     def test_a_derived_fact_is_policy_data(self):
         def owner_must_approve(d):
@@ -160,8 +161,9 @@ class SafetyTests(unittest.TestCase):
         scope = replace(PipelineTests.scope(), 30, condition_expression='planned_payment_vnd_mn / valid_approval_count > 1')
         result = run([event('E1', 'DELIVERY', 'S1')], scope=scope)  # no approval yet: division by zero
         self.assertEqual((result['decision'], result['selection']), ('HOLD', 'RULE_ERROR_FALLBACK'))
-        self.assertIn('PR30: RULE_DIVISION_BY_ZERO', result['issues'])
-        self.assertEqual(result['rule_trace'][-1], {'rule_id': 'PR30', 'priority': '30', 'error': 'RULE_DIVISION_BY_ZERO'})
+        self.assertIn('không đánh giá được luật (RULE_EVALUATION_ERROR): PR30 RULE_DIVISION_BY_ZERO', result['issues'])
+        trail = dict(result['explanation']['trail'])
+        self.assertEqual((trail['PR30'], trail['PR40'], trail['PR80']), ('FAILED', 'NOT_EVALUATED', 'MATCHED'))
 
     def test_an_amount_outside_the_decision_contract_is_never_paid(self):
         scope = replace(PipelineTests.scope(), 70, payable_amount_formula='planned_payment_vnd_mn * 2')
@@ -181,10 +183,14 @@ class SafetyTests(unittest.TestCase):
 
     def test_rule_trace_and_variables_explain_the_decision(self):
         result = run(complete_events())
-        self.assertEqual([step['rule_id'] for step in result['rule_trace']], ['PR10', 'PR20', 'PR30', 'PR40', 'PR50', 'PR60', 'PR70'])
-        self.assertEqual([step['matched'] for step in result['rule_trace']], [False] * 6 + [True])
-        self.assertEqual(result['variables']['actual_completion_date'], '2026-01-09')
-        self.assertIs(result['variables']['all_required_conditions_met'], True)
+        self.assertEqual([outcome for _, outcome in result['explanation']['trail']],
+                         ['NOT_MATCHED'] * 6 + ['MATCHED', 'NOT_EVALUATED'])
+        self.assertEqual(result['explanation']['variables']['actual_completion_date'], '2026-01-09')
+        self.assertIs(result['explanation']['variables']['all_required_conditions_met'], True)
+        guarded = run(complete_events() + [event('D1', 'DISPUTE_OPENED', 'S1', '2026-01-11T09:00:00')],
+                      scope=sorted(replace(PipelineTests.scope(), 70, priority='5', condition_expression='TRUE'),
+                                   key=lambda r: int(r['priority'])))
+        self.assertEqual(dict(guarded['explanation']['trail'])['PR70'], 'SET_ASIDE')
 
 
 class ProfileTests(unittest.TestCase):

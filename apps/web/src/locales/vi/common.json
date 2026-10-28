@@ -6,6 +6,7 @@
   "nav": {
     "label": "Điều hướng chính",
     "tasks": "Việc cần làm",
+    "dashboard": "Tổng quan hợp đồng",
     "contracts": "Hợp đồng",
     "myContracts": "Hợp đồng của tôi",
     "upload": "Tải hợp đồng lên",
@@ -78,8 +79,8 @@
       "short": "QT"
     },
     "AUDITOR": {
-      "name": "Kiểm toán",
-      "short": "KT"
+      "name": "Kiểm tra toàn vẹn",
+      "short": "TV"
     }
   },
   "login": {
@@ -90,20 +91,18 @@
     "errors": {
       "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng."
     },
-    "subtitle": "Số hóa, ký và theo dõi điều kiện thanh toán của hợp đồng trên một quy trình.",
-    "demoHint": "Môi trường demo: chọn \"Tài khoản demo\" ở góc trên bên phải để đăng nhập nhanh.",
+    "subtitle": "Số hóa hợp đồng, ký số và theo dõi điều kiện thanh toán của hợp đồng dựa trên dữ liệu.",
     "highlights": {
-      "sign": "Ký số theo trình tự, khóa tài liệu sau chữ ký đầu tiên",
-      "evidence": "Nộp chứng từ, kiểm tra và phê duyệt hai người",
-      "audit": "Nhật ký chỉ ghi thêm cho mọi thao tác"
+      "sign": "Ký số theo trình tự, đảm bảo tính toàn vẹn của dữ liệu và pháp lý của hợp đồng",
+      "evidence": "Nộp chứng từ, kiểm tra và phê duyệt nhiều bước",
+      "audit": "Nhật ký kiểm soát tính toàn vẹn và lịch sử xuyên suốt"
     },
     "demoAccounts": "Tài khoản demo",
     "demoUnavailable": "Không kết nối được để tải tài khoản demo.",
     "demoEmpty": "Chưa có tài khoản demo khả dụng.",
-    "demoFeatured": "Gợi ý demo (Nova An · Phú Minh)",
     "demoAll": "Tất cả tổ chức",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Tìm tên, email, công ty hoặc mã hợp đồng…"
+    "demoSearch": "Tìm email, công ty, vai trò hoặc mã hợp đồng…"
   },
   "common": {
     "loading": "Đang tải…",
@@ -223,7 +222,7 @@
       "notice": "Tệp mẫu chưa ký. Tải PDF, chọn nhà cung cấp Phú Minh (S015), cấu hình đúng người ký dưới đây rồi tải tệp vào hợp đồng mới.",
       "pdf": "PDF · {{count}} người ký",
       "all": "Tải trọn bộ PDF + DOCX",
-      "signers": "Thêm lần lượt theo số người của mẫu: Nguyễn Văn An (owner@novaan.vn), Vũ Thanh Hà (supplier@phuminh.vn), Lê Quốc Dũng (finance@novaan.vn), Trần Thị Mai (legal@novaan.vn). Tìm tài khoản bằng tên/email trong menu Tài khoản demo. Đây là mẫu chưa ký để kiểm thử quy trình."
+      "signers": "Thêm lần lượt theo số người của mẫu: owner@novaan.vn, supplier@phuminh.vn, finance@novaan.vn, legal@novaan.vn. Tìm tài khoản bằng email trong menu Tài khoản demo. Đây là mẫu chưa ký để kiểm thử quy trình."
     }
   },
   "forms": {

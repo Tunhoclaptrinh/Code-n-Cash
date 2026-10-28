@@ -6,8 +6,11 @@ Output: open dispute events, valid rejections and the counted approvals.
 Business rules: BR-08 (a dispute opens easily, closes only when the policy's closing predicate holds for a
 resolution that references it; scope milestone or contract), BR-09 (a valid rejection blocks payment
 regardless of required approval roles), BR-10 (each approver counts once; the quorum counts the distinct
-values the policy names, the approval roles, covered by counted approvals).
+values the policy names, the approval roles, covered by counted approvals; an approver whose limit cell, the
+``approval_limit_vnd_mn`` of the policy, is below the milestone's planned payment does not count).
 """
+from decimal import Decimal, InvalidOperation
+
 from .events import up_to
 
 
@@ -44,17 +47,32 @@ def valid_rejections(verdicts):
     return [v.event for v in verdicts if v.category == "REJECTION" and v.flags["valid"]]
 
 
-def count_approvals(policy, verdicts):
-    """BR-10: return (approvals, covered_count).
+def within_limit(party, field, planned):
+    """BR-10: an empty limit or no planned amount is no limit; an unreadable limit is no authority."""
+    limit = ((party or {}).get(field) or "").strip() if field else ""
+    if not limit or planned is None:
+        return True
+    try:
+        return planned <= Decimal(limit)
+    except InvalidOperation:
+        return False
+
+
+def count_approvals(policy, verdicts, planned=None):
+    """BR-10: return (approvals, covered_count, over_limit).
 
     approvals maps the policy's ``one_per`` cell (the approver party id) -> that approver's earliest counted
     approval. The count is the number of distinct ``covers`` values (approval roles), not of approvals.
+    over_limit lists approvals from an approver whose limit is below ``planned``; they do not count.
     """
-    approvals, covered = {}, {}
+    approvals, covered, over_limit = {}, {}, []
     for v in verdicts:
         if v.category == "APPROVAL" and v.flags["valid"] and policy.approval_counts(v.scope):
+            if not within_limit(v.actor, policy.approval_limit, planned):
+                over_limit.append(v.event["event_id"])
+                continue
             key = v.event.get(policy.approval_one_per)
             if key not in approvals:
                 approvals[key] = v.event
                 covered[key] = (v.actor or {}).get(policy.approval_covers)
-    return approvals, len(set(covered.values()))
+    return approvals, len(set(covered.values())), over_limit

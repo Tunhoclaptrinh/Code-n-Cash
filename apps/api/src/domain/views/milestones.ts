@@ -90,17 +90,19 @@ export function milestoneDetail(
     )
     .sort((a, b) => Number(a.priority) - Number(b.priority));
   const winner = rules.find((r) => r.rule_id === evaluation.ruleId);
-  // The engine reports the rules it evaluated (up to the first match) and how the applied rule was chosen.
-  const steps = new Map(
-    (evaluation.ruleTrace ?? []).map((step) => [step.ruleId, step]),
-  );
-  const outcomeOf = (rule: RuleRecord): RuleOutcome => {
-    const step = steps.get(rule.rule_id);
-    if (rule.rule_id === winner?.rule_id) return "MATCHED";
-    if (step?.error !== undefined) return "FAILED";
-    if (step) return step.matched ? "SET_ASIDE" : "NOT_MATCHED";
-    return "NOT_EVALUATED";
-  };
+  const structural =
+    evaluation.reasonCode === "UNRESOLVED_CONDITION" &&
+    evaluation.issues.length > 0;
+  const outcomeOf = (priority: number): RuleOutcome =>
+    !winner || structural
+      ? priority === Number(winner?.priority)
+        ? "MATCHED"
+        : "NOT_EVALUATED"
+      : priority < Number(winner.priority)
+        ? "NOT_MATCHED"
+        : priority === Number(winner.priority)
+          ? "MATCHED"
+          : "NOT_EVALUATED";
   const deadline = addDays(m.due_date, Number(m.grace_period_days));
   const payment = (ctx.t[TABLE.payments] as PaymentRecord[]).find(
     (p) => p.milestoneId === m.milestone_id,
@@ -134,7 +136,9 @@ export function milestoneDetail(
       payableFormula: r.payable_amount_formula,
       penaltyFormula: r.penalty_amount_formula,
       description: r.rule_description_vi,
-      outcome: outcomeOf(r),
+      // The engine's own trail when stored; older evaluations fall back to the priority order.
+      outcome:
+        evaluation.ruleTrail?.[r.rule_id] ?? outcomeOf(Number(r.priority)),
     })),
     variables: Object.entries(evaluation.variables ?? {}).map(
       ([name, value]) => ({
@@ -211,7 +215,12 @@ export function milestoneDetail(
         ctx.actor.role === "FINANCE_APPROVER" &&
         contract.buyer_id === ctx.actor.organizationId,
       proposeException:
-        ctx.actor.role === "ADMIN_AUDITOR" && voidCandidates(ctx, m).length > 0,
+        ctx.actor.role === "CONTRACT_OWNER" &&
+        contract.buyer_id === ctx.actor.organizationId &&
+        voidCandidates(ctx, m).length > 0,
+      decideException:
+        ctx.actor.role === "ADMIN_AUDITOR" &&
+        contract.buyer_id === ctx.actor.organizationId,
     },
   };
 }

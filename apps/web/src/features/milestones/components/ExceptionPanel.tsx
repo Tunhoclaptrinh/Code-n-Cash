@@ -19,7 +19,10 @@ import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 import styles from "./MilestoneDecision.module.css";
 
-/** BR-19: one controller proposes to void an unauthorised event, a second one decides (SoD-2). */
+/**
+ * BR-19: the contract owner proposes to void an unauthorised event; the controller of the same
+ * organisation checks the proposal and approves or returns it, and never proposes (SoD-2).
+ */
 export function ExceptionPanel({
   data,
   onChanged,
@@ -35,7 +38,8 @@ export function ExceptionPanel({
   const { milestone } = data;
   const [eventId, setEventId] = useState<string>();
   const [reason, setReason] = useState("");
-  const controller = user.role === "ADMIN_AUDITOR";
+  const controller = data.actions.decideException;
+  const canPropose = data.actions.proposeException;
   const candidates = data.events.filter(
     (e) =>
       e.classification === "UNAUTHORIZED" &&
@@ -117,33 +121,32 @@ export function ExceptionPanel({
                 })}
               </div>
             ) : null}
-            {controller && request.status === "PROPOSED" ? (
-              request.proposedBy.userId === user.id ? (
-                <Typography.Text type="secondary">
-                  {t("decision.exceptions.waitSecond")}
-                </Typography.Text>
-              ) : (
-                <Space style={{ marginTop: 6 }}>
-                  <Button
-                    size="small"
-                    color="green"
-                    variant="solid"
-                    loading={decide.isPending}
-                    onClick={() => decide.mutate({ request, approve: true })}
-                    data-testid="exception-approve"
-                  >
-                    {t("decision.exceptions.approve")}
-                  </Button>
-                  <Button
-                    size="small"
-                    danger
-                    loading={decide.isPending}
-                    onClick={() => decide.mutate({ request, approve: false })}
-                  >
-                    {t("decision.exceptions.reject")}
-                  </Button>
-                </Space>
-              )
+            {request.status === "PROPOSED" &&
+            request.proposedBy.userId === user.id ? (
+              <Typography.Text type="secondary">
+                {t("decision.exceptions.waitSecond")}
+              </Typography.Text>
+            ) : controller && request.status === "PROPOSED" ? (
+              <Space style={{ marginTop: 6 }}>
+                <Button
+                  size="small"
+                  color="green"
+                  variant="solid"
+                  loading={decide.isPending}
+                  onClick={() => decide.mutate({ request, approve: true })}
+                  data-testid="exception-approve"
+                >
+                  {t("decision.exceptions.approve")}
+                </Button>
+                <Button
+                  size="small"
+                  danger
+                  loading={decide.isPending}
+                  onClick={() => decide.mutate({ request, approve: false })}
+                >
+                  {t("decision.exceptions.reject")}
+                </Button>
+              </Space>
             ) : null}
           </div>
         ))
@@ -152,7 +155,7 @@ export function ExceptionPanel({
           {t("decision.exceptions.none")}
         </Typography.Text>
       )}
-      {controller && data.actions.proposeException ? (
+      {canPropose ? (
         <Space direction="vertical" style={{ width: "100%", marginTop: 12 }}>
           <Select
             placeholder={t("decisionLite.exceptions.pick")}

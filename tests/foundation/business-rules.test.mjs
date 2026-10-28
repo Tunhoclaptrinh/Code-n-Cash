@@ -42,8 +42,9 @@ const U = {
   SECONDARY: "u-secondary",
   LEGAL: "u-legal",
   SUPPLIER: "u-supplier",
-  CONTROLLER: "u-admin",
-  CONTROLLER_2: "u-controller",
+  // Each party's own internal controller: it checks, it never proposes or records anything.
+  CONTROLLER: "u-novaan-controller",
+  SUPPLIER_CONTROLLER: "u-phuminh-controller",
   SYSADMIN: "u-sysadmin",
   AUDITOR: "u-auditor",
 };
@@ -315,7 +316,7 @@ const WRITE_ACTIONS = [
   {
     name: "proposeException",
     module: "exceptions",
-    allowed: ["ADMIN_AUDITOR"],
+    allowed: ["CONTRACT_OWNER"],
     args: [at(99, { eventId: "EV00001", reason: "x" })],
     reaches: "MILESTONE_NOT_FOUND",
   },
@@ -396,13 +397,14 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     }
 });
 
-test("who: SoD-1 and read-only roles can never write (system administrator, auditor, controller outside BR-19)", async () => {
+test("who: SoD-1 and read-only roles can never write (system administrator, integrity checker, controllers outside their check)", async () => {
   const w = await world();
   for (const row of WRITE_ACTIONS) {
     for (const user of [U.SYSADMIN, U.AUDITOR])
       await denied(w, user, row.module, row.name, row.args, "ACTION_FORBIDDEN");
-    if (row.name !== "proposeException" && row.name !== "decideException")
-      for (const user of [U.CONTROLLER, U.CONTROLLER_2])
+    // A controller of either party only checks the owner's proposal; it records nothing.
+    if (row.name !== "decideException")
+      for (const user of [U.CONTROLLER, U.SUPPLIER_CONTROLLER])
         await denied(
           w,
           user,
@@ -1502,10 +1504,10 @@ test("rejection: a valid REJECTION makes the milestone REJECT; later approvals, 
     [ref],
     "NOT_PAYABLE",
   );
-  // A valid rejection is not an event the controllers can void (BR-19, T41).
+  // A valid rejection is not an event the owner can propose to void (BR-19, T41).
   await denied(
     w,
-    U.CONTROLLER,
+    ownerOf(w, ref.contractId),
     "exceptions",
     "proposeException",
     [{ ...ref, eventId: event.event_id, reason: "Rút lại" }],
@@ -1778,7 +1780,7 @@ test("dispute: only the buyer side closes a dispute, with a reason, and the reso
       U.FINANCE,
       U.SECONDARY,
       U.CONTROLLER,
-      U.CONTROLLER_2,
+      U.SUPPLIER_CONTROLLER,
       U.SYSADMIN,
       U.AUDITOR,
     ])
@@ -2175,15 +2177,25 @@ test("payment: a new dispute on an approved milestone stops the payment until it
 
 /* ------------------------------ 7. exceptions (BR-19) ------------------------------ */
 
+// CT0017 is bought by B003 from S018: B003's owner proposes, B003's controller checks, S018's
+// controller watches.
+const controllerOf = (w, contractId) =>
+  userOf(w.contract(contractId).buyer_id, "ADMIN_AUDITOR");
+const supplierControllerOf = (w, contractId) =>
+  userOf(w.contract(contractId).supplier_id, "ADMIN_AUDITOR");
+
 const queueRow = async (w, contractId, sequence) =>
-  (await w.call(U.CONTROLLER, "exceptions", "listExceptionQueue")).find(
+  (
+    await w.call(ownerOf(w, contractId), "exceptions", "listExceptionQueue")
+  ).find(
     (row) =>
       row.contract.id === contractId && row.milestone.sequence === sequence,
   );
 
-test("BR-19: only a controller proposes; the event must be unauthorised or anomalous, never a valid event, a dispute, an approval or a rejection", async () => {
+test("BR-19: only the buyer's contract owner proposes; the event must be unauthorised or anomalous, never a valid event, a dispute, an approval or a rejection", async () => {
   const w = await world();
   const ref = w.ref("CT0017", 3);
+  const owner = ownerOf(w, "CT0017");
   const row = await queueRow(w, "CT0017", 3);
   const [candidate] = row.candidates;
   assert.equal(candidate.id, "EV00177");
@@ -2193,12 +2205,14 @@ test("BR-19: only a controller proposes; the event must be unauthorised or anoma
   const dispute = w.tbl("events").find((e) => e.event_id === "EV00204");
   const rejection = w.tbl("events").find((e) => e.event_type === "REJECTION");
   assert.ok(valid && approval && dispute && rejection);
-  // Not a controller.
+  // Not the contract owner: the controllers of both parties only check.
   for (const user of [
-    U.OWNER,
     U.FINANCE,
     U.LEGAL,
+    legalOf(w, "CT0017"),
     U.SUPPLIER,
+    controllerOf(w, "CT0017"),
+    supplierControllerOf(w, "CT0017"),
     U.SYSADMIN,
     U.AUDITOR,
   ])
@@ -2210,26 +2224,36 @@ test("BR-19: only a controller proposes; the event must be unauthorised or anoma
       [{ ...ref, eventId: candidate.id, reason: "x" }],
       "ACTION_FORBIDDEN",
     );
+  // The owner of another buyer cannot reach the contract.
+  await denied(
+    w,
+    U.OWNER,
+    "exceptions",
+    "proposeException",
+    [{ ...ref, eventId: candidate.id, reason: "x" }],
+    "CONTRACT_ACCESS_DENIED",
+  );
   // A reason is required.
   for (const reason of [undefined, "", "   "])
     await denied(
       w,
-      U.CONTROLLER,
+      owner,
       "exceptions",
       "proposeException",
       [{ ...ref, eventId: candidate.id, reason }],
       "NOTE_REQUIRED",
     );
   // Valid events, approvals, disputes, rejections, unknown events and events of other milestones are refused.
-  for (const [target, eventId] of [
-    [ref, valid.event_id],
-    [ref, approval.event_id],
-    [ref, "EV-DOES-NOT-EXIST"],
-    [ref, undefined],
-    [w.ref("CT0019", 3), dispute.event_id],
+  const rejectionContract = rejection.contract_id;
+  for (const [target, eventId, user] of [
+    [ref, valid.event_id, owner],
+    [ref, approval.event_id, owner],
+    [ref, "EV-DOES-NOT-EXIST", owner],
+    [ref, undefined, owner],
+    [w.ref("CT0019", 3), dispute.event_id, ownerOf(w, "CT0019")],
     [
       w.ref(
-        rejection.contract_id,
+        rejectionContract,
         Number(
           w
             .tbl("milestones")
@@ -2238,12 +2262,13 @@ test("BR-19: only a controller proposes; the event must be unauthorised or anoma
         ),
       ),
       rejection.event_id,
+      ownerOf(w, rejectionContract),
     ],
-    [w.ref("CT0017", 2), candidate.id], // the unauthorised event belongs to milestone 3
+    [w.ref("CT0017", 2), candidate.id, owner], // the unauthorised event belongs to milestone 3
   ])
     await denied(
       w,
-      U.CONTROLLER,
+      user,
       "exceptions",
       "proposeException",
       [{ ...target, eventId, reason: "Gỡ" }],
@@ -2252,47 +2277,47 @@ test("BR-19: only a controller proposes; the event must be unauthorised or anoma
   assert.equal(w.tbl("exceptions").length, 0);
 });
 
-test("BR-19: a different controller decides; nobody approves their own proposal; nothing is decided twice (SoD-2)", async () => {
+test("BR-19: the buyer's own controller checks the owner's proposal; nobody else decides; nothing is decided twice (SoD-2)", async () => {
   const w = await world();
   const ref = w.ref("CT0017", 3);
-  const { id } = await ok(w, U.CONTROLLER, "exceptions", "proposeException", {
+  const owner = ownerOf(w, "CT0017");
+  const controller = controllerOf(w, "CT0017");
+  const { id } = await ok(w, owner, "exceptions", "proposeException", {
     ...ref,
     eventId: "EV00177",
     reason: "Nhập nhầm kênh",
-    proposedBy: { userId: "u-controller" },
+    proposedBy: { userId: controller },
     status: "APPROVED",
   });
   const proposal = w.tbl("exceptions").find((x) => x.id === id);
   assert.equal(proposal.status, "PROPOSED");
-  assert.equal(proposal.proposedBy.userId, U.CONTROLLER);
+  assert.equal(proposal.proposedBy.userId, owner);
   // The same event cannot be proposed again while a proposal is open.
   await denied(
     w,
-    U.CONTROLLER_2,
+    owner,
     "exceptions",
     "proposeException",
     [{ ...ref, eventId: "EV00177", reason: "Lại" }],
     "EVENT_NOT_VOIDABLE",
   );
-  // The proposer can neither approve nor reject their own proposal.
-  for (const approve of [true, false])
-    await denied(
-      w,
-      U.CONTROLLER,
-      "exceptions",
-      "decideException",
-      [{ exceptionId: id, approve }],
-      "SECOND_CONTROLLER_REQUIRED",
-    );
   await denied(
     w,
-    U.CONTROLLER_2,
+    controller,
     "exceptions",
     "decideException",
     [{ exceptionId: "EXC-9999", approve: true }],
     "EXCEPTION_NOT_FOUND",
   );
-  for (const user of [U.OWNER, U.FINANCE, U.SUPPLIER, U.SYSADMIN, U.AUDITOR])
+  // The proposer and every non-controller role are refused outright.
+  for (const user of [
+    owner,
+    U.OWNER,
+    U.FINANCE,
+    U.SUPPLIER,
+    U.SYSADMIN,
+    U.AUDITOR,
+  ])
     await denied(
       w,
       user,
@@ -2301,18 +2326,35 @@ test("BR-19: a different controller decides; nobody approves their own proposal;
       [{ exceptionId: id, approve: true }],
       "ACTION_FORBIDDEN",
     );
+  // Another buyer's controller cannot reach it; the supplier's controller watches but does not decide.
+  await denied(
+    w,
+    U.CONTROLLER,
+    "exceptions",
+    "decideException",
+    [{ exceptionId: id, approve: true }],
+    "CONTRACT_ACCESS_DENIED",
+  );
+  await denied(
+    w,
+    supplierControllerOf(w, "CT0017"),
+    "exceptions",
+    "decideException",
+    [{ exceptionId: id, approve: true }],
+    "BUYER_ONLY",
+  );
   const events = structuredClone(w.tbl("events"));
-  const decided = await ok(w, U.CONTROLLER_2, "exceptions", "decideException", {
+  const decided = await ok(w, controller, "exceptions", "decideException", {
     exceptionId: id,
     approve: true,
     note: "Đồng ý",
     status: "REJECTED",
-    decidedBy: { userId: "u-admin" },
+    decidedBy: { userId: owner },
   });
   assert.equal(decided.status, "APPROVED");
   assert.equal(
     w.tbl("exceptions").find((x) => x.id === id).decidedBy.userId,
-    U.CONTROLLER_2,
+    controller,
   );
   assert.ok(decided.evaluation.voided.includes("EV00177"));
   // The original event is never edited or deleted; the milestone is simply evaluated without it (BR-19).
@@ -2324,15 +2366,10 @@ test("BR-19: a different controller decides; nobody approves their own proposal;
   assert.ok(decided.evaluation.missing.includes("UAT_PASSED"));
   assert.ok(!decided.evaluation.evidence.includes("EV00177"));
   // A decision is final.
-  for (const [user, approve] of [
-    [U.CONTROLLER_2, true],
-    [U.CONTROLLER_2, false],
-    [U.CONTROLLER, true],
-    [U.CONTROLLER, false],
-  ])
+  for (const approve of [true, false])
     await denied(
       w,
-      user,
+      controller,
       "exceptions",
       "decideException",
       [{ exceptionId: id, approve }],
@@ -2341,7 +2378,7 @@ test("BR-19: a different controller decides; nobody approves their own proposal;
   // The voided event can no longer be proposed.
   await denied(
     w,
-    U.CONTROLLER,
+    owner,
     "exceptions",
     "proposeException",
     [{ ...ref, eventId: "EV00177", reason: "Lại" }],
@@ -2353,13 +2390,15 @@ test("BR-19: a rejected proposal leaves the event counted as unauthorised; the b
   const w = await world();
   const ref = w.ref("CT0017", 3);
   const ms = w.milestone("CT0017", 3).milestone_id;
-  const first = await ok(w, U.CONTROLLER, "exceptions", "proposeException", {
+  const owner = ownerOf(w, "CT0017");
+  const controller = controllerOf(w, "CT0017");
+  const first = await ok(w, owner, "exceptions", "proposeException", {
     ...ref,
     eventId: "EV00177",
     reason: "Thử",
   });
   const evaluation = structuredClone(w.evaluation(ms));
-  const refused = await ok(w, U.CONTROLLER_2, "exceptions", "decideException", {
+  const refused = await ok(w, controller, "exceptions", "decideException", {
     exceptionId: first.id,
     approve: false,
     note: "Không đủ căn cứ",
@@ -2383,12 +2422,12 @@ test("BR-19: a rejected proposal leaves the event counted as unauthorised; the b
     "UNAUTHORIZED_EVENT",
     "the wrong event still blocks (BR-07)",
   );
-  const second = await ok(w, U.CONTROLLER_2, "exceptions", "proposeException", {
+  const second = await ok(w, owner, "exceptions", "proposeException", {
     ...ref,
     eventId: "EV00177",
     reason: "Đã có bản đúng",
   });
-  const approved = await ok(w, U.CONTROLLER, "exceptions", "decideException", {
+  const approved = await ok(w, controller, "exceptions", "decideException", {
     exceptionId: second.id,
     approve: true,
   });
@@ -2568,8 +2607,9 @@ test("signing: a request is confirmed, rejected or cancelled only by its signer 
       "REQUEST_NOT_PENDING",
     );
   assert.equal(stepOf(w, "CT0102", 2).signedAt, null);
-  // Reading a request is allowed for its signer only, never for the auditor or the controller.
-  for (const user of [U.OWNER, U.AUDITOR, U.CONTROLLER])
+  // Reading a request is allowed for its signer only, never for the controller; the integrity
+  // checker does not read contracts at all.
+  for (const user of [U.OWNER, U.CONTROLLER])
     await denied(
       w,
       user,
@@ -2578,6 +2618,14 @@ test("signing: a request is confirmed, rejected or cancelled only by its signer 
       ["CT0102", 2],
       "NOT_ASSIGNED_SIGNER",
     );
+  await denied(
+    w,
+    U.AUDITOR,
+    "signing",
+    "getSigningRequest",
+    ["CT0102", 2],
+    "ACTION_FORBIDDEN",
+  );
 });
 
 test("signing: an expired request cannot be confirmed (5 minute lifetime) and a request is confirmed only once", async () => {
@@ -3532,7 +3580,7 @@ async function buildBusyWorld() {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "SERVICE_COMPLETED" }),
   });
-  await ok(w, U.CONTROLLER, "exceptions", "proposeException", {
+  await ok(w, ownerOf(w, "CT0017"), "exceptions", "proposeException", {
     ...w.ref("CT0017", 3),
     eventId: "EV00177",
     reason: "Nhập nhầm",
@@ -3660,16 +3708,19 @@ test("sweep: the milestone screen offers 'reject' only to an approver who has no
   assert.deepEqual(found, []);
 });
 
-test("sweep: the controllers are offered only the BR-19 proposal and the auditor is offered nothing (SoD-1, SoD-3)", async () => {
+test("sweep: the controllers of both parties and the integrity checker are offered nothing to record (SoD-1, SoD-3)", async () => {
   const w = await busyWorld();
   const views = await imports.load("domain/views/index.js");
   const actions = await imports.load("domain/actions/index.js");
   const failures = [];
-  let proposable = 0;
-  for (const id of [U.CONTROLLER, U.CONTROLLER_2, U.AUDITOR])
+  let checked = 0;
+  for (const id of [U.CONTROLLER, U.SUPPLIER_CONTROLLER, U.AUDITOR])
     await w.domain.read(w.actor(id), (ctx) => {
+      const visible = new Set(ctx.visibleContracts().map((c) => c.contract_id));
       for (const m of ctx.milestones) {
         if (!ctx.hasEvaluation(m.milestone_id)) continue;
+        if (!visible.has(m.contract_id)) continue;
+        checked += 1;
         const ref = {
           contractId: m.contract_id,
           sequence: Number(m.milestone_sequence),
@@ -3680,8 +3731,8 @@ test("sweep: the controllers are offered only the BR-19 proposal and the auditor
           ref.sequence,
         ).actions;
         const candidate = views.voidCandidates(ctx, m)[0];
+        // Only the buyer's contract owner proposes; none of these roles can.
         const canPropose =
-          ctx.actor.role === "ADMIN_AUDITOR" &&
           !!candidate &&
           probe(ctx, () =>
             actions.proposeException(ctx, {
@@ -3690,7 +3741,8 @@ test("sweep: the controllers are offered only the BR-19 proposal and the auditor
               reason: "Gỡ",
             }),
           ) === "OK";
-        if (canPropose) proposable += 1;
+        if (canPropose)
+          failures.push(`${id}: proposeException accepted from a controller`);
         const label = `${id} ${ref.contractId}#${ref.sequence}`;
         if (offered.proposeException !== canPropose)
           failures.push(
@@ -3732,7 +3784,7 @@ test("sweep: the controllers are offered only the BR-19 proposal and the auditor
             );
       }
     });
-  assert.ok(proposable >= 5, `${proposable} milestones with a void candidate`);
+  assert.ok(checked > 0, "the controllers see their own milestones");
   assert.deepEqual(failures.slice(0, 20), [], `${failures.length} failures`);
 });
 
@@ -4669,13 +4721,13 @@ test("audit: every successful write is sealed in the chain under the signed-in a
     note: "Đã xử lý",
     ...claims,
   });
-  await ok(w, U.CONTROLLER, "exceptions", "proposeException", {
+  await ok(w, ownerOf(w, "CT0017"), "exceptions", "proposeException", {
     ...w.ref("CT0017", 3),
     eventId: "EV00177",
     reason: "Nhập nhầm",
     ...claims,
   });
-  await ok(w, U.CONTROLLER_2, "exceptions", "decideException", {
+  await ok(w, controllerOf(w, "CT0017"), "exceptions", "decideException", {
     exceptionId: "EXC-0001",
     approve: false,
     ...claims,
@@ -4711,8 +4763,8 @@ test("audit: every successful write is sealed in the chain under the signed-in a
     castVote: U.OWNER,
     openDispute: U.OWNER,
     resolveDispute: U.LEGAL,
-    proposeException: U.CONTROLLER,
-    decideException: U.CONTROLLER_2,
+    proposeException: ownerOf(w, "CT0017"),
+    decideException: controllerOf(w, "CT0017"),
     transferToAccounting: U.FINANCE,
     sendSigningRequest: U.SUPPLIER,
     confirmSigningRequest: U.SUPPLIER,
@@ -5095,14 +5147,14 @@ test("repetition: the same action sent twice at once (a double click) takes effe
     "DISPUTE_NOT_OPEN",
   );
   await both(
-    U.CONTROLLER,
+    ownerOf(w, "CT0017"),
     "exceptions",
     "proposeException",
     [{ ...w.ref("CT0017", 3), eventId: "EV00177", reason: "Nhập nhầm" }],
     "EVENT_NOT_VOIDABLE",
   );
   await both(
-    U.CONTROLLER_2,
+    controllerOf(w, "CT0017"),
     "exceptions",
     "decideException",
     [{ exceptionId: "EXC-0001", approve: true }],
@@ -5221,6 +5273,7 @@ test("random order: whatever sequence of actions the parties try, nothing is pai
       secondary: userOf(contract.buyer_id, "SECONDARY_APPROVER"),
       legal: userOf(contract.buyer_id, "LEGAL_REVIEWER"),
       supplier: userOf(contract.supplier_id, "SUPPLIER"),
+      controller: userOf(contract.buyer_id, "ADMIN_AUDITOR"),
     };
     // Mostly the party that would normally do it, sometimes anyone at all.
     const fit = {
@@ -5232,8 +5285,8 @@ test("random order: whatever sequence of actions the parties try, nothing is pai
       open: [who.supplier, who.legal, who.owner],
       resolve: [who.legal, who.owner],
       pay: [who.finance],
-      propose: [U.CONTROLLER, U.CONTROLLER_2],
-      decide: [U.CONTROLLER, U.CONTROLLER_2],
+      propose: [who.owner],
+      decide: [who.controller],
       send: [who.owner, who.supplier, who.secondary, who.finance],
       confirm: [who.owner, who.supplier, who.secondary, who.finance],
       cancelSigning: [who.legal, who.owner],

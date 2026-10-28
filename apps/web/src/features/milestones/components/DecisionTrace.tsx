@@ -1,7 +1,6 @@
 import { Collapse, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import type { MilestoneDetail } from "@codecash/contracts";
-import { useCurrentUser } from "@/shared/auth/session";
 import { Panel } from "@/shared/ui/Panel";
 import { DecisionEventTable } from "./DecisionEventTable";
 import { ExceptionPanel } from "./ExceptionPanel";
@@ -18,14 +17,14 @@ interface DecisionTraceProps {
 /** Events, engine replay, status history and exceptions, folded away unless the controller has work here. */
 export function DecisionTrace({ data, onChanged }: DecisionTraceProps) {
   const { t } = useTranslation("milestones");
-  const user = useCurrentUser();
   const { contract, milestone, evaluation } = data;
-  // A controller with something to act on (a proposal to decide, an unauthorised record) gets the trace open.
+  // The trace opens for whoever has exception work here: the owner who can propose, the
+  // controller who has a proposal to check.
   const traceOpen =
-    user.role === "ADMIN_AUDITOR" &&
-    (data.exceptions.some((x) => x.status === "PROPOSED") ||
-      (data.actions.proposeException &&
-        data.events.some((e) => e.classification === "UNAUTHORIZED")));
+    (data.actions.proposeException &&
+      data.events.some((e) => e.classification === "UNAUTHORIZED")) ||
+    (data.actions.decideException &&
+      data.exceptions.some((x) => x.status === "PROPOSED"));
   return (
     <Panel as="div" className={styles.trace}>
       <Collapse

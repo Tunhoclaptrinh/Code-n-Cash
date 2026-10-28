@@ -96,7 +96,7 @@ class UploadedDatasetTests(unittest.TestCase):
         self.assertEqual({f['role']: f['status'] for f in report['files']}['payment_rules'], 'missing')
         with open(DATA / '01_data/payment_rules.csv', encoding='utf-8-sig') as handle:
             rows = list(csv.DictReader(handle))
-        with open(self.folder / 'payment_rules.csv', 'w', newline='') as handle:
+        with open(self.folder / 'payment_rules.csv', 'w', encoding='utf-8', newline='') as handle:
             writer = csv.DictWriter(handle, [k for k in rows[0] if k != 'priority'], extrasaction='ignore')
             writer.writeheader()
             writer.writerows(rows)

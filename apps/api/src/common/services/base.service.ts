@@ -19,6 +19,8 @@ import { can, scopeOf } from "../permissions";
 import type { Actor, Field, Resource, RecordEntity } from "../types";
 import { repoRoot } from "../paths";
 import { fold } from "../../domain/listing";
+import { INTERNAL_ROLES } from "../../domain/vocabulary";
+import { auditDigest } from "../audit-chain";
 import { fieldProblem, normalizeField } from "../field-validation";
 
 /** Each operation maps to `<resource>:<operation>` in packages/contracts/permissions.json. */
@@ -61,6 +63,13 @@ export class BaseService {
   private clean(item: RecordEntity) {
     const { passwordHash, tokenVersion, ...safe } = item;
     return safe;
+  }
+  /** Platform roles read the audit log as digests only: they check it, they do not read it. */
+  private shown(name: string, item: RecordEntity, actor: Actor) {
+    const safe = this.clean(item);
+    return name === "audit" && INTERNAL_ROLES.includes(actor.role)
+      ? auditDigest(safe as RecordEntity)
+      : safe;
   }
   /** Every problem with one record, in field order; `validate` reports only the first. */
   private fieldErrors(def: Resource, body: unknown, partial = false) {
@@ -210,7 +219,7 @@ export class BaseService {
     return {
       items: items
         .slice((page - 1) * limit, page * limit)
-        .map((x) => this.clean(x)),
+        .map((x) => this.shown(name, x, actor)),
       total: items.length,
       page,
       limit,
@@ -223,7 +232,7 @@ export class BaseService {
       (x) => x.id === id && this.visible(name, x, actor),
     );
     if (!item) throw new NotFoundException("RECORD_NOT_FOUND");
-    return this.clean(item);
+    return this.shown(name, item, actor);
   }
   private async newRecord(
     name: string,
@@ -418,7 +427,9 @@ export class BaseService {
     const format = String(query.format ?? "csv");
     if (!["csv", "json"].includes(format))
       throw new BadRequestException("INVALID_FORMAT");
-    let items = (await this.query(def, query, actor)).map((x) => this.clean(x));
+    let items = (await this.query(def, query, actor)).map((x) =>
+      this.shown(name, x, actor),
+    );
     if (query.limit !== undefined) {
       const limit = Number(query.limit);
       const page = Number(query.page ?? 1);

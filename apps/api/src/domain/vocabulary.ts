@@ -19,15 +19,12 @@ import type {
  */
 export const AUTHORITY = evidenceSides() as Record<BusinessEventType, Side>;
 
-/** Roles of the internal control team (organisation OPS); none of them is a party to a contract. */
-export const INTERNAL_ROLES: Role[] = [
-  "ADMIN_AUDITOR",
-  "SYSTEM_ADMIN",
-  "AUDITOR",
-];
-
-/** Roles that read every organisation's contracts: the controller and the auditor (spec 17). */
-export const SEES_ALL_CONTRACTS: Role[] = ["ADMIN_AUDITOR", "AUDITOR"];
+/**
+ * Roles of the platform operator (organisation OPS). None of them is a party to a contract, so
+ * none of them reads contract content: the administrator configures, the integrity checker sees
+ * hashes, anchors and proofs only (spec 2.2).
+ */
+export const INTERNAL_ROLES: Role[] = ["SYSTEM_ADMIN", "AUDITOR"];
 
 export const BUSINESS_EVENTS = Object.keys(AUTHORITY) as BusinessEventType[];
 

@@ -23,6 +23,7 @@ import type {
   TimelinePoint,
   UploadFormOptions,
   VerificationResult,
+  DashboardView,
 } from "@codecash/contracts";
 import { workflowCall } from "./workflow";
 
@@ -42,6 +43,7 @@ export const WORKFLOW_KEYS = [
   "contract-view",
   "contract-draft",
   "integrity",
+  "dashboard",
 ];
 
 type MilestoneRef = { contractId: string; sequence: number };
@@ -169,6 +171,9 @@ export const decideException = (input: {
   );
 
 /** Audit chain, sealed evidence and decisions re-run; `anchor` is a saved head ("seq:hash"). */
+export const getDashboard = () =>
+  workflowCall<DashboardView>("dashboard", "getDashboard", []);
+
 export const verifyIntegrity = (anchor?: string) =>
   workflowCall<IntegrityReport>("integrity", "verifyIntegrity", [anchor]);
 

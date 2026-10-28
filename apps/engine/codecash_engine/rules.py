@@ -9,6 +9,7 @@ rule), BR-15 (structural issues force the ELSE rule; anomalies only downgrade a 
 safety principle of section 1: a paying rule only pays when the policy's payment guards hold, whatever the
 rule table says. A rule that cannot be evaluated holds its milestone instead of failing the whole run.
 """
+from datetime import date
 from decimal import Decimal
 
 from . import expressions
@@ -20,15 +21,22 @@ ANOMALY_FALLBACK = "ANOMALY_FALLBACK"
 PAYMENT_GUARD_FALLBACK = "PAYMENT_GUARD_FALLBACK"
 RULE_ERROR_FALLBACK = "RULE_ERROR_FALLBACK"
 AMOUNT_GUARD_FALLBACK = "AMOUNT_GUARD_FALLBACK"
-# A safety check had to stop a rule of the table: the milestone is held, and the run reports a defective rule.
-SAFETY_INTERVENTIONS = (RULE_ERROR_FALLBACK, PAYMENT_GUARD_FALLBACK, AMOUNT_GUARD_FALLBACK)
+# A safety check had to stop a paying rule of the table: the milestone is held, and the run reports a defective
+# rule. A rule that cannot be evaluated only holds its milestone (BR-14); the rule version preview refuses it.
+SAFETY_INTERVENTIONS = (PAYMENT_GUARD_FALLBACK, AMOUNT_GUARD_FALLBACK)
+RULE_ERROR = "không đánh giá được luật (RULE_EVALUATION_ERROR)"
 
 
 class Selection:
-    __slots__ = ("rule", "mode", "trace", "issues")
+    """The applied rule, how it was chosen, the rules evaluated on the way (``trace``) and new issues.
 
-    def __init__(self, rule, mode, trace=(), issues=()):
+    ``set_aside`` maps a rule that matched but was not applied to its outcome (OVERRIDDEN, SET_ASIDE, FAILED).
+    """
+    __slots__ = ("rule", "mode", "trace", "issues", "set_aside")
+
+    def __init__(self, rule, mode, trace=(), issues=(), set_aside=None):
         self.rule, self.mode, self.trace, self.issues = rule, mode, list(trace), list(issues)
+        self.set_aside = dict(set_aside or {})
 
 
 def build_env(policy, config, bound, facts):
@@ -93,7 +101,8 @@ def select_rule(scope_rules, env, issues, anomalies, policy):
             matched = bool(expressions.evaluate_expr(rule["condition_expression"], env))
         except ExpressionError as error:
             trace.append({"rule_id": rule["rule_id"], "priority": rule["priority"], "error": error.code})
-            return Selection(fallback, RULE_ERROR_FALLBACK, trace, [f"{rule['rule_id']}: {error.code}"])
+            return Selection(fallback, RULE_ERROR_FALLBACK, trace, [f"{RULE_ERROR}: {rule['rule_id']} {error.code}"],
+                             {rule["rule_id"]: "FAILED"})
         trace.append({"rule_id": rule["rule_id"], "priority": rule["priority"], "matched": matched})
         if matched:
             break
@@ -101,9 +110,40 @@ def select_rule(scope_rules, env, issues, anomalies, policy):
         return Selection(fallback, RULE_ERROR_FALLBACK, trace, ["không rule nào khớp"])
     if policy.pays(rule["decision"]):
         if anomalies:
-            return Selection(fallback, ANOMALY_FALLBACK, trace)
+            return Selection(fallback, ANOMALY_FALLBACK, trace, set_aside={rule["rule_id"]: "OVERRIDDEN"})
         failed = failed_guards(policy, env)
         if failed:
             return Selection(fallback, PAYMENT_GUARD_FALLBACK, trace,
-                             [f"{rule['rule_id']}: luật trả tiền khi chưa đạt điều kiện an toàn: {text}" for text in failed])
+                             [f"{rule['rule_id']}: luật trả tiền khi chưa đạt điều kiện an toàn: {text}" for text in failed],
+                             {rule["rule_id"]: "SET_ASIDE"})
     return Selection(rule, FIRST_MATCH, trace)
+
+
+def rule_trail(scope_rules, selection):
+    """BR-17: what happened to each rule of the scope, in priority order: (rule_id, outcome).
+
+    MATCHED is the rule applied; NOT_MATCHED a rule whose condition was false; OVERRIDDEN a paying rule that
+    matched but was sent to ELSE by an anomaly; SET_ASIDE a matching rule stopped by a safety guard; FAILED a
+    rule that could not be evaluated; NOT_EVALUATED a rule after the decision, or every rule when a structural
+    issue sent the milestone straight to ELSE.
+    """
+    seen = {step["rule_id"]: step for step in selection.trace}
+    applied = selection.rule["rule_id"] if selection.rule else None
+    trail = []
+    for r in scope_rules:
+        rule_id = r["rule_id"]
+        if rule_id in selection.set_aside:
+            outcome = selection.set_aside[rule_id]
+        elif rule_id == applied:
+            outcome = "MATCHED"
+        elif rule_id in seen:
+            outcome = "MATCHED" if seen[rule_id].get("matched") else "NOT_MATCHED"
+        else:
+            outcome = "NOT_EVALUATED"
+        trail.append((rule_id, outcome))
+    return trail
+
+
+def plain_variables(env):
+    """The rule variables as JSON-ready strings, booleans and None (Decimal and date become text)."""
+    return {k: str(v) if isinstance(v, (Decimal, date)) else v for k, v in env.items()}

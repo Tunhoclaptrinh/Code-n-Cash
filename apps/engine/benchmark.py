@@ -147,7 +147,7 @@ class Builder:
 def approvers(pack, buyer_id):
     return {p['approval_role']: p['party_id'] for p in pack.parties.values()
             if p['party_type'] == 'APPROVER' and p['parent_party_id'] == buyer_id and p['status'] == 'ACTIVE'
-            and p['can_approve_payment'] == 'TRUE'}
+            and p['can_approve_payment'] == 'TRUE' and not p.get('benchmark_twin')}
 
 
 def scenarios(pack, m, extra_parties):
@@ -237,6 +237,26 @@ def scenarios(pack, m, extra_parties):
         b = history(approval_roles=roles[:-1])
         b.add('APPROVAL', extra_parties[by_role[roles[-1]]], 'APPROVED', f"APR-{m['milestone_id']}-INACTIVE")
         yield ('INACTIVE_APPROVER_HOLD', *done(b, valid_approvals=len(roles) - 1), None)
+        # README 20, Lỗi 4: an approval from a role the milestone does not require is not counted.
+        unrequired = sorted(set(by_role) - set(roles))
+        if unrequired:
+            b = history(approval_roles=roles[:-1])
+            b.add('APPROVAL', by_role[unrequired[0]], 'APPROVED', f"APR-{m['milestone_id']}-{unrequired[0]}")
+            yield ('UNREQUIRED_ROLE_APPROVAL_HOLD', *done(b, valid_approvals=len(roles) - 1), None)
+
+    # README 9: two approvers with the same role cover one role of the quorum.
+    if approval_required and quorum >= 2:
+        b = history(approval_roles=roles[:1])
+        b.add('APPROVAL', extra_parties[by_role[roles[0]] + '#twin'], 'APPROVED', f"APR-{m['milestone_id']}-TWIN")
+        yield ('SAME_ROLE_TWICE_HOLD', *done(b, valid_approvals=1), None)
+
+    # README 7 and BR-07: evidence resubmitted after the deadline (another document) does not move the
+    # completion date; the earliest valid copy counts.
+    b = history()
+    on_time_done = max(datetime.fromisoformat(e['event_timestamp']) for e in b.events if e['event_type'] in req)
+    resent = datetime.combine(due + timedelta(days=grace + 10), datetime.min.time()).replace(hour=9)
+    b.required(pick, document_id=f"DOC-{m['milestone_id']}-{pick}-RESENT", at=resent)
+    yield ('RESUBMITTED_AFTER_DEADLINE_RELEASE', *done(b, completion=on_time_done.date()), None)
 
     # README 8: OPEN_DISPUTE_HOLD.
     b = history()
@@ -253,6 +273,20 @@ def scenarios(pack, m, extra_parties):
     b.add('DISPUTE_OPENED', c['buyer_id'], 'OPEN', f"DSP-{m['milestone_id']}")
     b.add('DISPUTE_RESOLVED', c['buyer_id'], 'RESOLVED', f"DSP-{m['milestone_id']}", reference='EV-UNKNOWN')
     yield ('RESOLUTION_WITHOUT_REFERENCE_HOLD', *done(b, open_dispute=True), None)
+
+    # README 8: a resolution closes the dispute it references, not a second one.
+    b = history()
+    first = b.add('DISPUTE_OPENED', c['buyer_id'], 'OPEN', f"DSP-{m['milestone_id']}")
+    b.add('DISPUTE_OPENED', c['supplier_id'], 'OPEN', f"DSP-{m['milestone_id']}-2")
+    b.add('DISPUTE_RESOLVED', c['buyer_id'], 'RESOLVED', f"DSP-{m['milestone_id']}", reference=first['event_id'])
+    yield ('SECOND_DISPUTE_STILL_OPEN_HOLD', *done(b, open_dispute=True), None)
+
+    # README 7 and 8: a resent copy of a dispute is the same dispute, closed by resolving the original.
+    b = history()
+    first = b.add('DISPUTE_OPENED', c['buyer_id'], 'OPEN', f"DSP-{m['milestone_id']}")
+    b.add('DISPUTE_OPENED', c['buyer_id'], 'OPEN', f"DSP-{m['milestone_id']}")
+    b.add('DISPUTE_RESOLVED', c['buyer_id'], 'RESOLVED', f"DSP-{m['milestone_id']}", reference=first['event_id'])
+    yield ('DUPLICATE_DISPUTE_RESOLVED_RELEASE', *done(b), None)
 
     # README 11: REJECTION by an approver of this buyer.
     b = history()
@@ -329,8 +363,12 @@ def build(pack):
         if p['party_type'] == 'APPROVER':
             clone = dict(p, party_id=p['party_id'] + 'X', status='INACTIVE')
             extra[p['party_id']] = clone['party_id']
+    # An active second approver with the same role ("twin") for README 9: roles, not approvers, are counted.
+    twins = [dict(p, party_id=p['party_id'] + 'Y', benchmark_twin='TRUE')
+             for p in pack.parties.values() if p['party_id'] in extra]
     parties = list(pack.parties.values()) + [dict(p, party_id=extra[p['party_id']], status='INACTIVE')
-                                             for p in pack.parties.values() if p['party_id'] in extra]
+                                             for p in pack.parties.values() if p['party_id'] in extra] + twins
+    extra.update({p['party_id'][:-1] + '#twin': p['party_id'] for p in twins})
     pack_with = spec.Pack(pack.contracts.values(), parties, pack.milestones.values(), (), pack.rules)
     cases = defaultdict(list)
     for mid, m in pack.milestones.items():

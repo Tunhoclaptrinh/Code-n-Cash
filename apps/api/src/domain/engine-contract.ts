@@ -55,14 +55,10 @@ export interface EngineResult {
   missing_conditions: string[];
   issues: string[];
   notes: string[];
-  selection: Evaluation["selection"];
-  rule_trace: Array<{
-    rule_id: string;
-    priority: string;
-    matched?: boolean;
-    error?: string;
-  }>;
-  variables: Record<string, string | boolean | null>;
+  /** Sequence warnings; optional so an external candidate engine without them still validates. */
+  warnings?: string[];
+  /** How the engine chose the applied rule; optional for the same reason. */
+  selection?: Evaluation["selection"];
 }
 
 export interface EngineOutput {
@@ -209,6 +205,10 @@ export function parseEngineOutput(
     ])
       requireValue(strings(result[key]), `trace.result.${key}`);
     requireValue(
+      result.warnings === undefined || strings(result.warnings),
+      "trace.result.warnings",
+    );
+    requireValue(
       Array.isArray(result.duplicates) &&
         result.duplicates.every(
           (pair) => strings(pair) && (pair as string[]).length === 2,
@@ -238,26 +238,8 @@ export function parseEngineOutput(
       "trace.result.raw_penalty",
     );
     requireValue(
-      typeof result.selection === "string" &&
-        Array.isArray(result.rule_trace) &&
-        result.rule_trace.every(
-          (step) =>
-            step &&
-            typeof step.rule_id === "string" &&
-            typeof step.priority === "string" &&
-            (typeof step.matched === "boolean" ||
-              typeof step.error === "string"),
-        ),
-      "trace.result.rule_trace",
-    );
-    requireValue(
-      result.variables !== null &&
-        typeof result.variables === "object" &&
-        Object.values(result.variables as object).every(
-          (value) =>
-            value === null || ["string", "boolean"].includes(typeof value),
-        ),
-      "trace.result.variables",
+      result.selection === undefined || typeof result.selection === "string",
+      "trace.result.selection",
     );
     traces.set(trace.id, result);
   }

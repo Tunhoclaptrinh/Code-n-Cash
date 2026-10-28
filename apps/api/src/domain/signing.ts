@@ -79,6 +79,16 @@ export function signingDigest(ctx: Ctx, code: string) {
       ...((draft?.appendixDocuments?.length ?? 0)
         ? { appendices: draft!.appendixDocuments }
         : {}),
+      // SoD-4: both parties sign the exact rule version the contract is evaluated with; a new
+      // version reaches this contract only through a new agreement.
+      ...(draft?.ruleVersionId
+        ? {
+            ruleVersion: {
+              id: draft.ruleVersionId,
+              hash: draft.ruleVersionHash,
+            },
+          }
+        : {}),
       signers: signing.steps.map((step) => ({
         stepNo: step.stepNo,
         userId: step.signerUserId,

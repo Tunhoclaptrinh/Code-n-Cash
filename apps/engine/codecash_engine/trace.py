@@ -2,10 +2,10 @@
 
 Input: the facts of one evaluated milestone (valid events, approvals, disputes, rejections, reason code) and
 the policy.
-Output: the sorted evidence ids, the met and missing tokens of the BTC ``required_condition`` DSL, the
-milestone status, and the rule variables as JSON-safe values for the audit trace.
+Output: the sorted evidence ids, the met and missing tokens of the BTC ``required_condition`` DSL, and
+the milestone status.
 Business rules: BR-17 (evidence and traceability: the policy names which extra events a reason cites),
-section 14.3 (condition tokens: the policy defines each token kind), sections 9.2 and 9.4 (status per
+section 9 (condition tokens: the policy defines each token kind), section 4 (status per
 reason from the policy; PLANNED and IN_PROGRESS exist only in as-of mode).
 """
 from datetime import date
@@ -22,7 +22,7 @@ def collect_evidence(policy, reason, sets):
 
 
 def condition_tokens(policy, required_condition, valid_req, approval_count, has_open_dispute):
-    """Section 14.3: split ``required_condition`` into (met, missing) tokens. Unknown kinds are missing."""
+    """Section 9: split ``required_condition`` into (met, missing) tokens. Unknown kinds are missing."""
     state = {"valid_required_types": list(valid_req), "valid_approval_count": approval_count,
              "open_dispute": has_open_dispute}
     met, miss = [], []
@@ -40,7 +40,7 @@ def condition_tokens(policy, required_condition, valid_req, approval_count, has_
 
 
 def milestone_status(policy, reason, as_of=None, has_events=True, due=None):
-    """Sections 9.2 and 9.4: the policy status of the reason code.
+    """Section 4: the policy status of the reason code.
 
     In as-of mode a reason with an ``as_of`` mapping (missing required events) is PLANNED without any event
     so far, and IN_PROGRESS while the as-of day is not after the due date.
@@ -55,7 +55,3 @@ def milestone_status(policy, reason, as_of=None, has_events=True, due=None):
             status = as_of_map["until_due"]
     return status
 
-
-def variables(env):
-    """The rule variables as the audit trace stores them: Decimal and bool as they are, dates as ISO text."""
-    return {name: value.isoformat() if isinstance(value, date) else value for name, value in env.items()}

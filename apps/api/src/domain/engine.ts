@@ -20,9 +20,11 @@ import type {
   Evaluation,
   Preview,
   ReasonCode,
+  RuleOutcome,
   TimelinePoint,
   Trigger,
 } from "./types";
+import { canonical, sha256 } from "../common/audit-chain";
 import { repoRoot } from "../common/paths";
 import { ENGINE_OUTPUT_COLUMNS, parseEngineOutput } from "./engine-contract";
 
@@ -59,6 +61,7 @@ export function python(args: string[], timeoutMs: number): Promise<string> {
 export interface EngineOutcome {
   runId: string;
   fingerprint: string;
+  engineBuild?: string;
   evaluatedAt: string;
   durationMs: number;
   violations: string[];
@@ -175,8 +178,18 @@ export async function runEngine(
       ]),
     );
     const evaluations = new Map<string, Evaluation>();
+    const engineBuild =
+      typeof output.summary.engineBuild === "string"
+        ? output.summary.engineBuild
+        : undefined;
     for (const trace of output.traces) {
       const r = trace.result;
+      const explanation = trace.explanation as
+        | {
+            rules?: Array<{ ruleId: string; outcome: RuleOutcome }>;
+            variables?: Record<string, string | boolean | null>;
+          }
+        | undefined;
       evaluations.set(r.milestone_id, {
         milestoneId: r.milestone_id,
         contractId: r.contract_id,
@@ -206,22 +219,24 @@ export async function runEngine(
         missingConditions: r.missing_conditions,
         issues: r.issues,
         notes: r.notes,
+        warnings: r.warnings ?? [],
+        ...(explanation?.rules
+          ? {
+              ruleTrail: Object.fromEntries(
+                explanation.rules.map((rule) => [rule.ruleId, rule.outcome]),
+              ),
+            }
+          : {}),
         confidence: confidence.get(r.milestone_id) ?? "",
         specVersion: trace.specVersion,
-        selection: r.selection,
-        ruleTrace: r.rule_trace.map((step) => ({
-          ruleId: step.rule_id,
-          priority: Number(step.priority),
-          ...(step.error === undefined
-            ? { matched: step.matched }
-            : { error: step.error }),
-        })),
-        variables: r.variables,
+        ...(r.selection ? { selection: r.selection } : {}),
+        ...(explanation?.variables ? { variables: explanation.variables } : {}),
       });
     }
     return {
       runId: output.runId,
       fingerprint: output.inputFingerprint,
+      engineBuild,
       evaluatedAt,
       durationMs: Date.now() - started,
       violations: output.summary.invariantViolations ?? [],
@@ -229,6 +244,32 @@ export async function runEngine(
     };
   });
 }
+
+/**
+ * Hash of what a stored decision says, sealed in the audit entry of the write that stored it. A later
+ * edit of the stored evaluation no longer matches, without running the engine again.
+ */
+export const decisionHash = (evaluation: Evaluation) =>
+  sha256(
+    canonical({
+      milestoneId: evaluation.milestoneId,
+      contractId: evaluation.contractId,
+      runId: evaluation.runId,
+      decision: evaluation.decision,
+      reasonCode: evaluation.reasonCode,
+      ruleId: evaluation.ruleId,
+      status: evaluation.status,
+      payableMillion: evaluation.payableMillion,
+      penaltyMillion: evaluation.penaltyMillion,
+      evidence: evaluation.evidence,
+    }),
+  );
+
+/** Hashes of the evaluations a run stored, keyed by milestone. */
+export const sealDecisions = (outcome: EngineOutcome, stored: string[]) =>
+  Object.fromEntries(
+    stored.map((id) => [id, decisionHash(outcome.evaluations.get(id)!)]),
+  );
 
 /** Invalid engine results must not become live decisions or hypothetical payment previews. */
 export function assertEngineOutcome(outcome: EngineOutcome): void {
@@ -248,13 +289,13 @@ const snapshotOf = (evaluation: Evaluation) => ({
 
 /**
  * Stores a run: changed evaluations are replaced and every status change is appended to the
- * history with its trigger (spec 9.4). REJECTED and paid (COMPLETED) milestones are final.
+ * history with its trigger (spec section 4). REJECTED and paid (COMPLETED) milestones are final.
  */
 export function applyRun(
   tables: Tables,
   outcome: EngineOutcome,
   trigger: Trigger,
-): { changed: string[] } {
+): { changed: string[]; stored: string[] } {
   assertEngineOutcome(outcome);
   const evaluations = tables[TABLE.evaluations] as EvaluationRecord[];
   const history = tables[TABLE.history] as HistoryRecord[];
@@ -263,6 +304,7 @@ export function applyRun(
   );
   const byId = new Map(evaluations.map((e) => [e.milestoneId, e]));
   const changed: string[] = [];
+  const stored: string[] = [];
   const now = new Date().toISOString();
   for (const [milestoneId, next] of outcome.evaluations) {
     const current = byId.get(milestoneId);
@@ -273,6 +315,7 @@ export function applyRun(
     const statusChanged =
       !previous ||
       JSON.stringify(previous) !== JSON.stringify(snapshotOf(next));
+    stored.push(milestoneId);
     if (current) {
       Object.assign(current, next, {
         version: current.version + 1,
@@ -304,6 +347,7 @@ export function applyRun(
     entity(`${outcome.runId}:${Date.now().toString(36)}`, {
       runId: outcome.runId,
       inputFingerprint: outcome.fingerprint,
+      engineBuild: outcome.engineBuild,
       trigger: trigger.kind,
       milestones: outcome.evaluations.size,
       changed: changed.length,
@@ -311,7 +355,7 @@ export function applyRun(
       invariantViolations: outcome.violations,
     }) as EngineRunRecord,
   );
-  return { changed };
+  return { changed, stored };
 }
 
 export const previewOf = (

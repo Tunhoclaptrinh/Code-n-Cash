@@ -3,10 +3,14 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  type OnModuleDestroy,
+  type OnModuleInit,
 } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
 import { Repository } from "../common/repository";
 import { BaseService } from "../common/services/base.service";
 import {
+  auditDigest,
   canonical,
   chainHead,
   sha256,
@@ -16,10 +20,24 @@ import type { Actor, RecordEntity } from "../common/types";
 import { READ_TABLES } from "../domain/context";
 import { LocalWitnessProvider, type AnchorProvider } from "./anchor-provider";
 import { localKey, verifyLocalProof } from "./crypto";
-import type { AnchorJob, AnchorPayload, LocalProof } from "./types";
+import { inclusionProof, merkleRoot } from "../common/merkle";
+import { INTERNAL_ROLES } from "../domain/vocabulary";
+import type { AnchorJob, AnchorPayload, AuditProof, LocalProof } from "./types";
 import { DomainService } from "../domain/service";
 
 const hashPattern = /^[0-9a-f]{64}$/;
+/** The scheduler that anchors on its own; never a signed-in user, never granted a permission. */
+const SCHEDULER: Actor = {
+  id: "system",
+  email: "",
+  displayName: "System",
+  role: "AUDITOR",
+  organizationId: "OPS",
+  roleChipOrganization: "",
+  partyId: null,
+  title: "",
+  permissions: [],
+};
 const jobView = (job: RecordEntity) =>
   ({
     id: job.id,
@@ -45,15 +63,80 @@ const manifestOf = (tables: Record<string, RecordEntity[]>) =>
       ]),
   );
 
+/** Audit actions of anchoring itself: they do not make the chain worth anchoring again. */
+const ANCHOR_ACTIONS = new Set([
+  "ANCHOR_REQUEST",
+  "ANCHOR_CONFIRMED",
+  "ANCHOR_FAILED",
+]);
+
+/** Entry hashes of the sealed chain in sequence order: the Merkle leaves. */
+const sealedHashes = (audit: RecordEntity[], upTo = Infinity) =>
+  audit
+    .filter(
+      (entry) => typeof entry.hash === "string" && Number(entry.seq) <= upTo,
+    )
+    .sort((a, b) => Number(a.seq) - Number(b.seq))
+    .map((entry) => String(entry.hash));
+
 @Injectable()
-export class TrustService {
+export class TrustService implements OnModuleInit, OnModuleDestroy {
   private provider: AnchorProvider = new LocalWitnessProvider();
   private processing = new Map<string, Promise<AnchorJob>>();
+  private timer?: NodeJS.Timeout;
   constructor(
     @Inject(Repository) private repo: Repository,
     @Inject(BaseService) private base: BaseService,
     @Inject(DomainService) private domain: DomainService,
   ) {}
+  /** Anchors the head every ANCHOR_INTERVAL_MINUTES (default 15; 0 turns it off) when it moved. */
+  onModuleInit() {
+    const minutes = Number(process.env.ANCHOR_INTERVAL_MINUTES ?? 15);
+    if (!(minutes > 0)) return;
+    this.timer = setInterval(
+      () => void this.anchorIfChanged(null).catch(() => undefined),
+      minutes * 60_000,
+    );
+    this.timer.unref();
+  }
+  onModuleDestroy() {
+    clearInterval(this.timer);
+  }
+
+  /**
+   * Anchors the current head when the chain has grown since the last confirmed anchor (entries of
+   * anchoring itself excluded). ``actor`` null is the scheduler. Returns the job, or null.
+   */
+  async anchorIfChanged(actor: Actor | null) {
+    const [audit, jobs] = await Promise.all([
+      this.repo.list("audit"),
+      this.repo.list("anchor-jobs"),
+    ]);
+    const anchored = Math.max(
+      0,
+      ...jobs
+        .filter((job) => job.status === "CONFIRMED")
+        .map((job) => (job.payload as AnchorPayload).sequence),
+    );
+    const grown = audit.some(
+      (entry) =>
+        Number(entry.seq) > anchored &&
+        !ANCHOR_ACTIONS.has(String(entry.action)),
+    );
+    return grown ? this.request(randomUUID(), actor) : null;
+  }
+
+  /** An audit entry for the signed-in actor, or for the scheduler when there is none. */
+  private record(action: string, id: string, actor: Actor | null) {
+    const entry = this.base.auditRecord(
+      action,
+      "anchors",
+      id,
+      actor ?? SCHEDULER,
+    );
+    return actor ? entry : { ...entry, actorRole: "SYSTEM" };
+  }
+
   async signatureBundle(code: string, actor: Actor) {
     const result = await this.domain.read(actor, (ctx) => {
       ctx.contract(code);
@@ -84,7 +167,7 @@ export class TrustService {
     return (await this.repo.list("anchor-jobs")).map(jobView).reverse();
   }
 
-  async request(idempotencyKey: unknown, actor: Actor) {
+  async request(idempotencyKey: unknown, actor: Actor | null) {
     if (
       typeof idempotencyKey !== "string" ||
       !/^[0-9a-f-]{36}$/.test(idempotencyKey)
@@ -109,6 +192,7 @@ export class TrustService {
           sequence: Number(head.seq),
           headHash: String(head.hash),
           snapshotHash: sha256(canonical(manifest)),
+          merkleRoot: merkleRoot(sealedHashes(tables.audit)),
           createdAt: now,
           algorithm: "SHA-256",
           manifest,
@@ -130,23 +214,14 @@ export class TrustService {
         return next;
       },
       (result) =>
-        created
-          ? [
-              this.base.auditRecord(
-                "ANCHOR_REQUEST",
-                "anchors",
-                result.id,
-                actor,
-              ),
-            ]
-          : [],
+        created ? [this.record("ANCHOR_REQUEST", result.id, actor)] : [],
     );
     return job.status === "CONFIRMED"
       ? jobView(job)
       : this.process(job.id, actor);
   }
 
-  async retry(id: string, actor: Actor) {
+  async retry(id: string, actor: Actor | null) {
     await this.job(id);
     return this.process(id, actor);
   }
@@ -157,7 +232,7 @@ export class TrustService {
     if (!job) throw new NotFoundException("RECORD_NOT_FOUND");
     return job;
   }
-  private process(id: string, actor: Actor): Promise<AnchorJob> {
+  private process(id: string, actor: Actor | null): Promise<AnchorJob> {
     const current = this.processing.get(id);
     if (current) return current;
     const pending = this.runJob(id, actor).finally(() =>
@@ -166,7 +241,7 @@ export class TrustService {
     this.processing.set(id, pending);
     return pending;
   }
-  private async runJob(id: string, actor: Actor) {
+  private async runJob(id: string, actor: Actor | null) {
     const job = await this.job(id);
     if (job.status === "CONFIRMED") return jobView(job);
     let receipt: LocalProof | null = null;
@@ -194,15 +269,52 @@ export class TrustService {
         return jobView(saved);
       },
       () => [
-        this.base.auditRecord(
-          error ? "ANCHOR_FAILED" : "ANCHOR_CONFIRMED",
-          "anchors",
-          id,
-          actor,
-        ),
+        this.record(error ? "ANCHOR_FAILED" : "ANCHOR_CONFIRMED", id, actor),
       ],
     );
   }
+  /**
+   * Proof that one audit entry is in the chain as anchored: the entry, its audit path and the
+   * earliest confirmed anchor (with a Merkle root) that covers it.
+   */
+  async proof(entryId: string, actor: Actor): Promise<AuditProof> {
+    const [audit, jobs] = await Promise.all([
+      this.repo.list("audit"),
+      this.repo.list("anchor-jobs"),
+    ]);
+    const entry = audit.find((row) => row.id === entryId);
+    if (!entry || typeof entry.hash !== "string")
+      throw new NotFoundException("RECORD_NOT_FOUND");
+    const job = jobs
+      .filter(
+        (row) =>
+          row.status === "CONFIRMED" &&
+          (row.payload as AnchorPayload).merkleRoot &&
+          (row.payload as AnchorPayload).sequence >= Number(entry.seq),
+      )
+      .sort(
+        (a, b) =>
+          (a.payload as AnchorPayload).sequence -
+          (b.payload as AnchorPayload).sequence,
+      )[0];
+    if (!job) throw new NotFoundException("NOT_ANCHORED_YET");
+    const payload = job.payload as AnchorPayload;
+    const hashes = sealedHashes(audit, payload.sequence);
+    await this.base.audit("AUDIT_PROOF_EXPORT", "anchors", entryId, actor);
+    return {
+      // The leaf is the entry's hash, so a digest is enough to check inclusion (spec 2.2).
+      entry: INTERNAL_ROLES.includes(actor.role) ? auditDigest(entry) : entry,
+      leafIndex: Number(entry.seq) - 1,
+      treeSize: hashes.length,
+      path: inclusionProof(Number(entry.seq) - 1, hashes),
+      anchor: {
+        id: job.id,
+        payload,
+        receipt: (job.receipt as LocalProof | null) ?? null,
+      },
+    };
+  }
+
   async bundle(id: string, actor: Actor) {
     const job = await this.job(id);
     await this.base.audit("ANCHOR_EXPORT", "anchors", id, actor);

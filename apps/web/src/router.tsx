@@ -100,6 +100,11 @@ function pages() {
 
     // Milestones (B1-B4)
     {
+      path: "/dashboard",
+      lazy: () =>
+        import("@/features/dashboard/pages/DashboardPage").then(asRoute),
+    },
+    {
       path: "/tasks",
       lazy: () =>
         import("@/features/milestones/pages/TaskInboxPage").then(asRoute),

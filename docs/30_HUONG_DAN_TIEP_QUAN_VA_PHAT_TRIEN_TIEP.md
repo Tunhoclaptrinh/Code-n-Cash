@@ -7,18 +7,18 @@ Cập nhật ngày 25/10/2026 (giờ Bangkok). Dành cho bất kỳ thành viên
 | Muốn làm việc gì | Bắt đầu từ đâu |
 | --- | --- |
 | Chạy app, xem tài khoản demo | [README gốc](../README.md) và mục 2 dưới đây |
-| Hiểu luật, biến và lý do có các quyết định | [04 — Đặc tả v1.1](04_DAC_TA_NGHIEP_VU.md), [15 — Trả lời BTC](15_XAC_NHAN_BTC_VA_GIA_DINH.md), [19 — Công thức/biến](19_DIEU_KIEN_CONG_THUC_VA_BIEN_QUY_TAC.md) |
+| Hiểu luật, biến và lý do có các quyết định | [Đặc tả nghiệp vụ](NGHIEP_VU.md) (nguồn duy nhất); bản cũ để tra lịch sử: [04 — Đặc tả v1.1](archive/04_DAC_TA_NGHIEP_VU.md), [15 — Trả lời BTC](archive/15_XAC_NHAN_BTC_VA_GIA_DINH.md), [19 — Công thức/biến](archive/19_DIEU_KIEN_CONG_THUC_VA_BIEN_QUY_TAC.md) |
 | Sửa UI hoặc thêm trang | [08 — Quy ước UI](08_HUONG_DAN_PHAT_TRIEN_UI.md), `apps/web/CLAUDE.md` |
-| Thay/nối engine, AI | [29 — Contract, adapter và lệnh kiểm tích hợp](29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md) |
+| Thay/nối engine, AI | [29 — Contract, adapter và lệnh kiểm tích hợp](archive/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md) |
 | Triển khai, Render, môi trường, sao lưu | [07 — Triển khai](07_HUONG_DAN_TRIEN_KHAI.md) |
-| Viết hồ sơ, chuẩn bị trình bày | [Proposal](templates/PROPOSAL_OUTLINE.md), [slide](templates/SLIDE_STRUCTURE.md) |
+| Viết hồ sơ, chuẩn bị trình bày | [Kế hoạch hoàn thiện](KE_HOACH_HOAN_THIEN.md) mục WS9 đến WS11, [Kịch bản demo](KICH_BAN_DEMO.md); khung cũ: [proposal](archive/templates/PROPOSAL_OUTLINE.md), [slide](archive/templates/SLIDE_STRUCTURE.md) |
 | Tra toàn bộ tài liệu | [Mục lục docs](README.md) |
 
 Đọc thêm `CLAUDE.md` ở gốc. Tài liệu ghi nhận một đợt kiểm tra hoặc kế hoạch cũ không tự thay thế trạng thái code hiện tại. Khi khác nhau, xác minh bằng mã/test và nguồn BTC; cập nhật tài liệu liên quan thay vì chỉ sửa con số.
 
 ## 2. Bắt đầu trên máy của mình
 
-Dùng Node 24 theo `.nvmrc`, pnpm 12.14.0 theo `package.json`; Python 3.12+ để cùng môi trường CI. Engine hiện không cần thêm thư viện Python. Xem PDF/DOCX cần LibreOffice Writer, Poppler (`pdftotext`, `pdftoppm`) và font DejaVu.
+Dùng Node 24 theo `.nvmrc`, pnpm 12.14.0 theo `package.json`; Python 3.9 trở lên, khuyến nghị 3.12 để cùng môi trường CI. Engine hiện không cần thêm thư viện Python. Xem PDF/DOCX cần LibreOffice Writer, Poppler (`pdftotext`, `pdftoppm`) và font DejaVu, Liberation (image Docker đã cài sẵn).
 
 Trên Ubuntu, nếu chưa có các công cụ đọc tài liệu:
 
@@ -48,7 +48,7 @@ Nếu đang có thay đổi local, giữ lại/commit trên nhánh của mình t
 
 Để thử offline, đặt `STORAGE_DRIVER=file`, `EXTRACTION_PROVIDER=local`, `SIGNING_PROVIDER=local`, để trống `ENGINE_URL`. API lưu hồ sơ local vào `DATA_DIR` (mặc định `.data`); khóa/bằng chứng trust dùng `TRUST_DIR` (mặc định `${DATA_DIR}-trust`). Không dùng chung một kho file cho nhiều tiến trình API.
 
-Muốn làm mới demo, dừng API rồi chuyển **cả dữ liệu và thư mục trust tương ứng** sang chỗ sao lưu hoặc chọn một cặp thư mục mới. Không xóa dữ liệu production để tạo lại seed. Với Gemini/provider thật, cấu hình tại backend theo tài liệu 07/29; không đưa khóa vào code, ảnh, file mẫu hay `VITE_*`.
+Muốn làm mới demo, dùng **Khôi phục dữ liệu demo** trong menu tài khoản quản trị hệ thống (khi bật đăng nhập demo): dữ liệu và chuỗi audit cũ được lưu trữ, thư mục trust (khoá, biên nhận) giữ nguyên. Muốn làm sạch hoàn toàn cả khoá thì dừng API rồi chuyển **cả dữ liệu và thư mục trust tương ứng** sang chỗ sao lưu hoặc chọn một cặp thư mục mới. Không xóa dữ liệu production để tạo lại seed. Với Gemini/provider thật, cấu hình tại backend theo tài liệu 07/29; không đưa khóa vào code, ảnh, file mẫu hay `VITE_*`.
 
 ## 3. Tìm đúng chỗ để sửa
 
@@ -88,7 +88,7 @@ Chuỗi giao diện nằm trong `apps/web/src/locales/vi` và `en`. Khi thêm ch
 3. Thực hiện, cập nhật kiểu/locale/tài liệu liên quan. Với engine hoặc provider mới, chạy contract/gate tại tài liệu 29 trước khi nối luồng lưu dữ liệu.
 4. Chạy kiểm tra phù hợp ở mục 6. Nếu thay UI, mở ảnh thật để đánh giá và cập nhật hướng dẫn khi ảnh/nhãn/bước thao tác đã đổi.
 5. Commit phần của mình, push nhánh và mở PR để team review/merge. Nếu được phân công làm trực tiếp trên main, cập nhật main trước khi push, không force push.
-6. Bàn giao bằng [mẫu ghi việc](templates/HANDOFF_TEMPLATE.md): đã làm gì, còn gì, cách chạy, kết quả kiểm, hạn chế và commit. Người sau phải tái hiện được mà không cần đọc lịch sử chat.
+6. Bàn giao bằng [mẫu ghi việc](archive/templates/HANDOFF_TEMPLATE.md): đã làm gì, còn gì, cách chạy, kết quả kiểm, hạn chế và commit. Người sau phải tái hiện được mà không cần đọc lịch sử chat.
 
 ## 6. Kiểm tra và dùng fixture đúng cách
 
@@ -133,7 +133,7 @@ API phục vụ luôn web build ở cùng cổng. Dùng cách khởi động tư
 
 Không chạy browser smoke và script chụp hướng dẫn chung fixture sau khi một script đã phê duyệt/đóng tranh chấp; trạng thái đầu vào sẽ khác kỳ vọng. Dừng đúng API fixture bằng Ctrl+C khi xong. Không build lại web trong lúc browser đang chụp/kiểm, vì tên chunk có thể thay đổi giữa phiên.
 
-Chụp nhanh để xem bố cục bằng `scripts/visual-review.mjs`: chuẩn bị fixture riêng có CT0105 PDF thật (chạy `real-contract-smoke.mjs` với `REAL_CONTRACT_COUNTS=3` trên seed sạch), rồi xem các bộ lọc `VISUAL_CASES`, `VISUAL_WIDTHS`, `VISUAL_THEMES` ở [28 — Rà bố cục](28_RA_SOAT_BO_CUC_TOAN_UNG_DUNG.md). Đặt `WEB_URL` tới fixture và `VISUAL_ASSERT=1` để có mã thoát lỗi khi kiểm không đạt. Mở ảnh desktop/mobile, sáng/tối và modal đại diện; số lượng ảnh tự nó không chứng minh giao diện đẹp.
+Chụp nhanh để xem bố cục bằng `scripts/visual-review.mjs`: chuẩn bị fixture riêng có CT0105 PDF thật (chạy `real-contract-smoke.mjs` với `REAL_CONTRACT_COUNTS=3` trên seed sạch), rồi xem các bộ lọc `VISUAL_CASES`, `VISUAL_WIDTHS`, `VISUAL_THEMES` ở [28 — Rà bố cục](archive/28_RA_SOAT_BO_CUC_TOAN_UNG_DUNG.md). Đặt `WEB_URL` tới fixture và `VISUAL_ASSERT=1` để có mã thoát lỗi khi kiểm không đạt. Mở ảnh desktop/mobile, sáng/tối và modal đại diện; số lượng ảnh tự nó không chứng minh giao diện đẹp.
 
 ## 7. Những phần có thể nhận làm tiếp
 

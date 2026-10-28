@@ -10,6 +10,7 @@ import styles from "./MilestoneDecision.module.css";
 const outcomeColor: Record<RuleOutcome, string> = {
   NOT_MATCHED: "default",
   MATCHED: "success",
+  OVERRIDDEN: "warning",
   NOT_EVALUATED: "default",
   SET_ASIDE: "warning",
   FAILED: "error",

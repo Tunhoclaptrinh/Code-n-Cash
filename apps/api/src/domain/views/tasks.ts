@@ -112,11 +112,18 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
                 href: routes.submission(contract.contract_id, sequence),
               }),
             );
-          if (ctx.actor.role === "ADMIN_AUDITOR")
+          // The owner decides what to propose; the controller only checks it afterwards.
+          if (
+            ctx.actor.role === "CONTRACT_OWNER" &&
+            contract.buyer_id === ctx.actor.organizationId
+          )
             tasks.push(row("REVIEW_EXCEPTION", { badge: "MILESTONE_ON_HOLD" }));
           break;
         case "UNRESOLVED_CONDITION":
-          if (ctx.actor.role === "ADMIN_AUDITOR")
+          if (
+            ctx.actor.role === "CONTRACT_OWNER" &&
+            contract.buyer_id === ctx.actor.organizationId
+          )
             tasks.push(row("REVIEW_EXCEPTION", { badge: "MILESTONE_ON_HOLD" }));
           break;
         case "APPROVAL_QUORUM_NOT_MET": {
@@ -150,11 +157,19 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
       }
     }
   }
-  if (ctx.actor.role === "ADMIN_AUDITOR")
+  if (ctx.actor.role === "ADMIN_AUDITOR") {
+    // Only proposals on contracts the controller's organisation buys.
+    const own = new Set(
+      ctx
+        .visibleContracts()
+        .filter((c) => c.buyer_id === ctx.actor.organizationId)
+        .map((c) => c.contract_id),
+    );
     for (const request of ctx.t[TABLE.exceptions] as ExceptionRecord[]) {
       if (
         request.status !== "PROPOSED" ||
-        request.proposedBy.userId === ctx.actor.id
+        request.proposedBy.userId === ctx.actor.id ||
+        !own.has(request.contractId)
       )
         continue;
       const m = ctx.milestone(request.milestoneId);
@@ -178,6 +193,7 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
         origin: "APP",
       });
     }
+  }
   const rank = {
     LATE_PENALTY_RISK: 0,
     YOUR_TURN: 1,

@@ -233,6 +233,9 @@ class Policy:
         self.approval_counts = record("approvals.counts_when", approvals.get("counts_when"), verdict_spaces)
         self.approval_one_per = approvals.get("one_per", "actor_party_id")
         self.approval_covers = approvals.get("covers", "approval_role")
+        self.approval_limit = approvals.get("limit_field")
+        if schema and self.approval_limit and self.approval_limit not in schema["actor"]:
+            problems.append("approvals.limit_field: không có trong parties.csv")
         if schema and self.approval_one_per not in schema["event"]:
             problems.append("approvals.one_per: không có trong events.csv")
         if schema and self.approval_covers not in schema["actor"]:
@@ -379,12 +382,13 @@ class Policy:
         confidence = need("confidence")
         try:
             self.confidence = {key: Decimal(str(confidence[key])) for key in
-                               ("issue_cap", "duplicate_factor", "unrelated_factor", "boundary_factor")}
+                               ("issue_cap", "duplicate_factor", "unrelated_factor", "sequence_factor",
+                                "boundary_factor")}
             self.confidence["duplicate_limit"] = int(confidence["duplicate_limit"])
             self.confidence["boundary_days"] = int(confidence["boundary_days"])
         except (KeyError, InvalidOperation, ValueError, TypeError):
             problems.append("confidence: cần issue_cap, duplicate_factor, duplicate_limit, unrelated_factor, "
-                            "boundary_factor, boundary_days")
+                            "sequence_factor, boundary_factor, boundary_days")
             self.confidence = {}
 
     def _variables(self, problems):

@@ -138,7 +138,8 @@
   "approvals": {
     "counts_when": "actor.approval_role IN milestone.required_approval_roles",
     "one_per": "actor_party_id",
-    "covers": "approval_role"
+    "covers": "approval_role",
+    "limit_field": "approval_limit_vnd_mn"
   },
   "disputes": {
     "scope": "MILESTONE",
@@ -343,14 +344,6 @@
         "milestone_has_event_types": ["DISPUTE_RESOLVED"]
       }
     },
-    "A07": {
-      "switch": "rounding_half_even",
-      "weight": "0.05",
-      "flag": true,
-      "candidates": {
-        "decisions": ["PENALTY"]
-      }
-    },
     "A08": {
       "switch": "enforce_invoice_flag",
       "weight": "0.20",
@@ -365,6 +358,7 @@
     "duplicate_factor": "0.97",
     "duplicate_limit": 3,
     "unrelated_factor": "0.97",
+    "sequence_factor": "0.90",
     "boundary_factor": "0.95",
     "boundary_days": 1
   }

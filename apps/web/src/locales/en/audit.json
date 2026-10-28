@@ -43,7 +43,7 @@
     "LEGAL_REVIEWER": "Contract officer",
     "ADMIN_AUDITOR": "Controller",
     "SYSTEM_ADMIN": "System administrator",
-    "AUDITOR": "Auditor"
+    "AUDITOR": "Integrity checker"
   },
   "categories": {
     "SYSTEM": "System",
@@ -61,7 +61,7 @@
     "DIGITIZATION_CONFIRMED_one": "Locked the digitised terms, {{count}} milestone created",
     "DIGITIZATION_CONFIRMED_other": "Locked the digitised terms, {{count}} milestones created",
     "EXCEPTION_PROPOSED": "Proposed to void event {{id}} (BR-19)",
-    "EXCEPTION_APPROVED": "Second controller approved voiding {{id}}; the engine re-evaluated",
+    "EXCEPTION_APPROVED": "The organisation's controller approved voiding {{id}}; the engine re-evaluated",
     "EXCEPTION_REJECTED": "Rejected the proposal to void {{id}}",
     "PAYMENT": "Simulated payment of {{amount}} million VND (idempotency key)",
     "REQUEST_INFO": "Requested more information: {{text}}",
@@ -144,7 +144,13 @@
         "MISMATCH": "Does not match: the log was rewritten",
         "NOT_FOUND": "Entry not found: the log was truncated",
         "loadCurrent": "Load current anchor"
-      }
+      },
+      "lastAnchor": {
+        "label": "Latest anchor",
+        "value": "Entry #{{seq}}, anchored {{at}}",
+        "none": "No anchor confirmed yet"
+      },
+      "continuesFrom": "Continues the archived chain"
     },
     "evidence": {
       "title": "Evidence recorded in the app",
@@ -163,6 +169,8 @@
     "decisions": {
       "title": "Decision reconciliation",
       "matched": "Matching",
+      "sealed": "Sealed in the log",
+      "sealProblems": "Edited outside the workflow",
       "run": "Run",
       "fingerprint": "Input SHA-256",
       "columns": {

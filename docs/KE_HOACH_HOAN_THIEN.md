@@ -2,6 +2,13 @@
 
 Ngày lập: 25/10/2026. Nhánh làm việc: `fix/contract-preview-side-panel`.
 
+> **Trạng thái (26/10/2026).** Đây là kế hoạch tại ngày lập, giữ nguyên để đối chiếu; trạng thái hiện hành nằm trong [đặc tả nghiệp vụ](NGHIEP_VU.md). Những điểm đã khác kế hoạch:
+>
+> - C1 đã chốt: nút **Khôi phục dữ liệu demo** chỉ có khi bật đăng nhập demo, chỉ quản trị hệ thống dùng được, lưu trữ toàn bộ dữ liệu và chuỗi audit cũ.
+> - WS3: các module thực tế là `structure`, `events`, `requirements`, `controls`, `schedule`, `rules`, `amounts`, `confidence`, `trace` (không có `loader`, `output`); phần xuất nằm trong `apps/engine/cli.py`.
+> - WS4: confidence có nhiều mức nhưng **chưa hiệu chỉnh** thành xác suất (không có nhãn sai để đo Brier); lý do ở mục 8 của đặc tả.
+> - WS5: yêu cầu bị từ chối không đổi dữ liệu nghiệp vụ nhưng có ghi một mục `REQUEST_FAILED` vào audit (mục 9 của đặc tả).
+
 ## 0. Mục tiêu, giả định, điểm cần chốt
 
 **Mục tiêu:** hoàn thiện CodeCash như một hệ thống quản lý thực hiện hợp đồng hoàn chỉnh (số hoá điều khoản, ký, nộp chứng từ, phê duyệt, tranh chấp, quyết định thanh toán, audit). Việc chạy trên Data Pack của BTC là PoC chứng minh năng lực của engine, không phải toàn bộ sản phẩm.

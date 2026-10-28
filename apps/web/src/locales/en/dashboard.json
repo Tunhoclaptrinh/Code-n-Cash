@@ -1,0 +1,41 @@
+{
+  "title": "Contract overview",
+  "updated": "Updated {{at}}, refreshes every 30 seconds",
+  "million": "{{value}} million",
+  "cards": {
+    "contracts": "Contracts followed",
+    "attention_one": "{{count}} milestone needs action",
+    "attention_other": "{{count}} milestones need action",
+    "payable": "Payable, not yet transferred",
+    "paid": "Transferred {{value}} million",
+    "held": "On hold",
+    "planned": "Out of {{value}} million in total",
+    "penalty": "Late penalties in total"
+  },
+  "decisions": {
+    "title": "Decisions and contract status"
+  },
+  "attention": {
+    "title_one": "Needs action ({{count}})",
+    "title_other": "Needs action ({{count}})",
+    "none": "No milestone needs action right now",
+    "due": "due {{date}}",
+    "kind": {
+      "OPEN_DISPUTE": "Open dispute",
+      "DUE_SOON": "Due soon, evidence missing",
+      "SEQUENCE_WARNING": "Unusual event order",
+      "LOW_CONFIDENCE": "About to pay, low confidence"
+    }
+  },
+  "contracts": {
+    "title": "Contracts with the most milestones on hold",
+    "none": "No contract in your scope yet.",
+    "columns": {
+      "contract": "Contract",
+      "status": "Status",
+      "held": "On hold",
+      "disputes": "Open disputes",
+      "payable": "Payable (million)"
+    }
+  }
+}

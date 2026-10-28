@@ -105,8 +105,6 @@ export default function ContractListPage() {
   const { filters, setFilter } = list;
   const facets = list.data?.facets ?? {};
   const supplierView = user.role === "SUPPLIER";
-  // Controllers and auditors see every buyer, so the list gets a buyer column.
-  const admin = user.role === "ADMIN_AUDITOR" || user.role === "AUDITOR";
   // The other party of the contract: the buyer for a supplier, the supplier for everyone else.
   const partnerKey = supplierView ? "buyer" : "supplier";
   const partnerOf = (c: ContractRow) =>
@@ -269,22 +267,6 @@ export default function ContractListPage() {
         </div>
       ),
     },
-    ...(admin
-      ? [
-          {
-            ...list.column("buyer"),
-            title: t("contractList.table.columns.buyer"),
-            sorter: true,
-            filters: options("buyer", (v) => v).map((o) => ({
-              text: o.label,
-              value: o.value,
-            })),
-            filterMultiple: false,
-            filterSearch: true,
-            render: (_: unknown, c: ContractRow) => c.buyer.name,
-          },
-        ]
-      : []),
     {
       ...list.column(partnerKey),
       title: t(`contractList.table.columns.${partnerKey}`),

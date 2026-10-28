@@ -1,6 +1,6 @@
 # Kịch bản demo
 
-Dùng cho phần Demo/Mockup của buổi trình bày (slide 12) và cho buổi chạy thử với BGK nếu có. Mọi bước dùng tài khoản demo (menu "Tài khoản demo" ở trang đăng nhập, tìm được theo tên, email, công ty hoặc mã hợp đồng). Tập trước ít nhất hai lần trên bản deploy sẽ trình bày.
+Dùng cho phần Demo/Mockup của buổi trình bày (slide 11 trong dàn slide của kế hoạch hoàn thiện) và cho buổi chạy thử với BGK nếu có. Mọi bước dùng tài khoản demo (menu "Tài khoản demo" ở trang đăng nhập, tìm được theo tên, email, công ty hoặc mã hợp đồng). Tập trước ít nhất hai lần trên bản deploy sẽ trình bày.
 
 ## Chuẩn bị (trước buổi trình bày)
 
@@ -25,14 +25,16 @@ Dùng cho phần Demo/Mockup của buổi trình bày (slide 12) và cho buổi 
 | 3 | `supplier@phuminh.vn` | Mở tranh chấp ở một mốc đang đủ điều kiện | Mốc chuyển Tạm giữ (HOLD); không mở được tranh chấp thứ hai khi đang có tranh chấp |
 | 4 | `owner@novaan.vn` | Giải quyết tranh chấp đó | Engine đánh giá lại; mốc trở lại quyết định trước tranh chấp |
 | 5 | `controller@codecash.vn` | Kết quả Data Pack, mở một dòng PENALTY | Luật áp dụng, bằng chứng, điều kiện đạt và thiếu, confidence |
-| 6 | `auditor@codecash.vn` | Nhật ký hoạt động, Kiểm tra toàn vẹn | Mọi thao tác đã ghi, chuỗi băm hợp lệ |
+| 6 | `auditor@codecash.vn` | Nhật ký hoạt động, Kiểm tra toàn vẹn | Mọi thao tác đã ghi, chuỗi băm hợp lệ, mốc neo gần nhất khớp, quyết định đã niêm phong |
+| 7 | `auditor@codecash.vn` | Tổng quan hợp đồng | 100 hợp đồng trên một màn: tiền đủ điều kiện chi, đang giữ, phạt; các mốc cần xử lý (tranh chấp mở, sắp tới hạn) |
 
 ## Câu hỏi thường gặp
 
 | Câu hỏi | Trả lời ngắn |
 | --- | --- |
-| Macro-F1 bằng 1 có phải overfit? | Engine là bộ luật, không học từ 20 mẫu. Đội đo thêm trên 5.373 ca kiểm tra dựng từ 405 mốc, chia theo hợp đồng, đáp án suy từ bảng luật; rủi ro còn lại nằm ở cách hiểu đề, được đo bằng độ nhạy và phản ánh vào confidence |
+| Macro-F1 bằng 1 có phải overfit? | Engine là bộ luật, không học từ 20 mẫu. Đội đo thêm trên 6.237 ca kiểm tra dựng từ 405 mốc, chia theo hợp đồng, đáp án suy từ bảng luật; bộ ca này bắt được cả 16 lỗi cố ý cài vào engine, 20 mẫu công khai chỉ bắt được 7; rủi ro còn lại nằm ở cách hiểu đề, được đo bằng độ nhạy và phản ánh vào confidence |
 | ELSE xảy ra khi nào? | Khi không luật nào khớp hoặc dữ liệu lỗi; luôn HOLD để người kiểm tra |
-| Ai đóng tranh chấp? | Bên mua (chủ hợp đồng hoặc pháp chế); sự kiện đóng phải tham chiếu đúng tranh chấp |
+| Ai đóng tranh chấp? | Bên mua (chủ hợp đồng hoặc cán bộ hợp đồng); sự kiện đóng phải tham chiếu đúng tranh chấp |
+| Nhật ký có thật sự không sửa được? | Mỗi mục chứa băm của mục trước; đầu chuỗi được neo tự động kèm gốc Merkle; quyết định đã lưu cũng được niêm phong. Bộ kiểm Python độc lập (`tools/verify_audit.py`) kiểm lại được mà không cần mã của hệ thống. Bên làm chứng hiện vẫn ở cùng máy chủ, bước tiếp theo là dịch vụ dấu thời gian bên ngoài |
 | Confidence dùng để làm gì? | Ưu tiên người rà soát; không bao giờ đổi quyết định |
 | Áp dụng ở khoa, trường thế nào? | Thí điểm với hợp đồng mua sắm, dịch vụ của khoa trong 3 tuần (đặc tả nghiệp vụ, mục kế hoạch MVP trong báo cáo) |

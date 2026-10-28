@@ -34,6 +34,19 @@ class EngineAdapterTests(unittest.TestCase):
                 self.assertEqual(Decimal(row['payable_amount_vnd_mn']), 0)
         self.assertEqual(self.result['summary']['payableMillion'], '365785.87')
 
+    def test_trace_explains_every_rule_and_names_the_engine_build(self):
+        build = self.result['summary']['engineBuild']
+        self.assertRegex(build, '^[0-9a-f]{64}$')
+        for trace in self.result['traces']:
+            self.assertEqual(trace['engineBuild'], build)
+            outcomes = [rule['outcome'] for rule in trace['explanation']['rules']]
+            self.assertEqual(len(outcomes), 8)
+            matched = [rule['ruleId'] for rule in trace['explanation']['rules'] if rule['outcome'] == 'MATCHED']
+            self.assertEqual(matched, [trace['result']['rule_id']])
+            # Every variable of the rule vocabulary except the penalty, which only the payable formula sees.
+            self.assertEqual(len(trace['explanation']['variables']), len(engine.spec.load_policy().variables) - 1)
+            self.assertNotIn('explanation', trace['result'])
+
     def test_trace_references_and_semantic_replay(self):
         traces = {trace['id']: trace for trace in self.result['traces']}
         for row in self.result['rows']:

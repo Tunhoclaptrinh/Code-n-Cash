@@ -2,7 +2,7 @@
 
 Input: the evaluated results of a Data Pack, the Pack, the evaluate function and the run profile.
 Output: per milestone the Open readings (spec section 12) that change its outcome, the assumption flags
-(readings marked ``flag`` that change a paid milestone) and a confidence score in [0, 1] with the factors
+(readings marked ``flag`` that change a paid milestone: A05, A08 in the Case 4 policy) and a confidence score in [0, 1] with the factors
 that lowered it.
 Business rule: spec section 8 and the organiser's answer on confidence: the score is the team's own
 measure of how certain a decision is, it never changes the decision.
@@ -10,8 +10,10 @@ measure of how certain a decision is, it never changes the decision.
 The score is robustness times evidence quality, with every weight read from the policy:
 - robustness: each reading the organiser has not settled is evaluated again through its policy switch;
   when it gives another decision, reason or amount, the score loses that reading's weight;
-- quality: data issues, duplicates, unrelated events and a completion right at the lateness boundary each
-  lower the score, because a person would want to look at those records before paying.
+- quality: data issues, duplicates, unrelated events, sequence warnings and a completion right at the
+  lateness boundary each lower the score, because a person would want to look at those records before paying.
+A07 (rounding) is the team's declared money convention, ROUND_HALF_UP to 0.01, not a business reading: the
+policy keeps its switch for the sensitivity report but no reading lowers the score for it.
 """
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -64,7 +66,7 @@ def reading_changes(pack, results, evaluate, **profile):
 
 
 def assumption_flags(pack, results, evaluate=None, changes=None, **profile):
-    """Paid milestones whose outcome changes under a flagged Open reading (A05, A07, A08 in the Case 4 policy)."""
+    """Paid milestones whose outcome changes under a flagged Open reading (A05, A08 in the Case 4 policy)."""
     policy = resolve_policy(**{k: v for k, v in profile.items() if k in POLICY_ARGS})
     if changes is None:
         from .pipeline import evaluate as default_evaluate
@@ -106,6 +108,9 @@ def confidence_score(result, changed_by=(), milestone=None, policy=None):
     if result["unrelated"]:
         factors.append("UNRELATED_EVENT")
         score *= c["unrelated_factor"]
+    if result.get("warnings"):
+        factors.append("SEQUENCE_WARNING")
+        score *= c["sequence_factor"]
     if milestone is not None and at_lateness_boundary(result, milestone, c["boundary_days"]):
         factors.append("LATENESS_BOUNDARY")
         score *= c["boundary_factor"]

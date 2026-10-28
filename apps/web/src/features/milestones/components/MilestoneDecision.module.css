@@ -71,6 +71,10 @@
   gap: 4px 10px;
 }
 
+.selectionNote {
+  margin-top: 8px;
+}
+
 .ruleToggle {
   padding-inline: 0;
   height: auto;

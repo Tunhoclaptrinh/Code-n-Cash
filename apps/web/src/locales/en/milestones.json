@@ -351,11 +351,22 @@
     "rules": {
       "title": "Applied rule",
       "showAll": "Show all {{count}} rules",
-      "hideAll": "Show applied rule only"
+      "hideAll": "Show applied rule only",
+      "selection": {
+        "STRUCTURE_FALLBACK": "The milestone data has a structural error, so no rule was evaluated and the milestone is held for review.",
+        "ANOMALY_FALLBACK": "A paying rule matched but the record has an anomaly, so the milestone is held for review.",
+        "PAYMENT_GUARD_FALLBACK": "A paying rule matched but the payment safety check failed, so the milestone is held for review.",
+        "RULE_ERROR_FALLBACK": "A rule could not be evaluated on this milestone's data, so the milestone is held for review.",
+        "AMOUNT_GUARD_FALLBACK": "The amounts of the matching rule do not fit its decision, so the milestone is held for review."
+      }
     },
     "trace": {
       "title": "Detailed trace",
-      "events": "Milestone events ({{total}})"
+      "events": "Milestone events ({{total}})",
+      "variables": "Condition values when the engine decided",
+      "variableYes": "Yes",
+      "variableNo": "No",
+      "variableEmpty": "None yet"
     },
     "exceptions": {
       "title": "Exceptions",

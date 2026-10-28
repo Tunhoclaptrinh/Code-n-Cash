@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Table, Tag, Tooltip, Typography } from "antd";
+import { Alert, Button, Table, Tag, Tooltip, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import type { MilestoneDetail, RuleOutcome } from "@codecash/contracts";
 import { DecisionTag } from "@/shared/ui/DomainTags";
@@ -11,6 +11,8 @@ const outcomeColor: Record<RuleOutcome, string> = {
   NOT_MATCHED: "default",
   MATCHED: "success",
   NOT_EVALUATED: "default",
+  SET_ASIDE: "warning",
+  FAILED: "error",
 };
 
 /** The rule that decided the milestone, with the full rule table behind a toggle. */
@@ -19,6 +21,9 @@ export function RulesPanel({ data }: { data: MilestoneDetail }) {
   const { t: td } = useTranslation("domain");
   const [allRules, setAllRules] = useState(false);
   const matchedRule = data.rules.find((rule) => rule.outcome === "MATCHED");
+  // A fallback selection means a safety check held the milestone although a rule matched or failed.
+  const selection = data.evaluation.selection;
+  const heldBySafety = selection && selection !== "FIRST_MATCH";
   const ruleSentence = (rule: MilestoneDetail["rules"][number]) =>
     td(`ruleCondition.${rule.reasonCode}`, {
       defaultValue: i18n.language.startsWith("vi")
@@ -46,6 +51,14 @@ export function RulesPanel({ data }: { data: MilestoneDetail }) {
     >
       {matchedRule ? (
         <p className={styles.matchedRule}>{ruleSentence(matchedRule)}</p>
+      ) : null}
+      {heldBySafety ? (
+        <Alert
+          type="warning"
+          showIcon
+          className={styles.selectionNote}
+          message={t(`decisionLite.rules.selection.${selection}`)}
+        />
       ) : null}
       {allRules || !matchedRule ? (
         <div className={styles.ruleTable}>

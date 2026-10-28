@@ -1,3 +1,4 @@
+import { enginePolicy, evidenceSides } from "./policy";
 import type {
   ApprovalRole,
   BusinessEventType,
@@ -12,22 +13,11 @@ import type {
 } from "./types";
 
 /**
- * Spec 4.2: the side that may create each business event. The engine enforces it when deciding;
- * the API uses the same table so a user can only record the events of their own side (spec 17).
+ * Spec 2.1: the side that may create each business event, read from the engine policy pack. The engine
+ * enforces it when deciding; the API uses the same table so a user can only record the events of their
+ * own side (spec 2.2).
  */
-export const AUTHORITY: Record<BusinessEventType, Side> = {
-  CONTRACT_SIGNED: "BUYER",
-  KICKOFF_CONFIRMED: "BUYER",
-  REQUIREMENTS_APPROVED: "BUYER",
-  UAT_PASSED: "BUYER",
-  ACCEPTANCE: "BUYER",
-  DELIVERY: "SUPPLIER",
-  INVOICE: "SUPPLIER",
-  GO_LIVE: "SUPPLIER",
-  SERVICE_ACTIVATED: "SUPPLIER",
-  SERVICE_COMPLETED: "SUPPLIER",
-  WARRANTY_COMPLETED: "SUPPLIER",
-};
+export const AUTHORITY = evidenceSides() as Record<BusinessEventType, Side>;
 
 /** Roles of the internal control team (organisation OPS); none of them is a party to a contract. */
 export const INTERNAL_ROLES: Role[] = [
@@ -41,28 +31,21 @@ export const SEES_ALL_CONTRACTS: Role[] = ["ADMIN_AUDITOR", "AUDITOR"];
 
 export const BUSINESS_EVENTS = Object.keys(AUTHORITY) as BusinessEventType[];
 
-/** BR-05: the status each event type is recorded with. */
-export const VALID_STATUS: Record<EventType, EventStatus> = {
-  ...(Object.fromEntries(
-    BUSINESS_EVENTS.map((type) => [type, "CONFIRMED"]),
-  ) as Record<BusinessEventType, EventStatus>),
-  APPROVAL: "APPROVED",
-  REJECTION: "REJECTED",
-  DISPUTE_OPENED: "OPEN",
-  DISPUTE_RESOLVED: "RESOLVED",
-};
+/** BR-05: the status each event type is recorded with (engine policy). */
+export const VALID_STATUS = Object.fromEntries(
+  Object.entries(enginePolicy.event_types).map(([type, kind]) => [
+    type,
+    kind.valid_status,
+  ]),
+) as Record<EventType, EventStatus>;
 
-/** Spec 9.1: milestone status for each reason code. */
-export const STATUS_BY_REASON: Record<ReasonCode, MilestoneStatus> = {
-  OPEN_DISPUTE: "ON_HOLD",
-  REJECTION_PRESENT: "REJECTED",
-  UNAUTHORIZED_EVENT: "ON_HOLD",
-  MISSING_REQUIRED_EVENT: "WAITING_EVIDENCE",
-  APPROVAL_QUORUM_NOT_MET: "WAITING_APPROVAL",
-  LATE_COMPLETION: "PAID_WITH_PENALTY",
-  ALL_CONDITIONS_MET: "ELIGIBLE_FOR_PAYMENT",
-  UNRESOLVED_CONDITION: "ON_HOLD",
-};
+/** Spec 9.2: milestone status for each reason code (engine policy). */
+export const STATUS_BY_REASON = Object.fromEntries(
+  Object.entries(enginePolicy.reasons).map(([reason, entry]) => [
+    reason,
+    entry.status,
+  ]),
+) as Record<ReasonCode, MilestoneStatus>;
 
 /** Contract type → workflow and rule set, as in contracts.csv (100/100 contracts). */
 export const WORKFLOW_BY_TYPE: Record<

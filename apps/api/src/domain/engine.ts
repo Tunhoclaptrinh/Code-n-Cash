@@ -208,6 +208,15 @@ export async function runEngine(
         notes: r.notes,
         confidence: confidence.get(r.milestone_id) ?? "",
         specVersion: trace.specVersion,
+        selection: r.selection,
+        ruleTrace: r.rule_trace.map((step) => ({
+          ruleId: step.rule_id,
+          priority: Number(step.priority),
+          ...(step.error === undefined
+            ? { matched: step.matched }
+            : { error: step.error }),
+        })),
+        variables: r.variables,
       });
     }
     return {

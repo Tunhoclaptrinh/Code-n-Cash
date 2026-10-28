@@ -326,6 +326,13 @@ export class RulesService {
         },
       ),
     ]);
+    // The engine holds a milestone whose rule cannot be evaluated; for a candidate version that is a failure.
+    if (
+      [...candidate.evaluations.values()].some(
+        (evaluation) => evaluation.selection === "RULE_ERROR_FALLBACK",
+      )
+    )
+      throw new BadRequestException("RULE_EVALUATION_FAILED");
     const labels = readRecords(
       await readFile(
         resolve(dataPackDir(), "03_labels_sample/decision_sample.csv"),

@@ -1,5 +1,6 @@
 import type { Evaluation, MilestoneStatus, ReasonCode } from "./types";
 import { UnprocessableEntityException } from "@nestjs/common";
+import { enginePolicy, paysOut } from "./policy";
 
 /** Integration contract v1: decimal amounts are strings, never JavaScript floats. */
 export const ENGINE_OUTPUT_COLUMNS = [
@@ -54,6 +55,14 @@ export interface EngineResult {
   missing_conditions: string[];
   issues: string[];
   notes: string[];
+  selection: Evaluation["selection"];
+  rule_trace: Array<{
+    rule_id: string;
+    priority: string;
+    matched?: boolean;
+    error?: string;
+  }>;
+  variables: Record<string, string | boolean | null>;
 }
 
 export interface EngineOutput {
@@ -103,25 +112,10 @@ const integer = (value: unknown) =>
 const money = (value: unknown) =>
   typeof value === "string" && /^\d+\.\d{2}$/.test(value);
 const cents = (value: string) => BigInt(value.replace(".", ""));
-const decisions = ["RELEASE", "HOLD", "REJECT", "PENALTY"];
-const statuses = [
-  "WAITING_EVIDENCE",
-  "WAITING_APPROVAL",
-  "ON_HOLD",
-  "REJECTED",
-  "ELIGIBLE_FOR_PAYMENT",
-  "PAID_WITH_PENALTY",
-];
-const reasons = [
-  "OPEN_DISPUTE",
-  "REJECTION_PRESENT",
-  "UNAUTHORIZED_EVENT",
-  "MISSING_REQUIRED_EVENT",
-  "APPROVAL_QUORUM_NOT_MET",
-  "LATE_COMPLETION",
-  "ALL_CONDITIONS_MET",
-  "UNRESOLVED_CONDITION",
-];
+// The engine policy defines the decisions, statuses and reasons an output row may carry.
+const decisions = Object.keys(enginePolicy.decisions);
+const statuses = enginePolicy.statuses;
+const reasons = Object.keys(enginePolicy.reasons);
 
 /** Structural/consistency gate, not a replacement for the Python business evaluator. */
 export function parseEngineOutput(
@@ -243,6 +237,28 @@ export function parseEngineOutput(
         /^\d+(?:\.\d+)?$/.test(result.raw_penalty),
       "trace.result.raw_penalty",
     );
+    requireValue(
+      typeof result.selection === "string" &&
+        Array.isArray(result.rule_trace) &&
+        result.rule_trace.every(
+          (step) =>
+            step &&
+            typeof step.rule_id === "string" &&
+            typeof step.priority === "string" &&
+            (typeof step.matched === "boolean" ||
+              typeof step.error === "string"),
+        ),
+      "trace.result.rule_trace",
+    );
+    requireValue(
+      result.variables !== null &&
+        typeof result.variables === "object" &&
+        Object.values(result.variables as object).every(
+          (value) =>
+            value === null || ["string", "boolean"].includes(typeof value),
+        ),
+      "trace.result.variables",
+    );
     traces.set(trace.id, result);
   }
   const ids = new Set<string>(),
@@ -293,14 +309,12 @@ export function parseEngineOutput(
     );
     requireValue(
       diagnostic ||
-        !["HOLD", "REJECT"].includes(r.predicted_decision) ||
+        paysOut(r.predicted_decision) ||
         (pay === 0n && fine === 0n),
       "row.blockedPayment",
     );
     requireValue(
-      diagnostic ||
-        !["RELEASE", "PENALTY"].includes(r.predicted_decision) ||
-        pay + fine === planned,
+      diagnostic || !paysOut(r.predicted_decision) || pay + fine === planned,
       "row.paymentConservation",
     );
     const trace = traces.get(r.audit_trace_id);

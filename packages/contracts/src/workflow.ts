@@ -292,6 +292,27 @@ export interface Evaluation {
   notes: string[];
   confidence: string;
   specVersion: string;
+  /** How the engine chose the applied rule; a fallback means a safety check set a matching rule aside. */
+  selection: RuleSelection;
+  /** The rules the engine evaluated, in priority order, up to the first match. */
+  ruleTrace: RuleStep[];
+  /** Rule variables as the engine saw them (decimals and dates as text). */
+  variables: Record<string, string | boolean | null>;
+}
+
+export type RuleSelection =
+  | "FIRST_MATCH"
+  | "STRUCTURE_FALLBACK"
+  | "ANOMALY_FALLBACK"
+  | "PAYMENT_GUARD_FALLBACK"
+  | "RULE_ERROR_FALLBACK"
+  | "AMOUNT_GUARD_FALLBACK";
+
+export interface RuleStep {
+  ruleId: string;
+  priority: number;
+  matched?: boolean;
+  error?: string;
 }
 
 export interface RuleRow {
@@ -307,7 +328,9 @@ export interface RuleRow {
   description: string;
 }
 
-export type RuleOutcome = "NOT_MATCHED" | "MATCHED" | "NOT_EVALUATED";
+/** SET_ASIDE: the rule matched but a safety check held the milestone; FAILED: it could not be evaluated. */
+export type RuleOutcome =
+  "NOT_MATCHED" | "MATCHED" | "NOT_EVALUATED" | "SET_ASIDE" | "FAILED";
 
 export type Trigger =
   | { kind: "IMPORT" }
@@ -440,6 +463,12 @@ export interface MilestoneDetail {
   milestone: MilestoneRow;
   evaluation: Evaluation;
   rules: Array<RuleRow & { outcome: RuleOutcome }>;
+  /** The rule variables of the evaluation with their labels from the rule vocabulary. */
+  variables: Array<{
+    name: string;
+    label: { vi: string; en: string };
+    value: string | boolean | null;
+  }>;
   events: ClassifiedEvent[];
   money: {
     plannedMillion: string;

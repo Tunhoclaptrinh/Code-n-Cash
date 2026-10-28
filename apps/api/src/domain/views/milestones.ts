@@ -18,6 +18,7 @@ import type {
 } from "../types";
 import { isBusinessEvent, TERMINAL } from "../vocabulary";
 import { historyOf, toException } from "./shared";
+import { variableLabels } from "../policy";
 
 function classify(
   e: EventRecord,
@@ -89,19 +90,17 @@ export function milestoneDetail(
     )
     .sort((a, b) => Number(a.priority) - Number(b.priority));
   const winner = rules.find((r) => r.rule_id === evaluation.ruleId);
-  const structural =
-    evaluation.reasonCode === "UNRESOLVED_CONDITION" &&
-    evaluation.issues.length > 0;
-  const outcomeOf = (priority: number): RuleOutcome =>
-    !winner || structural
-      ? priority === Number(winner?.priority)
-        ? "MATCHED"
-        : "NOT_EVALUATED"
-      : priority < Number(winner.priority)
-        ? "NOT_MATCHED"
-        : priority === Number(winner.priority)
-          ? "MATCHED"
-          : "NOT_EVALUATED";
+  // The engine reports the rules it evaluated (up to the first match) and how the applied rule was chosen.
+  const steps = new Map(
+    (evaluation.ruleTrace ?? []).map((step) => [step.ruleId, step]),
+  );
+  const outcomeOf = (rule: RuleRecord): RuleOutcome => {
+    const step = steps.get(rule.rule_id);
+    if (rule.rule_id === winner?.rule_id) return "MATCHED";
+    if (step?.error !== undefined) return "FAILED";
+    if (step) return step.matched ? "SET_ASIDE" : "NOT_MATCHED";
+    return "NOT_EVALUATED";
+  };
   const deadline = addDays(m.due_date, Number(m.grace_period_days));
   const payment = (ctx.t[TABLE.payments] as PaymentRecord[]).find(
     (p) => p.milestoneId === m.milestone_id,
@@ -135,8 +134,15 @@ export function milestoneDetail(
       payableFormula: r.payable_amount_formula,
       penaltyFormula: r.penalty_amount_formula,
       description: r.rule_description_vi,
-      outcome: outcomeOf(Number(r.priority)),
+      outcome: outcomeOf(r),
     })),
+    variables: Object.entries(evaluation.variables ?? {}).map(
+      ([name, value]) => ({
+        name,
+        label: variableLabels.get(name) ?? { vi: name, en: name },
+        value,
+      }),
+    ),
     events: ctx.eventsOf(m.milestone_id).map((e) => ({
       ...ctx.eventRow(e),
       ...classify(e, evaluation),

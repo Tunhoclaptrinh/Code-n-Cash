@@ -263,6 +263,7 @@
     "current": "Bước {{step}} · đang chờ {{name}} ký",
     "waiting": "Bước {{step}} · {{name}}",
     "seal": "MẪU",
-    "open": "Xem hợp đồng"
+    "open": "Xem hợp đồng",
+    "ownPreview": "Xem trước · chữ ký của bạn sẽ hiện ở đây khi ký"
   }
 }

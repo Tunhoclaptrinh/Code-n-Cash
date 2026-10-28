@@ -24,6 +24,8 @@ interface ContractView {
     status: SignStepStatus;
     signedAt: string | null;
     method: SignMethod | null;
+    /** The signed-in user signs this step. */
+    mine: boolean;
     page: number;
     x: number;
     y: number;
@@ -36,7 +38,8 @@ const percent = (value: number, of: number) => `${(value / of) * 100}%`;
 
 /**
  * The contract document beside an action: every page as an image, with demo signatures and seals
- * drawn over the signing areas by signing state. Drawing never changes the stored file.
+ * drawn over the signing areas by signing state. When it is the signed-in user's turn, their own box
+ * shows a faded preview of their signature and seal. Drawing never changes the stored file.
  */
 export function ContractPreviewPane({ contractId }: { contractId: string }) {
   const { t } = useTranslation("common");
@@ -157,6 +160,21 @@ export function ContractPreviewPane({ contractId }: { contractId: string }) {
                         organization={mark.organizationName}
                         sealLabel={t("contractPane.seal")}
                       />
+                    ) : mark.status === "CURRENT" && mark.mine ? (
+                      <div
+                        data-testid="own-signature-preview"
+                        style={{ opacity: 0.55 }}
+                      >
+                        <SignedMark
+                          box={mark}
+                          pageWidth={page.width}
+                          pageHeight={page.height}
+                          name={mark.signerName}
+                          caption={t("contractPane.ownPreview")}
+                          organization={mark.organizationName}
+                          sealLabel={t("contractPane.seal")}
+                        />
+                      </div>
                     ) : (
                       <div
                         style={{

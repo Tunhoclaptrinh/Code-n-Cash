@@ -308,7 +308,8 @@
     "ENGINE_UNAVAILABLE": "Không kết nối được engine đã cấu hình. Kiểm tra dịch vụ; hệ thống không tự đổi sang kết quả khác.",
     "DISPUTE_ALREADY_OPEN": "Mốc đang có tranh chấp chưa đóng; không mở thêm tranh chấp mới.",
     "PAYMENT_NOT_FOUND": "Không tìm thấy lệnh chi.",
-    "ALREADY_DELIVERED": "Cổng thanh toán đã nhận lệnh chi này."
+    "ALREADY_DELIVERED": "Cổng thanh toán đã nhận lệnh chi này.",
+    "TIMESTAMP_UNAVAILABLE": "Đơn vị cấp dấu thời gian chưa phản hồi hoặc trả dấu không hợp lệ. Bạn có thể thử lại."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

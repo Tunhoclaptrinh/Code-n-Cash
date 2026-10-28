@@ -260,7 +260,16 @@ Những gì chuỗi audit niêm phong và cách kiểm:
 | Kiểm độc lập             | `python3 tools/verify_audit.py --records <log>` hoặc `--proof <tệp>`: viết lại bằng Python thuần, không dùng mã của API                                                                                                                                                 |
 | Dữ liệu cá nhân          | Email, tên, điện thoại… trong phần thay đổi chỉ lưu dạng HMAC với khoá riêng (`audit-personal.key` trong thư mục trust hoặc `AUDIT_PERSONAL_KEY`); vẫn thấy được là có thay đổi, huỷ khoá thì không còn liên kết được tới người (crypto-shredding), chuỗi vẫn kiểm được |
 
-Giới hạn còn lại: bên làm chứng mặc định là khoá Ed25519 trên cùng máy chủ (`LOCAL_WITNESS`), nên chưa độc lập với người quản trị máy chủ; các mục ghi sau lần neo cuối chỉ được bảo vệ từ lần neo kế tiếp. Bước tiếp theo là nối `AnchorProvider` với dịch vụ dấu thời gian RFC 3161 hoặc blockchain công khai.
+Bên làm chứng mặc định là khoá Ed25519 trên cùng máy chủ (`LOCAL_WITNESS`), nên tự nó chưa độc lập với người quản trị máy chủ. Khi đặt `TSA_URL`, mỗi lần neo còn được một đơn vị cấp dấu thời gian độc lập (TSA) ký theo RFC 3161:
+
+| Bước     | Cách làm                                                                                                                                                                                                                                      |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Xin dấu  | Gửi `TimeStampReq` (SHA-256 của JSON chuẩn hoá của gói neo, nonce ngẫu nhiên, xin kèm chứng thư) tới `TSA_URL`                                                                                                                                |
+| Nhận dấu | Chỉ giữ token khi: TSA chấp nhận, nonce khớp, `TSTInfo` ký đúng mã băm, chữ ký CMS đúng với chứng thư trong token, chứng thư có mục đích `timeStamping` và nối tới gốc tin cậy (kho gốc của Node, cộng các gốc trong tệp `TSA_TRUSTED_CERTS`) |
+| Lỗi      | TSA không trả lời hoặc dấu không hợp lệ: lần neo ở trạng thái `FAILED` (`TIMESTAMP_UNAVAILABLE`), không xác nhận khi thiếu dấu; thử lại được, token đã có được giữ                                                                            |
+| Kiểm lại | Gói neo xuất ra kèm `timestamp` (token DER dạng base64). Màn Niêm phong độc lập kiểm lại token với gói; bất kỳ ai cũng kiểm được bằng `openssl ts -verify -digest <mã băm> -token_in -in token.der -CAfile <gốc>.pem`                         |
+
+Đã thử với DigiCert, Sectigo, SSL.com (tin cậy sẵn) và FreeTSA (cần thêm gốc vào `TSA_TRUSTED_CERTS`); token thật của các TSA này được kiểm trong `tests/foundation/trust.test.mjs`. Giới hạn còn lại: các mục ghi sau lần neo cuối chỉ được bảo vệ từ lần neo kế tiếp.
 
 Bất biến kiểm trước khi xuất: mỗi mốc đúng một dòng; quyết định và mã lý do khớp luật thắng; tiền không âm, khớp hợp đồng số tiền của quyết định trong policy pack, phạt không vượt trần; mốc được trả tiền không thiếu điều kiện, không có tranh chấp, từ chối, sai thẩm quyền hay lỗi dữ liệu; không mốc nào phải nhờ chốt an toàn giữ lại. Phần kiểm tiền đọc lại tham số từ dữ liệu gốc, không dùng giá trị engine đã tính.
 

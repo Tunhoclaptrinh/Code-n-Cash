@@ -1,7 +1,7 @@
 {
   "anchors": {
     "title": "Niêm phong độc lập",
-    "localNotice": "Bản demo lưu biên nhận ký Ed25519 trong kho witness riêng. Hãy xuất gói và giữ mã khóa ở nơi độc lập. Thời gian là giờ máy cục bộ; chưa nối TSA hoặc blockchain.",
+    "localNotice": "Biên nhận được ký Ed25519 và lưu trong kho witness riêng. Hãy xuất gói và giữ mã khoá ở nơi độc lập. Chưa cấu hình đơn vị cấp dấu thời gian (TSA), nên thời điểm niêm phong là giờ của máy chủ.",
     "key": "Mã khóa witness",
     "create": "Tạo gói niêm phong",
     "chooseBundle": "Chọn gói JSON đã lưu",
@@ -21,7 +21,13 @@
       "PENDING": "Chờ ghi witness",
       "CONFIRMED": "Đã đối chiếu witness",
       "FAILED": "Ghi witness thất bại"
-    }
+    },
+    "tsaNotice": "Mỗi lần niêm phong được một đơn vị cấp dấu thời gian độc lập ký xác nhận theo RFC 3161 ({{tsa}}). Nhà vận hành không thể lùi ngày hay sửa đầu chuỗi đã được đóng dấu.",
+    "timestamp": "Dấu thời gian TSA",
+    "timestampBy": "Ký bởi {{signer}}",
+    "timestampTrusted": "Dấu thời gian hợp lệ: {{signer}} xác nhận lúc {{at}}.",
+    "timestampUntrusted": "Chữ ký dấu thời gian đúng nhưng đơn vị cấp ({{signer}}) không thuộc danh sách tin cậy. Thời điểm ghi trên dấu: {{at}}.",
+    "timestampInvalid": "Dấu thời gian không khớp với gói niêm phong."
   },
   "extraction": {
     "title": "Trích xuất và đối chiếu điều khoản",

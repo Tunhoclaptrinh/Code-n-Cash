@@ -308,7 +308,8 @@
     "ENGINE_UNAVAILABLE": "The configured engine is unavailable. Check the service; the system will not silently use another engine.",
     "DISPUTE_ALREADY_OPEN": "This milestone already has an open dispute; a new one cannot be opened.",
     "PAYMENT_NOT_FOUND": "The payment instruction was not found.",
-    "ALREADY_DELIVERED": "The payment gateway already accepted this instruction."
+    "ALREADY_DELIVERED": "The payment gateway already accepted this instruction.",
+    "TIMESTAMP_UNAVAILABLE": "The time-stamp authority did not answer or returned an invalid stamp. Retry the job."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

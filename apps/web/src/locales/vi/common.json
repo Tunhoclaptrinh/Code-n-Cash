@@ -102,7 +102,7 @@
     "demoEmpty": "Chưa có tài khoản demo khả dụng.",
     "demoAll": "Tất cả tổ chức",
     "emailPlaceholder": "name@example.com",
-    "demoSearch": "Tìm email, công ty, vai trò hoặc mã hợp đồng…"
+    "demoSearch": "Tìm tên, email, công ty, vai trò hoặc mã hợp đồng…"
   },
   "common": {
     "loading": "Đang tải…",

@@ -20,10 +20,11 @@ assert.equal(
 );
 assert.equal((await request("/resources/users")).status, 401);
 const login = await request("/auth/login", "POST", {
-  email: "admin@codecash.vn",
+  email: "controller@novaan.vn",
   password: "Passw0rd!",
 });
 assert.equal(login.status, 201);
+// The buyer's own controller (ADMIN_AUDITOR of B010): reads its contracts, takes no business action.
 const admin = login.body.data.token;
 // Accounts and configuration belong to the system administrator, not the controller (SoD-1).
 const sysadmin = (
@@ -452,7 +453,18 @@ const timeline = await workflow(
 );
 assert.equal(timeline.status, 201);
 assert.ok(timeline.body.data.length >= 2);
-const integrity = await workflow("integrity", "verifyIntegrity", [], admin);
+// The integrity check belongs to the platform's integrity checker (audit:read), not to a party.
+const auditor = (
+  await request("/auth/login", "POST", {
+    email: "auditor@codecash.vn",
+    password: "Passw0rd!",
+  })
+).body.data.token;
+assert.equal(
+  (await workflow("integrity", "verifyIntegrity", [], admin)).status,
+  403,
+);
+const integrity = await workflow("integrity", "verifyIntegrity", [], auditor);
 assert.equal(integrity.status, 201);
 assert.equal(integrity.body.data.chain.ok, true);
 assert.equal(

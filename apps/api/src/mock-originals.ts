@@ -191,23 +191,32 @@ export async function warmMockOriginals(
     process.env.MOCK_ORIGINALS_WARMUP ??
     (process.env.NODE_ENV === "production" ? "true" : "false");
   if (enabled !== "true") return;
-  // An internal read-only reviewer: AUDITOR sees every contract and changes nothing.
-  const reviewer = {
+  // Internal read-only reviewers. Platform roles see audit digests only, so each contract is read in
+  // the scope of its buyer's controller, who sees every contract of that buyer and changes nothing.
+  const reviewer = (organizationId: string) => ({
     id: "system-warmup",
     email: "",
     displayName: "system",
-    role: "AUDITOR" as const,
-    organizationId: "OPS",
+    role: "ADMIN_AUDITOR" as const,
+    organizationId,
     roleChipOrganization: "",
     partyId: null,
     title: "",
     permissions: [],
-  };
-  const inputs = await domain.read(reviewer, (ctx) =>
-    ctx.contracts
-      .map((contract) => contract.contract_id)
-      .filter((code) => needsMockOriginal(ctx, code))
-      .map((code) => mockInput(ctx, code)),
-  );
+  });
+  const buyers = await domain.read(reviewer("OPS"), (ctx) => [
+    ...new Set(ctx.contracts.map((contract) => contract.buyer_id)),
+  ]);
+  const inputs: ReturnType<typeof mockInput>[] = [];
+  for (const buyer of buyers)
+    inputs.push(
+      ...(await domain.read(reviewer(buyer), (ctx) =>
+        ctx.contracts
+          .filter((contract) => contract.buyer_id === buyer)
+          .map((contract) => contract.contract_id)
+          .filter((code) => needsMockOriginal(ctx, code))
+          .map((code) => mockInput(ctx, code)),
+      )),
+    );
   for (const input of inputs) await mockRendering(input).catch(() => undefined);
 }

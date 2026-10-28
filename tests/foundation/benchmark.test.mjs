@@ -44,11 +44,13 @@ test("the benchmark is guarded by the permission to read the results", () => {
   for (const role of [
     "CONTRACT_OWNER",
     "FINANCE_APPROVER",
+    "SECONDARY_APPROVER",
+    "LEGAL_REVIEWER",
     "ADMIN_AUDITOR",
-    "AUDITOR",
   ])
     assert.equal(asRole(role), true, role);
-  // SYSTEM_ADMIN manages accounts and configuration (SoD-1) and does not read decisions.
-  assert.throws(() => asRole("SYSTEM_ADMIN"), /PERMISSION_DENIED/);
-  assert.throws(() => asRole("UNKNOWN_ROLE"), /PERMISSION_DENIED/);
+  // The platform roles never read decisions: SYSTEM_ADMIN manages accounts and configuration
+  // (SoD-1), and AUDITOR only verifies the audit chain through digests, anchors and proofs.
+  for (const role of ["SYSTEM_ADMIN", "AUDITOR", "SUPPLIER", "UNKNOWN_ROLE"])
+    assert.throws(() => asRole(role), /PERMISSION_DENIED/, role);
 });

@@ -411,6 +411,26 @@ assert.equal(
     .status,
   403,
 );
+// The verification bundle carries the contract's own input and a seal for each decision.
+const bundle = await workflow(
+  "contracts",
+  "getVerificationBundle",
+  ["CT0019"],
+  owner,
+);
+assert.equal(bundle.status, 201);
+assert.equal(bundle.body.data.format, "CODECASH_VERIFICATION_V1");
+assert.match(bundle.body.data.data["contracts.csv"], /\nCT0019,/);
+assert.ok(!bundle.body.data.data["contracts.csv"].includes("CT0001,"));
+assert.ok(
+  bundle.body.data.decisions.length > 0 &&
+    bundle.body.data.decisions.every((d) => d.storedHash === d.sealedHash),
+);
+assert.equal(
+  (await workflow("contracts", "getVerificationBundle", ["CT0001"], supplier))
+    .status,
+  403,
+);
 const tasks = await workflow("tasks", "getTaskInbox", [], finance);
 assert.ok(
   tasks.body.data.some(

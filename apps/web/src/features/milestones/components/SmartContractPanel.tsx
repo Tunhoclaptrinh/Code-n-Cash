@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { DownloadOutlined } from "@ant-design/icons";
 import {
   Alert,
+  Button,
   Card,
   Descriptions,
   Space,
@@ -11,7 +13,7 @@ import {
 } from "antd";
 import { useTranslation } from "react-i18next";
 import type { SmartContractView } from "@codecash/contracts";
-import { getSmartContract } from "@/shared/api/domain";
+import { getSmartContract, getVerificationBundle } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import {
   formatDate,
@@ -21,6 +23,7 @@ import {
 import { DecisionTag, MilestoneStatusTag } from "@/shared/ui/DomainTags";
 import { PageState } from "@/shared/ui/PageState";
 import { TrackingCode } from "@/shared/ui/TechnicalInfo";
+import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 import { outcomeColor } from "./RulesPanel";
 import styles from "./SmartContractPanel.module.css";
 
@@ -36,6 +39,23 @@ export function SmartContractPanel({ contractId }: { contractId: string }) {
   const view = useQuery({
     queryKey: ["contract-view", user.id, contractId, "smart"],
     queryFn: () => getSmartContract(contractId),
+  });
+  const failed = useApiErrorMessage();
+  const download = useMutation({
+    mutationFn: () => getVerificationBundle(contractId),
+    onSuccess: (bundle) => {
+      const url = URL.createObjectURL(
+        new Blob([JSON.stringify(bundle, null, 1)], {
+          type: "application/json",
+        }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `codecash-verification-${contractId}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    },
+    onError: failed,
   });
   if (!view.data)
     return (
@@ -75,6 +95,20 @@ export function SmartContractPanel({ contractId }: { contractId: string }) {
           <Typography.Paragraph type="secondary" className={styles.note}>
             {t("smart.engine.note")}
           </Typography.Paragraph>
+          <Space orientation="vertical" size={4}>
+            <Button
+              size="small"
+              icon={<DownloadOutlined />}
+              loading={download.isPending}
+              onClick={() => download.mutate()}
+              data-testid="verification-download"
+            >
+              {t("smart.engine.verify")}
+            </Button>
+            <Typography.Text type="secondary" className={styles.note}>
+              {t("smart.engine.verifyHint")}
+            </Typography.Text>
+          </Space>
         </Card>
       </div>
       <Typography.Title level={5} className={styles.clausesTitle}>

@@ -138,6 +138,12 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     getSmartContract: read("contracts:read", (ctx, [id]) =>
       views.smartContract(ctx, str(id)),
     ),
+    // Only the decision hashes of the audit chain are read, never its content.
+    getVerificationBundle: read(
+      "contracts:read",
+      (ctx, [id]) => views.verificationBundle(ctx, str(id)),
+      ["audit"],
+    ),
     getMilestoneDetail: read("contracts:read", (ctx, [id, sequence]) =>
       views.milestoneDetail(ctx, str(id), num(sequence)),
     ),

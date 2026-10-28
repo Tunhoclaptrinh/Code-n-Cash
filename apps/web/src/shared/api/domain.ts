@@ -69,6 +69,11 @@ export const getSmartContract = (contractId: string) =>
   workflowCall<SmartContractView>("contracts", "getSmartContract", [
     contractId,
   ]);
+/** The contract's decisions with their input and seals, for `tools/verify_decision.py`. */
+export const getVerificationBundle = (contractId: string) =>
+  workflowCall<Record<string, unknown>>("contracts", "getVerificationBundle", [
+    contractId,
+  ]);
 export const getMilestoneDetail = (contractId: string, sequence: number) =>
   workflowCall<MilestoneDetail>("contracts", "getMilestoneDetail", [
     contractId,

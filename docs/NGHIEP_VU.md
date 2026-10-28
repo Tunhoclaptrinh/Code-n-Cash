@@ -287,6 +287,24 @@ Sau khi duyệt, lệnh chi được gửi sang cổng thanh toán:
 
 Mỗi lần gửi ghi số lần thử, thời điểm, kết quả và lỗi (`PAYMENT_DELIVERY` trong nhật ký). Gửi lỗi thì người phê duyệt tài chính gửi lại (`retryPaymentDelivery`); lệnh đã được cổng nhận không gửi lại.
 
+### 9.3. Gói kiểm chứng quyết định
+
+Trên tab Hợp đồng thông minh, người đọc được hợp đồng (`contracts:read`, trong phạm vi bên của mình) tải gói kiểm chứng `CODECASH_VERIFICATION_V1` (`getVerificationBundle`). Gói gồm:
+
+- đầu vào của bộ đánh giá chỉ của hợp đồng đó: sáu tệp CSV `contracts`, `parties` (hai bên, đơn vị con và người ghi sự kiện), `milestones`, `events`, `payment_rules` (các luật của phạm vi các mốc), `voided_events` (sự kiện bị huỷ bởi quyết định ngoại lệ đã duyệt);
+- mã băm chính sách (`policySha256`) và bộ luật đang hiệu lực (`rulesSha256`);
+- với mỗi mốc: quyết định đã lưu, mã băm `decisionHash` của nó và mã băm mà chuỗi nhật ký đã niêm phong lần gần nhất (`sealedHash`, đọc từ `decisionHashes` của nhật ký, không kèm nội dung nhật ký). Mốc đã chi hoặc đã từ chối được đánh dấu `frozen`.
+
+`python3 tools/verify_decision.py <gói>` chỉ cần Python và bộ đánh giá công khai:
+
+| Kiểm tra   | Cách làm                                                                                                      | Kết quả                                               |
+| ---------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Niêm phong | SHA-256 của JSON chuẩn hoá (như §9) các trường của quyết định, so với `sealedHash`                            | `MATCH`, `MISMATCH` (quyết định bị sửa), `NOT_SEALED` |
+| Chạy lại   | Chạy `apps/engine/cli.py --workflow` trên sáu tệp; so quyết định, lý do, luật, trạng thái, số tiền, tiền phạt | `MATCH`, `DIFFERS`, `FROZEN_DIFFERS` (mốc đã đóng)    |
+| Chính sách | SHA-256 tệp chính sách dùng để chạy lại trùng `policySha256` của gói                                          | `policyMatches`                                       |
+
+Mã thoát 0 khi mọi niêm phong khớp, mọi mốc chưa đóng chạy lại khớp và chính sách trùng. Tệp mẫu `tests/golden/verification_CT0005.json` được kiểm trong `tests/test_verify_decision.py`.
+
 ## 10. KPI và kết quả
 
 | KPI                       | Định nghĩa                                                                                                                      | Tập đo                                          | Kết quả                                                             |

@@ -407,7 +407,9 @@
       "policy": "Business policy",
       "policyHash": "Policy digest",
       "rulesHash": "Digest of the rules in force",
-      "note": "Both digests are recorded with every evaluation, so anyone with the same data can re-run and verify the decision."
+      "note": "Both digests are recorded with every evaluation, so anyone with the same data can re-run and verify the decision.",
+      "verify": "Download verification bundle",
+      "verifyHint": "The bundle holds the input, the decisions and the seal of each decision. Anyone can re-check them with the independent verifier (tools/verify_decision.py) without trusting the system."
     },
     "clauses": {
       "title": "Executable clauses by milestone ({{count}})",

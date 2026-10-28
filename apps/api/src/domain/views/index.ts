@@ -18,3 +18,4 @@ export {
 } from "./milestones";
 export { routes, toException, type DryRun } from "./shared";
 export { resolveTarget, taskInbox } from "./tasks";
+export { VERIFICATION_FORMAT, verificationBundle } from "./verification";

@@ -407,7 +407,9 @@
       "policy": "Chính sách nghiệp vụ",
       "policyHash": "Mã băm chính sách",
       "rulesHash": "Mã băm bộ luật đang chạy",
-      "note": "Hai mã băm này được ghi cùng mỗi lượt đánh giá, nên bất kỳ ai có cùng dữ liệu đều chạy lại và kiểm chứng được quyết định."
+      "note": "Hai mã băm này được ghi cùng mỗi lượt đánh giá, nên bất kỳ ai có cùng dữ liệu đều chạy lại và kiểm chứng được quyết định.",
+      "verify": "Tải gói kiểm chứng",
+      "verifyHint": "Gói gồm dữ liệu đầu vào, các quyết định và dấu niêm phong của từng quyết định. Bất kỳ ai cũng có thể tự kiểm lại bằng công cụ kiểm chứng độc lập (tools/verify_decision.py) mà không cần tin hệ thống."
     },
     "clauses": {
       "title": "Điều khoản thực thi theo mốc ({{count}})",

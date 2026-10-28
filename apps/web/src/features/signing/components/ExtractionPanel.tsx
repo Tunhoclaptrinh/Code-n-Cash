@@ -220,15 +220,7 @@ export function ExtractionPanel({
                 )}
               </Tag>
             ) : null}
-            <Typography.Paragraph
-              style={{
-                maxWidth: 400,
-                whiteSpace: "pre-wrap",
-                marginBottom: 0,
-              }}
-            >
-              {row.evidence.quote}
-            </Typography.Paragraph>
+            <EvidenceQuote quote={row.evidence.quote} />
           </>
         ) : (
           "—"
@@ -560,5 +552,27 @@ export function ExtractionPanel({
         )}
       </Modal>
     </Card>
+  );
+}
+
+/**
+ * A quoted line from the document. A row of a terms table ("label   value", cells kept apart by
+ * runs of spaces or a tab) is shown as a label and a value in fixed columns, so the values of all
+ * rows line up; any other quote is shown as written.
+ */
+function EvidenceQuote({ quote }: { quote: string }) {
+  const cells = quote
+    .split(/\t| {2,}/)
+    .map((cell) => cell.trim())
+    .filter(Boolean);
+  return cells.length === 2 ? (
+    <div className={styles.quoteRow}>
+      <span>{cells[0]}</span>
+      <span>{cells[1]}</span>
+    </div>
+  ) : (
+    <Typography.Paragraph className={styles.quote}>
+      {quote}
+    </Typography.Paragraph>
   );
 }

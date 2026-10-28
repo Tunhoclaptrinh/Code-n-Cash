@@ -45,26 +45,26 @@ Bảng này là nội dung của policy pack (`apps/engine/policy/case4_btc.json
 
 | Vai trò | Thuộc | Được làm | Không được làm |
 | --- | --- | --- | --- |
-| Chủ hợp đồng (`CONTRACT_OWNER`) | Bên mua | Tải hợp đồng, ký, xác nhận chứng từ phía bên mua, phê duyệt theo vai trò, mở và giải quyết tranh chấp | Thao tác trên hợp đồng của tổ chức khác |
+| Chủ hợp đồng (`CONTRACT_OWNER`) | Bên mua | Tải hợp đồng, ký, xác nhận chứng từ phía bên mua, phê duyệt theo vai trò, mở và giải quyết tranh chấp, đề xuất vô hiệu event sai thẩm quyền trên hợp đồng của mình | Thao tác trên hợp đồng của tổ chức khác, tự duyệt đề xuất của mình |
 | Phê duyệt tài chính, phê duyệt thứ hai | Bên mua | Phê duyệt hoặc từ chối mốc đúng vai trò | Duyệt thay vai trò khác |
 | Cán bộ hợp đồng bên mua (`LEGAL_REVIEWER`) | Bên mua | Soạn và rà điều khoản, thiết lập vị trí ký, mở và giải quyết tranh chấp | Phê duyệt chi |
 | Nhà cung cấp (`SUPPLIER`) | Nhà cung cấp | Ký, nộp chứng từ phía nhà cung cấp, mở tranh chấp | Giải quyết tranh chấp, phê duyệt |
-| Kiểm soát viên (`ADMIN_AUDITOR`) | Nội bộ | Xem mọi hợp đồng, xử lý hàng đợi ngoại lệ, đề xuất hoặc duyệt vô hiệu event sai thẩm quyền (không duyệt đề xuất của chính mình) | Tạo event nghiệp vụ, sửa luật, sửa quyết định |
-| Quản trị hệ thống (`SYSTEM_ADMIN`) | Nội bộ | Quản lý tài khoản, cấu hình, phiên bản luật (có người thứ hai duyệt), khôi phục dữ liệu demo | Xử lý ngoại lệ, phê duyệt chi |
-| Kiểm toán (`AUDITOR`) | Nội bộ | Chỉ đọc: hợp đồng, audit, sổ ngoại lệ, kết quả engine | Mọi thao tác ghi |
+| Kiểm soát viên nội bộ (`ADMIN_AUDITOR`) | Mỗi bên mua và mỗi nhà cung cấp có một | Xem hợp đồng của tổ chức mình; kiểm soát viên bên mua duyệt hoặc trả lại đề xuất vô hiệu của chủ hợp đồng; kiểm soát viên nhà cung cấp theo dõi bên mua chi đúng hợp đồng | Đề xuất ngoại lệ, tạo event nghiệp vụ, sửa luật, sửa quyết định, xem hợp đồng của tổ chức khác |
+| Quản trị hệ thống (`SYSTEM_ADMIN`) | Vận hành nền tảng | Quản lý tài khoản, cấu hình, công bố phiên bản luật đã kiểm, neo chuỗi audit, khôi phục dữ liệu demo | Xem nội dung hợp đồng, xử lý ngoại lệ, phê duyệt chi |
+| Chuyên viên kiểm tra toàn vẹn (`AUDITOR`) | Vận hành nền tảng | Kiểm chuỗi audit, neo và bằng chứng Merkle; chỉ thấy bản tóm tắt mục audit (không có nội dung) | Xem nội dung hợp đồng, mọi thao tác ghi |
 
 Data Pack chỉ có các bên của hợp đồng: bên mua, nhà cung cấp và ba vai trò phê duyệt. Để quy trình chạy khép kín và tách nhiệm, đội bổ sung bốn vai trò; mỗi vai trò lấp một khoảng trống cụ thể:
 
 | Vai trò bổ sung | Khoảng trống cần lấp |
 | --- | --- |
 | Cán bộ hợp đồng bên mua | Điều khoản số hoá sai thì mọi quyết định sau đó đều sai; cần người rà điều khoản trước khi khoá và đưa đi ký, tách khỏi người duyệt chi |
-| Kiểm soát viên | Mốc bị kẹt vì chứng từ do bên không có thẩm quyền tạo cần người xử lý có kiểm soát: một người đề xuất, người thứ hai duyệt, không ai sửa trực tiếp kết quả |
+| Kiểm soát viên nội bộ | Mốc bị kẹt vì chứng từ do bên không có thẩm quyền tạo cần người xử lý có kiểm soát: chủ hợp đồng đề xuất, kiểm soát viên của chính bên mua duyệt, không ai sửa trực tiếp kết quả; nhà cung cấp có kiểm soát viên riêng để theo dõi việc chi |
 | Quản trị hệ thống | Tài khoản, mẫu hợp đồng và phiên bản luật cần người quản lý tách khỏi nghiệp vụ, để người cấu hình không đồng thời xử lý ngoại lệ hay duyệt chi |
-| Kiểm toán | Cần một bên độc lập kiểm tra hồ sơ, nhật ký và kết quả engine mà không thể thay đổi gì |
+| Chuyên viên kiểm tra toàn vẹn | Cần một bên độc lập kiểm tra nhật ký không bị sửa mà không đọc nội dung hợp đồng và không thể thay đổi gì |
 
 Toàn bộ quyền nằm trong một ma trận duy nhất (`packages/contracts/permissions.json`), được kiểm ở API theo tài khoản đăng nhập và hiển thị cho quản trị tại màn Ma trận phân quyền.
 
-Tách nhiệm: SoD-1 người cấu hình không xử lý ngoại lệ; SoD-2 quyết định ngoại lệ cần hai kiểm soát viên khác nhau; SoD-3 không vai trò nào sửa trực tiếp quyết định, tiền, trạng thái, audit; SoD-4 phiên bản luật chỉ hiệu lực sau khi người thứ hai duyệt.
+Tách nhiệm: SoD-1 người cấu hình không xử lý ngoại lệ; SoD-2 ngoại lệ do chủ hợp đồng đề xuất và kiểm soát viên của cùng bên mua duyệt, người đề xuất không tự duyệt; SoD-3 không vai trò nào sửa trực tiếp quyết định, tiền, trạng thái, audit; SoD-4 công bố chỉ đưa một phiên bản luật đã kiểm vào danh sách dùng cho hợp đồng mới, phiên bản đó chỉ ràng buộc một hợp đồng khi cả hai bên ký văn bản ghim nó.
 
 Danh tính, tổ chức và vai trò luôn suy ra từ phiên đăng nhập; API không nhận vai trò, mã người dùng hay tổ chức do trình duyệt gửi lên.
 
@@ -167,7 +167,7 @@ Engine không gắn cứng với một hợp đồng, một bộ luật hay mộ
 | Xem trước tác động | Chạy phiên bản mới trên cả 405 mốc, so với phiên bản đang hiệu lực, liệt kê từng mốc đổi quyết định hoặc số tiền; không ghi gì |
 | Gửi duyệt | Bị chặn (`RULE_VERSION_REGRESSION`) nếu đổi **bất kỳ** quyết định, mã lý do, trạng thái hay số tiền nào trên 405 mốc của Data Pack so với luật gốc của BTC, kể cả khi 20 mẫu công khai vẫn đúng |
 | Kiểm tra an toàn | Chứng minh tĩnh trên mọi phạm vi luật (`codecash_engine/safety.py`): duyệt lưới fact phủ mọi ranh giới, thêm giá trị biên quanh mọi hằng số mà điều kiện so sánh; không luật trả tiền nào thắng khi còn yếu tố chặn, số tiền nằm trong [0, P], HOLD và REJECT không trả, phạm vi kết thúc bằng ELSE. Không đạt thì không gửi duyệt và không công bố được (`RULE_VERSION_UNSAFE`). Bước này bắt được luật chỉ sai với tham số mà Data Pack không có (ví dụ chỉ sai khi giá trị mốc trên 6.000 triệu), điều mà phép so 405 mốc không thấy |
-| Công bố | Phải do người thứ hai, khác người soạn (`SECOND_REVIEWER_REQUIRED`); nội dung được khoá bằng băm, phiên bản cũ chuyển sang ngừng hiệu lực |
+| Công bố | Quản trị hệ thống công bố phiên bản đã qua kiểm tra; nội dung được khoá bằng băm, phiên bản cũ chuyển sang ngừng hiệu lực; phiên bản chỉ ràng buộc hợp đồng khi cả hai bên ký văn bản ghim nó (SoD-4) |
 
 Luật của BTC là căn cứ cho 405 mốc, nên một phiên bản mới không được đổi kết quả của chúng. Phiên bản mới dùng để viết lại tương đương, thêm phạm vi luật và mẫu mốc cho hợp đồng tạo trong ứng dụng. Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
 
@@ -485,7 +485,7 @@ Kết quả bước lọc bằng chứng (mục 5) cho từng sự kiện của 
 | `ADMIN_AUDITOR` | Kiểm soát viên |
 | `SECONDARY_APPROVER` | Phê duyệt cấp 2 |
 | `SYSTEM_ADMIN` | Quản trị hệ thống |
-| `AUDITOR` | Kiểm toán |
+| `AUDITOR` | Kiểm tra toàn vẹn |
 
 ### 14.11. Kết quả xét từng luật
 

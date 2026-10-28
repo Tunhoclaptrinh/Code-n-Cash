@@ -8,7 +8,9 @@ The rules it checks are the published ones (docs/NGHIEP_VU.md section 9):
 - entry hash = SHA-256(canonical(entry without ``hash``)); entries are numbered 1..n without gaps;
   each ``prevHash`` is the previous entry's hash, the first one 64 zeros, or, after a demo reset,
   the archived head carried by the RESET_DEMO_DATA entry;
-- Merkle tree (RFC 9162 section 2.1): leaf = SHA-256(0x00 || entry hash), node = SHA-256(0x01 || l || r).
+- Merkle tree (RFC 9162 section 2.1): leaf = SHA-256(0x00 || entry hash), node = SHA-256(0x01 || l || r);
+- a proof exported to a platform role carries a digest of the entry (no content): its inclusion is checked
+  from the hash it states, its content cannot be.
 
     python3 tools/verify_audit.py --records .data/records.json [--anchor SEQ:HASH]
     python3 tools/verify_audit.py --proof proof.json
@@ -135,17 +137,25 @@ def verify_inclusion(hash_hex, index, size, path, root):
     return sn == 0 and r.hex() == root
 
 
+# What platform roles receive of an audit entry (apps/api/src/common/audit-chain.ts auditDigest): enough to
+# place it in the chain, none of its content. Its own hash cannot be recomputed, its inclusion can.
+DIGEST_FIELDS = {'id', 'seq', 'prevHash', 'hash', 'action', 'resource', 'recordId', 'createdAt'}
+
+
 def verify_proof(proof):
+    """Inclusion proof of one entry. A digest entry is checked by its stated hash (``entryHash`` is None)."""
     entry, payload = proof['entry'], proof['anchor']['payload']
+    digest = set(entry) <= DIGEST_FIELDS
     recomputed = entry_hash(entry)
+    leaf = entry.get('hash') if digest else recomputed
     checks = {
-        'entryHash': recomputed == entry.get('hash'),
+        'entryHash': None if digest else recomputed == entry.get('hash'),
         'position': proof['leafIndex'] == int(entry['seq']) - 1 and proof['treeSize'] == payload['sequence'],
-        'inclusion': bool(payload.get('merkleRoot')) and verify_inclusion(
-            recomputed, proof['leafIndex'], proof['treeSize'], proof['path'], payload['merkleRoot']),
+        'inclusion': bool(payload.get('merkleRoot')) and isinstance(leaf, str) and verify_inclusion(
+            leaf, proof['leafIndex'], proof['treeSize'], proof['path'], payload['merkleRoot']),
     }
-    return {'ok': all(checks.values()), 'checks': checks, 'seq': int(entry['seq']),
-            'anchoredSequence': payload['sequence'], 'merkleRoot': payload.get('merkleRoot')}
+    return {'ok': all(value is not False for value in checks.values()), 'checks': checks, 'digest': digest,
+            'seq': int(entry['seq']), 'anchoredSequence': payload['sequence'], 'merkleRoot': payload.get('merkleRoot')}
 
 
 def main(argv=None):

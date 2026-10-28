@@ -174,6 +174,9 @@ async function main() {
   const host =
     process.env.API_HOST ?? (process.env.PORT ? "0.0.0.0" : "127.0.0.1");
   await app.listen(port, host);
-  void warmMockOriginals(app.get(DomainService));
+  // A failed warm-up only means the first viewer renders on demand; it must not stop the API.
+  warmMockOriginals(app.get(DomainService)).catch((error: unknown) =>
+    console.warn("Mock original warm-up skipped:", error),
+  );
 }
 void main();

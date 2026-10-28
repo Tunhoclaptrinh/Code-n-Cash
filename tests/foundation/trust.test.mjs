@@ -358,13 +358,8 @@ test("legacy seeded signatures are explicitly unverified and idle polling create
   assert.equal(verification.signatures[0].status, "UNVERIFIED");
 });
 
-test("rule versions validate the DSL and 20 labels, publish only a checked version and pin future contracts", async () => {
-  const author = actors["u-sysadmin"],
-    reviewer = {
-      ...author,
-      id: "second-admin",
-      displayName: "Second reviewer",
-    };
+test("rule versions validate the DSL and 20 labels, publish without a second person and pin future contracts", async () => {
+  const author = actors["u-sysadmin"];
   let version = await rules.create(
     { name: "Version one", reason: "Validate local configuration" },
     author,
@@ -392,9 +387,8 @@ test("rule versions validate the DSL and 20 labels, publish only a checked versi
   version = await rules.submit(saved.id, saved.version, author);
   assert.equal(version.validation.matched, 20);
   assert.equal(version.validation.evaluated, 405);
-  // SoD-4: publishing only makes a checked version available; it binds a contract once both parties
-  // sign the contract that pins it, so the platform administrator publishes without a second reviewer.
-  version = await rules.publish(version.id, version.version, reviewer);
+  // SoD-4: publishing only makes the version available; it applies once both parties sign.
+  version = await rules.publish(version.id, version.version, author);
   await assert.rejects(
     rules.save(
       version.id,
@@ -423,7 +417,7 @@ test("rule versions validate the DSL and 20 labels, publish only a checked versi
     author,
   );
   second = await rules.submit(second.id, second.version, author);
-  await rules.publish(second.id, second.version, reviewer);
+  await rules.publish(second.id, second.version, author);
   const resaved = await call("u-legal", "drafts", "saveContractDraft", draft);
   assert.equal(
     resaved.ruleVersion.id,

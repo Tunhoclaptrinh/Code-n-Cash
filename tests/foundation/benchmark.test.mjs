@@ -49,8 +49,8 @@ test("the benchmark is guarded by the permission to read the results", () => {
     "ADMIN_AUDITOR",
   ])
     assert.equal(asRole(role), true, role);
-  // Platform roles run CodeCash and check the audit chain; they do not read contract decisions.
-  for (const role of ["SYSTEM_ADMIN", "AUDITOR"])
+  // The platform roles never read decisions: SYSTEM_ADMIN manages accounts and configuration
+  // (SoD-1), and AUDITOR only verifies the audit chain through digests, anchors and proofs.
+  for (const role of ["SYSTEM_ADMIN", "AUDITOR", "SUPPLIER", "UNKNOWN_ROLE"])
     assert.throws(() => asRole(role), /PERMISSION_DENIED/, role);
-  assert.throws(() => asRole("UNKNOWN_ROLE"), /PERMISSION_DENIED/);
 });

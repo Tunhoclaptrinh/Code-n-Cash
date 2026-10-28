@@ -166,7 +166,9 @@
     "NOT_MATCHED": "Không khớp",
     "MATCHED": "Khớp, áp dụng",
     "OVERRIDDEN": "Khớp nhưng bị hạ xuống ELSE do dữ liệu bất thường",
-    "NOT_EVALUATED": "Không xét (đã có rule khớp)"
+    "NOT_EVALUATED": "Không xét (đã có rule khớp)",
+    "SET_ASIDE": "Khớp nhưng bị chốt an toàn tạm giữ",
+    "FAILED": "Không tính được"
   },
   "taskKind": {
     "SUBMIT_EVIDENCE": "Nộp chứng từ",

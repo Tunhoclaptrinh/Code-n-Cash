@@ -38,7 +38,7 @@ import { useCurrentUser, useSession } from "../auth/session";
 import { initialsOf } from "../lib/initials";
 import { useOnboarding } from "../onboarding/OnboardingContext";
 import { BrandMark } from "../ui/BrandMark";
-import { navByRole, type NavItem } from "./navConfig";
+import { navFor, type NavItem } from "./navConfig";
 import { NotificationDrawer } from "./NotificationDrawer";
 import { PageChromeContext, type PageChrome } from "./pageChrome";
 import { PreferenceControls } from "./PreferenceControls";
@@ -107,7 +107,7 @@ export function AppLayout() {
       okButtonProps: { danger: true },
       onOk: () => resetDemo.mutateAsync(),
     });
-  const sections = navByRole[user.role];
+  const sections = navFor(user.role, user.permissions);
   const navItems = sections.flatMap((section) => section.items);
   const inbox = navItems.find((item) => item.badge);
 

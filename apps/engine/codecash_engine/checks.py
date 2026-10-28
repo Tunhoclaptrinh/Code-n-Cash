@@ -1,18 +1,25 @@
 """Output invariants and sample comparison.
 
-Input: a Pack and the results of ``evaluate_all``.
+Input: a Pack, the results of ``evaluate_all`` and the policy the results were evaluated with.
 Output: a list of invariant violations (empty means pass), and the match count and mismatch list against
 the 20 labelled samples of ``decision_sample.csv``.
-Business rules: spec section 9 (output invariants, e.g. no payment before all conditions hold, penalty
-within the cap, evidence only from the milestone) and BR-17 (evidence reconciles with the sample labels).
+Business rules: spec section 9 (output invariants: no payment before all conditions hold, amounts that
+follow the policy's amount contract of each decision, evidence only from the milestone, no rule that a
+safety check had to stop) and BR-17
+(evidence reconciles with the sample labels). The amount checks are evaluated on the milestone and contract
+cells parsed again here, not on the engine's own environment.
 """
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 
-from .pack import CENT, DECISIONS, STATUS
+from . import bindings
+from .expressions import ExpressionError
+from .rules import SAFETY_INTERVENTIONS
+from .policy import load_policy
 
 
-def check_invariants(pack, results):
+def check_invariants(pack, results, policy=None):
     """Return the violations of the section 9 invariants; an empty list means the results pass."""
+    policy = policy or load_policy()
     bad = []
     rule_by_id = {r["rule_id"]: r for r in pack.rules}
     for mid, m in pack.milestones.items():
@@ -20,11 +27,14 @@ def check_invariants(pack, results):
         if r is None:
             bad.append(f"{mid}: không có kết quả")
             continue
-        P = Decimal(m["planned_payment_vnd_mn"])
-        if r["decision"] not in DECISIONS or r["reason_code"] not in STATUS:
+        if r["decision"] not in policy.decisions or r["reason_code"] not in policy.reasons:
             bad.append(f"{mid}: decision/reason ngoài miền giá trị")
-        if r["status"] != STATUS[r["reason_code"]]:
+            continue
+        if r["status"] != policy.status_for(r["reason_code"]):
             bad.append(f"{mid}: trạng thái không khớp ánh xạ 9.2")
+        if r.get("selection") in SAFETY_INTERVENTIONS:
+            # The milestone is held safely, but a rule of the table could not be applied: report the defect.
+            bad.append(f"{mid}: chốt an toàn phải giữ mốc ({r['selection']}): {'; '.join(r['issues'])}")
         rule = rule_by_id.get(r["rule_id"])
         if rule is None or rule["release_rule_code"] != m["release_rule_code"] \
                 or (rule["decision"], rule["reason_code"]) != (r["decision"], r["reason_code"]):
@@ -32,23 +42,25 @@ def check_invariants(pack, results):
         if not all(value.is_finite() and value >= 0 for value in (r["payable"], r["penalty"])):
             bad.append(f"{mid}: số tiền không hữu hạn hoặc âm")
             continue
-        amounts = {"RELEASE": (P, Decimal(0)), "HOLD": (Decimal(0), Decimal(0)), "REJECT": (Decimal(0), Decimal(0))}
-        if r["decision"] in amounts and (r["payable"], r["penalty"]) != amounts[r["decision"]]:
-            bad.append(f"{mid}: số tiền sai với {r['decision']}")
-        if r["decision"] == "PENALTY":
-            rounded_zero = r["penalty"] == 0 and r["raw_penalty"].quantize(CENT, ROUND_HALF_UP) == 0
-            cap = (Decimal(m["max_penalty_pct"]) / 100 * P).quantize(CENT, ROUND_HALF_UP)
-            if not ((r["penalty"] > 0 or rounded_zero) and r["penalty"] <= cap
-                    and r["payable"] == max(Decimal(0), P - r["penalty"])):
-                bad.append(f"{mid}: PENALTY không đối soát được hoặc vượt trần")
-        if r["decision"] in ("RELEASE", "PENALTY"):  # guard against unauthorized payment
+        bound, _ = bindings.bind(policy, m, pack.contracts.get(m["contract_id"]))
+        values = {**bound, "payable_amount_vnd_mn": r["payable"], "penalty_amount_vnd_mn": r["penalty"],
+                  "reference_penalty_vnd_mn": r["raw_penalty"]}
+        for text, fn in policy.amount_guards + policy.decisions[r["decision"]]["amounts"]:
+            try:
+                ok = fn(values)
+            except ExpressionError:
+                ok = False
+            if ok is not True:
+                bad.append(f"{mid}: số tiền sai với {r['decision']}: {text}")
+        if policy.pays(r["decision"]):  # guard against unauthorized payment
             if r["missing_conditions"] or r["unauthorized"] or r["valid_rejection_count"] or r["open_dispute"] or r["issues"]:
                 bad.append(f"{mid}: trả tiền khi chưa đủ điều kiện")
         own = {e["event_id"] for e in pack.events_by_ms[mid]}
         excluded = {d for d, _ in r["duplicates"]} | set(r["unauthorized"])
         if not set(r["evidence"]) <= own or set(r["evidence"]) & excluded:
             bad.append(f"{mid}: evidence ngoài mốc hoặc chứa bản lặp/event sai quyền")
-        if sorted(r["conditions_met"] + r["missing_conditions"]) != sorted(m["required_condition"].split(" AND ")):
+        tokens = m["required_condition"].split(policy.token_separator)
+        if sorted(r["conditions_met"] + r["missing_conditions"]) != sorted(tokens):
             bad.append(f"{mid}: token điều kiện không phủ đủ required_condition")
     return bad
 

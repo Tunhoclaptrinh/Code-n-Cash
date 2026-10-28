@@ -9,9 +9,13 @@ from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'apps/engine'))
-from codecash_engine import amounts, controls, events, requirements, rules, schedule, sequence, structure, trace  # noqa: E402
-from codecash_engine.pack import PRIORITIES, Pack  # noqa: E402
+from codecash_engine import (amounts, bindings, controls, events, requirements, rules, schedule,  # noqa: E402
+                             sequence, structure, trace)
+from codecash_engine.pack import Pack  # noqa: E402
 from codecash_engine.pipeline import evaluate  # noqa: E402
+from codecash_engine.policy import load_policy  # noqa: E402
+
+POLICY = load_policy()
 
 CONTRACT = {'contract_id': 'C1', 'buyer_id': 'B1', 'supplier_id': 'S1'}
 PARTIES = {
@@ -57,30 +61,40 @@ def event(event_id, event_type, actor, timestamp='2026-01-01T09:00:00', **kw):
     return row
 
 
+def verdicts(rows, req=('DELIVERY', 'ACCEPTANCE'), policy=POLICY, milestone=MILESTONE):
+    return events.classify_all(policy, PARTIES, CONTRACT, milestone, list(req), rows)
+
+
 class DedupeTests(unittest.TestCase):
     def test_keeps_the_earliest_copy_and_reports_the_dropped_one(self):
         first = event('E1', 'DELIVERY', 'S1', '2026-01-01T09:00:00', document_id='DN-1')
         second = event('E2', 'DELIVERY', 'S1', '2026-01-01T09:02:00', document_id='DN-1')
-        kept, dups = events.dedupe([first, second])
+        kept, dups = events.dedupe([first, second], POLICY)
         self.assertEqual(kept, [first])
         self.assertEqual(dups, [('E2', 'E1')])
 
     def test_events_without_a_document_id_are_never_duplicates(self):
-        kept, dups = events.dedupe([event('E1', 'DELIVERY', 'S1'), event('E2', 'DELIVERY', 'S1')])
+        kept, dups = events.dedupe([event('E1', 'DELIVERY', 'S1'), event('E2', 'DELIVERY', 'S1')], POLICY)
         self.assertEqual([e['event_id'] for e in kept], ['E1', 'E2'])
         self.assertEqual(dups, [])
 
     def test_a_different_actor_is_not_a_copy(self):
         a = event('E1', 'DELIVERY', 'S1', document_id='DN-1')
         b = event('E2', 'DELIVERY', 'S2', document_id='DN-1')
-        self.assertEqual(events.dedupe([a, b])[1], [])
+        self.assertEqual(events.dedupe([a, b], POLICY)[1], [])
 
 
 class RequiredEventTests(unittest.TestCase):
     req = ['DELIVERY', 'ACCEPTANCE']
 
-    def classify(self, rows, **kw):
-        return requirements.classify_required(PARTIES, CONTRACT, rows, self.req, **kw)
+    def classify(self, rows, switches=()):
+        return requirements.classify_required(verdicts(rows, self.req, POLICY.variant(switches)))
+
+    def test_literal_permissions_switch_trusts_allowed_event_types(self):
+        foreign = event('E1', 'DELIVERY', 'S2')  # a supplier outside the contract, but DELIVERY is in its list
+        self.assertEqual(self.classify([foreign])[1], [foreign])
+        valid, unauthorized, _ = self.classify([foreign], ['literal_permissions'])
+        self.assertEqual((list(valid), unauthorized), (['DELIVERY'], []))
 
     def test_unauthorized_required_event_is_counted_and_never_valid(self):
         wrong_side = event('E1', 'DELIVERY', 'B1')  # a buyer cannot create a supplier event
@@ -110,20 +124,26 @@ class RequiredEventTests(unittest.TestCase):
         self.assertEqual(missing, ['ACCEPTANCE'])
         self.assertEqual(requirements.completion_rate(self.req, missing), Decimal('0.5'))
         self.assertEqual(requirements.completion_rate([], []), Decimal(0))
-        self.assertEqual(requirements.missing_events(self.req, valid, enforce_invoice=True), ['ACCEPTANCE', 'INVOICE'])
+
+    def test_conditional_requirement_switch_adds_invoice_when_the_milestone_flags_it(self):
+        flagged = dict(MILESTONE, invoice_required='TRUE')
+        config, _ = structure.milestone_config(flagged, POLICY.variant(['enforce_invoice_flag']), CONTRACT)
+        self.assertEqual(config['req'], ['DELIVERY', 'ACCEPTANCE', 'INVOICE'])
+        self.assertEqual(structure.milestone_config(flagged, POLICY, CONTRACT)[0]['req'], ['DELIVERY', 'ACCEPTANCE'])
 
 
 class ControlTests(unittest.TestCase):
-    def resolution_closes(self, resolution, opened, **kw):
+    def resolution_closes(self, resolution, opened, switches=()):
         by_id = {e['event_id']: e for e in [opened, resolution]}
-        return controls.open_disputes([opened, resolution], by_id, PARTIES, CONTRACT, MILESTONE, **kw) == []
+        return controls.open_disputes(POLICY.variant(switches), [opened, resolution], by_id, PARTIES, CONTRACT,
+                                      MILESTONE) == []
 
     def setUp(self):
         self.opened = event('D1', 'DISPUTE_OPENED', 'S1', '2026-01-05T09:00:00')
 
     def test_dispute_stays_open_without_a_resolution(self):
         by_id = {'D1': self.opened}
-        found = controls.open_disputes([self.opened], by_id, PARTIES, CONTRACT, MILESTONE)
+        found = controls.open_disputes(POLICY, [self.opened], by_id, PARTIES, CONTRACT, MILESTONE)
         self.assertEqual([e['event_id'] for e in found], ['D1'])
 
     def test_dispute_is_closed_by_a_resolution_that_references_it(self):
@@ -149,22 +169,24 @@ class ControlTests(unittest.TestCase):
     def test_strict_resolution_needs_a_buyer_side_resolver(self):
         by_supplier = event('D2', 'DISPUTE_RESOLVED', 'S1', '2026-01-06T09:00:00', reference_event_id='D1')
         self.assertTrue(self.resolution_closes(by_supplier, self.opened))
-        self.assertFalse(self.resolution_closes(by_supplier, self.opened, strict_resolution=True))
+        self.assertFalse(self.resolution_closes(by_supplier, self.opened, ['strict_resolution']))
 
     def test_ignoring_resolutions_keeps_every_dispute_open(self):
         resolved = event('D2', 'DISPUTE_RESOLVED', 'B1', '2026-01-06T09:00:00', reference_event_id='D1')
-        self.assertFalse(self.resolution_closes(resolved, self.opened, ignore_resolutions=True))
+        self.assertFalse(self.resolution_closes(resolved, self.opened, ['ignore_resolutions']))
 
     def test_only_a_valid_approver_rejection_counts(self):
         good = event('R1', 'REJECTION', 'A1')
         by_supplier = event('R2', 'REJECTION', 'S1')
         wrong_status = event('R3', 'REJECTION', 'A1', event_status='APPROVED')
-        rejections, anomalies = controls.valid_rejections(PARTIES, CONTRACT, [good, by_supplier, wrong_status])
+        classified = verdicts([good, by_supplier, wrong_status])
+        rejections, anomalies = controls.valid_rejections(classified), events.find_anomalies(POLICY, classified)
         self.assertEqual([e['event_id'] for e in rejections], ['R1'])
         self.assertEqual(anomalies, ['R2: REJECTION không hợp lệ', 'R3: REJECTION không hợp lệ'])
 
     def count(self, rows, roles=('CONTRACT_OWNER', 'FINANCE')):
-        return controls.count_approvals(PARTIES, CONTRACT, rows, list(roles))[:2]
+        milestone = dict(MILESTONE, required_approval_roles=';'.join(roles))
+        return controls.count_approvals(POLICY, verdicts(rows, milestone=milestone))[:2]
 
     def test_quorum_counts_distinct_roles_not_approvals(self):
         same_role = [event('P1', 'APPROVAL', 'A1'), event('P2', 'APPROVAL', 'A2')]
@@ -188,11 +210,10 @@ class ControlTests(unittest.TestCase):
         parties = dict(PARTIES, A1=dict(PARTIES['A1'], approval_limit_vnd_mn='50'),
                        A3=dict(PARTIES['A3'], approval_limit_vnd_mn=''))
         rows = [event('P1', 'APPROVAL', 'A1'), event('P2', 'APPROVAL', 'A3')]
-        approvals, count, over = controls.count_approvals(parties, CONTRACT, rows, ['CONTRACT_OWNER', 'FINANCE'],
-                                                          Decimal('100.00'))
+        classified = events.classify_all(POLICY, parties, CONTRACT, MILESTONE, ['DELIVERY', 'ACCEPTANCE'], rows)
+        approvals, count, over = controls.count_approvals(POLICY, classified, Decimal('100.00'))
         self.assertEqual((list(approvals), count, over), (['A3'], 1, ['P1']))
-        self.assertEqual(controls.count_approvals(parties, CONTRACT, rows, ['CONTRACT_OWNER', 'FINANCE'],
-                                                  Decimal('50.00'))[1], 2)
+        self.assertEqual(controls.count_approvals(POLICY, classified, Decimal('50.00'))[1], 2)
 
 
 class SequenceTests(unittest.TestCase):
@@ -244,7 +265,7 @@ class ScheduleTests(unittest.TestCase):
                  'ACCEPTANCE': event('E2', 'ACCEPTANCE', 'B1', '2026-01-09T17:30:00')}
         approvals = {'A1': event('P1', 'APPROVAL', 'A1', '2026-01-20T09:00:00')}
         self.assertEqual(schedule.completion_timestamp(valid, approvals, []), '2026-01-09T17:30:00')
-        self.assertEqual(schedule.completion_timestamp(valid, approvals, [], includes_approval=True),
+        self.assertEqual(schedule.completion_timestamp(valid, approvals, [], ('EVIDENCE', 'APPROVAL')),
                          '2026-01-20T09:00:00')
 
     def test_no_completion_while_something_is_missing(self):
@@ -263,11 +284,21 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(schedule.days_late_after_grace(date(2026, 3, 1), None, grace), 0)
 
     def test_unreadable_terms_become_neutral_zero_terms_with_an_issue(self):
-        terms, issues = schedule.parse_terms(dict(MILESTONE, penalty_rate_pct_per_day='abc'))
+        values, issues = bindings.bind(POLICY, dict(MILESTONE, penalty_rate_pct_per_day='abc'), CONTRACT)
         self.assertEqual(issues, ['tham số ngày/tiền của milestone không đọc được'])
-        self.assertEqual(terms, {'due': None, 'grace': 0, 'rate': Decimal(0), 'cap': Decimal(0), 'planned': Decimal(0)})
-        terms, issues = schedule.parse_terms(MILESTONE)
-        self.assertEqual((issues, terms['grace'], terms['planned']), ([], 5, Decimal('100.00')))
+        terms = [values[k] for k in ('due_date', 'grace_period_days', 'penalty_rate_pct_per_day', 'max_penalty_pct',
+                                     'planned_payment_vnd_mn')]
+        self.assertEqual(terms, [None, Decimal(0), Decimal(0), Decimal(0), Decimal(0)])
+        values, issues = bindings.bind(POLICY, MILESTONE, CONTRACT)
+        self.assertEqual((issues, values['grace_period_days'], values['planned_payment_vnd_mn']), ([], 5, Decimal('100.00')))
+
+    def test_bound_cells_are_typed_and_strict(self):
+        values, issues = bindings.bind(POLICY, MILESTONE, CONTRACT)
+        self.assertEqual((values['due_date'], values['late_penalty_applicable']), (date(2026, 1, 10), True))
+        self.assertTrue(values['hold_on_open_dispute'])  # absent column: the declared default TRUE
+        self.assertIsNone(values['contract_value_vnd_mn'])  # absent column without default: missing, no issue
+        _, issues = bindings.bind(POLICY, dict(MILESTONE, late_penalty_applicable='yes'), CONTRACT)
+        self.assertEqual(issues, ['late_penalty_applicable không đọc được'])
 
 
 def rule(priority, condition, decision, reason, penalty='0', payable='0'):
@@ -283,88 +314,99 @@ DISPUTE = rule(10, 'open_dispute == TRUE', 'HOLD', 'OPEN_DISPUTE')
 
 
 def env_for(**changes):
-    terms = {'due': date(2026, 1, 10), 'grace': 5, 'rate': Decimal('0.10'), 'cap': Decimal('8.00'),
-             'planned': Decimal('100.00')}
-    values = dict(open_dispute=False, rejection_count=0, unauthorized_count=0, completion_rate=Decimal(1),
-                  approval_required=False, approval_count=0, quorum=0, late_penalty_applicable=True,
-                  completion_date=date(2026, 1, 9), terms=terms, all_met=True, days_late=0)
-    values.update(changes)
-    return rules.build_env(**values)
+    """A rule environment of the policy vocabulary for the hand-built milestone (all conditions met)."""
+    facts = dict(open_dispute=False, valid_rejection_event_count=0, unauthorized_required_event_count=0,
+                 required_event_completion_rate=Decimal(1), valid_approval_count=0, actual_completion_date=date(2026, 1, 9),
+                 days_late_after_grace=0)
+    config = {'approval_required': False, 'quorum': 0}
+    bound, _ = bindings.bind(POLICY, MILESTONE, CONTRACT)
+    for key, value in changes.items():
+        target = facts if key in facts else config if key in config else bound
+        target[key] = value
+    return rules.build_env(POLICY, config, bound, facts)
 
 
 class RuleSelectionTests(unittest.TestCase):
     scope = [DISPUTE, RELEASE, ELSE]
 
+    def select(self, env, issues=(), anomalies=(), scope=None):
+        return rules.select_rule(scope or self.scope, env, list(issues), list(anomalies), POLICY)
+
     def test_first_matching_rule_wins(self):
-        self.assertEqual(rules.select_rule(self.scope, env_for(), [], [])['rule_id'], 'PR70')
-        self.assertEqual(rules.select_rule(self.scope, env_for(open_dispute=True), [], [])['rule_id'], 'PR10')
+        self.assertEqual(self.select(env_for()).rule['rule_id'], 'PR70')
+        self.assertEqual(self.select(env_for(open_dispute=True)).rule['rule_id'], 'PR10')
 
     def test_else_rule_catches_what_no_rule_matches(self):
-        chosen = rules.select_rule(self.scope, env_for(all_met=False), [], [])
+        chosen = self.select(env_for(required_event_completion_rate=Decimal('0.5'))).rule
         self.assertEqual((chosen['decision'], chosen['reason_code']), ('HOLD', 'UNRESOLVED_CONDITION'))
 
     def test_structural_issues_force_the_else_rule(self):
-        chosen = rules.select_rule(self.scope, env_for(), ['required_event_types trống'], [])
-        self.assertEqual(chosen['rule_id'], 'PR80')
+        selection = self.select(env_for(), ['required_event_types trống'])
+        self.assertEqual((selection.rule['rule_id'], selection.mode, selection.trace), ('PR80', 'STRUCTURE_FALLBACK', []))
 
     def test_anomalies_only_downgrade_a_paying_rule(self):
-        self.assertEqual(rules.select_rule(self.scope, env_for(), [], ['E1: actor không tồn tại'])['rule_id'], 'PR80')
-        held = rules.select_rule(self.scope, env_for(open_dispute=True), [], ['E1: actor không tồn tại'])
-        self.assertEqual(held['rule_id'], 'PR10')
+        self.assertEqual(self.select(env_for(), [], ['E1: actor không tồn tại']).rule['rule_id'], 'PR80')
+        held = self.select(env_for(open_dispute=True), [], ['E1: actor không tồn tại'])
+        self.assertEqual(held.rule['rule_id'], 'PR10')
+
+    def test_rule_trace_lists_the_rules_evaluated_up_to_the_winner(self):
+        trace = self.select(env_for()).trace
+        self.assertEqual(trace, [{'rule_id': 'PR10', 'priority': '10', 'matched': False},
+                                 {'rule_id': 'PR70', 'priority': '70', 'matched': True}])
 
     def test_trail_names_the_outcome_of_every_rule(self):
-        self.assertEqual(rules.rule_trail(self.scope, env_for(), [], []),
-                         [('PR10', 'NOT_MATCHED'), ('PR70', 'MATCHED'), ('PR80', 'NOT_EVALUATED')])
-        self.assertEqual(rules.rule_trail(self.scope, env_for(), [], ['E1: actor không tồn tại']),
+        trail = lambda *args: rules.rule_trail(self.scope, self.select(env_for(), *args))  # noqa: E731
+        self.assertEqual(trail(), [('PR10', 'NOT_MATCHED'), ('PR70', 'MATCHED'), ('PR80', 'NOT_EVALUATED')])
+        self.assertEqual(trail([], ['E1: actor không tồn tại']),
                          [('PR10', 'NOT_MATCHED'), ('PR70', 'OVERRIDDEN'), ('PR80', 'MATCHED')])
-        self.assertEqual(rules.rule_trail(self.scope, env_for(), ['issue'], []),
-                         [('PR10', 'NOT_EVALUATED'), ('PR70', 'NOT_EVALUATED'), ('PR80', 'MATCHED')])
+        self.assertEqual(trail(['issue']), [('PR10', 'NOT_EVALUATED'), ('PR70', 'NOT_EVALUATED'), ('PR80', 'MATCHED')])
 
     def test_plain_variables_are_json_ready(self):
-        plain = rules.plain_variables(env_for(completion_date=None))
+        plain = rules.plain_variables(env_for(actual_completion_date=None))
         self.assertEqual((plain['due_date'], plain['planned_payment_vnd_mn'], plain['actual_completion_date']),
                          ('2026-01-10', '100.00', None))
 
     def test_without_an_else_rule_there_is_no_rule_and_the_milestone_is_held(self):
-        self.assertIsNone(rules.select_rule([DISPUTE, RELEASE], env_for(), ['issue'], []))
+        self.assertIsNone(self.select(env_for(), ['issue'], scope=[DISPUTE, RELEASE]).rule)
         pack = Pack([CONTRACT], PARTIES.values(), [dict(MILESTONE, release_rule_code='R:EMPTY')], [], [])
         result = evaluate(pack, 'M1')
         self.assertEqual((result['decision'], result['reason_code'], result['rule_id']),
                          ('HOLD', 'UNRESOLVED_CONDITION', ''))
         self.assertEqual((result['payable'], result['penalty']), (Decimal('0.00'), Decimal('0.00')))
-        self.assertIn('phạm vi rule không đủ 8 rule priority 10..80', result['issues'])
+        self.assertIn('phạm vi rule trống', result['issues'])
 
-    def test_all_conditions_met_needs_every_part(self):
-        met = rules.all_conditions_met
-        self.assertTrue(met(Decimal(1), 0, True, 2, 2))
-        self.assertTrue(met(Decimal(1), 0, False, 0, 2))
-        self.assertFalse(met(Decimal('0.5'), 0, False, 0, 0))
-        self.assertFalse(met(Decimal(1), 1, False, 0, 0))
-        self.assertFalse(met(Decimal(1), 0, True, 1, 2))
+    def test_all_conditions_met_is_a_derived_fact_of_the_policy(self):
+        met = lambda **kw: env_for(**kw)['all_required_conditions_met']  # noqa: E731
+        self.assertTrue(met(approval_required=True, quorum=2, valid_approval_count=2))
+        self.assertTrue(met(approval_required=False, quorum=2))
+        self.assertFalse(met(required_event_completion_rate=Decimal('0.5')))
+        self.assertFalse(met(unauthorized_required_event_count=1))
+        self.assertFalse(met(approval_required=True, quorum=2, valid_approval_count=1))
 
     def test_environment_holds_only_decimals_booleans_dates_and_none(self):
-        env = env_for(completion_date=None)
-        self.assertEqual(len(env), 16)
+        env = env_for(actual_completion_date=None)
+        self.assertEqual(list(env), [n for n in POLICY.variables if n != 'penalty_amount_vnd_mn'])
         for name, value in env.items():
             self.assertIn(type(value), (Decimal, bool, date, type(None)), name)
 
 
+PENALTY_FORMULA = ('MIN(days_late_after_grace * penalty_rate_pct_per_day / 100 * planned_payment_vnd_mn, '
+                   'max_penalty_pct / 100 * planned_payment_vnd_mn)')
+PAYABLE_AFTER_PENALTY = 'MAX(0, planned_payment_vnd_mn - penalty_amount_vnd_mn)'
+
+
 class AmountTests(unittest.TestCase):
-    PENALTY = rule(60, 'TRUE', 'PENALTY', 'LATE_COMPLETION',
-                   penalty='MIN(days_late_after_grace * penalty_rate_pct_per_day / 100 * planned_payment_vnd_mn, '
-                           'max_penalty_pct / 100 * planned_payment_vnd_mn)',
-                   payable='MAX(0, planned_payment_vnd_mn - penalty_amount_vnd_mn)')
+    PENALTY = rule(60, 'TRUE', 'PENALTY', 'LATE_COMPLETION', penalty=PENALTY_FORMULA, payable=PAYABLE_AFTER_PENALTY)
 
     def penalty_env(self, days_late, rate, cap, planned):
-        terms = {'due': date(2026, 1, 10), 'grace': 0, 'rate': Decimal(rate), 'cap': Decimal(cap),
-                 'planned': Decimal(planned)}
-        return env_for(terms=terms, days_late=days_late)
+        return env_for(grace_period_days=Decimal(0), penalty_rate_pct_per_day=Decimal(rate), max_penalty_pct=Decimal(cap),
+                       planned_payment_vnd_mn=Decimal(planned), days_late_after_grace=days_late)
 
     def test_penalty_is_capped_at_the_maximum_percentage(self):
         env = self.penalty_env(100, '0.10', '8.00', '100.00')  # uncapped would be 10.00
         penalty, payable = amounts.rule_amounts(self.PENALTY, env)
         self.assertEqual((penalty, payable), (Decimal('8.00'), Decimal('92.00')))
-        self.assertEqual(amounts.raw_penalty(100, Decimal('0.10'), Decimal('8.00'), Decimal('100.00')), Decimal('8.0000'))
+        self.assertEqual(amounts.reference_penalty(POLICY, env), Decimal('8.0000'))
 
     def test_penalty_below_the_cap_is_proportional_to_days_late(self):
         penalty, payable = amounts.rule_amounts(self.PENALTY, self.penalty_env(3, '0.10', '8.00', '100.00'))
@@ -377,7 +419,7 @@ class AmountTests(unittest.TestCase):
         half_even, _ = amounts.rule_amounts(self.PENALTY, env, ROUND_HALF_EVEN)
         self.assertEqual(half_even, Decimal('0.02'))
         self.assertEqual(amounts.rule_amounts(self.PENALTY, env, ROUND_HALF_UP)[0], Decimal('0.03'))
-        for value in (penalty, payable, amounts.raw_penalty(1, Decimal('0.10'), Decimal('8.00'), Decimal('25.00'))):
+        for value in (penalty, payable, amounts.reference_penalty(POLICY, env)):
             self.assertIs(type(value), Decimal)
 
     def test_payable_formula_sees_the_rounded_penalty_without_mutating_the_environment(self):
@@ -390,6 +432,14 @@ class AmountTests(unittest.TestCase):
         self.assertEqual(amounts.rule_amounts(RELEASE, env), (Decimal('0.00'), Decimal('100.00')))
         self.assertEqual(amounts.rule_amounts(None, env), (Decimal('0.00'), Decimal('0.00')))
 
+    def test_amount_contract_of_the_decision_is_checked(self):
+        values = amounts.amount_env(env_for(), Decimal('0.00'), Decimal('100.00'), Decimal(0))
+        self.assertEqual(amounts.failed_checks(POLICY, 'RELEASE', values), [])
+        over = amounts.amount_env(env_for(), Decimal('0.00'), Decimal('150.00'), Decimal(0))
+        self.assertEqual(amounts.failed_checks(POLICY, 'RELEASE', over),
+                         ['payable_amount_vnd_mn <= planned_payment_vnd_mn',
+                          'payable_amount_vnd_mn == planned_payment_vnd_mn'])
+
 
 class VoidAndAnomalyTests(unittest.TestCase):
     req = ['DELIVERY', 'ACCEPTANCE']
@@ -398,14 +448,14 @@ class VoidAndAnomalyTests(unittest.TestCase):
         wrong_side = event('E1', 'DELIVERY', 'B1')
         fine = event('E2', 'DELIVERY', 'S1')
         ghost = event('E3', 'DELIVERY', 'NOBODY')
-        kept, applied, notes = events.apply_voids(PARTIES, CONTRACT, self.req, [wrong_side, fine, ghost],
-                                                  [wrong_side, fine, ghost], {'E1', 'E2', 'E3', 'E404'})
-        self.assertEqual([e['event_id'] for e in applied], ['E1', 'E3'])
-        self.assertEqual([e['event_id'] for e in kept], ['E2'])
+        rows = [wrong_side, fine, ghost]
+        kept, applied, notes = events.apply_voids(POLICY, verdicts(rows, self.req), rows, {'E1', 'E2', 'E3', 'E404'})
+        self.assertEqual([v.event['event_id'] for v in applied], ['E1', 'E3'])
+        self.assertEqual([v.event['event_id'] for v in kept], ['E2'])
         self.assertEqual(notes, ['yêu cầu vô hiệu không hợp lệ, bị bỏ qua: E2'])
 
     def test_unknown_actor_and_unknown_type_are_anomalies(self):
-        anomalies = events.find_anomalies(PARTIES, [event('E1', 'DELIVERY', 'NOBODY'), event('E2', 'MYSTERY', 'S1')])
+        anomalies = events.find_anomalies(POLICY, verdicts([event('E1', 'DELIVERY', 'NOBODY'), event('E2', 'MYSTERY', 'S1')]))
         self.assertEqual(anomalies, ['E1: actor không tồn tại', 'E2: event_type lạ'])
 
     def test_as_of_cut_keeps_events_up_to_the_timestamp(self):
@@ -416,8 +466,8 @@ class VoidAndAnomalyTests(unittest.TestCase):
 
 class StructureAndTraceTests(unittest.TestCase):
     def test_a_well_formed_milestone_has_no_structural_issue(self):
-        scope = [{'priority': str(p)} for p in PRIORITIES]
-        config, issues = structure.structural_issues(MILESTONE, scope, [event('E1', 'DELIVERY', 'S1')], PRIORITIES)
+        scope = PipelineTests.scope()
+        config, issues = structure.structural_issues(MILESTONE, scope, [event('E1', 'DELIVERY', 'S1')], POLICY)
         self.assertEqual(issues, [])
         self.assertEqual((config['req'], config['roles'], config['quorum'], config['approval_required']),
                          (['DELIVERY', 'ACCEPTANCE'], ['CONTRACT_OWNER', 'FINANCE'], 2, True))
@@ -425,9 +475,29 @@ class StructureAndTraceTests(unittest.TestCase):
     def test_inconsistent_quorum_incomplete_scope_and_foreign_events_are_reported(self):
         milestone = dict(MILESTONE, required_approval_quorum='1')
         foreign = event('E9', 'DELIVERY', 'S1', contract_id='C2')
-        _, issues = structure.structural_issues(milestone, [], [foreign], PRIORITIES)
-        self.assertEqual(issues, ['quorum khác số vai trò bắt buộc', 'phạm vi rule không đủ 8 rule priority 10..80',
+        _, issues = structure.structural_issues(milestone, [], [foreign], POLICY)
+        self.assertEqual(issues, ['quorum khác số vai trò bắt buộc', 'phạm vi rule trống',
                                   'E9: contract_id lệch milestone'])
+
+    def test_any_rule_scope_shape_is_accepted_when_it_is_safe_to_apply(self):
+        scope = PipelineTests.scope()
+        extra = rule(65, 'planned_payment_vnd_mn > 1000', 'HOLD', 'APPROVAL_QUORUM_NOT_MET')
+        self.assertEqual(structure.scope_issues(sorted(scope + [extra], key=lambda r: int(r['priority'])), POLICY), [])
+        self.assertEqual(structure.scope_issues(scope[:-1], POLICY), ['phạm vi rule cần đúng một nhánh ELSE ở cuối',
+                                                                     'phạm vi rule thiếu mã lý do: UNRESOLVED_CONDITION'])
+        twice = scope[:2] + [dict(scope[2], priority='20')] + scope[3:]
+        self.assertEqual(structure.scope_issues(twice, POLICY), ['phạm vi rule trùng priority: 20'])
+        without = [r for r in scope if r['reason_code'] != 'UNAUTHORIZED_EVENT']
+        self.assertEqual(structure.scope_issues(without, POLICY), ['phạm vi rule thiếu mã lý do: UNAUTHORIZED_EVENT'])
+        odd = scope[:-1] + [dict(scope[-1], decision='PAY_LATER', reason_code='LATER')]
+        self.assertEqual(structure.scope_issues(odd, POLICY), [
+            'PR80: quyết định không có trong chính sách: PAY_LATER', 'PR80: mã lý do không có trong chính sách: LATER',
+            'phạm vi rule thiếu mã lý do: UNRESOLVED_CONDITION'])
+
+    def test_unsupported_condition_logic_and_unreadable_flags_are_structural(self):
+        _, issues = structure.milestone_config(dict(MILESTONE, condition_logic='ANY', approval_required='yes'), POLICY)
+        self.assertEqual(issues, ['approval_required không đọc được', 'approval_required=FALSE nhưng quorum > 0',
+                                  'condition_logic không được hỗ trợ: ANY'])
 
     def test_missing_contract_gets_a_stand_in_and_an_issue(self):
         contract, issues = structure.resolve_contract({}, MILESTONE)
@@ -435,38 +505,36 @@ class StructureAndTraceTests(unittest.TestCase):
 
     def test_condition_tokens_split_into_met_and_missing(self):
         valid = {'DELIVERY': event('E1', 'DELIVERY', 'S1')}
-        met, missing = trace.condition_tokens(MILESTONE['required_condition'], valid, 1, True)
+        met, missing = trace.condition_tokens(POLICY, MILESTONE['required_condition'], valid, 1, True)
         self.assertEqual(met, ['EVENT:DELIVERY'])
         self.assertEqual(missing, ['EVENT:ACCEPTANCE', 'APPROVAL_QUORUM:2', 'NO_OPEN_DISPUTE'])
 
     def test_evidence_is_sorted_unique_and_adds_the_deciding_events(self):
         valid = {'DELIVERY': event('E2', 'DELIVERY', 'S1')}
         approvals = {'A1': event('P1', 'APPROVAL', 'A1')}
-        dispute, rejection = [event('D1', 'DISPUTE_OPENED', 'S1')], [event('R1', 'REJECTION', 'A1')]
-        self.assertEqual(trace.collect_evidence(valid, approvals, 'ALL_CONDITIONS_MET', dispute, rejection), ['E2', 'P1'])
-        self.assertEqual(trace.collect_evidence(valid, approvals, 'OPEN_DISPUTE', dispute, rejection), ['D1', 'E2', 'P1'])
-        self.assertEqual(trace.collect_evidence(valid, approvals, 'REJECTION_PRESENT', dispute, rejection), ['E2', 'P1', 'R1'])
+        sets = {'VALID_REQUIRED': valid.values(), 'COUNTED_APPROVALS': approvals.values(),
+                'OPEN_DISPUTES': [event('D1', 'DISPUTE_OPENED', 'S1')], 'REJECTIONS': [event('R1', 'REJECTION', 'A1')]}
+        self.assertEqual(trace.collect_evidence(POLICY, 'ALL_CONDITIONS_MET', sets), ['E2', 'P1'])
+        self.assertEqual(trace.collect_evidence(POLICY, 'OPEN_DISPUTE', sets), ['D1', 'E2', 'P1'])
+        self.assertEqual(trace.collect_evidence(POLICY, 'REJECTION_PRESENT', sets), ['E2', 'P1', 'R1'])
 
     def test_status_follows_the_reason_and_as_of_adds_planned_and_in_progress(self):
-        self.assertEqual(trace.milestone_status('LATE_COMPLETION'), 'PAID_WITH_PENALTY')
-        self.assertEqual(trace.milestone_status('OPEN_DISPUTE'), 'ON_HOLD')
+        status = lambda *args: trace.milestone_status(POLICY, *args)  # noqa: E731
+        self.assertEqual(status('LATE_COMPLETION'), 'PAID_WITH_PENALTY')
+        self.assertEqual(status('OPEN_DISPUTE'), 'ON_HOLD')
         as_of, due = '2026-01-05T00:00:00', date(2026, 1, 10)
-        self.assertEqual(trace.milestone_status('MISSING_REQUIRED_EVENT', as_of, False, due), 'PLANNED')
-        self.assertEqual(trace.milestone_status('MISSING_REQUIRED_EVENT', as_of, True, due), 'IN_PROGRESS')
-        self.assertEqual(trace.milestone_status('MISSING_REQUIRED_EVENT', '2026-01-11T00:00:00', True, due), 'WAITING_EVIDENCE')
-        self.assertEqual(trace.milestone_status('MISSING_REQUIRED_EVENT'), 'WAITING_EVIDENCE')
+        self.assertEqual(status('MISSING_REQUIRED_EVENT', as_of, False, due), 'PLANNED')
+        self.assertEqual(status('MISSING_REQUIRED_EVENT', as_of, True, due), 'IN_PROGRESS')
+        self.assertEqual(status('MISSING_REQUIRED_EVENT', '2026-01-11T00:00:00', True, due), 'WAITING_EVIDENCE')
+        self.assertEqual(status('MISSING_REQUIRED_EVENT'), 'WAITING_EVIDENCE')
 
 
 class PipelineTests(unittest.TestCase):
     """The orchestrator wires the stages in order; one hand-built milestone from event to payable amount."""
 
-    def run_milestone(self, rows, milestone=MILESTONE, scope=None):
-        scope = scope or self.default_scope()
-        rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
-        return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), 'M1')
-
     @staticmethod
-    def default_scope():
+    def scope():
+        """The eight rules of the official table, as one scope."""
         return [rule(p, c, d, r, pen, pay) for p, c, d, r, pen, pay in [
             (10, 'open_dispute == TRUE', 'HOLD', 'OPEN_DISPUTE', '0', '0'),
             (20, 'valid_rejection_event_count > 0', 'REJECT', 'REJECTION_PRESENT', '0', '0'),
@@ -475,11 +543,18 @@ class PipelineTests(unittest.TestCase):
             (50, 'approval_required == TRUE AND valid_approval_count < required_approval_quorum', 'HOLD',
              'APPROVAL_QUORUM_NOT_MET', '0', '0'),
             (60, 'late_penalty_applicable == TRUE AND actual_completion_date > due_date + grace_period_days',
-             'PENALTY', 'LATE_COMPLETION', AmountTests.PENALTY['penalty_amount_formula'],
-             AmountTests.PENALTY['payable_amount_formula']),
+             'PENALTY', 'LATE_COMPLETION', PENALTY_FORMULA, PAYABLE_AFTER_PENALTY),
             (70, 'all_required_conditions_met == TRUE AND open_dispute == FALSE AND valid_rejection_event_count == 0',
              'RELEASE', 'ALL_CONDITIONS_MET', '0', 'planned_payment_vnd_mn'),
             (80, 'ELSE', 'HOLD', 'UNRESOLVED_CONDITION', '0', '0')]]
+
+
+    default_scope = scope
+
+    def run_milestone(self, rows, milestone=MILESTONE, scope=None):
+        scope = scope or self.scope()
+        rule_rows = [dict(r, release_rule_code=milestone['release_rule_code'], active='TRUE') for r in scope]
+        return evaluate(Pack([CONTRACT], PARTIES.values(), [milestone], rows, rule_rows), 'M1')
 
     def complete_events(self, delivered='2026-01-03T08:00:00', accepted='2026-01-09T17:30:00'):
         return [event('E1', 'DELIVERY', 'S1', delivered), event('E2', 'ACCEPTANCE', 'B1', accepted),
@@ -521,7 +596,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual((result['decision'], result['reason_code'], result['rule_id']),
                          ('HOLD', 'UNRESOLVED_CONDITION', 'PR80'))
         self.assertEqual((result['payable'], result['penalty']), (Decimal('0.00'), Decimal('0.00')))
-        self.assertEqual(result['issues'], ['không đánh giá được luật (RULE_EVALUATION_ERROR): ValueError RULE_DIVISION_BY_ZERO'])
+        self.assertEqual(result['issues'], ['không đánh giá được luật (RULE_EVALUATION_ERROR): PR10 RULE_DIVISION_BY_ZERO'])
         # The same rule still evaluates for a milestone whose parameter is not zero.
         self.assertEqual(self.run_milestone(self.complete_events(), MILESTONE, scope)['decision'], 'RELEASE')
 

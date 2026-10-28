@@ -18,6 +18,7 @@ import type {
 } from "../types";
 import { isBusinessEvent, TERMINAL } from "../vocabulary";
 import { historyOf, toException } from "./shared";
+import { variableLabels } from "../policy";
 
 function classify(
   e: EventRecord,
@@ -139,6 +140,13 @@ export function milestoneDetail(
       outcome:
         evaluation.ruleTrail?.[r.rule_id] ?? outcomeOf(Number(r.priority)),
     })),
+    variables: Object.entries(evaluation.variables ?? {}).map(
+      ([name, value]) => ({
+        name,
+        label: variableLabels.get(name) ?? { vi: name, en: name },
+        value,
+      }),
+    ),
     events: ctx.eventsOf(m.milestone_id).map((e) => ({
       ...ctx.eventRow(e),
       ...classify(e, evaluation),

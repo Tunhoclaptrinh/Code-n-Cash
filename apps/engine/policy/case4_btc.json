@@ -1,0 +1,365 @@
+{
+  "format": "CODECASH_POLICY_V1",
+  "policy_id": "CASE4_BTC",
+  "version": "2.0.0",
+  "description": {
+    "vi": "Chính sách nghiệp vụ Case 4 theo đề thi, README Data Pack và câu trả lời BTC (docs/NGHIEP_VU.md).",
+    "en": "Case 4 business policy from the brief, the Data Pack README and the organiser answers (docs/NGHIEP_VU.md)."
+  },
+  "list_separator": ";",
+  "definitions": {
+    "buyer_approver": "actor.party_type == 'APPROVER' AND actor.status == 'ACTIVE' AND actor.parent_party_id == contract.buyer_id AND actor.can_approve_payment == TRUE",
+    "buyer_side": "actor.exists AND (event.actor_party_id == contract.buyer_id OR (actor.party_type == 'APPROVER' AND actor.parent_party_id == contract.buyer_id AND 'DISPUTE' IN actor.allowed_event_types))",
+    "dispute_link": "referenced.event_type == 'DISPUTE_OPENED' AND referenced.milestone_id == event.milestone_id AND referenced.contract_id == event.contract_id AND event.contract_id == milestone.contract_id AND event.event_status == 'RESOLVED' AND event.event_timestamp >= referenced.event_timestamp"
+  },
+  "sides": {
+    "BUYER": {
+      "party_type": "BUYER",
+      "contract_field": "buyer_id"
+    },
+    "SUPPLIER": {
+      "party_type": "SUPPLIER",
+      "contract_field": "supplier_id"
+    }
+  },
+  "categories": {
+    "EVIDENCE": {
+      "authority": "actor.party_type == side.party_type AND actor.status == 'ACTIVE' AND event.actor_party_id == side.party_id"
+    },
+    "APPROVAL": {
+      "authority": "buyer_approver"
+    },
+    "REJECTION": {
+      "authority": "buyer_approver AND 'REJECTION' IN actor.allowed_event_types"
+    },
+    "DISPUTE_OPEN": {
+      "authority": "TRUE"
+    },
+    "DISPUTE_RESOLVE": {
+      "authority": "TRUE"
+    }
+  },
+  "event_types": {
+    "CONTRACT_SIGNED": {
+      "category": "EVIDENCE",
+      "side": "BUYER",
+      "valid_status": "CONFIRMED"
+    },
+    "KICKOFF_CONFIRMED": {
+      "category": "EVIDENCE",
+      "side": "BUYER",
+      "valid_status": "CONFIRMED"
+    },
+    "REQUIREMENTS_APPROVED": {
+      "category": "EVIDENCE",
+      "side": "BUYER",
+      "valid_status": "CONFIRMED"
+    },
+    "UAT_PASSED": {
+      "category": "EVIDENCE",
+      "side": "BUYER",
+      "valid_status": "CONFIRMED"
+    },
+    "ACCEPTANCE": {
+      "category": "EVIDENCE",
+      "side": "BUYER",
+      "valid_status": "CONFIRMED"
+    },
+    "DELIVERY": {
+      "category": "EVIDENCE",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "INVOICE": {
+      "category": "EVIDENCE",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "GO_LIVE": {
+      "category": "EVIDENCE",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "SERVICE_ACTIVATED": {
+      "category": "EVIDENCE",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "SERVICE_COMPLETED": {
+      "category": "EVIDENCE",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "WARRANTY_COMPLETED": {
+      "category": "EVIDENCE",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "APPROVAL": {
+      "category": "APPROVAL",
+      "valid_status": "APPROVED"
+    },
+    "REJECTION": {
+      "category": "REJECTION",
+      "valid_status": "REJECTED"
+    },
+    "DISPUTE_OPENED": {
+      "category": "DISPUTE_OPEN",
+      "valid_status": "OPEN"
+    },
+    "DISPUTE_RESOLVED": {
+      "category": "DISPUTE_RESOLVE",
+      "valid_status": "RESOLVED"
+    }
+  },
+  "dedupe": {
+    "fields": [
+      "contract_id",
+      "milestone_id",
+      "event_type",
+      "document_id",
+      "actor_party_id",
+      "event_status",
+      "reference_event_id"
+    ],
+    "only_when_present": ["document_id"]
+  },
+  "milestone": {
+    "condition_logic": {
+      "field": "condition_logic",
+      "supported": ["ALL"],
+      "default": "ALL"
+    }
+  },
+  "requirements": {
+    "authorized_when": "kind.category == 'EVIDENCE' AND verdict.authorized",
+    "conditional": []
+  },
+  "approvals": {
+    "counts_when": "actor.approval_role IN milestone.required_approval_roles",
+    "one_per": "actor_party_id",
+    "covers": "approval_role",
+    "limit_field": "approval_limit_vnd_mn"
+  },
+  "disputes": {
+    "scope": "MILESTONE",
+    "closes_when": "dispute_link"
+  },
+  "completion": {
+    "categories": ["EVIDENCE"]
+  },
+  "amounts": {
+    "quantum": "0.01",
+    "rounding": "ROUND_HALF_UP",
+    "reference_penalty": "MIN(days_late_after_grace * penalty_rate_pct_per_day / 100 * planned_payment_vnd_mn, max_penalty_pct / 100 * planned_payment_vnd_mn)"
+  },
+  "anomalies": [
+    [
+      {
+        "when": "NOT actor.exists",
+        "message": "{event_id}: actor không tồn tại"
+      },
+      {
+        "when": "NOT kind.exists",
+        "message": "{event_id}: event_type lạ"
+      }
+    ],
+    [
+      {
+        "when": "kind.category == 'REJECTION' AND NOT verdict.valid",
+        "message": "{event_id}: REJECTION không hợp lệ"
+      }
+    ]
+  ],
+  "exceptions": {
+    "voidable": "NOT actor.exists OR NOT kind.exists OR (verdict.required AND NOT verdict.required_authorized) OR (kind.category == 'REJECTION' AND NOT verdict.valid)"
+  },
+  "derived_facts": {
+    "all_required_conditions_met": "required_event_completion_rate == 1 AND unauthorized_required_event_count == 0 AND (approval_required == FALSE OR valid_approval_count >= required_approval_quorum)"
+  },
+  "statuses": [
+    "PLANNED",
+    "IN_PROGRESS",
+    "WAITING_EVIDENCE",
+    "WAITING_APPROVAL",
+    "ON_HOLD",
+    "REJECTED",
+    "ELIGIBLE_FOR_PAYMENT",
+    "PAID_WITH_PENALTY"
+  ],
+  "decisions": {
+    "RELEASE": {
+      "pays": true,
+      "amounts": [
+        "payable_amount_vnd_mn == planned_payment_vnd_mn",
+        "penalty_amount_vnd_mn == 0"
+      ]
+    },
+    "PENALTY": {
+      "pays": true,
+      "amounts": [
+        "payable_amount_vnd_mn == ROUND_MONEY(MAX(0, planned_payment_vnd_mn - penalty_amount_vnd_mn))",
+        "penalty_amount_vnd_mn <= ROUND_MONEY(max_penalty_pct / 100 * planned_payment_vnd_mn)",
+        "penalty_amount_vnd_mn > 0 OR ROUND_MONEY(reference_penalty_vnd_mn) == 0"
+      ]
+    },
+    "HOLD": {
+      "pays": false,
+      "amounts": ["payable_amount_vnd_mn == 0", "penalty_amount_vnd_mn == 0"]
+    },
+    "REJECT": {
+      "pays": false,
+      "amounts": ["payable_amount_vnd_mn == 0", "penalty_amount_vnd_mn == 0"]
+    }
+  },
+  "reasons": {
+    "OPEN_DISPUTE": {
+      "status": "ON_HOLD",
+      "evidence": ["OPEN_DISPUTES"]
+    },
+    "REJECTION_PRESENT": {
+      "status": "REJECTED",
+      "evidence": ["REJECTIONS"]
+    },
+    "UNAUTHORIZED_EVENT": {
+      "status": "ON_HOLD"
+    },
+    "MISSING_REQUIRED_EVENT": {
+      "status": "WAITING_EVIDENCE",
+      "as_of": {
+        "without_events": "PLANNED",
+        "until_due": "IN_PROGRESS"
+      }
+    },
+    "APPROVAL_QUORUM_NOT_MET": {
+      "status": "WAITING_APPROVAL"
+    },
+    "LATE_COMPLETION": {
+      "status": "PAID_WITH_PENALTY"
+    },
+    "ALL_CONDITIONS_MET": {
+      "status": "ELIGIBLE_FOR_PAYMENT"
+    },
+    "UNRESOLVED_CONDITION": {
+      "status": "ON_HOLD"
+    }
+  },
+  "fallback": {
+    "decision": "HOLD",
+    "reason_code": "UNRESOLVED_CONDITION"
+  },
+  "rule_scope": {
+    "fallback_condition": "ELSE",
+    "required_reason_codes": [
+      "OPEN_DISPUTE",
+      "REJECTION_PRESENT",
+      "UNAUTHORIZED_EVENT",
+      "MISSING_REQUIRED_EVENT",
+      "APPROVAL_QUORUM_NOT_MET",
+      "LATE_COMPLETION",
+      "ALL_CONDITIONS_MET",
+      "UNRESOLVED_CONDITION"
+    ]
+  },
+  "guards": {
+    "payment": [
+      "open_dispute == FALSE OR hold_on_open_dispute == FALSE",
+      "valid_rejection_event_count == 0",
+      "all_required_conditions_met == TRUE"
+    ],
+    "amounts": [
+      "payable_amount_vnd_mn >= 0",
+      "penalty_amount_vnd_mn >= 0",
+      "payable_amount_vnd_mn <= planned_payment_vnd_mn"
+    ]
+  },
+  "condition_tokens": {
+    "separator": " AND ",
+    "kinds": {
+      "EVENT": "token.argument IN state.valid_required_types",
+      "APPROVAL_QUORUM": "state.valid_approval_count >= token.number",
+      "NO_OPEN_DISPUTE": "state.open_dispute == FALSE"
+    }
+  },
+  "switches": {
+    "literal_permissions": {
+      "requirements": {
+        "authorized_when": "event.event_type IN actor.allowed_event_types"
+      }
+    },
+    "contract_scope_dispute": {
+      "disputes": {
+        "scope": "CONTRACT"
+      }
+    },
+    "completion_includes_approval": {
+      "completion": {
+        "categories": ["EVIDENCE", "APPROVAL"]
+      }
+    },
+    "enforce_invoice_flag": {
+      "requirements": {
+        "conditional": [
+          {
+            "when": "milestone.invoice_required == TRUE",
+            "event_type": "INVOICE"
+          }
+        ]
+      }
+    },
+    "ignore_resolutions": {
+      "disputes": {
+        "closes_when": "FALSE"
+      }
+    },
+    "strict_resolution": {
+      "disputes": {
+        "closes_when": "dispute_link AND buyer_side AND actor.status == 'ACTIVE'"
+      }
+    },
+    "rounding_half_even": {
+      "amounts": {
+        "rounding": "ROUND_HALF_EVEN"
+      }
+    }
+  },
+  "profiles": {
+    "BTC_SUBMISSION": [],
+    "WORKFLOW": ["strict_resolution"]
+  },
+  "readings": {
+    "A05": {
+      "switch": "contract_scope_dispute",
+      "weight": "0.20",
+      "flag": true,
+      "candidates": {
+        "contract_has_event_types": ["DISPUTE_OPENED"]
+      }
+    },
+    "A06": {
+      "switch": "strict_resolution",
+      "weight": "0.10",
+      "flag": false,
+      "candidates": {
+        "milestone_has_event_types": ["DISPUTE_RESOLVED"]
+      }
+    },
+    "A08": {
+      "switch": "enforce_invoice_flag",
+      "weight": "0.20",
+      "flag": true,
+      "candidates": {
+        "milestone": "milestone.invoice_required == TRUE"
+      }
+    }
+  },
+  "confidence": {
+    "issue_cap": "0.50",
+    "duplicate_factor": "0.97",
+    "duplicate_limit": 3,
+    "unrelated_factor": "0.97",
+    "sequence_factor": "0.90",
+    "boundary_factor": "0.95",
+    "boundary_days": 1
+  }
+}

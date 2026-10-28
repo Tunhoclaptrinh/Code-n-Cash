@@ -41,7 +41,7 @@ const catalog = await request(
   sysadmin,
 );
 assert.equal(catalog.status, 200);
-assert.equal(catalog.body.data.variables.length, 17);
+assert.equal(catalog.body.data.variables.length, 22);
 const ruleDraft = await request(
   "/trust/rules",
   "POST",
@@ -480,6 +480,10 @@ assert.equal(engine.status, 201);
 assert.equal(engine.body.data.rows.length, 405);
 assert.equal(Object.keys(engine.body.data.rows[0]).length, 22);
 assert.equal(engine.body.data.summary.sampleMatched, 20);
+// The Data Pack results page runs the synthetic benchmark script; every image must ship it.
+const benchmark = await request("/engine/benchmark", "GET", undefined, admin);
+assert.equal(benchmark.status, 200, JSON.stringify(benchmark.body));
+assert.equal(benchmark.body.data.publicSamples.dev.correct, 10);
 
 // Hidden-test style run: upload the five data files (no template), evaluate, download the output.
 const upload = new FormData();

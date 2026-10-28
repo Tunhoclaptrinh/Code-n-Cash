@@ -2,8 +2,8 @@
 
 A perfect score on a benchmark the team built itself says little unless that benchmark fails when the
 engine is wrong. Each mutant below plants one realistic bug (most are the "Lỗi" of the Data Pack README
-section 20) by replacing one engine function for the duration of a run, then counts which evidence
-notices it:
+section 20), either by replacing one engine function or by changing one value of the policy pack for the
+duration of a run, then counts which evidence notices it:
 
 - the 20 public samples (``compare_samples``: all 17 labelled columns);
 - the synthetic benchmark (``apps/engine/benchmark.py``: decision, reason, payable and penalty).
@@ -15,127 +15,125 @@ kill rate of each source is the share of mutants it kills.
     python3 tools/mutation_check.py --quick    # the first 20 contracts, for the unit test
 """
 import argparse
-import ast
+import copy
 import json
 import sys
 from contextlib import contextmanager
 from datetime import timedelta
-from decimal import ROUND_HALF_EVEN
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'apps/engine'))
 import benchmark  # noqa: E402
 import codecash_engine as spec  # noqa: E402
-from codecash_engine import amounts, controls, events, expressions, requirements, rules, schedule  # noqa: E402
-from codecash_engine.pack import SUPPORT_TYPES  # noqa: E402
+from codecash_engine import controls, expressions, policy as policy_module, requirements, rules, schedule  # noqa: E402
 
 ORIGINAL = {
-    'dedupe': events.dedupe, 'required_authorized': requirements.required_authorized,
-    'classify_required': requirements.classify_required, 'valid_resolution': controls.valid_resolution,
-    'open_disputes': controls.open_disputes, 'valid_rejections': controls.valid_rejections,
-    'count_approvals': controls.count_approvals, 'approver_of_contract': controls.approver_of_contract,
-    'days_late_after_grace': schedule.days_late_after_grace,
-    'completion_timestamp': schedule.completion_timestamp, 'select_rule': rules.select_rule,
-    'rule_amounts': amounts.rule_amounts, 'eval': expressions._eval,
+    'classify_required': requirements.classify_required, 'open_disputes': controls.open_disputes,
+    'count_approvals': controls.count_approvals, 'completion_timestamp': schedule.completion_timestamp,
+    'select_rule': rules.select_rule, 'evaluate_expr': expressions.evaluate_expr,
 }
 
 
-def _any_status(parties, contract, evts, required_types, literal_permissions=False):
+def _any_status(verdicts):
     """Required events count whatever their status."""
-    valid, unauthorized, unrelated = {}, [], []
-    for e in evts:
-        if e['event_type'] in required_types:
-            if ORIGINAL['required_authorized'](parties, contract, e, literal_permissions):
-                valid.setdefault(e['event_type'], e)
-            else:
-                unauthorized.append(e)
-        elif e['event_type'] not in SUPPORT_TYPES:
-            unrelated.append(e)
+    valid, unauthorized, unrelated = ORIGINAL['classify_required'](verdicts)
+    for v in verdicts:
+        if v.flags['required'] and v.flags['required_authorized']:
+            valid.setdefault(v.event['event_type'], v.event)
     return valid, unauthorized, unrelated
 
 
-def _latest_copy(parties, contract, evts, required_types, literal_permissions=False):
+def _latest_copy(verdicts):
     """The latest valid event per type wins instead of the earliest."""
-    valid, unauthorized, unrelated = ORIGINAL['classify_required'](parties, contract, evts, required_types,
-                                                                   literal_permissions)
-    for e in evts:
-        if e['event_type'] in valid and e['event_status'] == valid[e['event_type']]['event_status'] \
-                and ORIGINAL['required_authorized'](parties, contract, e, literal_permissions):
-            valid[e['event_type']] = e
+    valid, unauthorized, unrelated = ORIGINAL['classify_required'](verdicts)
+    for v in verdicts:
+        if v.flags['required'] and v.flags['required_authorized'] and v.flags['status_ok']:
+            valid[v.event['event_type']] = v.event
     return valid, unauthorized, unrelated
 
 
-def _approvals_counted_not_roles(parties, contract, evts, roles, planned=None):
-    approvals, _, over = ORIGINAL['count_approvals'](parties, contract, evts, roles, planned)
+def _approvals_counted_not_roles(policy, verdicts, planned=None):
+    approvals, _, over = ORIGINAL['count_approvals'](policy, verdicts, planned)
     return approvals, len(approvals), over
 
 
-def _approvals_any_role(parties, contract, evts, roles, planned=None):
-    every_role = sorted({p['approval_role'] for p in parties.values()})
-    approvals, _, over = ORIGINAL['count_approvals'](parties, contract, evts, every_role, planned)
-    return approvals, len({parties[a]['approval_role'] for a in approvals}), over
+def _resolution_closes_all(policy, scope, *args):
+    if any(e['event_type'] == 'DISPUTE_RESOLVED' for e in scope):
+        return []
+    return [e for e in scope if e['event_type'] == 'DISPUTE_OPENED']
 
 
-def _rejections_from_anyone(parties, contract, evts):
-    return [e for e in evts if e['event_type'] == 'REJECTION'], []
+def _last_match(scope_rules, env, issues, anomalies, policy):
+    """The last matching rule before ELSE wins instead of the first."""
+    fallback = rules.fallback_rule(scope_rules, policy)
+    reordered = [r for r in reversed(scope_rules) if r is not fallback] + ([fallback] if fallback else [])
+    return ORIGINAL['select_rule'](reordered, env, issues, anomalies, policy)
 
 
-def _last_match(scope_rules, env, issues, anomalies):
-    fallback = rules.fallback_rule(scope_rules)
-    if issues:
-        return fallback
-    matching = [r for r in scope_rules if r is not fallback and expressions.evaluate_expr(r['condition_expression'], env)]
-    return matching[-1] if matching else fallback
+def _min_as_max(text, env):
+    """MIN behaves as MAX, so the penalty cap stops capping."""
+    return ORIGINAL['evaluate_expr'](text.replace('MIN(', 'MAX('), env)
 
 
-def _min_as_max(node, env, source=None):
-    """MIN behaves as MAX, so the penalty cap stops capping. The original evaluator recurses through the
-    module-level name ``_eval``, which is this function while the mutant is planted."""
-    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'MIN':
-        return max(_min_as_max(a, env, source) for a in node.args)
-    return ORIGINAL['eval'](node, env, source)
+def _set(path, value):
+    """A policy mutant: the policy document with one value replaced (``path`` is a dotted key)."""
+    def change(document):
+        node = document
+        keys = path.split('.')
+        for key in keys[:-1]:
+            node = node[key]
+        node[keys[-1]] = value
+    return change
 
 
+# Code mutants replace one engine function; policy mutants (a callable editing the policy document) plant
+# the same kind of bug as a wrong policy pack, which is how a business rule would now be broken.
 MUTANTS = {
     # README Lỗi 2: a resent event counts again.
-    'DEDUPLICATION_OFF': (events, 'dedupe', lambda evts: (list(evts), [])),
+    'DEDUPLICATION_OFF': _set('dedupe.fields', ['event_id']),
     # README Lỗi 1: only the event type is checked.
-    'AUTHORITY_OFF': (requirements, 'required_authorized', lambda *a, **k: True),
+    'AUTHORITY_OFF': _set('requirements.authorized_when', "kind.category == 'EVIDENCE'"),
     'STATUS_IGNORED': (requirements, 'classify_required', _any_status),
     'LATEST_COPY_WINS': (requirements, 'classify_required', _latest_copy),
     # README Lỗi 3: an open dispute is ignored.
     'DISPUTE_IGNORED': (controls, 'open_disputes', lambda *a, **k: []),
     # A resolution closes every dispute of the milestone, whatever it references.
-    'RESOLUTION_CLOSES_ALL': (controls, 'open_disputes',
-                              lambda scope, *a, **k: [] if any(e['event_type'] == 'DISPUTE_RESOLVED' for e in scope)
-                              else [e for e in scope if e['event_type'] == 'DISPUTE_OPENED']),
-    'REJECTION_FROM_ANYONE': (controls, 'valid_rejections', _rejections_from_anyone),
+    'RESOLUTION_CLOSES_ALL': (controls, 'open_disputes', _resolution_closes_all),
+    'REJECTION_FROM_ANYONE': _set('categories.REJECTION.authority', 'TRUE'),
     # README Lỗi 4: approvals are counted without checking the role.
     'APPROVALS_NOT_ROLES': (controls, 'count_approvals', _approvals_counted_not_roles),
-    'APPROVAL_ANY_ROLE': (controls, 'count_approvals', _approvals_any_role),
-    'INACTIVE_APPROVER_ALLOWED': (controls, 'approver_of_contract',
-                                  lambda parties, contract, e: (parties.get(e['actor_party_id']) or {}).get(
-                                      'parent_party_id') == contract['buyer_id']
-                                  and parties[e['actor_party_id']]['can_approve_payment'] == 'TRUE'),
+    'APPROVAL_ANY_ROLE': _set('approvals.counts_when', 'TRUE'),
+    'INACTIVE_APPROVER_ALLOWED': _set('definitions.buyer_approver',
+                                      "actor.party_type == 'APPROVER' AND actor.parent_party_id == contract.buyer_id "
+                                      "AND actor.can_approve_payment == TRUE"),
     # README Lỗi 5: penalty before the grace period.
     'GRACE_IGNORED': (schedule, 'days_late_after_grace',
                       lambda done, due, grace: max(0, (done - due).days) if done and due else 0),
-    'COMPLETION_INCLUDES_APPROVAL': (schedule, 'completion_timestamp',
-                                     lambda valid, approvals, missing, includes_approval=False:
-                                     ORIGINAL['completion_timestamp'](valid, approvals, missing, True)),
+    'COMPLETION_INCLUDES_APPROVAL': _set('completion.categories', ['EVIDENCE', 'APPROVAL']),
     'DEADLINE_OFF_BY_ONE': (schedule, 'days_late_after_grace',
-                            lambda done, due, grace: max(0, (done - (due + timedelta(days=grace))).days + 1)
+                            lambda done, due, grace: max(0, (done - (due + timedelta(days=int(grace)))).days + 1)
                             if done and due else 0),
-    'PENALTY_CAP_REMOVED': (expressions, '_eval', _min_as_max),
+    'PENALTY_CAP_REMOVED': (expressions, 'evaluate_expr', _min_as_max),
     'FIRST_MATCH_REVERSED': (rules, 'select_rule', _last_match),
-    'ROUNDING_HALF_EVEN': (amounts, 'rule_amounts',
-                           lambda rule, env, rounding=None: ORIGINAL['rule_amounts'](rule, env, ROUND_HALF_EVEN)),
+    'ROUNDING_HALF_EVEN': _set('amounts.rounding', 'ROUND_HALF_EVEN'),
 }
 
 
 @contextmanager
 def planted(name):
-    module, attribute, replacement = MUTANTS[name]
+    mutant = MUTANTS[name]
+    if callable(mutant):
+        path = policy_module.DEFAULT_POLICY.resolve()
+        original = policy_module.load_policy()
+        document = copy.deepcopy(original.document)
+        mutant(document)
+        policy_module._LOADED[path] = policy_module.Policy(document, original.catalog)
+        try:
+            yield
+        finally:
+            policy_module._LOADED[path] = original
+        return
+    module, attribute, replacement = mutant
     original = getattr(module, attribute)
     setattr(module, attribute, replacement)
     try:

@@ -185,7 +185,11 @@ export async function runEngine(
     for (const trace of output.traces) {
       const r = trace.result;
       const explanation = trace.explanation as
-        { rules?: Array<{ ruleId: string; outcome: RuleOutcome }> } | undefined;
+        | {
+            rules?: Array<{ ruleId: string; outcome: RuleOutcome }>;
+            variables?: Record<string, string | boolean | null>;
+          }
+        | undefined;
       evaluations.set(r.milestone_id, {
         milestoneId: r.milestone_id,
         contractId: r.contract_id,
@@ -225,6 +229,8 @@ export async function runEngine(
           : {}),
         confidence: confidence.get(r.milestone_id) ?? "",
         specVersion: trace.specVersion,
+        ...(r.selection ? { selection: r.selection } : {}),
+        ...(explanation?.variables ? { variables: explanation.variables } : {}),
       });
     }
     return {

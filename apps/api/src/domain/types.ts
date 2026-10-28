@@ -296,7 +296,19 @@ export interface Evaluation {
   ruleTrail?: Record<string, RuleOutcome>;
   confidence: string;
   specVersion: string;
+  /** How the engine chose the applied rule; a fallback means a safety check held the milestone. */
+  selection?: RuleSelection;
+  /** Rule variables as the engine saw them (decimals and dates as text); absent on older evaluations. */
+  variables?: Record<string, string | boolean | null>;
 }
+
+export type RuleSelection =
+  | "FIRST_MATCH"
+  | "STRUCTURE_FALLBACK"
+  | "ANOMALY_FALLBACK"
+  | "PAYMENT_GUARD_FALLBACK"
+  | "RULE_ERROR_FALLBACK"
+  | "AMOUNT_GUARD_FALLBACK";
 
 export interface RuleRow {
   id: string;
@@ -311,8 +323,17 @@ export interface RuleRow {
   description: string;
 }
 
+/**
+ * OVERRIDDEN: a paying rule matched but a data anomaly sent the milestone to ELSE; SET_ASIDE: it matched but a
+ * payment or amount safety check held the milestone; FAILED: it could not be evaluated.
+ */
 export type RuleOutcome =
-  "NOT_MATCHED" | "MATCHED" | "OVERRIDDEN" | "NOT_EVALUATED";
+  | "NOT_MATCHED"
+  | "MATCHED"
+  | "OVERRIDDEN"
+  | "NOT_EVALUATED"
+  | "SET_ASIDE"
+  | "FAILED";
 
 export type Trigger =
   | { kind: "IMPORT" }
@@ -445,6 +466,12 @@ export interface MilestoneDetail {
   milestone: MilestoneRow;
   evaluation: Evaluation;
   rules: Array<RuleRow & { outcome: RuleOutcome }>;
+  /** The rule variables of the evaluation with their labels from the rule vocabulary. */
+  variables: Array<{
+    name: string;
+    label: { vi: string; en: string };
+    value: string | boolean | null;
+  }>;
   events: ClassifiedEvent[];
   money: {
     plannedMillion: string;

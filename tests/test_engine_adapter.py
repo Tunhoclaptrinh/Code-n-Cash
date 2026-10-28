@@ -43,7 +43,8 @@ class EngineAdapterTests(unittest.TestCase):
             self.assertEqual(len(outcomes), 8)
             matched = [rule['ruleId'] for rule in trace['explanation']['rules'] if rule['outcome'] == 'MATCHED']
             self.assertEqual(matched, [trace['result']['rule_id']])
-            self.assertEqual(len(trace['explanation']['variables']), 16)
+            # Every variable of the rule vocabulary except the penalty, which only the payable formula sees.
+            self.assertEqual(len(trace['explanation']['variables']), len(engine.spec.load_policy().variables) - 1)
             self.assertNotIn('explanation', trace['result'])
 
     def test_trace_references_and_semantic_replay(self):

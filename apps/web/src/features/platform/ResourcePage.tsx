@@ -133,6 +133,8 @@ function ResourceView({ resource }: { resource: string }) {
     queryKey: ["resource", "organizations", "lookup"],
     queryFn: () =>
       platform.resource<Entity>("organizations").list({ page: 1, limit: 100 }),
+    // Without the lookup, organisation columns show their codes.
+    enabled: hasPermission("organizations:read"),
   });
   const uploadDrafts = useQuery({
     queryKey: ["resource", "contract-drafts", "upload-lookup", user.id],

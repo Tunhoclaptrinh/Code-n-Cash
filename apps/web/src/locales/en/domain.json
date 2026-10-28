@@ -166,7 +166,9 @@
     "NOT_MATCHED": "Not matched",
     "MATCHED": "Matched, applied",
     "OVERRIDDEN": "Matched, but sent to ELSE by a data anomaly",
-    "NOT_EVALUATED": "Not evaluated (earlier rule matched)"
+    "NOT_EVALUATED": "Not evaluated (earlier rule matched)",
+    "SET_ASIDE": "Matched, set aside by a safety check",
+    "FAILED": "Could not be evaluated"
   },
   "taskKind": {
     "SUBMIT_EVIDENCE": "Submit evidence",

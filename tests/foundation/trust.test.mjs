@@ -1138,7 +1138,7 @@ test("HTTP signing bridge binds proofs to the payload and pinned key, with no lo
 test("rule language catalog and diagnostics share the engine vocabulary without writes", async () => {
   const before = await repo.list("audit");
   const catalog = await rules.language();
-  assert.equal(catalog.variables.length, 17);
+  assert.equal(catalog.variables.length, 22);
   assert.deepEqual(
     catalog.variables.find((row) => row.name === "penalty_amount_vnd_mn")
       .fields,
@@ -1180,7 +1180,7 @@ test("rule diagnostics are read-only; full-pack preview catches regressions outs
     author,
   );
   const before = (await repo.list("audit")).length;
-  assert.equal((await rules.language()).variables.length, 17);
+  assert.equal((await rules.language()).variables.length, 22);
   assert.deepEqual(await rules.checkExpressions({ rules: version.rules }), {
     valid: true,
     checked: 384,

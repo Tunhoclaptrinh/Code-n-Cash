@@ -6,6 +6,7 @@ import { DecisionEventTable } from "./DecisionEventTable";
 import { ExceptionPanel } from "./ExceptionPanel";
 import { HistoryPanel } from "./HistoryPanel";
 import { ReplayPanel } from "./ReplayPanel";
+import { VariablesPanel } from "./VariablesPanel";
 import styles from "./MilestoneDecision.module.css";
 
 interface DecisionTraceProps {
@@ -47,6 +48,7 @@ export function DecisionTrace({ data, onChanged }: DecisionTraceProps) {
                     evidence={evaluation.evidence}
                   />
                 </section>
+                <VariablesPanel variables={data.variables ?? []} />
                 <ReplayPanel
                   contractId={contract.id}
                   sequence={milestone.sequence}

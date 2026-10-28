@@ -351,11 +351,22 @@
     "rules": {
       "title": "Luật áp dụng",
       "showAll": "Xem cả {{count}} luật",
-      "hideAll": "Chỉ xem luật áp dụng"
+      "hideAll": "Chỉ xem luật áp dụng",
+      "selection": {
+        "STRUCTURE_FALLBACK": "Dữ liệu của mốc có lỗi cấu trúc nên hệ thống không xét các luật, mốc được tạm giữ để kiểm tra.",
+        "ANOMALY_FALLBACK": "Luật cho chi đã khớp nhưng hồ sơ có bất thường, mốc được tạm giữ để kiểm tra.",
+        "PAYMENT_GUARD_FALLBACK": "Luật cho chi đã khớp nhưng chốt an toàn thanh toán chưa đạt, mốc được tạm giữ để kiểm tra.",
+        "RULE_ERROR_FALLBACK": "Một luật không tính được trên dữ liệu của mốc, mốc được tạm giữ để kiểm tra.",
+        "AMOUNT_GUARD_FALLBACK": "Số tiền của luật khớp không đúng với quyết định, mốc được tạm giữ để kiểm tra."
+      }
     },
     "trace": {
       "title": "Truy vết chi tiết",
-      "events": "Sự kiện của mốc ({{total}})"
+      "events": "Sự kiện của mốc ({{total}})",
+      "variables": "Giá trị điều kiện lúc ra quyết định",
+      "variableYes": "Có",
+      "variableNo": "Không",
+      "variableEmpty": "Chưa có"
     },
     "exceptions": {
       "title": "Ngoại lệ",

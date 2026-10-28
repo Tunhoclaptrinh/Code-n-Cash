@@ -121,6 +121,17 @@ export interface RuleLanguage {
     fields: RuleExpressionField[];
     label: { vi: string; en: string };
     description: { vi: string; en: string };
+    /** Where the engine reads the value: a fact it computes, a policy-derived fact or a Data Pack cell. */
+    binding: {
+      source:
+        "fact" | "config" | "derived" | "amount" | "milestone" | "contract";
+      key?: string;
+      field?: string;
+      type?: "boolean" | "integer" | "decimal" | "date";
+      default?: string;
+      issue?: string;
+      group?: string;
+    };
   }>;
   operators: string[];
   functions: string[];

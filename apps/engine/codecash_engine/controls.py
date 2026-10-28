@@ -1,67 +1,55 @@
 """Payment controls: disputes, rejections and approvals.
 
-Input: the cleaned events of a milestone, the parties lookup, the contract and the milestone row.
-Output: open dispute events, valid rejections (plus rejection anomalies) and the counted approvals.
-Business rules: BR-08 (a dispute opens easily, closes only by a valid resolution that references it),
-BR-09 (a valid rejection blocks payment regardless of required approval roles), BR-10 (each approver
-counts once; the quorum counts distinct required roles covered; an approver whose ``approval_limit_vnd_mn``
-is below the milestone's planned payment does not count).
+Input: the classified events (verdicts) of a milestone, the parties lookup, the contract, the milestone row
+and the policy.
+Output: open dispute events, valid rejections and the counted approvals.
+Business rules: BR-08 (a dispute opens easily, closes only when the policy's closing predicate holds for a
+resolution that references it; scope milestone or contract), BR-09 (a valid rejection blocks payment
+regardless of required approval roles), BR-10 (each approver counts once; the quorum counts the distinct
+values the policy names, the approval roles, covered by counted approvals; an approver whose limit cell, the
+``approval_limit_vnd_mn`` of the policy, is below the milestone's planned payment does not count).
 """
 from decimal import Decimal, InvalidOperation
 
-from .events import approver_of_contract, party_of, up_to, valid_rejection
+from .events import up_to
 
 
-def dispute_scope_events(pack, milestone, events, contract_scope_dispute=False, as_of=None):
-    """Events searched for disputes: the milestone's own, or the whole contract's (sensitivity switch)."""
-    if not contract_scope_dispute:
+def dispute_scope_events(pack, milestone, events, policy, as_of=None):
+    """Events searched for disputes: the milestone's own (cleaned) events, or the whole contract's raw events."""
+    if policy.dispute_scope != "CONTRACT":
         return events
     return [e for ms in pack.milestones.values() if ms["contract_id"] == milestone["contract_id"]
             for e in up_to(pack.events_by_ms[ms["milestone_id"]], as_of)]
 
 
-def valid_resolution(resolution, event_by_id, parties, contract, milestone, strict_resolution=False):
-    """BR-08: a RESOLVED event that references a DISPUTE_OPENED of the same milestone, not earlier than it.
-
-    With ``strict_resolution`` the resolver must also be an active buyer-side party.
-    """
-    opened = event_by_id.get(resolution["reference_event_id"])
-    p = party_of(parties, resolution)
-    buyer_side = p is not None and (resolution["actor_party_id"] == contract["buyer_id"] or (
-        p["party_type"] == "APPROVER" and p["parent_party_id"] == contract["buyer_id"]
-        and "DISPUTE" in p["allowed_event_types"].split(";")))
-    return (opened is not None and opened["event_type"] == "DISPUTE_OPENED"
-            and opened["milestone_id"] == resolution["milestone_id"]
-            and opened["contract_id"] == resolution["contract_id"] == milestone["contract_id"]
-            and resolution["event_status"] == "RESOLVED"
-            and resolution["event_timestamp"] >= opened["event_timestamp"]
-            and (not strict_resolution or (buyer_side and p["status"] == "ACTIVE")))
+def closes_dispute(policy, resolution, event_by_id, parties, contract, milestone):
+    """BR-08: the policy's closing predicate for one resolution and the event it references."""
+    scope = {"event": resolution, "actor": parties.get(resolution["actor_party_id"]), "contract": contract,
+             "milestone": milestone, "referenced": event_by_id.get(resolution["reference_event_id"])}
+    return policy.dispute_closes(scope)
 
 
-def open_disputes(scope_events, event_by_id, parties, contract, milestone,
-                  ignore_resolutions=False, strict_resolution=False):
-    """BR-08: DISPUTE_OPENED events not closed by a valid resolution.
+def open_disputes(policy, scope_events, event_by_id, parties, contract, milestone):
+    """BR-08: opening events that no closing resolution references."""
+    kinds = policy.kinds
 
-    ``ignore_resolutions`` treats every opened dispute as still open (sensitivity switch).
-    """
-    closed = set() if ignore_resolutions else {
-        r["reference_event_id"] for r in scope_events
-        if r["event_type"] == "DISPUTE_RESOLVED"
-        and valid_resolution(r, event_by_id, parties, contract, milestone, strict_resolution)}
-    return [e for e in scope_events if e["event_type"] == "DISPUTE_OPENED" and e["event_id"] not in closed]
+    def category(e):
+        kind = kinds.get(e["event_type"])
+        return kind.category if kind else None
 
-
-def valid_rejections(parties, contract, events):
-    """BR-09: return (rejections, anomalies); an invalid REJECTION is reported, not counted."""
-    rejections = [e for e in events if e["event_type"] == "REJECTION" and valid_rejection(parties, contract, e)]
-    anomalies = [f"{e['event_id']}: REJECTION không hợp lệ" for e in events
-                 if e["event_type"] == "REJECTION" and not valid_rejection(parties, contract, e)]
-    return rejections, anomalies
+    closed = {r["reference_event_id"] for r in scope_events if category(r) == "DISPUTE_RESOLVE"
+              and closes_dispute(policy, r, event_by_id, parties, contract, milestone)}
+    return [e for e in scope_events if category(e) == "DISPUTE_OPEN" and e["event_id"] not in closed]
 
 
-def within_limit(party, planned):
+def valid_rejections(verdicts):
+    """BR-09: rejection events from an authorized party with the valid status."""
+    return [v.event for v in verdicts if v.category == "REJECTION" and v.flags["valid"]]
+
+
+def within_limit(party, field, planned):
     """BR-10: an empty limit or no planned amount is no limit; an unreadable limit is no authority."""
-    limit = (party.get("approval_limit_vnd_mn") or "").strip()
+    limit = ((party or {}).get(field) or "").strip() if field else ""
     if not limit or planned is None:
         return True
     try:
@@ -70,19 +58,21 @@ def within_limit(party, planned):
         return False
 
 
-def count_approvals(parties, contract, events, roles, planned=None):
-    """BR-10: return (approvals, covered_role_count, over_limit).
+def count_approvals(policy, verdicts, planned=None):
+    """BR-10: return (approvals, covered_count, over_limit).
 
-    approvals maps approver party id -> that approver's earliest valid APPROVAL (one per approver).
-    The count is the number of distinct required roles covered, not the number of approvals.
-    over_limit lists approvals from a required approver whose limit is below ``planned``; they do not count.
+    approvals maps the policy's ``one_per`` cell (the approver party id) -> that approver's earliest counted
+    approval. The count is the number of distinct ``covers`` values (approval roles), not of approvals.
+    over_limit lists approvals from an approver whose limit is below ``planned``; they do not count.
     """
-    approvals, over_limit = {}, []
-    for e in events:
-        if (e["event_type"] == "APPROVAL" and e["event_status"] == "APPROVED"
-                and approver_of_contract(parties, contract, e) and party_of(parties, e)["approval_role"] in roles):
-            if within_limit(party_of(parties, e), planned):
-                approvals.setdefault(e["actor_party_id"], e)
-            else:
-                over_limit.append(e["event_id"])
-    return approvals, len({parties[a]["approval_role"] for a in approvals}), over_limit
+    approvals, covered, over_limit = {}, {}, []
+    for v in verdicts:
+        if v.category == "APPROVAL" and v.flags["valid"] and policy.approval_counts(v.scope):
+            if not within_limit(v.actor, policy.approval_limit, planned):
+                over_limit.append(v.event["event_id"])
+                continue
+            key = v.event.get(policy.approval_one_per)
+            if key not in approvals:
+                approvals[key] = v.event
+                covered[key] = (v.actor or {}).get(policy.approval_covers)
+    return approvals, len(set(covered.values())), over_limit

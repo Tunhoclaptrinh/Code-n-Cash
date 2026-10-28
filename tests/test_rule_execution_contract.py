@@ -19,7 +19,7 @@ CENT = Decimal('0.01')
 
 
 class RuntimeContractTests(unittest.TestCase):
-    def test_all_17_variables_match_runtime_values_and_declared_types_on_405_milestones(self):
+    def test_all_variables_match_runtime_values_and_declared_types_on_405_milestones(self):
         observed = set()
         original = expressions.evaluate_expr
         for mid, milestone in PACK.milestones.items():
@@ -48,6 +48,11 @@ class RuntimeContractTests(unittest.TestCase):
                 'penalty_amount_vnd_mn': result['penalty'],
                 'penalty_rate_pct_per_day': Decimal(milestone['penalty_rate_pct_per_day']),
                 'max_penalty_pct': Decimal(milestone['max_penalty_pct']),
+                'invoice_required': milestone['invoice_required'] == 'TRUE',
+                'hold_on_open_dispute': milestone['hold_on_open_dispute'] == 'TRUE',
+                'payment_percent': Decimal(milestone['payment_percent']),
+                'contract_value_vnd_mn': Decimal(PACK.contracts[milestone['contract_id']]['contract_value_vnd_mn']),
+                'auto_release_allowed': PACK.contracts[milestone['contract_id']]['auto_release_allowed'] == 'TRUE',
             }
             completion = expected['actual_completion_date']
             expected['days_late_after_grace'] = Decimal(max(0, (completion - (expected['due_date'] + timedelta(days=int(expected['grace_period_days'])))).days) if completion else 0)

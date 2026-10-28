@@ -2,7 +2,7 @@
 
 Bảng D, Case 4: Smart Contract Workflow. Tài liệu nghiệp vụ duy nhất của dự án; các tài liệu nghiệp vụ trước đây nằm trong [archive](archive/). Khi có mâu thuẫn, thứ tự căn cứ là: đề thi chính thức, câu trả lời của BTC (mục 12), Data Pack, tài liệu này.
 
-Phiên bản đặc tả engine: 1.1. Snapshot dữ liệu: 18/10/2026.
+Phiên bản đặc tả engine: 1.2. Snapshot dữ liệu: 18/10/2026.
 
 ## 1. Phạm vi và nguyên tắc
 
@@ -17,7 +17,7 @@ CodeCash là hệ thống quản lý thực hiện hợp đồng có điều ki�
 Nguyên tắc:
 
 1. **An toàn thanh toán trước.** Chưa đủ căn cứ thì HOLD; không bao giờ tự RELEASE khi chưa chắc.
-2. **Luật đọc từ dữ liệu.** Quyết định lấy từ `payment_rules.csv` theo first-match; không hard-code theo mã hợp đồng, mốc hay scenario.
+2. **Luật và chính sách đọc từ dữ liệu.** Quyết định lấy từ `payment_rules.csv` theo first-match; chính sách nghiệp vụ (bên nào được tạo loại event nào, trạng thái hợp lệ, cách đóng tranh chấp, cách đếm phê duyệt, trạng thái theo lý do, chốt an toàn) đọc từ policy pack có phiên bản (mục 6.2); không hard-code theo mã hợp đồng, mốc hay scenario.
 3. **Trình duyệt không ra quyết định.** API xử lý nghiệp vụ, Python tính quyết định và tiền.
 4. **Tiền dùng số thập phân chính xác,** không dùng số thực dấu phẩy động.
 5. **Không ai sửa trực tiếp quyết định, số tiền hay audit.** Con người can thiệp bằng event mới của đúng bên hoặc quyết định ngoại lệ có hai người duyệt.
@@ -38,6 +38,8 @@ Hai lớp quyền tách biệt: **thẩm quyền nghiệp vụ** (bên nào đư
 | `DISPUTE_RESOLVED` | Bên mua (workflow: bên mua hoặc người phê duyệt của bên mua có quyền `DISPUTE`) | Trạng thái `RESOLVED`, tham chiếu đúng `DISPUTE_OPENED` cùng mốc, cùng hợp đồng, không trước lúc mở (đóng khó) |
 
 Loại bên và vai trò luôn tra trong `parties.csv`, không tin cột `actor_party_type` ghi trên event. Cột `allowed_event_types` không dùng nguyên văn cho required event: cách đó làm sai 5 trong 20 mẫu công khai (mục 10).
+
+Bảng này là nội dung của policy pack (`apps/engine/policy/case4_btc.json`, mục 6.2): mỗi loại event thuộc một nhóm (`EVIDENCE`, `APPROVAL`, `REJECTION`, `DISPUTE_OPEN`, `DISPUTE_RESOLVE`), chứng từ ghi rõ bên tạo (`BUYER`, `SUPPLIER`) và trạng thái hợp lệ; điều kiện thẩm quyền của từng nhóm là một biểu thức đọc `parties.csv` và `contracts.csv`. API đọc cùng tệp này để người dùng chỉ ghi được event của bên mình.
 
 ### 2.2. Vai trò người dùng hệ thống
 
@@ -100,7 +102,7 @@ Quy ước: tiền tính bằng triệu VND; phần trăm chia 100 khi tính; th
 
 ## 5. Engine: chín bước xử lý một mốc
 
-Engine là package `apps/engine/codecash_engine`, mỗi bước một module có đầu vào, đầu ra và test riêng (`tests/test_engine_stages.py`).
+Engine là package `apps/engine/codecash_engine`, mỗi bước một module có đầu vào, đầu ra và test riêng (`tests/test_engine_stages.py`). Mọi bước đọc chính sách đã biên dịch (`policy.py`, mục 6.2); engine chỉ giữ cơ chế: năm nhóm event, chọn luật first-match và tiền `Decimal`.
 
 | # | Module | Việc | Quy tắc |
 | --- | --- | --- | --- |
@@ -108,9 +110,9 @@ Engine là package `apps/engine/codecash_engine`, mỗi bước một module có
 | 2 | `events` | Cắt theo thời điểm (chế độ as-of); khử trùng lặp; áp quyết định ngoại lệ đã duyệt; đánh dấu bất thường | BR-03, BR-16, BR-19 |
 | 3 | `requirements` | Phân loại required event: hợp lệ, sai thẩm quyền, sai trạng thái, không liên quan; tính loại còn thiếu và tỷ lệ hoàn thành | BR-04 đến BR-07, BR-20 |
 | 4 | `controls` | Tranh chấp đang mở, từ chối hợp lệ, số vai trò đã phê duyệt | BR-08 đến BR-10 |
-| 5 | `schedule` | Ngày hoàn thành thực tế, số ngày trễ sau ân hạn | BR-11, BR-12 |
-| 6 | `rules` | Dựng biến luật, chọn luật đầu tiên khớp theo ưu tiên, nhánh ELSE | BR-02, BR-14 |
-| 7 | `amounts` | Tiền phạt, số được thanh toán theo công thức của luật thắng | BR-12, BR-13 |
+| 5 | `schedule`, `bindings` | Ngày hoàn thành thực tế, số ngày trễ sau ân hạn; đọc tham số mốc và hợp đồng theo khai báo của từng biến | BR-11, BR-12 |
+| 6 | `rules` | Dựng biến luật, chọn luật đầu tiên khớp theo ưu tiên, nhánh ELSE, chốt an toàn thanh toán | BR-02, BR-14 |
+| 7 | `amounts` | Tiền phạt, số được thanh toán theo công thức của luật thắng, chốt an toàn số tiền | BR-12, BR-13 |
 | 8 | `confidence` | Điểm tin cậy và các yếu tố hạ điểm | Mục 8 |
 | 9 | `trace` | Bằng chứng, token điều kiện đạt và thiếu, trạng thái mốc | BR-17 |
 
@@ -123,6 +125,10 @@ Chi tiết các bước:
 - **Ngày hoàn thành (BR-11).** Thời điểm muộn nhất trong các required event hợp lệ (bản sớm nhất của mỗi loại). APPROVAL, DISPUTE_RESOLVED và event quản trị không đẩy ngày hoàn thành. Chưa đủ chứng từ thì chưa có ngày hoàn thành.
 - **Số ngày trễ.** `days_late_after_grace = max(0, ngày hoàn thành − (due_date + grace_period_days))`, tính theo ngày lịch.
 - **Cổng chất lượng (BR-15).** Lỗi cấu trúc đưa mốc về luật ELSE. Bất thường (người tạo không tồn tại, loại event lạ, từ chối không hợp lệ) chỉ hạ lệnh trả tiền xuống ELSE, không đổi các quyết định chặn.
+- **Chốt an toàn thanh toán.** Khi luật thắng là RELEASE hoặc PENALTY, engine kiểm thêm các điều kiện của policy pack: không có tranh chấp mở (trừ khi mốc ghi `hold_on_open_dispute = FALSE`), không có từ chối hợp lệ, đủ mọi điều kiện. Không đạt thì mốc về ELSE kèm lý do, dù bảng luật nói gì. Với bộ luật của BTC chốt này không bao giờ phải can thiệp; nó chặn bộ luật sai thứ tự hoặc sai điều kiện.
+- **Chốt an toàn số tiền.** Số tiền không âm, thanh toán không vượt giá trị mốc, và khớp hợp đồng số tiền của từng quyết định (RELEASE trả đủ P; HOLD, REJECT trả 0; PENALTY trả `MAX(0, P − F)` với F trong trần, kể cả khi trần cho phép F lớn hơn P). Không đạt thì mốc về ELSE và không chi.
+- **Lỗi khi tính luật.** Một luật không tính được trên dữ liệu của mốc (ví dụ chia cho 0) làm mốc đó về ELSE kèm mã lỗi; các mốc khác vẫn có quyết định.
+- Ba trường hợp trên (chốt an toàn thanh toán, chốt an toàn số tiền, lỗi khi tính luật) cho thấy bộ luật có lỗi, nên còn được báo là vi phạm bất biến (mục 9): lượt chạy nộp bài dừng lại, thao tác trên ứng dụng bị huỷ toàn bộ, còn màn xem trước phiên bản luật và chế độ chẩn đoán liệt kê từng mốc bị ảnh hưởng. Trong mọi trường hợp mốc không được chi.
 
 ## 6. Luật quyết định
 
@@ -141,9 +147,11 @@ Tám luật giống nhau ở cả 16 phạm vi, chạy first-match theo `priorit
 
 ELSE là nhánh mặc định cuối cùng, không phải một event hay scenario: mọi trường hợp không khớp luật 10 đến 70 hoặc không đánh giá được đều HOLD để người kiểm tra (BTC xác nhận). Các yếu tố chặn (10 đến 50) luôn xét trước phạt (60).
 
+Engine không giả định đúng 8 luật hay ưu tiên 10..80. Một phạm vi luật hợp lệ khi: có ít nhất một luật, ưu tiên không trùng, đúng một nhánh ELSE và nằm cuối, mọi quyết định và mã lý do có trong policy pack, và có đủ 8 mã lý do chuẩn của README (mục 4.4). Thêm một luật ở ưu tiên 65 chẳng hạn không cần sửa code; phạm vi không hợp lệ thì các mốc của nó về ELSE kèm lý do.
+
 ### 6.1. Tính động của engine
 
-Engine không gắn cứng với một hợp đồng hay một bộ luật. Bốn cơ chế giữ cho quyết định luôn theo dữ liệu mới nhất:
+Engine không gắn cứng với một hợp đồng, một bộ luật hay một chính sách. Năm cơ chế giữ cho quyết định luôn theo dữ liệu mới nhất:
 
 1. **Đánh giá lại sau mỗi thao tác.** Mỗi thao tác ghi (nộp chứng từ, phê duyệt, từ chối, mở hoặc đóng tranh chấp, duyệt ngoại lệ) chạy lại engine Python cho các mốc liên quan trong cùng giao dịch; trạng thái mốc và hợp đồng cập nhật ngay, lịch sử trạng thái ghi lại lượt chạy gây ra thay đổi.
 2. **Chạy thử trước khi hành động.** Màn phê duyệt, nộp chứng từ và tranh chấp gọi engine ở chế độ chạy thử với event giả định, nên người dùng thấy quyết định và số tiền sẽ ra sao trước khi xác nhận. Kết quả chạy thử không được lưu.
@@ -158,6 +166,36 @@ Engine không gắn cứng với một hợp đồng hay một bộ luật. Bố
 | Công bố | Phải do người thứ hai, khác người soạn (`SECOND_REVIEWER_REQUIRED`); nội dung được khoá bằng băm, phiên bản cũ chuyển sang ngừng hiệu lực |
 
 Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
+
+5. **Chính sách là dữ liệu** (mục 6.2): thêm loại event, đổi điều kiện thẩm quyền, đổi cách đóng tranh chấp, thêm biến luật từ một cột của mốc hay hợp đồng đều là sửa dữ liệu, không sửa code.
+
+### 6.2. Policy pack
+
+`apps/engine/policy/case4_btc.json` (định dạng `CODECASH_POLICY_V1`, `CASE4_BTC` phiên bản 2.0.0) chứa toàn bộ chính sách nghiệp vụ mà trước đây nằm trong code. Engine kiểm và biên dịch tệp khi nạp; tệp sai (nhóm event lạ, bên không có, biểu thức đọc cột không tồn tại, trạng thái không có trong danh mục, định nghĩa vòng tròn) bị từ chối với danh sách lỗi, không chạy một phần.
+
+| Phần | Nội dung | Quy tắc |
+| --- | --- | --- |
+| `sides`, `event_types`, `categories` | Loại event, nhóm, bên tạo, trạng thái hợp lệ, điều kiện thẩm quyền theo nhóm | Mục 2.1, BR-04, BR-05 |
+| `dedupe` | Các trường định danh một bản lặp; chỉ xét khi có `document_id` | BR-03 |
+| `requirements` | Điều kiện để một required event được tính; required event bổ sung theo cờ của mốc (chỉ dùng khi đo độ nhạy A08) | BR-04 đến BR-07 |
+| `approvals` | Phê duyệt nào được tính, một lần mỗi người duyệt, đếm theo vai trò | BR-10 |
+| `disputes` | Phạm vi (mốc hoặc hợp đồng) và điều kiện để `DISPUTE_RESOLVED` đóng tranh chấp | BR-08 |
+| `completion` | Nhóm event tính vào ngày hoàn thành | BR-11 |
+| `anomalies`, `exceptions` | Bất thường hạ lệnh trả tiền; event nào quyết định ngoại lệ được vô hiệu | BR-15, BR-19 |
+| `derived_facts` | `all_required_conditions_met` viết bằng biểu thức trên các biến luật | Mục 6 |
+| `decisions`, `reasons`, `statuses`, `fallback`, `rule_scope` | Quyết định nào trả tiền và hợp đồng số tiền của nó, trạng thái theo lý do, nhánh mặc định, điều kiện của một phạm vi luật | Mục 4, 6, 9 |
+| `guards` | Chốt an toàn thanh toán và số tiền | Mục 5 |
+| `condition_tokens` | Cách đánh giá token `EVENT:X`, `APPROVAL_QUORUM:n`, `NO_OPEN_DISPUTE` | Mục 9 |
+| `switches`, `profiles`, `readings`, `confidence` | Các cách hiểu đề đo độ nhạy, hồ sơ chạy (`BTC_SUBMISSION`, `WORKFLOW` thêm điều kiện bên mua đóng tranh chấp), trọng số confidence | Mục 8, 12 |
+
+Biểu thức trong policy pack dùng hai phương ngữ của cùng bộ biên dịch (`expressions.py`), cả hai phân tích cú pháp theo danh sách trắng và không chạy mã tuỳ ý:
+
+- **Biểu thức trên bản ghi** đọc `event.*`, `actor.*` (bên tạo, tra trong `parties.csv`), `contract.*`, `milestone.*`, `referenced.*` (event được tham chiếu), có chuỗi, `IN` trên danh sách phân cách `;`, `AND`, `OR`, `NOT`. So sánh với giá trị thiếu luôn sai; tên cột được kiểm theo tiêu đề tệp của Data Pack.
+- **Biểu thức trên biến luật** là `BTC_DSL_V1` thêm `OR`, `NOT` và `ROUND_MONEY`, dùng cho fact suy ra và chốt an toàn.
+
+Mỗi biến trong `apps/engine/rule_language.json` khai báo nguồn giá trị (`binding`): fact do engine tính, fact suy ra trong policy pack, hoặc một ô của `milestones.csv` hay `contracts.csv` kèm kiểu và thông báo lỗi. Ngoài 17 biến của đề, bộ từ vựng có thêm `invoice_required`, `hold_on_open_dispute`, `payment_percent`, `contract_value_vnd_mn`, `auto_release_allowed`; bộ luật của BTC không dùng chúng nên kết quả trên 405 mốc không đổi.
+
+Mỗi kết quả ghi lại cách chọn luật (`selection`: `FIRST_MATCH` hoặc một trong các nhánh về ELSE ở mục 14.12), các luật đã xét theo thứ tự cùng kết quả khớp (`rule_trace`) và giá trị mọi biến luật lúc quyết định (`variables`). Audit trace của lượt chạy ghi mã, phiên bản và băm SHA-256 của policy pack; băm này thuộc định danh lượt chạy.
 
 ## 7. Tính tiền
 
@@ -174,7 +212,7 @@ Ví dụ: mốc 516,00 triệu, phạt 0,10%/ngày, trần 10%, ân hạn 2 ngà
 
 `confidence_score` thuộc [0, 1], là mức chắc chắn đội tự gán cho quyết định. Điểm **không** thay đổi quyết định: tranh chấp mở vẫn HOLD dù điểm cao.
 
-Điểm = độ bền với cách hiểu đề × chất lượng hồ sơ.
+Điểm = độ bền với cách hiểu đề × chất lượng hồ sơ. Trọng số, cách hiểu và switch tương ứng nằm trong policy pack (`readings`, `confidence`).
 
 | Thành phần | Cách tính |
 | --- | --- |
@@ -199,11 +237,11 @@ Mỗi lượt chạy xuất đủ 405 dòng theo `submission_output_template.csv
 | Bằng chứng | `evidence_event_ids` (event hợp lệ đã dùng; không chứa bản lặp hay event sai quyền) |
 | Vận hành | `confidence_score`, `processing_time_ms`, `evaluated_at`, `engine_name`, `audit_trace_id`, `notes` |
 
-Mỗi dòng có một bản audit trace: dấu vân tay dữ liệu đầu vào, phiên bản đặc tả, toàn bộ fact, người tạo các event bằng chứng và tham số mốc.
+Mỗi dòng có một bản audit trace: dấu vân tay dữ liệu đầu vào, phiên bản đặc tả, mã, phiên bản và băm của policy pack, toàn bộ fact, các luật đã xét, giá trị biến luật, người tạo các event bằng chứng và tham số mốc.
 
 Trong ứng dụng, mọi thao tác ghi thêm đúng một mục vào nhật ký audit dạng chuỗi băm (mỗi mục chứa băm của mục trước), ghi cùng giao dịch với dữ liệu. Không sửa, không xoá mục audit. Khôi phục dữ liệu demo chuyển toàn bộ dữ liệu cũ, kể cả chuỗi audit, sang kho lưu trữ, rồi ghi mục `RESET_DEMO_DATA` kèm băm đầu chuỗi cũ vào chuỗi mới.
 
-Bất biến kiểm trước khi xuất: mỗi mốc đúng một dòng; quyết định và mã lý do khớp luật thắng; tiền không âm, khớp quyết định, phạt không vượt trần; mốc được trả tiền không thiếu điều kiện, không có tranh chấp, từ chối, sai thẩm quyền hay lỗi dữ liệu.
+Bất biến kiểm trước khi xuất: mỗi mốc đúng một dòng; quyết định và mã lý do khớp luật thắng; tiền không âm, khớp hợp đồng số tiền của quyết định trong policy pack, phạt không vượt trần; mốc được trả tiền không thiếu điều kiện, không có tranh chấp, từ chối, sai thẩm quyền hay lỗi dữ liệu; không mốc nào phải nhờ chốt an toàn giữ lại. Phần kiểm tiền đọc lại tham số từ dữ liệu gốc, không dùng giá trị engine đã tính.
 
 ## 10. KPI và kết quả
 
@@ -260,6 +298,7 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 | Đề, mục 5 | Bronze: không RELEASE khi chưa đủ điều kiện | Luật 10 đến 50, bất biến mục 9 | Unauthorized Payment Rate 0 |
 | Đề, mục 6 | 5 nhóm KPI và cách đo | Mục 10 | `apps/engine/cli.py`, `apps/engine/benchmark.py` |
 | Đề, mục 10 | Event thiếu, lặp, sai quyền, thiếu phê duyệt, tranh chấp, từ chối, chậm tiến độ | Mục 5 | Bộ ca tổng hợp |
+| Đề, mục 10 | Không hard-code; khi chưa rõ thì HOLD | Policy pack và bộ luật là dữ liệu (mục 6.2); chốt an toàn thanh toán và số tiền (mục 5) | `tests/test_policy_engine.py` |
 | BTC, ngày hoàn thành | Muộn nhất trong required event hợp lệ; APPROVAL và DISPUTE_RESOLVED không đẩy ngày; chỉ tính phần trễ lớn hơn 0 | BR-11, mục 5 | `tests/test_btc_clarifications.py`; tình huống `LATE_APPROVAL_ON_TIME_WORK`, `LATE_RESOLUTION_ON_TIME_WORK` |
 | BTC, tranh chấp | OPENED thì HOLD; RESOLVED tham chiếu đúng thì gỡ; stakeholder bổ sung phải có vai trò, quyền OPEN/RESOLVE, audit | Mục 2.1, 2.2, 9 | Tình huống `RESOLUTION_WITHOUT_REFERENCE_HOLD`; test workflow tranh chấp |
 | BTC, confidence | Trong [0, 1], không thay quyết định, đội tự giải thích | Mục 8 | `tests/test_btc_clarifications.py` |
@@ -285,6 +324,8 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 python3 apps/engine/cli.py --output out        # 405 dòng, audit, KPI
 python3 apps/engine/benchmark.py --report out  # bộ ca tổng hợp
 python3 tools/kiem_chung_nghiep_vu.py --check  # kiểm mẫu và bất biến
+python3 apps/engine/cli.py --policy-info       # từ vựng của policy pack đang dùng
+python3 apps/engine/cli.py --policy FILE       # chạy với một policy pack khác
 pnpm test                                      # toàn bộ test Python và Node
 ```
 
@@ -410,3 +451,28 @@ Kết quả bước lọc bằng chứng (mục 5) cho từng sự kiện của 
 | `SECONDARY_APPROVER` | Phê duyệt cấp 2 |
 | `SYSTEM_ADMIN` | Quản trị hệ thống |
 | `AUDITOR` | Kiểm toán |
+
+### 14.11. Kết quả xét từng luật
+
+Trên bảng luật của màn truy vết quyết định, mỗi luật của phạm vi có một kết quả, lấy từ `rule_trace` của engine.
+
+| Mã | Tiếng Việt trên UI | Tiếng Anh trên UI |
+|---|---|---|
+| `MATCHED` | Khớp, áp dụng | Matched, applied |
+| `NOT_MATCHED` | Không khớp | Not matched |
+| `NOT_EVALUATED` | Không xét (đã có rule khớp) | Not evaluated (earlier rule matched) |
+| `SET_ASIDE` | Khớp nhưng bị chốt an toàn tạm giữ | Matched, set aside by a safety check |
+| `FAILED` | Không tính được | Could not be evaluated |
+
+### 14.12. Cách engine chọn luật áp dụng
+
+Khi không phải `FIRST_MATCH`, màn truy vết hiển thị một ghi chú giải thích vì sao mốc được tạm giữ.
+
+| Mã | Ý nghĩa |
+|---|---|
+| `FIRST_MATCH` | Luật đầu tiên khớp theo ưu tiên được áp dụng |
+| `STRUCTURE_FALLBACK` | Dữ liệu của mốc có lỗi cấu trúc, không xét luật, về ELSE |
+| `ANOMALY_FALLBACK` | Luật cho chi khớp nhưng hồ sơ có bất thường, về ELSE |
+| `PAYMENT_GUARD_FALLBACK` | Luật cho chi khớp nhưng chốt an toàn thanh toán không đạt, về ELSE |
+| `RULE_ERROR_FALLBACK` | Một luật không tính được trên dữ liệu của mốc, về ELSE |
+| `AMOUNT_GUARD_FALLBACK` | Số tiền của luật khớp không đúng hợp đồng số tiền của quyết định, về ELSE |

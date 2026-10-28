@@ -56,6 +56,7 @@ COPY apps/engine/validate_rules.py apps/engine/rule_language.json apps/engine/sa
 COPY apps/engine/pdf_geometry.py ./apps/engine/
 COPY apps/engine/templates ./apps/engine/templates
 COPY apps/engine/codecash_engine ./apps/engine/codecash_engine
+COPY apps/engine/policy ./apps/engine/policy
 COPY tools/kiem_chung_nghiep_vu.py ./tools/
 COPY BangD-Case4/DataPack-CASE4_SmartContractWorkflow ./BangD-Case4/DataPack-CASE4_SmartContractWorkflow
 RUN mkdir -p /data && chown node:node /data

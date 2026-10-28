@@ -408,6 +408,11 @@ try {
   );
   await click("[data-testid=signature-fit-width]");
   await click("[data-testid=positions-save]");
+  // Continuing first shows the signed preview; the positions are saved on its confirm button.
+  await until(
+    '!!document.querySelector("[data-testid=signed-preview] [data-testid=demo-seal]")',
+  );
+  await click("[data-testid=positions-preview-confirm]");
   const digitizePath = `/contracts/${guidedSaved.code}/digitize`;
   await until(
     '!!document.querySelector("[data-testid=extraction-read-document]")',

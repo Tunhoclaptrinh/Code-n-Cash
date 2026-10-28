@@ -9,11 +9,7 @@ import type { SignMethod, SignStepStatus, Side } from "@codecash/contracts";
 import { platform } from "../api/platform";
 import { useCurrentUser } from "../auth/session";
 import { formatDateTime } from "../lib/format";
-import {
-  DemoSeal,
-  DemoSignatureMark,
-  PendingSignatureSlot,
-} from "./DemoSignatureMarks";
+import { PendingSignatureSlot, SignedMark } from "./DemoSignatureMarks";
 import { PdfPageImage } from "./PdfPageImage";
 
 /** Response of GET /contract-files/:code/view. */
@@ -37,8 +33,6 @@ interface ContractView {
 }
 
 const percent = (value: number, of: number) => `${(value / of) * 100}%`;
-/** The seal sits to the right of the signature box, about as tall as the box. */
-const SEAL_GAP = 10;
 
 /**
  * The contract document beside an action: every page as an image, with demo signatures and seals
@@ -153,22 +147,27 @@ export function ContractPreviewPane({ contractId }: { contractId: string }) {
                 .filter((mark) => mark.page === page.pageNo)
                 .map((mark) => (
                   <div key={mark.stepNo} data-testid="contract-preview-mark">
-                    <div
-                      style={{
-                        position: "absolute",
-                        zIndex: 4,
-                        left: percent(mark.x, page.width),
-                        top: percent(mark.y, page.height),
-                        width: percent(mark.w, page.width),
-                        height: percent(mark.h, page.height),
-                      }}
-                    >
-                      {mark.status === "SIGNED" ? (
-                        <DemoSignatureMark
-                          name={mark.signerName}
-                          caption={caption(mark)}
-                        />
-                      ) : (
+                    {mark.status === "SIGNED" ? (
+                      <SignedMark
+                        box={mark}
+                        pageWidth={page.width}
+                        pageHeight={page.height}
+                        name={mark.signerName}
+                        caption={caption(mark)}
+                        organization={mark.organizationName}
+                        sealLabel={t("contractPane.seal")}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          position: "absolute",
+                          zIndex: 4,
+                          left: percent(mark.x, page.width),
+                          top: percent(mark.y, page.height),
+                          width: percent(mark.w, page.width),
+                          height: percent(mark.h, page.height),
+                        }}
+                      >
                         <PendingSignatureSlot
                           active={mark.status === "CURRENT"}
                           label={t(
@@ -178,26 +177,8 @@ export function ContractPreviewPane({ contractId }: { contractId: string }) {
                             { step: mark.stepNo, name: mark.signerName },
                           )}
                         />
-                      )}
-                    </div>
-                    {mark.status === "SIGNED" ? (
-                      <div
-                        style={{
-                          position: "absolute",
-                          zIndex: 5,
-                          left: percent(mark.x + mark.w + SEAL_GAP, page.width),
-                          top: percent(mark.y - 4, page.height),
-                          width: percent(mark.h + 8, page.width),
-                          aspectRatio: "1",
-                        }}
-                      >
-                        <DemoSeal
-                          organization={mark.organizationName}
-                          label={t("contractPane.seal")}
-                          size="100%"
-                        />
                       </div>
-                    ) : null}
+                    )}
                   </div>
                 ))}
             </div>

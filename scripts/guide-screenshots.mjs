@@ -811,6 +811,8 @@ try {
       ],
     });
     await click("[data-testid=positions-save]");
+    await until("!!document.querySelector('[data-testid=signed-preview]')");
+    await click("[data-testid=positions-preview-confirm]");
     await until(
       "!!document.querySelector('[data-testid=extraction-read-document]')",
     );

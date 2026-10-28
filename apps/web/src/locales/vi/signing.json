@@ -110,7 +110,7 @@
     },
     "actions": {
       "back": "Quay lại",
-      "continue": "Lưu vị trí ký và tiếp tục"
+      "continue": "Xem trước và xác nhận"
     },
     "pdfPage": "Trang PDF {{page}}",
     "pdfError": "Không tải được ảnh trang. Hãy tải lại trước khi đặt ô ký.",
@@ -126,7 +126,13 @@
     "showArea": "Đến vùng ký",
     "mismatchSummary": "Danh sách người ký chưa khớp tài liệu",
     "unconfiguredShort": "Tên trên PDF chưa được cấu hình: {{names}}.",
-    "correctSigners": "Sửa người ký hoặc tài liệu"
+    "correctSigners": "Sửa người ký hoặc tài liệu",
+    "preview": {
+      "title": "Xem trước văn bản sau khi ký",
+      "hint": "Chữ ký và con dấu là hình minh họa, đặt đúng các ô ký vừa cấu hình. Con dấu đóng ngay ngắn, trùm khoảng 1/3 chữ ký về phía bên trái theo Nghị định 30/2020/NĐ-CP. Kiểm tra lại trước khi lưu.",
+      "confirm": "Lưu vị trí ký và tiếp tục",
+      "back": "Quay lại chỉnh"
+    }
   },
   "digitize": {
     "breadcrumb": {

@@ -175,7 +175,8 @@
       "title": "MS{{no}}: hợp đồng chỉ ghi \"sau {{months}} tháng bảo hành\"",
       "label": "Hạn MS{{no}}",
       "invalid": "Ngày không hợp lệ.",
-      "loadSuggestion": "Nạp ngày gợi ý"
+      "loadSuggestion": "Nạp ngày gợi ý",
+      "placeholder": "Ví dụ {{example}}"
     },
     "approvers": {
       "title": "Người phê duyệt theo hợp đồng",
@@ -313,7 +314,8 @@
     "extraction": {
       "noFile": "Chưa có tệp gốc: nhập và xác nhận giá trị thủ công.",
       "reviewAck": "Tôi đã đối chiếu các giá trị với tài liệu.",
-      "method": "Cách trích xuất"
+      "method": "Cách trích xuất",
+      "reviewAckManual": "Tôi đã kiểm tra các giá trị nhập tay khớp với điều khoản hai bên đã thỏa thuận."
     }
   },
   "lite": {

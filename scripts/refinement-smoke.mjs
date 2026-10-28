@@ -441,7 +441,7 @@ try {
   async function readDocument(capture = false) {
     await click("[data-testid=extraction-read-document]");
     await until(
-      '!!document.querySelector(".ant-modal [data-testid=real-document-preview]") && !document.querySelector("[data-testid=extraction-read-ack]").disabled',
+      '!!document.querySelector(".ant-modal [data-testid=extraction-read-pages] img") && !document.querySelector("[data-testid=extraction-read-ack]").disabled',
     );
     if (capture)
       await shot(

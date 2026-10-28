@@ -50,7 +50,6 @@
       "extract": "Extract",
       "review": "Review",
       "confirm": "Confirm",
-      "noFile": "No file",
       "done": "Terms confirmed. Continue reviewing the payment milestones below.",
       "readAgain": "Read document again",
       "readDocument": "Read document first",
@@ -64,9 +63,14 @@
         "load": "Step 3 · Load suggestions into empty fields, then compare each value with its source. Complete anything that could not be extracted.",
         "review": "Step 3 · Check all six values, correct them if needed, and acknowledge your review before confirming.",
         "confirm": "Step 4 · Select “Confirm and apply to draft”, then review the milestones and continue to signing."
-      }
+      },
+      "manual": "Manual entry",
+      "locked": "The draft is locked because signing has started: its terms can no longer change. The confirmed values are in the digitised record below.",
+      "pagesLoading": "Loading the document pages…",
+      "pagesUnavailable": "The pages cannot be shown right now. Use \"Download source document\" to read the file."
     },
-    "fingerprint": "Document fingerprint (SHA-256)"
+    "fingerprint": "Document fingerprint (SHA-256)",
+    "manualEntry": "Open the manual entry form"
   },
   "rules": {
     "title": "Rule and template versions",

@@ -176,7 +176,8 @@
       "title": "MS{{no}}: the contract only says \"after {{months}} months of warranty\"",
       "label": "MS{{no}} due date",
       "invalid": "That date is not valid.",
-      "loadSuggestion": "Load suggested date"
+      "loadSuggestion": "Load suggested date",
+      "placeholder": "For example {{example}}"
     },
     "approvers": {
       "title": "Approvers named in the contract",
@@ -316,7 +317,8 @@
     "extraction": {
       "noFile": "No original file: enter and confirm values manually.",
       "reviewAck": "I checked these values against the document.",
-      "method": "Extraction method"
+      "method": "Extraction method",
+      "reviewAckManual": "I have checked that the values entered by hand match the terms both parties agreed."
     }
   },
   "lite": {

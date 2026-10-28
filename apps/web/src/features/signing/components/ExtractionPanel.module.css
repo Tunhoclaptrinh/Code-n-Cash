@@ -29,3 +29,16 @@
   border-radius: var(--radius-md);
   background: var(--color-surface-muted);
 }
+
+.readPages {
+  display: grid;
+  gap: 12px;
+}
+
+.readPage {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+}

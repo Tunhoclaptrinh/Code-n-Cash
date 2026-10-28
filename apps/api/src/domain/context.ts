@@ -11,16 +11,21 @@ import {
   type MilestoneRecord,
   type PartyRecord,
   type PaymentRecord,
+  type SignedEvidence,
   type SigningRecord,
   type Tables,
 } from "./records";
+import { storedEvidenceSize } from "../evidence-store";
+import { localKey, verifyLocalProof } from "../trust/crypto";
 import { sumMillion, toCents, addDays } from "./templates";
 import type {
   ApprovalRole,
   BusinessEventType,
   ContractRow,
   ContractStatus,
+  EventDocument,
   EventRow,
+  EvidenceDocument,
   MilestoneCounts,
   MilestoneRow,
   MilestoneStatus,
@@ -76,6 +81,22 @@ const daysBetween = (from: string, to: string) =>
  * Read model over the workflow tables for one signed-in actor: lookups, visibility (spec 17,
  * R13 data minimisation) and the rows every screen shares.
  */
+/** A signed evidence document as screens show it: the signature and the stored file are re-checked. */
+function eventDocument({ proof, ...document }: SignedEvidence): EventDocument {
+  const signed = proof.payload as Partial<EvidenceDocument>;
+  return {
+    ...document,
+    signatureValid:
+      signed.sha256 === document.sha256 &&
+      signed.signedById === document.signedById &&
+      verifyLocalProof(
+        proof,
+        localKey(`signer:${document.signedById}`).keyFingerprint,
+      ),
+    stored: storedEvidenceSize(document.sha256) === document.sizeBytes,
+  };
+}
+
 export class Ctx {
   readonly contracts: ContractRecord[];
   readonly milestones: MilestoneRecord[];
@@ -279,6 +300,7 @@ export class Ctx {
       origin: e.origin,
       recordedBy: e.recordedBy ?? null,
       fileName: e.fileName ?? null,
+      document: e.document ? eventDocument(e.document) : null,
     };
   }
 

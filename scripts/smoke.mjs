@@ -429,6 +429,70 @@ assert.deepEqual(
 );
 assert.equal(stages.filter((s) => s.state === "CURRENT").length, 1);
 assert.equal(stages.at(-1).state, "PENDING");
+// Evidence files: stored under their hash, signed by the submitter, downloadable by the other side.
+const uploadEvidence = (task, eventType, bytes, name) => {
+  const form = new FormData();
+  form.append("contractId", task.contractId);
+  form.append("sequence", String(task.sequence));
+  form.append("eventType", eventType);
+  form.append("file", new Blob([bytes]), name);
+  return fetch(`${base}/evidence-documents`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${supplier}` },
+    body: form,
+  }).then(async (r) => ({ status: r.status, body: await r.json() }));
+};
+const evidenceTask = (
+  await workflow("tasks", "getTaskInbox", [], supplier)
+).body.data.find((t) => t.kind === "SUBMIT_EVIDENCE");
+assert.ok(evidenceTask, "the supplier has evidence to submit");
+const rejected = await uploadEvidence(
+  evidenceTask,
+  evidenceTask.eventTypes[0],
+  "not a document",
+  "note.txt",
+);
+assert.equal(rejected.status, 400);
+assert.equal(rejected.body.code, "UNSUPPORTED_EVIDENCE_FILE");
+const pdfBytes = `%PDF-1.4\n% smoke ${Date.now()}\n`;
+for (const eventType of evidenceTask.eventTypes)
+  assert.equal(
+    (
+      await uploadEvidence(
+        evidenceTask,
+        eventType,
+        pdfBytes,
+        `${eventType}.pdf`,
+      )
+    ).status,
+    201,
+  );
+const submitted = await workflow(
+  "evidence",
+  "submitEvidence",
+  [{ contractId: evidenceTask.contractId, sequence: evidenceTask.sequence }],
+  supplier,
+);
+assert.equal(submitted.status, 201);
+const signedEvent = (
+  await workflow(
+    "contracts",
+    "getContractOverview",
+    [evidenceTask.contractId],
+    supplier,
+  )
+).body.data.events.find((e) => e.id === submitted.body.data.eventIds[0]);
+assert.equal(signedEvent.document.signatureValid, true);
+const downloaded = await fetch(
+  `${base}/evidence-documents/${signedEvent.id}/download`,
+  { headers: { Authorization: `Bearer ${supplier}` } },
+);
+assert.equal(downloaded.status, 200);
+assert.equal(await downloaded.text(), pdfBytes);
+assert.equal(
+  downloaded.headers.get("x-content-sha256"),
+  signedEvent.document.sha256,
+);
 // The verification bundle carries the contract's own input and a seal for each decision.
 const bundle = await workflow(
   "contracts",

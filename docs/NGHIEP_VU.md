@@ -309,7 +309,20 @@ Tab Lịch sử trạng thái mở đầu bằng vòng đời của hợp đồn
 
 Giai đoạn đang diễn ra là mốc đầu tiên chưa khép; các mốc phía sau vẫn có thể đã đủ điều kiện chi, trạng thái từng mốc hiện ngay dưới tên mốc.
 
-### 9.4. Gói kiểm chứng quyết định
+### 9.4. Chứng từ của sự kiện
+
+Mỗi sự kiện bên nộp ghi trong ứng dụng dựa trên một tệp chứng từ thật:
+
+| Bước     | Cách làm                                                                                                                                                                                                                                                    |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tải lên  | `POST /evidence-documents` (multipart: `contractId`, `sequence`, `eventType`, `file`, quyền `evidence:submit`). API nhận PDF, PNG, JPEG, `.docx`, `.xlsx` tối đa 20 MB (nhận dạng theo nội dung tệp), lưu theo SHA-256 rồi gọi `attachEvidenceFile`         |
+| Đính kèm | `attachEvidenceFile` chỉ nhận mã băm của tệp đã được API lưu (`EVIDENCE_FILE_MISSING` nếu không có); mọi kiểm tra phạm vi, bên và loại sự kiện như cũ                                                                                                       |
+| Nộp      | `submitEvidence` tạo sự kiện kèm chứng từ: mã băm, tên, kích thước, loại tệp và chữ ký Ed25519 của người nộp trên (hợp đồng, mốc, loại sự kiện, mã băm, người ký, thời điểm), bằng khoá riêng của người đó trong kho khoá cục bộ (cùng kho với ký hợp đồng) |
+| Xem, tải | Bảng sự kiện hiện tệp và nhãn "Đã ký"; nhãn đỏ khi chữ ký không còn khớp hoặc tệp không còn được lưu. `GET /evidence-documents/:eventId/download` băm lại tệp trước khi trả (`DOCUMENT_CHANGED` nếu khác), kèm header `X-Content-SHA256`                    |
+
+Bộ đánh giá vẫn đọc `document_id` của sự kiện như dữ liệu BTC; việc "chỉ tính sự kiện có chứng từ hợp lệ" được bảo đảm ở bước ghi: ứng dụng không tạo được sự kiện chứng từ khi chưa có tệp đã lưu và đã ký. Sự kiện nhập từ Data Pack không có tệp.
+
+### 9.5. Gói kiểm chứng quyết định
 
 Trên tab Hợp đồng thông minh, người đọc được hợp đồng (`contracts:read`, trong phạm vi bên của mình) tải gói kiểm chứng `CODECASH_VERIFICATION_V1` (`getVerificationBundle`). Gói gồm:
 

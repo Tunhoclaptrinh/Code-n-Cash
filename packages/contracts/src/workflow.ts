@@ -239,6 +239,26 @@ export interface EventRow {
   /** Person who recorded it in the app, when known. */
   recordedBy: string | null;
   fileName: string | null;
+  /** The document behind an event recorded in the app; null for imported events. */
+  document: EventDocument | null;
+}
+
+/** An evidence document: stored by its SHA-256 and signed by the person who submitted it. */
+export interface EvidenceDocument {
+  sha256: string;
+  fileName: string;
+  sizeBytes: number;
+  mediaType: string;
+  signedBy: string;
+  signedById: string;
+  signedAt: string;
+}
+
+export interface EventDocument extends EvidenceDocument {
+  /** The submitter's signature covers this document's hash, milestone and event type. */
+  signatureValid: boolean;
+  /** The stored file is still there under its hash. */
+  stored: boolean;
 }
 
 export type EventClass =
@@ -615,6 +635,8 @@ export interface Attachment {
   eventType: BusinessEventType | "OTHER";
   fileName: string;
   sizeMb: number;
+  /** SHA-256 of the stored file; absent on attachments made before files were kept. */
+  sha256?: string;
   addedBy: string;
   addedAt: string;
 }

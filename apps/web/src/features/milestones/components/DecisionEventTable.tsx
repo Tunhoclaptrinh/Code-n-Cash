@@ -6,6 +6,7 @@ import { formatDateTime } from "@/shared/lib/format";
 import { OriginTag } from "@/shared/ui/DomainTags";
 import { TechnicalList, TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { ToneTag } from "@/shared/ui/ToneTag";
+import { EvidenceDocumentLink } from "./EvidenceDocumentLink";
 
 export function DecisionEventTable({
   events,
@@ -116,7 +117,7 @@ export function DecisionEventTable({
           title: t("detail.events.document"),
           render: (_, e) => (
             <>
-              {e.fileName ?? "—"}
+              <EvidenceDocumentLink event={e} />
               {e.referenceEventId ? (
                 <div style={{ fontSize: 12 }}>
                   {t("detail.events.reference", { id: e.referenceEventId })}

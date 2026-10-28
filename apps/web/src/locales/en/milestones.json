@@ -459,5 +459,10 @@
     "parties": "Payer → payee",
     "partiesValue": "{{payer}} → {{payee}}",
     "digest": "Decision digest"
+  },
+  "evidenceDocument": {
+    "signed": "Signed",
+    "broken": "Signature does not match",
+    "signedBy": "Signed by {{name}} at {{at}}"
   }
 }

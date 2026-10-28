@@ -16,10 +16,17 @@ const userOf = (organizationId, role) =>
 const evaluationOf = async (milestoneId) =>
   (await repo.list("evaluations")).find((e) => e.milestoneId === milestoneId);
 
+let EVIDENCE;
 before(async () => {
   dir = await mkdtemp(join(tmpdir(), "codecash-workflow-"));
   process.env.REPO_ROOT = process.cwd();
   process.env.DATA_DIR = dir;
+  process.env.TRUST_DIR = join(dir, "trust");
+  EVIDENCE = (
+    await (
+      await import("../../apps/api/dist/evidence-store.js")
+    ).storeEvidence(Buffer.from("%PDF-1.4\n% workflow test\n"), "x.pdf")
+  ).sha256;
   process.env.STORAGE_DRIVER = "file";
   const { Repository } =
     await import("../../apps/api/dist/common/repository.js");
@@ -237,7 +244,7 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
       sequence: 2,
       eventType: "INVOICE",
       fileName: "x.pdf",
-      sizeMb: 1,
+      sha256: EVIDENCE,
     }),
     /NOT_YOUR_EVENT_TYPE/,
   );
@@ -247,7 +254,7 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
       sequence: 2,
       eventType,
       fileName: `${eventType}.pdf`,
-      sizeMb: 1,
+      sha256: EVIDENCE,
     });
   const workspace = await call(
     "u-supplier",
@@ -264,6 +271,36 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
   });
   assert.equal(result.eventIds.length, 2);
   assert.equal(result.evaluation.status, "WAITING_APPROVAL");
+  // Each new event rests on the stored file, signed by the supplier who submitted it.
+  const events = (
+    await call("u-owner", "contracts", "getContractOverview", "CT0104")
+  ).events.filter((e) => result.eventIds.includes(e.id));
+  for (const event of events) {
+    assert.equal(event.document.sha256, EVIDENCE);
+    assert.equal(event.document.signedById, "u-supplier");
+    assert.deepEqual(
+      [event.document.signatureValid, event.document.stored],
+      [true, true],
+    );
+  }
+  // Pointing an event at other bytes breaks the submitter's signature.
+  const stored = await repo.list("events");
+  const forged = stored.find((e) => e.event_id === result.eventIds[0]);
+  await repo.transact(["events"], (tables) => {
+    tables.events.find((e) => e.id === forged.id).document.sha256 = "f".repeat(
+      64,
+    );
+  });
+  const after = (
+    await call("u-owner", "contracts", "getContractOverview", "CT0104")
+  ).events.find((e) => e.id === result.eventIds[0]);
+  assert.deepEqual(
+    [after.document.signatureValid, after.document.stored],
+    [false, false],
+  );
+  await repo.transact(["events"], (tables) => {
+    tables.events.find((e) => e.id === forged.id).document.sha256 = EVIDENCE;
+  });
   assert.ok(
     (await call("u-owner", "tasks", "getTaskInbox")).some(
       (t) => t.kind === "APPROVE_PAYMENT" && t.contractId === "CT0104",

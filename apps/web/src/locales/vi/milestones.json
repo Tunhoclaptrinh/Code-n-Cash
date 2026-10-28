@@ -459,5 +459,10 @@
     "parties": "Bên trả → bên nhận",
     "partiesValue": "{{payer}} → {{payee}}",
     "digest": "Mã băm quyết định"
+  },
+  "evidenceDocument": {
+    "signed": "Đã ký",
+    "broken": "Chữ ký không khớp",
+    "signedBy": "{{name}} ký lúc {{at}}"
   }
 }

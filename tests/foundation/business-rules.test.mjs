@@ -1,5 +1,6 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import {
   copyFile,
@@ -61,16 +62,23 @@ const ROLE_USER = {
 const ROLES = Object.keys(ROLE_USER);
 
 let base, goldenRecords, users, imports;
+const EVIDENCE_BYTES = Buffer.from("%PDF-1.4\n% CodeCash test evidence\n");
+const EVIDENCE = createHash("sha256").update(EVIDENCE_BYTES).digest("hex");
 
 before(async () => {
   base = await mkdtemp(join(tmpdir(), "codecash-rules-"));
   process.env.REPO_ROOT = ROOT;
   process.env.STORAGE_DRIVER = "file";
   process.env.TRUST_DIR = join(base, "trust");
+  // One stored evidence file every world can attach (the store is content-addressed).
+  process.env.EVIDENCE_DIR = join(base, "evidence");
   const golden = join(base, "golden");
   await mkdir(golden);
   process.env.DATA_DIR = golden;
   const load = (path) => import(`../../apps/api/dist/${path}`);
+  await (
+    await import("../../apps/api/dist/evidence-store.js")
+  ).storeEvidence(EVIDENCE_BYTES, "chung-tu.pdf");
   imports = {
     Repository: (await load("common/repository.js")).Repository,
     BaseService: (await load("common/services/base.service.js")).BaseService,
@@ -268,7 +276,9 @@ const WRITE_ACTIONS = [
     name: "attachEvidenceFile",
     module: "evidence",
     allowed: ["LEGAL_REVIEWER", "SUPPLIER"],
-    args: [at(99, { eventType: "INVOICE", fileName: "x.pdf", sizeMb: 1 })],
+    args: [
+      at(99, { eventType: "INVOICE", fileName: "x.pdf", sha256: EVIDENCE }),
+    ],
     reaches: "MILESTONE_NOT_FOUND",
   },
   {
@@ -513,7 +523,7 @@ test("who: an actor of another organisation is refused on every write action of 
   const accept = at(3, {
     eventType: "ACCEPTANCE",
     fileName: "x.pdf",
-    sizeMb: 1,
+    sha256: EVIDENCE,
   });
   const cases = [
     [otherBuyerLegal, "evidence", "attachEvidenceFile", [accept]],
@@ -521,7 +531,7 @@ test("who: an actor of another organisation is refused on every write action of 
       otherSupplier,
       "evidence",
       "attachEvidenceFile",
-      [at(2, { eventType: "INVOICE", fileName: "x.pdf", sizeMb: 1 })],
+      [at(2, { eventType: "INVOICE", fileName: "x.pdf", sha256: EVIDENCE })],
     ],
     [
       otherBuyerLegal,
@@ -599,7 +609,7 @@ test("who: an actor of another organisation is refused on every write action of 
           sequence: 1,
           eventType: "INVOICE",
           fileName: "x.pdf",
-          sizeMb: 1,
+          sha256: EVIDENCE,
         },
       ],
     ],
@@ -654,7 +664,11 @@ async function pay(w, contractId, sequence) {
   );
 }
 
-const file = (extra) => ({ fileName: "chung-tu.pdf", sizeMb: 1, ...extra });
+const file = (extra) => ({
+  fileName: "chung-tu.pdf",
+  sha256: EVIDENCE,
+  ...extra,
+});
 
 /* ------------------------------ 3. evidence: attach / remove / submit ------------------------------ */
 
@@ -797,18 +811,13 @@ test("evidence: the same document type cannot be attached twice (duplicates are 
   assert.equal(w.tbl("attachments").length, 1);
 });
 
-test("evidence: the file must be named and at most 20 MB", async () => {
+test("evidence: the file must be named and stored by the API under its hash", async () => {
   const w = await world();
   const ref = w.ref("CT0104", 2);
   for (const bad of [
     { fileName: "" },
     { fileName: "   " },
     { fileName: { x: 1 } },
-    { sizeMb: 20.5 },
-    { sizeMb: -1 },
-    { sizeMb: "big" },
-    { sizeMb: NaN },
-    { sizeMb: undefined },
   ])
     await denied(
       w,
@@ -817,6 +826,16 @@ test("evidence: the file must be named and at most 20 MB", async () => {
       "attachEvidenceFile",
       [{ ...ref, eventType: "INVOICE", ...file(), ...bad }],
       "INVALID_FILE",
+    );
+  // A hash the client made up, or no hash at all, has no stored file behind it.
+  for (const sha256 of ["0".repeat(64), "../records.json", undefined, 42])
+    await denied(
+      w,
+      U.SUPPLIER,
+      "evidence",
+      "attachEvidenceFile",
+      [{ ...ref, eventType: "INVOICE", ...file(), sha256 }],
+      "EVIDENCE_FILE_MISSING",
     );
 });
 
@@ -3682,7 +3701,7 @@ function flagMismatches() {
               ...ref,
               eventType: fresh[0],
               fileName: "x.pdf",
-              sizeMb: 1,
+              sha256: EVIDENCE,
             }),
           ) === "OK"
         : missingMine.length > 0 && offered.submit;
@@ -3770,7 +3789,7 @@ test("sweep: the controllers of both parties and the integrity checker are offer
               ...ref,
               eventType: m.required_event_types.split(";")[0],
               fileName: "x.pdf",
-              sizeMb: 1,
+              sha256: EVIDENCE,
             }),
           approve: () => actions.castVote(ctx, { ...ref, choice: "APPROVE" }),
           reject: () =>
@@ -3825,7 +3844,7 @@ test("sweep: no action records anything on a paid or rejected milestone, an unsi
           ...ref,
           eventType: type,
           fileName: "x.pdf",
-          sizeMb: 1,
+          sha256: EVIDENCE,
         }),
     };
     const results = Object.fromEntries(
@@ -3912,7 +3931,7 @@ test("sweep: on every milestone each party may do exactly what the specification
             ...ref,
             eventType: type,
             fileName: "x.pdf",
-            sizeMb: 1,
+            sha256: EVIDENCE,
           }),
         ),
       );
@@ -3925,7 +3944,7 @@ test("sweep: on every milestone each party may do exactly what the specification
           ...ref,
           eventType: "OTHER",
           fileName: "x.pdf",
-          sizeMb: 1,
+          sha256: EVIDENCE,
         }),
       ),
     );
@@ -4031,7 +4050,7 @@ test("sweep: nobody touches a contract outside their organisation, whatever the 
               ...ref,
               eventType: "OTHER",
               fileName: "x.pdf",
-              sizeMb: 1,
+              sha256: EVIDENCE,
             }),
           remove: () =>
             actions.removeEvidence(ctx, { ...ref, attachmentId: "ATT-00001" }),

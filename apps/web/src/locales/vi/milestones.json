@@ -133,6 +133,15 @@
     },
     "participants": {
       "approves": "{{role}} · duyệt chi"
+    },
+    "lifecycle": {
+      "title": "Vòng đời hợp đồng",
+      "DRAFTED": "Soạn thảo",
+      "SIGNED": "Ký kết",
+      "CLOSED": "Hoàn tất",
+      "imported": "Lập ngoài hệ thống",
+      "signedCount": "Đã ký {{signed}}/{{total}}",
+      "paid": "Đã chi {{value}} triệu"
     }
   },
   "decision": {

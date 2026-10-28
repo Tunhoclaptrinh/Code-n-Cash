@@ -287,7 +287,20 @@ Sau khi duyệt, lệnh chi được gửi sang cổng thanh toán:
 
 Mỗi lần gửi ghi số lần thử, thời điểm, kết quả và lỗi (`PAYMENT_DELIVERY` trong nhật ký). Gửi lỗi thì người phê duyệt tài chính gửi lại (`retryPaymentDelivery`); lệnh đã được cổng nhận không gửi lại.
 
-### 9.3. Gói kiểm chứng quyết định
+### 9.3. Vòng đời hợp đồng
+
+Tab Lịch sử trạng thái mở đầu bằng vòng đời của hợp đồng dạng máy trạng thái (`ContractOverview.lifecycle`, do API tính):
+
+| Giai đoạn | Xong khi                                             | Ngày hiển thị                                                                           |
+| --------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Soạn thảo | Điều khoản đã khoá (hợp đồng rời trạng thái `DRAFT`) | Ngày tạo bản nháp; hợp đồng nhập từ Data Pack hoặc dữ liệu mẫu ghi "Lập ngoài hệ thống" |
+| Ký kết    | Mọi người ký đã ký (`ACTIVE`)                        | Lần ký cuối, hoặc `signing_date` của hợp đồng nhập                                      |
+| Mốc 1…n   | Mốc đã chi, hoặc đã khép bằng `COMPLETED`/`REJECTED` | Ngày chi; nếu chưa chi, lần đổi trạng thái gần nhất (mốc nhập: sự kiện cuối của mốc)    |
+| Hoàn tất  | Mọi mốc đã khép                                      | Ngày của mốc khép sau cùng                                                              |
+
+Giai đoạn đang diễn ra là mốc đầu tiên chưa khép; các mốc phía sau vẫn có thể đã đủ điều kiện chi, trạng thái từng mốc hiện ngay dưới tên mốc.
+
+### 9.4. Gói kiểm chứng quyết định
 
 Trên tab Hợp đồng thông minh, người đọc được hợp đồng (`contracts:read`, trong phạm vi bên của mình) tải gói kiểm chứng `CODECASH_VERIFICATION_V1` (`getVerificationBundle`). Gói gồm:
 

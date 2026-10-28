@@ -133,6 +133,15 @@
     },
     "participants": {
       "approves": "{{role}} · approves payments"
+    },
+    "lifecycle": {
+      "title": "Contract lifecycle",
+      "DRAFTED": "Drafted",
+      "SIGNED": "Signed",
+      "CLOSED": "Closed",
+      "imported": "Drafted outside the system",
+      "signedCount": "Signed {{signed}}/{{total}}",
+      "paid": "Paid {{value}} million"
     }
   },
   "decision": {

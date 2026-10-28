@@ -1,6 +1,7 @@
 import { ContractDocuments } from "@/shared/ui/ContractDocuments";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
+import { ContractLifecycleSteps } from "../components/ContractLifecycleSteps";
 import { SmartContractPanel } from "../components/SmartContractPanel";
 import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
 import {
@@ -271,6 +272,11 @@ export default function ContractDetailPage() {
               milestones={data.milestones}
               people={peopleOf(data.participants)}
             />
+          ) : null}
+          {tab === "history" ? (
+            <Panel className={styles.tabPanel}>
+              <ContractLifecycleSteps lifecycle={data.lifecycle} />
+            </Panel>
           ) : null}
           {tab === "history" ? (
             <HistoryTimeline

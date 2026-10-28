@@ -489,7 +489,45 @@ export interface ContractOverview {
   events: EventRow[];
   timeline: TimelineEntry[];
   signing: SigningSummary | null;
+  lifecycle: ContractLifecycle;
 }
+
+/**
+ * The contract as a state machine: drafted, signed, each payment milestone settled (paid, or closed by
+ * a rejection), closed. Every stage carries when it was reached and, for a milestone, the decision that
+ * settles it.
+ */
+export interface ContractLifecycle {
+  stages: LifecycleStage[];
+}
+
+export type LifecycleStageState = "DONE" | "CURRENT" | "PENDING";
+
+export type LifecycleStage =
+  | { kind: "DRAFTED"; state: LifecycleStageState; at: string | null }
+  | {
+      kind: "SIGNED";
+      state: LifecycleStageState;
+      at: string | null;
+      signed: number;
+      total: number;
+    }
+  | {
+      kind: "MILESTONE";
+      state: LifecycleStageState;
+      at: string | null;
+      milestoneId: string;
+      sequence: number;
+      type: MilestoneType;
+      status: MilestoneStatus;
+      decision: Decision;
+      reasonCode: ReasonCode;
+      payableMillion: string;
+      paid: boolean;
+      /** What last changed the milestone's status. */
+      trigger: Trigger["kind"] | null;
+    }
+  | { kind: "CLOSED"; state: LifecycleStageState; at: string | null };
 
 /**
  * A contract as a smart contract: what both parties bound themselves to, the engine that executes it and,

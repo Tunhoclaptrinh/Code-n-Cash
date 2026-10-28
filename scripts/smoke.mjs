@@ -411,6 +411,24 @@ assert.equal(
     .status,
   403,
 );
+// The lifecycle: drafted, signed, one stage per milestone, closed; the first unsettled milestone is current.
+const stages = (
+  await workflow("contracts", "getContractOverview", ["CT0019"], owner)
+).body.data.lifecycle.stages;
+assert.deepEqual(
+  stages.map((s) => s.kind),
+  [
+    "DRAFTED",
+    "SIGNED",
+    "MILESTONE",
+    "MILESTONE",
+    "MILESTONE",
+    "MILESTONE",
+    "CLOSED",
+  ],
+);
+assert.equal(stages.filter((s) => s.state === "CURRENT").length, 1);
+assert.equal(stages.at(-1).state, "PENDING");
 // The verification bundle carries the contract's own input and a seal for each decision.
 const bundle = await workflow(
   "contracts",

@@ -1,13 +1,24 @@
 import { canonical, sha256 } from "../../common/audit-chain";
 import type { Ctx } from "../context";
 import { enginePolicy, policySha256 } from "../policy";
-import { type RuleRecord, TABLE } from "../records";
+import {
+  type ContractRecord,
+  type PaymentRecord,
+  type RuleRecord,
+  TABLE,
+} from "../records";
 import { signingDigest } from "../signing";
 import { sumMillion } from "../templates";
 import type {
+  ContractLifecycle,
   ContractList,
   ContractOverview,
+  LifecycleStage,
+  LifecycleStageState,
+  MilestoneRow,
   Participant,
+  SignStepView,
+  StatusChange,
   SmartContractView,
   TimelineEntry,
 } from "../types";
@@ -90,6 +101,106 @@ function participants(ctx: Ctx, contractId: string): Participant[] {
   return list;
 }
 
+/** A milestone is settled once it is paid, or closed by a rejection; nothing more will happen to it. */
+const settled = (row: MilestoneRow) =>
+  row.paid || row.status === "COMPLETED" || row.status === "REJECTED";
+
+function lifecycle(
+  ctx: Ctx,
+  contract: ContractRecord,
+  rows: MilestoneRow[],
+  steps: SignStepView[],
+  history: StatusChange[],
+): ContractLifecycle {
+  const paidAt = new Map(
+    (ctx.t[TABLE.payments] as PaymentRecord[])
+      .filter((p) => p.contractId === contract.contract_id)
+      .map((p) => [p.milestoneId, p.transferredAt]),
+  );
+  // An imported decision is dated by its last event, not by the import.
+  const lastEvent = new Map<string, string>();
+  for (const event of ctx.events)
+    if (
+      event.contract_id === contract.contract_id &&
+      event.event_timestamp > (lastEvent.get(event.milestone_id) ?? "")
+    )
+      lastEvent.set(event.milestone_id, event.event_timestamp);
+  const lastChange = new Map<string, StatusChange>();
+  for (const change of [...history].sort((a, b) => a.at.localeCompare(b.at)))
+    lastChange.set(change.milestoneId, change);
+  const drafting = contract.lifecycle === "DRAFT";
+  const signing = contract.lifecycle === "SIGNING";
+  const signedAt = steps.length
+    ? steps.every((s) => s.signedAt)
+      ? steps
+          .map((s) => s.signedAt!)
+          .sort()
+          .at(-1)!
+      : null
+    : contract.signing_date || null;
+  // The first unsettled milestone is where the contract stands once it is signed.
+  const current = drafting || signing ? -1 : rows.findIndex((r) => !settled(r));
+  const milestoneStages: LifecycleStage[] = rows.map((row, index) => {
+    const change = lastChange.get(row.id);
+    const state: LifecycleStageState = settled(row)
+      ? "DONE"
+      : index === current
+        ? "CURRENT"
+        : "PENDING";
+    return {
+      kind: "MILESTONE",
+      state,
+      at:
+        state === "PENDING"
+          ? null
+          : (paidAt.get(row.id) ??
+            (change && change.trigger.kind !== "IMPORT"
+              ? change.at
+              : (lastEvent.get(row.id) ?? null))),
+      milestoneId: row.id,
+      sequence: row.sequence,
+      type: row.type,
+      status: row.status,
+      decision: row.decision,
+      reasonCode: row.reasonCode,
+      payableMillion: row.payableMillion,
+      paid: row.paid,
+      trigger: change?.trigger.kind ?? null,
+    };
+  });
+  const closed =
+    rows.length > 0 && rows.every(settled) && !drafting && !signing;
+  return {
+    stages: [
+      {
+        kind: "DRAFTED",
+        state: drafting ? "CURRENT" : "DONE",
+        // Imported contracts were drafted outside the application; only its own drafts have a date.
+        at: contract.origin === "APP" ? contract.createdAt : null,
+      },
+      {
+        kind: "SIGNED",
+        state: drafting ? "PENDING" : signing ? "CURRENT" : "DONE",
+        at: drafting || signing ? null : signedAt,
+        signed: steps.filter((s) => s.status === "SIGNED").length,
+        total: steps.length,
+      },
+      ...milestoneStages,
+      {
+        kind: "CLOSED",
+        state: closed ? "DONE" : "PENDING",
+        at: closed
+          ? (milestoneStages
+              .map((s) => s.at)
+              .filter((at): at is string => !!at)
+              .sort()
+              .at(-1) ?? null)
+          : null,
+      },
+    ],
+  };
+}
+
 export function contractOverview(
   ctx: Ctx,
   contractId: string,
@@ -144,6 +255,7 @@ export function contractOverview(
     participants: participants(ctx, contractId),
     events,
     timeline,
+    lifecycle: lifecycle(ctx, contract, rows, steps, history),
     signing:
       signing && steps.length
         ? {

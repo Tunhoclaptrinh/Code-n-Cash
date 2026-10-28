@@ -1,102 +1,152 @@
-"""Evaluation of one milestone: the orchestration of all stages.
+"""Evaluation of one milestone: the orchestration of all stages under a policy.
 
 Named ``pipeline`` so the module does not shadow the re-exported ``evaluate`` function.
 
-Input: a Pack, a milestone id, and the optional sensitivity switches (defaults are the specification).
+Input: a Pack, a milestone id, the policy (default: the Case 4 policy), a run profile and switches.
 Output: one result dict with the decision and every fact behind it (key order is part of the contract).
-Business rules: the nine-step pipeline of spec section 7 (BR-01..BR-20), one stage module per step:
-structure (BR-15) -> events (BR-03, BR-16, BR-19) -> requirements (BR-04..BR-07, BR-20) ->
-controls (BR-08..BR-10) -> schedule (BR-11, BR-12) -> rules (BR-02, BR-14) -> amounts (BR-12, BR-13) ->
-trace (BR-17, sections 9.2 and 14.3).
+Business rules: the pipeline of spec section 5 (BR-01..BR-20), one stage module per step:
+structure (BR-15) -> events (BR-03, BR-04, BR-05, BR-16, BR-19) -> requirements (BR-04..BR-07, BR-20) ->
+controls (BR-08..BR-10) -> schedule (BR-11, BR-12) -> bindings + rules (BR-02, BR-14, payment guard) ->
+amounts (BR-12, BR-13, amount guard) -> trace (BR-17, sections 9.2 and 14.3).
 """
-from decimal import ROUND_HALF_UP
+from . import amounts, bindings, controls, events, requirements, rules, schedule, structure, trace
+from .policy import load_policy
 
-from . import amounts, controls, events, requirements, rules, schedule, structure, trace
-from .pack import PRIORITIES
+# Keyword switches kept for the sensitivity analysis (spec section 12); each names a switch of the policy.
+SWITCH_FLAGS = ("literal_permissions", "contract_scope_dispute", "completion_includes_approval",
+                "enforce_invoice_flag", "ignore_resolutions", "strict_resolution")
+
+
+def resolve_policy(policy=None, profile=None, switches=(), rounding=None, **flags):
+    """The compiled policy for a run: the base policy, the profile's switches, extra switches and flags."""
+    base = policy or load_policy()
+    names = set(switches)
+    if profile:
+        if profile not in base.profiles:
+            raise ValueError(f"UNKNOWN_PROFILE {profile}")
+        names |= set(base.profiles[profile])
+    names |= {flag for flag in SWITCH_FLAGS if flags.get(flag)}
+    return base.variant(names, rounding)
 
 
 def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=False,
-             completion_includes_approval=False, rounding=ROUND_HALF_UP, enforce_invoice_flag=False,
-             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False):
+             completion_includes_approval=False, rounding=None, enforce_invoice_flag=False,
+             ignore_resolutions=False, as_of=None, voided=frozenset(), strict_resolution=False,
+             policy=None, profile=None, switches=()):
     """Return the decision and all facts of one milestone.
 
-    The default arguments are the specification; the other flags exist only to measure sensitivity
-    (section 13). as_of: as-of mode (BR-16). voided: event ids with an approved exception decision (BR-19).
+    The defaults are the specification. The boolean flags and ``switches`` name switches of the policy
+    (readings of the brief) and exist to measure sensitivity (section 12); ``profile`` names a run profile
+    of the policy (BTC_SUBMISSION, WORKFLOW). as_of: as-of mode (BR-16). voided: event ids with an approved
+    exception decision (BR-19).
     """
+    policy = resolve_policy(policy, profile, switches, rounding, literal_permissions=literal_permissions,
+                            contract_scope_dispute=contract_scope_dispute,
+                            completion_includes_approval=completion_includes_approval,
+                            enforce_invoice_flag=enforce_invoice_flag, ignore_resolutions=ignore_resolutions,
+                            strict_resolution=strict_resolution)
     m = pack.milestones[mid]
     parties = pack.parties
     contract, issues = structure.resolve_contract(pack.contracts, m)
     raw = events.up_to(pack.events_by_ms[mid], as_of)
 
     # BR-03, BR-15: deduplicate, then structural issues.
-    uniq, dups = events.dedupe(raw)
+    uniq, dups = events.dedupe(raw, policy)
     scope_rules = pack.rules_by_scope.get(m["release_rule_code"], [])
-    config, structure_issues = structure.structural_issues(m, scope_rules, uniq, PRIORITIES)
+    config, structure_issues = structure.structural_issues(m, scope_rules, uniq, policy, contract)
     issues += structure_issues
-    req, roles, approval_required, quorum = config["req"], config["roles"], config["approval_required"], config["quorum"]
+    req, approval_required, quorum = config["req"], config["approval_required"], config["quorum"]
 
-    # BR-19: void eligible events with an approved exception decision; BR-15: anomalies.
-    uniq, applied, notes = events.apply_voids(parties, contract, req, uniq, raw, voided, literal_permissions)
-    anomalies = events.find_anomalies(parties, uniq)
+    # BR-04, BR-05: one verdict per event. BR-19: void what the policy calls voidable. BR-15: anomalies.
+    verdicts = events.classify_all(policy, parties, contract, m, req, uniq)
+    verdicts, applied, notes = events.apply_voids(policy, verdicts, raw, voided)
+    anomalies = events.find_anomalies(policy, verdicts)
+    kept = [v.event for v in verdicts]
 
     # BR-04..BR-07, BR-20: required events.
-    valid_req, unauthorized, unrelated = requirements.classify_required(
-        parties, contract, uniq, req, literal_permissions)
-    missing = requirements.missing_events(
-        req, valid_req, enforce_invoice_flag and m["invoice_required"] == "TRUE" and "INVOICE" not in req)
+    valid_req, unauthorized, unrelated = requirements.classify_required(verdicts)
+    missing = requirements.missing_events(req, valid_req)
     completion_rate = requirements.completion_rate(req, missing)
 
     # BR-08: disputes. BR-09: rejections. BR-10: approvals and quorum.
-    scope_events = controls.dispute_scope_events(pack, m, uniq, contract_scope_dispute, as_of)
-    open_disputes = controls.open_disputes(scope_events, pack.event_by_id, parties, contract, m,
-                                           ignore_resolutions, strict_resolution)
-    rejections, rejection_anomalies = controls.valid_rejections(parties, contract, uniq)
-    anomalies += rejection_anomalies
-    approvals, valid_approval_count = controls.count_approvals(parties, contract, uniq, roles)
+    scope_events = controls.dispute_scope_events(pack, m, kept, policy, as_of)
+    open_disputes = controls.open_disputes(policy, scope_events, pack.event_by_id, parties, contract, m)
+    rejections = controls.valid_rejections(verdicts)
+    approvals, valid_approval_count = controls.count_approvals(policy, verdicts)
 
-    # BR-11, BR-12: completion date and days late.
-    completion_ts = schedule.completion_timestamp(valid_req, approvals, missing, completion_includes_approval)
+    # BR-11, BR-12: milestone and contract cells, completion date and days late.
+    bound, bound_issues = bindings.bind(policy, m, contract)
+    issues += bound_issues
+    completion_ts = schedule.completion_timestamp(valid_req, approvals, missing, policy.completion_categories)
     completion_date = schedule.completion_date(completion_ts)
-    terms, terms_issues = schedule.parse_terms(m)
-    issues += terms_issues
-    days_late = schedule.days_late_after_grace(completion_date, terms["due"], terms["grace"])
+    days_late = schedule.days_late_after_grace(completion_date, bound.get("due_date"), bound.get("grace_period_days"))
 
-    # BR-02, BR-14, BR-15: rule environment and first-match selection.
-    env = rules.build_env(
-        open_dispute=bool(open_disputes), rejection_count=len(rejections), unauthorized_count=len(unauthorized),
-        completion_rate=completion_rate, approval_required=approval_required, approval_count=valid_approval_count,
-        quorum=quorum, late_penalty_applicable=m["late_penalty_applicable"] == "TRUE",
-        completion_date=completion_date, terms=terms, days_late=days_late,
-        all_met=rules.all_conditions_met(completion_rate, len(unauthorized), approval_required,
-                                         valid_approval_count, quorum))
-    rule = rules.select_rule(scope_rules, env, issues, anomalies)
-    decision = rule["decision"] if rule else "HOLD"
-    reason = rule["reason_code"] if rule else "UNRESOLVED_CONDITION"
+    # BR-02, BR-14, BR-15: rule environment, first-match selection and the payment guard.
+    facts = {"open_dispute": bool(open_disputes), "valid_rejection_event_count": len(rejections),
+             "unauthorized_required_event_count": len(unauthorized),
+             "required_event_completion_rate": completion_rate, "valid_approval_count": valid_approval_count,
+             "actual_completion_date": completion_date, "days_late_after_grace": days_late}
+    env = rules.build_env(policy, config, bound, facts)
+    selection = rules.select_rule(scope_rules, env, issues, anomalies, policy)
+    fallback = rules.fallback_rule(scope_rules, policy)
+    issues += selection.issues
 
-    # BR-12, BR-13: amounts from the winning rule.
-    penalty, payable = amounts.rule_amounts(rule, env, rounding)
-    raw_penalty = amounts.raw_penalty(days_late, terms["rate"], terms["cap"], terms["planned"])
+    # BR-12, BR-13: amounts from the winning rule, then the amount guard of the policy.
+    raw_penalty = amounts.reference_penalty(policy, env)
+
+    def settle(chosen):
+        """(penalty, payable, failed checks, mode) of a rule; a formula error or a failed check pays nothing."""
+        if chosen is None:
+            return amounts.ZERO_AMOUNT, amounts.ZERO_AMOUNT, [], None
+        try:
+            penalty, payable = amounts.rule_amounts(chosen, env, policy=policy)
+        except amounts.ExpressionError as error:
+            return amounts.ZERO_AMOUNT, amounts.ZERO_AMOUNT, [f"{chosen['rule_id']}: {error.code}"], \
+                rules.RULE_ERROR_FALLBACK
+        failed = amounts.failed_checks(policy, chosen["decision"], amounts.amount_env(env, penalty, payable, raw_penalty))
+        return penalty, payable, [f"{chosen['rule_id']}: số tiền không đạt kiểm tra: {text}" for text in failed], \
+            rules.AMOUNT_GUARD_FALLBACK
+
+    rule = selection.rule
+    penalty, payable, failed, mode = settle(rule)
+    if failed:
+        # The winning rule's formulas cannot be evaluated or break the policy: hold through the fallback; if
+        # even the fallback fails, nothing is paid. Either way the run reports a defective rule (checks.py).
+        issues += failed
+        selection.mode = mode
+        if rule is not fallback:
+            rule = fallback
+            penalty, payable, failed, _ = settle(rule)
+            issues += failed
+        if failed:
+            penalty, payable = amounts.ZERO_AMOUNT, amounts.ZERO_AMOUNT
+    decision = rule["decision"] if rule else policy.fallback_decision
+    reason = rule["reason_code"] if rule else policy.fallback_reason
 
     # BR-17: evidence, condition tokens, status.
-    evidence = trace.collect_evidence(valid_req, approvals, reason, open_disputes, rejections)
-    met, miss = trace.condition_tokens(m["required_condition"], valid_req, valid_approval_count, bool(open_disputes))
-    status = trace.milestone_status(reason, as_of, bool(raw), terms["due"])
+    evidence = trace.collect_evidence(policy, reason, {
+        "VALID_REQUIRED": valid_req.values(), "COUNTED_APPROVALS": approvals.values(),
+        "OPEN_DISPUTES": open_disputes, "REJECTIONS": rejections})
+    met, miss = trace.condition_tokens(policy, m["required_condition"], valid_req, valid_approval_count,
+                                       bool(open_disputes))
+    status = trace.milestone_status(policy, reason, as_of, bool(raw), bound.get("due_date"))
 
     return {
         "milestone_id": mid, "contract_id": m["contract_id"], "decision": decision, "reason_code": reason,
         "rule_id": rule["rule_id"] if rule else "", "status": status, "payable": payable, "penalty": penalty,
-        "raw_penalty": raw_penalty, "evidence": evidence,
+        "raw_penalty": raw_penalty if raw_penalty is not None else amounts.ZERO_AMOUNT, "evidence": evidence,
         "required_event_count": len(req), "valid_required_event_count": len(req) - len(missing),
         "missing": missing, "unauthorized": [e["event_id"] for e in unauthorized], "duplicates": dups,
-        "unrelated": [e["event_id"] for e in unrelated], "voided": [e["event_id"] for e in applied],
+        "unrelated": [e["event_id"] for e in unrelated], "voided": [v.event["event_id"] for v in applied],
         "open_dispute": bool(open_disputes), "open_dispute_ids": [e["event_id"] for e in open_disputes],
         "valid_rejection_count": len(rejections), "approval_required": approval_required,
         "valid_approval_count": valid_approval_count, "quorum": quorum, "days_late": days_late,
         "completion_ts": completion_ts, "conditions_met": met, "missing_conditions": miss,
         "issues": issues + anomalies, "notes": notes,
+        "selection": selection.mode, "rule_trace": selection.trace, "variables": trace.variables(env),
     }
 
 
 def evaluate_all(pack, **kw):
-    """Evaluate every milestone of the pack; keyword flags are passed to ``evaluate``."""
+    """Evaluate every milestone of the pack; keyword arguments are passed to ``evaluate``."""
     return {mid: evaluate(pack, mid, **kw) for mid in pack.milestones}

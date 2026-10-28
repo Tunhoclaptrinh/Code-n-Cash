@@ -25,9 +25,12 @@ from pathlib import Path
 # The evaluator lives in the codecash_engine package (apps/engine); this module is the spec check command.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "apps" / "engine"))
 from codecash_engine import (  # noqa: E402,F401  (re-exported for the tests and the engine adapter)
-    AUTHORITY, CENT, DECISIONS, DEFAULT_DATA, PRIORITIES, SNAPSHOT, SPEC_VERSION, STATUS, SUPPORT_TYPES,
+    AUTHORITY, CENT, DECISIONS, DEFAULT_DATA, SNAPSHOT, SPEC_VERSION, STATUS, SUPPORT_TYPES,
     VALID_STATUS, Pack, _eval, assumption_flags, check_invariants, compare_samples, confidence_score, confidence_scores,
-    evaluate, evaluate_all, evaluate_expr, read)
+    evaluate, evaluate_all, evaluate_expr, load_policy, read)
+
+# README section 4.4: the eight standard priorities of the official rule table (a Data Pack fact, not an engine limit).
+BTC_PRIORITIES = [10, 20, 30, 40, 50, 60, 70, 80]
 
 
 # ---------- Report ----------
@@ -85,7 +88,7 @@ def report(pack, export=None):
     print("release_rule_code = rule_set_id:milestone_type:",
           sum(1 for m in M.values() if m["release_rule_code"] == f"{C[m['contract_id']]['rule_set_id']}:{m['milestone_type']}"))
     print("phạm vi rule:", len(pack.rules_by_scope), "mỗi phạm vi đủ 8 rule:",
-          all([int(r["priority"]) for r in v] == PRIORITIES for v in pack.rules_by_scope.values()))
+          all([int(r["priority"]) for r in v] == BTC_PRIORITIES for v in pack.rules_by_scope.values()))
     distinct = defaultdict(set)
     for r in pack.rules:
         distinct[r["priority"]].add((r["condition_expression"], r["decision"], r["reason_code"], r["payable_amount_formula"],

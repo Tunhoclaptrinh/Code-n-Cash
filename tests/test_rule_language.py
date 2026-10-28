@@ -25,8 +25,10 @@ class RuleLanguageTests(unittest.TestCase):
 
     def test_official_rules_and_catalog(self):
         self.assertEqual(language.inspect(self.rules), {'valid': True, 'checked': 384, 'issues': []})
-        self.assertEqual(len(language.VARIABLES), 17)
-        self.assertEqual(len({v['name'] for v in language.CATALOG['variables']}), 17)
+        self.assertEqual(len(language.VARIABLES), 22)
+        self.assertEqual(len({v['name'] for v in language.CATALOG['variables']}), 22)
+        # Every variable says where its value comes from (fact, config, derived, amount, milestone or contract cell).
+        self.assertTrue(all(isinstance(v.get('binding'), dict) for v in language.CATALOG['variables']))
 
     def test_primitive_types(self):
         self.problem('condition_expression', 'open_dispute == 1', 'TYPE_MISMATCH')

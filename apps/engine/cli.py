@@ -74,9 +74,15 @@ def kpi(pack, results, rows, traces, timings, matched, started):
     }
 
 
-def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
-    """Official Data Pack by default. With `data`, an uploaded dataset: invariant breaks are reported, not raised."""
+def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False, policy=None):
+    """Official Data Pack by default. With `data`, an uploaded dataset: invariant breaks are reported, not raised.
+
+    `policy` is a policy file (default apps/engine/policy/case4_btc.json); `workflow` selects its WORKFLOW profile.
+    """
     started = perf_counter()
+    base_policy = spec.load_policy(policy)
+    profile = {'policy': base_policy, 'profile': 'WORKFLOW' if workflow else 'BTC_SUBMISSION'}
+    run_policy = spec.resolve_policy(**profile)
     voided = frozenset()
     if data:
         pack, fingerprint, source, voided = dataset.load(data, apply_scope=apply_scope, workflow=workflow)
@@ -91,18 +97,22 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
     for mid in pack.milestones:
         start = perf_counter()
         try:
-            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided, strict_resolution=workflow)
+            results[mid] = spec.evaluate(pack, mid, as_of=as_of, voided=voided, **profile)
         except (KeyError, ValueError, ArithmeticError) as error:
             raise ValueError(f'EVALUATION_FAILED {mid}: {type(error).__name__} {error}') from error
         timings[mid] = (perf_counter() - start) * 1000
-    violations = spec.check_invariants(pack, results) if not as_of else []
+    violations = spec.check_invariants(pack, results, run_policy) if not as_of else []
     if violations and not workflow:
         raise ValueError('; '.join(violations))
     now = datetime.now(timezone.utc).isoformat()
-    run_id = 'run-' + hashlib.sha256((fingerprint + spec.SPEC_VERSION + str(as_of) + str(apply_scope) + str(workflow)).encode()).hexdigest()[:16]
-    flags = spec.assumption_flags(pack, results)
-    confidence = spec.confidence_scores(pack, results, spec.evaluate, as_of=as_of, voided=voided,
-                                        strict_resolution=workflow)
+    run_id = 'run-' + hashlib.sha256((fingerprint + spec.SPEC_VERSION + run_policy.hash + str(as_of) + str(apply_scope)
+                                      + str(workflow)).encode()).hexdigest()[:16]
+    changes = spec.reading_changes(pack, results, spec.evaluate, as_of=as_of, voided=voided, **profile)
+    flags = spec.assumption_flags(pack, results, changes=changes, **profile)
+    confidence = spec.confidence_scores(pack, results, spec.evaluate, changes=changes, as_of=as_of, voided=voided,
+                                        **profile)
+    policy_ref = {'id': run_policy.id, 'version': run_policy.version, 'hash': run_policy.hash,
+                  'switches': list(run_policy.switches_applied)}
     rows, traces = [], []
     for template in pack.template:
         mid = template['milestone_id']
@@ -121,13 +131,13 @@ def evaluate(as_of=None, data=None, *, apply_scope=False, workflow=False):
                                    f'as_of:{as_of}' if as_of else 'offline_full_history']).strip(';'))
         rows.append(row)
         traces.append({'id': trace_id, 'inputFingerprint': fingerprint, 'specVersion': spec.SPEC_VERSION,
-                       'evaluatedAt': now, 'result': result, 'actors': sorted({pack.event_by_id[e]['actor_party_id'] for e in result['evidence']}),
+                       'policy': policy_ref, 'evaluatedAt': now, 'result': result, 'actors': sorted({pack.event_by_id[e]['actor_party_id'] for e in result['evidence']}),
                        'parameters': pack.milestones[mid]})
     matched, mismatches = spec.compare_samples(pack, results) if not as_of else (None, [])
     # Totals, like the decision counts, cover the output rows (the scope file can narrow them).
     scored = [results[t['milestone_id']] for t in pack.template]
     return {'runId': run_id, 'inputFingerprint': fingerprint, 'rows': rows, 'traces': traces,
-            'summary': {'source': source, 'milestones': len(rows), 'contracts': len(pack.contracts),
+            'summary': {'source': source, 'policy': policy_ref, 'milestones': len(rows), 'contracts': len(pack.contracts),
                         'decisions': dict(Counter(r['decision'] for r in scored)),
                         'sampleMatched': matched, 'sampleTotal': len(pack.decisions), 'sampleMismatches': mismatches,
                         'invariantViolations': violations, 'payableMillion': str(sum(r['payable'] for r in scored)),
@@ -139,8 +149,9 @@ TIMELINE_FIELDS = ('decision', 'reason_code', 'rule_id', 'status', 'payable', 'p
                    'valid_approval_count', 'quorum', 'open_dispute_ids')
 
 
-def timeline(milestone_id, data=None, *, workflow=False):
+def timeline(milestone_id, data=None, *, workflow=False, policy=None):
     """Decision of one milestone right after each moment of its history (as-of, BR-16), oldest first."""
+    profile = {'policy': spec.load_policy(policy), 'profile': 'WORKFLOW' if workflow else 'BTC_SUBMISSION'}
     if data:
         pack, _, _, voided = dataset.load(data, workflow=workflow)
     else:
@@ -151,7 +162,7 @@ def timeline(milestone_id, data=None, *, workflow=False):
     events = pack.events_by_ms[milestone_id]
     points = []
     for at in sorted({e['event_timestamp'] for e in events}):
-        result = spec.evaluate(pack, milestone_id, as_of=at, voided=voided, strict_resolution=workflow)
+        result = spec.evaluate(pack, milestone_id, as_of=at, voided=voided, **profile)
         points.append({'at': at, 'eventIds': [e['event_id'] for e in events if e['event_timestamp'] == at],
                        **{field: result[field] for field in TIMELINE_FIELDS}})
     return points
@@ -173,15 +184,22 @@ if __name__ == '__main__':
     parser.add_argument('--workflow', action='store_true', help='enable approved live-workflow exception events; not the BTC submission profile')
     parser.add_argument('--inspect', action='store_true', help='only report which files were found in --data')
     parser.add_argument('--timeline', metavar='MILESTONE_ID', help='decision of one milestone after each of its events')
+    parser.add_argument('--policy', type=Path, help='policy file instead of apps/engine/policy/case4_btc.json')
+    parser.add_argument('--policy-info', action='store_true', help='print the vocabulary of the policy and exit')
     args = parser.parse_args()
     try:
+        if args.policy_info:
+            print(json.dumps(spec.load_policy(args.policy).describe(), ensure_ascii=False))
+            sys.exit(0)
         if args.inspect:
             print(json.dumps(dataset.inspect(args.data or spec.DEFAULT_DATA, apply_scope=args.apply_scope), ensure_ascii=False))
             sys.exit(0)
         if args.timeline:
-            print(json.dumps(timeline(args.timeline, args.data, workflow=args.workflow), default=encode, ensure_ascii=False))
+            print(json.dumps(timeline(args.timeline, args.data, workflow=args.workflow, policy=args.policy),
+                             default=encode, ensure_ascii=False))
             sys.exit(0)
-        result = evaluate(args.as_of, args.data, apply_scope=args.apply_scope, workflow=args.workflow)
+        result = evaluate(args.as_of, args.data, apply_scope=args.apply_scope, workflow=args.workflow,
+                          policy=args.policy)
     except (ValueError, zipfile.BadZipFile) as error:
         # One line the API can show; a traceback adds nothing for a bad upload.
         print(str(error), file=sys.stderr)

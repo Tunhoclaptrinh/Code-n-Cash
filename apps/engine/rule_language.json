@@ -19,6 +19,9 @@
       "description": {
         "vi": "Có DISPUTE_OPENED chưa được DISPUTE_RESOLVED hợp lệ tham chiếu đóng.",
         "en": "An opened dispute has no valid linked resolution."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -39,6 +42,9 @@
       "description": {
         "vi": "Số REJECTION hợp lệ từ bên có quyền từ chối.",
         "en": "Valid REJECTION events by authorized parties."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -59,6 +65,9 @@
       "description": {
         "vi": "Sự kiện thuộc loại bắt buộc nhưng actor sai bên hoặc không được phép.",
         "en": "Required-type events submitted by unauthorized or wrong-side actors."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -79,6 +88,9 @@
       "description": {
         "vi": "Số loại required event hợp lệ / tổng loại bắt buộc. Từ 0 đến 1; 1.0 là 100%, không nhập 100.",
         "en": "Valid required event types / all required types. Range 0–1; 1.0 means 100%, not 100."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -99,6 +111,10 @@
       "description": {
         "vi": "Mốc có yêu cầu phê duyệt trước khi thanh toán.",
         "en": "Whether the milestone requires approvals before payment."
+      },
+      "binding": {
+        "source": "config",
+        "key": "approval_required"
       }
     },
     {
@@ -119,6 +135,9 @@
       "description": {
         "vi": "Đếm vai trò bắt buộc được phủ bởi phê duyệt hợp lệ; không đếm lượt bấm hay tổng event APPROVAL.",
         "en": "Distinct required roles covered by valid approvals, not clicks or raw APPROVAL events."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -139,6 +158,10 @@
       "description": {
         "vi": "Số vai trò phê duyệt phải được phủ theo cấu hình mốc.",
         "en": "Required number of approval roles for the milestone."
+      },
+      "binding": {
+        "source": "config",
+        "key": "quorum"
       }
     },
     {
@@ -159,6 +182,12 @@
       "description": {
         "vi": "Chỉ xét phạt khi cờ TRUE và không có rule ưu tiên trước chặn.",
         "en": "Penalty applies when TRUE and no earlier rule blocks payment."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "late_penalty_applicable",
+        "type": "boolean",
+        "issue": "late_penalty_applicable không đọc được"
       }
     },
     {
@@ -179,6 +208,9 @@
       "description": {
         "vi": "Ngày muộn nhất của required event hợp lệ cần để hoàn thành mốc. Không lấy event cuối như APPROVAL. Chưa đủ required events thì chưa có ngày; so sánh trả FALSE.",
         "en": "Latest valid required completion event date. Excludes later workflow events such as APPROVAL. Missing completion yields FALSE in comparisons."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -199,6 +231,13 @@
       "description": {
         "vi": "Hạn nghiệp vụ của mốc; cộng grace_period_days để lấy hết hạn ân hạn.",
         "en": "Business deadline; add grace_period_days for the grace deadline."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "due_date",
+        "type": "date",
+        "issue": "tham số ngày/tiền của milestone không đọc được",
+        "group": "terms"
       }
     },
     {
@@ -219,6 +258,13 @@
       "description": {
         "vi": "Số ngày lịch cộng vào due_date.",
         "en": "Calendar days added to due_date."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "grace_period_days",
+        "type": "integer",
+        "issue": "tham số ngày/tiền của milestone không đọc được",
+        "group": "terms"
       }
     },
     {
@@ -239,6 +285,9 @@
       "description": {
         "vi": "Đủ required events, không có required event sai thẩm quyền, đủ quorum nếu cần. Vẫn phải kiểm tranh chấp và từ chối riêng.",
         "en": "Required events complete, no unauthorized required events and quorum met if required. Disputes and rejections need separate checks."
+      },
+      "binding": {
+        "source": "derived"
       }
     },
     {
@@ -259,6 +308,13 @@
       "description": {
         "vi": "Đơn vị triệu VND; 1000.00 là một nghìn triệu VND, không phải 1000 đồng.",
         "en": "Million VND; 1000.00 means one thousand million VND, not 1000 VND."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "planned_payment_vnd_mn",
+        "type": "decimal",
+        "issue": "tham số ngày/tiền của milestone không đọc được",
+        "group": "terms"
       }
     },
     {
@@ -275,6 +331,9 @@
       "description": {
         "vi": "Kết quả công thức phạt đã làm tròn 2 chữ số. Chỉ dùng trong công thức tiền được trả; không tự tham chiếu trong điều kiện hoặc công thức phạt.",
         "en": "Penalty result rounded to 2 decimals. Available only in the payable formula, never in conditions or the penalty formula itself."
+      },
+      "binding": {
+        "source": "amount"
       }
     },
     {
@@ -295,6 +354,9 @@
       "description": {
         "vi": "MAX(0, ngày hoàn thành − (due_date + grace_period_days)); engine tính sẵn. Không tự trừ ngày trong DSL.",
         "en": "MAX(0, completion − (due_date + grace_period_days)); computed by the engine. Do not subtract dates in the DSL."
+      },
+      "binding": {
+        "source": "fact"
       }
     },
     {
@@ -315,6 +377,13 @@
       "description": {
         "vi": "0.10 nghĩa là 0,10%/ngày; chia 100 trong công thức.",
         "en": "0.10 means 0.10% per day; divide by 100 in formulas."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "penalty_rate_pct_per_day",
+        "type": "decimal",
+        "issue": "tham số ngày/tiền của milestone không đọc được",
+        "group": "terms"
       }
     },
     {
@@ -335,6 +404,145 @@
       "description": {
         "vi": "Phần trăm tối đa trên giá trị dự kiến của mốc; chia 100 trong công thức.",
         "en": "Maximum percentage of planned milestone value; divide by 100 in formulas."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "max_penalty_pct",
+        "type": "decimal",
+        "issue": "tham số ngày/tiền của milestone không đọc được",
+        "group": "terms"
+      }
+    },
+    {
+      "name": "invoice_required",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "milestones.csv",
+      "example": "FALSE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Yêu cầu hoá đơn",
+        "en": "Invoice required"
+      },
+      "description": {
+        "vi": "Mốc có cờ yêu cầu hoá đơn (invoice_required). Không tự thêm INVOICE vào chứng từ bắt buộc.",
+        "en": "The milestone invoice_required flag. It does not add INVOICE to the required events."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "invoice_required",
+        "type": "boolean",
+        "default": "FALSE",
+        "issue": "invoice_required không đọc được"
+      }
+    },
+    {
+      "name": "hold_on_open_dispute",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "milestones.csv",
+      "example": "TRUE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Tạm giữ khi có tranh chấp",
+        "en": "Hold on open dispute"
+      },
+      "description": {
+        "vi": "Cờ hold_on_open_dispute của mốc; mặc định TRUE. Chốt an toàn chỉ cho trả tiền khi có tranh chấp mở nếu cờ này là FALSE.",
+        "en": "The milestone hold_on_open_dispute flag, TRUE by default. The safety guard only allows a payment with an open dispute when it is FALSE."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "hold_on_open_dispute",
+        "type": "boolean",
+        "default": "TRUE",
+        "issue": "hold_on_open_dispute không đọc được"
+      }
+    },
+    {
+      "name": "payment_percent",
+      "type": "number",
+      "unit": "percent",
+      "source": "milestones.csv",
+      "example": "40.00",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Tỷ lệ thanh toán của mốc",
+        "en": "Milestone payment percent"
+      },
+      "description": {
+        "vi": "Phần trăm giá trị hợp đồng gắn với mốc; chia 100 khi tính.",
+        "en": "Share of the contract value for the milestone, in percent; divide by 100 in formulas."
+      },
+      "binding": {
+        "source": "milestone",
+        "field": "payment_percent",
+        "type": "decimal",
+        "issue": "payment_percent không đọc được"
+      }
+    },
+    {
+      "name": "contract_value_vnd_mn",
+      "type": "number",
+      "unit": "money",
+      "source": "contracts.csv",
+      "example": "1290",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Giá trị hợp đồng",
+        "en": "Contract value"
+      },
+      "description": {
+        "vi": "Tổng giá trị hợp đồng, triệu VND.",
+        "en": "Total contract value, million VND."
+      },
+      "binding": {
+        "source": "contract",
+        "field": "contract_value_vnd_mn",
+        "type": "decimal",
+        "issue": "contract_value_vnd_mn không đọc được"
+      }
+    },
+    {
+      "name": "auto_release_allowed",
+      "type": "boolean",
+      "unit": "boolean",
+      "source": "contracts.csv",
+      "example": "TRUE",
+      "fields": [
+        "condition_expression",
+        "penalty_amount_formula",
+        "payable_amount_formula"
+      ],
+      "label": {
+        "vi": "Cho phép tự động giải ngân",
+        "en": "Auto release allowed"
+      },
+      "description": {
+        "vi": "Hợp đồng cho phép RELEASE khi đủ điều kiện mà không cần phê duyệt thủ công.",
+        "en": "The contract allows RELEASE without a manual approval once every condition holds."
+      },
+      "binding": {
+        "source": "contract",
+        "field": "auto_release_allowed",
+        "type": "boolean",
+        "issue": "auto_release_allowed không đọc được"
       }
     }
   ],

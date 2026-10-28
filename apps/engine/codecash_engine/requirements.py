@@ -1,43 +1,38 @@
 """Required-event matching for one milestone.
 
-Input: the cleaned events, the milestone's required event types, the parties lookup and the contract.
+Input: the classified events (verdicts) and the milestone's required event types.
 Output: valid required events per type, unauthorized required events, unrelated events, the list of
 missing event types and the completion rate (Decimal).
-Business rules: BR-04..BR-07 (a required event counts only from the authorized party with the valid
-status; the earliest valid copy per type wins), BR-20 (events outside the required list are unrelated),
-BR-06 (completion rate = valid required / required).
+Business rules: BR-04..BR-07 (a required event counts only from the party the policy authorizes, with the
+valid status; the earliest valid copy per type wins), BR-20 (evidence events outside the required list and
+unknown event types are unrelated), BR-06 (completion rate = valid required / required).
 """
 from decimal import Decimal
 
-from .events import required_authorized
-from .pack import SUPPORT_TYPES, VALID_STATUS
 
-
-def classify_required(parties, contract, events, required_types, literal_permissions=False):
+def classify_required(verdicts):
     """Return (valid_req, unauthorized, unrelated).
 
     valid_req maps event type -> earliest authorized event with the valid status for that type.
-    unauthorized lists required-type events from the wrong actor (counted, never accepted).
-    unrelated lists business events whose type is neither required nor a supporting type.
+    unauthorized lists required-type events from an actor the policy does not authorize (counted, never accepted).
+    unrelated lists events that are neither required nor of a supporting category (approval, rejection, dispute).
     """
     valid_req, unauthorized, unrelated = {}, [], []
-    for e in events:
-        if e["event_type"] in required_types:
-            if not required_authorized(parties, contract, e, literal_permissions):
+    for v in verdicts:
+        e, flags = v.event, v.flags
+        if flags["required"]:
+            if not flags["required_authorized"]:
                 unauthorized.append(e)
-            elif e["event_status"] == VALID_STATUS[e["event_type"]]:
+            elif flags["status_ok"]:
                 valid_req.setdefault(e["event_type"], e)
-        elif e["event_type"] not in SUPPORT_TYPES:
+        elif v.kind is None or v.kind.category == "EVIDENCE":
             unrelated.append(e)
     return valid_req, unauthorized, unrelated
 
 
-def missing_events(required_types, valid_req, enforce_invoice=False):
-    """Required types without a valid event. ``enforce_invoice`` also demands an INVOICE (sensitivity switch)."""
-    missing = [t for t in required_types if t not in valid_req]
-    if enforce_invoice:
-        missing.append("INVOICE")
-    return missing
+def missing_events(required_types, valid_req):
+    """Required types without a valid event, in the order of the milestone."""
+    return [t for t in required_types if t not in valid_req]
 
 
 def completion_rate(required_types, missing):

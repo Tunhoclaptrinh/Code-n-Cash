@@ -1,43 +1,32 @@
-"""Data Pack input model and shared constants.
+"""Data Pack input model and the vocabulary derived from the default policy.
 
 Input: a Data Pack directory (``Pack.load``) or hand-built row lists (``Pack(...)``, used by tests).
 Output: a ``Pack`` with the rows indexed by id, events grouped per milestone and ordered by
 (timestamp, event_id), and active rules grouped per release_rule_code ordered by priority.
-Business rules: BR-04 and BR-05 (authority matrix, valid status per event type) and the
-status mapping of spec section 9.2 are defined here as constants.
+Business rules: none of its own. The constants below (authority per event type, valid status, statuses
+per reason, decisions) are read from the default policy (policy/case4_btc.json) for the report and tests;
+the engine itself reads the compiled policy.
 """
 import csv
 from collections import defaultdict
 from datetime import date
 from decimal import Decimal
-from pathlib import Path
 
-SPEC_VERSION = "1.1"
-DEFAULT_DATA = Path(__file__).resolve().parents[3] / "BangD-Case4" / "DataPack-CASE4_SmartContractWorkflow"
+from .policy import DEFAULT_DATA, load_policy
+
+SPEC_VERSION = "1.2"
 SNAPSHOT = date(2026, 10, 18)
 CENT = Decimal("0.01")
 
-# Section 4.2: required event type -> party type allowed to create it.
-AUTHORITY = {
-    "CONTRACT_SIGNED": "BUYER", "KICKOFF_CONFIRMED": "BUYER", "REQUIREMENTS_APPROVED": "BUYER",
-    "UAT_PASSED": "BUYER", "ACCEPTANCE": "BUYER",
-    "DELIVERY": "SUPPLIER", "INVOICE": "SUPPLIER", "GO_LIVE": "SUPPLIER",
-    "SERVICE_ACTIVATED": "SUPPLIER", "SERVICE_COMPLETED": "SUPPLIER", "WARRANTY_COMPLETED": "SUPPLIER",
-}
+_POLICY = load_policy()
+# Section 2.1: required (evidence) event type -> party type allowed to create it.
+AUTHORITY = {n: _POLICY.sides[k.side]["party_type"] for n, k in _POLICY.kinds.items() if k.category == "EVIDENCE"}
 # BR-05: valid event_status per event type.
-VALID_STATUS = {t: "CONFIRMED" for t in AUTHORITY}
-VALID_STATUS.update(APPROVAL="APPROVED", REJECTION="REJECTED", DISPUTE_OPENED="OPEN", DISPUTE_RESOLVED="RESOLVED")
-SUPPORT_TYPES = {"APPROVAL", "REJECTION", "DISPUTE_OPENED", "DISPUTE_RESOLVED"}
-
-# Section 9.2: milestone status per reason code, named as in README section 15.
-STATUS = {
-    "ALL_CONDITIONS_MET": "ELIGIBLE_FOR_PAYMENT", "LATE_COMPLETION": "PAID_WITH_PENALTY",
-    "REJECTION_PRESENT": "REJECTED", "MISSING_REQUIRED_EVENT": "WAITING_EVIDENCE",
-    "APPROVAL_QUORUM_NOT_MET": "WAITING_APPROVAL", "OPEN_DISPUTE": "ON_HOLD",
-    "UNAUTHORIZED_EVENT": "ON_HOLD", "UNRESOLVED_CONDITION": "ON_HOLD",
-}
-DECISIONS = {"RELEASE", "HOLD", "REJECT", "PENALTY"}
-PRIORITIES = [10, 20, 30, 40, 50, 60, 70, 80]
+VALID_STATUS = {n: k.valid_status for n, k in _POLICY.kinds.items()}
+SUPPORT_TYPES = {n for n, k in _POLICY.kinds.items() if k.category != "EVIDENCE"}
+# Section 9.2: milestone status per reason code.
+STATUS = {reason: entry["status"] for reason, entry in _POLICY.reasons.items()}
+DECISIONS = set(_POLICY.decisions)
 
 
 def read(base, rel):

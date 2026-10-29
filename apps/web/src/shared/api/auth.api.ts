@@ -1,5 +1,8 @@
 import type { AuthResult, Role } from "@codecash/contracts";
+import { ApiError as HttpError } from "@codecash/api-client";
 import { platform } from "./platform";
+
+const RESTORE_RETRIES = 4;
 import type { User } from "./types";
 
 function storeSession(result: AuthResult): User {
@@ -55,10 +58,19 @@ export async function signInDemo(email: string): Promise<User> {
   );
 }
 
+/**
+ * Restores the stored session. Only the API saying the token is no longer valid (401) ends it; a
+ * gateway error or a dropped connection while the server restarts is retried, so a busy or restarting
+ * server does not sign the user out.
+ */
 export async function getUser(_userId: string): Promise<User | null> {
-  try {
-    return await platform.get<User>("/auth/me");
-  } catch {
-    return null;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await platform.get<User>("/auth/me");
+    } catch (error) {
+      const signedOut = error instanceof HttpError && error.status === 401;
+      if (signedOut || attempt >= RESTORE_RETRIES) return null;
+      await new Promise((done) => setTimeout(done, 1000 * 2 ** attempt));
+    }
   }
 }

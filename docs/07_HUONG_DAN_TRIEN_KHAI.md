@@ -17,11 +17,11 @@ Trình duyệt ──HTTPS──▶ Reverse proxy TLS trên host (Caddy hoặc n
                  mongo (MongoDB 7, replica set 1 node) ──▶ volume mongo-data
 ```
 
-| Thành phần | Image | Ghi chú |
-| --- | --- | --- |
-| `web` | `Dockerfile`, target `web` | nginx phục vụ `apps/web/dist`, fallback SPA, cache `/assets` 1 năm, proxy `/api` sang API, giới hạn upload 25 MB |
-| `api` | `Dockerfile`, target `api` | Node 24 + Python 3; chạy `node apps/api/dist/main.js`, gọi `apps/engine/cli.py` cho Data Pack; healthcheck `/api/v1/health` |
-| `mongo` | `mongo:7.0` | Replica set `rs0` để giao dịch dữ liệu cùng audit; **không publish cổng ra host** |
+| Thành phần | Image                      | Ghi chú                                                                                                                     |
+| ---------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `web`      | `Dockerfile`, target `web` | nginx phục vụ `apps/web/dist`, fallback SPA, cache `/assets` 1 năm, proxy `/api` sang API, giới hạn upload 25 MB            |
+| `api`      | `Dockerfile`, target `api` | Node 24 + Python 3; chạy `node apps/api/dist/main.js`, gọi `apps/engine/cli.py` cho Data Pack; healthcheck `/api/v1/health` |
+| `mongo`    | `mongo:7.0`                | Replica set `rs0` để giao dịch dữ liệu cùng audit; **không publish cổng ra host**                                           |
 
 Cả ba khai báo trong [`infra/compose.prod.yaml`](../infra/compose.prod.yaml). CI (job `docker` trong [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) build hai image, chạy đủ stack này và chạy smoke HTTP qua nginx ở mỗi lần push.
 
@@ -42,19 +42,24 @@ openssl rand -hex 48            # dán vào JWT_SECRET
 
 Sửa `.env.production`:
 
-| Biến | Bắt buộc | Giá trị |
-| --- | --- | --- |
-| `JWT_SECRET` | Có | Chuỗi ngẫu nhiên ≥ 48 byte. API từ chối khởi động nếu trống |
-| `WEB_ORIGIN` | Có | Origin công khai, ví dụ `https://codecash.example.com` |
-| `SEED_PASSWORD` | Lần đầu | Mật khẩu cho 69 tài khoản mẫu (mỗi bên trong Data Pack một người, cộng bốn người nội bộ: hai kiểm soát viên, quản trị hệ thống, kiểm toán); xóa sau lần khởi động đầu (mục 4) |
-| `MONGO_URI` | Không | Để trống dùng container `mongo`; điền URI cluster quản lý (Atlas…) nếu có |
-| `ANCHOR_INTERVAL_MINUTES` | Không | Chu kỳ tự neo đầu chuỗi audit khi có mục mới; mặc định 15, `0` để tắt |
-| `AUDIT_PERSONAL_KEY` | Không | Khoá HMAC cho dữ liệu cá nhân trong audit; để trống thì dùng `audit-personal.key` sinh trong thư mục trust. Mất khoá thì không đối chiếu được giá trị cũ (chuỗi vẫn kiểm được) |
-| `ENGINE_URL` | Không | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image. Bộ dữ liệu tải lên luôn chạy bằng CLI trong image |
-| `MOCK_ORIGINALS_WARMUP` | Không | Mặc định `true` khi `NODE_ENV=production`: sau khi khởi động, dựng sẵn trong nền tệp gốc mô phỏng (DOCX/PDF) cho các hợp đồng chưa có tệp, lưu ở `DATA_DIR/mock-originals`. Đặt `false` để chỉ dựng khi có người mở. Xem [32](archive/32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md) |
-| `DEMO_LOGIN` | Không | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng mọi tài khoản mẫu còn hoạt động). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo |
-| `WEB_BIND`, `WEB_PORT` | Không | Mặc định `127.0.0.1:8080`, chỉ reverse proxy trên host truy cập được |
-| `IMAGE_PREFIX`, `IMAGE_TAG` | Không | Tên image khi đẩy lên registry (mục 7) |
+| Biến                        | Bắt buộc | Giá trị                                                                                                                                                                                                                                                                         |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `JWT_SECRET`                | Có       | Chuỗi ngẫu nhiên ≥ 48 byte. API từ chối khởi động nếu trống                                                                                                                                                                                                                     |
+| `WEB_ORIGIN`                | Có       | Origin công khai, ví dụ `https://codecash.example.com`                                                                                                                                                                                                                          |
+| `SEED_PASSWORD`             | Lần đầu  | Mật khẩu cho 69 tài khoản mẫu (mỗi bên trong Data Pack một người, cộng bốn người nội bộ: hai kiểm soát viên, quản trị hệ thống, kiểm toán); xóa sau lần khởi động đầu (mục 4)                                                                                                   |
+| `MONGO_URI`                 | Không    | Để trống dùng container `mongo`; điền URI cluster quản lý (Atlas…) nếu có                                                                                                                                                                                                       |
+| `ANCHOR_INTERVAL_MINUTES`   | Không    | Chu kỳ tự neo đầu chuỗi audit khi có mục mới; mặc định 15, `0` để tắt                                                                                                                                                                                                           |
+| `PAYMENT_GATEWAY_URL`       | Không    | Địa chỉ nhận lệnh chi đã duyệt (`POST` JSON, header `Idempotency-Key`); để trống thì dùng cổng mô phỏng                                                                                                                                                                         |
+| `EVIDENCE_DIR`              | Không    | Thư mục lưu tệp chứng từ theo SHA-256; mặc định `<DATA_DIR>/uploads/evidence`. Cần sao lưu cùng dữ liệu                                                                                                                                                                         |
+| `TSA_URL`                   | Không    | Đơn vị cấp dấu thời gian RFC 3161 cho mỗi lần neo audit, ví dụ `http://timestamp.digicert.com`; để trống thì chỉ có bên làm chứng cục bộ                                                                                                                                        |
+| `TSA_TRUSTED_CERTS`         | Không    | Tệp PEM các gốc tin cậy thêm cho TSA (ví dụ gốc của FreeTSA), ngoài kho gốc của Node                                                                                                                                                                                            |
+| `PAYMENT_GATEWAY_SECRET`    | Không    | Khoá HMAC-SHA256 ký thân lệnh chi trong header `X-CodeCash-Signature`                                                                                                                                                                                                           |
+| `AUDIT_PERSONAL_KEY`        | Không    | Khoá HMAC cho dữ liệu cá nhân trong audit; để trống thì dùng `audit-personal.key` sinh trong thư mục trust. Mất khoá thì không đối chiếu được giá trị cũ (chuỗi vẫn kiểm được)                                                                                                  |
+| `ENGINE_URL`                | Không    | URL worker engine chạy riêng; để trống thì API gọi CLI Python trong image. Bộ dữ liệu tải lên luôn chạy bằng CLI trong image                                                                                                                                                    |
+| `MOCK_ORIGINALS_WARMUP`     | Không    | Mặc định `true` khi `NODE_ENV=production`: sau khi khởi động, dựng sẵn trong nền tệp gốc mô phỏng (DOCX/PDF) cho các hợp đồng chưa có tệp, lưu ở `DATA_DIR/mock-originals`. Đặt `false` để chỉ dựng khi có người mở. Xem [32](archive/32_VAN_BAN_HOP_DONG_BEN_CANH_THAO_TAC.md) |
+| `DEMO_LOGIN`                | Không    | `true` bật menu "Tài khoản demo" ở trang đăng nhập (đăng nhập không cần mật khẩu bằng mọi tài khoản mẫu còn hoạt động). Mặc định tắt khi `NODE_ENV=production`; chỉ bật cho bản demo                                                                                            |
+| `WEB_BIND`, `WEB_PORT`      | Không    | Mặc định `127.0.0.1:8080`, chỉ reverse proxy trên host truy cập được                                                                                                                                                                                                            |
+| `IMAGE_PREFIX`, `IMAGE_TAG` | Không    | Tên image khi đẩy lên registry (mục 7)                                                                                                                                                                                                                                          |
 
 Build và chạy (từ thư mục gốc repo):
 
@@ -182,17 +187,17 @@ Chạy lệnh trên bằng systemd hoặc PM2. Phục vụ `apps/web/dist` bằn
 
 ## 12. Xử lý sự cố
 
-| Triệu chứng | Nguyên nhân thường gặp | Cách xử lý |
-| --- | --- | --- |
-| `mongo` mãi `unhealthy` | Replica set chưa khởi tạo, hoặc volume cũ có cấu hình host khác | Xem `logs mongo`; với dữ liệu thử có thể xóa volume `codecash_mongo-data` |
-| API dừng ngay với `JWT_SECRET is required` | Thiếu `JWT_SECRET` | Điền vào `.env.production` |
-| API dừng với `Production requires STORAGE_DRIVER=mongo` | Chạy production bằng kho file | Production luôn dùng Mongo; compose đã đặt sẵn |
-| Trình duyệt báo 502 | `api` chưa healthy hoặc đang khởi động lại | `ps`, `logs api` |
-| Upload báo 413 | Tệp > 20 MB, hoặc reverse proxy host giới hạn thấp hơn | Đặt `client_max_body_size 25m` ở proxy host |
-| Trang Data Pack lỗi khi đánh giá | Python không chạy được hoặc thiếu Data Pack trong image | `logs api`; image phải chứa `BangD-Case4/DataPack-CASE4_SmartContractWorkflow` |
-| Tải bộ dữ liệu báo 422 `DATASET_INVALID …` | Thiếu tệp bắt buộc hoặc thiếu cột so với Data Pack chính thức | Xem danh sách tệp trên trang Data Pack; bổ sung rồi tải lại |
-| Tải bộ dữ liệu báo 413 | Vượt 25 MB mỗi lần gửi (`client_max_body_size` của nginx) | Nén thư mục thành ZIP hoặc tải ít tệp hơn mỗi lần |
-| Đăng nhập được nhưng lập tức bị đẩy ra | Đổi `JWT_SECRET` hoặc mật khẩu làm token cũ vô hiệu | Đăng nhập lại |
+| Triệu chứng                                             | Nguyên nhân thường gặp                                          | Cách xử lý                                                                     |
+| ------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `mongo` mãi `unhealthy`                                 | Replica set chưa khởi tạo, hoặc volume cũ có cấu hình host khác | Xem `logs mongo`; với dữ liệu thử có thể xóa volume `codecash_mongo-data`      |
+| API dừng ngay với `JWT_SECRET is required`              | Thiếu `JWT_SECRET`                                              | Điền vào `.env.production`                                                     |
+| API dừng với `Production requires STORAGE_DRIVER=mongo` | Chạy production bằng kho file                                   | Production luôn dùng Mongo; compose đã đặt sẵn                                 |
+| Trình duyệt báo 502                                     | `api` chưa healthy hoặc đang khởi động lại                      | `ps`, `logs api`                                                               |
+| Upload báo 413                                          | Tệp > 20 MB, hoặc reverse proxy host giới hạn thấp hơn          | Đặt `client_max_body_size 25m` ở proxy host                                    |
+| Trang Data Pack lỗi khi đánh giá                        | Python không chạy được hoặc thiếu Data Pack trong image         | `logs api`; image phải chứa `BangD-Case4/DataPack-CASE4_SmartContractWorkflow` |
+| Tải bộ dữ liệu báo 422 `DATASET_INVALID …`              | Thiếu tệp bắt buộc hoặc thiếu cột so với Data Pack chính thức   | Xem danh sách tệp trên trang Data Pack; bổ sung rồi tải lại                    |
+| Tải bộ dữ liệu báo 413                                  | Vượt 25 MB mỗi lần gửi (`client_max_body_size` của nginx)       | Nén thư mục thành ZIP hoặc tải ít tệp hơn mỗi lần                              |
+| Đăng nhập được nhưng lập tức bị đẩy ra                  | Đổi `JWT_SECRET` hoặc mật khẩu làm token cũ vô hiệu             | Đăng nhập lại                                                                  |
 
 ## 13. Trước khi dùng cho hồ sơ thật
 
@@ -221,6 +226,7 @@ Bản một container dùng **Dockerfile.standalone**, build từ thư mục g�
    ```
 
    Dán key ở Dashboard; không dùng `VITE_GEMINI_API_KEY`, không sửa key vào source, `render.yaml` hoặc Dockerfile. `.env.gemini.local` chỉ phục vụ máy phát triển và bị loại khỏi Git/Docker; production đọc các biến runtime của Render. Model trên đã gọi thành công trong đợt kiểm thử 25/10/2026; có thể đổi `GEMINI_MODEL` nếu project/quota thay đổi.
+
 3. Với lần cập nhật code này, chọn **Save, rebuild, and deploy**. Khi chỉ đổi key/model sau này, **Save and deploy** dùng lại image hiện có với biến mới. **Save only** chưa áp dụng cho tiến trình đang chạy. [Tài liệu Render](https://render.com/docs/configure-environment-variables).
 4. Xem **Events / Logs**: build thành công, startup thành công, trạng thái Live. Thử `/healthz`, `/api/v1/health`, đăng nhập, tạo mẫu DOCX, xem PDF, lưu vị trí ký và bấm trích xuất. Bảng đề xuất phải ghi **Gemini AI**, có trang/đoạn trích; thiếu quota/quyền/model sẽ hiển thị lỗi, không âm thầm trả dữ liệu demo.
 

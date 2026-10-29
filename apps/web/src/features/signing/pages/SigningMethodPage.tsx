@@ -1,5 +1,6 @@
 import { SignaturePlacementPreview } from "@/shared/ui/SignaturePlacementPreview";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
+import { SigningSubject } from "../components/SigningSubject";
 import { Button, Tag, Tooltip } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -179,6 +180,7 @@ function MethodSelection({
             </p>
           ) : null}
           <SignaturePlacementPreview config={overview} stepNo={step.stepNo} />
+          <SigningSubject contractId={contractId} />
           <div className={styles.footer}>
             <Link
               to={`/contracts/${contractId}/signing`}

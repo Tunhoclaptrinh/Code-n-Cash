@@ -23,16 +23,36 @@ export interface AuditProof {
   leafIndex: number;
   treeSize: number;
   path: string[];
-  anchor: { id: string; payload: AnchorPayload; receipt: LocalProof | null };
+  anchor: {
+    id: string;
+    payload: AnchorPayload;
+    receipt: LocalProof | null;
+    timestamp?: TimestampReceipt | null;
+  };
 }
 export interface AnchorJob {
   id: string;
   status: "PENDING" | "CONFIRMED" | "FAILED";
   payload: AnchorPayload;
   receipt: LocalProof | null;
+  /** Present when a Time-Stamp Authority is configured (TSA_URL). */
+  timestamp?: TimestampReceipt | null;
   error: string | null;
   attempts: number;
 }
+/** An RFC 3161 time-stamp token over SHA-256(canonical(anchor payload)), from an external TSA. */
+export interface TimestampReceipt {
+  kind: "RFC3161";
+  tsa: string;
+  /** DER TimeStampToken (CMS ContentInfo), base64. */
+  token: string;
+  digest: string;
+  genTime: string;
+  serial: string;
+  signer: string;
+  signerFingerprint: string;
+}
+
 export interface ExtractionField {
   path: string;
   value: string | null;

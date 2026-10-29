@@ -1,6 +1,9 @@
 import { ContractDocuments } from "@/shared/ui/ContractDocuments";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
+import { ContractLifecycleSteps } from "../components/ContractLifecycleSteps";
+import { EvidenceDocumentLink } from "../components/EvidenceDocumentLink";
+import { SmartContractPanel } from "../components/SmartContractPanel";
 import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
 import {
   CheckCircleFilled,
@@ -50,6 +53,7 @@ import styles from "./ContractDetailPage.module.css";
 type TabKey =
   | "documents"
   | "milestones"
+  | "smart"
   | "events"
   | "history"
   | "signing"
@@ -178,6 +182,7 @@ export default function ContractDetailPage() {
             [
               "documents",
               "milestones",
+              "smart",
               "events",
               "history",
               "signing",
@@ -270,11 +275,19 @@ export default function ContractDetailPage() {
             />
           ) : null}
           {tab === "history" ? (
+            <Panel className={styles.tabPanel}>
+              <ContractLifecycleSteps lifecycle={data.lifecycle} />
+            </Panel>
+          ) : null}
+          {tab === "history" ? (
             <HistoryTimeline
               entries={data.timeline}
               milestones={data.milestones}
               people={peopleOf(data.participants)}
             />
+          ) : null}
+          {tab === "smart" ? (
+            <SmartContractPanel contractId={contract.id} />
           ) : null}
           {tab === "signing" ? <SigningPanel data={data} /> : null}
           {tab === "participants" ? (
@@ -616,11 +629,13 @@ function EventsTable({
             {
               key: "note",
               title: t("detail.events.note"),
-              // Only what a person wrote or attached; organiser rows carry no user note.
-              render: (_, e) =>
-                [e.origin === "APP" ? e.note : "", e.fileName ?? ""]
-                  .filter(Boolean)
-                  .join(" · ") || "—",
+              // Only what a person wrote; organiser rows carry no user note.
+              render: (_, e) => (e.origin === "APP" && e.note) || "—",
+            },
+            {
+              key: "document",
+              title: t("detail.events.document"),
+              render: (_, e) => <EvidenceDocumentLink event={e} />,
             },
           ]}
         />

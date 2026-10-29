@@ -63,9 +63,12 @@
     "EXCEPTION_PROPOSED": "Proposed to void event {{id}} (BR-19)",
     "EXCEPTION_APPROVED": "The organisation's controller approved voiding {{id}}; the engine re-evaluated",
     "EXCEPTION_REJECTED": "Rejected the proposal to void {{id}}",
-    "PAYMENT": "Simulated payment of {{amount}} million VND (idempotency key)",
+    "PAYMENT": "Payment instruction of {{amount}} million VND approved (idempotency key)",
     "REQUEST_INFO": "Requested more information: {{text}}",
-    "WORKFLOW_ACTION": "{{action}}"
+    "WORKFLOW_ACTION": "{{action}}",
+    "PAYMENT_DELIVERY_ACKNOWLEDGED": "The payment gateway accepted the instruction ({{channel}}, attempt {{attempts}}, reference {{reference}})",
+    "PAYMENT_DELIVERY_FAILED": "Sending the payment instruction failed ({{channel}}, attempt {{attempts}}, error {{error}})",
+    "PAYMENT_DELIVERY_PENDING": "Payment instruction waiting to be sent ({{channel}})"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -222,7 +225,8 @@
     "EXPORT_REQUEST": "List export requested",
     "SIGNATURE_EXPORT": "Signature proofs exported",
     "ANCHOR_EXPORT": "Anchor bundle exported",
-    "SYSTEM_WRITE": "System data written"
+    "SYSTEM_WRITE": "System data written",
+    "PAYMENT_DELIVERY": "Payment instruction sent"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",
@@ -240,5 +244,9 @@
   "lite": {
     "checkedAt": "Checked at {{time}}",
     "exceptionsNote": "One person proposes, a second person approves."
+  },
+  "paymentChannel": {
+    "SIMULATED": "simulated gateway",
+    "WEBHOOK": "payment gateway"
   }
 }

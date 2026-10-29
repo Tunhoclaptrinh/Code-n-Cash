@@ -1,7 +1,7 @@
 {
   "anchors": {
     "title": "Independent anchors",
-    "localNotice": "The demo stores Ed25519 receipts in a separate witness store. Export bundles and keep the key fingerprint independently. Time comes from the local machine; no TSA or blockchain is connected.",
+    "localNotice": "Receipts are signed with Ed25519 and kept in a separate witness store. Export bundles and keep the key fingerprint independently. No time-stamp authority (TSA) is configured, so the sealing time is the server's clock.",
     "key": "Witness key fingerprint",
     "create": "Create anchor",
     "chooseBundle": "Choose saved JSON bundle",
@@ -21,7 +21,13 @@
       "PENDING": "Pending witness",
       "CONFIRMED": "Witness confirmed",
       "FAILED": "Witness failed"
-    }
+    },
+    "tsaNotice": "Each seal is countersigned by an independent RFC 3161 time-stamp authority ({{tsa}}). The operator cannot backdate or alter a stamped chain head.",
+    "timestamp": "TSA time stamp",
+    "timestampBy": "Signed by {{signer}}",
+    "timestampTrusted": "Valid time stamp: {{signer}} attested it at {{at}}.",
+    "timestampUntrusted": "The time-stamp signature is correct but its authority ({{signer}}) is not trusted. Time on the stamp: {{at}}.",
+    "timestampInvalid": "The time stamp does not match this seal bundle."
   },
   "extraction": {
     "title": "Extract and review terms",

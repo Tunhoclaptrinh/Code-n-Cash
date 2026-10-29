@@ -7,5 +7,9 @@ export {
   submitEvidence,
 } from "./evidence";
 export { openDispute, resolutionEvents, resolveDispute } from "./disputes";
-export { transferToAccounting } from "./payments";
+export {
+  paymentInstruction,
+  recordPaymentDelivery,
+  transferToAccounting,
+} from "./payments";
 export { newEvent, outcome, type Outcome } from "./shared";

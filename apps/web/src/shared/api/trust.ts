@@ -20,9 +20,12 @@ async function write<T>(path: string, body: unknown, method = "POST") {
 }
 export const trustApi = {
   status: () =>
-    platform.get<{ provider: string; witnessKeyFingerprint: string }>(
-      "/trust/status",
-    ),
+    platform.get<{
+      provider: string;
+      witnessKeyFingerprint: string;
+      /** RFC 3161 Time-Stamp Authority, when configured (TSA_URL). */
+      timestampAuthority: string | null;
+    }>("/trust/status"),
   anchors: () => platform.get<AnchorJob[]>("/trust/anchors"),
   requestAnchor: (idempotencyKey: string) =>
     write<AnchorJob>("/anchors", { idempotencyKey }),
@@ -39,6 +42,13 @@ export const trustApi = {
       chainMatched: boolean;
       systemMatched: boolean;
       snapshotMatched: boolean;
+      timestamp: {
+        valid: boolean;
+        trusted: boolean;
+        genTime: string | null;
+        signer: string | null;
+        tsa: string;
+      } | null;
     }>("/trust/anchors/verify", bundle),
   extraction: (code: string) =>
     platform.get<ExtractionProposal | null>(

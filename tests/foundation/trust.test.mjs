@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 const execute = promisify(execFile);
@@ -31,6 +31,11 @@ import {
   fieldProblem,
 } from "../../apps/api/dist/common/field-validation.js";
 import { verifyBundle } from "../../scripts/verify-trust.mjs";
+import {
+  checkTimestamp,
+  resetTrustedRoots,
+} from "../../apps/api/dist/trust/timestamp.js";
+import { createServer } from "node:http";
 
 let dir, repo, base, domain, workflow, trust, extraction, rules, docs, actors;
 const call = (id, module, action, ...args) =>
@@ -1382,3 +1387,166 @@ test("tamper matrix: which edits of the log are found with and without an anchor
     CUT_AFTER_LAST_ANCHOR: [false, false],
   });
 });
+
+test("RFC 3161 tokens from public time-stamp authorities are checked without third-party code", async () => {
+  const { digest, tokens } = JSON.parse(
+    await readFile("tests/golden/tsa_tokens.json", "utf8"),
+  );
+  // DigiCert and Sectigo (RSA) and SSL.com (ECDSA) chain to roots Node trusts.
+  for (const name of ["digicert", "sectigo", "ssl"]) {
+    const check = checkTimestamp(tokens[name], digest);
+    assert.deepEqual([name, check.valid, check.trusted], [name, true, true]);
+    assert.equal(check.genTime.slice(0, 10), "2026-10-28");
+  }
+  // FreeTSA signs correctly but its root is not trusted unless an operator adds it.
+  assert.deepEqual(
+    [
+      checkTimestamp(tokens.freetsa, digest).valid,
+      checkTimestamp(tokens.freetsa, digest).trusted,
+    ],
+    [true, false],
+  );
+  const other = digest.replace(/^./, (c) => (c === "0" ? "1" : "0"));
+  assert.equal(
+    checkTimestamp(tokens.digicert, other).error,
+    "IMPRINT_MISMATCH",
+  );
+  // One flipped byte inside the signed TSTInfo (its serial number) breaks the signature digest.
+  const bytes = Buffer.from(tokens.digicert, "base64");
+  const at = bytes.indexOf(Buffer.from(digest, "hex")) + 40;
+  bytes[at] ^= 1;
+  assert.equal(checkTimestamp(bytes.toString("base64"), digest).valid, false);
+});
+
+test("anchors are countersigned by the configured time-stamp authority", async (t) => {
+  // A local TSA made with openssl: its own root, a signer with the timeStamping key usage.
+  const tsaDir = await mkdtemp(join(tmpdir(), "codecash-tsa-"));
+  const ssl = (...args) => execute("openssl", args, { cwd: tsaDir });
+  await ssl(
+    "req",
+    "-x509",
+    "-newkey",
+    "rsa:2048",
+    "-nodes",
+    "-keyout",
+    "ca.key",
+    "-out",
+    "ca.crt",
+    "-subj",
+    "/CN=Test TSA Root",
+    "-days",
+    "30",
+    "-addext",
+    "basicConstraints=critical,CA:TRUE",
+    "-addext",
+    "keyUsage=critical,keyCertSign",
+  );
+  await ssl(
+    "req",
+    "-newkey",
+    "rsa:2048",
+    "-nodes",
+    "-keyout",
+    "tsa.key",
+    "-out",
+    "tsa.csr",
+    "-subj",
+    "/CN=Test TSA",
+  );
+  await writeFile(
+    join(tsaDir, "ext"),
+    "extendedKeyUsage=critical,timeStamping\nkeyUsage=critical,digitalSignature\n",
+  );
+  await ssl(
+    "x509",
+    "-req",
+    "-in",
+    "tsa.csr",
+    "-CA",
+    "ca.crt",
+    "-CAkey",
+    "ca.key",
+    "-CAcreateserial",
+    "-out",
+    "tsa.crt",
+    "-days",
+    "30",
+    "-extfile",
+    "ext",
+  );
+  await writeFile(join(tsaDir, "serial"), "01\n");
+  await writeFile(
+    join(tsaDir, "tsa.cnf"),
+    `[ tsa ]\ndefault_tsa = t\n[ t ]\ndir = ${tsaDir}\nserial = $dir/serial\ncrypto_device = builtin\n` +
+      "signer_cert = $dir/tsa.crt\ncerts = $dir/ca.crt\nsigner_key = $dir/tsa.key\nsigner_digest = sha256\n" +
+      "default_policy = 1.2.3.4.1\nother_policies = 1.2.3.4.2\ndigests = sha256\naccuracy = secs:1\nordering = no\n" +
+      "tsa_name = no\ness_cert_id_chain = no\ness_cert_id_alg = sha256\n",
+  );
+  let available = true;
+  const server = createServer(async (request, response) => {
+    const chunks = [];
+    for await (const chunk of request) chunks.push(chunk);
+    const name = randomUUID();
+    await writeFile(join(tsaDir, `${name}.tsq`), Buffer.concat(chunks));
+    if (!available) return response.writeHead(503).end();
+    await ssl(
+      "ts",
+      "-reply",
+      "-queryfile",
+      `${name}.tsq`,
+      "-config",
+      "tsa.cnf",
+      "-out",
+      `${name}.tsr`,
+    );
+    response.writeHead(200, { "content-type": "application/timestamp-reply" });
+    response.end(await readFile(join(tsaDir, `${name}.tsr`)));
+  });
+  await new Promise((done) => server.listen(0, "127.0.0.1", done));
+  process.env.TSA_URL = `http://127.0.0.1:${server.address().port}/tsr`;
+  t.after(async () => {
+    delete process.env.TSA_URL;
+    delete process.env.TSA_TRUSTED_CERTS;
+    resetTrustedRoots();
+    server.close();
+    await rm(tsaDir, { recursive: true, force: true });
+  });
+  const actor = actors["u-sysadmin"];
+  // Without the operator trusting the local root, the stamp is refused and the job fails.
+  resetTrustedRoots();
+  await base.audit("TEST_MARK", "anchors", "tsa-untrusted", actor);
+  const refused = await trust.request(randomUUID(), actor);
+  assert.deepEqual(
+    [refused.status, refused.error],
+    ["FAILED", "TIMESTAMP_UNAVAILABLE"],
+  );
+  process.env.TSA_TRUSTED_CERTS = join(tsaDir, "ca.crt");
+  resetTrustedRoots();
+  const retried = await trust.retry(refused.id, actor);
+  assert.equal(retried.status, "CONFIRMED");
+  assert.equal(retried.timestamp.kind, "RFC3161");
+  assert.equal(retried.timestamp.signer, "Test TSA");
+  assert.equal(retried.timestamp.digest, digestOf(retried.payload));
+  assert.equal(trust.status().timestampAuthority, process.env.TSA_URL);
+  const bundle = await trust.bundle(retried.id, actor);
+  const report = await trust.check(bundle);
+  assert.deepEqual(
+    [report.result, report.timestampTrusted, report.timestamp.signer],
+    ["MATCH", true, "Test TSA"],
+  );
+  // A token moved onto another payload does not sign it.
+  const moved = structuredClone(bundle);
+  moved.payload.createdAt = "2000-01-01T00:00:00.000Z";
+  assert.equal((await trust.check(moved)).timestamp.valid, false);
+  // The TSA is down: the anchor waits as FAILED rather than confirming without a stamp.
+  available = false;
+  await base.audit("TEST_MARK", "anchors", "tsa-down", actor);
+  const down = await trust.request(randomUUID(), actor);
+  assert.deepEqual(
+    [down.status, down.error, down.timestamp],
+    ["FAILED", "TIMESTAMP_UNAVAILABLE", null],
+  );
+});
+
+const digestOf = (payload) =>
+  createHash("sha256").update(canonical(payload)).digest("hex");

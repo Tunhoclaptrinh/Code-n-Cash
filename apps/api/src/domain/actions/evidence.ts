@@ -4,12 +4,15 @@ import {
   ForbiddenException,
   NotFoundException,
 } from "@nestjs/common";
+import { storedEvidenceSize } from "../../evidence-store";
+import { createLocalProof } from "../../trust/crypto";
 import type { Ctx } from "../context";
 import { businessNow, entity, nextId } from "../factory";
 import {
   type AttachmentRecord,
   type EventRecord,
   type MilestoneRecord,
+  type SignedEvidence,
   TABLE,
 } from "../records";
 import type { BusinessEventType } from "../types";
@@ -23,16 +26,20 @@ export function attachEvidence(
     sequence: number;
     eventType: string;
     fileName: string;
-    sizeMb: number;
+    /** SHA-256 of a file stored through POST /evidence-documents. */
+    sha256: string;
+    mediaType?: string;
   },
 ): Outcome {
   const m = ctx.milestoneAt(input.contractId, Number(input.sequence));
   assertOpen(ctx, m);
   const side = ctx.side();
   const fileName = text(input.fileName, 255);
-  const sizeMb = Number(input.sizeMb);
-  if (!side || !fileName || !(sizeMb >= 0 && sizeMb <= 20))
-    throw new BadRequestException("INVALID_FILE");
+  if (!side || !fileName) throw new BadRequestException("INVALID_FILE");
+  // Only a file the API stored and hashed itself can back an event.
+  const sizeBytes = storedEvidenceSize(String(input.sha256));
+  if (sizeBytes === null)
+    throw new BadRequestException("EVIDENCE_FILE_MISSING");
   const type = input.eventType;
   if (type !== "OTHER") {
     if (
@@ -65,7 +72,10 @@ export function attachEvidence(
       side,
       eventType: type as BusinessEventType | "OTHER",
       fileName,
-      sizeMb: Math.round(sizeMb * 10) / 10,
+      sizeMb: Math.max(0.1, Math.round((sizeBytes / 1024 / 1024) * 10) / 10),
+      sha256: String(input.sha256),
+      sizeBytes,
+      mediaType: text(input.mediaType, 120) || "application/octet-stream",
       addedBy: ctx.actor.displayName,
       addedAt: businessNow(),
       organizationId: ctx.actor.organizationId,
@@ -90,6 +100,37 @@ export function removeEvidence(
   if (index < 0) throw new NotFoundException("EVIDENCE_NOT_FOUND");
   attachments.splice(index, 1);
   return outcome(ctx, { removed: true }, { milestoneId: m.milestone_id });
+}
+
+/**
+ * The submitter signs what the event will rest on: the document's hash, the milestone and the event type.
+ * The key is the submitter's own (the same local Ed25519 key store as contract signing).
+ */
+function signedEvidence(
+  ctx: Ctx,
+  m: MilestoneRecord,
+  attachment: AttachmentRecord,
+): SignedEvidence | undefined {
+  if (!attachment.sha256) return undefined;
+  const document = {
+    sha256: attachment.sha256,
+    fileName: attachment.fileName,
+    sizeBytes: Number(attachment.sizeBytes ?? 0),
+    mediaType: String(attachment.mediaType ?? "application/octet-stream"),
+    signedBy: ctx.actor.displayName,
+    signedById: ctx.actor.id,
+    signedAt: new Date().toISOString(),
+  };
+  return {
+    ...document,
+    proof: createLocalProof(`signer:${ctx.actor.id}`, {
+      kind: "EVIDENCE_DOCUMENT",
+      contractId: m.contract_id,
+      milestoneId: m.milestone_id,
+      eventType: attachment.eventType,
+      ...document,
+    }),
+  };
 }
 
 /** Events the attached documents would become; also used for the dry-run preview. */
@@ -119,6 +160,7 @@ export function evidenceEvents(
       amount:
         req.eventType === "INVOICE" ? m.planned_payment_vnd_mn : undefined,
       fileName: attachment.fileName,
+      document: commit ? signedEvidence(ctx, m, attachment) : undefined,
       note:
         extras.length && !created.length
           ? `Kèm theo: ${extras.join(", ")}`

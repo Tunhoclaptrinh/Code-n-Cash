@@ -4,6 +4,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { SampleDocumentsController } from "./sample-documents";
 import { ContractFilesController } from "./contract-files";
 import { DocumentsController } from "./documents";
+import { EvidenceDocumentsController } from "./evidence-documents";
 import "reflect-metadata";
 import { WorkflowController, WorkflowService } from "./workflow.controller";
 import { config as loadEnv } from "dotenv";
@@ -65,6 +66,7 @@ class HealthController {
     EngineController,
     WorkflowController,
     DocumentsController,
+    EvidenceDocumentsController,
     ContractFilesController,
     SampleDocumentsController,
     PermissionsController,

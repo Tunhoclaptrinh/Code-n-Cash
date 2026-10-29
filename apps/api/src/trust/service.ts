@@ -22,7 +22,14 @@ import { LocalWitnessProvider, type AnchorProvider } from "./anchor-provider";
 import { localKey, verifyLocalProof } from "./crypto";
 import { inclusionProof, merkleRoot } from "../common/merkle";
 import { INTERNAL_ROLES } from "../domain/vocabulary";
-import type { AnchorJob, AnchorPayload, AuditProof, LocalProof } from "./types";
+import { checkTimestamp, requestTimestamp } from "./timestamp";
+import type {
+  AnchorJob,
+  AnchorPayload,
+  AuditProof,
+  LocalProof,
+  TimestampReceipt,
+} from "./types";
 import { DomainService } from "../domain/service";
 
 const hashPattern = /^[0-9a-f]{64}$/;
@@ -44,6 +51,7 @@ const jobView = (job: RecordEntity) =>
     status: job.status,
     payload: job.payload,
     receipt: job.receipt,
+    timestamp: job.timestamp ?? null,
     error: job.error,
     attempts: job.attempts,
   }) as AnchorJob;
@@ -159,7 +167,8 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
     return {
       provider: this.provider.kind,
       witnessKeyFingerprint: localKey("audit-witness").keyFingerprint,
-      timestampTrusted: false,
+      timestampAuthority: process.env.TSA_URL ?? null,
+      timestampTrusted: !!process.env.TSA_URL,
       blockchainConnected: false,
     };
   }
@@ -245,14 +254,24 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
     const job = await this.job(id);
     if (job.status === "CONFIRMED") return jobView(job);
     let receipt: LocalProof | null = null;
+    let timestamp = (job.timestamp as TimestampReceipt | null) ?? null;
     let error: string | null = null;
+    const payload = job.payload as AnchorPayload;
     try {
-      receipt = await this.provider.submit(job.payload as AnchorPayload);
-      if (!(await this.provider.verify(job.payload as AnchorPayload, receipt)))
+      receipt = await this.provider.submit(payload);
+      if (!(await this.provider.verify(payload, receipt)))
         throw new Error("INVALID_RECEIPT");
     } catch {
       error = "WITNESS_UNAVAILABLE";
     }
+    // An external Time-Stamp Authority dates the anchor; a configured TSA must answer before confirming.
+    const tsa = process.env.TSA_URL;
+    if (!error && tsa && !timestamp)
+      try {
+        timestamp = await requestTimestamp(tsa, sha256(canonical(payload)));
+      } catch {
+        error = "TIMESTAMP_UNAVAILABLE";
+      }
     return this.repo.transact(
       ["anchor-jobs"],
       (tables) => {
@@ -261,6 +280,8 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
         Object.assign(saved, {
           status: error ? "FAILED" : "CONFIRMED",
           receipt: error ? null : receipt,
+          // A token already obtained is kept: a retry does not ask the TSA again.
+          timestamp,
           error,
           attempts: Number(saved.attempts) + 1,
           version: saved.version + 1,
@@ -311,6 +332,7 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
         id: job.id,
         payload,
         receipt: (job.receipt as LocalProof | null) ?? null,
+        timestamp: (job.timestamp as TimestampReceipt | null) ?? null,
       },
     };
   }
@@ -322,10 +344,15 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
       schemaVersion: 1,
       payload: job.payload,
       receipt: job.receipt,
+      timestamp: job.timestamp ?? null,
       provider: this.provider.kind,
     };
   }
-  async check(bundle: { payload?: AnchorPayload; receipt?: LocalProof }) {
+  async check(bundle: {
+    payload?: AnchorPayload;
+    receipt?: LocalProof;
+    timestamp?: TimestampReceipt | null;
+  }) {
     const payload = bundle?.payload;
     if (
       !payload ||
@@ -344,6 +371,10 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
       !!receipt &&
       verifyLocalProof(receipt) &&
       canonical(receipt.payload.payload) === canonical(payload);
+    // The token must sign this payload's digest, whatever digest the bundle states.
+    const timestamp = bundle.timestamp
+      ? checkTimestamp(bundle.timestamp.token, sha256(canonical(payload)))
+      : null;
     let witnessMatched = false;
     try {
       witnessMatched =
@@ -372,12 +403,20 @@ export class TrustService implements OnModuleInit, OnModuleDestroy {
       ...report,
       cryptoValid,
       witnessMatched,
-      timestampTrusted: false,
+      timestampTrusted: !!timestamp?.valid && timestamp.trusted,
+      timestamp: timestamp && {
+        valid: timestamp.valid,
+        trusted: timestamp.trusted,
+        genTime: timestamp.genTime,
+        signer: timestamp.signer,
+        tsa: bundle.timestamp!.tsa,
+      },
       result:
         cryptoValid &&
         witnessMatched &&
         report.chainMatched &&
-        report.systemMatched
+        report.systemMatched &&
+        (!timestamp || timestamp.valid)
           ? "MATCH"
           : "MISMATCH",
     };

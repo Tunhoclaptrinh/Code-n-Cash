@@ -306,7 +306,12 @@
     "SLOT_WRONG_SIGNER_AREA": "The box is outside this signer’s printed area. Select the correct area or use the suggestion.",
     "ENGINE_OUTPUT_INVALID": "The engine response does not match the data contract or consistency checks. No changes were saved.",
     "ENGINE_UNAVAILABLE": "The configured engine is unavailable. Check the service; the system will not silently use another engine.",
-    "DISPUTE_ALREADY_OPEN": "This milestone already has an open dispute; a new one cannot be opened."
+    "DISPUTE_ALREADY_OPEN": "This milestone already has an open dispute; a new one cannot be opened.",
+    "PAYMENT_NOT_FOUND": "The payment instruction was not found.",
+    "ALREADY_DELIVERED": "The payment gateway already accepted this instruction.",
+    "TIMESTAMP_UNAVAILABLE": "The time-stamp authority did not answer or returned an invalid stamp. Retry the job.",
+    "EVIDENCE_FILE_MISSING": "No stored file backs this attachment. Upload the file again.",
+    "UNSUPPORTED_EVIDENCE_FILE": "Evidence must be a PDF, a PNG/JPEG image, a Word (.docx) or an Excel (.xlsx) file."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

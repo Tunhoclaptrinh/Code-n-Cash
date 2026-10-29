@@ -7,6 +7,7 @@ import {
   Space,
   Table,
   Tag,
+  Tooltip,
   Typography,
   Upload,
 } from "antd";
@@ -69,12 +70,26 @@ export function AnchorPanel() {
   return (
     <Card title={t("anchors.title")} data-testid="anchor-panel">
       {status.data ? (
-        <Typography.Paragraph>
-          {t("anchors.key")}:{" "}
-          <Typography.Text code copyable style={{ overflowWrap: "anywhere" }}>
-            {status.data.witnessKeyFingerprint}
-          </Typography.Text>
-        </Typography.Paragraph>
+        <>
+          <Alert
+            type="info"
+            showIcon
+            style={{ marginBottom: 12 }}
+            title={
+              status.data.timestampAuthority
+                ? t("anchors.tsaNotice", {
+                    tsa: status.data.timestampAuthority,
+                  })
+                : t("anchors.localNotice")
+            }
+          />
+          <Typography.Paragraph>
+            {t("anchors.key")}:{" "}
+            <Typography.Text code copyable style={{ overflowWrap: "anywhere" }}>
+              {status.data.witnessKeyFingerprint}
+            </Typography.Text>
+          </Typography.Paragraph>
+        </>
       ) : null}
       <Space wrap style={{ marginBottom: 16 }}>
         {hasPermission("anchors:write") ? (
@@ -136,11 +151,30 @@ export function AnchorPanel() {
           type={verify.data.result === "MATCH" ? "success" : "error"}
           showIcon
           title={t(`anchors.${verify.data.result}`)}
-          description={t(
-            verify.data.snapshotMatched
-              ? "anchors.snapshotSame"
-              : "anchors.snapshotChanged",
-          )}
+          description={
+            <>
+              {t(
+                verify.data.snapshotMatched
+                  ? "anchors.snapshotSame"
+                  : "anchors.snapshotChanged",
+              )}
+              {verify.data.timestamp ? (
+                <div data-testid="anchor-timestamp-result">
+                  {verify.data.timestamp.valid
+                    ? t(
+                        verify.data.timestamp.trusted
+                          ? "anchors.timestampTrusted"
+                          : "anchors.timestampUntrusted",
+                        {
+                          at: formatDateTime(verify.data.timestamp.genTime!),
+                          signer: verify.data.timestamp.signer,
+                        },
+                      )
+                    : t("anchors.timestampInvalid")}
+                </div>
+              ) : null}
+            </>
+          }
           style={{ marginBottom: 16 }}
           data-testid="anchor-result"
         />
@@ -172,6 +206,23 @@ export function AnchorPanel() {
                 {row.payload.headHash.slice(0, 16)}…
               </Typography.Text>
             ),
+          },
+          {
+            title: t("anchors.timestamp"),
+            render: (_, row) =>
+              row.timestamp ? (
+                <Tooltip
+                  title={t("anchors.timestampBy", {
+                    signer: row.timestamp.signer,
+                  })}
+                >
+                  <Tag color="success">
+                    {formatDateTime(row.timestamp.genTime)}
+                  </Tag>
+                </Tooltip>
+              ) : (
+                "—"
+              ),
           },
           {
             title: t("anchors.status"),

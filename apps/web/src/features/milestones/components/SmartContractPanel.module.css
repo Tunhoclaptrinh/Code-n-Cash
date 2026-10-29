@@ -1,0 +1,34 @@
+.layout {
+  display: grid;
+  gap: 16px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.tags {
+  margin-bottom: 8px;
+}
+
+.note {
+  margin: 8px 0 0 !important;
+  font-size: 12px;
+}
+
+.clausesTitle {
+  margin: 4px 0 0 !important;
+}
+
+.conditions {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.result {
+  margin: 12px 0 0 !important;
+}

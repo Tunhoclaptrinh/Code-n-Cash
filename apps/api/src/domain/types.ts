@@ -239,6 +239,26 @@ export interface EventRow {
   /** Person who recorded it in the app, when known. */
   recordedBy: string | null;
   fileName: string | null;
+  /** The document behind an event recorded in the app; null for imported events. */
+  document: EventDocument | null;
+}
+
+/** An evidence document: stored by its SHA-256 and signed by the person who submitted it. */
+export interface EvidenceDocument {
+  sha256: string;
+  fileName: string;
+  sizeBytes: number;
+  mediaType: string;
+  signedBy: string;
+  signedById: string;
+  signedAt: string;
+}
+
+export interface EventDocument extends EvidenceDocument {
+  /** The submitter's signature covers this document's hash, milestone and event type. */
+  signatureValid: boolean;
+  /** The stored file is still there under its hash. */
+  stored: boolean;
 }
 
 export type EventClass =
@@ -364,7 +384,35 @@ export interface StatusChange {
   trigger: Trigger;
 }
 
+/**
+ * The payment instruction a paying decision becomes: what to pay, to whom and why. The engine's decision
+ * draws it up; finance approves it and it is sent to the payment gateway.
+ */
+export interface PaymentInstruction {
+  decision: Decision;
+  amountMillion: string;
+  penaltyMillion: string;
+  payer: { id: string; name: string };
+  payee: { id: string; name: string };
+  runId: string;
+  /** The sealed hash of the decision behind the instruction (the audit chain holds it too). */
+  decisionDigest: string;
+}
+
+/** What happened when an approved instruction was sent to the payment gateway. */
+export interface PaymentDelivery {
+  /** SIMULATED when no gateway is configured; WEBHOOK posts to PAYMENT_GATEWAY_URL. */
+  channel: "SIMULATED" | "WEBHOOK";
+  status: "PENDING" | "ACKNOWLEDGED" | "FAILED";
+  attempts: number;
+  lastAttemptAt: string | null;
+  /** The gateway's own reference once it acknowledged the instruction. */
+  reference: string | null;
+  error: string | null;
+}
+
 export interface Payment {
+  /** Also the idempotency key the gateway receives, so a resend never pays twice. */
   id: string;
   milestoneId: string;
   contractId: string;
@@ -373,6 +421,8 @@ export interface Payment {
   amountMillion: string;
   transferredBy: string;
   transferredAt: string;
+  instruction?: PaymentInstruction;
+  delivery?: PaymentDelivery;
 }
 
 export type ExceptionState = "PROPOSED" | "APPROVED" | "REJECTED";
@@ -459,6 +509,80 @@ export interface ContractOverview {
   events: EventRow[];
   timeline: TimelineEntry[];
   signing: SigningSummary | null;
+  lifecycle: ContractLifecycle;
+}
+
+/**
+ * The contract as a state machine: drafted, signed, each payment milestone settled (paid, or closed by
+ * a rejection), closed. Every stage carries when it was reached and, for a milestone, the decision that
+ * settles it.
+ */
+export interface ContractLifecycle {
+  stages: LifecycleStage[];
+}
+
+export type LifecycleStageState = "DONE" | "CURRENT" | "PENDING";
+
+export type LifecycleStage =
+  | { kind: "DRAFTED"; state: LifecycleStageState; at: string | null }
+  | {
+      kind: "SIGNED";
+      state: LifecycleStageState;
+      at: string | null;
+      signed: number;
+      total: number;
+    }
+  | {
+      kind: "MILESTONE";
+      state: LifecycleStageState;
+      at: string | null;
+      milestoneId: string;
+      sequence: number;
+      type: MilestoneType;
+      status: MilestoneStatus;
+      decision: Decision;
+      reasonCode: ReasonCode;
+      payableMillion: string;
+      paid: boolean;
+      /** What last changed the milestone's status. */
+      trigger: Trigger["kind"] | null;
+    }
+  | { kind: "CLOSED"; state: LifecycleStageState; at: string | null };
+
+/**
+ * A contract as a smart contract: what both parties bound themselves to, the engine that executes it and,
+ * clause by clause, the rules each payment milestone runs with and what they decided so far.
+ */
+export interface SmartContractView {
+  contract: ContractRow;
+  binding: {
+    /** DOCUMENT_BYTES: signatures cover the uploaded file; TERMS_SNAPSHOT: the recorded terms only. */
+    basis: "DOCUMENT_BYTES" | "TERMS_SNAPSHOT" | null;
+    /** SHA-256 the signatures cover: the document bytes, or the terms snapshot without a document. */
+    signedDigest: string | null;
+    /** SHA-256 of the terms, signer order, signing areas and, when pinned, the rule version. */
+    termsDigest: string | null;
+    /** False when the stored document no longer matches the signed digest. */
+    intact: boolean;
+    ruleSetId: string;
+    /** The published rule version both parties signed, for contracts made in the application. */
+    ruleVersion: { id: string; hash: string } | null;
+    signed: number;
+    total: number;
+    lastSignedAt: string | null;
+  };
+  engine: {
+    policyId: string;
+    policyVersion: string;
+    /** SHA-256 of the policy pack file the engine and the API read. */
+    policySha256: string;
+    /** SHA-256 of the rules of every scope this contract's milestones run with. */
+    rulesSha256: string;
+  };
+  clauses: Array<{
+    milestone: MilestoneRow;
+    rules: Array<RuleRow & { outcome: RuleOutcome }>;
+  }>;
 }
 
 export interface MilestoneDetail {
@@ -490,6 +614,8 @@ export interface MilestoneDetail {
   };
   history: StatusChange[];
   payment: Payment | null;
+  /** The instruction a paying decision draws up, before finance approves it; null otherwise. */
+  instruction: PaymentInstruction | null;
   exceptions: ExceptionRequest[];
   actions: {
     submit: boolean;
@@ -509,6 +635,8 @@ export interface Attachment {
   eventType: BusinessEventType | "OTHER";
   fileName: string;
   sizeMb: number;
+  /** SHA-256 of the stored file; absent on attachments made before files were kept. */
+  sha256?: string;
   addedBy: string;
   addedAt: string;
 }
@@ -765,6 +893,14 @@ export type ActivityAction =
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
   | { kind: "PAYMENT"; amountMillion: string }
+  | {
+      kind: "PAYMENT_DELIVERY";
+      channel: PaymentDelivery["channel"];
+      status: PaymentDelivery["status"];
+      attempts: number;
+      reference: string | null;
+      error: string | null;
+    }
   | { kind: "REQUEST_INFO"; text: string }
   | { kind: "WORKFLOW_ACTION"; code: string };
 

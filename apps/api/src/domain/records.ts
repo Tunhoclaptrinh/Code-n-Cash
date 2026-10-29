@@ -18,7 +18,9 @@ import type {
   PdfPagePreview,
   Attachment,
   Digitization,
+  EvidenceDocument,
 } from "./types";
+import type { LocalProof } from "../trust/types";
 
 /** Collections of the workflow database. Data Pack tables keep the organiser's column names. */
 export const TABLE = {
@@ -195,7 +197,11 @@ export type EventRecord = RecordEntity &
     recordedBy?: string | null;
     recordedByUserId?: string | null;
     fileName?: string | null;
+    document?: SignedEvidence;
   };
+
+/** The evidence document behind an app event with the submitter's signature over it. */
+export type SignedEvidence = EvidenceDocument & { proof: LocalProof };
 
 export type RuleRecord = RecordEntity &
   Columns<"payment_rules"> & { origin: Origin };

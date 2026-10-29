@@ -1,7 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
 import type { Ctx } from "../context";
 import { businessNow, eventRecord, nextId } from "../factory";
-import type { EventRecord, MilestoneRecord } from "../records";
+import type { EventRecord, MilestoneRecord, SignedEvidence } from "../records";
 import type {
   ActivityAction,
   ActivityCategory,
@@ -74,6 +74,7 @@ export function newEvent(
     reference?: string;
     fileName?: string | null;
     at?: string;
+    document?: SignedEvidence;
   } = {},
 ): EventRecord {
   const actor = ctx.party(actorPartyId);
@@ -106,6 +107,7 @@ export function newEvent(
     recordedByUserId: ctx.actor.id,
     fileName: opts.fileName ?? null,
   });
+  if (opts.document) record.document = opts.document;
   ctx.events.push(record);
   return record;
 }

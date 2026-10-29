@@ -336,5 +336,16 @@
     "verifyMeta": "{{dateTime}} · {{method}}",
     "checkHint": "See whether the signatures in the file still hold.",
     "signNow": "Sign the contract"
+  },
+  "subject": {
+    "title": "Your signature will be bound to exactly this content",
+    "changed": "The document changed after an earlier signature; this content can no longer be signed",
+    "basis": {
+      "DOCUMENT_BYTES": "Contract file (digest)",
+      "TERMS_SNAPSHOT": "Digitised terms (digest)"
+    },
+    "rules": "Executable rules",
+    "ruleVersion": "Pinned rule version of \"{{ruleSet}}\"",
+    "ruleSet": "Rule set \"{{ruleSet}}\""
   }
 }

@@ -10,7 +10,7 @@ import type {
 } from "@codecash/contracts";
 import { ApiError } from "@/shared/api/client";
 import {
-  attachEvidenceFile,
+  uploadEvidenceFile,
   getEvidenceWorkspace,
   removeEvidenceFile,
   submitEvidence,
@@ -34,9 +34,8 @@ import styles from "./EvidenceSubmissionPage.module.css";
 
 const isZero = (amount: string) => /^0(\.0+)?$/.test(amount);
 
-function toMegabytes(bytes: number): number {
-  return Math.max(0.1, Math.round((bytes / 1_048_576) * 10) / 10);
-}
+/** The types the API accepts as evidence; it checks the bytes again. */
+const EVIDENCE_ACCEPT = ".pdf,.png,.jpg,.jpeg,.docx,.xlsx";
 
 /** Recording the evidence of one milestone: each document becomes an event in the Data Pack schema. */
 export default function EvidenceSubmissionPage() {
@@ -72,7 +71,7 @@ export default function EvidenceSubmissionPage() {
       }),
     );
   const attach = useMutation({
-    mutationFn: attachEvidenceFile,
+    mutationFn: uploadEvidenceFile,
     onSuccess: refresh,
     onError: failed,
   });
@@ -142,8 +141,7 @@ export default function EvidenceSubmissionPage() {
               contractId: data.contract.id,
               sequence: data.milestone.sequence,
               eventType,
-              fileName: file.name,
-              sizeMb: toMegabytes(file.size),
+              file,
             })
           }
           onRemove={(attachmentId) =>
@@ -254,6 +252,7 @@ function Workspace({
               <input
                 type="file"
                 multiple
+                accept={EVIDENCE_ACCEPT}
                 className={styles.fileInput}
                 aria-label={t("submit.dropzoneAria")}
                 onChange={onPick("OTHER")}
@@ -430,6 +429,7 @@ function SlotCard({
       <span className={styles.textButton}>{t("submit.file.choose")}</span>
       <input
         type="file"
+        accept={EVIDENCE_ACCEPT}
         className={styles.fileInput}
         aria-label={t("submit.file.chooseAria", { document: name })}
         data-testid={`evidence-input-${slot.eventType}`}

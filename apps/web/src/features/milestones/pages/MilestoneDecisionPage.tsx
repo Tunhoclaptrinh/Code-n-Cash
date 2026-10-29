@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import type { MilestoneDetail } from "@codecash/contracts";
 import { getMilestoneDetail, transferToAccounting } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
-import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { PageState } from "@/shared/ui/PageState";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { SideCard } from "@/shared/ui/SidePanel";
@@ -18,6 +17,7 @@ import {
 import { DecisionTrace } from "../components/DecisionTrace";
 import { RulesPanel } from "../components/RulesPanel";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
+import { PaymentInstructionPanel } from "../components/PaymentInstructionPanel";
 
 /** Milestone decision with its full trace: rule, facts, events, amounts and status history (spec 14.5). */
 export default function MilestoneDecisionPage() {
@@ -80,17 +80,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
   return (
     <ContractSideLayout contractId={contract.id}>
       <Space direction="vertical" size={12} style={{ width: "100%" }}>
-        {data.payment ? (
-          <Alert
-            type="success"
-            showIcon
-            title={t("decision.payment.title", {
-              amount: formatDecimalString(data.payment.amountMillion),
-              by: data.payment.transferredBy,
-              at: formatDateTime(data.payment.transferredAt),
-            })}
-          />
-        ) : null}
+        <PaymentInstructionPanel data={data} />
         {evaluation.issues.length || evaluation.notes.length ? (
           <Alert
             type="warning"

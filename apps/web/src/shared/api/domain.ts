@@ -14,6 +14,7 @@ import type {
   ExceptionQueueRow,
   IntegrityReport,
   MilestoneDetail,
+  SmartContractView,
   SignMethod,
   SigningConfig,
   SigningOverview,
@@ -25,6 +26,9 @@ import type {
   VerificationResult,
   DashboardView,
 } from "@codecash/contracts";
+import { ApiError as HttpError } from "@codecash/api-client";
+import { ApiError } from "./client";
+import { platform } from "./platform";
 import { workflowCall } from "./workflow";
 
 /** Query keys of the workflow; every write invalidates them (shared/auth/session.tsx). */
@@ -64,6 +68,15 @@ export const getContractOverview = (contractId: string) =>
   workflowCall<ContractOverview>("contracts", "getContractOverview", [
     contractId,
   ]);
+export const getSmartContract = (contractId: string) =>
+  workflowCall<SmartContractView>("contracts", "getSmartContract", [
+    contractId,
+  ]);
+/** The contract's decisions with their input and seals, for `tools/verify_decision.py`. */
+export const getVerificationBundle = (contractId: string) =>
+  workflowCall<Record<string, unknown>>("contracts", "getVerificationBundle", [
+    contractId,
+  ]);
 export const getMilestoneDetail = (contractId: string, sequence: number) =>
   workflowCall<MilestoneDetail>("contracts", "getMilestoneDetail", [
     contractId,
@@ -93,9 +106,27 @@ export const getEvidenceWorkspace = (contractId?: string, sequence?: number) =>
     contractId,
     sequence,
   ]);
-export const attachEvidenceFile = (
-  input: MilestoneRef & { eventType: string; fileName: string; sizeMb: number },
-) => workflowCall<{ id: string }>("evidence", "attachEvidenceFile", [input]);
+/** Uploads the file itself; the API stores it under its SHA-256 and attaches it to the milestone. */
+export async function uploadEvidenceFile(
+  input: MilestoneRef & { eventType: string; file: File },
+) {
+  const body = new FormData();
+  body.append("contractId", input.contractId);
+  body.append("sequence", String(input.sequence));
+  body.append("eventType", input.eventType);
+  body.append("file", input.file);
+  try {
+    const result = await platform.request<{ id: string }>(
+      "/evidence-documents",
+      { method: "POST", body },
+    );
+    window.dispatchEvent(new Event("codecash:workflow-changed"));
+    return result;
+  } catch (error) {
+    if (error instanceof HttpError) throw new ApiError(error.code);
+    throw error;
+  }
+}
 export const removeEvidenceFile = (
   input: MilestoneRef & { attachmentId: string },
 ) =>
@@ -145,6 +176,10 @@ export const resolveDispute = (
 
 /* ------------------------- payment and exceptions ------------------------- */
 
+export const retryPaymentDelivery = (paymentId: string) =>
+  workflowCall<{ paymentId: string }>("payments", "retryPaymentDelivery", [
+    paymentId,
+  ]);
 export const transferToAccounting = (input: MilestoneRef) =>
   workflowCall<{ paymentId: string }>("payments", "transferToAccounting", [
     input,

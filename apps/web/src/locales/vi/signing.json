@@ -333,5 +333,16 @@
     "verifyMeta": "{{dateTime}} · {{method}}",
     "checkHint": "Xem các chữ ký trong tệp còn đúng hay không.",
     "signNow": "Ký hợp đồng"
+  },
+  "subject": {
+    "title": "Chữ ký của bạn sẽ gắn với đúng nội dung dưới đây",
+    "changed": "Văn bản đã thay đổi sau lần ký trước; không thể ký tiếp trên nội dung này",
+    "basis": {
+      "DOCUMENT_BYTES": "Tệp hợp đồng (mã băm)",
+      "TERMS_SNAPSHOT": "Điều khoản đã số hóa (mã băm)"
+    },
+    "rules": "Bộ luật thực thi",
+    "ruleVersion": "Phiên bản luật được ghim cho bộ \"{{ruleSet}}\"",
+    "ruleSet": "Bộ luật \"{{ruleSet}}\""
   }
 }

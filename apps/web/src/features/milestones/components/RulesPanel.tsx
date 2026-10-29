@@ -7,7 +7,7 @@ import { SideSection } from "@/shared/ui/SidePanel";
 import { TrackingCode } from "@/shared/ui/TechnicalInfo";
 import styles from "./MilestoneDecision.module.css";
 
-const outcomeColor: Record<RuleOutcome, string> = {
+export const outcomeColor: Record<RuleOutcome, string> = {
   NOT_MATCHED: "default",
   MATCHED: "success",
   OVERRIDDEN: "warning",

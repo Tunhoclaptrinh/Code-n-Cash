@@ -61,7 +61,8 @@
       "history": "Status history",
       "signing": "Signing",
       "participants": "Participants",
-      "documents": "Original documents"
+      "documents": "Original documents",
+      "smart": "Smart contract"
     },
     "noMilestones": "No milestones yet. They are created when the digitised terms are locked.",
     "terms": {
@@ -132,6 +133,15 @@
     },
     "participants": {
       "approves": "{{role}} · approves payments"
+    },
+    "lifecycle": {
+      "title": "Contract lifecycle",
+      "DRAFTED": "Drafted",
+      "SIGNED": "Signed",
+      "CLOSED": "Closed",
+      "imported": "Drafted outside the system",
+      "signedCount": "Signed {{signed}}/{{total}}",
+      "paid": "Paid {{value}} million"
     }
   },
   "decision": {
@@ -143,13 +153,10 @@
       "approve": "Open approval",
       "resolveDispute": "Handle dispute",
       "openDispute": "Open a dispute",
-      "transfer": "Transfer (simulated)",
+      "transfer": "Approve the payment instruction",
       "export": "Print / save as PDF"
     },
-    "transferred": "Simulated payment recorded; the milestone is now Payment transferred.",
-    "payment": {
-      "title": "{{amount}} million VND transferred by {{by}} at {{at}}"
-    },
+    "transferred": "Instruction approved and sent to the payment gateway.",
     "issues": "Evaluation notes",
     "conditions": {
       "title": "Milestone conditions"
@@ -383,5 +390,79 @@
   },
   "detailLite": {
     "due": "Due {{due}}"
+  },
+  "smart": {
+    "intro": "The contract runs as a smart contract: both parties sign the same document and rule set, and whenever evidence, an approval or a dispute arrives the system re-evaluates every milestone with exactly those rules. The final decision still goes through an authorised person.",
+    "binding": {
+      "title": "What both parties signed",
+      "allSigned": "Fully signed ({{signed}}/{{total}})",
+      "partlySigned": "Signing in progress ({{signed}}/{{total}})",
+      "notSigned": "No signing sequence yet",
+      "intact": "Document matches the signatures",
+      "changed": "Document changed after signing",
+      "basis": "Signatures cover",
+      "basisKind": {
+        "DOCUMENT_BYTES": "The whole contract file",
+        "TERMS_SNAPSHOT": "The digitised terms as recorded"
+      },
+      "digest": "Signed digest",
+      "rules": "Executable rules",
+      "ruleVersion": "A rule version is pinned for \"{{ruleSet}}\" and is part of what both parties signed",
+      "ruleSet": "Rule set \"{{ruleSet}}\" from the organiser data",
+      "lastSignedAt": "Last signature"
+    },
+    "engine": {
+      "title": "How it is executed",
+      "policy": "Business policy",
+      "policyHash": "Policy digest",
+      "rulesHash": "Digest of the rules in force",
+      "note": "Both digests are recorded with every evaluation, so anyone with the same data can re-run and verify the decision.",
+      "verify": "Download verification bundle",
+      "verifyHint": "The bundle holds the input, the decisions and the seal of each decision. Anyone can re-check them with the independent verifier (tools/verify_decision.py) without trusting the system."
+    },
+    "clauses": {
+      "title": "Executable clauses by milestone ({{count}})",
+      "none": "The contract has no evaluated payment milestone yet.",
+      "heading": "Milestone {{no}} · {{type}}",
+      "value": "VND {{value}} million · due {{due}}",
+      "evidence": "Required evidence:",
+      "approval": "Approval:",
+      "approvalNeeded": "{{quorum}} role(s) needed ({{roles}})",
+      "approvalNone": "no approval needed",
+      "penalty": "Late penalty:",
+      "penaltyRate": "{{grace}} grace days, {{rate}}%/day, cap {{cap}}%",
+      "penaltyNone": "not applicable",
+      "when": "When",
+      "then": "Then",
+      "outcome": "Latest evaluation",
+      "result": "Current result:",
+      "payable": "VND {{value}} million payable"
+    }
+  },
+  "instruction": {
+    "drawnUp": "The decision has drawn up a payment instruction; it waits for finance approval before it goes to the payment gateway.",
+    "state": {
+      "ACKNOWLEDGED": "The payment gateway accepted the instruction {{by}} approved at {{at}}.",
+      "FAILED": "The instruction {{by}} approved at {{at}} could not be sent to the payment gateway.",
+      "PENDING": "The instruction {{by}} approved at {{at}} is waiting to be sent."
+    },
+    "channel": {
+      "SIMULATED": "Simulated gateway",
+      "WEBHOOK": "Payment gateway"
+    },
+    "reference": "Reference:",
+    "error": "Error {{error}} · {{attempts}} attempt(s)",
+    "retry": "Send the instruction again",
+    "decision": "Decision",
+    "amount": "Amount",
+    "amountValue": "VND {{amount}} million (after a penalty of {{penalty}} million)",
+    "parties": "Payer → payee",
+    "partiesValue": "{{payer}} → {{payee}}",
+    "digest": "Decision digest"
+  },
+  "evidenceDocument": {
+    "signed": "Signed",
+    "broken": "Signature does not match",
+    "signedBy": "Signed by {{name}} at {{at}}"
   }
 }

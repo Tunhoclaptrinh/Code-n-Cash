@@ -1,4 +1,4 @@
-# BR-19 unauthorized-event exceptions
+# Evidence exceptions (BR-19): unauthorized events
 
 Controllers process exceptions; auditors read them. System administrators cannot review business exceptions. Two different controllers are required.
 
@@ -6,12 +6,12 @@ Controllers process exceptions; auditors read them. System administrators cannot
 
 ## Inspect before proposing
 
-Find the contract and milestone in **BR-19 exceptions**, then open its decision. Inspect the original event and the engine's classification. CT0090 milestone 3 contains acceptance event EV01006 issued by the supplier, although acceptance belongs to the buyer; its outcome is HOLD with `UNAUTHORIZED_EVENT`.
+Find the contract and milestone in **Evidence exceptions**, then open its decision. Inspect the original event and the engine's classification. CT0090 milestone 3 contains acceptance event EV01006 issued by the supplier, although acceptance belongs to the buyer; its outcome is HOLD with `UNAUTHORIZED_EVENT`.
 
 ## First controller proposes
 
 1. Use `admin@codecash.vn` and open CT0090 milestone 3.
-2. Select EV01006 in the BR-19 section.
+2. Select EV01006 in the Evidence exceptions section.
 3. Explain the event type, actual issuing side and authorized side.
 4. Submit and check the pending exception ID.
 

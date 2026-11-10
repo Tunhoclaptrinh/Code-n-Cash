@@ -276,7 +276,8 @@
       "choose": "Choose a file",
       "chooseAria": "Choose a file for {{document}}",
       "extraTitle": "Supporting file"
-    }
+    },
+    "pageTitle": "Submit evidence"
   },
   "approve": {
     "title": "Payment approval · Milestone {{no}} · {{name}}",
@@ -325,7 +326,8 @@
       "submit": "Approve",
       "cancel": "Back",
       "body": "Record your approval of milestone {{no}} · {{name}}. Expected: {{decision}}, eligible {{payable}} million VND."
-    }
+    },
+    "pageTitle": "Payment approval"
   },
   "workLite": {
     "evidence": {

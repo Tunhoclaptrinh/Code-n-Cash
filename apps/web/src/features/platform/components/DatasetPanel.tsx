@@ -139,7 +139,7 @@ export function DatasetPanel({
         </Space>
         {dataset ? (
           <>
-            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
               {t("data.source.uploadedBy", {
                 name: dataset.createdBy,
                 time: formatDateTime(dataset.createdAt),

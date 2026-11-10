@@ -1,4 +1,5 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -36,14 +37,13 @@ const categoryColor: Record<
   ActivityCategory,
   { tag: string; bg: string; value: string }
 > = {
-  SIGN: { tag: "processing", bg: "rgba(49, 91, 234, 0.08)", value: "#315bea" },
-  EVIDENCE: { tag: "cyan", bg: "rgba(14, 165, 233, 0.08)", value: "#0EA5E9" },
+  SIGN: { tag: "processing", ...STAT_TONE.blue },
+  EVIDENCE: { tag: "cyan", ...STAT_TONE.sky },
   APPROVAL: {
     tag: "success",
-    bg: "rgba(16, 185, 129, 0.08)",
-    value: "#10B981",
+    ...STAT_TONE.green,
   },
-  DISPUTE: { tag: "error", bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
+  DISPUTE: { tag: "error", ...STAT_TONE.red },
   SYSTEM: {
     tag: "default",
     bg: "var(--bg-surface-alt)",
@@ -150,7 +150,7 @@ export function ActivityLogView({
         <>
           {actorName(t, e)}
           <div>
-            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
               {t(`actorRoles.${e.actor.role}`)}
             </Typography.Text>
           </div>

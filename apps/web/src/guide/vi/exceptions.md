@@ -1,4 +1,4 @@
-# Ngoại lệ BR-19: xử lý sự kiện sai thẩm quyền
+# Ngoại lệ chứng từ (BR-19): xử lý sự kiện sai thẩm quyền
 
 Chỉ kiểm soát viên xử lý ngoại lệ; kiểm toán chỉ xem. Quản trị hệ thống không có quyền duyệt ngoại lệ. Cần **hai kiểm soát viên khác nhau**, không phải cùng người thao tác hai lần.
 
@@ -6,14 +6,14 @@ Chỉ kiểm soát viên xử lý ngoại lệ; kiểm toán chỉ xem. Quản t
 
 ## Tìm hồ sơ cần xử lý
 
-Mở **Ngoại lệ BR-19**, tìm hợp đồng hoặc lọc lý do. Trên dữ liệu mới có các mốc bị HOLD vì chứng từ do sai bên ghi. Mở trang quyết định của mốc, đọc sự kiện gốc và cách engine phân loại trước khi đề xuất.
+Mở **Ngoại lệ chứng từ**, tìm hợp đồng hoặc lọc lý do. Trên dữ liệu mới có các mốc bị HOLD vì chứng từ do sai bên ghi. Mở trang quyết định của mốc, đọc sự kiện gốc và cách engine phân loại trước khi đề xuất.
 
 Ví dụ **CT0090 mốc 3**: sự kiện nghiệm thu EV01006 do NCC ghi, trong khi nghiệm thu thuộc bên mua. Mốc đang HOLD `UNAUTHORIZED_EVENT` dù có tài liệu.
 
 ## Người thứ nhất đề xuất
 
 1. Đăng nhập `admin@codecash.vn`.
-2. Mở CT0090 mốc 3; ở khối **Ngoại lệ BR-19**, chọn đúng sự kiện EV01006.
+2. Mở CT0090 mốc 3; ở khối **Ngoại lệ chứng từ**, chọn đúng sự kiện EV01006.
 3. Nhập lý do cụ thể: loại sự kiện, bên đã ghi và bên có thẩm quyền.
 4. Bấm đề xuất và kiểm tra mã hồ sơ chờ duyệt.
 

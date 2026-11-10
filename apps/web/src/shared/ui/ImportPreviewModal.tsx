@@ -125,7 +125,7 @@ export function ImportPreviewModal({
               title: t("importPreview.errorsColumn"),
               render: (_: unknown, r: Result) =>
                 r.errors.length ? (
-                  <Typography.Text type="danger" style={{ fontSize: 12.5 }}>
+                  <Typography.Text type="danger" style={{ fontSize: 13 }}>
                     {r.errors.map(describe).join("; ")}
                   </Typography.Text>
                 ) : (

@@ -200,21 +200,26 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
     signature.certExpiryYear,
   );
   const valid = signature.status === "VALID";
+  // A signature without a CodeCash proof was recorded outside the system (Data Pack); it is
+  // neither valid nor broken here, so it gets a neutral note instead of an error.
+  const external = signature.status === "UNVERIFIED";
   // Only what explains a problem is shown; a fully valid signature needs no extra line.
   const problems = [
     expired ? t("verify.signatures.certificateExpired", { expiry }) : null,
-    signature.status === "UNVERIFIED"
-      ? t("localProof.unverifiedContent")
-      : signature.contentIntact
-        ? null
-        : t("verify.signatures.contentChanged"),
+    external || signature.contentIntact
+      ? null
+      : t("verify.signatures.contentChanged"),
   ].filter(Boolean);
   const status = (
     <span
       className={cx(
         shared.pill,
         styles.cardStatus,
-        valid ? styles.statusValid : styles.statusInvalid,
+        valid
+          ? styles.statusValid
+          : external
+            ? styles.statusExternal
+            : styles.statusInvalid,
       )}
       tabIndex={signature.certificateTrusted === false ? 0 : undefined}
     >
@@ -246,6 +251,9 @@ function SignatureCard({ signature }: { signature: VerifiedSignature }) {
       </div>
       {problems.length ? (
         <div className={styles.problem}>{problems.join(" · ")}</div>
+      ) : null}
+      {external ? (
+        <div className={styles.note}>{t("localProof.unverifiedContent")}</div>
       ) : null}
       <TechnicalDetails
         items={[

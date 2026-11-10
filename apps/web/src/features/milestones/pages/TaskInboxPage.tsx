@@ -1,4 +1,6 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { ClickableCell } from "@/shared/ui/ClickableCell";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -46,20 +48,17 @@ const KINDS: TaskKind[] = [
 const badgeColor: Record<Badge, { tag: string; bg: string; value: string }> = {
   LATE_PENALTY_RISK: {
     tag: "error",
-    bg: "rgba(239, 68, 68, 0.08)",
-    value: "#EF4444",
+    ...STAT_TONE.red,
   },
   YOUR_TURN: {
     tag: "processing",
-    bg: "rgba(49, 91, 234, 0.08)",
-    value: "#315bea",
+    ...STAT_TONE.blue,
   },
   MILESTONE_ON_HOLD: {
     tag: "warning",
-    bg: "rgba(245, 158, 11, 0.08)",
-    value: "#F59E0B",
+    ...STAT_TONE.amber,
   },
-  ON_TIME: { tag: "success", bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
+  ON_TIME: { tag: "success", ...STAT_TONE.green },
 };
 
 /** Work waiting for the signed-in user; each row comes from the latest engine decision (spec 9.5). */
@@ -164,16 +163,16 @@ export default function TaskInboxPage() {
       filters: kinds.map((value) => ({ text: td(`taskKind.${value}`), value })),
       filterMultiple: false,
       render: (_: unknown, r: TaskRow) => (
-        <div style={{ cursor: "pointer" }} onClick={() => setDetail(r)}>
+        <ClickableCell onOpen={() => setDetail(r)}>
           <Typography.Text strong>{td(`taskKind.${r.kind}`)}</Typography.Text>
           {what(r) ? (
             <div>
-              <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
                 {what(r)}
               </Typography.Text>
             </div>
           ) : null}
-        </div>
+        </ClickableCell>
       ),
     },
     {
@@ -186,7 +185,7 @@ export default function TaskInboxPage() {
           <Typography.Text strong>{r.contractId}</Typography.Text>
           <div>{where(r)}</div>
           {r.sequence && r.milestoneType ? (
-            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
               {r.contractTitle}
             </Typography.Text>
           ) : null}
@@ -211,7 +210,7 @@ export default function TaskInboxPage() {
           {r.dueDate ? formatDate(r.dueDate) : "—"}
           {r.overdueDays > 0 ? (
             <div>
-              <Typography.Text type="danger" style={{ fontSize: 12.5 }}>
+              <Typography.Text type="danger" style={{ fontSize: 13 }}>
                 {td("overdue", { count: r.overdueDays })}
               </Typography.Text>
             </div>

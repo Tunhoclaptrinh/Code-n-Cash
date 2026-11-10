@@ -258,7 +258,7 @@
       "status": {
         "VALID": "Hợp lệ",
         "INVALID": "Không hợp lệ",
-        "UNVERIFIED": "Chưa xác minh"
+        "UNVERIFIED": "Ký ngoài hệ thống"
       },
       "certificateExpired": "Đã hết hạn từ {{expiry}}",
       "contentChanged": "Đã bị thay đổi"
@@ -281,7 +281,7 @@
     "notice": "Bản demo: chữ ký số được mô phỏng trong hệ thống và gắn với đúng nội dung hợp đồng, thứ tự người ký. Các phương thức VNPT SmartCA/Viettel MySign chưa kết nối nhà cung cấp thật và chưa được tổ chức chứng thực (CA) công nhận.",
     "export": "Xuất bằng chứng ký",
     "untrusted": "Chứng thư thử nghiệm, chưa được CA công nhận",
-    "unverifiedContent": "Chưa có bằng chứng ký số",
+    "unverifiedContent": "Chữ ký lấy từ dữ liệu hợp đồng gốc, không có bằng chứng ký số trong CodeCash để đối chiếu",
     "key": "Mã khóa",
     "basis": {
       "DOCUMENT_BYTES": "Gắn với tệp gốc",

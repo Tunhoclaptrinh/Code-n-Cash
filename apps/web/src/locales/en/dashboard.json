@@ -4,8 +4,8 @@
   "million": "{{value}} million",
   "cards": {
     "contracts": "Contracts followed",
-    "attention_one": "{{count}} milestone needs action",
-    "attention_other": "{{count}} milestones need action",
+    "attention_one": "{{count}} milestone needs attention",
+    "attention_other": "{{count}} milestones need attention",
     "payable": "Payable, not yet transferred",
     "paid": "Transferred {{value}} million",
     "held": "On hold",
@@ -16,9 +16,9 @@
     "title": "Decisions and contract status"
   },
   "attention": {
-    "title_one": "Needs action ({{count}})",
-    "title_other": "Needs action ({{count}})",
-    "none": "No milestone needs action right now",
+    "title_one": "Milestones needing attention in your organisation ({{count}})",
+    "title_other": "Milestones needing attention in your organisation ({{count}})",
+    "none": "No milestone needs attention right now",
     "due": "due {{date}}",
     "kind": {
       "OPEN_DISPUTE": "Open dispute",

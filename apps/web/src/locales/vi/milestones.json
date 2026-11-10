@@ -276,7 +276,8 @@
       "choose": "Chọn tệp",
       "chooseAria": "Chọn tệp cho {{document}}",
       "extraTitle": "Tài liệu kèm theo"
-    }
+    },
+    "pageTitle": "Nộp chứng từ"
   },
   "approve": {
     "title": "Phê duyệt chi · Mốc {{no}} · {{name}}",
@@ -325,7 +326,8 @@
       "submit": "Phê duyệt",
       "cancel": "Quay lại",
       "body": "Ghi phê duyệt của bạn cho mốc {{no}} · {{name}}. Dự kiến: {{decision}}, đủ điều kiện chi {{payable}} triệu VND."
-    }
+    },
+    "pageTitle": "Phê duyệt chi"
   },
   "workLite": {
     "evidence": {

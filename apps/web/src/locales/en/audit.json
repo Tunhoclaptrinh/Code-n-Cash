@@ -95,7 +95,7 @@
     "entryId": "Entry ID"
   },
   "exceptions": {
-    "title": "BR-19 exceptions",
+    "title": "Evidence exceptions",
     "tiles": {
       "OPEN": "No proposal yet",
       "PROPOSED": "Waiting for a second controller",
@@ -205,7 +205,7 @@
     "DECISION": "Engine decided {{decision}}",
     "SIGNATURE": "Contract signature",
     "DIGITIZATION_CONFIRMED": "Digitised terms locked",
-    "EXCEPTION": "BR-19 exception",
+    "EXCEPTION": "Evidence exception",
     "PAYMENT": "Payment transfer",
     "REQUEST_INFO": "Information request",
     "EXTRACT_TERMS": "Extract terms",

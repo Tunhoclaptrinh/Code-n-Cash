@@ -1,7 +1,20 @@
 import { Button, Input, Space } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { FilterFilled, SearchOutlined } from "@ant-design/icons";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import i18n from "@/i18n";
+
+/**
+ * Column filter trigger with a translated accessible name; Ant Design's default icon is announced by
+ * its English icon name ("filter").
+ */
+export function columnFilterIcon(filtered: boolean) {
+  return (
+    <FilterFilled
+      aria-label={i18n.t("columnSearch.filter", { ns: "common" })}
+      style={{ color: filtered ? "var(--color-primary)" : undefined }}
+    />
+  );
+}
 
 /**
  * Text search inside one column (Base DataTable "searchable" column). With a list query the typed
@@ -55,6 +68,7 @@ export function columnSearch<T>(text?: (row: T) => string) {
     ),
     filterIcon: (filtered: boolean) => (
       <SearchOutlined
+        aria-label={t("columnSearch.trigger")}
         style={{ color: filtered ? "var(--color-primary)" : undefined }}
       />
     ),

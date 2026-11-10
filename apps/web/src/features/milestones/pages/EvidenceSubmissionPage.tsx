@@ -118,7 +118,7 @@ export default function EvidenceSubmissionPage() {
                 no: data.milestone.sequence,
                 name: td(`milestoneType.${data.milestone.type}`),
               })
-            : (routeContractId ?? ""),
+            : (routeContractId ?? t("submit.pageTitle")),
         },
       ]}
     >
@@ -126,7 +126,15 @@ export default function EvidenceSubmissionPage() {
       {workspace.isError ? (
         workspace.error instanceof ApiError &&
         workspace.error.code === "NO_OPEN_TASK" ? (
-          <PageState kind="empty" title={td("errors.NO_OPEN_TASK")} />
+          <PageState
+            kind="empty"
+            title={td("errors.NO_OPEN_TASK")}
+            action={
+              <Button type="primary" onClick={() => navigate("/tasks")}>
+                {tc("common.backToTasks")}
+              </Button>
+            }
+          />
         ) : (
           <PageState kind="error" onRetry={() => void workspace.refetch()} />
         )

@@ -95,7 +95,7 @@
     "entryId": "Mã bản ghi"
   },
   "exceptions": {
-    "title": "Ngoại lệ BR-19",
+    "title": "Ngoại lệ chứng từ",
     "tiles": {
       "OPEN": "Chưa có đề xuất",
       "PROPOSED": "Chờ người thứ hai",
@@ -205,7 +205,7 @@
     "DECISION": "Engine ra quyết định {{decision}}",
     "SIGNATURE": "Ký hợp đồng",
     "DIGITIZATION_CONFIRMED": "Khoá điều khoản số hoá",
-    "EXCEPTION": "Ngoại lệ BR-19",
+    "EXCEPTION": "Ngoại lệ chứng từ",
     "PAYMENT": "Chuyển chi",
     "REQUEST_INFO": "Yêu cầu bổ sung",
     "EXTRACT_TERMS": "Trích xuất điều khoản",

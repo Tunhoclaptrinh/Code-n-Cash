@@ -303,11 +303,12 @@ export default function ContractDetailPage() {
   );
 }
 
+/** A term reads as a sentence, so the label sits above its value instead of squeezing beside it. */
 function TermRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className={styles.paymentRow}>
+    <div className={styles.termRow}>
       <span className={styles.paymentLabel}>{label}</span>
-      <b className={styles.paymentValue}>{value}</b>
+      <b className={styles.termValue}>{value}</b>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { exportToCSV, exportToJSON, useDebounce } from "@codecash/ui";
 import { App } from "antd";
 import { useTranslation } from "react-i18next";
 import { platform } from "@/shared/api/platform";
+import { columnFilterIcon } from "@/shared/ui/columnSearch";
 
 type Filters = Record<string, FilterValue[]>;
 
@@ -108,6 +109,7 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
   /** Controlled filter and sort state for the column of list field `key`. */
   const column = (key: string) => ({
     key,
+    filterIcon: columnFilterIcon,
     filteredValue: (filters[key] as Key[] | undefined) ?? null,
     sortOrder:
       query.sortBy === key

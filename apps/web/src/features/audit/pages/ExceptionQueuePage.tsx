@@ -1,4 +1,6 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { ClickableCell } from "@/shared/ui/ClickableCell";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Alert, Space, Tag, Typography } from "antd";
@@ -18,9 +20,9 @@ import { columnSearch } from "@/shared/ui/columnSearch";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 
 const tiles: Array<{ key: QueueRow["state"]; bg: string; value: string }> = [
-  { key: "OPEN", bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
-  { key: "PROPOSED", bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
-  { key: "DECIDED", bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
+  { key: "OPEN", ...STAT_TONE.red },
+  { key: "PROPOSED", ...STAT_TONE.amber },
+  { key: "DECIDED", ...STAT_TONE.green },
 ];
 
 /**
@@ -87,7 +89,7 @@ export default function ExceptionQueuePage() {
       sorter: true,
       ...columnSearch(),
       render: (_: unknown, row: QueueRow) => (
-        <div style={{ cursor: "pointer" }} onClick={() => navigate(path(row))}>
+        <ClickableCell onOpen={() => navigate(path(row))}>
           <Space size={6} wrap>
             <Typography.Text strong>
               {row.contract.id} ·{" "}
@@ -98,10 +100,10 @@ export default function ExceptionQueuePage() {
           <div>
             {td(`milestoneType.${row.milestone.type}`)} · {row.contract.title}
           </div>
-          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
             {row.contract.buyer.name} ↔ {row.contract.supplier.name}
           </Typography.Text>
-        </div>
+        </ClickableCell>
       ),
     },
     {

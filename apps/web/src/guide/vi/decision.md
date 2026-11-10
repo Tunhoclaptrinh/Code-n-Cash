@@ -49,4 +49,4 @@ Tài chính có nút **Chuyển kế toán** khi kết quả RELEASE hoặc PENA
 
 ![Nút chuyển kế toán trên mốc đủ điều kiện](../../../public/guide/images/transfer.webp)
 
-Nếu lý do là sai thẩm quyền, xem [Ngoại lệ BR-19](/guide/exceptions). Nếu có tranh chấp, xem [Tranh chấp](/guide/dispute). Mốc vẫn thiếu điều kiện sau xử lý thì tiếp tục HOLD; không có quyền ép RELEASE.
+Nếu lý do là sai thẩm quyền, xem [Ngoại lệ chứng từ](/guide/exceptions). Nếu có tranh chấp, xem [Tranh chấp](/guide/dispute). Mốc vẫn thiếu điều kiện sau xử lý thì tiếp tục HOLD; không có quyền ép RELEASE.

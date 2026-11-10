@@ -19,7 +19,7 @@
       "help": "Help"
     },
     "home": "Home",
-    "exceptions": "Exceptions (BR-19)",
+    "exceptions": "Evidence exceptions",
     "integrity": "Integrity check",
     "guide": "User guide"
   },
@@ -108,7 +108,8 @@
     "loading": "Loading…",
     "loadError": "Could not load this page. Please try again.",
     "retry": "Try again",
-    "notFound": "Nothing to show here."
+    "notFound": "Nothing to show here.",
+    "backToTasks": "Back to my tasks"
   },
   "errors": {
     "notFound": {
@@ -192,7 +193,9 @@
   "columnSearch": {
     "placeholder": "Search this column…",
     "search": "Search",
-    "reset": "Reset"
+    "reset": "Reset",
+    "filter": "Filter this column",
+    "trigger": "Search this column"
   },
   "guide": {
     "title": "User guide",
@@ -209,7 +212,7 @@
       "approval": "Payment approval",
       "dispute": "Disputes",
       "signing": "Uploading and signing",
-      "exceptions": "BR-19 exceptions",
+      "exceptions": "Evidence exceptions",
       "integrity": "Integrity check",
       "activity": "Activity log",
       "data": "Data Pack results",

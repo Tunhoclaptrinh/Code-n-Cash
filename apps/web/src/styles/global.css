@@ -9,6 +9,29 @@
   --text-muted: var(--color-text-muted);
 }
 
+/* Statistic pill figures (shared/ui/statTone.ts): at least 3:1 on their wash in each theme. */
+:root {
+  --stat-blue: #315bea;
+  --stat-indigo: #4f46e5;
+  --stat-green: #047857;
+  --stat-amber: #b45309;
+  --stat-red: #dc2626;
+  --stat-orange: #c2410c;
+  --stat-sky: #0369a1;
+  --stat-violet: #7c3aed;
+}
+
+:root[data-theme="dark"] {
+  --stat-blue: #8aa4ff;
+  --stat-indigo: #818cf8;
+  --stat-green: #10b981;
+  --stat-amber: #f59e0b;
+  --stat-red: #f87171;
+  --stat-orange: #f97316;
+  --stat-sky: #0ea5e9;
+  --stat-violet: #a78bfa;
+}
+
 *,
 *::before,
 *::after {
@@ -121,7 +144,7 @@ p {
   margin: 3px 8px !important;
   width: calc(100% - 16px) !important;
   border-radius: 6px !important;
-  font-size: 13.5px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
   height: 40px !important;
   line-height: 40px !important;
@@ -198,7 +221,7 @@ p {
 /* Business-area headings in the sidebar */
 .base-sidebar-menu.ant-menu .ant-menu-item-group-title {
   padding: 14px 20px 4px !important;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;

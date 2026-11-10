@@ -70,7 +70,7 @@
 
 .bannerBody {
   color: var(--signing-success-banner-text);
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -144,6 +144,17 @@
 
 .problem {
   color: var(--signing-danger-flag);
+  font-size: 14px;
+}
+
+/* Signed outside CodeCash (Data Pack): recorded, not a failure, so it reads neutral, not red. */
+.statusExternal {
+  background: var(--bg-surface-alt);
+  color: var(--color-text-secondary);
+}
+
+.note {
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 

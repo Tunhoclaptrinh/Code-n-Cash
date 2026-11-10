@@ -19,7 +19,7 @@
       "help": "Trợ giúp"
     },
     "home": "Trang chủ",
-    "exceptions": "Ngoại lệ BR-19",
+    "exceptions": "Ngoại lệ chứng từ",
     "integrity": "Kiểm tra toàn vẹn",
     "guide": "Hướng dẫn sử dụng"
   },
@@ -108,7 +108,8 @@
     "loading": "Đang tải…",
     "loadError": "Không tải được trang này. Vui lòng thử lại.",
     "retry": "Thử lại",
-    "notFound": "Không có gì để hiển thị."
+    "notFound": "Không có gì để hiển thị.",
+    "backToTasks": "Về Việc cần làm"
   },
   "errors": {
     "notFound": {
@@ -192,7 +193,9 @@
   "columnSearch": {
     "placeholder": "Tìm trong cột…",
     "search": "Tìm",
-    "reset": "Xóa"
+    "reset": "Xóa",
+    "filter": "Lọc theo cột này",
+    "trigger": "Tìm trong cột này"
   },
   "guide": {
     "title": "Hướng dẫn sử dụng",
@@ -209,7 +212,7 @@
       "approval": "Phê duyệt chi",
       "dispute": "Tranh chấp",
       "signing": "Tải hợp đồng lên và ký",
-      "exceptions": "Ngoại lệ BR-19",
+      "exceptions": "Ngoại lệ chứng từ",
       "integrity": "Kiểm tra toàn vẹn",
       "activity": "Nhật ký hoạt động",
       "data": "Kết quả Data Pack",

@@ -132,7 +132,7 @@
 
 .due {
   color: var(--color-text-muted);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .fact {
@@ -191,6 +191,17 @@
   color: var(--color-text-muted);
 }
 
+.termRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.termValue {
+  overflow-wrap: anywhere;
+}
+
 .paymentValue {
   font-variant-numeric: tabular-nums;
 }
@@ -221,7 +232,7 @@
 }
 
 .unit {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--color-text-muted);
 }
 

@@ -4,8 +4,8 @@
   "million": "{{value}} triệu",
   "cards": {
     "contracts": "Hợp đồng đang theo dõi",
-    "attention_one": "{{count}} mốc cần xử lý",
-    "attention_other": "{{count}} mốc cần xử lý",
+    "attention_one": "{{count}} mốc cần chú ý",
+    "attention_other": "{{count}} mốc cần chú ý",
     "payable": "Đủ điều kiện chi, chưa chuyển",
     "paid": "Đã chuyển chi {{value}} triệu",
     "held": "Đang tạm giữ",
@@ -16,9 +16,9 @@
     "title": "Quyết định và trạng thái hợp đồng"
   },
   "attention": {
-    "title_one": "Cần xử lý ({{count}})",
-    "title_other": "Cần xử lý ({{count}})",
-    "none": "Không có mốc nào cần xử lý ngay",
+    "title_one": "Mốc cần chú ý trong đơn vị ({{count}})",
+    "title_other": "Mốc cần chú ý trong đơn vị ({{count}})",
+    "none": "Không có mốc nào cần chú ý ngay",
     "due": "hạn {{date}}",
     "kind": {
       "OPEN_DISPUTE": "Tranh chấp đang mở",

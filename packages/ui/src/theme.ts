@@ -14,9 +14,6 @@ export const brand = {
 
 const shared: ThemeConfig["token"] = {
   colorPrimary: brand.primary,
-  colorWarning: "#F59E0B",
-  colorSuccess: "#10B981",
-  colorError: "#EF4444",
   colorInfo: brand.primary,
   fontFamily: brand.fontFamily,
   borderRadius: 8,
@@ -27,13 +24,22 @@ export const lightThemeConfig: ThemeConfig = {
   algorithm: theme.defaultAlgorithm,
   token: {
     ...shared,
+    // Status and preset seeds dark enough that tag text, links and white-on-solid buttons
+    // reach WCAG AA (4.5:1) on white and on their own light tints.
+    colorWarning: "#B45309",
+    colorSuccess: "#047857",
+    colorError: "#B91C1C",
+    green: "#15803D",
+    orange: "#C2410C",
+    gold: "#AD6800",
     colorBgBase: "#FFFFFF",
     colorBgContainer: "#FFFFFF",
     colorBgElevated: "#FFFFFF",
     colorBgLayout: "#F8FAFC",
     colorText: "#111827",
     colorTextSecondary: "#4B5563",
-    colorTextTertiary: "#9CA3AF",
+    colorTextTertiary: "#6B7280",
+    colorTextPlaceholder: "#6B7280",
     colorBorder: "#E5E7EB",
     colorBorderSecondary: "#F3F4F6",
   },
@@ -71,6 +77,11 @@ export const darkThemeConfig: ThemeConfig = {
   algorithm: theme.darkAlgorithm,
   token: {
     ...shared,
+    // Bright seeds read on the dark surfaces; links get a lighter blue than the button fill.
+    colorWarning: "#F59E0B",
+    colorSuccess: "#10B981",
+    colorError: "#EF4444",
+    colorLink: "#8AA4FF",
     colorBgBase: "#0B0F19",
     colorBgContainer: "#111827",
     colorBgElevated: "#1F2937",

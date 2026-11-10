@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import type { MilestoneDetail } from "@codecash/contracts";
 import { getMilestoneDetail, transferToAccounting } from "@/shared/api/domain";
 import { AppPage } from "@/shared/layout/AppPage";
+import { formatDecimalString } from "@/shared/lib/format";
 import { PageState } from "@/shared/ui/PageState";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { SideCard } from "@/shared/ui/SidePanel";
@@ -58,7 +59,8 @@ export default function MilestoneDecisionPage() {
 
 function DecisionContent({ data }: { data: MilestoneDetail }) {
   const { t } = useTranslation("milestones");
-  const { message } = AntApp.useApp();
+  const { t: td } = useTranslation("domain");
+  const { message, modal } = AntApp.useApp();
   const queryClient = useQueryClient();
   const { contract, milestone, evaluation, money } = data;
   const refresh = () =>
@@ -76,6 +78,29 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
     },
     onError: failed,
   });
+  // Approving the instruction sends money to the gateway: restate what leaves, from whom, to whom.
+  const confirmTransfer = () => {
+    const instruction = data.instruction;
+    void modal.confirm({
+      title: t("decision.transferConfirm.title"),
+      content: instruction
+        ? t("decision.transferConfirm.body", {
+            no: milestone.sequence,
+            decision: td(`decision.${instruction.decision}`),
+            amount: formatDecimalString(instruction.amountMillion),
+            payer: instruction.payer.name,
+            payee: instruction.payee.name,
+          })
+        : t("decision.transferConfirm.bodyShort", {
+            no: milestone.sequence,
+            amount: formatDecimalString(evaluation.payableMillion),
+          }),
+      okText: t("decision.transferConfirm.submit"),
+      cancelText: t("decision.transferConfirm.cancel"),
+      // A failed send is reported by the mutation itself; the dialog closes either way.
+      onOk: () => transfer.mutateAsync().catch(() => undefined),
+    });
+  };
 
   return (
     <ContractSideLayout contractId={contract.id}>
@@ -96,7 +121,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
           <DecisionBanner
             data={data}
             transferring={transfer.isPending}
-            onTransfer={() => transfer.mutate()}
+            onTransfer={confirmTransfer}
           />
           <ConditionsPanel data={data} />
           <AmountsPanel money={money} />

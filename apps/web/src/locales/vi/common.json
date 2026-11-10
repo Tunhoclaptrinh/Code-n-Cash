@@ -268,5 +268,6 @@
     "seal": "MẪU",
     "open": "Xem hợp đồng",
     "ownPreview": "Xem trước · chữ ký của bạn sẽ hiện ở đây khi ký"
-  }
+  },
+  "routeForbidden": "Vai trò của bạn không mở được màn đó, nên bạn được đưa về trang chính của vai trò."
 }

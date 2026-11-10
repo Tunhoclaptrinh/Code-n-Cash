@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   App,
   Avatar,
@@ -99,6 +99,19 @@ export function AppLayout() {
     },
     onError: () => void message.error(t("topbar.resetDemo.failed")),
   });
+
+  // RequireAuth sends a screen this role may not open back home; say so instead of a silent jump.
+  const forbiddenPath = (location.state as { forbidden?: string } | null)
+    ?.forbidden;
+  useEffect(() => {
+    if (!forbiddenPath) return;
+    // Keyed, so a repeated effect (StrictMode, quick re-render) shows the notice once.
+    void message.warning({
+      key: "route-forbidden",
+      content: t("routeForbidden"),
+    });
+    navigate(location.pathname, { replace: true, state: null });
+  }, [forbiddenPath, location.pathname, message, navigate, t]);
   const confirmResetDemo = () =>
     modal.confirm({
       title: t("topbar.resetDemo.title"),

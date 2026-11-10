@@ -188,11 +188,15 @@
       "lateDaysValue_one": "{{count}} ngày",
       "lateDaysValue_other": "{{count}} ngày",
       "rate": "Mức phạt",
-      "rateValue": "{{rate}}%/ngày, trần {{cap}}% = {{capAmount}}",
+      "rateValue": "{{rate}}% mỗi ngày trễ",
       "noPenalty": "Mốc không áp phạt",
       "raw": "Phạt thô trước làm tròn",
       "payable": "Đủ điều kiện chi",
-      "note": "Số tiền tính bằng số thập phân chính xác (Decimal), không dùng số thực dấu phẩy động. Đủ điều kiện chi không phải số tiền đã chi."
+      "note": "Số tiền tính bằng số thập phân chính xác (Decimal), không dùng số thực dấu phẩy động. Đủ điều kiện chi không phải số tiền đã chi.",
+      "formula": "Phạt theo số ngày trễ",
+      "formulaValue_one": "{{rate}}% × {{count}} ngày × {{planned}} = {{penalty}}",
+      "formulaValue_other": "{{rate}}% × {{count}} ngày × {{planned}} = {{penalty}}",
+      "cap": "Phạt tối đa (trần {{cap}}%)"
     },
     "rules": {
       "priority": "Ưu tiên",
@@ -243,6 +247,14 @@
       },
       "empty": "Mốc chưa có sự kiện nào.",
       "error": "Không phát lại được. Thử lại sau."
+    },
+    "projected": "Khi bạn phê duyệt: {{decision}}, phạt {{penalty}}, được chi {{payable}} triệu VND.",
+    "transferConfirm": {
+      "title": "Duyệt lệnh chi và gửi sang cổng thanh toán?",
+      "body": "Mốc {{no}} · {{decision}}: chuyển {{amount}} triệu VND từ {{payer}} cho {{payee}}. Lệnh đã gửi không hủy được trên CodeCash.",
+      "bodyShort": "Mốc {{no}}: chuyển {{amount}} triệu VND. Lệnh đã gửi không hủy được trên CodeCash.",
+      "submit": "Duyệt và gửi lệnh chi",
+      "cancel": "Quay lại"
     }
   },
   "submit": {

@@ -176,7 +176,7 @@ try {
   await pause(400);
   await evaluate("document.querySelector('.ant-drawer-close')?.click()");
   await until("!document.querySelector('.ant-drawer-open')");
-  await loginAs("admin@codecash.vn");
+  await loginAs("controller@novaan.vn");
   assert.equal(await evaluate("location.pathname"), "/exceptions");
   // First visit after login: language and theme must be chosen, then the header tips show once.
   await until("!!document.querySelector('[data-testid=welcome-start]')");

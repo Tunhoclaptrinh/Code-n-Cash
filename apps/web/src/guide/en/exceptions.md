@@ -1,6 +1,6 @@
 # Evidence exceptions (BR-19): unauthorized events
 
-Controllers process exceptions; auditors read them. System administrators cannot review business exceptions. Two different controllers are required.
+An exception needs **two different people on the buyer side**: the contract owner proposes and the buyer's internal controller decides. Auditors do not open contracts; system administrators cannot review business exceptions.
 
 ![Queue with rule notice, statistics and review action](../../../public/guide/images/exceptions.webp)
 
@@ -8,9 +8,9 @@ Controllers process exceptions; auditors read them. System administrators cannot
 
 Find the contract and milestone in **Evidence exceptions**, then open its decision. Inspect the original event and the engine's classification. CT0090 milestone 3 contains acceptance event EV01006 issued by the supplier, although acceptance belongs to the buyer; its outcome is HOLD with `UNAUTHORIZED_EVENT`.
 
-## First controller proposes
+## The contract owner proposes
 
-1. Use `admin@codecash.vn` and open CT0090 milestone 3.
+1. Use `owner@cuulong.vn` (contract owner at Cuu Long, the buyer of CT0090) and open CT0090 milestone 3.
 2. Select EV01006 in the Evidence exceptions section.
 3. Explain the event type, actual issuing side and authorized side.
 4. Submit and check the pending exception ID.
@@ -19,11 +19,11 @@ Find the contract and milestone in **Evidence exceptions**, then open its decisi
 
 A valid event cannot be voided merely because its outcome is inconvenient. Self-approval is blocked with `SECOND_CONTROLLER_REQUIRED`.
 
-## Second controller decides
+## The buyer's controller decides
 
-Sign out and use `controller@codecash.vn`. Open the same milestone or assigned review task, inspect the proposer, original event and reason, then approve voiding or reject the proposal. Approval triggers re-evaluation.
+Sign out and use `controller@cuulong.vn`. Open the same milestone or assigned review task, inspect the proposer, original event and reason, then approve voiding or reject the proposal. Approval triggers re-evaluation.
 
-![Second-controller decision](../../../public/guide/images/exception-decide.webp)
+![Buyer controller decision](../../../public/guide/images/exception-decide.webp)
 
 The original event remains in history and is marked voided. The example changes from HOLD for unauthorized evidence to HOLD for missing valid acceptance. It does not automatically release payment or fabricate buyer evidence.
 

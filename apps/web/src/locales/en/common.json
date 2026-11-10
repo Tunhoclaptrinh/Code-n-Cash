@@ -268,5 +268,6 @@
     "seal": "DEMO",
     "open": "View contract",
     "ownPreview": "Preview · your signature appears here when you sign"
-  }
+  },
+  "routeForbidden": "Your role cannot open that screen, so you were taken to your role's home page."
 }

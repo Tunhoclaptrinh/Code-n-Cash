@@ -1,6 +1,6 @@
 # Administration and permissions
 
-Use `sysadmin@codecash.vn` for administration; auditors read and export. Administration is separated from exception review and payment approval.
+Use `sysadmin@codecash.vn` for administration; auditors only check integrity. Administration is separated from exception review and payment approval.
 
 ![Resource tabs, protected-record notice and row actions](../../../public/guide/images/admin-organizations.webp)
 

@@ -4,19 +4,19 @@ Quyền trong CodeCash gắn với người đã đăng nhập, tổ chức và 
 
 ## Chọn người theo việc cần thử
 
-| Tài khoản demo           | Vai trò                 | Việc nên thử trên dữ liệu mới                                          |
-| ------------------------ | ----------------------- | ---------------------------------------------------------------------- |
-| `owner@novaan.vn`        | Chủ hợp đồng            | Đóng tranh chấp CT0019 mốc 3; duyệt chi theo chính sách; soạn hợp đồng |
-| `finance@novaan.vn`      | Phê duyệt tài chính     | Duyệt CT0103 mốc 2; chuyển kế toán CT0103 mốc 1                        |
-| `secondary@novaan.vn`    | Phê duyệt cấp 2         | Chờ NCC ký CT0102, rồi ký bước cuối và duyệt mốc theo chính sách       |
-| `legal@novaan.vn`        | Cán bộ hợp đồng bên mua | Hồ sơ CT0101; nghiệm thu CT0084 mốc 3; chứng từ bên mua                |
-| `supplier@phuminh.vn`    | Nhà cung cấp            | Chứng từ CT0104 mốc 2; ký CT0102                                       |
-| `admin@codecash.vn`      | Kiểm soát viên          | Đề xuất vô hiệu sự kiện sai thẩm quyền CT0090 mốc 3                    |
-| `controller@codecash.vn` | Kiểm soát viên thứ hai  | Duyệt đề xuất của người kiểm soát thứ nhất                             |
-| `sysadmin@codecash.vn`   | Quản trị hệ thống       | Quản lý tài khoản, tổ chức và bản ghi cấu hình được phép sửa           |
-| `auditor@codecash.vn`    | Kiểm toán               | Xem toàn hệ thống, kiểm tra toàn vẹn, xuất dữ liệu                     |
+| Tài khoản demo          | Vai trò                 | Việc nên thử trên dữ liệu mới                                          |
+| ----------------------- | ----------------------- | ---------------------------------------------------------------------- |
+| `owner@novaan.vn`       | Chủ hợp đồng            | Đóng tranh chấp CT0019 mốc 3; duyệt chi theo chính sách; soạn hợp đồng |
+| `finance@novaan.vn`     | Phê duyệt tài chính     | Duyệt CT0103 mốc 2; chuyển kế toán CT0103 mốc 1                        |
+| `secondary@novaan.vn`   | Phê duyệt cấp 2         | Chờ NCC ký CT0102, rồi ký bước cuối và duyệt mốc theo chính sách       |
+| `legal@novaan.vn`       | Cán bộ hợp đồng bên mua | Hồ sơ CT0101; nghiệm thu CT0084 mốc 3; chứng từ bên mua                |
+| `supplier@phuminh.vn`   | Nhà cung cấp            | Chứng từ CT0104 mốc 2; ký CT0102                                       |
+| `controller@novaan.vn`  | Kiểm soát viên nội bộ   | Duyệt đề nghị ngoại lệ chứng từ do chủ hợp đồng Nova An đề xuất        |
+| `controller@phuminh.vn` | Kiểm soát viên NCC      | Theo dõi hợp đồng của Phú Minh, không thao tác nghiệp vụ               |
+| `sysadmin@codecash.vn`  | Quản trị hệ thống       | Quản lý tài khoản, tổ chức và bản ghi cấu hình được phép sửa           |
+| `auditor@codecash.vn`   | Kiểm toán               | Kiểm tra toàn vẹn (chuỗi băm, bằng chứng neo); không mở hợp đồng       |
 
-Hai tài khoản kiểm soát cùng vai trò nhưng là hai người khác nhau. Hệ thống có **8 vai trò**, không phải 9 vai trò.
+Ngoại lệ chứng từ cần hai người khác nhau: chủ hợp đồng đề xuất, kiểm soát viên của chính bên mua duyệt. Hệ thống có **8 vai trò**, không phải 9 vai trò.
 
 ## Đọc menu theo vai trò
 
@@ -32,9 +32,9 @@ NCC nộp giao hàng, hoá đơn, hoàn thành dịch vụ và các loại chứ
 
 ![Menu kiểm soát viên](../../../public/guide/images/nav-admin.webp)
 
-- **Kiểm soát viên:** xem mọi hợp đồng, đề xuất và duyệt ngoại lệ BR-19; không duyệt chi, không quản lý tài khoản.
+- **Kiểm soát viên:** mỗi tổ chức có một người, xem hợp đồng của tổ chức mình; kiểm soát viên bên mua duyệt ngoại lệ chứng từ do chủ hợp đồng đề xuất. Không duyệt chi, không quản lý tài khoản.
 - **Quản trị hệ thống:** quản lý cấu hình và tài khoản; không xử lý ngoại lệ hoặc ghi nghiệp vụ thanh toán.
-- **Kiểm toán:** chỉ đọc, có thể kiểm tra toàn vẹn và xuất dữ liệu; không được ghi nghiệp vụ hoặc chạy đánh giá để lưu kết quả mới.
+- **Kiểm toán:** chỉ kiểm tra toàn vẹn (chuỗi băm, bằng chứng neo), không mở hợp đồng; không ghi nghiệp vụ hoặc chạy đánh giá để lưu kết quả mới.
 
 ![Menu quản trị hệ thống](../../../public/guide/images/nav-sysadmin.webp)
 

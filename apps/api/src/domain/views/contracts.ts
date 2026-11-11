@@ -232,6 +232,16 @@ export function contractOverview(
     contract: ctx.contractRow(contract),
     workflowTemplate:
       contract.workflow_template as ContractOverview["workflowTemplate"],
+    workflowName: contract.workflow_template.startsWith("APP_")
+      ? String(
+          (
+            (ctx.t["rule-versions"] ?? []).find(
+              (version) => version.id === contract.ruleVersionId,
+            )?.templates as Array<Record<string, unknown>> | undefined
+          )?.find((row) => row.workflowTemplate === contract.workflow_template)
+            ?.workflowName ?? contract.workflow_template,
+        )
+      : null,
     ruleSetId: contract.rule_set_id,
     graceDays: Number(contract.grace_period_days),
     penaltyRatePct: contract.penalty_rate_pct_per_day,

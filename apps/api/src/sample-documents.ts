@@ -152,7 +152,16 @@ export class SampleDocumentsController {
           name: String(ctx.user(signer.userId)!.displayName),
         })),
         stages: options.types.includes(draft.type)
-          ? stagesOf(ctx, draft.type).map((stage) => ({
+          ? stagesOf(
+              ctx,
+              draft.type,
+              // The draft's own pinned version, or the one a new draft would pin.
+              (ctx.draft(draft.code)?.ruleVersionId as string | undefined) ??
+                (ctx.t["rule-versions"] ?? []).find(
+                  (row) => row.status === "PUBLISHED",
+                )?.id,
+              draft.workflowTemplate,
+            ).map((stage) => ({
               type: stage.type,
               name: stage.name,
               paymentPercent: stage.paymentPercent,

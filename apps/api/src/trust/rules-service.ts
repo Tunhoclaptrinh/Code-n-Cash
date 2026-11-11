@@ -25,6 +25,14 @@ import { runEngine } from "../domain/engine";
 import { toCents } from "../domain/templates";
 import { BUSINESS_EVENTS } from "../domain/vocabulary";
 import { versionHash, versionRuleSet } from "../domain/rule-versions";
+import {
+  MAX_VERSION_RULES,
+  appWorkflowProblems,
+  isAppRule,
+  isAppTemplate,
+  type VersionRule,
+  type VersionTemplate,
+} from "./rule-workflows";
 
 import type {
   RuleExpressionValidation,
@@ -126,6 +134,10 @@ export class RulesService {
       ],
     );
   }
+  /**
+   * The organiser's 128 rules and 4 workflows may only be restated (fixed ids, fixed structure);
+   * a version's own `APP_` workflows and scopes are checked for completeness instead (§6.3).
+   */
   private async validateContent(rules: unknown, templates: unknown) {
     if (
       !Array.isArray(rules) ||
@@ -135,13 +147,20 @@ export class RulesService {
       )
     )
       throw new BadRequestException("RULE_VERSION_INVALID");
+    const organiserRules = (rules as VersionRule[]).filter(
+      (row) => !isAppRule(row),
+    );
+    const organiserTemplates = (templates as VersionTemplate[]).filter(
+      (row) => !isAppTemplate(row),
+    );
     const originals = (await loadDataPack()).payment_rules;
     if (
-      rules.length !== originals.length ||
-      new Set(rules.map((rule) => rule.rule_id)).size !== originals.length
+      organiserRules.length !== originals.length ||
+      new Set(organiserRules.map((rule) => rule.rule_id)).size !==
+        originals.length
     )
       throw new BadRequestException("RULE_VERSION_INVALID");
-    for (const rule of rules) {
+    for (const rule of organiserRules) {
       const original = originals.find((row) => row.rule_id === rule.rule_id);
       if (
         !original ||
@@ -160,12 +179,13 @@ export class RulesService {
       (template) => template.origin === "DATA_PACK",
     );
     if (
-      templates.length !== base.length ||
-      new Set(templates.map((template) => template.id)).size !== base.length
+      organiserTemplates.length !== base.length ||
+      new Set(organiserTemplates.map((template) => template.id)).size !==
+        base.length
     )
       throw new BadRequestException("RULE_VERSION_INVALID");
     const totals = new Map<string, bigint>();
-    for (const template of templates) {
+    for (const template of organiserTemplates) {
       const original = base.find((row) => row.id === template.id);
       if (
         !original ||
@@ -199,6 +219,11 @@ export class RulesService {
     }
     if ([...totals.values()].some((total) => total !== 10000n))
       throw new BadRequestException("RULE_VERSION_INVALID");
+    const problems = appWorkflowProblems(
+      rules as VersionRule[],
+      templates as VersionTemplate[],
+    );
+    if (problems.length) throw new BadRequestException(problems[0].code);
   }
   async save(
     id: string,
@@ -243,7 +268,7 @@ export class RulesService {
     if (
       !Array.isArray(rows) ||
       !rows.length ||
-      rows.length > 128 ||
+      rows.length > MAX_VERSION_RULES ||
       rows.some(
         (row) =>
           !row ||

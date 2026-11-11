@@ -27,6 +27,8 @@ export function UploadDetailsSection({
     setTitleError,
     changeSupplier,
   } = form;
+  // The standard workflow of the type and the pinned version's own ones (rule versions §6.3).
+  const workflow = value.type ? options.workflows[value.type] : undefined;
   return (
     <>
       <Row gutter={16}>
@@ -39,7 +41,11 @@ export function UploadDetailsSection({
             <Select<ContractType>
               placeholder={placeholder("type")}
               value={value.type}
-              onChange={(type) => set("type", type)}
+              onChange={(type) => {
+                set("type", type);
+                // Workflows belong to a contract type; a new type starts on its standard one.
+                set("workflowTemplate", undefined);
+              }}
               options={options.types.map((type) => ({
                 value: type,
                 label: td(`contractType.${type}`),
@@ -47,6 +53,45 @@ export function UploadDetailsSection({
             />
           </Form.Item>
         </Col>
+        {value.type && workflow?.alternatives.length ? (
+          <Col xs={24} md={12}>
+            <Form.Item
+              label={t("contractUpload.form.workflow.label")}
+              extra={t("contractUpload.form.workflow.stages", {
+                stages: (
+                  workflow.alternatives.find(
+                    (row) => row.template === value.workflowTemplate,
+                  )?.stages ?? workflow.stages
+                )
+                  .map((stage) => td(`milestoneType.${stage}`))
+                  .join(" → "),
+              })}
+            >
+              <Select<string>
+                value={value.workflowTemplate ?? workflow.template}
+                onChange={(template) =>
+                  set(
+                    "workflowTemplate",
+                    template === workflow.template ? undefined : template,
+                  )
+                }
+                options={[
+                  {
+                    value: workflow.template,
+                    label: t("contractUpload.form.workflow.standard", {
+                      name: td(`workflow.${workflow.template}`),
+                    }),
+                  },
+                  ...workflow.alternatives.map((row) => ({
+                    value: row.template,
+                    label: row.name,
+                  })),
+                ]}
+                data-testid="upload-workflow"
+              />
+            </Form.Item>
+          </Col>
+        ) : null}
         <Col xs={24} md={12}>
           <Form.Item label={t("contractUpload.form.code.label")}>
             <Space.Compact style={{ width: "100%" }}>

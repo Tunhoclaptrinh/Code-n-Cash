@@ -247,6 +247,7 @@ export interface DraftRecord extends RecordEntity {
   title: string;
   supplierId: string;
   contractType: ContractDraft["type"];
+  workflowTemplate?: string;
   state: ContractDraft["state"];
   origin: Origin;
   reviewerId: string;
@@ -283,6 +284,8 @@ export interface StageTemplate {
   latePenalty: boolean;
   /** Median days from the contract start to the due date in the Data Pack. */
   offsetDays: number;
+  /** App workflows: NONE when the stage needs no approval whatever the contract's policy. */
+  approval?: "CONTRACT" | "NONE";
 }
 
 export const APPROVAL_ROLES_BY_POLICY: Record<string, ApprovalRole[]> = {

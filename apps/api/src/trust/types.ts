@@ -103,6 +103,10 @@ export interface RuleVersion {
     paymentPercent: string;
     latePenalty: boolean;
     offsetDays: number;
+    /** `APP_` workflows of the version only (docs/NGHIEP_VU.md §6.3). */
+    contractType?: string;
+    workflowName?: string;
+    approval?: string;
   }>;
   validation: {
     compatibilityPolicy?: "BTC_FULL_PACK_V1";

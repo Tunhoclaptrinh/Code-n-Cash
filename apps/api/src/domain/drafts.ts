@@ -48,13 +48,44 @@ function assertEditor(ctx: Ctx) {
     throw new ForbiddenException("BUYER_EDITORS_ONLY");
 }
 
-/** Workflow stages, read from the Milestone templates table (built from the Data Pack). */
+/**
+ * The workflow a draft of `type` uses: the organiser workflow of the type, or one of the pinned
+ * version's own `APP_` workflows for that type (§6.3). Its code is also its rule set.
+ */
+export function workflowFor(
+  ctx: Ctx,
+  type: ContractType,
+  versionId?: string,
+  requested?: string,
+): { template: string; ruleSetId: string; name: string | null } {
+  const organiser = WORKFLOW_BY_TYPE[type];
+  if (!requested || requested === organiser.template)
+    return { ...organiser, name: null };
+  const version = versionId ? pinnedVersion(ctx.t, versionId) : undefined;
+  const stage = (
+    (version?.templates ?? []) as Array<Record<string, unknown>>
+  ).find(
+    (row) =>
+      row.workflowTemplate === requested &&
+      String(requested).startsWith("APP_") &&
+      row.contractType === type,
+  );
+  if (!stage) throw new BadRequestException("INVALID_WORKFLOW");
+  return {
+    template: requested,
+    ruleSetId: requested,
+    name: String(stage.workflowName),
+  };
+}
+
+/** Workflow stages, read from the pinned version or the Milestone templates table (Data Pack). */
 export function stagesOf(
   ctx: Ctx,
   type: ContractType,
   versionId?: string,
+  workflowTemplate?: string,
 ): StageTemplate[] {
-  const template = WORKFLOW_BY_TYPE[type].template;
+  const template = workflowFor(ctx, type, versionId, workflowTemplate).template;
   const version = versionId ? pinnedVersion(ctx.t, versionId) : undefined;
   return (
     (version?.templates ?? ctx.t["milestone-templates"] ?? []) as RecordEntity[]
@@ -70,8 +101,19 @@ export function stagesOf(
       ) as StageTemplate["eventTypes"],
       latePenalty: row.latePenalty === true,
       offsetDays: Number(row.offsetDays),
+      approval:
+        row.approval === "NONE" ? ("NONE" as const) : ("CONTRACT" as const),
     }))
     .sort((a, b) => a.sequence - b.sequence);
+}
+
+/** The version a new draft would pin, if any: the published one (a broken one pins none here). */
+function publishedVersion(ctx: Ctx) {
+  try {
+    return pinnedVersion(ctx.t);
+  } catch {
+    return undefined;
+  }
 }
 
 const person = (ctx: Ctx, user: RecordEntity): PersonOption => ({
@@ -102,12 +144,35 @@ export function uploadFormOptions(ctx: Ctx): UploadFormOptions {
     supplierSigners[String(s.party_id)] = users
       .filter((u) => u.organizationId === s.party_id && u.role === "SUPPLIER")
       .map((u) => person(ctx, u));
+  // The version a new draft pins decides the stages shown here, not the Data Pack table.
+  const version = publishedVersion(ctx);
+  const appStages = ((version?.templates ?? []) as RecordEntity[]).filter(
+    (row) => String(row.workflowTemplate).startsWith("APP_"),
+  );
   const workflows = Object.fromEntries(
     CONTRACT_TYPES.map((type) => [
       type,
       {
         template: WORKFLOW_BY_TYPE[type].template,
-        stages: stagesOf(ctx, type).map((s) => s.type as MilestoneType),
+        stages: stagesOf(ctx, type, version?.id).map(
+          (s) => s.type as MilestoneType,
+        ),
+        alternatives: [
+          ...new Set(
+            appStages
+              .filter((row) => row.contractType === type)
+              .map((row) => String(row.workflowTemplate)),
+          ),
+        ].map((template) => ({
+          template,
+          name: String(
+            appStages.find((row) => row.workflowTemplate === template)
+              ?.workflowName,
+          ),
+          stages: stagesOf(ctx, type, version?.id, template).map(
+            (s) => s.type as MilestoneType,
+          ),
+        })),
       },
     ]),
   ) as UploadFormOptions["workflows"];
@@ -135,6 +200,7 @@ const toDraft = (d: DraftRecord): ContractDraft => ({
   state: d.state,
   origin: d.origin,
   type: d.contractType,
+  workflowTemplate: d.workflowTemplate,
   title: d.title,
   supplierId: d.supplierId,
   reviewerId: d.reviewerId,
@@ -330,10 +396,15 @@ export function saveDraft(
   )
     throw new BadRequestException("FILE_REQUIRED");
 
-  const workflow = WORKFLOW_BY_TYPE[input.type];
   const version = pinnedVersion(
     ctx.t,
     existing?.ruleVersionId as string | undefined,
+  );
+  const workflow = workflowFor(
+    ctx,
+    input.type,
+    version?.id,
+    input.workflowTemplate,
   );
   const roles = APPROVAL_ROLES_BY_POLICY[input.approvalPolicy];
   const fields = {
@@ -394,6 +465,7 @@ export function saveDraft(
     title,
     supplierId: supplier.party_id,
     contractType: input.type,
+    workflowTemplate: workflow.template,
     state: "DRAFT" as const,
     reviewerId: reviewer.id,
     valueMillion: value,
@@ -529,6 +601,7 @@ export function digitization(ctx: Ctx, code: string): Digitization {
     ctx,
     draft.contractType,
     draft.ruleVersionId as string | undefined,
+    draft.workflowTemplate,
   );
   let allocated = 0n;
   const milestones: DigitizedMilestone[] = stages.map((stage, i) => {
@@ -648,6 +721,7 @@ export function confirmDigitization(
       ctx,
       draft.contractType,
       draft.ruleVersionId as string | undefined,
+      draft.workflowTemplate,
     ),
     first,
     Object.fromEntries(

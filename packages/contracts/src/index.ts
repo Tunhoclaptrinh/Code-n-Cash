@@ -2,6 +2,7 @@ import type { Decision, Role } from "./workflow";
 export * from "./workflow";
 export * from "./listing";
 export * from "./field-validation";
+export * from "./rule-workflows";
 export interface PageQuery {
   page?: number;
   limit?: number;

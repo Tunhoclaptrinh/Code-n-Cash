@@ -27,6 +27,7 @@ export const contentKey = (draft: DraftInput) =>
   JSON.stringify([
     draft.title,
     draft.type,
+    draft.workflowTemplate,
     draft.supplierId,
     draft.valueMillion,
     draft.startDate,

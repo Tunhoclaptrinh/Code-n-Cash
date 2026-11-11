@@ -234,7 +234,9 @@ export default function ContractDetailPage() {
                         {
                           key: "workflow",
                           label: t("detail.terms.workflow"),
-                          value: td(`workflow.${data.workflowTemplate}`),
+                          value:
+                            data.workflowName ??
+                            td(`workflow.${data.workflowTemplate}`),
                         },
                         {
                           key: "ruleSet",

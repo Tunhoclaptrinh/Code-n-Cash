@@ -27,9 +27,16 @@ test("API and web share one list engine (search, filters, sort, paging)", async 
   );
 });
 
-for (const [apiFile, sharedFile] of [["common/field-validation", "field-validation"], ["trust/types", "trust"]]) {
+for (const [apiFile, sharedFile] of [
+  ["common/field-validation", "field-validation"],
+  ["trust/types", "trust"],
+  ["trust/rule-workflows", "rule-workflows"],
+]) {
   test(`${sharedFile} stays identical between API and browser`, async () => {
-    assert.equal(await readFile(`apps/api/src/${apiFile}.ts`, "utf8"), await readFile(`packages/contracts/src/${sharedFile}.ts`, "utf8"));
+    assert.equal(
+      await readFile(`apps/api/src/${apiFile}.ts`, "utf8"),
+      await readFile(`packages/contracts/src/${sharedFile}.ts`, "utf8"),
+    );
   });
 }
 
@@ -57,6 +64,25 @@ test("domain unions cover the vocabulary of the engine policy pack", async () =>
   assert.deepEqual(new Set(evidence), union("BusinessEventType"));
   assert.deepEqual(new Set(Object.keys(policy.reasons)), union("ReasonCode"));
   assert.deepEqual(new Set(Object.keys(policy.decisions)), union("Decision"));
+  // App workflows (§6.3) are checked against the same vocabulary.
+  const shared = await import("../../apps/api/dist/trust/rule-workflows.js");
+  assert.deepEqual(new Set(shared.RULE_REASONS), union("ReasonCode"));
+  assert.deepEqual(
+    new Set(shared.RULE_REASONS),
+    new Set(policy.rule_scope.required_reason_codes),
+  );
+  assert.deepEqual(new Set(shared.RULE_DECISIONS), union("Decision"));
+  assert.deepEqual(new Set(shared.EVIDENCE_EVENTS), union("BusinessEventType"));
+  assert.deepEqual(new Set(shared.STAGE_TYPES), union("MilestoneType"));
+  assert.deepEqual(
+    new Set(shared.WORKFLOW_CONTRACT_TYPES),
+    union("ContractType"),
+  );
+  assert.equal(shared.FALLBACK_CONDITION, policy.rule_scope.fallback_condition);
+  assert.match(
+    await readFile("apps/engine/validate_rules.py", "utf8"),
+    new RegExp(`MAX_VERSION_RULES = ${shared.MAX_VERSION_RULES}\\b`),
+  );
   // PLANNED and IN_PROGRESS exist only in as-of replays (TimelinePoint), every other status is a MilestoneStatus.
   const asOf = new Set(
     Object.values(policy.reasons).flatMap((reason) =>

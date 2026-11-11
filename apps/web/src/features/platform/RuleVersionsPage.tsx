@@ -16,7 +16,13 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -27,7 +33,17 @@ import {
   useAccess,
 } from "@codecash/ui";
 import {
+  APP_PREFIX,
+  STAGE_TYPES,
+  WORKFLOW_CONTRACT_TYPES,
+  appWorkflowProblems,
+  copyScope,
   exactDecimal,
+  isAppCode,
+  isAppTemplate,
+  nextRuleNumber,
+  ruleFamily,
+  scaffoldAppWorkflow,
   type ListSpec,
   type RuleVersion,
 } from "@codecash/contracts";
@@ -89,6 +105,7 @@ export default function RuleVersionsPage() {
   const [templates, setTemplates] = useState<RuleVersion["templates"]>([]);
   const [editorTab, setEditorTab] = useState("rules");
   const [publishing, setPublishing] = useState<RuleVersion>();
+  const [addingWorkflow, setAddingWorkflow] = useState(false);
   const refresh = () =>
     client.invalidateQueries({ queryKey: ["rule-versions"] });
   const report = (error: unknown) =>
@@ -205,6 +222,177 @@ export default function RuleVersionsPage() {
     return all;
   }, {});
   const totalValid = Object.values(sums).every((sum) => sum === 10000n);
+
+  // The version's own APP_ workflows (§6.3): live checks with the API's own rules.
+  const problems = appWorkflowProblems(rules, templates);
+  const appWorkflows = [
+    ...new Map(
+      templates
+        .filter(isAppTemplate)
+        .map((row) => [row.workflowTemplate, row] as const),
+    ).values(),
+  ];
+  const workflowNames = Object.fromEntries(
+    appWorkflows.map((row) => [row.workflowTemplate, String(row.workflowName)]),
+  );
+  const addWorkflow = (input: {
+    code: string;
+    name: string;
+    contractType: string;
+  }) => {
+    const code = `${APP_PREFIX}${input.code.trim().toUpperCase()}`;
+    if (
+      !isAppCode(code) ||
+      templates.some((row) => row.workflowTemplate === code)
+    )
+      throw new Error("APP_WORKFLOW_CODE");
+    const added = scaffoldAppWorkflow({
+      code,
+      name: input.name.trim(),
+      contractType: input.contractType,
+      rules,
+      templates,
+    });
+    setRules((all) => [...all, ...added.rules]);
+    // Data Pack stage names are English; a new workflow starts with names in the user's language.
+    setTemplates((all) => [
+      ...all,
+      ...(added.templates.map((row) => ({
+        ...row,
+        name: td(`milestoneType.${row.milestoneType}`),
+      })) as typeof all),
+    ]);
+  };
+  const removeWorkflow = (code: string) => {
+    setRules((all) => all.filter((rule) => rule.rule_set_id !== code));
+    setTemplates((all) => all.filter((row) => row.workflowTemplate !== code));
+  };
+  const updateStages = (
+    code: string,
+    change: (row: RuleVersion["templates"][number]) => object,
+  ) =>
+    setTemplates((all) =>
+      all.map((row) =>
+        row.workflowTemplate === code ? { ...row, ...change(row) } : row,
+      ),
+    );
+  const addStage = (code: string, milestoneType: string) => {
+    const stages = templates.filter((row) => row.workflowTemplate === code);
+    const first = stages[0];
+    const contractType = String(first.contractType);
+    const sequence = stages.length + 1;
+    // A stage of the same type in an organiser workflow lends its evidence list.
+    const model = templates.find(
+      (row) => !isAppTemplate(row) && row.milestoneType === milestoneType,
+    );
+    let next = nextRuleNumber(rules, code);
+    setTemplates((all) => [
+      ...all,
+      {
+        ...first,
+        id: `tpl-${code}-${Date.now().toString(36)}`,
+        sequence,
+        milestoneType,
+        name: td(`milestoneType.${milestoneType}`),
+        requiredEvents: model?.requiredEvents ?? "ACCEPTANCE",
+        paymentPercent: "0.00",
+        latePenalty: false,
+        offsetDays: Math.max(0, ...stages.map((row) => row.offsetDays)),
+        approval: "CONTRACT",
+      },
+    ]);
+    setRules((all) => [
+      ...all,
+      ...copyScope(all, code, contractType, milestoneType, () => next++),
+    ]);
+  };
+  const removeStage = (stage: RuleVersion["templates"][number]) => {
+    const code = stage.workflowTemplate;
+    setTemplates((all) => {
+      const kept = all.filter((row) => row.id !== stage.id);
+      let sequence = 0;
+      return kept
+        .sort((a, b) => a.sequence - b.sequence)
+        .map((row) =>
+          row.workflowTemplate === code
+            ? { ...row, sequence: ++sequence }
+            : row,
+        );
+    });
+    setRules((all) =>
+      all.filter(
+        (rule) =>
+          !(
+            rule.rule_set_id === code &&
+            rule.applies_to_milestone_type === stage.milestoneType
+          ),
+      ),
+    );
+  };
+  /** Swaps a stage with its neighbour; the checks flag due days that then go backwards. */
+  const moveStage = (stage: RuleVersion["templates"][number], step: -1 | 1) =>
+    setTemplates((all) => {
+      const target = all.find(
+        (row) =>
+          row.workflowTemplate === stage.workflowTemplate &&
+          row.sequence === stage.sequence + step,
+      );
+      if (!target) return all;
+      return all.map((row) =>
+        row.id === stage.id
+          ? { ...row, sequence: target.sequence }
+          : row.id === target.id
+            ? { ...row, sequence: stage.sequence }
+            : row,
+      );
+    });
+  const addRule = (scope: string) => {
+    const scoped = rules.filter((rule) => rule.release_rule_code === scope);
+    const fallback = scoped.find(
+      (rule) => rule.condition_expression.trim() === "ELSE",
+    );
+    const used = new Set(scoped.map((rule) => Number(rule.priority)));
+    const below = Number(fallback?.priority ?? 1000) - 1;
+    let priority = below;
+    while (priority > 0 && used.has(priority)) priority--;
+    const model = fallback ?? scoped[0];
+    setRules((all) => [
+      ...all,
+      {
+        ...model,
+        rule_id: `${model.rule_set_id}-${nextRuleNumber(all, model.rule_set_id)}`,
+        priority: String(Math.max(1, priority)),
+        rule_name: t("rules.app.newRuleName"),
+        rule_group: "APP",
+        condition_expression: "FALSE",
+        decision: "HOLD",
+        reason_code: "UNRESOLVED_CONDITION",
+        payable_amount_formula: "0",
+        penalty_amount_formula: "0",
+        rule_description_vi: t("rules.app.newRuleDescription"),
+      },
+    ]);
+  };
+  const applyFamily = (id: string) => {
+    const source = rules.find((rule) => rule.rule_id === id);
+    if (!source) return;
+    const family = new Set(ruleFamily(rules, id).map((rule) => rule.rule_id));
+    setRules((all) =>
+      all.map((rule) =>
+        family.has(rule.rule_id)
+          ? {
+              ...rule,
+              condition_expression: source.condition_expression,
+              payable_amount_formula: source.payable_amount_formula,
+              penalty_amount_formula: source.penalty_amount_formula,
+            }
+          : rule,
+      ),
+    );
+    message.success(t("rules.app.familyApplied", { count: family.size }));
+  };
+  const blocked =
+    !rulesValid || !templateValid || !totalValid || problems.length > 0;
   const columns = [
     {
       ...list.column("name"),
@@ -377,9 +565,7 @@ export default function RuleVersionsPage() {
             {selected ? (
               <Button
                 loading={preview.isPending}
-                disabled={
-                  !rulesValid || !templateValid || !totalValid || save.isPending
-                }
+                disabled={blocked || save.isPending}
                 onClick={() => preview.mutate({ selected, rules, templates })}
                 data-testid="rule-version-preview"
               >
@@ -390,7 +576,7 @@ export default function RuleVersionsPage() {
               <>
                 <Button
                   loading={save.isPending}
-                  disabled={!rulesValid || !templateValid || !totalValid}
+                  disabled={blocked}
                   onClick={() => save.mutate(false)}
                 >
                   {t("rules.save")}
@@ -398,12 +584,7 @@ export default function RuleVersionsPage() {
                 <Button
                   type="primary"
                   loading={save.isPending}
-                  disabled={
-                    !rulesValid ||
-                    !templateValid ||
-                    !totalValid ||
-                    !currentPreview?.canSubmit
-                  }
+                  disabled={blocked || !currentPreview?.canSubmit}
                   onClick={() => save.mutate(true)}
                   data-testid="rule-version-submit"
                 >
@@ -518,6 +699,30 @@ export default function RuleVersionsPage() {
             {!totalValid ? (
               <Alert type="error" title={t("rules.percentTotal")} />
             ) : null}
+            {problems.length ? (
+              <Alert
+                type="error"
+                showIcon
+                data-testid="app-workflow-problems"
+                title={t("rules.app.problemsTitle", { count: problems.length })}
+                description={
+                  <ul className={styles.problemList}>
+                    {problems.slice(0, 6).map((problem, index) => (
+                      <li key={index}>
+                        {t(`rules.app.problems.${problem.code}`, {
+                          where:
+                            (problem.workflow &&
+                              workflowNames[problem.workflow]) ??
+                            problem.scope ??
+                            problem.ruleId ??
+                            "",
+                        })}
+                      </li>
+                    ))}
+                  </ul>
+                }
+              />
+            ) : null}
             <Tabs
               key="version-configuration"
               activeKey={editorTab}
@@ -527,135 +732,314 @@ export default function RuleVersionsPage() {
                   key: "templates",
                   label: t("rules.templates"),
                   children: (
-                    <Table
-                      size="small"
-                      rowKey="id"
-                      dataSource={templates}
-                      scroll={{ x: 1100 }}
-                      pagination={{ pageSize: 5 }}
-                      columns={[
-                        {
-                          title: t("rules.workflow"),
-                          render: (_, row) => (
-                            <>
-                              {td(`workflow.${row.workflowTemplate}`)} ·{" "}
-                              {row.sequence} · {row.name}
-                            </>
-                          ),
-                        },
-                        {
-                          title: t("rules.percent"),
-                          render: (_, row) => (
-                            <Form.Item
-                              validateStatus={
-                                !exactDecimal(row.paymentPercent, "100")
-                                  ? "error"
-                                  : undefined
-                              }
-                              help={
-                                !exactDecimal(row.paymentPercent, "100")
-                                  ? t("rules.percentHint")
-                                  : undefined
-                              }
-                              style={{ margin: 0 }}
+                    <>
+                      <div
+                        className={styles.workflows}
+                        data-testid="app-workflows"
+                      >
+                        <Space wrap>
+                          <Typography.Text type="secondary">
+                            {t("rules.app.intro")}
+                          </Typography.Text>
+                          {editable ? (
+                            <Button
+                              icon={<PlusOutlined />}
+                              onClick={() => setAddingWorkflow(true)}
+                              data-testid="app-workflow-add"
+                            >
+                              {t("rules.app.addWorkflow")}
+                            </Button>
+                          ) : null}
+                        </Space>
+                        {appWorkflows.map((row) => {
+                          const code = row.workflowTemplate;
+                          const used = new Set(
+                            templates
+                              .filter((item) => item.workflowTemplate === code)
+                              .map((item) => item.milestoneType),
+                          );
+                          return (
+                            <div
+                              key={code}
+                              className={styles.workflowRow}
+                              data-testid={`app-workflow-${code}`}
                             >
                               <Input
+                                value={String(row.workflowName ?? "")}
                                 disabled={!editable}
-                                value={row.paymentPercent}
-                                maxLength={6}
-                                placeholder="0.00–100.00"
+                                maxLength={120}
+                                aria-label={t("rules.app.workflowName")}
                                 onChange={(event) =>
+                                  updateStages(code, () => ({
+                                    workflowName: event.target.value,
+                                  }))
+                                }
+                              />
+                              <Tag>
+                                {td(`contractType.${String(row.contractType)}`)}
+                              </Tag>
+                              <Typography.Text code>{code}</Typography.Text>
+                              {editable ? (
+                                <>
+                                  <Select<string>
+                                    placeholder={t("rules.app.addStage")}
+                                    value={null}
+                                    style={{ minWidth: 200 }}
+                                    options={STAGE_TYPES.filter(
+                                      (type) => !used.has(type),
+                                    ).map((type) => ({
+                                      value: type,
+                                      label: td(`milestoneType.${type}`),
+                                    }))}
+                                    onChange={(type) => addStage(code, type)}
+                                    data-testid={`app-stage-add-${code}`}
+                                  />
+                                  <Button
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => removeWorkflow(code)}
+                                  >
+                                    {t("rules.app.removeWorkflow")}
+                                  </Button>
+                                </>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <Table
+                        size="small"
+                        rowKey="id"
+                        dataSource={[
+                          ...templates
+                            .filter(isAppTemplate)
+                            .sort(
+                              (a, b) =>
+                                a.workflowTemplate.localeCompare(
+                                  b.workflowTemplate,
+                                ) || a.sequence - b.sequence,
+                            ),
+                          ...templates.filter((row) => !isAppTemplate(row)),
+                        ]}
+                        scroll={{ x: 1100 }}
+                        pagination={{ pageSize: 8 }}
+                        columns={[
+                          {
+                            title: t("rules.workflow"),
+                            render: (_, row) =>
+                              isAppTemplate(row) ? (
+                                <Space orientation="vertical" size={4}>
+                                  <Typography.Text type="secondary">
+                                    {String(row.workflowName)} · {row.sequence}{" "}
+                                    · {td(`milestoneType.${row.milestoneType}`)}
+                                  </Typography.Text>
+                                  <Input
+                                    value={row.name}
+                                    disabled={!editable}
+                                    maxLength={120}
+                                    aria-label={t("rules.app.stageName")}
+                                    onChange={(event) =>
+                                      setTemplates((all) =>
+                                        all.map((item) =>
+                                          item.id === row.id
+                                            ? {
+                                                ...item,
+                                                name: event.target.value,
+                                              }
+                                            : item,
+                                        ),
+                                      )
+                                    }
+                                  />
+                                </Space>
+                              ) : (
+                                <>
+                                  {td(`workflow.${row.workflowTemplate}`)} ·{" "}
+                                  {row.sequence} · {row.name}
+                                </>
+                              ),
+                          },
+                          {
+                            title: t("rules.percent"),
+                            render: (_, row) => (
+                              <Form.Item
+                                validateStatus={
+                                  !exactDecimal(row.paymentPercent, "100")
+                                    ? "error"
+                                    : undefined
+                                }
+                                help={
+                                  !exactDecimal(row.paymentPercent, "100")
+                                    ? t("rules.percentHint")
+                                    : undefined
+                                }
+                                style={{ margin: 0 }}
+                              >
+                                <Input
+                                  disabled={!editable}
+                                  value={row.paymentPercent}
+                                  maxLength={6}
+                                  placeholder="0.00–100.00"
+                                  onChange={(event) =>
+                                    setTemplates((all) =>
+                                      all.map((item) =>
+                                        item.id === row.id
+                                          ? {
+                                              ...item,
+                                              paymentPercent:
+                                                event.target.value.replace(
+                                                  ",",
+                                                  ".",
+                                                ),
+                                            }
+                                          : item,
+                                      ),
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: t("rules.offset"),
+                            render: (_, row) => (
+                              <InputNumber
+                                disabled={!editable}
+                                value={row.offsetDays}
+                                min={0}
+                                max={36500}
+                                precision={0}
+                                placeholder="0–36500"
+                                onChange={(value) =>
+                                  setTemplates((all) =>
+                                    all.map((item) =>
+                                      item.id === row.id
+                                        ? { ...item, offsetDays: value ?? -1 }
+                                        : item,
+                                    ),
+                                  )
+                                }
+                              />
+                            ),
+                          },
+                          {
+                            title: t("rules.events"),
+                            render: (_, row) => (
+                              <Select
+                                mode="multiple"
+                                disabled={!editable}
+                                value={row.requiredEvents
+                                  .split(";")
+                                  .filter(Boolean)}
+                                placeholder={t("rules.eventPlaceholder")}
+                                style={{ minWidth: 260 }}
+                                options={events.map((value) => ({
+                                  value,
+                                  label: td(`eventType.${value}`),
+                                }))}
+                                onChange={(values) =>
                                   setTemplates((all) =>
                                     all.map((item) =>
                                       item.id === row.id
                                         ? {
                                             ...item,
-                                            paymentPercent:
-                                              event.target.value.replace(
-                                                ",",
-                                                ".",
-                                              ),
+                                            requiredEvents: values.join(";"),
                                           }
                                         : item,
                                     ),
                                   )
                                 }
                               />
-                            </Form.Item>
-                          ),
-                        },
-                        {
-                          title: t("rules.offset"),
-                          render: (_, row) => (
-                            <InputNumber
-                              disabled={!editable}
-                              value={row.offsetDays}
-                              min={0}
-                              max={36500}
-                              precision={0}
-                              placeholder="0–36500"
-                              onChange={(value) =>
-                                setTemplates((all) =>
-                                  all.map((item) =>
-                                    item.id === row.id
-                                      ? { ...item, offsetDays: value ?? -1 }
-                                      : item,
-                                  ),
-                                )
-                              }
-                            />
-                          ),
-                        },
-                        {
-                          title: t("rules.events"),
-                          render: (_, row) => (
-                            <Select
-                              mode="multiple"
-                              disabled={!editable}
-                              value={row.requiredEvents
-                                .split(";")
-                                .filter(Boolean)}
-                              placeholder={t("rules.eventPlaceholder")}
-                              style={{ minWidth: 260 }}
-                              options={events.map((value) => ({
-                                value,
-                                label: td(`eventType.${value}`),
-                              }))}
-                              onChange={(values) =>
-                                setTemplates((all) =>
-                                  all.map((item) =>
-                                    item.id === row.id
-                                      ? {
-                                          ...item,
-                                          requiredEvents: values.join(";"),
-                                        }
-                                      : item,
-                                  ),
-                                )
-                              }
-                            />
-                          ),
-                        },
-                        {
-                          title: t("rules.penalty"),
-                          render: (_, row) => (
-                            <Switch
-                              disabled={!editable}
-                              checked={row.latePenalty}
-                              onChange={(checked) =>
-                                setTemplates((all) =>
-                                  all.map((item) =>
-                                    item.id === row.id
-                                      ? { ...item, latePenalty: checked }
-                                      : item,
-                                  ),
-                                )
-                              }
-                            />
-                          ),
-                        },
-                      ]}
-                    />
+                            ),
+                          },
+                          {
+                            title: t("rules.penalty"),
+                            render: (_, row) => (
+                              <Switch
+                                disabled={!editable}
+                                checked={row.latePenalty}
+                                onChange={(checked) =>
+                                  setTemplates((all) =>
+                                    all.map((item) =>
+                                      item.id === row.id
+                                        ? { ...item, latePenalty: checked }
+                                        : item,
+                                    ),
+                                  )
+                                }
+                              />
+                            ),
+                          },
+                          {
+                            title: t("rules.app.approval"),
+                            render: (_, row) =>
+                              isAppTemplate(row) ? (
+                                <Select<string>
+                                  disabled={!editable}
+                                  value={String(row.approval)}
+                                  style={{ minWidth: 150 }}
+                                  options={["CONTRACT", "NONE"].map(
+                                    (value) => ({
+                                      value,
+                                      label: t(
+                                        `rules.app.approvalOptions.${value}`,
+                                      ),
+                                    }),
+                                  )}
+                                  onChange={(value) =>
+                                    setTemplates((all) =>
+                                      all.map((item) =>
+                                        item.id === row.id
+                                          ? { ...item, approval: value }
+                                          : item,
+                                      ),
+                                    )
+                                  }
+                                />
+                              ) : (
+                                t("rules.app.approvalOptions.CONTRACT")
+                              ),
+                          },
+                          {
+                            key: "remove",
+                            width: 120,
+                            render: (_, row) =>
+                              isAppTemplate(row) && editable ? (
+                                <Space size={0}>
+                                  <Button
+                                    type="text"
+                                    icon={<ArrowUpOutlined />}
+                                    aria-label={t("rules.app.moveUp")}
+                                    disabled={row.sequence === 1}
+                                    onClick={() => moveStage(row, -1)}
+                                  />
+                                  <Button
+                                    type="text"
+                                    icon={<ArrowDownOutlined />}
+                                    aria-label={t("rules.app.moveDown")}
+                                    disabled={
+                                      !templates.some(
+                                        (item) =>
+                                          item.workflowTemplate ===
+                                            row.workflowTemplate &&
+                                          item.sequence === row.sequence + 1,
+                                      )
+                                    }
+                                    onClick={() => moveStage(row, 1)}
+                                  />
+                                  <Button
+                                    danger
+                                    type="text"
+                                    icon={<DeleteOutlined />}
+                                    aria-label={t("rules.app.removeStage")}
+                                    onClick={() => removeStage(row)}
+                                  />
+                                </Space>
+                              ) : null,
+                          },
+                        ]}
+                      />
+                    </>
                   ),
                 },
                 {
@@ -679,6 +1063,14 @@ export default function RuleVersionsPage() {
                           ),
                         )
                       }
+                      workflowNames={workflowNames}
+                      onApplyFamily={applyFamily}
+                      onAddRule={addRule}
+                      onRemoveRule={(id) =>
+                        setRules((all) =>
+                          all.filter((row) => row.rule_id !== id),
+                        )
+                      }
                     />
                   ),
                 },
@@ -687,6 +1079,80 @@ export default function RuleVersionsPage() {
           </div>
         ) : null}
       </Modal>
+      <FormModal
+        open={addingWorkflow}
+        title={t("rules.app.addWorkflow")}
+        onClose={() => setAddingWorkflow(false)}
+        onSubmit={async (values: {
+          code: string;
+          name: string;
+          contractType: string;
+        }) => {
+          try {
+            addWorkflow(values);
+            setEditorTab("templates");
+            message.success(t("rules.app.created"));
+          } catch {
+            void message.error(
+              t("rules.app.problems.APP_WORKFLOW_CODE", { where: values.code }),
+            );
+            throw new Error("APP_WORKFLOW_CODE");
+          }
+        }}
+      >
+        <Form.Item
+          name="contractType"
+          label={t("rules.app.contractType")}
+          rules={[
+            {
+              required: true,
+              message: tc("forms.required", {
+                field: t("rules.app.contractType"),
+              }),
+            },
+          ]}
+        >
+          <Select
+            options={WORKFLOW_CONTRACT_TYPES.map((value) => ({
+              value,
+              label: td(`contractType.${value}`),
+            }))}
+          />
+        </Form.Item>
+        <Form.Item
+          name="name"
+          label={t("rules.app.workflowName")}
+          rules={[
+            {
+              required: true,
+              whitespace: true,
+              message: tc("forms.required", {
+                field: t("rules.app.workflowName"),
+              }),
+            },
+            { max: 120 },
+          ]}
+        >
+          <Input
+            maxLength={120}
+            placeholder={t("rules.app.workflowNamePlaceholder")}
+          />
+        </Form.Item>
+        <Form.Item
+          name="code"
+          label={t("rules.app.workflowCode")}
+          extra={t("rules.app.workflowCodeHint")}
+          rules={[
+            {
+              required: true,
+              pattern: /^[A-Za-z0-9_]{2,30}$/,
+              message: t("rules.app.workflowCodeHint"),
+            },
+          ]}
+        >
+          <Input addonBefore={APP_PREFIX} maxLength={30} />
+        </Form.Item>
+      </FormModal>
       <ConfirmModal
         open={!!publishing}
         title={t("rules.publish")}

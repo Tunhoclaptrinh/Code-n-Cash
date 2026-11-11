@@ -52,10 +52,12 @@ export function milestonesFor(
   dueDates: Record<number, string> = {},
   origin: Origin = "APP",
 ): MilestoneRecord[] {
-  const roles = APPROVAL_ROLES_BY_POLICY[contract.approval_policy] ?? [];
-  const approvalRequired = roles.length > 0;
+  const policyRoles = APPROVAL_ROLES_BY_POLICY[contract.approval_policy] ?? [];
   let allocated = 0n;
   return stages.map((stage, index) => {
+    // An app workflow may exempt a stage (for example a kick-off) from the contract's approvals.
+    const roles = stage.approval === "NONE" ? [] : policyRoles;
+    const approvalRequired = roles.length > 0;
     const last = index === stages.length - 1;
     const planned = last
       ? fromCents(toCents(contract.contract_value_vnd_mn) - allocated)

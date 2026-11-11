@@ -563,6 +563,8 @@ export type TimelineEntry =
 export interface ContractOverview {
   contract: ContractRow;
   workflowTemplate: WorkflowTemplate;
+  /** Display name of an `APP_` workflow from the pinned rule version; null for organiser ones. */
+  workflowName: string | null;
   ruleSetId: string;
   graceDays: number;
   penaltyRatePct: string;
@@ -1243,6 +1245,8 @@ export interface ContractDraft {
   templateSnapshot?: ContractTemplateSnapshot;
   documentBody?: string;
   ruleVersion?: { id: string; hash: string };
+  /** The organiser workflow of the type, or an `APP_` workflow of the pinned rule version. */
+  workflowTemplate?: string;
   code: string;
   state: DraftState;
   origin: Origin;
@@ -1298,10 +1302,21 @@ export interface UploadFormOptions {
   buyerSigners: PersonOption[];
   supplierSigners: Record<string, PersonOption[]>;
   presets: SigningPreset[];
-  /** Stage list per contract type, from the Data Pack workflows. */
+  /**
+   * Stage list per contract type, from the rule version a new draft pins: the organiser workflow
+   * and the version's own `APP_` workflows for that type.
+   */
   workflows: Record<
     ContractType,
-    { template: WorkflowTemplate; stages: MilestoneType[] }
+    {
+      template: WorkflowTemplate;
+      stages: MilestoneType[];
+      alternatives: Array<{
+        template: string;
+        name: string;
+        stages: MilestoneType[];
+      }>;
+    }
   >;
 }
 

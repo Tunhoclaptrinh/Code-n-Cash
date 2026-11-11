@@ -7,6 +7,7 @@ import {
   Dropdown,
   Form,
   Input,
+  InputNumber,
   Select,
   Space,
   Tag,
@@ -16,16 +17,23 @@ import type { TextAreaRef } from "antd/es/input/TextArea";
 import {
   BookOutlined,
   CheckCircleOutlined,
+  DeleteOutlined,
   InfoCircleOutlined,
+  PlusOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import type {
-  RuleExpressionField,
-  RuleExpressionValidation,
-  RuleLanguage,
-  RuleVersion,
+import {
+  RULE_DECISIONS,
+  RULE_REASONS,
+  divergedFamilies,
+  isAppRule,
+  ruleFamily,
+  type RuleExpressionField,
+  type RuleExpressionValidation,
+  type RuleLanguage,
+  type RuleVersion,
 } from "@codecash/contracts";
 import { trustApi } from "@/shared/api/trust";
 import { useCurrentUser } from "@/shared/auth/session";
@@ -49,6 +57,10 @@ export function RuleExpressionEditor({
   checking,
   onCheck,
   onChange,
+  workflowNames = {},
+  onApplyFamily,
+  onAddRule,
+  onRemoveRule,
 }: {
   rules: Rule[];
   original: Rule[];
@@ -56,7 +68,13 @@ export function RuleExpressionEditor({
   validation?: RuleExpressionValidation;
   checking: boolean;
   onCheck: () => void;
-  onChange: (id: string, field: RuleExpressionField, value: string) => void;
+  onChange: (id: string, field: string, value: string) => void;
+  /** Display names of the version's own `APP_` workflows, by code. */
+  workflowNames?: Record<string, string>;
+  /** Copies the selected organiser rule's expressions onto its 16 copies (same priority). */
+  onApplyFamily?: (id: string) => void;
+  onAddRule?: (scope: string) => void;
+  onRemoveRule?: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation("trust");
   const { t: td } = useTranslation("domain");
@@ -90,6 +108,25 @@ export function RuleExpressionEditor({
     }
   };
   const issues = validation?.issues ?? [];
+  // Organiser rules, and app copies still named like them, read in the user's language; a rule
+  // the author named or added keeps the author's name.
+  const labelOf = (row: Rule) =>
+    language === "vi" &&
+    (!isAppRule(row) ||
+      rules.some(
+        (other) =>
+          !isAppRule(other) &&
+          other.priority === row.priority &&
+          other.rule_name === row.rule_name,
+      ))
+      ? t(`rules.language.priorities.${row.priority}`, {
+          defaultValue: row.rule_name,
+        })
+      : row.rule_name;
+  const appScope = scoped.length > 0 && isAppRule(scoped[0]);
+  // The organiser's 128 rules are 8 families of 16 identical copies; edits apply to a family.
+  const family = selected ? ruleFamily(rules, selected.rule_id) : [];
+  const diverged = divergedFamilies(rules);
   const filtered = variables.filter((variable) =>
     [variable.name, variable.label[language], variable.description[language]]
       .join(" ")
@@ -116,7 +153,7 @@ export function RuleExpressionEditor({
               )!;
               return {
                 value,
-                label: `${td(`workflow.${row.workflow_template}`)} · ${td(`milestoneType.${row.applies_to_milestone_type}`)}`,
+                label: `${workflowNames[row.workflow_template] ?? td(`workflow.${row.workflow_template}`)} · ${td(`milestoneType.${row.applies_to_milestone_type}`)}`,
               };
             })}
             data-testid="rule-scope-select"
@@ -183,11 +220,30 @@ export function RuleExpressionEditor({
           />
         ) : null}
       </div>
+      {diverged.length ? (
+        <Alert
+          type="warning"
+          showIcon
+          className={styles.notice}
+          title={t("rules.app.diverged", { priorities: diverged.join(", ") })}
+          data-testid="rule-family-diverged"
+        />
+      ) : null}
       <div className={styles.layout}>
         <nav
           aria-label={t("rules.language.orderList")}
           className={styles.ruleList}
         >
+          {appScope && editable && onAddRule ? (
+            <Button
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={() => onAddRule(activeScope)}
+              data-testid="rule-add"
+            >
+              {t("rules.app.addRule")}
+            </Button>
+          ) : null}
           {scoped.map((row) => (
             <button
               type="button"
@@ -205,11 +261,7 @@ export function RuleExpressionEditor({
                 <Tag color={tone(row.decision)}>{row.decision}</Tag>
                 <small>{row.rule_id}</small>
               </span>
-              <span>
-                {language === "vi"
-                  ? t(`rules.language.priorities.${row.priority}`)
-                  : row.rule_name}
-              </span>
+              <span>{labelOf(row)}</span>
             </button>
           ))}
         </nav>
@@ -219,16 +271,102 @@ export function RuleExpressionEditor({
             data-testid="rule-expression-detail"
           >
             <div className={styles.heading}>
-              <Typography.Text strong>
-                {language === "vi"
-                  ? t(`rules.language.priorities.${selected.priority}`)
-                  : selected.rule_name}
-              </Typography.Text>
+              <Typography.Text strong>{labelOf(selected)}</Typography.Text>
               <Tag color={tone(selected.decision)}>{selected.decision}</Tag>
             </div>
-            <Typography.Paragraph className={styles.description}>
-              {selected.rule_description_vi}
-            </Typography.Paragraph>
+            {isAppRule(selected) && editable ? (
+              <div className={styles.appMeta} data-testid="rule-app-meta">
+                <Form.Item label={t("rules.app.name")} style={{ margin: 0 }}>
+                  <Input
+                    value={selected.rule_name}
+                    maxLength={200}
+                    onChange={(event) =>
+                      onChange(
+                        selected.rule_id,
+                        "rule_name",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={t("rules.app.priority")}
+                  style={{ margin: 0 }}
+                >
+                  <InputNumber
+                    value={Number(selected.priority)}
+                    min={1}
+                    max={999}
+                    precision={0}
+                    onChange={(value) =>
+                      onChange(
+                        selected.rule_id,
+                        "priority",
+                        value === null ? "" : String(value),
+                      )
+                    }
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={t("rules.app.decision")}
+                  style={{ margin: 0 }}
+                >
+                  <Select
+                    value={selected.decision}
+                    options={RULE_DECISIONS.map((value) => ({
+                      value,
+                      label: td(`decision.${value}`),
+                    }))}
+                    onChange={(value) =>
+                      onChange(selected.rule_id, "decision", value)
+                    }
+                  />
+                </Form.Item>
+                <Form.Item label={t("rules.app.reason")} style={{ margin: 0 }}>
+                  <Select
+                    value={selected.reason_code}
+                    options={RULE_REASONS.map((value) => ({
+                      value,
+                      label: td(`reason.${value}`),
+                    }))}
+                    onChange={(value) =>
+                      onChange(selected.rule_id, "reason_code", value)
+                    }
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={t("rules.app.description")}
+                  style={{ margin: 0, gridColumn: "1 / -1" }}
+                >
+                  <Input.TextArea
+                    value={selected.rule_description_vi}
+                    autoSize={{ minRows: 1, maxRows: 4 }}
+                    maxLength={2000}
+                    onChange={(event) =>
+                      onChange(
+                        selected.rule_id,
+                        "rule_description_vi",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </Form.Item>
+                {onRemoveRule ? (
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => onRemoveRule(selected.rule_id)}
+                    data-testid="rule-remove"
+                  >
+                    {t("rules.app.removeRule")}
+                  </Button>
+                ) : null}
+              </div>
+            ) : (
+              <Typography.Paragraph className={styles.description}>
+                {selected.rule_description_vi}
+              </Typography.Paragraph>
+            )}
             <Space wrap size={[6, 6]} className={styles.metadata}>
               <Tag>
                 {t("rules.language.priority", { value: selected.priority })}
@@ -252,6 +390,17 @@ export function RuleExpressionEditor({
                 showIcon
                 title={t("rules.language.modified")}
                 className={styles.notice}
+                action={
+                  editable && onApplyFamily && family.length > 1 ? (
+                    <Button
+                      size="small"
+                      onClick={() => onApplyFamily(selected.rule_id)}
+                      data-testid="rule-apply-family"
+                    >
+                      {t("rules.app.applyFamily", { count: family.length })}
+                    </Button>
+                  ) : undefined
+                }
               />
             ) : null}
             <div className={styles.fields}>

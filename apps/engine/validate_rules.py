@@ -194,6 +194,10 @@ def check_expression(text, field, priority=None):
         raise ExpressionProblem('PERCENT_CONVERSION_REQUIRED' if result.dimension[3] else 'UNIT_MISMATCH', tree.body)
 
 
+# The organiser's 128 rules plus a version's own workflows (rule-workflows.ts MAX_VERSION_RULES).
+MAX_VERSION_RULES = 2048
+
+
 def inspect(rules, limit=None):
     if (not isinstance(rules, list) or not rules or (limit is not None and len(rules) > limit)
             or any(not isinstance(row, dict) for row in rules)):
@@ -224,7 +228,7 @@ def validate(rules):
 if __name__ == '__main__':
     try:
         if '--inspect' in sys.argv:
-            print(json.dumps(inspect(json.load(sys.stdin), limit=128)))
+            print(json.dumps(inspect(json.load(sys.stdin), limit=MAX_VERSION_RULES)))
         elif '--safety' in sys.argv:
             # Static safety proof (codecash_engine/safety.py) of rules that already type-check.
             from codecash_engine.safety import check_rules

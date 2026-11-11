@@ -160,3 +160,40 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Editable rule header of a version's own (APP_) scope. */
+.appMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+/* The version's own workflows above the milestone template table (RuleVersionsPage). */
+.workflows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.workflowRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.workflowRow > :global(.ant-input) {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.problemList {
+  margin: 0;
+  padding-left: 18px;
+}

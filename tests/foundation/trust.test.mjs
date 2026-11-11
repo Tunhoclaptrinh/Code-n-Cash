@@ -1550,3 +1550,259 @@ test("anchors are countersigned by the configured time-stamp authority", async (
 
 const digestOf = (payload) =>
   createHash("sha256").update(canonical(payload)).digest("hex");
+
+test("a version adds its own APP_ workflow: checked for completeness, proven safe, used by new drafts only", async () => {
+  const { scaffoldAppWorkflow, nextRuleNumber, appWorkflowProblems } =
+    await import("../../apps/api/dist/trust/rule-workflows.js");
+  const { runEngine } = await import("../../apps/api/dist/domain/engine.js");
+  const { loadDataPack } =
+    await import("../../apps/api/dist/domain/datapack.js");
+  const { TABLE } = await import("../../apps/api/dist/domain/records.js");
+  const author = actors["u-sysadmin"];
+  const code = "APP_SERVICES_FAST";
+  let version = await rules.create(
+    { name: "Fast services", reason: "Kick-off needs no approval" },
+    author,
+  );
+  const added = scaffoldAppWorkflow({
+    code,
+    name: "Dịch vụ nhanh",
+    contractType: "SERVICES",
+    rules: version.rules,
+    templates: version.templates,
+  });
+  // The plain copy is already complete.
+  assert.deepEqual(appWorkflowProblems(added.rules, added.templates), []);
+  assert.deepEqual(
+    added.templates.map((row) => row.milestoneType),
+    ["KICKOFF", "INTERIM_DELIVERY", "FINAL_ACCEPTANCE", "WARRANTY_CLOSE"],
+  );
+  added.templates[0].approval = "NONE";
+  // A new rule in the kick-off scope: hold a kick-off above 1,000 million for a manual check.
+  added.rules.push({
+    ...added.rules.find((rule) => rule.release_rule_code === `${code}:KICKOFF`),
+    rule_id: `${code}-${nextRuleNumber(added.rules, code)}`,
+    priority: "65",
+    rule_name: "Kick-off lớn cần kiểm tra",
+    rule_group: "APP",
+    condition_expression: "planned_payment_vnd_mn > 1000",
+    decision: "HOLD",
+    reason_code: "UNRESOLVED_CONDITION",
+    payable_amount_formula: "0",
+    penalty_amount_formula: "0",
+    rule_description_vi:
+      "Mốc khởi động trên 1.000 triệu chờ kiểm tra thủ công.",
+  });
+  const content = {
+    rules: [...version.rules, ...added.rules],
+    templates: [...version.templates, ...added.templates],
+  };
+  const save = (patch) =>
+    rules.save(
+      version.id,
+      { version: version.version, ...content, ...patch },
+      author,
+    );
+  // Each kind of incomplete workflow is refused with its own code.
+  const without = (predicate) =>
+    content.rules.filter((rule) => !predicate(rule));
+  await assert.rejects(
+    save({
+      rules: without(
+        (rule) =>
+          rule.release_rule_code === `${code}:KICKOFF` &&
+          rule.condition_expression === "ELSE",
+      ),
+    }),
+    /APP_SCOPE_FALLBACK/,
+  );
+  await assert.rejects(
+    save({
+      rules: without(
+        (rule) =>
+          rule.release_rule_code === `${code}:KICKOFF` &&
+          rule.reason_code === "OPEN_DISPUTE",
+      ),
+    }),
+    /APP_SCOPE_REASONS/,
+  );
+  await assert.rejects(
+    save({
+      rules: without((rule) => rule.release_rule_code === `${code}:KICKOFF`),
+    }),
+    /APP_SCOPE_MISSING/,
+  );
+  await assert.rejects(
+    save({
+      templates: content.templates.map((row) =>
+        row.id === added.templates[0].id
+          ? { ...row, paymentPercent: "11.00" }
+          : row,
+      ),
+    }),
+    /APP_PERCENT_TOTAL/,
+  );
+  await assert.rejects(
+    save({
+      templates: content.templates.map((row) =>
+        row.workflowTemplate === code ? { ...row, contractType: "LEASE" } : row,
+      ),
+    }),
+    /APP_WORKFLOW_TYPE/,
+  );
+  // The organiser rules stay restated only, even inside a version that adds its own workflow.
+  await assert.rejects(
+    save({
+      rules: content.rules.map((rule) =>
+        rule.rule_id === "PR0001" ? { ...rule, decision: "RELEASE" } : rule,
+      ),
+    }),
+    /RULE_VERSION_INVALID/,
+  );
+  // An app rule that releases money while a dispute is open passes the structure checks but
+  // fails the engine's safety proof, so the version cannot be submitted.
+  const release = content.rules.find(
+    (rule) =>
+      rule.release_rule_code === `${code}:INTERIM_DELIVERY` &&
+      rule.reason_code === "ALL_CONDITIONS_MET",
+  );
+  const unsafe = await save({
+    rules: [
+      ...content.rules,
+      {
+        ...release,
+        rule_id: `${code}-${nextRuleNumber(content.rules, code)}`,
+        priority: "5",
+        condition_expression: "open_dispute == TRUE",
+      },
+    ],
+  });
+  const unsafePreview = await rules.preview(unsafe.id, {
+    version: unsafe.version,
+    rules: unsafe.rules,
+    templates: unsafe.templates,
+  });
+  assert.equal(unsafePreview.changed, 0);
+  assert.equal(unsafePreview.safety.safe, false);
+  assert.equal(unsafePreview.canSubmit, false);
+  await assert.rejects(
+    rules.submit(unsafe.id, unsafe.version, author),
+    /RULE_VERSION_REGRESSION|RULE_VERSION_UNSAFE/,
+  );
+  version = unsafe;
+
+  version = await save({});
+  // The syntax check takes the organiser's 128 rules plus the version's own.
+  const syntax = await rules.checkExpressions({ rules: version.rules });
+  assert.ok(version.rules.length > 128);
+  assert.equal(syntax.valid, true);
+  assert.equal(syntax.checked, version.rules.length * 3); // three expressions a rule
+  const preview = await rules.preview(version.id, {
+    version: version.version,
+    rules: version.rules,
+    templates: version.templates,
+  });
+  assert.equal(
+    preview.changed,
+    0,
+    "the organiser's 405 milestones are untouched",
+  );
+  assert.equal(preview.evaluated, 405);
+  assert.equal(preview.matched, preview.samples);
+  assert.equal(preview.safety.safe, true);
+  assert.equal(preview.canSubmit, true);
+  version = await rules.submit(version.id, version.version, author);
+  version = await rules.publish(version.id, version.version, author);
+  const published = (await repo.list(TABLE.rules)).filter((rule) =>
+    String(rule.rule_set_id).startsWith(`${code}~`),
+  );
+  assert.equal(published.length, added.rules.length);
+
+  // New drafts may choose the workflow; the contract takes its rule set and its stages.
+  const options = await call("u-legal", "drafts", "getUploadFormOptions");
+  const alternative = options.workflows.SERVICES.alternatives.find(
+    (row) => row.template === code,
+  );
+  assert.equal(alternative.name, "Dịch vụ nhanh");
+  assert.deepEqual(
+    alternative.stages,
+    added.templates.map((row) => row.milestoneType),
+  );
+  const original = await call("u-legal", "drafts", "getContractDraft");
+  const draft = await call("u-legal", "drafts", "saveContractDraft", {
+    ...original,
+    title: "Hợp đồng dịch vụ nhanh",
+    type: "SERVICES",
+    workflowTemplate: code,
+    file: { name: "fast.pdf", sizeBytes: 1000, kind: "PDF" },
+  });
+  assert.equal(draft.workflowTemplate, code);
+  const contract = (await repo.list(TABLE.contracts)).find(
+    (row) => row.contract_id === draft.code,
+  );
+  assert.equal(contract.workflow_template, code);
+  assert.equal(
+    contract.rule_set_id,
+    `${code}~${version.id.replaceAll("-", "")}`,
+  );
+  const overview = await call(
+    "u-owner",
+    "contracts",
+    "getContractOverview",
+    draft.code,
+  );
+  assert.equal(overview.workflowName, "Dịch vụ nhanh");
+  await assert.rejects(
+    call("u-legal", "drafts", "saveContractDraft", {
+      ...draft,
+      type: "GOODS_SUPPLY",
+      workflowTemplate: code,
+    }),
+    /INVALID_WORKFLOW/,
+  );
+  // The organiser's contracts keep the organiser's rules.
+  assert.equal(
+    (await repo.list(TABLE.contracts)).find(
+      (row) => row.contract_id === "CT0005",
+    ).rule_set_id,
+    "R_SERVICE_STD",
+  );
+
+  // The engine applies the app scope: the same kick-off, moved onto it without approvals, is held
+  // by the new rule (above 1,000 million) instead of the organiser's rules.
+  const pack = await loadDataPack();
+  const kickoff = pack.milestones.find((row) => row.milestone_id === "MS0018");
+  const scope = `${contract.rule_set_id}:KICKOFF`;
+  const run = async (planned) =>
+    (
+      await runEngine({
+        [TABLE.contracts]: pack.contracts,
+        [TABLE.parties]: pack.parties,
+        [TABLE.milestones]: [
+          {
+            ...kickoff,
+            release_rule_code: scope,
+            approval_required: "FALSE",
+            required_approval_roles: "",
+            required_approval_quorum: "0",
+            required_condition:
+              "EVENT:CONTRACT_SIGNED AND EVENT:KICKOFF_CONFIRMED AND NO_OPEN_DISPUTE",
+            planned_payment_vnd_mn: planned,
+          },
+        ],
+        [TABLE.events]: pack.events.filter(
+          (event) =>
+            event.milestone_id === "MS0018" && event.event_type !== "APPROVAL",
+        ),
+        [TABLE.rules]: published,
+        [TABLE.exceptions]: [],
+      })
+    ).evaluations.get("MS0018");
+  const large = await run("1500.00");
+  assert.equal(large.decision, "HOLD");
+  assert.equal(large.reasonCode, "UNRESOLVED_CONDITION");
+  assert.ok(large.ruleId.startsWith(`${version.id}:${code}-`));
+  const small = await run("500.00");
+  assert.equal(small.decision, "RELEASE", JSON.stringify(small.issues));
+  assert.equal(small.approvalRequired, false);
+});

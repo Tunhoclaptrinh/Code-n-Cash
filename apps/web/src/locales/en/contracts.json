@@ -208,6 +208,11 @@
         "grace": "0–60",
         "rate": "0.00–5.00",
         "cap": "0.00–8.00"
+      },
+      "workflow": {
+        "label": "Milestone workflow",
+        "standard": "Standard: {{name}}",
+        "stages": "Milestones: {{stages}}"
       }
     },
     "preview": {

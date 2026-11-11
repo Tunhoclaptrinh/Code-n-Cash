@@ -169,7 +169,7 @@ Engine không gắn cứng với một hợp đồng, một bộ luật hay mộ
 | Kiểm tra an toàn   | Chứng minh tĩnh trên mọi phạm vi luật (`codecash_engine/safety.py`): duyệt lưới fact phủ mọi ranh giới, thêm giá trị biên quanh mọi hằng số mà điều kiện so sánh; không luật trả tiền nào thắng khi còn yếu tố chặn, số tiền nằm trong [0, P], HOLD và REJECT không trả, phạm vi kết thúc bằng ELSE. Không đạt thì không gửi duyệt và không công bố được (`RULE_VERSION_UNSAFE`). Bước này bắt được luật chỉ sai với tham số mà Data Pack không có (ví dụ chỉ sai khi giá trị mốc trên 6.000 triệu), điều mà phép so 405 mốc không thấy |
 | Công bố            | Quản trị hệ thống công bố phiên bản đã qua kiểm tra; nội dung được khoá bằng băm, phiên bản cũ chuyển sang ngừng hiệu lực; phiên bản chỉ ràng buộc hợp đồng khi cả hai bên ký văn bản ghim nó (SoD-4)                                                                                                                                                                                                                                                                                                                                   |
 
-Luật của BTC là căn cứ cho 405 mốc, nên một phiên bản mới không được đổi kết quả của chúng. Phiên bản mới dùng để viết lại tương đương, thêm phạm vi luật và mẫu mốc cho hợp đồng tạo trong ứng dụng. Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
+Luật của BTC là căn cứ cho 405 mốc, nên phần luật và mẫu mốc của BTC trong một phiên bản chỉ được viết lại tương đương: giữ mã luật, ưu tiên, quyết định, mã lý do và phạm vi; mọi thay đổi kết quả trên 405 mốc bị chặn. Phần được thay đổi thật là các quy trình riêng của phiên bản (mục 6.3). Hợp đồng ghim phiên bản luật tại thời điểm tạo, nên công bố phiên bản mới không âm thầm đổi quyết định của hợp đồng đang chạy.
 
 5. **Chính sách là dữ liệu** (mục 6.2): thêm loại event, đổi điều kiện thẩm quyền, đổi cách đóng tranh chấp, thêm biến luật từ một cột của mốc hay hợp đồng đều là sửa dữ liệu, không sửa code.
 
@@ -200,6 +200,29 @@ Biểu thức trong policy pack dùng hai phương ngữ của cùng bộ biên 
 Mỗi biến trong `apps/engine/rule_language.json` khai báo nguồn giá trị (`binding`): fact do engine tính, fact suy ra trong policy pack, hoặc một ô của `milestones.csv` hay `contracts.csv` kèm kiểu và thông báo lỗi. Ngoài 17 biến của đề, bộ từ vựng có thêm `invoice_required`, `hold_on_open_dispute`, `payment_percent`, `contract_value_vnd_mn`, `auto_release_allowed`; bộ luật của BTC không dùng chúng nên kết quả trên 405 mốc không đổi.
 
 Mỗi kết quả ghi lại cách chọn luật (`selection`: `FIRST_MATCH` hoặc một trong các nhánh về ELSE ở mục 14.12); phần giải thích trong audit trace ghi kết cục của từng luật (mục 14.11) và giá trị mọi biến luật lúc quyết định. Audit trace của lượt chạy ghi mã, phiên bản và băm SHA-256 của policy pack; băm này thuộc định danh lượt chạy.
+
+### 6.3. Quy trình riêng của phiên bản luật
+
+128 luật của BTC là 8 luật, mỗi luật lặp lại ở 16 phạm vi; 4 mẫu mốc là 4 quy trình của Data Pack. Một phiên bản luật giữ nguyên chúng như trên, và có thể mang thêm **quy trình riêng** mã `APP_…` cho hợp đồng soạn trong ứng dụng.
+
+| Được làm | Ở đâu |
+| --- | --- |
+| Thêm quy trình cho một loại hợp đồng, bắt đầu bằng bản sao quy trình chuẩn cùng loại (giai đoạn và luật) | Màn Phiên bản quy tắc, tab Mẫu mốc |
+| Thêm, xoá, đổi tên giai đoạn; đổi loại mốc, tỷ lệ thanh toán, số ngày tới hạn, chứng từ bắt buộc, phạt trễ | như trên |
+| Cho một giai đoạn không cần phê duyệt dù chính sách hợp đồng có (ví dụ khởi động) | cột Phê duyệt |
+| Thêm, xoá luật trong phạm vi của quy trình riêng; đổi ưu tiên, quyết định, mã lý do, điều kiện, công thức | tab Luật |
+| Sửa một luật của BTC rồi áp cho cả 16 bản cùng ưu tiên; cảnh báo khi các bản đã lệch nhau | tab Luật |
+| Bên soạn hợp đồng chọn quy trình riêng khi phiên bản đang công bố có quy trình cho loại hợp đồng đó | Tải hợp đồng lên, ô Quy trình mốc |
+
+Vì sao không đổi 405 mốc: mốc Data Pack luôn dùng phạm vi của BTC trong bảng luật gốc; phiên bản đã công bố được chép thêm dưới mã bộ luật có hậu tố phiên bản, và chỉ hợp đồng ghim phiên bản đó mới dùng. Phép xem trước vẫn chạy lại cả 405 mốc và phải không đổi gì.
+
+Quy trình riêng được kiểm bằng ba lớp trước khi công bố:
+
+1. **Cấu trúc** (`rule-workflows.ts`, dùng chung cho API và màn hình nên lỗi hiện ngay khi sửa): mã `APP_`, cùng một loại hợp đồng và tên; 1–8 giai đoạn đánh số liên tục; loại mốc hợp lệ, không lặp; ít nhất một chứng từ; tổng tỷ lệ đúng 100%; số ngày tới hạn không giảm; mỗi giai đoạn có phạm vi luật; mỗi phạm vi có ưu tiên 1–999 không trùng, đúng một luật ELSE ở cuối và đủ 8 mã lý do của đề.
+2. **Ngôn ngữ luật**: mọi điều kiện và công thức qua bộ kiểm `BTC_DSL_V1` như luật của BTC.
+3. **Chứng minh an toàn** (`safety.py`) trên mọi phạm vi, kể cả phạm vi chưa có mốc nào: không luật trả tiền nào thắng khi còn yếu tố chặn, số tiền trong [0, P]. Ví dụ một luật "có tranh chấp thì vẫn chi" bị chặn ở bước này.
+
+Giới hạn hiện tại: chưa thêm được loại hợp đồng hay loại mốc mới (cần nhãn và thẩm quyền chứng từ trong policy pack); vai trò phê duyệt vẫn theo chính sách của hợp đồng (`APPROVAL_ROLES_BY_POLICY`), quy trình riêng chỉ chọn được "theo chính sách" hoặc "không cần phê duyệt" cho từng giai đoạn; trần phạt luật định 8% áp cho mọi loại hợp đồng (mục 11).
 
 ## 7. Tính tiền
 

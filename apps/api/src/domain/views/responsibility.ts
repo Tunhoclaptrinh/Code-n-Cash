@@ -7,7 +7,7 @@ import {
   type RuleRecord,
   TABLE,
 } from "../records";
-import { addDays } from "../templates";
+import { addDays, toCents } from "../templates";
 import type {
   ApprovalRole,
   BusinessEventType,
@@ -324,6 +324,15 @@ export function pendingItems(
   const accounts = (organizationId: string, roles: Role[]) =>
     accountsOf(ctx, organizationId, roles);
   const recorder = (e: EventRecord) => recorderOf(ctx, e);
+  // Spec 5, BR-10: an approval above the approver's limit does not count, so such an approver is
+  // not someone the milestone can wait for.
+  const withinLimit = (userId: string) => {
+    const partyId = ctx.user(userId)?.partyId;
+    const limit = partyId
+      ? ctx.party(String(partyId))?.approval_limit_vnd_mn
+      : undefined;
+    return !limit || toCents(limit) >= toCents(m.planned_payment_vnd_mn);
+  };
 
   // Rules of the scope by the reason they give, to tell the user which rule each item feeds.
   const rules = (ctx.t[TABLE.rules] as RuleRecord[])
@@ -414,7 +423,9 @@ export function pendingItems(
       side: item.side,
       organization,
       roles: item.roles,
-      people: accounts(organization.id, item.roles),
+      people: accounts(organization.id, item.roles).filter(
+        (person) => item.kind !== "APPROVAL" || withinLimit(person.userId),
+      ),
       done:
         item.done && item.doneAt
           ? {

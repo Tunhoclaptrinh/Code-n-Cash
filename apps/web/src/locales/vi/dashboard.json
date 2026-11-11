@@ -1,41 +1,152 @@
 {
   "title": "Tổng quan hợp đồng",
-  "updated": "Cập nhật lúc {{at}}, tự làm mới mỗi 30 giây",
+  "updated": "Cập nhật {{at}} · tự làm mới",
+  "today": "Ngày nghiệp vụ {{date}}",
+  "unit": "triệu",
   "million": "{{value}} triệu",
-  "cards": {
-    "contracts": "Hợp đồng đang theo dõi",
-    "attention_one": "{{count}} mốc cần chú ý",
-    "attention_other": "{{count}} mốc cần chú ý",
-    "payable": "Đủ điều kiện chi, chưa chuyển",
-    "paid": "Đã chuyển chi {{value}} triệu",
+  "actions": {
+    "tasks": "Việc cần làm ({{count}})",
+    "tasksNone": "Việc cần làm",
+    "upload": "Tải hợp đồng lên",
+    "contracts": "Danh sách hợp đồng",
+    "exceptions": "Ngoại lệ chứng từ",
+    "activity": "Nhật ký hoạt động",
+    "data": "Kết quả Data Pack",
+    "verify": "Kiểm tra chữ ký",
+    "refresh": "Làm mới số liệu",
+    "more": "Màn hình khác"
+  },
+  "kpi": {
+    "myTurn": "Đến lượt bạn",
+    "myTurnHint_one": "{{count}} việc đang trễ hạn",
+    "myTurnHint_other": "{{count}} việc đang trễ hạn",
+    "myTurnClear": "Không có việc trễ hạn",
+    "contracts": "Hợp đồng theo dõi",
+    "contractsHint": "{{active}} đang thực hiện · {{signing}} chờ ký",
+    "paid": "Đã chuyển chi",
+    "paidHint": "{{pct}}% tổng giá trị · {{count}} mốc",
+    "payable": "Đủ điều kiện, chờ chi",
+    "payableHint_one": "{{count}} mốc chờ lệnh chi",
+    "payableHint_other": "{{count}} mốc chờ lệnh chi",
     "held": "Đang tạm giữ",
-    "planned": "Trên tổng giá trị {{value}} triệu",
-    "penalty": "Tổng tiền phạt trễ hạn"
+    "heldHint": "{{count}} mốc · {{overdue}} quá hạn",
+    "penalty": "Tiền phạt trễ hạn",
+    "penaltyHint": "Từ chối chi: {{rejected}} triệu"
+  },
+  "money": {
+    "title": "Giá trị hợp đồng đang ở đâu",
+    "caption": "{{planned}} triệu trên {{count}} mốc",
+    "label": "Phân bổ giá trị kế hoạch",
+    "parts": {
+      "paid": "Đã chuyển chi",
+      "payable": "Đủ điều kiện, chờ chi",
+      "penalty": "Bị trừ phạt",
+      "held": "Đang tạm giữ",
+      "rejected": "Từ chối chi"
+    }
+  },
+  "months": {
+    "title": "Giá trị theo tháng đến hạn",
+    "caption": "Theo quyết định hiện tại · bấm một cột để xem việc của tháng",
+    "label": "Giá trị kế hoạch theo tháng đến hạn",
+    "month": "Tháng {{month}}",
+    "paid": "Đã chuyển chi",
+    "empty": "Chưa có mốc nào có hạn."
+  },
+  "reasons": {
+    "title": "Vì sao tiền đang bị giữ",
+    "caption": "",
+    "value": "{{amount}} triệu · {{count}} mốc",
+    "none": "Không có mốc nào đang bị giữ."
+  },
+  "status": {
+    "title": "Hợp đồng theo trạng thái",
+    "caption": "Bấm để lọc danh sách"
   },
   "decisions": {
-    "title": "Quyết định và trạng thái hợp đồng"
+    "title": "Quyết định của các mốc"
   },
   "attention": {
-    "title_one": "Mốc cần chú ý trong đơn vị ({{count}})",
-    "title_other": "Mốc cần chú ý trong đơn vị ({{count}})",
-    "none": "Không có mốc nào cần chú ý ngay",
+    "title": "Cần chú ý",
+    "caption_one": "{{count}} việc",
+    "caption_other": "{{count}} việc",
+    "none": "Không có mốc nào cần chú ý ngay.",
     "due": "hạn {{date}}",
+    "showAll": "Xem cả {{count}}",
+    "showLess": "Thu gọn",
+    "open": "Mở mốc",
     "kind": {
       "OPEN_DISPUTE": "Tranh chấp đang mở",
+      "OVERDUE": "Quá hạn, chưa hoàn thành",
       "DUE_SOON": "Sắp tới hạn, chưa đủ chứng từ",
       "SEQUENCE_WARNING": "Trình tự sự kiện bất thường",
       "LOW_CONFIDENCE": "Sắp chi, độ chắc chắn thấp"
     }
   },
   "contracts": {
-    "title": "Hợp đồng có nhiều mốc tạm giữ nhất",
+    "title": "Hợp đồng đang giữ nhiều tiền nhất",
+    "caption": "",
     "none": "Chưa có hợp đồng nào trong phạm vi của bạn.",
+    "all": "Xem tất cả hợp đồng",
     "columns": {
       "contract": "Hợp đồng",
       "status": "Trạng thái",
-      "held": "Mốc tạm giữ",
-      "disputes": "Tranh chấp mở",
-      "payable": "Đủ điều kiện chi (triệu)"
+      "progress": "Tiến độ chi",
+      "held": "Đang giữ",
+      "issues": "Vấn đề",
+      "nextDue": "Hạn kế tiếp"
+    },
+    "heldValue": "{{amount}} · {{count}} mốc",
+    "overdue_one": "{{count}} quá hạn",
+    "overdue_other": "{{count}} quá hạn",
+    "disputes_one": "{{count}} tranh chấp",
+    "disputes_other": "{{count}} tranh chấp",
+    "noIssue": "Không có",
+    "open": "Mở hợp đồng",
+    "activity": "Nhật ký hợp đồng",
+    "progressText": "{{ready}}% đủ điều kiện · đã chi {{paid}} / {{planned}}"
+  },
+  "banner": {
+    "hello": {
+      "morning": "Chào buổi sáng",
+      "afternoon": "Chào buổi chiều",
+      "evening": "Chào buổi tối"
+    },
+    "summary": "Bạn có {{tasks}} việc đến lượt ({{late}} việc trễ hạn). Trong phạm vi của bạn có {{overdue}} mốc quá hạn và {{disputes}} tranh chấp đang mở.",
+    "summaryNoTasks": "Bạn đang theo dõi {{contracts}} hợp đồng; {{attention}} mục cần chú ý.",
+    "start": "Làm ngay: {{task}}",
+    "clear": "Không có việc nào đến lượt bạn",
+    "source": {
+      "task": "Việc của bạn",
+      "notice": "Thông báo"
+    },
+    "overdue_one": "Trễ {{count}} ngày",
+    "overdue_other": "Trễ {{count}} ngày",
+    "due": "Hạn {{date}}",
+    "doIt": "Làm ngay",
+    "view": "Xem",
+    "emptyFeedHint": "Không có việc hay thông báo nào cần bạn lúc này.",
+    "all": "Xem tất cả",
+    "previous": "Trước",
+    "next": "Sau"
+  },
+  "calendar": {
+    "title": "Lịch đến hạn",
+    "caption": "Chọn một ngày để xem mốc đến hạn",
+    "month": "Tháng {{month}}",
+    "previous": "Tháng trước",
+    "next": "Tháng sau",
+    "today": "Hôm nay",
+    "count_one": "{{count}} mốc đến hạn",
+    "count_other": "{{count}} mốc đến hạn",
+    "dayTitle": "Đến hạn ngày {{date}}",
+    "none": "Không có mốc nào đến hạn ngày này",
+    "state": {
+      "OVERDUE": "Quá hạn",
+      "HELD": "Đang giữ",
+      "PAYABLE": "Đủ điều kiện",
+      "PAID": "Đã chi",
+      "REJECTED": "Từ chối"
     }
   }
 }

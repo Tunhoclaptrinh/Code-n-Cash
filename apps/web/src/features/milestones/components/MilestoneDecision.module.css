@@ -300,3 +300,12 @@
   /* Readable on the amber row of a blocking item in both themes. */
   color: var(--color-primary-dark) !important;
 }
+
+/* The event a link points at (activity log ?event=): a tinted row with a primary edge. */
+.focusRow > td {
+  background: var(--color-primary-soft) !important;
+}
+
+.focusRow > td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}

@@ -86,6 +86,12 @@ const TASKS: ListSpec<TaskRow & { rank: number }> = {
     badge: { value: (r) => r.badge, filter: "eq", facet: true },
     group: { value: (r) => r.group, filter: "eq", facet: true },
     dueDate: { value: (r) => r.dueDate ?? "9999", sort: true },
+    // YYYY-MM of the due date: the dashboard's month columns open the tasks of one month.
+    dueMonth: {
+      value: (r) => r.dueDate?.slice(0, 7) ?? "",
+      filter: "eq",
+      facet: true,
+    },
     amount: { value: (r) => cents(r.amountMillion), sort: true },
   },
   search: (r) => [r.contractId, r.contractTitle, r.milestoneId],
@@ -169,6 +175,8 @@ const ACTIVITY: ListSpec<ActivityEntry> = {
     action: { value: actionCode, filter: "eq", facet: true },
     contractCode: { value: (e) => e.contractCode, filter: "eq", facet: true },
     origin: { value: (e) => e.origin, filter: "eq", facet: true },
+    // "true" for what the viewer did themselves: one click to reconcile one's own actions.
+    mine: { value: (e) => e.mine, filter: "eq", facet: true },
   },
   search: (e) => [
     e.contractCode,

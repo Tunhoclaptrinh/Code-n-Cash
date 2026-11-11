@@ -939,26 +939,72 @@ export interface IntegrityReport {
 /** Many-contract overview of the contracts the signed-in user may see. */
 export interface DashboardView {
   generatedAt: string;
+  /** The business date the figures are computed for (YYYY-MM-DD). */
+  today: string;
   contractCount: number;
   byStatus: Partial<Record<ContractStatus, number>>;
   byDecision: Partial<Record<Decision, number>>;
-  /** Million VND, two decimals: planned value, payable not yet paid, paid, held and penalties. */
+  /**
+   * Million VND, two decimals. planned = paid + payable + penalty + held + rejected: paid and
+   * payable are released amounts (transferred or not yet), penalty is deducted from released
+   * milestones, held and rejected are the planned value of HOLD and REJECT milestones.
+   */
   amounts: {
     plannedMillion: string;
     payableMillion: string;
     paidMillion: string;
     heldMillion: string;
     penaltyMillion: string;
+    rejectedMillion: string;
   };
+  /** Milestone counts behind the amounts; overdue and dueSoon count unfinished HOLD milestones. */
+  milestones: {
+    total: number;
+    paid: number;
+    payable: number;
+    held: number;
+    rejected: number;
+    overdue: number;
+    dueSoon: number;
+  };
+  /** Planned value by due month (YYYY-MM) and current decision, million VND. */
+  byMonth: Array<{
+    month: string;
+    amounts: Record<Decision, string>;
+    paidMillion: string;
+  }>;
+  /** Why money is held: HOLD milestones by reason, largest first. */
+  holdReasons: Array<{
+    reason: ReasonCode;
+    milestones: number;
+    amountMillion: string;
+  }>;
   /** Milestones that need a person now (at most 50; attentionCount is the total). */
   attention: Array<{
     contractId: string;
     sequence: number;
-    kind: "OPEN_DISPUTE" | "DUE_SOON" | "SEQUENCE_WARNING" | "LOW_CONFIDENCE";
+    kind:
+      | "OPEN_DISPUTE"
+      | "OVERDUE"
+      | "DUE_SOON"
+      | "SEQUENCE_WARNING"
+      | "LOW_CONFIDENCE";
     dueDate?: string;
+    amountMillion: string;
   }>;
   attentionCount: number;
-  /** The ten contracts with the most held milestones. */
+  /**
+   * Every evaluated milestone with a due date, for the calendar: what is due when and where it
+   * stands (OVERDUE and HELD are unfinished HOLD milestones, past or not yet past their date).
+   */
+  dueItems: Array<{
+    date: string;
+    contractId: string;
+    sequence: number;
+    state: "OVERDUE" | "HELD" | "PAYABLE" | "PAID" | "REJECTED";
+    amountMillion: string;
+  }>;
+  /** The ten contracts with the most held value. */
   contracts: Array<{
     contractId: string;
     title: string;
@@ -966,7 +1012,12 @@ export interface DashboardView {
     milestones: number;
     held: number;
     openDisputes: number;
+    overdue: number;
+    plannedMillion: string;
+    paidMillion: string;
     payableMillion: string;
+    heldMillion: string;
+    nextDue: string | null;
   }>;
 }
 
@@ -1026,6 +1077,18 @@ export interface ActivityEntry {
   milestoneId: string | null;
   milestoneNo: number | null;
   origin: Origin;
+  /**
+   * What the viewer may open from this entry, decided by the API from their permissions and
+   * scope: the contract, the milestone's decision, the event on that screen and its stored file.
+   */
+  links: {
+    contract: boolean;
+    milestone: boolean;
+    eventId: string | null;
+    document: { fileName: string } | null;
+  };
+  /** The viewer did this themselves, or their own party (organisation) did. */
+  mine: boolean;
   audit?: {
     seq?: number;
     hash?: string;

@@ -12,7 +12,9 @@
     "all": "Tất cả",
     "from": "Từ ngày",
     "to": "Đến ngày",
-    "searchPlaceholder": "Tìm theo người thực hiện, mã hợp đồng, mã mốc, mã sự kiện (không cần dấu)"
+    "searchPlaceholder": "Tìm theo người thực hiện, mã hợp đồng, mã mốc, mã sự kiện (không cần dấu)",
+    "mine": "Người thực hiện",
+    "mineYes": "Do tôi thực hiện"
   },
   "table": {
     "columns": {
@@ -21,10 +23,13 @@
       "category": "Loại",
       "action": "Việc đã làm",
       "contract": "Hợp đồng · mốc",
-      "origin": "Nguồn"
+      "origin": "Nguồn",
+      "activity": "Hoạt động",
+      "evidence": "Chứng từ"
     },
     "actorRoleColumn": "Vai trò",
-    "empty": "Không có hoạt động nào khớp bộ lọc"
+    "empty": "Không có hoạt động nào khớp bộ lọc",
+    "you": "Bạn"
   },
   "contractRef": {
     "withMilestone": "{{contract}} · MS{{milestoneNo}}"
@@ -68,7 +73,8 @@
     "WORKFLOW_ACTION": "{{action}}",
     "PAYMENT_DELIVERY_ACKNOWLEDGED": "Cổng thanh toán đã nhận lệnh chi ({{channel}}, lần gửi {{attempts}}, mã tham chiếu {{reference}})",
     "PAYMENT_DELIVERY_FAILED": "Gửi lệnh chi không thành công ({{channel}}, lần gửi {{attempts}}, lỗi {{error}})",
-    "PAYMENT_DELIVERY_PENDING": "Lệnh chi chờ gửi ({{channel}})"
+    "PAYMENT_DELIVERY_PENDING": "Lệnh chi chờ gửi ({{channel}})",
+    "EVENT_SHORT": "Ghi nhận {{event}} ({{status}})"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",
@@ -248,5 +254,17 @@
   "paymentChannel": {
     "SIMULATED": "cổng mô phỏng",
     "WEBHOOK": "cổng thanh toán"
+  },
+  "links": {
+    "title": "Đối soát",
+    "more": "Mở liên quan",
+    "event": "Xem chứng từ trên mốc",
+    "milestone": "Mở mốc",
+    "contract": "Mở hợp đồng",
+    "download": "Tải tệp chứng từ"
+  },
+  "scope": {
+    "all": "Mọi người",
+    "mine": "Do tôi ({{count}})"
   }
 }

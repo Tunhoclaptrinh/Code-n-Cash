@@ -1,0 +1,129 @@
+.wrap :global(.ant-picker-calendar) {
+  background: transparent;
+}
+
+.wrap :global(.ant-picker-panel) {
+  border-top: none !important;
+  background: transparent;
+}
+
+.wrap :global(.ant-picker-content th) {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 6px;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 0 2px;
+  border-radius: 8px;
+  min-height: 38px;
+}
+
+.cell:hover {
+  background: var(--color-primary-subtle);
+}
+
+.dayNumber {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.cell[data-outside] .dayNumber {
+  color: var(--color-text-faint);
+}
+
+.cell[data-selected] {
+  background: var(--color-primary-soft);
+}
+
+.cell[data-today] .dayNumber {
+  background: var(--color-primary);
+  color: var(--color-on-solid);
+  font-weight: 700;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 6px;
+}
+
+.dots i,
+.legend i,
+.day i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dots em {
+  font-style: normal;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.day {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+}
+
+.day ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.day li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.day li span {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text) !important;
+}

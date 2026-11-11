@@ -3,10 +3,15 @@ import { formatDecimalString } from "@/shared/lib/format";
 import type { ActivityAction, ActivityEntry } from "../types";
 
 /** Human-readable sentence for what an entry recorded; enum values are translated here, not stored. */
-export function describeAction(t: TFunction, action: ActivityAction): string {
+export function describeAction(
+  t: TFunction,
+  action: ActivityAction,
+  /** short leaves out the event id, shown beside the sentence as its own link. */
+  options: { short?: boolean } = {},
+): string {
   switch (action.kind) {
     case "EVENT":
-      return t("actions.EVENT", {
+      return t(options.short ? "actions.EVENT_SHORT" : "actions.EVENT", {
         event: t(`domain:eventType.${action.eventType}`),
         status: t(`domain:eventStatus.${action.status}`),
         id: action.eventId,

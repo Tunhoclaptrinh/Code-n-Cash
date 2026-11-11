@@ -12,7 +12,9 @@
     "all": "All",
     "from": "From date",
     "to": "To date",
-    "searchPlaceholder": "Search actor, contract, milestone or event ID"
+    "searchPlaceholder": "Search actor, contract, milestone or event ID",
+    "mine": "Done by",
+    "mineYes": "Me"
   },
   "table": {
     "columns": {
@@ -21,10 +23,13 @@
       "category": "Type",
       "action": "Action",
       "contract": "Contract · milestone",
-      "origin": "Source"
+      "origin": "Source",
+      "activity": "Activity",
+      "evidence": "Evidence"
     },
     "actorRoleColumn": "Role",
-    "empty": "No activity matches the filters"
+    "empty": "No activity matches the filters",
+    "you": "You"
   },
   "contractRef": {
     "withMilestone": "{{contract}} · MS{{milestoneNo}}"
@@ -68,7 +73,8 @@
     "WORKFLOW_ACTION": "{{action}}",
     "PAYMENT_DELIVERY_ACKNOWLEDGED": "The payment gateway accepted the instruction ({{channel}}, attempt {{attempts}}, reference {{reference}})",
     "PAYMENT_DELIVERY_FAILED": "Sending the payment instruction failed ({{channel}}, attempt {{attempts}}, error {{error}})",
-    "PAYMENT_DELIVERY_PENDING": "Payment instruction waiting to be sent ({{channel}})"
+    "PAYMENT_DELIVERY_PENDING": "Payment instruction waiting to be sent ({{channel}})",
+    "EVENT_SHORT": "Recorded {{event}} ({{status}})"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -248,5 +254,17 @@
   "paymentChannel": {
     "SIMULATED": "simulated gateway",
     "WEBHOOK": "payment gateway"
+  },
+  "links": {
+    "title": "Reconcile",
+    "more": "Open related",
+    "event": "See the event on its milestone",
+    "milestone": "Open milestone",
+    "contract": "Open contract",
+    "download": "Download the evidence file"
+  },
+  "scope": {
+    "all": "Everyone",
+    "mine": "Mine ({{count}})"
   }
 }

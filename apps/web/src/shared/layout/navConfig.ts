@@ -169,10 +169,10 @@ const integrity: NavItem = {
 const buyer = (withUpload: boolean): NavSection[] => [
   workflow(
     withUpload
-      ? [tasks, contracts, upload, verify]
-      : [tasks, contracts, verify],
+      ? [dashboard, tasks, contracts, upload, verify]
+      : [dashboard, tasks, contracts, verify],
   ),
-  monitoring([dashboard, activity]),
+  monitoring([activity]),
   dataAndAdmin([data]),
 ];
 
@@ -183,8 +183,8 @@ const byRole: Record<Role, NavSection[]> = {
   SECONDARY_APPROVER: buyer(false),
   // The buyer's own controller checks exception proposals on its organisation's contracts.
   ADMIN_AUDITOR: [
-    workflow([tasks, contracts, verify]),
-    monitoring([dashboard, exceptions, activity]),
+    workflow([dashboard, tasks, contracts, verify]),
+    monitoring([exceptions, activity]),
     dataAndAdmin([data]),
   ],
   // Platform roles: the administrator configures, the integrity checker sees hashes and proofs
@@ -192,8 +192,13 @@ const byRole: Record<Role, NavSection[]> = {
   SYSTEM_ADMIN: [dataAndAdmin([platform])],
   AUDITOR: [monitoring([integrity]), dataAndAdmin([platform])],
   SUPPLIER: [
-    workflow([tasks, { ...contracts, labelKey: "nav.myContracts" }, verify]),
-    monitoring([dashboard, activity]),
+    workflow([
+      dashboard,
+      tasks,
+      { ...contracts, labelKey: "nav.myContracts" },
+      verify,
+    ]),
+    monitoring([activity]),
   ],
 };
 

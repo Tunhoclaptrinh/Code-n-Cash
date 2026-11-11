@@ -888,6 +888,44 @@ test("the dashboard sums what each user may see and lists what needs action", as
       assert.match(value, /^\d+\.\d{2}$/);
     assert.ok(view.contracts.length <= 10);
     assert.ok(view.attention.length <= view.attentionCount);
+    // The money split is exact: its parts add up to the planned value, in cents.
+    const cents = (v) => BigInt(v.replace(".", ""));
+    const a = view.amounts;
+    assert.equal(
+      cents(a.paidMillion) +
+        cents(a.payableMillion) +
+        cents(a.penaltyMillion) +
+        cents(a.heldMillion) +
+        cents(a.rejectedMillion),
+      cents(a.plannedMillion),
+      u.id,
+    );
+    const monthly = view.byMonth.reduce(
+      (sum, m) =>
+        sum + Object.values(m.amounts).reduce((s, v) => s + cents(v), 0n),
+      0n,
+    );
+    const dated = view.dueItems.reduce(
+      (s, d) => s + cents(d.amountMillion),
+      0n,
+    );
+    assert.equal(monthly, dated, "every dated milestone is in its month");
+    assert.equal(
+      view.holdReasons.reduce((s, r) => s + cents(r.amountMillion), 0n),
+      cents(a.heldMillion),
+    );
+    assert.equal(
+      view.holdReasons.reduce((s, r) => s + r.milestones, 0),
+      view.milestones.held,
+    );
+    assert.equal(
+      view.dueItems.filter((d) => d.state === "OVERDUE").length,
+      view.milestones.overdue,
+    );
+    assert.deepEqual(
+      view.byMonth.map((m) => m.month),
+      [...view.byMonth.map((m) => m.month)].sort(),
+    );
   }
   const visible = new Set(
     contracts.filter((c) => c.lifecycle !== "DRAFT").map((c) => c.contract_id),
@@ -1068,6 +1106,30 @@ test("workflow lists are read page by page with search, filters and sort on the 
   );
   const times = activity.items.map((e) => e.at);
   assert.deepEqual(times, [...times].sort().reverse());
+  // Reconciliation links come from the API: an event entry leads to its own event, and only
+  // entries on a milestone lead to a milestone.
+  for (const e of activity.items) {
+    assert.equal(e.links.contract, true);
+    assert.equal(e.links.milestone, e.milestoneNo !== null);
+    if (e.action.kind === "EVENT")
+      assert.equal(e.links.eventId, e.milestoneNo ? e.action.eventId : null);
+  }
+  // "mine" is what the viewer recorded or their own party did (an event recorded by the
+  // supplier's user in the buyer's name, as in the unauthorised-evidence case, is theirs too).
+  const supplier = await call("u-supplier", "activity", "listActivity", {
+    filters: { mine: [true] },
+    limit: 100,
+  });
+  assert.ok(supplier.total > 0);
+  const party = actor("u-supplier").partyId;
+  const events = await repo.list("events");
+  for (const e of supplier.items.filter((x) => x.action.kind === "EVENT")) {
+    const row = events.find((x) => x.event_id === e.id);
+    assert.ok(
+      row?.recordedByUserId === "u-supplier" || row?.actor_party_id === party,
+      e.id,
+    );
+  }
 });
 
 test("the state survives a restart of the service", async () => {

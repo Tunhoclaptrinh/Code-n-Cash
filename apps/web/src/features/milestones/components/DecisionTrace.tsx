@@ -1,5 +1,6 @@
 import { Collapse, Space } from "antd";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import type { MilestoneDetail } from "@codecash/contracts";
 import { Panel } from "@/shared/ui/Panel";
 import { DecisionEventTable } from "./DecisionEventTable";
@@ -20,7 +21,12 @@ export function DecisionTrace({ data, onChanged }: DecisionTraceProps) {
   const { contract, milestone, evaluation } = data;
   // The trace opens for whoever has exception work here: the owner who can propose, the
   // controller who has a proposal to check.
+  // A link from the activity log (?event=) opens the trace on that event.
+  const [params] = useSearchParams();
+  const focusEvent = params.get("event");
+  const linked = !!focusEvent && data.events.some((e) => e.id === focusEvent);
   const traceOpen =
+    linked ||
     (data.actions.proposeException &&
       data.events.some((e) => e.classification === "UNAUTHORIZED")) ||
     (data.actions.decideException &&
@@ -46,6 +52,7 @@ export function DecisionTrace({ data, onChanged }: DecisionTraceProps) {
                   <DecisionEventTable
                     events={data.events}
                     evidence={evaluation.evidence}
+                    focus={linked ? focusEvent : null}
                   />
                 </section>
                 <VariablesPanel variables={data.variables ?? []} />

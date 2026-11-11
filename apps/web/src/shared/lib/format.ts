@@ -16,6 +16,13 @@ export function formatDate(value: string | Date): string {
   }).format(new Date(value));
 }
 
+/** A YYYY-MM month as "08/2026"; short gives "08/26" for chart axes. */
+export function formatMonth(value: string, short = false): string {
+  const [year, month] = value.split("-");
+  if (!year || !month) return value;
+  return `${month}/${short ? year.slice(2) : year}`;
+}
+
 export function formatTime(value: string | Date): string {
   return new Intl.DateTimeFormat(locale(), {
     hour: "2-digit",

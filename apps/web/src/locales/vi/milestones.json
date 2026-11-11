@@ -20,6 +20,7 @@
       "milestone": "Mốc",
       "amount": "Giá trị mốc (triệu VND)",
       "due": "Hạn",
+      "dueMonth": "Tháng đến hạn",
       "status": "Tình trạng",
       "required": "Cần có",
       "who": "Ai làm"
@@ -196,6 +197,18 @@
       "imported": "Lập ngoài hệ thống",
       "signedCount": "Đã ký {{signed}}/{{total}}",
       "paid": "Đã chi {{value}} triệu"
+    },
+    "timeline": {
+      "all": "Tất cả ({{count}})",
+      "open": "Cần xử lý ({{count}})",
+      "done": "Đủ điều kiện ({{count}})",
+      "expandAll": "Mở tất cả",
+      "collapseAll": "Thu gọn tất cả",
+      "none": {
+        "all": "Hợp đồng chưa có mốc.",
+        "open": "Không còn mốc nào cần xử lý.",
+        "done": "Chưa có mốc nào đủ điều kiện."
+      }
     }
   },
   "decision": {

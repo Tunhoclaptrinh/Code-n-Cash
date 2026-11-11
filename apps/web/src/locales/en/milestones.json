@@ -20,6 +20,7 @@
       "milestone": "Milestone",
       "amount": "Milestone value (million VND)",
       "due": "Due",
+      "dueMonth": "Due month",
       "status": "Status",
       "required": "Needed",
       "who": "Who acts"
@@ -196,6 +197,18 @@
       "imported": "Drafted outside the system",
       "signedCount": "Signed {{signed}}/{{total}}",
       "paid": "Paid {{value}} million"
+    },
+    "timeline": {
+      "all": "All ({{count}})",
+      "open": "Needs work ({{count}})",
+      "done": "Eligible ({{count}})",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "none": {
+        "all": "This contract has no milestones.",
+        "open": "No milestone needs work.",
+        "done": "No milestone is eligible yet."
+      }
     }
   },
   "decision": {

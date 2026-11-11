@@ -1,0 +1,71 @@
+.when {
+  display: flex;
+  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.when small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+/* One activity: category icon, the sentence, then who did it. */
+.activity {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.categoryIcon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.activityText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sentence {
+  color: var(--color-text);
+  line-height: 1.45;
+}
+
+.byline {
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+}
+
+.you {
+  margin-inline-start: 6px;
+  font-size: 11px;
+  line-height: 16px;
+  padding-inline: 5px;
+}
+
+.reference {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.45;
+}
+
+.code {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* References are links: primary colour, so reconciliation targets read as clickable. */
+.reference a,
+.evidenceLink {
+  color: var(--color-primary);
+}

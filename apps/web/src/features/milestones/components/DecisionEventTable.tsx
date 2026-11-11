@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Space, Table, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
+import styles from "./MilestoneDecision.module.css";
 import type { ClassifiedEvent } from "@codecash/contracts";
 import { actorName, eventClassTone } from "@/shared/lib/domain";
 import { formatDateTime } from "@/shared/lib/format";
@@ -11,122 +13,141 @@ import { EvidenceDocumentLink } from "./EvidenceDocumentLink";
 export function DecisionEventTable({
   events,
   evidence,
+  focus = null,
 }: {
   events: ClassifiedEvent[];
   evidence: string[];
+  /** An event to highlight and scroll to (a link from the activity log). */
+  focus?: string | null;
 }) {
+  const table = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!focus) return;
+    // The trace opens with an animation; scroll once the row is laid out.
+    const timer = setTimeout(() => {
+      table.current
+        ?.querySelector(`[data-row-key="${CSS.escape(focus)}"]`)
+        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [focus]);
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
   const { t: tc } = useTranslation("common");
   return (
-    <Table<ClassifiedEvent>
-      size="small"
-      rowKey="id"
-      dataSource={events}
-      pagination={false}
-      scroll={{ x: "max-content" }}
-      expandable={{
-        expandedRowRender: (e) => (
-          <TechnicalList
-            items={[
-              {
-                key: "source",
-                label: tc("technical.source"),
-                value: <OriginTag origin={e.origin} />,
-              },
-              {
-                key: "document",
-                label: tc("technical.document"),
-                value: e.documentId,
-              },
-              {
-                key: "channel",
-                label: tc("technical.channel"),
-                value: e.source,
-              },
-              {
-                key: "party",
-                label: tc("technical.party"),
-                value: e.actor.partyId,
-              },
-            ]}
-          />
-        ),
-      }}
-      columns={[
-        {
-          key: "at",
-          title: t("detail.events.at"),
-          render: (_, e) => formatDateTime(e.at),
-        },
-        {
-          key: "type",
-          title: t("detail.events.type"),
-          render: (_, e) => (
-            <>
-              <Space size={4} wrap>
-                <b>{td(`eventType.${e.type}`)}</b>
-                <Tag style={{ margin: 0 }}>{td(`eventStatus.${e.status}`)}</Tag>
-              </Space>
-              <div>
-                <TrackingCode code={e.id} />
-              </div>
-            </>
+    <div ref={table}>
+      <Table<ClassifiedEvent>
+        size="small"
+        rowKey="id"
+        rowClassName={(e) => (e.id === focus ? styles.focusRow : "")}
+        dataSource={events}
+        pagination={false}
+        scroll={{ x: "max-content" }}
+        expandable={{
+          expandedRowRender: (e) => (
+            <TechnicalList
+              items={[
+                {
+                  key: "source",
+                  label: tc("technical.source"),
+                  value: <OriginTag origin={e.origin} />,
+                },
+                {
+                  key: "document",
+                  label: tc("technical.document"),
+                  value: e.documentId,
+                },
+                {
+                  key: "channel",
+                  label: tc("technical.channel"),
+                  value: e.source,
+                },
+                {
+                  key: "party",
+                  label: tc("technical.party"),
+                  value: e.actor.partyId,
+                },
+              ]}
+            />
           ),
-        },
-        {
-          key: "actor",
-          title: t("detail.events.actor"),
-          render: (_, e) => (
-            <>
-              <div>{actorName(td, e.actor)}</div>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {[
-                  e.actor.type ? td(`partyType.${e.actor.type}`) : "",
-                  e.actor.approvalRole
-                    ? td(`approvalRole.${e.actor.approvalRole}`)
-                    : "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </Typography.Text>
-            </>
-          ),
-        },
-        {
-          key: "class",
-          title: t("decision.events.classification"),
-          render: (_, e) => (
-            <Space size={4} wrap>
-              <ToneTag tone={eventClassTone[e.classification]}>
-                {td(`eventClass.${e.classification}`)}
-              </ToneTag>
-              {e.duplicateOf ? (
-                <Typography.Text type="secondary">
-                  → {e.duplicateOf}
-                </Typography.Text>
-              ) : null}
-              {evidence.includes(e.id) ? (
-                <Tag color="success">{t("decision.events.inEvidence")}</Tag>
-              ) : null}
-            </Space>
-          ),
-        },
-        {
-          key: "document",
-          title: t("detail.events.document"),
-          render: (_, e) => (
-            <>
-              <EvidenceDocumentLink event={e} />
-              {e.referenceEventId ? (
-                <div style={{ fontSize: 12 }}>
-                  {t("detail.events.reference", { id: e.referenceEventId })}
+        }}
+        columns={[
+          {
+            key: "at",
+            title: t("detail.events.at"),
+            render: (_, e) => formatDateTime(e.at),
+          },
+          {
+            key: "type",
+            title: t("detail.events.type"),
+            render: (_, e) => (
+              <>
+                <Space size={4} wrap>
+                  <b>{td(`eventType.${e.type}`)}</b>
+                  <Tag style={{ margin: 0 }}>
+                    {td(`eventStatus.${e.status}`)}
+                  </Tag>
+                </Space>
+                <div>
+                  <TrackingCode code={e.id} />
                 </div>
-              ) : null}
-            </>
-          ),
-        },
-      ]}
-    />
+              </>
+            ),
+          },
+          {
+            key: "actor",
+            title: t("detail.events.actor"),
+            render: (_, e) => (
+              <>
+                <div>{actorName(td, e.actor)}</div>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  {[
+                    e.actor.type ? td(`partyType.${e.actor.type}`) : "",
+                    e.actor.approvalRole
+                      ? td(`approvalRole.${e.actor.approvalRole}`)
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </Typography.Text>
+              </>
+            ),
+          },
+          {
+            key: "class",
+            title: t("decision.events.classification"),
+            render: (_, e) => (
+              <Space size={4} wrap>
+                <ToneTag tone={eventClassTone[e.classification]}>
+                  {td(`eventClass.${e.classification}`)}
+                </ToneTag>
+                {e.duplicateOf ? (
+                  <Typography.Text type="secondary">
+                    → {e.duplicateOf}
+                  </Typography.Text>
+                ) : null}
+                {evidence.includes(e.id) ? (
+                  <Tag color="success">{t("decision.events.inEvidence")}</Tag>
+                ) : null}
+              </Space>
+            ),
+          },
+          {
+            key: "document",
+            title: t("detail.events.document"),
+            render: (_, e) => (
+              <>
+                <EvidenceDocumentLink event={e} />
+                {e.referenceEventId ? (
+                  <div style={{ fontSize: 12 }}>
+                    {t("detail.events.reference", { id: e.referenceEventId })}
+                  </div>
+                ) : null}
+              </>
+            ),
+          },
+        ]}
+      />
+    </div>
   );
 }

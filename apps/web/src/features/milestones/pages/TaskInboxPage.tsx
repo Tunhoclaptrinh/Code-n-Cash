@@ -29,7 +29,11 @@ import type {
 import { listTasks } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
-import { formatDate, formatDecimalString } from "@/shared/lib/format";
+import {
+  formatDate,
+  formatDecimalString,
+  formatMonth,
+} from "@/shared/lib/format";
 import { useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
 import { OriginTag } from "@/shared/ui/DomainTags";
@@ -112,6 +116,7 @@ export default function TaskInboxPage() {
   const [detail, setDetail] = useState<TaskRow>();
   // One page at a time from the API; it opens on what is the user's turn now.
   const list = useListQuery<TaskRow>({
+    syncUrl: true,
     auditExport: "tasks",
     key: ["pending-tasks", "list", user.id],
     fetch: listTasks,
@@ -204,6 +209,15 @@ export default function TaskInboxPage() {
     })),
   ];
   const filterConfig: FilterConfig[] = [
+    {
+      key: "dueMonth",
+      label: t("inbox.columns.dueMonth"),
+      type: "select",
+      operators: ["eq"],
+      options: (facets.dueMonth ?? [])
+        .filter((f) => f.value)
+        .map((f) => ({ value: f.value, label: formatMonth(f.value) })),
+    },
     {
       key: "contractId",
       label: t("inbox.columns.contract"),

@@ -1,20 +1,36 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { STAT_TONE } from "@/shared/ui/statTone";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { Tag, Typography } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Segmented, Space, Tag, Tooltip, Typography } from "antd";
+import {
+  AimOutlined,
+  ArrowRightOutlined,
+  AuditOutlined,
+  CheckCircleOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  FileProtectOutlined,
+  SettingOutlined,
+  EyeOutlined,
+  FileSearchOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
 import {
   DataTable,
   DetailModal,
+  downloadBlob,
   PageContainer,
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
 import { listActivity } from "@/shared/api/domain";
+import { platform } from "@/shared/api/platform";
+import { useApiErrorMessage } from "@/features/milestones/hooks/useApiErrorMessage";
 import { useCurrentUser } from "@/shared/auth/session";
-import { formatDateTime } from "@/shared/lib/format";
+import { formatDate, formatDateTime, formatTime } from "@/shared/lib/format";
 import { useListQuery } from "@/shared/lib/useListQuery";
 import { OriginTag } from "@/shared/ui/DomainTags";
 import { AuditDetails } from "@/shared/ui/AuditDetails";
@@ -25,6 +41,7 @@ import {
   describeAction,
 } from "../lib/activityText";
 import type { ActivityCategory, ActivityEntry } from "../types";
+import styles from "./ActivityLogView.module.css";
 
 const categories: ActivityCategory[] = [
   "SIGN",
@@ -50,17 +67,35 @@ const categoryColor: Record<
     value: "var(--text-primary)",
   },
 };
+const categoryIcon: Record<ActivityCategory, ReactNode> = {
+  SIGN: <EditOutlined />,
+  EVIDENCE: <FileProtectOutlined />,
+  APPROVAL: <CheckCircleOutlined />,
+  DISPUTE: <AuditOutlined />,
+  SYSTEM: <SettingOutlined />,
+};
 /**
  * Append-only audit trail: list, filter, inspect and export; there is no edit or delete. Entries
  * are read page by page from the API, newest first; every filter and the search are part of the
  * request, so the total and the export are exactly the matching entries.
  */
 
-/** An entry about a milestone opens that milestone's decision; others open the contract. */
+/**
+ * Where an entry leads, if the viewer may open it (the API says so in `links`): a milestone's
+ * decision, else the contract.
+ */
 const activityHref = (e: ActivityEntry) =>
-  e.milestoneNo === null
-    ? `/contracts/${e.contractCode}`
-    : `/contracts/${e.contractCode}/milestones/${e.milestoneNo}/decision`;
+  e.links.milestone
+    ? `/contracts/${e.contractCode}/milestones/${e.milestoneNo}/decision`
+    : e.links.contract
+      ? `/contracts/${e.contractCode}`
+      : null;
+
+/** The event's row on its milestone's decision screen, opened and highlighted there. */
+const eventHref = (e: ActivityEntry) =>
+  e.links.eventId
+    ? `/contracts/${e.contractCode}/milestones/${e.milestoneNo}/decision?${new URLSearchParams({ event: e.links.eventId })}`
+    : null;
 
 export function ActivityLogView({
   initialContract = "",
@@ -71,10 +106,62 @@ export function ActivityLogView({
   const { t } = useTranslation("audit");
   const user = useCurrentUser();
   const [detail, setDetail] = useState<ActivityEntry>();
+  const navigate = useNavigate();
+  const failed = useApiErrorMessage();
+  const download = useMutation({
+    mutationFn: async (e: ActivityEntry) =>
+      downloadBlob(
+        await platform.download(
+          `/evidence-documents/${encodeURIComponent(e.links.eventId ?? e.id)}/download`,
+        ),
+        e.links.document?.fileName ?? "evidence",
+      ),
+    onError: failed,
+  });
+  /** Reconciliation: from an entry to its contract, milestone, event and stored file. */
+  const linkMenu = (e: ActivityEntry) => {
+    const items: Array<{
+      key: string;
+      icon: ReactNode;
+      label: string;
+      onClick: () => void;
+    }> = [];
+    const go = (key: string, icon: ReactNode, to: string | null) => {
+      if (to)
+        items.push({
+          key,
+          icon,
+          label: t(`links.${key}`),
+          onClick: () => navigate(to),
+        });
+    };
+    go("event", <FileSearchOutlined />, eventHref(e));
+    go(
+      "milestone",
+      <AimOutlined />,
+      e.links.milestone
+        ? `/contracts/${e.contractCode}/milestones/${e.milestoneNo}/decision`
+        : null,
+    );
+    go(
+      "contract",
+      <FileTextOutlined />,
+      e.links.contract ? `/contracts/${e.contractCode}` : null,
+    );
+    if (e.links.document)
+      items.push({
+        key: "download",
+        icon: <DownloadOutlined />,
+        label: t("links.download"),
+        onClick: () => download.mutate(e),
+      });
+    return items;
+  };
   const list = useListQuery<
     ActivityEntry,
     Awaited<ReturnType<typeof listActivity>>
   >({
+    syncUrl: true,
     auditExport: "activity",
     key: ["activity-log", user.id],
     fetch: listActivity,
@@ -125,6 +212,13 @@ export function ActivityLogView({
       ),
     },
     {
+      key: "mine",
+      label: t("filters.mine"),
+      type: "select",
+      operators: ["eq"],
+      options: [{ value: true, label: t("filters.mineYes") }],
+    },
+    {
       key: "from",
       label: t("filters.from"),
       type: "date",
@@ -140,50 +234,54 @@ export function ActivityLogView({
     },
   ];
 
+  const scope = filters.mine?.[0] === true ? "mine" : "all";
   const columns = [
     {
       ...list.column("at"),
       dataIndex: "at",
       title: t("table.columns.time"),
       sorter: true,
-      render: formatDateTime,
-    },
-    {
-      ...list.column("actorRole"),
-      title: t("table.columns.actor"),
-      filters: columnFilters("actorRole", (v) => t(`actorRoles.${v}`)),
-      filterMultiple: false,
-      render: (_: unknown, e: ActivityEntry) => (
-        <>
-          {actorName(t, e)}
-          <div>
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              {t(`actorRoles.${e.actor.role}`)}
-            </Typography.Text>
-          </div>
-        </>
-      ),
-    },
-    {
-      ...list.column("category"),
-      dataIndex: "category",
-      title: t("table.columns.category"),
-      filters: categories.map((value) => ({
-        text: t(`categories.${value}`),
-        value,
-      })),
-      filterMultiple: false,
-      render: (c: ActivityCategory) => (
-        <Tag color={categoryColor[c].tag}>{t(`categories.${c}`)}</Tag>
+      width: 130,
+      render: (at: string) => (
+        <div className={styles.when}>
+          <span>{formatDate(at)}</span>
+          <small>{formatTime(at)}</small>
+        </div>
       ),
     },
     {
       ...list.column("action"),
-      title: t("table.columns.action"),
+      title: t("table.columns.activity"),
       filters: columnFilters("action", (v) => actionLabel(t, v)),
       filterMultiple: false,
       filterSearch: true,
-      render: (_: unknown, e: ActivityEntry) => describeAction(t, e.action),
+      render: (_: unknown, e: ActivityEntry) => (
+        <div className={styles.activity}>
+          <span
+            className={styles.categoryIcon}
+            style={{
+              color: categoryColor[e.category].value,
+              background: categoryColor[e.category].bg,
+            }}
+            title={t(`categories.${e.category}`)}
+          >
+            {categoryIcon[e.category]}
+          </span>
+          <div className={styles.activityText}>
+            <span className={styles.sentence}>
+              {describeAction(t, e.action, { short: true })}
+            </span>
+            <span className={styles.byline}>
+              {actorName(t, e)} · {t(`actorRoles.${e.actor.role}`)}
+              {e.mine ? (
+                <Tag color="blue" className={styles.you}>
+                  {t("table.you")}
+                </Tag>
+              ) : null}
+            </span>
+          </div>
+        </div>
+      ),
     },
     {
       ...list.column("contractCode"),
@@ -191,13 +289,66 @@ export function ActivityLogView({
       filters: columnFilters("contractCode", (v) => v),
       filterMultiple: false,
       filterSearch: true,
+      width: 170,
       render: (_: unknown, e: ActivityEntry) => (
-        <Link to={activityHref(e)}>{contractReference(t, e)}</Link>
+        <div className={styles.reference}>
+          {e.links.contract ? (
+            <Link to={`/contracts/${e.contractCode}`} className={styles.code}>
+              {e.contractCode}
+            </Link>
+          ) : (
+            <span className={styles.code}>{e.contractCode}</span>
+          )}
+          {e.milestoneNo !== null ? (
+            e.links.milestone ? (
+              <Link
+                to={`/contracts/${e.contractCode}/milestones/${e.milestoneNo}/decision`}
+              >
+                {t("domain:milestoneNo", { no: e.milestoneNo })}
+              </Link>
+            ) : (
+              <span>{t("domain:milestoneNo", { no: e.milestoneNo })}</span>
+            )
+          ) : null}
+        </div>
       ),
+    },
+    {
+      key: "evidence",
+      title: t("table.columns.evidence"),
+      width: 170,
+      render: (_: unknown, e: ActivityEntry) =>
+        e.links.eventId ? (
+          <Space size={2}>
+            <Link
+              to={eventHref(e)!}
+              className={`${styles.code} ${styles.evidenceLink}`}
+            >
+              {e.links.eventId}
+            </Link>
+            {e.links.document ? (
+              <Tooltip title={t("links.download")}>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<DownloadOutlined />}
+                  aria-label={t("links.download")}
+                  loading={
+                    download.isPending && download.variables?.id === e.id
+                  }
+                  onClick={() => download.mutate(e)}
+                />
+              </Tooltip>
+            ) : null}
+          </Space>
+        ) : (
+          <Typography.Text type="secondary">—</Typography.Text>
+        ),
     },
     {
       ...list.column("origin"),
       title: t("table.columns.origin"),
+      width: 130,
       filters: (["DATA_PACK", "SEED", "APP"] as const).map((value) => ({
         text: t(`domain:origin.${value}`),
         value,
@@ -211,13 +362,14 @@ export function ActivityLogView({
     columns,
     {
       at: (e) => formatDateTime(e.at),
-      actorRole: (e) => ({
+      action: (e) => ({
         [t("table.columns.actor")]: actorName(t, e),
         [t("table.actorRoleColumn")]: t(`actorRoles.${e.actor.role}`),
+        [t("table.columns.category")]: t(`categories.${e.category}`),
+        [t("table.columns.action")]: describeAction(t, e.action),
       }),
-      category: (e) => t(`categories.${e.category}`),
-      action: (e) => describeAction(t, e.action),
       contractCode: (e) => contractReference(t, e),
+      evidence: (e) => e.links.eventId ?? "",
       origin: (e) => t(`domain:origin.${e.origin}`),
     },
     t("export.fileName").replace(/\.csv$/, ""),
@@ -228,17 +380,26 @@ export function ActivityLogView({
       <DataTable<ActivityEntry>
         hideCard
         rowKey="id"
-        scroll={{ x: 1400 }}
-        columns={columns.map((column) => ({
-          ...column,
-          width:
-            (
-              { at: 180, actor: 220, action: 340, contract: 220 } as Record<
-                string,
-                number
-              >
-            )[String(column.key)] ?? 200,
-        }))}
+        scroll={{ x: 1100 }}
+        columns={columns}
+        extra={
+          // One click to reconcile one's own actions; the same "mine" filter as the builder.
+          <Segmented
+            size="small"
+            value={scope}
+            onChange={(value) =>
+              setFilter("mine", value === "mine" ? [true] : undefined)
+            }
+            options={[
+              { value: "all", label: t("scope.all") },
+              {
+                value: "mine",
+                label: t("scope.mine", { count: count("mine", "true") }),
+              },
+            ]}
+            data-testid="activity-scope"
+          />
+        }
         {...list.table}
         emptyText={t("table.empty")}
         statisticsData={statistics}
@@ -262,18 +423,40 @@ export function ActivityLogView({
         exportable
         exportFilename={t("export.fileName")}
         onExport={(options) => void onExport(options)}
-        onView={(e) => setDetail(e)}
-        actionsWidth={96}
-        customActions={(e) => (
-          <TableRowActions
-            primary={{
-              label: t("detail.view"),
-              icon: <EyeOutlined />,
-              tone: "neutral",
-              onClick: () => setDetail(e),
-            }}
-          />
-        )}
+        actionsWidth={84}
+        customActions={(e) => {
+          const href = activityHref(e);
+          return (
+            <TableRowActions
+              primary={
+                href
+                  ? {
+                      label: e.links.milestone
+                        ? t("links.milestone")
+                        : t("links.contract"),
+                      icon: <ArrowRightOutlined />,
+                      onClick: () => navigate(href),
+                    }
+                  : {
+                      label: t("detail.view"),
+                      icon: <EyeOutlined />,
+                      tone: "neutral",
+                      onClick: () => setDetail(e),
+                    }
+              }
+              menu={[
+                {
+                  key: "detail",
+                  icon: <EyeOutlined />,
+                  label: t("detail.view"),
+                  onClick: () => setDetail(e),
+                },
+                ...linkMenu(e),
+              ]}
+              moreLabel={t("links.more")}
+            />
+          );
+        }}
       />
       <DetailModal
         open={!!detail}
@@ -319,12 +502,33 @@ export function ActivityLogView({
                 {
                   key: "contract",
                   label: t("table.columns.contract"),
-                  value: (
-                    <Link to={activityHref(detail)}>
-                      {contractReference(t, detail)}
-                    </Link>
-                  ),
+                  value: contractReference(t, detail),
                 },
+                ...(linkMenu(detail).length
+                  ? [
+                      {
+                        key: "links",
+                        label: t("links.title"),
+                        value: (
+                          <Space wrap size={[8, 8]}>
+                            {linkMenu(detail).map((item) => (
+                              <Button
+                                key={item.key}
+                                size="small"
+                                icon={item.icon}
+                                onClick={() => {
+                                  item.onClick();
+                                  setDetail(undefined);
+                                }}
+                              >
+                                {item.label}
+                              </Button>
+                            ))}
+                          </Space>
+                        ),
+                      },
+                    ]
+                  : []),
                 {
                   key: "id",
                   label: t("detail.entryId"),

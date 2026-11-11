@@ -20,6 +20,18 @@ const categoryOf = (type: string): ActivityCategory =>
 
 export function activity(ctx: Ctx): ActivityEntry[] {
   const visible = new Set(ctx.visibleContracts().map((c) => c.contract_id));
+  // Every entry is on a contract the viewer may see; links only add what their role may open.
+  const canOpen = ctx.actor.permissions.includes("contracts:read");
+  const links = (
+    milestoneNo: number | null,
+    event?: { id: string; fileName: string | null },
+  ): ActivityEntry["links"] => ({
+    contract: canOpen,
+    milestone: canOpen && milestoneNo !== null,
+    eventId: canOpen && milestoneNo !== null && event ? event.id : null,
+    document: canOpen && event?.fileName ? { fileName: event.fileName } : null,
+  });
+  const ownParty = ctx.actor.partyId;
   const sequenceOf = new Map(
     ctx.milestones.map((m) => [m.milestone_id, Number(m.milestone_sequence)]),
   );
@@ -50,6 +62,13 @@ export function activity(ctx: Ctx): ActivityEntry[] {
       milestoneId: e.milestone_id,
       milestoneNo: sequenceOf.get(e.milestone_id) ?? null,
       origin: e.origin,
+      links: links(sequenceOf.get(e.milestone_id) ?? null, {
+        id: e.event_id,
+        fileName: e.document?.fileName ?? null,
+      }),
+      mine:
+        e.recordedByUserId === ctx.actor.id ||
+        (!!ownParty && e.actor_party_id === ownParty),
     });
   }
   for (const h of ctx.t[TABLE.history] as HistoryRecord[]) {
@@ -71,6 +90,8 @@ export function activity(ctx: Ctx): ActivityEntry[] {
       milestoneId: h.milestoneId,
       milestoneNo: sequenceOf.get(h.milestoneId) ?? null,
       origin: "APP",
+      links: links(sequenceOf.get(h.milestoneId) ?? null),
+      mine: false,
     });
   }
   const users = new Map(ctx.users().map((u) => [u.id, u]));
@@ -122,6 +143,29 @@ export function activity(ctx: Ctx): ActivityEntry[] {
         ? (sequenceOf.get(String(entry.milestoneId)) ?? null)
         : null,
       origin: "APP",
+      ...(() => {
+        const milestoneNo = entry.milestoneId
+          ? (sequenceOf.get(String(entry.milestoneId)) ?? null)
+          : null;
+        const detail = entry.detail as ActivityAction | undefined;
+        const eventId =
+          detail && "eventId" in detail ? String(detail.eventId) : null;
+        const event = eventId
+          ? ctx.events.find((e) => e.event_id === eventId)
+          : undefined;
+        return {
+          links: links(
+            milestoneNo,
+            event
+              ? {
+                  id: event.event_id,
+                  fileName: event.document?.fileName ?? null,
+                }
+              : undefined,
+          ),
+          mine: String(entry.actorId) === ctx.actor.id,
+        };
+      })(),
       audit: (() => {
         const primary = primaryByTransaction.get(entry.transactionId) ?? entry;
         const changes = (primary.changes ?? []) as NonNullable<

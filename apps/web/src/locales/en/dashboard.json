@@ -1,41 +1,152 @@
 {
   "title": "Contract overview",
-  "updated": "Updated {{at}}, refreshes every 30 seconds",
+  "updated": "Updated {{at}} · refreshes itself",
+  "today": "Business date {{date}}",
+  "unit": "million",
   "million": "{{value}} million",
-  "cards": {
+  "actions": {
+    "tasks": "My tasks ({{count}})",
+    "tasksNone": "My tasks",
+    "upload": "Upload a contract",
+    "contracts": "Contract list",
+    "exceptions": "Evidence exceptions",
+    "activity": "Activity log",
+    "data": "Data Pack results",
+    "verify": "Verify signatures",
+    "refresh": "Refresh figures",
+    "more": "Other screens"
+  },
+  "kpi": {
+    "myTurn": "Your turn",
+    "myTurnHint_one": "{{count}} task is late",
+    "myTurnHint_other": "{{count}} tasks are late",
+    "myTurnClear": "Nothing late",
     "contracts": "Contracts followed",
-    "attention_one": "{{count}} milestone needs attention",
-    "attention_other": "{{count}} milestones need attention",
-    "payable": "Payable, not yet transferred",
-    "paid": "Transferred {{value}} million",
+    "contractsHint": "{{active}} in progress · {{signing}} signing",
+    "paid": "Transferred",
+    "paidHint": "{{pct}}% of planned · {{count}} milestones",
+    "payable": "Eligible, awaiting payment",
+    "payableHint_one": "{{count}} milestone awaits a payment order",
+    "payableHint_other": "{{count}} milestones await a payment order",
     "held": "On hold",
-    "planned": "Out of {{value}} million in total",
-    "penalty": "Late penalties in total"
+    "heldHint": "{{count}} milestones · {{overdue}} overdue",
+    "penalty": "Late penalties",
+    "penaltyHint": "Rejected: {{rejected}} million"
+  },
+  "money": {
+    "title": "Where the contract value stands",
+    "caption": "{{planned}} million over {{count}} milestones",
+    "label": "Split of the planned value",
+    "parts": {
+      "paid": "Transferred",
+      "payable": "Eligible, awaiting payment",
+      "penalty": "Penalty deducted",
+      "held": "On hold",
+      "rejected": "Rejected"
+    }
+  },
+  "months": {
+    "title": "Value by due month",
+    "caption": "By current decision · select a column for that month's tasks",
+    "label": "Planned value by due month",
+    "month": "{{month}}",
+    "paid": "Transferred",
+    "empty": "No milestone has a due date yet."
+  },
+  "reasons": {
+    "title": "Why money is held",
+    "caption": "",
+    "value": "{{amount}} million · {{count}} milestones",
+    "none": "No milestone is on hold."
+  },
+  "status": {
+    "title": "Contracts by status",
+    "caption": "Select one to filter the list"
   },
   "decisions": {
-    "title": "Decisions and contract status"
+    "title": "Milestone decisions"
   },
   "attention": {
-    "title_one": "Milestones needing attention in your organisation ({{count}})",
-    "title_other": "Milestones needing attention in your organisation ({{count}})",
-    "none": "No milestone needs attention right now",
+    "title": "Needs attention",
+    "caption_one": "{{count}} item",
+    "caption_other": "{{count}} items",
+    "none": "No milestone needs attention now.",
     "due": "due {{date}}",
+    "showAll": "Show all {{count}}",
+    "showLess": "Show less",
+    "open": "Open milestone",
     "kind": {
       "OPEN_DISPUTE": "Open dispute",
+      "OVERDUE": "Overdue, not completed",
       "DUE_SOON": "Due soon, evidence missing",
       "SEQUENCE_WARNING": "Unusual event order",
       "LOW_CONFIDENCE": "About to pay, low confidence"
     }
   },
   "contracts": {
-    "title": "Contracts with the most milestones on hold",
+    "title": "Contracts holding the most money",
+    "caption": "",
     "none": "No contract in your scope yet.",
+    "all": "See all contracts",
     "columns": {
       "contract": "Contract",
       "status": "Status",
+      "progress": "Payment progress",
       "held": "On hold",
-      "disputes": "Open disputes",
-      "payable": "Payable (million)"
+      "issues": "Issues",
+      "nextDue": "Next due"
+    },
+    "heldValue": "{{amount}} · {{count}} milestones",
+    "overdue_one": "{{count}} overdue",
+    "overdue_other": "{{count}} overdue",
+    "disputes_one": "{{count}} dispute",
+    "disputes_other": "{{count}} disputes",
+    "noIssue": "None",
+    "open": "Open contract",
+    "activity": "Contract activity",
+    "progressText": "{{ready}}% eligible · paid {{paid}} / {{planned}}"
+  },
+  "banner": {
+    "hello": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "summary": "You have {{tasks}} tasks waiting for you ({{late}} late). In your scope, {{overdue}} milestones are overdue and {{disputes}} disputes are open.",
+    "summaryNoTasks": "You follow {{contracts}} contracts; {{attention}} items need attention.",
+    "start": "Do it now: {{task}}",
+    "clear": "Nothing is waiting for you",
+    "source": {
+      "task": "Your task",
+      "notice": "Notice"
+    },
+    "overdue_one": "{{count}} day late",
+    "overdue_other": "{{count}} days late",
+    "due": "Due {{date}}",
+    "doIt": "Do it",
+    "view": "View",
+    "emptyFeedHint": "No task or notice needs you right now.",
+    "all": "See all",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "calendar": {
+    "title": "Due calendar",
+    "caption": "Select a day to see what is due",
+    "month": "{{month}}",
+    "previous": "Previous month",
+    "next": "Next month",
+    "today": "Today",
+    "count_one": "{{count}} milestone due",
+    "count_other": "{{count}} milestones due",
+    "dayTitle": "Due on {{date}}",
+    "none": "Nothing is due that day",
+    "state": {
+      "OVERDUE": "Overdue",
+      "HELD": "On hold",
+      "PAYABLE": "Eligible",
+      "PAID": "Paid",
+      "REJECTED": "Rejected"
     }
   }
 }

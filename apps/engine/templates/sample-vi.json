@@ -9,6 +9,7 @@
   "basis": [
     "Căn cứ Bộ luật Dân sự số 91/2015/QH13;",
     "Căn cứ Luật Thương mại số 36/2005/QH11;",
+    "Căn cứ Luật Giao dịch điện tử số 20/2023/QH15;",
     "Căn cứ nhu cầu và khả năng của các bên."
   ],
   "dateLine": "Hôm nay, ngày ... tháng ... năm ..., các bên gồm:",
@@ -52,7 +53,7 @@
     },
     {
       "title": "Giới hạn trách nhiệm",
-      "body": "Trần phạt: {maxPenaltyPct}%. Tổng tiền phạt chậm không vượt mức thỏa thuận. Tiền thanh toán sau điều chỉnh không âm; chênh lệch cần được đối chiếu trong hồ sơ thanh toán."
+      "body": "Trần phạt: {maxPenaltyPct}%. Tổng tiền phạt chậm không vượt mức thỏa thuận và không vượt 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 Luật Thương mại 2005). Tiền thanh toán sau điều chỉnh không âm; chênh lệch cần được đối chiếu trong hồ sơ thanh toán."
     },
     {
       "title": "Bảo hành và hỗ trợ",
@@ -60,7 +61,7 @@
     },
     {
       "title": "Tranh chấp",
-      "body": "Khi có tranh chấp, các bên lập biên bản và tạm giữ khoản thanh toán liên quan. Khi có xác nhận giải quyết, các bên tiếp tục kiểm tra các điều kiện thanh toán còn lại."
+      "body": "Khi có tranh chấp, các bên lập biên bản và tạm giữ khoản thanh toán liên quan. Khi có xác nhận giải quyết, các bên tiếp tục kiểm tra các điều kiện thanh toán còn lại. Nếu không giải quyết được bằng thương lượng, tranh chấp được đưa ra Tòa án có thẩm quyền."
     },
     {
       "title": "Quản lý thay đổi",

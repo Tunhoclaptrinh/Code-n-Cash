@@ -9,6 +9,7 @@
   "basis": [
     "Pursuant to the Civil Code No. 91/2015/QH13;",
     "Pursuant to the Law on Commerce No. 36/2005/QH11;",
+    "Pursuant to the Law on Electronic Transactions No. 20/2023/QH15;",
     "Pursuant to the needs and capacity of the parties."
   ],
   "dateLine": "On ... / ... / ......, the parties are:",
@@ -52,7 +53,7 @@
     },
     {
       "title": "Liability cap",
-      "body": "Penalty cap: {maxPenaltyPct}%. The engine uses exact decimal formulas and records decision reasons in the audit trail."
+      "body": "Penalty cap: {maxPenaltyPct}%. Total late penalties stay within the agreed cap and within 8% of the value of the breached obligation (Law on Commerce 2005, Article 301). The engine uses exact decimal formulas and records decision reasons in the audit trail."
     },
     {
       "title": "Warranty and support",
@@ -60,7 +61,7 @@
     },
     {
       "title": "Disputes",
-      "body": "An open dispute holds release. The controller handles exceptions; system administration does not confer business approval authority."
+      "body": "An open dispute holds release. The controller handles exceptions; system administration does not confer business approval authority. Disputes not settled by negotiation go to the competent court."
     },
     {
       "title": "Change control",

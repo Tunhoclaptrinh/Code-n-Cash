@@ -316,7 +316,8 @@
     "UNSUPPORTED_EVIDENCE_FILE": "Evidence must be a PDF, a PNG/JPEG image, a Word (.docx) or an Excel (.xlsx) file.",
     "NOT_ANCHORED_YET": "This log entry is not sealed yet. Try again after the next seal.",
     "PERMISSION_DENIED": "Your role is not allowed to do this.",
-    "RESOURCE_NOT_FOUND": "This kind of data does not exist."
+    "RESOURCE_NOT_FOUND": "This kind of data does not exist.",
+    "PENALTY_OVER_LEGAL_CAP": "The penalty cap may not exceed 8% of the value of the breached obligation (Law on Commerce 2005, Article 301)."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

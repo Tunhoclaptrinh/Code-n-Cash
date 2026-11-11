@@ -316,7 +316,8 @@
     "UNSUPPORTED_EVIDENCE_FILE": "Chỉ nhận chứng từ dạng PDF, ảnh PNG/JPEG, Word (.docx) hoặc Excel (.xlsx).",
     "NOT_ANCHORED_YET": "Mục nhật ký này chưa được niêm phong. Thử lại sau lần niêm phong kế tiếp.",
     "PERMISSION_DENIED": "Vai trò của bạn không có quyền thực hiện thao tác này.",
-    "RESOURCE_NOT_FOUND": "Không tìm thấy loại dữ liệu này."
+    "RESOURCE_NOT_FOUND": "Không tìm thấy loại dữ liệu này.",
+    "PENALTY_OVER_LEGAL_CAP": "Trần phạt tối đa 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 Luật Thương mại 2005)."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

@@ -395,6 +395,15 @@ Ký số mang lại hai giá trị mà chữ ký trên giấy quét lại không
 - Bản demo dùng chứng thư mô phỏng và ghi rõ trên màn hình; giá trị pháp lý nói trên chỉ có khi ký qua nhà cung cấp dịch vụ chứng thực chữ ký số được cấp phép, là bước tích hợp của MVP.
 - AI đọc PDF chỉ đề xuất trường kèm trang và đoạn trích; người dùng xác nhận; AI không tham gia quyết định thanh toán.
 
+Căn cứ pháp lý áp dụng cho hợp đồng soạn trong ứng dụng (tự nghiên cứu, không thay ý kiến luật sư):
+
+| Nội dung | Căn cứ | Cách áp dụng |
+| --- | --- | --- |
+| Trần phạt vi phạm | Luật Thương mại 2005, Điều 301: không quá 8% giá trị phần nghĩa vụ bị vi phạm | Cả 4 loại hợp đồng của ứng dụng là thương mại giữa thương nhân; bản nháp có trần trên 8% bị từ chối (`PENALTY_OVER_LEGAL_CAP`). Engine tính trần trên giá trị mốc, đúng "phần nghĩa vụ bị vi phạm" |
+| Dữ liệu của BTC | Đề, mục 10: giữ nguyên Data Pack | 51/220 mốc có phạt trong Data Pack đặt trần 10–12%; giữ nguyên để chấm, không mốc PENALTY nào vượt 8% (cao nhất 1,20%) |
+| Hợp đồng và chứng từ điện tử | Luật Giao dịch điện tử số 20/2023/QH15 | Văn bản mẫu ghi thêm căn cứ này; giá trị pháp lý đầy đủ của chữ ký chỉ có khi ký qua tổ chức cung cấp dịch vụ chứng thực được cấp phép (như trên) |
+| Giải quyết tranh chấp | Bộ luật Dân sự 2015, Luật Thương mại 2005 | Văn bản mẫu: thương lượng, không được thì đưa ra Tòa án có thẩm quyền; trong ứng dụng, tranh chấp mở thì tạm giữ khoản chi (BR-08) |
+
 ## 12. Đối chiếu đề bài và câu trả lời BTC
 
 | Nguồn                     | Yêu cầu                                                                                                                                                                                         | Cách đáp ứng                                                                                     | Bằng chứng                                                                                                  |

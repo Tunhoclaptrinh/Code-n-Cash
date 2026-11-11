@@ -73,6 +73,13 @@ export function validIsoDate(value: unknown): value is string {
   );
 }
 
+/**
+ * Luật Thương mại 2005, Điều 301: in a commercial contract the penalty may not exceed 8% of the
+ * value of the breached obligation. Every contract type drafted here is commerce between
+ * traders (goods, services, software, maintenance), so the cap applies to all of them.
+ */
+export const LEGAL_PENALTY_CAP_PCT = "8";
+
 export function draftProblems(input: {
   title: string;
   valueMillion: string;
@@ -104,5 +111,7 @@ export function draftProblems(input: {
     errors.penaltyRatePct = "INVALID_PENALTY";
   if (!exactDecimal(input.maxPenaltyPct, "100"))
     errors.maxPenaltyPct = "INVALID_PENALTY";
+  else if (!exactDecimal(input.maxPenaltyPct, LEGAL_PENALTY_CAP_PCT))
+    errors.maxPenaltyPct = "PENALTY_OVER_LEGAL_CAP";
   return errors;
 }

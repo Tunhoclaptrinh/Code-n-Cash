@@ -3239,6 +3239,9 @@ test("draft: terms are validated exactly (no floats for money, bounded penalty, 
     [{ penaltyRatePct: 0.1 }, "INVALID_PENALTY"],
     [{ maxPenaltyPct: "100.01" }, "INVALID_PENALTY"],
     [{ maxPenaltyPct: "8.001" }, "INVALID_PENALTY"],
+    // Luật Thương mại 2005, Điều 301: a commercial penalty may not exceed 8%.
+    [{ maxPenaltyPct: "8.01" }, "PENALTY_OVER_LEGAL_CAP"],
+    [{ maxPenaltyPct: "12.00" }, "PENALTY_OVER_LEGAL_CAP"],
     [{ type: "LEASE" }, "INVALID_TYPE"],
     [{ approvalPolicy: "NO_APPROVAL" }, "INVALID_POLICY"],
     [{ supplierId: "B010" }, "INVALID_SUPPLIER"], // a buyer is not a supplier
@@ -3354,7 +3357,7 @@ test("draft: terms are validated exactly (no floats for money, bounded penalty, 
     valueMillion: "0.01",
     graceDays: 60,
     penaltyRatePct: "5.00",
-    maxPenaltyPct: "100.00",
+    maxPenaltyPct: "8.00",
   });
   assert.equal(edge.valueMillion, "0.01");
 });

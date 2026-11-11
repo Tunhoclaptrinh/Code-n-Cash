@@ -184,7 +184,7 @@
         "INVALID_POLICY": "Invalid approval policy.",
         "INVALID_VALUE": "The value must be positive with at most two decimals.",
         "INVALID_DATES": "The start date must not be after the end date.",
-        "INVALID_PENALTY": "Invalid penalty terms (grace 0–60 days, 0–5%/day, cap 0–100%).",
+        "INVALID_PENALTY": "Invalid penalty terms (grace 0–60 days, 0–5%/day, cap 0–8%).",
         "INVALID_SUPPLIER": "Pick a supplier from the list.",
         "SIGNER_COUNT": "One to four signers are required.",
         "INVALID_SIGNER": "Signers must belong to their side and not repeat.",
@@ -194,7 +194,8 @@
         "DRAFT_LOCKED": "The terms are locked; cancel the signing to edit.",
         "INVALID_CODE": "The contract code changed; reload the page.",
         "BUYER_EDITORS_ONLY": "Only buyer contract officers and owners can create a file.",
-        "UNKNOWN": "The file could not be saved."
+        "UNKNOWN": "The file could not be saved.",
+        "PENALTY_OVER_LEGAL_CAP": "The penalty cap may not exceed 8% of the value of the breached obligation (Law on Commerce 2005, Article 301)."
       },
       "placeholders": {
         "type": "Choose contract type",
@@ -206,7 +207,7 @@
         "policy": "Choose approval policy",
         "grace": "0–60",
         "rate": "0.00–5.00",
-        "cap": "0.00–100.00"
+        "cap": "0.00–8.00"
       }
     },
     "preview": {

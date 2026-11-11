@@ -184,7 +184,7 @@
         "INVALID_POLICY": "Chính sách phê duyệt không hợp lệ.",
         "INVALID_VALUE": "Giá trị phải là số dương, tối đa 2 chữ số thập phân.",
         "INVALID_DATES": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.",
-        "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–100%).",
+        "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–8%).",
         "INVALID_SUPPLIER": "Chọn nhà cung cấp trong danh sách.",
         "SIGNER_COUNT": "Cần từ 1 đến 4 người ký.",
         "INVALID_SIGNER": "Người ký phải thuộc đúng bên và không trùng nhau.",
@@ -194,7 +194,8 @@
         "DRAFT_LOCKED": "Hợp đồng đã khoá điều khoản; hủy luồng ký để sửa.",
         "INVALID_CODE": "Mã hợp đồng đã đổi, tải lại trang.",
         "BUYER_EDITORS_ONLY": "Chỉ cán bộ hợp đồng hoặc chủ hợp đồng bên mua được tạo hồ sơ.",
-        "UNKNOWN": "Không lưu được hồ sơ."
+        "UNKNOWN": "Không lưu được hồ sơ.",
+        "PENALTY_OVER_LEGAL_CAP": "Trần phạt tối đa 8% giá trị phần nghĩa vụ bị vi phạm (Điều 301 Luật Thương mại 2005)."
       },
       "placeholders": {
         "type": "Chọn loại hợp đồng",
@@ -206,7 +207,7 @@
         "policy": "Chọn chính sách phê duyệt",
         "grace": "0–60",
         "rate": "0.00–5.00",
-        "cap": "0.00–100.00"
+        "cap": "0.00–8.00"
       }
     },
     "preview": {

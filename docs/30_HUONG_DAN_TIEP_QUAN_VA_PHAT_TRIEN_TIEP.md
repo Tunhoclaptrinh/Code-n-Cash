@@ -102,7 +102,7 @@ pnpm integration:check
 
 `pnpm check` gồm typecheck/lint/format/build/test. Khi chỉ sửa tài liệu, kiểm đường dẫn/nội dung/lệnh đã dẫn; không ghi rằng đã chạy lại toàn bộ test nếu chưa chạy. Với candidate engine, dùng câu lệnh `--candidate`/`--out` trong tài liệu 29.
 
-Các script smoke có thể phê duyệt, ký, đóng tranh chấp hoặc tạo/xóa bản ghi. Mỗi kịch bản dùng **API và DATA_DIR riêng, bắt đầu từ seed sạch**; không nối vào Render, Mongo dùng chung hoặc dữ liệu đang demo cho team. Chỉ đặt DATA_DIR chưa đủ nếu `.env` đang chọn Mongo: phải ghi `STORAGE_DRIVER=file`.
+Các script smoke có thể phê duyệt, ký, đóng tranh chấp hoặc tạo/xóa bản ghi. Mỗi kịch bản dùng **API và DATA_DIR riêng, bắt đầu từ seed sạch**; không nối vào Render, Mongo dùng chung hoặc dữ liệu đang demo cho team. Chỉ đặt DATA_DIR chưa đủ nếu `.env` đang chọn Mongo: phải ghi `STORAGE_DRIVER=file`. Cũng phải ghi `EXTRACTION_PROVIDER=local`: ngoài production, API tự nạp `.env.gemini.local` của máy, nên nếu thiếu biến này bước trích xuất sẽ gọi Gemini thật và lúc qua lúc hỏng (`GEMINI_UNAVAILABLE` sau khoảng 20 giây) tùy mạng.
 
 Ví dụ chạy fixture cho HTTP smoke, terminal A tại gốc repo:
 

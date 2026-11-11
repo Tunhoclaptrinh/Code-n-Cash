@@ -18,6 +18,8 @@ const out = resolve("playwright-report/refinement");
 await mkdir(out, { recursive: true });
 const health = await fetch(base + "/api/v1/health").then((r) => r.json());
 assert.equal(health.data.storage, "file", "ISOLATED_FILE_FIXTURE_REQUIRED");
+// The API must also run with EXTRACTION_PROVIDER=local: outside production it loads
+// .env.gemini.local, and live Gemini calls make the extraction step pass or fail with the network.
 const manifest = await fetch(base + "/guide/samples/manifest.json").then((r) =>
   r.json(),
 );
@@ -604,9 +606,8 @@ try {
   );
   await click("[data-testid=demo-account]");
   await until('location.pathname!=="/login"');
-  assert.ok(
-    (await evaluate("document.body.innerText")).includes("Phạm Thu Long"),
-  );
+  // The header shows the signed-in name once the session has loaded, not at the redirect itself.
+  await until('document.body.innerText.includes("Phạm Thu Long")');
   await send("Emulation.setDeviceMetricsOverride", {
     width: 390,
     height: 844,

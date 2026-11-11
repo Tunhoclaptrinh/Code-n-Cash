@@ -201,8 +201,19 @@ try {
     await evaluate("localStorage.getItem('codecash.onboarding')"),
     "done",
   );
-  // The controllers' queue holds the six Data Pack milestones with an unauthorised event.
-  await until("document.querySelectorAll('.ant-table-row').length === 6");
+  // Each party has its own controller: Nova An buys none of the six Data Pack milestones with an
+  // unauthorised event, so its queue is empty; Cửu Long's controller sees its own three.
+  await until("!!document.querySelector('.ant-table-placeholder')");
+  await loginAs("controller@cuulong.vn");
+  await send("Page.navigate", { url: base + "/exceptions" });
+  await until("document.querySelectorAll('.ant-table-row').length === 3");
+  await send("Page.navigate", {
+    url: base + "/contracts/CT0090/milestones/3/decision",
+  });
+  // The held milestone names who must act; its controller may open the decision.
+  await until("!!document.querySelector('[data-testid=pending-list]')");
+  await loginAs("controller@novaan.vn");
+  assert.equal(await evaluate("location.pathname"), "/exceptions");
   const screens = [];
   const buttonAudit = [];
   await mkdir("artifacts/browser", { recursive: true });
@@ -285,7 +296,7 @@ try {
       "!document.querySelector('.ant-spin-spinning, .ant-skeleton-active')",
     );
     if (route === "/contracts")
-      await until("document.body.innerText.includes('CT0001')");
+      await until("document.body.innerText.includes('CT0005')");
     if (route === "/contracts/CT0019/milestones/3/decision")
       await until("!!document.querySelector('[data-decision]')");
     if (route === "/data")
@@ -308,7 +319,7 @@ try {
     await checkTableActions();
     await checkBothThemes();
     screens.push({ route: screen.route, overflow: screen.overflow });
-    if (route === "/contracts") assert.ok(screen.text.includes("CT0001"));
+    if (route === "/contracts") assert.ok(screen.text.includes("CT0005"));
     // The decision reads in business words; rule codes stay in the trace details.
     if (route === "/contracts/CT0019/milestones/3/decision")
       assert.ok(
@@ -373,7 +384,6 @@ try {
     "/contracts/CT0019",
     "/approvals/CT0103/2",
     "/contracts/CT0019/milestones/3/decision",
-    "/contracts/CT0090/milestones/3/decision",
     "/contracts/CT0019/milestones/3/dispute",
     "/activity-log",
     "/integrity",
@@ -429,11 +439,14 @@ try {
     "Array.from(document.querySelectorAll('.data-table-wrapper button')).some(button => button.innerText.trim() === 'Xuất')",
   );
   await evaluate("localStorage.setItem('scw.language', 'en')");
-  // Integrity check: audit chain, sealed evidence and every decision re-run are intact.
+  // Integrity check: audit chain, sealed evidence and every decision re-run are intact. It is the
+  // integrity checker's screen (SoD-1), not the controller's.
+  await loginAs("auditor@codecash.vn");
   await send("Page.navigate", { url: base + "/integrity" });
   await until(
     "document.querySelectorAll('[data-testid=verdict-ok]').length === 4",
   );
+  await loginAs("controller@novaan.vn");
   // Replay: the engine re-evaluates CT0019 milestone 3 after each of its four events.
   await send("Page.navigate", {
     url: base + "/contracts/CT0019/milestones/3/decision",
@@ -496,10 +509,10 @@ try {
     false,
   );
   await until(
-    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).some((x) => x.innerText.includes('CT0001'))",
+    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).some((x) => x.innerText.includes('CT0005'))",
   );
   await evaluate(
-    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).find((x) => x.innerText.includes('CT0001')).click()",
+    "Array.from(document.querySelectorAll('.ant-table-row div[style*=pointer]')).find((x) => x.innerText.includes('CT0005')).click()",
   );
   await until("!!document.querySelector('[data-testid=modal-fullscreen]')");
   await until("!!document.querySelector('.ant-modal .ant-tabs')");

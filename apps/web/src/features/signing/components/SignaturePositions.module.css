@@ -22,7 +22,8 @@
 }
 
 .canvasCard {
-  padding: 14px 16px;
+  /* Frameless inside the page card: content lines up with the alerts above. */
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -285,7 +286,7 @@
 }
 
 .listCard {
-  padding: 14px 16px;
+  padding: 0 0 0 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -304,15 +305,6 @@
 
 .resetButton {
   margin-left: auto;
-  border: 1px solid var(--color-border-input);
-  border-radius: var(--radius-sm);
-  padding: 4px 12px;
-  background: var(--color-surface);
-  color: var(--color-primary-dark);
-  font: inherit;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
 }
 
 .card {
@@ -332,14 +324,14 @@
 .cardTop {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
   font-size: 13px;
 }
 
 .cardNumber {
-  width: 26px;
-  height: 26px;
+  flex: none;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--tone);
   color: #fff;
@@ -352,8 +344,9 @@
 
 .cardStatus {
   margin-left: auto;
-  font-size: 12.5px;
-  padding: 2px 10px;
+  font-size: 12px;
+  padding: 1px 8px;
+  white-space: nowrap;
 }
 
 .statusUNASSIGNED {
@@ -371,50 +364,30 @@
   color: var(--color-success);
 }
 
-.cardPosition {
-  font-size: 12px;
-  color: var(--color-text-muted);
+.cardTitle {
+  flex: 1;
+  min-width: 0;
 }
 
-.cardActions {
+/* Page, a link to the area and the remove action share one line. */
+.cardMeta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-height: 24px;
+  font-size: 12.5px;
 }
 
-.cardLookLabel {
+.cardPosition {
   color: var(--color-text-muted);
 }
 
-.lookButton,
-.removeButton {
-  border-radius: var(--radius-pill);
-  font: inherit;
-  font-weight: 700;
-  font-size: 12.5px;
-  padding: 2px 10px;
-  cursor: pointer;
+.cardLink {
+  padding-inline: 0;
 }
 
-.lookButton {
-  border: 1px solid var(--color-border-input);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-}
-
-.lookButtonOn {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
-}
-
-.removeButton {
+.cardRemove {
   margin-left: auto;
-  border: 1px solid var(--signing-danger-line);
-  background: var(--color-surface);
-  color: var(--signing-danger-flag);
 }
 
 .checkTextFail {

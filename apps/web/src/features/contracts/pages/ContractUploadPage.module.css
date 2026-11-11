@@ -1,4 +1,5 @@
 .side {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -11,6 +12,7 @@
     position: sticky;
     top: 16px;
     max-height: calc(100dvh - 96px);
+    overflow-x: hidden;
     overflow-y: auto;
     scrollbar-gutter: stable;
   }

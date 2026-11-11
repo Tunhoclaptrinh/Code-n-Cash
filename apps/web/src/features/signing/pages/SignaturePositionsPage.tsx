@@ -109,7 +109,7 @@ function Editor({ contractId, config }: EditorProps) {
       >
         <SplitView
           storageKey="signature-positions"
-          defaultStart="72%"
+          defaultStart="70%"
           minStart={480}
           maxStart="82%"
           minEnd={320}

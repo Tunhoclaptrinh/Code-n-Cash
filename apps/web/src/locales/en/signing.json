@@ -103,8 +103,8 @@
       "position": "Page {{page}} · {{top}} mm from top, {{left}} mm from left · size {{width}}×{{height}} mm",
       "look": {
         "label": "Appearance",
-        "NAME_AND_TIME": "Name and signing time",
-        "WITH_TITLE": "Add job title"
+        "NAME_AND_TIME": "Name, time",
+        "WITH_TITLE": "With job title"
       },
       "remove": "Remove slot"
     },

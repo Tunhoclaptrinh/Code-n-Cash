@@ -1,4 +1,5 @@
-import { Button } from "antd";
+import { Button, Segmented, Tooltip } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { SlotEditor } from "../hooks/useSlotEditor";
 import { cx } from "../lib/helpers";
@@ -26,14 +27,15 @@ export function SlotListCard({ config, editor, flags }: SlotListCardProps) {
     <section className={cx(shared.card, styles.listCard)}>
       <div className={styles.listHeader}>
         <h2>{t("positions.list.title")}</h2>
-        <button
-          type="button"
+        <Button
+          size="small"
           className={styles.resetButton}
+          loading={reset.isPending}
           onClick={() => reset.mutate()}
           data-testid="positions-suggest"
         >
           {t("positions.list.reset")}
-        </button>
+        </Button>
       </div>
       {steps.map((step) => {
         const box = boxes[step.stepNo];
@@ -53,7 +55,7 @@ export function SlotListCard({ config, editor, flags }: SlotListCardProps) {
           >
             <div className={styles.cardTop}>
               <span className={styles.cardNumber}>{step.stepNo}</span>
-              <b>
+              <b className={styles.cardTitle}>
                 {t("positions.list.cardTitle", {
                   party: t(`party.${step.party}`),
                   person: step.signerName,
@@ -69,65 +71,69 @@ export function SlotListCard({ config, editor, flags }: SlotListCardProps) {
                 {t(`positions.list.status.${status}`)}
               </span>
             </div>
-            <Button
-              type="link"
-              size="small"
-              onClick={() => selectStep(step.stepNo)}
-            >
-              {t("positions.showArea")}
-            </Button>
+            <div className={styles.cardMeta}>
+              {box ? (
+                <span
+                  className={styles.cardPosition}
+                  title={t("positions.list.position", {
+                    page: box.page,
+                    top: toMm(box.y, widthPt(box.page)),
+                    left: toMm(box.x, widthPt(box.page)),
+                    width: toMm(box.w, widthPt(box.page)),
+                    height: toMm(box.h, widthPt(box.page)),
+                  })}
+                >
+                  {t("prepLite.positions.page", { page: box.page })}
+                </span>
+              ) : null}
+              <Button
+                type="link"
+                size="small"
+                className={styles.cardLink}
+                onClick={() => selectStep(step.stepNo)}
+              >
+                {t("positions.showArea")}
+              </Button>
+              {box ? (
+                <Tooltip title={t("positions.list.remove")}>
+                  <Button
+                    type="text"
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                    aria-label={t("positions.list.remove")}
+                    className={styles.cardRemove}
+                    onClick={() => put(step.stepNo, null)}
+                    data-testid={`slot-remove-${step.stepNo}`}
+                  />
+                </Tooltip>
+              ) : null}
+            </div>
             {wrongSignerArea(config, step) ? (
               <span className={styles.checkTextFail}>
                 {t("positions.missingPrintedName")}
               </span>
             ) : null}
-            {box ? (
-              <div
-                className={styles.cardPosition}
-                title={t("positions.list.position", {
-                  page: box.page,
-                  top: toMm(box.y, widthPt(box.page)),
-                  left: toMm(box.x, widthPt(box.page)),
-                  width: toMm(box.w, widthPt(box.page)),
-                  height: toMm(box.h, widthPt(box.page)),
-                })}
-              >
-                {t("prepLite.positions.page", { page: box.page })}
-              </div>
-            ) : null}
-            <div className={styles.cardActions}>
-              <span className={styles.cardLookLabel}>
-                {t("positions.list.look.label")}
-              </span>
-              {(["NAME_AND_TIME", "WITH_TITLE"] as const).map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  className={cx(
-                    styles.lookButton,
-                    look === option && styles.lookButtonOn,
-                  )}
-                  aria-pressed={look === option}
-                  onClick={() =>
-                    setLooks((current) => ({
-                      ...current,
-                      [step.stepNo]: option,
-                    }))
-                  }
-                >
-                  {t(`positions.list.look.${option}`)}
-                </button>
-              ))}
-              {box ? (
-                <button
-                  type="button"
-                  className={styles.removeButton}
-                  onClick={() => put(step.stepNo, null)}
-                >
-                  {t("positions.list.remove")}
-                </button>
-              ) : null}
-            </div>
+            {/* The look is one choice of two, so it reads as a segmented switch. */}
+            <Segmented
+              block
+              size="small"
+              aria-label={t("positions.list.look.label")}
+              value={look}
+              options={(["NAME_AND_TIME", "WITH_TITLE"] as const).map(
+                (option) => ({
+                  value: option,
+                  label: t(`positions.list.look.${option}`),
+                }),
+              )}
+              onChange={(option) =>
+                setLooks((current) => ({
+                  ...current,
+                  [step.stepNo]: option as typeof look,
+                }))
+              }
+              data-testid={`slot-look-${step.stepNo}`}
+            />
           </div>
         );
       })}

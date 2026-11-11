@@ -103,8 +103,8 @@
       "position": "Trang {{page}} · cách mép trên {{top}} mm, mép trái {{left}} mm · cỡ {{width}}×{{height}} mm",
       "look": {
         "label": "Giao diện",
-        "NAME_AND_TIME": "Tên và thời điểm ký",
-        "WITH_TITLE": "Thêm chức danh"
+        "NAME_AND_TIME": "Tên, thời điểm",
+        "WITH_TITLE": "Kèm chức danh"
       },
       "remove": "Xóa ô"
     },

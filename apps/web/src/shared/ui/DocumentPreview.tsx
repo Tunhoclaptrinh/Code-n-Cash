@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Space, Spin } from "antd";
+import { Alert, Button, Spin } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { downloadBlob } from "@codecash/ui";
@@ -131,7 +131,16 @@ export function DocumentPreview({
       </Spin>
     );
   return (
-    <Space orientation="vertical" style={{ width: "100%" }}>
+    // A plain column, not Space: the frame must take the column width, never its own.
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        width: "100%",
+        minWidth: 0,
+      }}
+    >
       {showDownload ? (
         <Button
           icon={<DownloadOutlined />}
@@ -144,8 +153,10 @@ export function DocumentPreview({
       ) : null}
       <iframe
         title={name}
-        src={result.url}
+        // Fit the page to the frame width so the viewer never scrolls sideways.
+        src={`${result.url}#view=FitH`}
         style={{
+          display: "block",
           width: "100%",
           height: "min(75dvh, 900px)",
           minHeight: 400,
@@ -156,6 +167,6 @@ export function DocumentPreview({
         onLoad={() => onReady?.(true)}
         onError={() => onReady?.(false)}
       />
-    </Space>
+    </div>
   );
 }

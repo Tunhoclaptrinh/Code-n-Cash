@@ -2,6 +2,7 @@ import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { ClickableCell } from "@/shared/ui/ClickableCell";
 import { STAT_TONE } from "@/shared/ui/statTone";
 import { useState } from "react";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Alert, Tag, Typography } from "antd";
@@ -19,7 +20,12 @@ import {
   type FilterConfig,
   type StatisticsItem,
 } from "@codecash/ui";
-import type { TaskKind, TaskRow } from "@codecash/contracts";
+import type {
+  TaskGroup,
+  TaskKind,
+  TaskRow,
+  TaskWaitingFor,
+} from "@codecash/contracts";
 import { listTasks } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
@@ -27,6 +33,9 @@ import { formatDate, formatDecimalString } from "@/shared/lib/format";
 import { useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
 import { OriginTag } from "@/shared/ui/DomainTags";
+import { PersonChip } from "@/shared/ui/PersonChip";
+import { MilestonePreviewLink } from "../components/PendingItems";
+import styles from "./TaskInboxPage.module.css";
 
 type Badge = TaskRow["badge"];
 const BADGES: Badge[] = [
@@ -35,33 +44,65 @@ const BADGES: Badge[] = [
   "MILESTONE_ON_HOLD",
   "ON_TIME",
 ];
+const GROUPS: TaskGroup[] = ["MINE", "UPCOMING", "WAITING"];
 const KINDS: TaskKind[] = [
   "SUBMIT_EVIDENCE",
   "RESUBMIT_EVIDENCE",
   "APPROVE_PAYMENT",
   "RESOLVE_DISPUTE",
+  "TRANSFER_PAYMENT",
   "SIGN_CONTRACT",
   "COMPLETE_DRAFT",
   "REVIEW_EXCEPTION",
   "DECIDE_EXCEPTION",
+  "FOLLOW_UP",
 ];
-const badgeColor: Record<Badge, { tag: string; bg: string; value: string }> = {
-  LATE_PENALTY_RISK: {
-    tag: "error",
-    ...STAT_TONE.red,
-  },
-  YOUR_TURN: {
-    tag: "processing",
-    ...STAT_TONE.blue,
-  },
-  MILESTONE_ON_HOLD: {
-    tag: "warning",
-    ...STAT_TONE.amber,
-  },
-  ON_TIME: { tag: "success", ...STAT_TONE.green },
+const badgeTag: Record<Badge, string> = {
+  LATE_PENALTY_RISK: "error",
+  YOUR_TURN: "processing",
+  MILESTONE_ON_HOLD: "warning",
+  ON_TIME: "success",
 };
+const groupTone = {
+  MINE: STAT_TONE.blue,
+  UPCOMING: STAT_TONE.violet,
+  WAITING: STAT_TONE.amber,
+} satisfies Record<TaskGroup, { bg: string; value: string }>;
 
-/** Work waiting for the signed-in user; each row comes from the latest engine decision (spec 9.5). */
+/** "Phú Minh Technology JSC · Nhà cung cấp nộp Hoàn thành dịch vụ, Hoá đơn". */
+function describeWaiting(t: TFunction, waiting: TaskWaitingFor): string {
+  const subjects = waiting.subjects
+    .map((subject) =>
+      waiting.kind === "APPROVAL"
+        ? t(`domain:approvalRole.${subject}`)
+        : t(`domain:eventType.${subject}`),
+    )
+    .join(", ");
+  const roles = waiting.roles
+    .map((role) => t(`common:roles.${role}.name`))
+    .join(" / ");
+  return t("milestones:inbox.waiting", {
+    who: [waiting.organizationName, roles].filter(Boolean).join(" · "),
+    what: t(`milestones:inbox.waitingWhat.${waiting.kind}`, {
+      subjects,
+      count: waiting.subjects.length,
+    }),
+  });
+}
+
+/** "Phú Minh Technology JSC · Nhà cung cấp": the party and role a row waits for. */
+const whoOf = (t: TFunction, waiting: TaskWaitingFor) =>
+  [
+    waiting.organizationName,
+    waiting.roles.map((role) => t(`common:roles.${role}.name`)).join(" / "),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+/**
+ * Work for the signed-in user, from the same "what is left" items as each milestone screen:
+ * what is their turn now, what comes once something else is done, and what they wait for.
+ */
 export default function TaskInboxPage() {
   const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
@@ -69,43 +110,98 @@ export default function TaskInboxPage() {
   const user = useCurrentUser();
   const navigate = useNavigate();
   const [detail, setDetail] = useState<TaskRow>();
-  // One page at a time from the API; the inbox order (most urgent first) is the default sort.
+  // One page at a time from the API; it opens on what is the user's turn now.
   const list = useListQuery<TaskRow>({
     auditExport: "tasks",
-    key: ["pending-tasks", user.id],
+    key: ["pending-tasks", "list", user.id],
     fetch: listTasks,
     sort: { by: "rank", order: "asc" },
+    filters: { group: ["MINE"] },
   });
-  const { filters, setFilter } = list;
+  const { filters, setFilters } = list;
   const facets = list.data?.facets ?? {};
   const count = (key: string, value: string) =>
     facets[key]?.find((f) => f.value === value)?.count ?? 0;
   const kinds = KINDS.filter((kind) => count("kind", kind));
-  const tab = filters.badge?.length === 1 ? String(filters.badge[0]) : "ALL";
+  const group =
+    filters.group?.length === 1
+      ? (String(filters.group[0]) as TaskGroup)
+      : null;
+  const late =
+    filters.badge?.length === 1 && filters.badge[0] === "LATE_PENALTY_RISK";
+  const tab = group ?? "ALL";
 
   // What is still needed; empty when the task name already says it.
   const what = (r: TaskRow) =>
-    r.eventTypes.length
-      ? r.eventTypes.map((type) => td(`eventType.${type}`)).join(", ")
-      : r.roles.length
-        ? r.roles.map((role) => td(`approvalRole.${role}`)).join(", ")
-        : "";
+    r.kind === "FOLLOW_UP" && r.waitingFor?.subjects.length
+      ? r.waitingFor.subjects
+          .map((subject) =>
+            r.waitingFor?.kind === "APPROVAL"
+              ? td(`approvalRole.${subject}`)
+              : td(`eventType.${subject}`),
+          )
+          .join(", ")
+      : r.eventTypes.length
+        ? r.eventTypes.map((type) => td(`eventType.${type}`)).join(", ")
+        : r.roles.length
+          ? r.roles.map((role) => td(`approvalRole.${role}`)).join(", ")
+          : "";
   const where = (r: TaskRow) =>
     r.sequence && r.milestoneType
       ? `${td("milestoneNo", { no: r.sequence })} · ${td(`milestoneType.${r.milestoneType}`)}`
       : r.contractTitle;
+  const waited = (r: TaskRow) =>
+    r.waitingDays === null
+      ? null
+      : r.waitingDays === 0
+        ? t("inbox.waitedToday")
+        : t(r.group === "WAITING" ? "inbox.waited" : "inbox.waitedYou", {
+            count: r.waitingDays,
+          });
 
+  // Filters without the given keys, then with the given values: tabs and pills never stack.
+  const withFilters = (next: Record<string, string[] | null>) => {
+    const merged: typeof filters = { ...filters };
+    for (const [key, values] of Object.entries(next))
+      if (values) merged[key] = values;
+      else delete merged[key];
+    setFilters(merged);
+  };
   const changeTab = (key: string) =>
-    setFilter("badge", key === "ALL" ? undefined : [key]);
-  const statistics: StatisticsItem[] = BADGES.map((badge) => ({
-    colSpan: { xs: 12, sm: 12, md: 6 },
-    title: t(`inbox.badge.${badge}`),
-    value: count("badge", badge),
-    backgroundColor: badgeColor[badge].bg,
-    valueColor: badgeColor[badge].value,
-    selected: tab === badge,
-    onClick: () => changeTab(tab === badge ? "ALL" : badge),
-  }));
+    withFilters({ badge: null, group: key === "ALL" ? null : [key] });
+  const statistics: StatisticsItem[] = [
+    {
+      colSpan: { xs: 12, sm: 12, md: 6 },
+      title: t("inbox.group.MINE"),
+      value: count("group", "MINE"),
+      backgroundColor: groupTone.MINE.bg,
+      valueColor: groupTone.MINE.value,
+      selected: group === "MINE" && !late,
+      onClick: () => changeTab("MINE"),
+    },
+    {
+      colSpan: { xs: 12, sm: 12, md: 6 },
+      title: t("inbox.badge.LATE_PENALTY_RISK"),
+      value: count("badge", "LATE_PENALTY_RISK"),
+      backgroundColor: STAT_TONE.red.bg,
+      valueColor: STAT_TONE.red.value,
+      selected: late,
+      onClick: () =>
+        withFilters({
+          group: null,
+          badge: late ? null : ["LATE_PENALTY_RISK"],
+        }),
+    },
+    ...(["UPCOMING", "WAITING"] as const).map((key) => ({
+      colSpan: { xs: 12, sm: 12, md: 6 },
+      title: t(`inbox.group.${key}`),
+      value: count("group", key),
+      backgroundColor: groupTone[key].bg,
+      valueColor: groupTone[key].value,
+      selected: group === key && !late,
+      onClick: () => changeTab(key),
+    })),
+  ];
   const filterConfig: FilterConfig[] = [
     {
       key: "contractId",
@@ -164,12 +260,15 @@ export default function TaskInboxPage() {
       filterMultiple: false,
       render: (_: unknown, r: TaskRow) => (
         <ClickableCell onOpen={() => setDetail(r)}>
-          <Typography.Text strong>{td(`taskKind.${r.kind}`)}</Typography.Text>
-          {what(r) ? (
-            <div>
-              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                {what(r)}
-              </Typography.Text>
+          <Typography.Text strong>
+            {r.kind === "FOLLOW_UP" && r.waitingFor
+              ? t(`inbox.followUp.${r.waitingFor.kind}`)
+              : td(`taskKind.${r.kind}`)}
+          </Typography.Text>
+          {what(r) ? <div className={styles.secondary}>{what(r)}</div> : null}
+          {r.group === "UPCOMING" && r.waitingFor ? (
+            <div className={styles.after} data-testid="task-after">
+              {t("inbox.after", { what: describeWaiting(t, r.waitingFor) })}
             </div>
           ) : null}
         </ClickableCell>
@@ -183,14 +282,59 @@ export default function TaskInboxPage() {
       render: (_: unknown, r: TaskRow) => (
         <>
           <Typography.Text strong>{r.contractId}</Typography.Text>
-          <div>{where(r)}</div>
+          <div>
+            {r.sequence ? (
+              <MilestonePreviewLink
+                contractId={r.contractId}
+                sequence={r.sequence}
+              >
+                {where(r)}
+              </MilestonePreviewLink>
+            ) : (
+              where(r)
+            )}
+          </div>
           {r.sequence && r.milestoneType ? (
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              {r.contractTitle}
-            </Typography.Text>
+            <div className={styles.secondary}>{r.contractTitle}</div>
           ) : null}
         </>
       ),
+    },
+    {
+      key: "who",
+      title: t("inbox.columns.who"),
+      render: (_: unknown, r: TaskRow) =>
+        r.group === "WAITING" && r.waitingFor ? (
+          <div className={styles.who}>
+            <span className={styles.secondary}>{whoOf(t, r.waitingFor)}</span>
+            <span className={styles.people}>
+              {r.waitingFor.people.slice(0, 2).map((person) => (
+                <PersonChip
+                  key={person.userId}
+                  person={person}
+                  organizationName={r.waitingFor?.organizationName}
+                />
+              ))}
+              {r.waitingFor.people.length > 2 ? (
+                <span className={styles.secondary}>
+                  +{r.waitingFor.people.length - 2}
+                </span>
+              ) : null}
+            </span>
+            {waited(r) ? (
+              <span className={styles.secondary}>{waited(r)}</span>
+            ) : null}
+          </div>
+        ) : (
+          <div className={styles.who}>
+            <Tag color="processing" style={{ margin: 0 }}>
+              {tc("person.you")}
+            </Tag>
+            {waited(r) ? (
+              <span className={styles.secondary}>{waited(r)}</span>
+            ) : null}
+          </div>
+        ),
     },
     {
       ...list.column("amount"),
@@ -227,9 +371,14 @@ export default function TaskInboxPage() {
         value,
       })),
       filterMultiple: false,
-      render: (badge: Badge) => (
-        <Tag color={badgeColor[badge].tag}>{t(`inbox.badge.${badge}`)}</Tag>
-      ),
+      render: (badge: Badge, r: TaskRow) =>
+        r.group === "MINE" ? (
+          <Tag color={badgeTag[badge]}>{t(`inbox.badge.${badge}`)}</Tag>
+        ) : (
+          <Tag color={r.group === "UPCOMING" ? "purple" : "default"}>
+            {t(`inbox.groupShort.${r.group}`)}
+          </Tag>
+        ),
     },
   ];
 
@@ -244,12 +393,21 @@ export default function TaskInboxPage() {
         [t("inbox.columns.contract")]: r.contractId,
         [t("inbox.columns.milestone")]: where(r),
       }),
+      who: (r) =>
+        r.waitingFor
+          ? `${describeWaiting(t, r.waitingFor)}${r.waitingFor.people.length ? ` (${r.waitingFor.people.map((p) => p.name).join(", ")})` : ""}`
+          : tc("person.you"),
       amount: (r) => r.amountMillion ?? "",
       dueDate: (r) => (r.dueDate ? formatDate(r.dueDate) : ""),
-      badge: (r) => t(`inbox.badge.${r.badge}`),
+      badge: (r) =>
+        r.group === "MINE"
+          ? t(`inbox.badge.${r.badge}`)
+          : t(`inbox.group.${r.group}`),
     },
     "tasks",
   );
+
+  const primaryLabel = (r: TaskRow) => t(`inbox.action.${r.kind}`);
 
   return (
     <AppPage
@@ -261,28 +419,40 @@ export default function TaskInboxPage() {
         {list.result.isError ? (
           <Alert type="error" showIcon title={tc("common.loadError")} />
         ) : null}
+        {group ? (
+          <Alert
+            type="info"
+            showIcon
+            className={styles.hint}
+            title={t(`inbox.groupHint.${group}`)}
+          />
+        ) : null}
         <DataTable<TaskRow>
           rowKey="id"
-          scroll={{ x: 1050 }}
+          scroll={{ x: 1120 }}
           columns={columns.map((column) => ({
             ...column,
             width:
               (
                 {
-                  kind: 230,
-                  contract: 250,
-                  amount: 150,
-                  dueDate: 140,
-                  badge: 180,
+                  kind: 220,
+                  contract: 210,
+                  who: 210,
+                  amount: 110,
+                  dueDate: 135,
+                  badge: 130,
                 } as Record<string, number>
               )[String(column.key)] ?? 200,
           }))}
           {...list.table}
-          emptyText={t("inbox.empty")}
+          emptyText={t(`inbox.emptyGroup.${group ?? "ALL"}`)}
           statisticsData={statistics}
           tabs={[
+            ...GROUPS.map((key) => ({
+              key,
+              label: `${t(`inbox.group.${key}`)} (${count("group", key)})`,
+            })),
             { key: "ALL", label: t("inbox.tabs.ALL") },
-            ...BADGES.map((key) => ({ key, label: t(`inbox.badge.${key}`) })),
           ]}
           activeTab={tab}
           onTabChange={changeTab}
@@ -295,7 +465,7 @@ export default function TaskInboxPage() {
           customActions={(r) => (
             <TableRowActions
               primary={{
-                label: t(`inbox.action.${r.kind}`),
+                label: primaryLabel(r),
                 icon: <ArrowRightOutlined />,
                 onClick: () => navigate(r.href),
               }}
@@ -307,12 +477,24 @@ export default function TaskInboxPage() {
       </PageContainer>
       <DetailModal
         open={!!detail}
-        title={detail ? td(`taskKind.${detail.kind}`) : undefined}
+        title={
+          detail
+            ? detail.kind === "FOLLOW_UP" && detail.waitingFor
+              ? t(`inbox.followUp.${detail.waitingFor.kind}`)
+              : td(`taskKind.${detail.kind}`)
+            : undefined
+        }
         record={detail}
         onClose={() => setDetail(undefined)}
         items={
           detail
             ? [
+                {
+                  key: "group",
+                  label: t("inbox.detail.group"),
+                  value: t(`inbox.groupHint.${detail.group}`),
+                  span: 2,
+                },
                 ...(what(detail)
                   ? [
                       {
@@ -320,6 +502,43 @@ export default function TaskInboxPage() {
                         label: t("inbox.columns.required"),
                         value: what(detail),
                         span: 2,
+                      },
+                    ]
+                  : []),
+                ...(detail.waitingFor
+                  ? [
+                      {
+                        key: "waiting",
+                        label:
+                          detail.group === "UPCOMING"
+                            ? t("inbox.detail.after")
+                            : t("inbox.columns.who"),
+                        value: (
+                          <div className={styles.who}>
+                            <span>{describeWaiting(t, detail.waitingFor)}</span>
+                            <span className={styles.people}>
+                              {detail.waitingFor.people.map((person) => (
+                                <PersonChip
+                                  key={person.userId}
+                                  person={person}
+                                  organizationName={
+                                    detail.waitingFor?.organizationName
+                                  }
+                                />
+                              ))}
+                            </span>
+                          </div>
+                        ),
+                        span: 2,
+                      },
+                    ]
+                  : []),
+                ...(waited(detail)
+                  ? [
+                      {
+                        key: "waited",
+                        label: t("inbox.detail.waited"),
+                        value: waited(detail),
                       },
                     ]
                   : []),
@@ -348,7 +567,7 @@ export default function TaskInboxPage() {
               icon={<ArrowRightOutlined />}
               onClick={() => navigate(detail.href)}
             >
-              {t(`inbox.action.${detail.kind}`)}
+              {primaryLabel(detail)}
             </BaseButton>
           ) : null
         }

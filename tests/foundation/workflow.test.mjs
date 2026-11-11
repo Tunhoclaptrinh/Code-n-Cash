@@ -298,6 +298,48 @@ test("tasks come from the engine's reasons and match each role", async () => {
     assert.ok(!(await kinds(id)).some((k) => k.startsWith("REVIEW_EXCEPTION")));
 });
 
+test("the inbox has the same items as each milestone: my turn, coming up, waiting for others", async () => {
+  const list = async (id) =>
+    (await call(id, "tasks", "listTasks", { limit: 100 })).items;
+  // The contract officer may close disputes too, not only the owner.
+  const legal = await list("u-legal");
+  assert.ok(
+    legal.some(
+      (t) =>
+        t.group === "MINE" &&
+        t.kind === "RESOLVE_DISPUTE" &&
+        t.contractId === "CT0019",
+    ),
+  );
+  // An approval that waits for evidence comes up later, saying what must happen first.
+  const owner = await list("u-owner");
+  const later = owner.find((t) => t.id === "APPROVE_PAYMENT:MS0413");
+  assert.equal(later?.group, "UPCOMING");
+  assert.equal(later.waitingFor.kind, "EVIDENCE");
+  assert.deepEqual(later.waitingFor.subjects, ["ACCEPTANCE"]);
+  // A payable milestone not yet paid is the finance approver's work; approvals come first.
+  const finance = await list("u-finance");
+  assert.equal(finance[0].kind, "APPROVE_PAYMENT");
+  assert.ok(
+    finance.some((t) => t.group === "MINE" && t.kind === "TRANSFER_PAYMENT"),
+  );
+  // The supplier follows its milestones while the buyer acts, and sees who it waits for.
+  const supplier = await list("u-supplier");
+  const follow = supplier.find(
+    (t) => t.group === "WAITING" && t.waitingFor?.kind === "PAYMENT",
+  );
+  assert.ok(follow && follow.waitingFor.people.length > 0);
+  assert.ok(follow.waitingFor.people.every((p) => !("email" in p)));
+  // The drawer and the menu badge count what is the user's turn and still holds something;
+  // payment orders of decided milestones stay in the list only.
+  for (const id of ["u-owner", "u-finance", "u-supplier"]) {
+    const inbox = await call(id, "tasks", "getTaskInbox");
+    assert.ok(inbox.every((t) => t.group === "MINE"));
+    assert.ok(inbox.every((t) => t.kind !== "TRANSFER_PAYMENT"));
+    assert.equal(await call(id, "tasks", "getPendingTaskCount"), inbox.length);
+  }
+});
+
 test("an approval is an APPROVAL event; the engine then decides, with the late penalty", async () => {
   const view = await call(
     "u-finance",
@@ -1000,8 +1042,13 @@ test("workflow lists are read page by page with search, filters and sort on the 
     (await call("u-supplier", "contracts", "listContracts", {})).total,
     (await call("u-supplier", "contracts", "getContractList")).contracts.length,
   );
+  // The inbox list's "my turn" group is the drawer's list.
   assert.equal(
-    (await call("u-legal", "tasks", "listTasks", {})).total,
+    (
+      await call("u-legal", "tasks", "listTasks", {
+        filters: { group: ["MINE"] },
+      })
+    ).total,
     (await call("u-legal", "tasks", "getTaskInbox")).length,
   );
   const queue = await call("u-a007", "exceptions", "listExceptions", {

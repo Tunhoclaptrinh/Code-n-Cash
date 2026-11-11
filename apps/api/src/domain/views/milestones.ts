@@ -134,60 +134,7 @@ export function milestoneDetail(
   const payment = (ctx.t[TABLE.payments] as PaymentRecord[]).find(
     (p) => p.milestoneId === m.milestone_id,
   );
-  const status = ctx.status(m);
-  const open = contract.lifecycle === "ACTIVE" && !TERMINAL.includes(status);
-  const role = ctx.approvalRole();
-  const mine =
-    contract.buyer_id === ctx.actor.organizationId ||
-    contract.supplier_id === ctx.actor.organizationId;
-  // One vote per approver and kind, matching what castVote accepts (ALREADY_VOTED).
-  const votedOwn = (type: "APPROVAL" | "REJECTION") =>
-    ctx
-      .eventsOf(m.milestone_id)
-      .some(
-        (e) => e.event_type === type && e.actor_party_id === ctx.actor.partyId,
-      );
-  const approved = votedOwn("APPROVAL");
-  const actions: MilestoneDetail["actions"] = {
-    submit:
-      open &&
-      evaluation.missing.some((t) => isBusinessEvent(t) && ctx.mayRecord(t)),
-    approve:
-      open &&
-      !!role &&
-      contract.buyer_id === ctx.actor.organizationId &&
-      ctx.approvalRoles(m).includes(role) &&
-      !approved,
-    reject:
-      open &&
-      !!role &&
-      contract.buyer_id === ctx.actor.organizationId &&
-      !votedOwn("REJECTION"),
-    openDispute:
-      open &&
-      mine &&
-      evaluation.openDisputeIds.length === 0 &&
-      ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
-    resolveDispute:
-      open &&
-      evaluation.openDisputeIds.length > 0 &&
-      contract.buyer_id === ctx.actor.organizationId &&
-      ["LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
-    transfer:
-      !payment &&
-      status !== "REJECTED" &&
-      (evaluation.decision === "RELEASE" ||
-        evaluation.decision === "PENALTY") &&
-      ctx.actor.role === "FINANCE_APPROVER" &&
-      contract.buyer_id === ctx.actor.organizationId,
-    proposeException:
-      ctx.actor.role === "CONTRACT_OWNER" &&
-      contract.buyer_id === ctx.actor.organizationId &&
-      voidCandidates(ctx, m).length > 0,
-    decideException:
-      ctx.actor.role === "ADMIN_AUDITOR" &&
-      contract.buyer_id === ctx.actor.organizationId,
-  };
+  const actions = milestoneActions(ctx, m);
   return {
     contract: ctx.contractRow(contract),
     milestone: ctx.milestoneRow(m),
@@ -239,6 +186,72 @@ export function milestoneDetail(
     instruction: payment ? null : paymentInstruction(ctx, m, evaluation),
     exceptions: ctx.exceptionsOf(m.milestone_id).map(toException),
     actions,
+  };
+}
+
+/** What the signed-in user may do on a milestone now; the same rules the actions check again. */
+export function milestoneActions(
+  ctx: Ctx,
+  m: MilestoneRecord,
+): MilestoneDetail["actions"] {
+  const contract = ctx.contract(m.contract_id);
+  const evaluation = ctx.evaluation(m.milestone_id);
+  const payment = (ctx.t[TABLE.payments] as PaymentRecord[]).find(
+    (p) => p.milestoneId === m.milestone_id,
+  );
+  const status = ctx.status(m);
+  const open = contract.lifecycle === "ACTIVE" && !TERMINAL.includes(status);
+  const role = ctx.approvalRole();
+  const mine =
+    contract.buyer_id === ctx.actor.organizationId ||
+    contract.supplier_id === ctx.actor.organizationId;
+  // One vote per approver and kind, matching what castVote accepts (ALREADY_VOTED).
+  const votedOwn = (type: "APPROVAL" | "REJECTION") =>
+    ctx
+      .eventsOf(m.milestone_id)
+      .some(
+        (e) => e.event_type === type && e.actor_party_id === ctx.actor.partyId,
+      );
+  const approved = votedOwn("APPROVAL");
+  return {
+    submit:
+      open &&
+      evaluation.missing.some((t) => isBusinessEvent(t) && ctx.mayRecord(t)),
+    approve:
+      open &&
+      !!role &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      ctx.approvalRoles(m).includes(role) &&
+      !approved,
+    reject:
+      open &&
+      !!role &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      !votedOwn("REJECTION"),
+    openDispute:
+      open &&
+      mine &&
+      evaluation.openDisputeIds.length === 0 &&
+      ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
+    resolveDispute:
+      open &&
+      evaluation.openDisputeIds.length > 0 &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      ["LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
+    transfer:
+      !payment &&
+      status !== "REJECTED" &&
+      (evaluation.decision === "RELEASE" ||
+        evaluation.decision === "PENALTY") &&
+      ctx.actor.role === "FINANCE_APPROVER" &&
+      contract.buyer_id === ctx.actor.organizationId,
+    proposeException:
+      ctx.actor.role === "CONTRACT_OWNER" &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      voidCandidates(ctx, m).length > 0,
+    decideException:
+      ctx.actor.role === "ADMIN_AUDITOR" &&
+      contract.buyer_id === ctx.actor.organizationId,
   };
 }
 

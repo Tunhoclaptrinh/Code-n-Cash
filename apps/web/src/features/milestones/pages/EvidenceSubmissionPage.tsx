@@ -30,6 +30,7 @@ import { PageState } from "@/shared/ui/PageState";
 import { KeyFigures, SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
+import { MilestoneJourney } from "../components/MilestoneJourney";
 import styles from "./EvidenceSubmissionPage.module.css";
 
 const isZero = (amount: string) => /^0(\.0+)?$/.test(amount);
@@ -224,6 +225,13 @@ function Workspace({
         <>
           {contractHeading(contract)} · {td(`side.${data.side}`)}
         </>
+      }
+      nav={
+        <MilestoneJourney
+          contractId={contract.id}
+          sequence={milestone.sequence}
+          current="evidence"
+        />
       }
     >
       <SideCard>

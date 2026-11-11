@@ -17,5 +17,5 @@ export {
   voidCandidates,
 } from "./milestones";
 export { routes, toException, type DryRun } from "./shared";
-export { resolveTarget, taskInbox } from "./tasks";
+export { notifies, resolveTarget, taskInbox } from "./tasks";
 export { VERIFICATION_FORMAT, verificationBundle } from "./verification";

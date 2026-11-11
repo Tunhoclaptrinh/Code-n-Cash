@@ -24,6 +24,7 @@ import { PageState } from "@/shared/ui/PageState";
 import { KeyFigures, SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
+import { MilestoneJourney } from "../components/MilestoneJourney";
 import styles from "./PaymentApprovalPage.module.css";
 
 const isZero = (amount: string) => /^0(\.0+)?$/.test(amount);
@@ -163,6 +164,13 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
         <>
           {contractHeading(contract)} · {contract.supplier.name}
         </>
+      }
+      nav={
+        <MilestoneJourney
+          contractId={contract.id}
+          sequence={milestone.sequence}
+          current="approval"
+        />
       }
     >
       {data.blockedReason ? (

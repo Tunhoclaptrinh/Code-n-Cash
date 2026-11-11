@@ -15,20 +15,26 @@ import styles from "./ContractSideLayout.module.css";
 export function ContractSideLayout({
   contractId,
   context,
+  nav,
   children,
 }: {
   contractId: string;
   /** One line naming the contract, shown above both columns so their tops line up. */
   context?: ReactNode;
+  /** Navigation between the screens that handle the same record, below the context line. */
+  nav?: ReactNode;
   children: ReactNode;
 }) {
   const { t } = useTranslation("common");
   const wide = Grid.useBreakpoint().xl;
   const [open, setOpen] = useState(false);
   const pane = <ContractPreviewPane contractId={contractId} />;
-  const contextLine = context ? (
-    <WorkflowContext>{context}</WorkflowContext>
-  ) : null;
+  const contextLine = (
+    <>
+      {context ? <WorkflowContext>{context}</WorkflowContext> : null}
+      {nav}
+    </>
+  );
   if (wide)
     return (
       <>

@@ -21,7 +21,8 @@
       "amount": "Milestone value (million VND)",
       "due": "Due",
       "status": "Status",
-      "required": "Needed"
+      "required": "Needed",
+      "who": "Who acts"
     },
     "actions": {
       "detail": "View details",
@@ -37,13 +38,66 @@
       "SIGN_CONTRACT": "Sign the contract",
       "COMPLETE_DRAFT": "Continue the file",
       "REVIEW_EXCEPTION": "Review exception",
-      "DECIDE_EXCEPTION": "Decide proposal"
+      "DECIDE_EXCEPTION": "Decide proposal",
+      "TRANSFER_PAYMENT": "Approve payment",
+      "FOLLOW_UP": "Open milestone"
     },
     "detail": {
       "reason": "Why it is on hold",
-      "origin": "Data source"
+      "origin": "Data source",
+      "group": "Group",
+      "after": "Can be done once",
+      "waited": "Waiting time"
     },
-    "searchPlaceholder": "Search contract code, title or milestone ID"
+    "searchPlaceholder": "Search contract code, title or milestone ID",
+    "group": {
+      "MINE": "My turn",
+      "UPCOMING": "Coming up for me",
+      "WAITING": "Waiting for others"
+    },
+    "groupHint": {
+      "MINE": "Work waiting for you (or your role). Once done, the milestone is evaluated again at once. Payment orders awaiting approval are listed here but do not ring the bell.",
+      "UPCOMING": "Your work, once another step is done; you can prepare it now.",
+      "WAITING": "Your milestones waiting for someone else; hover a milestone to see who."
+    },
+    "emptyGroup": {
+      "MINE": "Nothing is your turn",
+      "UPCOMING": "Nothing is coming up for you",
+      "WAITING": "No milestone is waiting for someone else",
+      "ALL": "Nothing here"
+    },
+    "followUp": {
+      "EVIDENCE": "Waiting for evidence",
+      "UNAUTHORIZED": "Waiting for evidence to be refiled",
+      "APPROVAL": "Waiting for approval",
+      "DISPUTE": "Waiting for the dispute to close",
+      "PAYMENT": "Waiting for payment approval",
+      "DATA_ISSUE": "Waiting for a data check",
+      "REJECTION": "Milestone rejected",
+      "SIGNATURE": "Waiting for a signature"
+    },
+    "waiting": "{{who}}: {{what}}",
+    "waitingWhat": {
+      "EVIDENCE": "submit {{subjects}}",
+      "UNAUTHORIZED": "refile {{subjects}} with authority",
+      "APPROVAL": "approve",
+      "DISPUTE": "close the dispute",
+      "PAYMENT": "approve the payment order",
+      "DATA_ISSUE": "check the milestone data",
+      "REJECTION": "handle the rejected milestone",
+      "SIGNATURE": "sign the contract"
+    },
+    "after": "Can be done once {{what}}",
+    "waitedYou_one": "waiting for you {{count}} day",
+    "waitedYou_other": "waiting for you {{count}} days",
+    "waited_one": "waiting {{count}} day",
+    "waited_other": "waiting {{count}} days",
+    "waitedToday": "waiting since today",
+    "groupShort": {
+      "MINE": "Your turn",
+      "UPCOMING": "Not yet",
+      "WAITING": "Waiting"
+    }
   },
   "detail": {
     "breadcrumb": "{{contractId}}",
@@ -518,6 +572,24 @@
     "whoActs": "Who is it waiting for?",
     "nobodyWaiting": "Nobody",
     "loading": "Loading…",
-    "graceUntil": "grace until {{date}}"
+    "graceUntil": "grace until {{date}}",
+    "open": "Open the screen"
+  },
+  "journey": {
+    "label": "Milestone steps",
+    "stage": {
+      "evidence": "Evidence",
+      "approval": "Approval",
+      "dispute": "Dispute",
+      "decision": "Decision",
+      "payment": "Payment"
+    },
+    "evidenceCount": "{{done}}/{{total}} met",
+    "approvalCount": "{{done}}/{{quorum}} roles",
+    "disputeOpen_one": "{{count}} open",
+    "disputeOpen_other": "{{count}} open",
+    "disputeNone": "No open dispute",
+    "paymentDone": "Paid",
+    "paymentWaiting": "Awaiting approval"
   }
 }

@@ -55,6 +55,13 @@ const categoryColor: Record<
  * are read page by page from the API, newest first; every filter and the search are part of the
  * request, so the total and the export are exactly the matching entries.
  */
+
+/** An entry about a milestone opens that milestone's decision; others open the contract. */
+const activityHref = (e: ActivityEntry) =>
+  e.milestoneNo === null
+    ? `/contracts/${e.contractCode}`
+    : `/contracts/${e.contractCode}/milestones/${e.milestoneNo}/decision`;
+
 export function ActivityLogView({
   initialContract = "",
 }: {
@@ -185,9 +192,7 @@ export function ActivityLogView({
       filterMultiple: false,
       filterSearch: true,
       render: (_: unknown, e: ActivityEntry) => (
-        <Link to={`/contracts/${e.contractCode}`}>
-          {contractReference(t, e)}
-        </Link>
+        <Link to={activityHref(e)}>{contractReference(t, e)}</Link>
       ),
     },
     {
@@ -313,7 +318,7 @@ export function ActivityLogView({
                   key: "contract",
                   label: t("table.columns.contract"),
                   value: (
-                    <Link to={`/contracts/${detail.contractCode}`}>
+                    <Link to={activityHref(detail)}>
                       {contractReference(t, detail)}
                     </Link>
                   ),

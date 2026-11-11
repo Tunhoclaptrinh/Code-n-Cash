@@ -178,7 +178,9 @@
     "SIGN_CONTRACT": "Ký hợp đồng",
     "REVIEW_EXCEPTION": "Xem xét ngoại lệ chứng từ",
     "DECIDE_EXCEPTION": "Duyệt đề xuất ngoại lệ",
-    "COMPLETE_DRAFT": "Hoàn tất hồ sơ hợp đồng"
+    "COMPLETE_DRAFT": "Hoàn tất hồ sơ hợp đồng",
+    "TRANSFER_PAYMENT": "Duyệt lệnh chi",
+    "FOLLOW_UP": "Theo dõi mốc"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "Loại chứng từ này do bên kia tạo (ma trận thẩm quyền 4.2).",

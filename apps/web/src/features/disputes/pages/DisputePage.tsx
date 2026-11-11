@@ -6,6 +6,7 @@ import { AppPage } from "@/shared/layout/AppPage";
 import { contractHeading } from "@/shared/lib/domain";
 import { MilestoneStatusTag } from "@/shared/ui/DomainTags";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
+import { MilestoneJourney } from "@/features/milestones/components/MilestoneJourney";
 import { PageState } from "@/shared/ui/PageState";
 import { SideCard } from "@/shared/ui/SidePanel";
 import { DecisionPanel } from "../components/DecisionPanel";
@@ -52,6 +53,13 @@ export default function DisputePage() {
             <>
               {contractHeading(data.contract)} · {data.contract.supplier.name}
             </>
+          }
+          nav={
+            <MilestoneJourney
+              contractId={data.contract.id}
+              sequence={data.milestone.sequence}
+              current="dispute"
+            />
           }
         >
           <SideCard>

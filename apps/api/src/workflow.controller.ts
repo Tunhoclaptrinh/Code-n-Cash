@@ -162,13 +162,17 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     ),
   },
   tasks: {
-    getTaskInbox: read("tasks:read", (ctx) => views.taskInbox(ctx)),
+    // The notification drawer and the menu badge (docs/09 §5): what is the user's turn and holds
+    // a milestone or contract. Payment orders of decided milestones stay in the inbox list only.
+    getTaskInbox: read("tasks:read", (ctx) =>
+      views.taskInbox(ctx).filter(views.notifies),
+    ),
     listTasks: read("tasks:read", (ctx, [query]) =>
       lists.listTasks(ctx, query),
     ),
     getPendingTaskCount: read(
       "tasks:read",
-      (ctx) => views.taskInbox(ctx).length,
+      (ctx) => views.taskInbox(ctx).filter(views.notifies).length,
     ),
   },
   evidence: {

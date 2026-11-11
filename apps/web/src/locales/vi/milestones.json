@@ -21,7 +21,8 @@
       "amount": "Giá trị mốc (triệu VND)",
       "due": "Hạn",
       "status": "Tình trạng",
-      "required": "Cần có"
+      "required": "Cần có",
+      "who": "Ai làm"
     },
     "actions": {
       "detail": "Xem chi tiết",
@@ -37,13 +38,66 @@
       "SIGN_CONTRACT": "Ký hợp đồng",
       "COMPLETE_DRAFT": "Tiếp tục hồ sơ",
       "REVIEW_EXCEPTION": "Xem xét ngoại lệ",
-      "DECIDE_EXCEPTION": "Duyệt đề xuất"
+      "DECIDE_EXCEPTION": "Duyệt đề xuất",
+      "TRANSFER_PAYMENT": "Duyệt lệnh chi",
+      "FOLLOW_UP": "Xem mốc"
     },
     "detail": {
       "reason": "Lý do đang giữ",
-      "origin": "Nguồn dữ liệu"
+      "origin": "Nguồn dữ liệu",
+      "group": "Nhóm việc",
+      "after": "Làm được sau khi",
+      "waited": "Thời gian chờ"
     },
-    "searchPlaceholder": "Tìm theo mã, tên hợp đồng, mã mốc (không cần dấu)"
+    "searchPlaceholder": "Tìm theo mã, tên hợp đồng, mã mốc (không cần dấu)",
+    "group": {
+      "MINE": "Đến lượt tôi",
+      "UPCOMING": "Sắp tới lượt tôi",
+      "WAITING": "Tôi đang chờ người khác"
+    },
+    "groupHint": {
+      "MINE": "Những việc đang chờ chính bạn (hoặc vai trò của bạn). Làm xong, mốc được xét lại ngay. Lệnh chi chờ duyệt nằm ở đây nhưng không báo lên chuông.",
+      "UPCOMING": "Việc của bạn nhưng cần một bước khác xong trước; có thể chuẩn bị từ bây giờ.",
+      "WAITING": "Mốc của bạn đang chờ người khác; rê chuột vào mốc để xem ai đang được chờ."
+    },
+    "emptyGroup": {
+      "MINE": "Không có việc nào đến lượt bạn",
+      "UPCOMING": "Không có việc nào sắp tới lượt bạn",
+      "WAITING": "Không có mốc nào đang chờ người khác",
+      "ALL": "Không có việc nào"
+    },
+    "followUp": {
+      "EVIDENCE": "Chờ nộp chứng từ",
+      "UNAUTHORIZED": "Chờ nộp lại chứng từ",
+      "APPROVAL": "Chờ phê duyệt",
+      "DISPUTE": "Chờ đóng tranh chấp",
+      "PAYMENT": "Chờ duyệt chi",
+      "DATA_ISSUE": "Chờ kiểm tra dữ liệu mốc",
+      "REJECTION": "Mốc đã bị từ chối",
+      "SIGNATURE": "Chờ ký hợp đồng"
+    },
+    "waiting": "{{who}} {{what}}",
+    "waitingWhat": {
+      "EVIDENCE": "nộp {{subjects}}",
+      "UNAUTHORIZED": "nộp lại {{subjects}} đúng thẩm quyền",
+      "APPROVAL": "phê duyệt",
+      "DISPUTE": "đóng tranh chấp",
+      "PAYMENT": "duyệt lệnh chi",
+      "DATA_ISSUE": "kiểm tra dữ liệu mốc",
+      "REJECTION": "xử lý mốc bị từ chối",
+      "SIGNATURE": "ký hợp đồng"
+    },
+    "after": "Làm được sau khi: {{what}}",
+    "waitedYou_one": "đã chờ bạn {{count}} ngày",
+    "waitedYou_other": "đã chờ bạn {{count}} ngày",
+    "waited_one": "đã chờ {{count}} ngày",
+    "waited_other": "đã chờ {{count}} ngày",
+    "waitedToday": "bắt đầu chờ hôm nay",
+    "groupShort": {
+      "MINE": "Đến lượt bạn",
+      "UPCOMING": "Chưa tới lượt",
+      "WAITING": "Đang chờ"
+    }
   },
   "detail": {
     "breadcrumb": "{{contractId}}",
@@ -518,6 +572,24 @@
     "whoActs": "Ai đang được chờ?",
     "nobodyWaiting": "Không chờ ai",
     "loading": "Đang tải…",
-    "graceUntil": "ân hạn đến {{date}}"
+    "graceUntil": "ân hạn đến {{date}}",
+    "open": "Mở màn xử lý"
+  },
+  "journey": {
+    "label": "Các bước xử lý của mốc",
+    "stage": {
+      "evidence": "Chứng từ",
+      "approval": "Phê duyệt",
+      "dispute": "Tranh chấp",
+      "decision": "Quyết định",
+      "payment": "Lệnh chi"
+    },
+    "evidenceCount": "{{done}}/{{total}} đã đạt",
+    "approvalCount": "{{done}}/{{quorum}} vai trò",
+    "disputeOpen_one": "{{count}} đang mở",
+    "disputeOpen_other": "{{count}} đang mở",
+    "disputeNone": "Không có tranh chấp mở",
+    "paymentDone": "Đã chi",
+    "paymentWaiting": "Chờ duyệt chi"
   }
 }

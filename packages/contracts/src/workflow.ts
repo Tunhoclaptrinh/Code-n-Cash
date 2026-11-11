@@ -805,7 +805,24 @@ export type TaskKind =
   | "SIGN_CONTRACT"
   | "REVIEW_EXCEPTION"
   | "DECIDE_EXCEPTION"
-  | "COMPLETE_DRAFT";
+  | "COMPLETE_DRAFT"
+  | "TRANSFER_PAYMENT"
+  | "FOLLOW_UP";
+
+/**
+ * MINE: the user's turn now. UPCOMING: the user's work that a blocking item comes before (it may
+ * be prepared already). WAITING: the user's milestone or contract waits for someone else.
+ */
+export type TaskGroup = "MINE" | "UPCOMING" | "WAITING";
+
+/** Who a task waits for, or what must happen before it: the blocking item in business terms. */
+export interface TaskWaitingFor {
+  kind: PendingKind | "SIGNATURE";
+  subjects: Array<BusinessEventType | ApprovalRole>;
+  organizationName: string;
+  roles: Role[];
+  people: PersonRef[];
+}
 
 export interface TaskRow {
   id: string;
@@ -824,6 +841,11 @@ export interface TaskRow {
   badge: "LATE_PENALTY_RISK" | "YOUR_TURN" | "MILESTONE_ON_HOLD" | "ON_TIME";
   href: string;
   origin: Origin;
+  group: TaskGroup;
+  /** WAITING: who must act; UPCOMING: what must happen first; MINE: null. */
+  waitingFor: TaskWaitingFor | null;
+  /** Days this work has waited, when the data says since when. */
+  waitingDays: number | null;
 }
 
 /** Decision facts compared by the integrity check. */

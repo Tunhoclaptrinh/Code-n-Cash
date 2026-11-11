@@ -294,3 +294,10 @@
     justify-self: start;
   }
 }
+
+.pendingLink {
+  padding-inline: 0 !important;
+  height: auto !important;
+  /* Readable on the amber row of a blocking item in both themes. */
+  color: var(--color-primary-dark) !important;
+}

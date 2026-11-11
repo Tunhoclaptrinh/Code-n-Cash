@@ -20,6 +20,7 @@ import { RulesPanel } from "../components/RulesPanel";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 import { PaymentInstructionPanel } from "../components/PaymentInstructionPanel";
 import { PendingPanel } from "../components/PendingItems";
+import { MilestoneJourney } from "../components/MilestoneJourney";
 
 /** Milestone decision with its full trace: rule, facts, events, amounts and status history (spec 14.5). */
 export default function MilestoneDecisionPage() {
@@ -104,7 +105,16 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
   };
 
   return (
-    <ContractSideLayout contractId={contract.id}>
+    <ContractSideLayout
+      contractId={contract.id}
+      nav={
+        <MilestoneJourney
+          contractId={contract.id}
+          sequence={milestone.sequence}
+          current="decision"
+        />
+      }
+    >
       <Space direction="vertical" size={12} style={{ width: "100%" }}>
         <PaymentInstructionPanel data={data} />
         {evaluation.issues.length || evaluation.notes.length ? (

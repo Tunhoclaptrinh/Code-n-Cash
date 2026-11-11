@@ -8,7 +8,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import type {
   MilestoneDetail,
   PendingItem,
@@ -252,18 +252,35 @@ function ActionButton({
   item: PendingItem;
   run: (item: PendingItem) => void;
 }) {
+  const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
-  if (!item.action?.mine) return null;
+  const location = useLocation();
+  if (!item.action) return null;
+  if (item.action.mine)
+    return (
+      <Button
+        size="small"
+        type={item.state === "BLOCKING" ? "primary" : "default"}
+        onClick={() => run(item)}
+        data-testid={`pending-action-${item.key}`}
+      >
+        {td(`pendingAction.${item.action.kind}`, {
+          subject: pendingTitle(td, item),
+        })}
+      </Button>
+    );
+  // Someone else's turn: still a way to the screen where it is handled, as a quiet link.
+  const path = item.action.href.split("#")[0].split("?")[0];
+  if (path === location.pathname) return null;
   return (
     <Button
       size="small"
-      type={item.state === "BLOCKING" ? "primary" : "default"}
+      type="link"
+      className={styles.pendingLink}
       onClick={() => run(item)}
-      data-testid={`pending-action-${item.key}`}
+      data-testid={`pending-open-${item.key}`}
     >
-      {td(`pendingAction.${item.action.kind}`, {
-        subject: pendingTitle(td, item),
-      })}
+      {t("pending.open")}
     </Button>
   );
 }
@@ -502,6 +519,8 @@ function LazyPending({
         quorum: data.evaluation.quorum,
       }
     : undefined;
+  if (!open.length)
+    return <span className={styles.pendingMuted}>{t("pending.nothing")}</span>;
   return (
     <ul className={`${styles.pendingList} ${styles.pendingPreview}`}>
       {open.map((item) => (
@@ -514,6 +533,37 @@ function LazyPending({
         />
       ))}
     </ul>
+  );
+}
+
+/**
+ * A link to a milestone's decision that previews, on hover or focus, what is left on it and who
+ * must act: the inbox and other lists use it so a row can be understood without opening it.
+ */
+export function MilestonePreviewLink({
+  contractId,
+  sequence,
+  children,
+}: {
+  contractId: string;
+  sequence: number;
+  children: ReactNode;
+}) {
+  return (
+    <Popover
+      trigger={["hover", "focus"]}
+      placement="bottomLeft"
+      mouseEnterDelay={0.3}
+      content={<LazyPending contractId={contractId} sequence={sequence} />}
+    >
+      <Link
+        to={`/contracts/${contractId}/milestones/${sequence}/decision`}
+        className={styles.pendingTitle}
+        data-testid="milestone-preview-link"
+      >
+        {children}
+      </Link>
+    </Popover>
   );
 }
 

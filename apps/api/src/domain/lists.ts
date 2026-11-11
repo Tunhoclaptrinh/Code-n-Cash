@@ -84,6 +84,7 @@ const TASKS: ListSpec<TaskRow & { rank: number }> = {
     contractId: { value: (r) => r.contractId, filter: "eq", facet: true },
     kind: { value: (r) => r.kind, filter: "eq", facet: true },
     badge: { value: (r) => r.badge, filter: "eq", facet: true },
+    group: { value: (r) => r.group, filter: "eq", facet: true },
     dueDate: { value: (r) => r.dueDate ?? "9999", sort: true },
     amount: { value: (r) => cents(r.amountMillion), sort: true },
   },

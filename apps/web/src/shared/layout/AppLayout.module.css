@@ -285,9 +285,19 @@
   --panel-border: transparent;
 }
 
-/* DataTable pads its rows for a card of its own; inside the page card it uses the card's edge. */
+/*
+ * DataTable pads its rows for a card of its own; inside the page card it spans to the card's
+ * edge (its own 20px inset then matches the card padding) and drops its top padding, so the
+ * statistics sit one normal gap below the note above them.
+ */
 .pageBody :global(.data-table-wrapper) {
-  margin: -28px -20px 0;
+  width: auto;
+  margin-inline: -20px;
+}
+
+.pageBody :global(.data-table-wrapper) > div,
+.pageBody :global(.data-table-wrapper) > div > div:first-child {
+  padding-top: 0 !important;
 }
 
 /* Title row: the breadcrumb is the heading, its last item the page title. */
@@ -365,7 +375,7 @@
   }
 
   .pageBody :global(.data-table-wrapper) {
-    margin: -28px -12px 0;
+    margin-inline: -12px;
   }
 
   .breadcrumb {

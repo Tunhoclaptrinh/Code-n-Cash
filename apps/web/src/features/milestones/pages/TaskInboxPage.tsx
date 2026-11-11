@@ -420,12 +420,7 @@ export default function TaskInboxPage() {
           <Alert type="error" showIcon title={tc("common.loadError")} />
         ) : null}
         {group ? (
-          <Alert
-            type="info"
-            showIcon
-            className={styles.hint}
-            title={t(`inbox.groupHint.${group}`)}
-          />
+          <Alert type="info" showIcon title={t(`inbox.groupHint.${group}`)} />
         ) : null}
         <DataTable<TaskRow>
           hideCard

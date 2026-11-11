@@ -7,9 +7,9 @@ Nhật ký nối các thao tác người dùng, sự kiện và lần đổi tr�
 ## Theo dõi một hợp đồng
 
 1. Mở hợp đồng, bấm nút **☰** cạnh **Hướng dẫn** rồi chọn **Nhật ký hợp đồng**. Trang tự lọc theo mã, ví dụ CT0103.
-2. Đọc thời điểm, người thực hiện, loại hoạt động, hợp đồng/mốc, nội dung và nguồn.
-3. Dùng tab, tìm kiếm, bộ lọc hoặc lọc cột để thu hẹp nhóm cần xem.
-4. Mở chi tiết bản ghi nếu cần xem thông tin bổ sung; xuất CSV/JSON khi cần đối chiếu ngoài ứng dụng.
+2. Mỗi dòng gồm thời điểm, hoạt động (biểu tượng loại, nội dung, người thực hiện và vai trò; nhãn **Bạn** khi chính bạn làm), hợp đồng · mốc, mã chứng từ và nguồn.
+3. Dùng tab, **Mọi người / Do tôi**, tìm kiếm, bộ lọc hoặc lọc cột để thu hẹp nhóm cần xem. Bộ lọc nằm trên địa chỉ trang, nên có thể gửi link cho người khác.
+4. Đối soát: bấm mã hợp đồng, mốc hoặc mã chứng từ để mở đúng chỗ (mã chứng từ mở quyết định của mốc và làm nổi dòng chứng từ đó); nút tải bên cạnh mã chứng từ tải đúng tệp đã ký. Chỉ hiện những liên kết bạn có quyền mở. Xuất CSV/JSON khi cần đối chiếu ngoài ứng dụng.
 
 ## Phân biệt các nhóm thông tin
 

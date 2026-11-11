@@ -7,9 +7,9 @@ Activity connects user actions, business events and status changes. Records are 
 ## Follow a contract
 
 1. Open a contract, select the **☰** button beside **Guide**, then its contract activity. The log is filtered to that contract, such as CT0103.
-2. Read time, actor, category, contract/milestone, description and origin.
-3. Narrow results using tabs, search, filters or column filters.
-4. Open row details and export CSV/JSON when needed for reconciliation.
+2. Each row shows the time, the activity (category icon, description, who did it and their role; a **You** tag when it was you), contract · milestone, evidence id and origin.
+3. Narrow results using tabs, **Everyone / Mine**, search, filters or column filters. Filters live in the page address, so a link opens the same rows.
+4. Reconcile: select the contract, milestone or evidence id to open that place (the evidence id opens the milestone's decision with that event highlighted); the download button beside it fetches the signed file. Only links you may open are shown. Export CSV/JSON for checks outside the app.
 
 ## Distinguish record types
 

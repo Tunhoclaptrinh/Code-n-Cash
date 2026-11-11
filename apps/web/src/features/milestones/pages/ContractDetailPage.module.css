@@ -85,6 +85,48 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 4px 16px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.cardHead:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+.chevron {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.chevron[data-open] {
+  transform: rotate(90deg);
+}
+
+/* A folded milestone keeps its due date, reason and action on one line under the name. */
+.foldedLine {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding-left: 19px;
+}
+
+.timelineWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timelineBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Facts on the left, actions on the right of the same rows. */

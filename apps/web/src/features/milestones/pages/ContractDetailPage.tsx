@@ -7,6 +7,7 @@ import { SmartContractPanel } from "../components/SmartContractPanel";
 import { WaitingOnLine } from "../components/PendingItems";
 import {
   Button,
+  Segmented,
   Space,
   Table,
   Tabs,
@@ -20,6 +21,7 @@ import {
   CloseCircleFilled,
   ExclamationCircleFilled,
   FileSearchOutlined,
+  RightOutlined,
   HistoryOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
@@ -283,16 +285,10 @@ export default function ContractDetailPage() {
                   </Panel>
                 </div>
                 {data.milestones.length ? (
-                  <ol className={styles.timeline}>
-                    {data.milestones.map((row, index) => (
-                      <MilestoneItem
-                        key={row.id}
-                        row={row}
-                        contractId={contract.id}
-                        isLast={index === data.milestones.length - 1}
-                      />
-                    ))}
-                  </ol>
+                  <MilestoneTimeline
+                    milestones={data.milestones}
+                    contractId={contract.id}
+                  />
                 ) : (
                   <Panel className={styles.tabPanel}>
                     <div className={styles.panelBody}>
@@ -381,14 +377,117 @@ function RequirementChip({ requirement }: { requirement: Requirement }) {
   );
 }
 
+/** Milestones shown expanded when there are few; past that, only those that need something. */
+const OPEN_ALL_UP_TO = 3;
+type MilestoneFilter = "all" | "open" | "done";
+
+/**
+ * The contract's milestones as a timeline. With more than a few, finished milestones fold to one
+ * line (status, due date, amount and the action stay visible); a filter and "expand all" keep a
+ * long contract readable without hiding anything.
+ */
+function MilestoneTimeline({
+  milestones,
+  contractId,
+}: {
+  milestones: MilestoneRow[];
+  contractId: string;
+}) {
+  const { t } = useTranslation("milestones");
+  const done = (row: MilestoneRow) => emphasisOf[row.status] === "done";
+  const [filter, setFilter] = useState<MilestoneFilter>("all");
+  const [open, setOpen] = useState<Set<string>>(
+    () =>
+      new Set(
+        milestones
+          .filter((row) => milestones.length <= OPEN_ALL_UP_TO || !done(row))
+          .map((row) => row.id),
+      ),
+  );
+  const finished = milestones.filter(done).length;
+  const shown = milestones.filter((row) =>
+    filter === "all" ? true : filter === "done" ? done(row) : !done(row),
+  );
+  const allOpen = shown.every((row) => open.has(row.id));
+  const toggle = (id: string) =>
+    setOpen((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  return (
+    <div className={styles.timelineWrap}>
+      <div className={styles.timelineBar}>
+        <Segmented<MilestoneFilter>
+          size="small"
+          value={filter}
+          onChange={setFilter}
+          options={[
+            {
+              value: "all",
+              label: t("detail.timeline.all", { count: milestones.length }),
+            },
+            {
+              value: "open",
+              label: t("detail.timeline.open", {
+                count: milestones.length - finished,
+              }),
+            },
+            {
+              value: "done",
+              label: t("detail.timeline.done", { count: finished }),
+            },
+          ]}
+          data-testid="milestone-filter"
+        />
+        <Button
+          type="link"
+          size="small"
+          onClick={() =>
+            setOpen(
+              allOpen ? new Set() : new Set(milestones.map((row) => row.id)),
+            )
+          }
+          data-testid="milestone-toggle-all"
+        >
+          {allOpen
+            ? t("detail.timeline.collapseAll")
+            : t("detail.timeline.expandAll")}
+        </Button>
+      </div>
+      {shown.length ? (
+        <ol className={styles.timeline}>
+          {shown.map((row, index) => (
+            <MilestoneItem
+              key={row.id}
+              row={row}
+              contractId={contractId}
+              isLast={index === shown.length - 1}
+              open={open.has(row.id)}
+              onToggle={() => toggle(row.id)}
+            />
+          ))}
+        </ol>
+      ) : (
+        <p className={styles.empty}>{t(`detail.timeline.none.${filter}`)}</p>
+      )}
+    </div>
+  );
+}
+
 function MilestoneItem({
   row,
   contractId,
   isLast,
+  open,
+  onToggle,
 }: {
   row: MilestoneRow;
   contractId: string;
   isLast: boolean;
+  open: boolean;
+  onToggle: () => void;
 }) {
   const { t } = useTranslation("milestones");
   const { t: tl } = useTranslation("milestones", { keyPrefix: "detailLite" });
@@ -423,8 +522,27 @@ function MilestoneItem({
         as="div"
         className={`${styles.milestoneCard} ${cardClass[emphasis]}`}
       >
-        <div className={styles.cardHead}>
+        <div
+          className={styles.cardHead}
+          role="button"
+          tabIndex={0}
+          aria-expanded={open}
+          onClick={onToggle}
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onToggle();
+            }
+          }}
+          data-testid="milestone-head"
+        >
           <div className={styles.nameRow}>
+            <RightOutlined
+              className={styles.chevron}
+              data-open={open || undefined}
+              aria-hidden
+            />
             <b className={styles.name}>
               {td("milestoneNo", { no: row.sequence })} ·{" "}
               {td(`milestoneType.${row.type}`)}
@@ -440,99 +558,126 @@ function MilestoneItem({
               {t("detail.milestone.amountUnit")}
             </span>
           </div>
-        </div>
-        <div className={styles.cardBody}>
-          <div className={styles.info}>
-            <div className={styles.meta}>
+          {open ? null : (
+            <div className={styles.foldedLine}>
               <span className={styles.due}>
                 {row.dueDate
                   ? tl("due", { due: formatDate(row.dueDate) })
-                  : t("detail.milestone.noDue")}
-                {row.completedAt && emphasis !== "done"
-                  ? ` · ${t("detail.milestone.completed", { at: formatDate(row.completedAt) })}`
-                  : ""}
+                  : t("detail.milestone.noDue")}{" "}
+                · {td(`reason.${row.reasonCode}`)}
               </span>
-              {row.requirements.map((requirement) => (
-                <RequirementChip
-                  key={requirement.eventType}
-                  requirement={requirement}
-                />
-              ))}
-              {row.approvalRequired ? (
-                <Tag
-                  color={
-                    row.validApprovals >= row.quorum ? "success" : "processing"
-                  }
-                  style={{ margin: 0 }}
-                >
-                  {t("detail.milestone.approvals", {
-                    done: row.validApprovals,
-                    quorum: row.quorum,
-                  })}
-                </Tag>
-              ) : null}
-            </div>
-            <div className={styles.fact}>
-              <span className={styles.factLabel}>
-                {t("detail.milestone.reason")}{" "}
-              </span>
-              <b>{td(`reason.${row.reasonCode}`)}</b>
-            </div>
-            {(row.decision === "RELEASE" || row.decision === "PENALTY") &&
-            Number(row.payableMillion) !== Number(row.plannedMillion) ? (
-              <div className={styles.fact}>
-                <span className={styles.factLabel}>
-                  {t("detail.milestone.payable")}{" "}
-                </span>
-                <b>{formatDecimalString(row.payableMillion)}</b>
-                {row.decision === "PENALTY" ? (
-                  <Typography.Text type="warning">
-                    {" "}
-                    ·{" "}
-                    {t("detail.milestone.penalty", {
-                      penalty: formatDecimalString(row.penaltyMillion),
-                      days: row.daysLate,
-                    })}
-                  </Typography.Text>
-                ) : null}
-              </div>
-            ) : null}
-            <div className={styles.fact}>
-              <span className={styles.factLabel}>
-                {t("detail.milestone.next")}{" "}
-              </span>
-              <WaitingOnLine
-                contractId={contractId}
-                sequence={row.sequence}
-                waitingOn={row.waitingOn}
-                fallback={<b>{describeNext(td, row.next)}</b>}
-              />
-            </div>
-          </div>
-          <div className={styles.side}>
-            <Space size={6} wrap>
               {action ? (
                 <Button
                   type="primary"
                   size="small"
-                  onClick={() => navigate(actionPath)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate(actionPath);
+                  }}
                   data-testid={`milestone-action-${action}`}
                 >
                   {t(`detail.milestone.action.${action}`)}
                 </Button>
               ) : null}
-              <Tooltip title={t("detail.milestone.trace")}>
-                <Button
-                  size="small"
-                  icon={<FileSearchOutlined />}
-                  aria-label={t("detail.milestone.trace")}
-                  onClick={() => navigate(decisionPath)}
-                  data-testid="milestone-trace"
-                />
-              </Tooltip>
-            </Space>
-          </div>
+            </div>
+          )}
         </div>
+        {open ? (
+          <div className={styles.cardBody}>
+            <div className={styles.info}>
+              <div className={styles.meta}>
+                <span className={styles.due}>
+                  {row.dueDate
+                    ? tl("due", { due: formatDate(row.dueDate) })
+                    : t("detail.milestone.noDue")}
+                  {row.completedAt && emphasis !== "done"
+                    ? ` · ${t("detail.milestone.completed", { at: formatDate(row.completedAt) })}`
+                    : ""}
+                </span>
+                {row.requirements.map((requirement) => (
+                  <RequirementChip
+                    key={requirement.eventType}
+                    requirement={requirement}
+                  />
+                ))}
+                {row.approvalRequired ? (
+                  <Tag
+                    color={
+                      row.validApprovals >= row.quorum
+                        ? "success"
+                        : "processing"
+                    }
+                    style={{ margin: 0 }}
+                  >
+                    {t("detail.milestone.approvals", {
+                      done: row.validApprovals,
+                      quorum: row.quorum,
+                    })}
+                  </Tag>
+                ) : null}
+              </div>
+              <div className={styles.fact}>
+                <span className={styles.factLabel}>
+                  {t("detail.milestone.reason")}{" "}
+                </span>
+                <b>{td(`reason.${row.reasonCode}`)}</b>
+              </div>
+              {(row.decision === "RELEASE" || row.decision === "PENALTY") &&
+              Number(row.payableMillion) !== Number(row.plannedMillion) ? (
+                <div className={styles.fact}>
+                  <span className={styles.factLabel}>
+                    {t("detail.milestone.payable")}{" "}
+                  </span>
+                  <b>{formatDecimalString(row.payableMillion)}</b>
+                  {row.decision === "PENALTY" ? (
+                    <Typography.Text type="warning">
+                      {" "}
+                      ·{" "}
+                      {t("detail.milestone.penalty", {
+                        penalty: formatDecimalString(row.penaltyMillion),
+                        days: row.daysLate,
+                      })}
+                    </Typography.Text>
+                  ) : null}
+                </div>
+              ) : null}
+              <div className={styles.fact}>
+                <span className={styles.factLabel}>
+                  {t("detail.milestone.next")}{" "}
+                </span>
+                <WaitingOnLine
+                  contractId={contractId}
+                  sequence={row.sequence}
+                  waitingOn={row.waitingOn}
+                  fallback={<b>{describeNext(td, row.next)}</b>}
+                />
+              </div>
+            </div>
+            <div className={styles.side}>
+              <Space size={6} wrap>
+                {action ? (
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => navigate(actionPath)}
+                    data-testid={`milestone-action-${action}`}
+                  >
+                    {t(`detail.milestone.action.${action}`)}
+                  </Button>
+                ) : null}
+                <Tooltip title={t("detail.milestone.trace")}>
+                  <Button
+                    size="small"
+                    icon={<FileSearchOutlined />}
+                    aria-label={t("detail.milestone.trace")}
+                    onClick={() => navigate(decisionPath)}
+                    data-testid="milestone-trace"
+                  />
+                </Tooltip>
+              </Space>
+            </div>
+          </div>
+        ) : null}
       </Panel>
     </li>
   );

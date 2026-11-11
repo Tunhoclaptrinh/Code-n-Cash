@@ -1,4 +1,4 @@
-import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { TableRowActions, type ActionTone } from "@/shared/ui/TableRowActions";
 import { ClickableCell } from "@/shared/ui/ClickableCell";
 import { STAT_TONE } from "@/shared/ui/statTone";
 import { useState } from "react";
@@ -167,6 +167,7 @@ export default function TaskInboxPage() {
       else delete merged[key];
     setFilters(merged);
   };
+  // Tiles and tabs are one choice: a tile picks its tab, a second click on it shows every task.
   const changeTab = (key: string) =>
     withFilters({ badge: null, group: key === "ALL" ? null : [key] });
   const statistics: StatisticsItem[] = [
@@ -177,7 +178,7 @@ export default function TaskInboxPage() {
       backgroundColor: groupTone.MINE.bg,
       valueColor: groupTone.MINE.value,
       selected: group === "MINE" && !late,
-      onClick: () => changeTab("MINE"),
+      onClick: () => changeTab(group === "MINE" && !late ? "ALL" : "MINE"),
     },
     {
       colSpan: { xs: 12, sm: 12, md: 6 },
@@ -199,7 +200,7 @@ export default function TaskInboxPage() {
       backgroundColor: groupTone[key].bg,
       valueColor: groupTone[key].value,
       selected: group === key && !late,
-      onClick: () => changeTab(key),
+      onClick: () => changeTab(group === key && !late ? "ALL" : key),
     })),
   ];
   const filterConfig: FilterConfig[] = [
@@ -408,6 +409,18 @@ export default function TaskInboxPage() {
   );
 
   const primaryLabel = (r: TaskRow) => t(`inbox.action.${r.kind}`);
+  // The row button's colour says what the step does (approve, resolve a problem, continue).
+  const toneOf = (kind: TaskRow["kind"]): ActionTone =>
+    kind === "APPROVE_PAYMENT" ||
+    kind === "DECIDE_EXCEPTION" ||
+    kind === "TRANSFER_PAYMENT" ||
+    kind === "SIGN_CONTRACT"
+      ? "success"
+      : kind === "RESOLVE_DISPUTE" || kind === "REVIEW_EXCEPTION"
+        ? "warning"
+        : kind === "FOLLOW_UP"
+          ? "neutral"
+          : "primary";
 
   return (
     <AppPage
@@ -463,6 +476,7 @@ export default function TaskInboxPage() {
               primary={{
                 label: primaryLabel(r),
                 icon: <ArrowRightOutlined />,
+                tone: toneOf(r.kind),
                 onClick: () => navigate(r.href),
               }}
               menu={menuFor(r)}

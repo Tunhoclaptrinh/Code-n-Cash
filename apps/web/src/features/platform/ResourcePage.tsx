@@ -363,6 +363,7 @@ function ResourceView({ resource }: { resource: string }) {
       primary={{
         label: editable(record, "update") ? t("edit") : t("detail"),
         icon: editable(record, "update") ? <EditOutlined /> : <EyeOutlined />,
+        tone: editable(record, "update") ? "primary" : "neutral",
         onClick: () =>
           editable(record, "update") ? setEditor(record) : setViewing(record),
       }}

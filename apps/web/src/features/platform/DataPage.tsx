@@ -530,6 +530,7 @@ export default function DataPage() {
               primary={{
                 label: t("data.trace"),
                 icon: <EyeOutlined />,
+                tone: "neutral",
                 onClick: () => setTraceRow(row),
               }}
             />

@@ -329,6 +329,7 @@ export default function PermissionMatrixPage() {
               primary={{
                 label: t("permissions.detail"),
                 icon: <EyeOutlined />,
+                tone: "neutral",
                 onClick: () => setDetail(row),
               }}
             />

@@ -229,16 +229,19 @@ export default function ContractListPage() {
       return {
         label: t("contractList.actions.completeDraft"),
         to: `/contracts/new?draft=${encodeURIComponent(c.id)}`,
+        tone: "primary" as const,
       };
     if (c.status === "AWAITING_SIGNATURE" && c.yourTurn)
       return {
         label: t("contractList.actions.signNow"),
         to: `/contracts/${c.id}/signing`,
+        tone: "success" as const,
       };
     if (c.yourTurn && c.next)
       return {
         label: t("contractList.actions.act"),
         to: `/contracts/${c.id}/milestones/${c.next.sequence}/decision`,
+        tone: "primary" as const,
       };
     return null;
   };
@@ -456,6 +459,7 @@ export default function ContractListPage() {
                 primary={{
                   label: action?.label ?? t("contractList.actions.open"),
                   icon: action ? <EditOutlined /> : <FileSearchOutlined />,
+                  tone: action?.tone ?? "neutral",
                   onClick: () => navigate(action?.to ?? `/contracts/${c.id}`),
                 }}
                 menu={menuFor(c)}

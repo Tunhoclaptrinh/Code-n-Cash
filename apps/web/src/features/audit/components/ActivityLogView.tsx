@@ -269,6 +269,7 @@ export function ActivityLogView({
             primary={{
               label: t("detail.view"),
               icon: <EyeOutlined />,
+              tone: "neutral",
               onClick: () => setDetail(e),
             }}
           />

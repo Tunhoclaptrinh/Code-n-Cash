@@ -52,6 +52,7 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { DemoFormFill } from "@/shared/ui/DemoFillButton";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { RuleExpressionEditor } from "./components/RuleExpressionEditor";
 import styles from "./components/RuleExpressionEditor.module.css";
 import { localList, useListQuery } from "@/shared/lib/useListQuery";
@@ -70,6 +71,12 @@ const events = [
   "WARRANTY_COMPLETED",
 ];
 const states = ["DRAFT", "REVIEW", "PUBLISHED", "RETIRED"] as const;
+const stateTone = {
+  DRAFT: STAT_TONE.blue,
+  REVIEW: STAT_TONE.amber,
+  PUBLISHED: STAT_TONE.green,
+  RETIRED: STAT_TONE.indigo,
+} as const;
 const spec: ListSpec<RuleVersion> = {
   fields: {
     name: { value: (row) => row.name, sort: true },
@@ -475,7 +482,15 @@ export default function RuleVersionsPage() {
             title: t(`rules.states.${state}`),
             value:
               query.data?.filter((row) => row.status === state).length ?? 0,
-            onClick: () => list.setFilter("status", [state]),
+            backgroundColor: stateTone[state].bg,
+            valueColor: stateTone[state].value,
+            selected: list.filters.status?.[0] === state,
+            // A tile is the same choice as its tab: a second click shows every state again.
+            onClick: () =>
+              list.setFilter(
+                "status",
+                list.filters.status?.[0] === state ? undefined : [state],
+              ),
           }))}
           tabs={[
             { key: "ALL", label: t("rules.all") },
@@ -494,6 +509,7 @@ export default function RuleVersionsPage() {
               primary={{
                 label: t("rules.review"),
                 icon: <EyeOutlined />,
+                tone: "neutral",
                 onClick: () => open(row),
               }}
             />

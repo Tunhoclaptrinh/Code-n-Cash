@@ -70,7 +70,8 @@ export const lightThemeConfig: ThemeConfig = {
       colorBgContainer: "#FFFFFF",
       headerBg: "#F8FAFC",
       headerColor: "#111827",
-      rowHoverBg: "rgba(49, 91, 234, 0.04)",
+      // Opaque (4% brand over white): fixed columns must hide the cells scrolled under them.
+      rowHoverBg: "#F7F8FE",
       borderColor: "#E5E7EB",
     },
     Menu: {
@@ -135,7 +136,8 @@ export const darkThemeConfig: ThemeConfig = {
       colorBgContainer: "#111827",
       headerBg: "#1F2937",
       headerColor: "#F9FAFB",
-      rowHoverBg: "rgba(49, 91, 234, 0.08)",
+      // Opaque (8% brand over #111827), for the same reason as the light theme.
+      rowHoverBg: "#141D37",
       borderColor: "rgba(255, 255, 255, 0.06)",
     },
     Menu: {

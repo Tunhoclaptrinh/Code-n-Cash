@@ -98,8 +98,13 @@
   padding: 14px 16px;
   color: var(--text-primary, #111827);
 }
+/* Same tint, but opaque: a see-through hover lets scrolled cells show under fixed columns. */
 .main-table .ant-table-tbody > tr:hover > td {
-  background: rgba(49, 91, 234, 0.04) !important;
+  background: color-mix(
+    in srgb,
+    rgb(49, 91, 234) 4%,
+    var(--bg-surface-card, #ffffff)
+  ) !important;
 }
 /* Action Buttons Standard (Chuẩn G:\Base) */
 .action-btn-standard {

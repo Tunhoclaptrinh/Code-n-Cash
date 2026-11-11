@@ -118,6 +118,25 @@ export const DataTable = <T extends Record<string, any>>({
   const [internalSelectedRowKeys, setInternalSelectedRowKeys] = useState<any[]>(
     [],
   );
+  // A filter set from outside (a statistic tile, a tab, a link) is shown as an active condition
+  // too, so the builder and its badge always describe what the rows are filtered by.
+  const hasValue = (value: unknown) =>
+    value !== undefined &&
+    value !== null &&
+    value !== "" &&
+    !(Array.isArray(value) && value.length === 0);
+  const shownFilters = [
+    ...activeFilters,
+    ...filters.filter(
+      (f) =>
+        !f.hidden &&
+        hasValue(filterValues[f.key]) &&
+        !activeFilters.some((a) => a.key === f.key),
+    ),
+  ];
+  const appliedCount = shownFilters.filter((f) =>
+    hasValue(filterValues[f.key]),
+  ).length;
   const rawData = dataSource || data || [];
   const filteredData = rawData.filter((item) => {
     if (onSearch) return true;
@@ -188,8 +207,7 @@ export const DataTable = <T extends Record<string, any>>({
               <IconButton
                 icon={<EditOutlined />}
                 tooltip={uiText("action.edit")}
-                color="#fcc20f"
-                hoverColor="#d49e07"
+                primary
                 onClick={() => onEdit(record)}
               />
             )}
@@ -414,7 +432,7 @@ export const DataTable = <T extends Record<string, any>>({
           )}
 
           {showFilterBtn && (
-            <Badge dot={activeFilters.length > 0}>
+            <Badge count={appliedCount} size="small">
               <BaseButton
                 variant="ghost"
                 size="small"
@@ -519,7 +537,7 @@ export const DataTable = <T extends Record<string, any>>({
       >
         <FilterBuilder
           filters={filters.filter((f) => !f.hidden)}
-          activeFilters={activeFilters}
+          activeFilters={shownFilters}
           filterValues={filterValues}
           operators={operators}
           enabledFilters={enabledFilters}

@@ -7,6 +7,8 @@ export interface IconButtonProps {
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   danger?: boolean;
   success?: boolean;
+  /** The row's main action (open, edit): primary colour. */
+  primary?: boolean;
   color?: string;
   hoverColor?: string;
   size?: number | string;
@@ -22,6 +24,7 @@ export const IconButton = React.forwardRef<HTMLSpanElement, IconButtonProps>(
       onClick,
       danger = false,
       success = false,
+      primary = false,
       color,
       hoverColor,
       size = 16,
@@ -38,19 +41,33 @@ export const IconButton = React.forwardRef<HTMLSpanElement, IconButtonProps>(
       ? "#EF4444"
       : success
         ? "#10B981"
-        : color || (isLight ? "#4B5563" : "#9CA3AF");
+        : primary
+          ? "var(--color-primary, #315bea)"
+          : color || (isLight ? "#4B5563" : "#9CA3AF");
     const activeHoverColor = danger
       ? "#DC2626"
       : success
         ? "#059669"
-        : hoverColor || "#315bea";
+        : primary
+          ? "var(--color-primary-dark, #2849bd)"
+          : hoverColor || "#315bea";
     const [isHovered, setIsHovered] = React.useState(false);
     const buttonNode = (
       <span
         ref={ref}
         role="button"
+        aria-label={tooltip}
+        aria-disabled={disabled || undefined}
         tabIndex={disabled ? -1 : 0}
         onClick={disabled ? undefined : onClick}
+        onKeyDown={(event) => {
+          // A span with role="button" must answer the keys a real button answers.
+          if (disabled || !onClick) return;
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onClick(event as unknown as React.MouseEvent<HTMLElement>);
+          }
+        }}
         onMouseEnter={() => !disabled && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
@@ -70,7 +87,6 @@ export const IconButton = React.forwardRef<HTMLSpanElement, IconButtonProps>(
           alignItems: "center",
           justifyContent: "center",
           padding: 0,
-          outline: "none",
           userSelect: "none",
           transition: "background-color 0.15s ease, color 0.15s ease",
           opacity: disabled ? 0.4 : 1,

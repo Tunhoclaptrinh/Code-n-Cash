@@ -191,7 +191,11 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({
   rowGutter = 10,
   borderleft = false,
   statShadow = true,
+  variant = "inline",
+  size = "default",
+  minItemWidth,
 }) => {
+  const small = size === "small";
   const renderStatisticItem = (item: StatisticsItem) => {
     const iconElement =
       item.icon && isValidElement(item.icon)
@@ -202,27 +206,32 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({
             },
           })
         : item.icon;
-    return (
+    const accent = item.valueColor || "var(--color-primary, #315bea)";
+    // A clickable tile is a toggle button: keyboard reachable, and its pressed state is visible.
+    const interactive = item.onClick
+      ? {
+          role: "button",
+          tabIndex: 0,
+          "aria-pressed": item.selected ?? false,
+          onKeyDown: (event: React.KeyboardEvent) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              item.onClick?.();
+            }
+          },
+        }
+      : {};
+    const stacked = variant === "stacked";
+    const tagAtTitle = item.tag && item.tagPlacement !== "value";
+    const titleNode = (
       <div
         style={{
-          background: item.backgroundColor || "var(--bg-surface-card, #FFFFFF)",
-          borderRadius: 8,
-          padding: "12px 16px",
-          border: "1px solid var(--border-subtle, #E5E7EB)",
-          borderLeft:
-            borderleft && item.valueColor
-              ? `4px solid ${item.valueColor}`
-              : undefined,
-          boxShadow: statShadow ? "0 1px 2px rgba(0, 0, 0, 0.03)" : "none",
-          cursor: item.onClick ? "pointer" : "default",
-          transition: "all 0.25s ease",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          height: "100%",
-          ...cardStyle,
+          gap: 8,
+          minWidth: 0,
+          justifyContent: stacked && tagAtTitle ? "space-between" : undefined,
         }}
-        onClick={item.onClick}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {iconElement && (
@@ -238,29 +247,113 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({
           )}
           <div
             style={{
-              fontSize: 13,
+              fontSize: stacked ? (small ? 12 : 13) : 13,
               color: "var(--text-secondary, #374151)",
-              fontWeight: 600,
+              fontWeight: stacked ? 500 : 600,
+              lineHeight: 1.4,
             }}
           >
             {item.title}
           </div>
         </div>
-
-        <div
+        {tagAtTitle ? (
+          <span style={{ display: "inline-flex", flex: "none" }}>
+            {item.tag}
+          </span>
+        ) : null}
+      </div>
+    );
+    const valueNode = (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          flexWrap: "wrap",
+          gap: 6,
+          marginLeft: stacked ? 0 : 12,
+          minWidth: 0,
+        }}
+      >
+        {item.tag && item.tagPlacement === "value" ? (
+          <span style={{ display: "inline-flex", alignSelf: "center" }}>
+            {item.tag}
+          </span>
+        ) : null}
+        <span
           style={{
-            fontSize: 22,
-            fontWeight: 800,
+            fontSize: small ? 18 : 22,
+            fontWeight: small ? 700 : 800,
             color: item.valueColor || "var(--text-primary, #111827)",
             fontFamily: "'Plus Jakarta Sans', sans-serif",
-            lineHeight: 1,
-            marginLeft: 12,
+            fontVariantNumeric: "tabular-nums",
+            lineHeight: 1.15,
           }}
         >
           {typeof item.value === "number"
             ? formatNumber(item.value)
             : item.value}
-        </div>
+        </span>
+        {item.unit ? (
+          <span
+            style={{
+              fontSize: 12,
+              color: "var(--text-secondary, #4B5563)",
+              fontWeight: 500,
+            }}
+          >
+            {item.unit}
+          </span>
+        ) : null}
+      </div>
+    );
+    return (
+      <div
+        className="statistic-item"
+        data-selected={item.selected ? "true" : undefined}
+        data-testid={item.testId}
+        {...interactive}
+        style={{
+          background: item.backgroundColor || "var(--bg-surface-card, #FFFFFF)",
+          borderRadius: 8,
+          padding: small ? "8px 12px" : "12px 16px",
+          border: item.selected
+            ? `1px solid ${accent}`
+            : "1px solid var(--border-subtle, #E5E7EB)",
+          borderLeft:
+            borderleft && item.valueColor
+              ? `4px solid ${item.valueColor}`
+              : undefined,
+          boxShadow: item.selected
+            ? `0 0 0 1px ${accent}`
+            : statShadow
+              ? "0 1px 2px rgba(0, 0, 0, 0.03)"
+              : "none",
+          cursor: item.onClick ? "pointer" : "default",
+          transition: "all 0.25s ease",
+          display: "flex",
+          flexDirection: stacked ? "column" : "row",
+          justifyContent: stacked ? "flex-start" : "space-between",
+          alignItems: stacked ? "stretch" : "center",
+          gap: stacked ? 4 : 0,
+          height: "100%",
+          minWidth: 0,
+          ...cardStyle,
+        }}
+        onClick={item.onClick}
+      >
+        {titleNode}
+        {valueNode}
+        {item.description ? (
+          <div
+            style={{
+              fontSize: 12,
+              lineHeight: 1.45,
+              color: "var(--text-secondary, #4B5563)",
+            }}
+          >
+            {item.description}
+          </div>
+        ) : null}
       </div>
     );
   };
@@ -278,13 +371,29 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({
           {title}
         </div>
       )}
-      <Row gutter={[rowGutter, rowGutter]}>
-        {data.map((item, index) => (
-          <Col {...(item.colSpan || colSpan)} key={index}>
-            {renderStatisticItem(item)}
-          </Col>
-        ))}
-      </Row>
+      {minItemWidth ? (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(auto-fit, minmax(${minItemWidth}px, 1fr))`,
+            gap: rowGutter,
+          }}
+        >
+          {data.map((item, index) => (
+            <React.Fragment key={item.key ?? index}>
+              {renderStatisticItem(item)}
+            </React.Fragment>
+          ))}
+        </div>
+      ) : (
+        <Row gutter={[rowGutter, rowGutter]}>
+          {data.map((item, index) => (
+            <Col {...(item.colSpan || colSpan)} key={item.key ?? index}>
+              {renderStatisticItem(item)}
+            </Col>
+          ))}
+        </Row>
+      )}
     </Spin>
   );
   if (hideCard) {

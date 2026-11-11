@@ -66,7 +66,7 @@ export interface StatisticCardProps {
 }
 export interface StatisticsItem {
   title: React.ReactNode;
-  value: number | string;
+  value: React.ReactNode;
   icon?: React.ReactNode;
   status?: string;
   onClick?: () => void;
@@ -74,6 +74,18 @@ export interface StatisticsItem {
   valueColor?: string;
   selected?: boolean;
   colSpan?: Record<string, number>;
+  /** Short unit after the value, in small muted type ("million", "%", "days"). */
+  unit?: React.ReactNode;
+  /** One small line under the value: a reason, a comparison, a hint. */
+  description?: React.ReactNode;
+  /** A tag or badge for the item's state. */
+  tag?: React.ReactNode;
+  /** Where the tag sits: after the title (default) or before the value. */
+  tagPlacement?: "title" | "value";
+  /** Stable key when titles are not plain strings. */
+  key?: React.Key;
+  /** Test hook on the item element. */
+  testId?: string;
 }
 export interface StatisticsCardProps {
   title?: React.ReactNode;
@@ -86,6 +98,15 @@ export interface StatisticsCardProps {
   rowGutter?: number;
   borderleft?: boolean;
   statShadow?: boolean;
+  /**
+   * `inline` (default): title on the left, value on the right, for a row of counters.
+   * `stacked`: title above the value, then the description, for figures that need context.
+   */
+  variant?: "inline" | "stacked";
+  /** `small` tightens padding and the value size, for side panels. */
+  size?: "default" | "small";
+  /** Lays items on an auto-fitting grid of at least this width instead of `colSpan` columns. */
+  minItemWidth?: number;
 }
 export interface BreadcrumbItem {
   title: string;

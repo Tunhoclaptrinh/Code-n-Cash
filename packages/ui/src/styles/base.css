@@ -159,3 +159,18 @@
   margin-top: 16px;
   border-top: 1px solid var(--border-subtle, #e5e7eb);
 }
+
+/* Clickable statistic tiles (StatisticsCard): hover lift and a keyboard focus ring. */
+.statistic-item[role="button"]:hover {
+  filter: brightness(0.98);
+}
+.statistic-item[role="button"]:focus-visible {
+  outline: 2px solid var(--color-primary, #315bea);
+  outline-offset: 2px;
+}
+
+/* IconButton (role="button" span): visible keyboard focus. */
+.codecash-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary, #315bea);
+  outline-offset: 1px;
+}

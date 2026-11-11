@@ -162,8 +162,11 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
                         style={{ width: "100%" }}
                         options={filter.options}
                         size="middle"
+                        // Several accepted values (set by a tile or a link) show as a multiple choice.
                         mode={
-                          currentOp === "in" || currentOp === "nin"
+                          currentOp === "in" ||
+                          currentOp === "nin" ||
+                          Array.isArray(filterValues[activeKey])
                             ? "multiple"
                             : undefined
                         }

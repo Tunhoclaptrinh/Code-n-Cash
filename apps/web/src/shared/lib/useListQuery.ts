@@ -15,6 +15,7 @@ import {
 import { exportToCSV, exportToJSON, useDebounce } from "@codecash/ui";
 import { App } from "antd";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { platform } from "@/shared/api/platform";
 import { columnFilterIcon } from "@/shared/ui/columnSearch";
 
@@ -44,6 +45,39 @@ interface Sorter {
   order?: "ascend" | "descend" | null;
 }
 
+/** URL parameters of a list: q, page, size, sort=field:order and one f.<field> per value. */
+const URL_KEYS = ["q", "page", "size", "sort"];
+const isListParam = (key: string) =>
+  URL_KEYS.includes(key) || key.startsWith("f.");
+const fromUrlValue = (value: string): FilterValue =>
+  value === "true" ? true : value === "false" ? false : value;
+
+/** The list state a link carries, or null when the URL has none (the defaults apply). */
+function readUrl(params: URLSearchParams, limit: number) {
+  if (![...params.keys()].some(isListParam)) return null;
+  const filters: Filters = {};
+  for (const [key, value] of params.entries())
+    if (key.startsWith("f.") && value !== "")
+      (filters[key.slice(2)] ??= []).push(fromUrlValue(value));
+  const [sortBy, sortOrder] = (params.get("sort") ?? "").split(":");
+  const page = Number(params.get("page"));
+  const size = Number(params.get("size"));
+  return {
+    search: params.get("q") ?? "",
+    page: Number.isInteger(page) && page > 0 ? page : 1,
+    limit:
+      Number.isInteger(size) && size > 0 && size <= MAX_PAGE_SIZE
+        ? size
+        : limit,
+    filters,
+    sortBy: sortBy || undefined,
+    sortOrder:
+      sortOrder === "asc" || sortOrder === "desc"
+        ? (sortOrder as "asc" | "desc")
+        : undefined,
+  };
+}
+
 const sameFilters = (a: Filters, b: Filters) => {
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
   return [...keys].every(
@@ -62,6 +96,12 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
   pageSize?: number;
   sort: { by: string; order: "asc" | "desc" };
   filters?: Filters;
+  /**
+   * Keeps page, size, search, filters and sort in the address (replacing the entry, not adding
+   * history), so a reload, a shared link or a dashboard drill-down opens the same rows. One table
+   * per page uses it; other query parameters of the page are left alone.
+   */
+  syncUrl?: boolean;
   auditExport?:
     | "contracts"
     | "tasks"
@@ -73,14 +113,19 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
   const { fetch, sort } = options;
   const { message } = App.useApp();
   const { t } = useTranslation("platform");
+  const [params, setParams] = useSearchParams();
+  const [fromUrl] = useState(() =>
+    options.syncUrl ? readUrl(params, options.pageSize ?? 10) : null,
+  );
   const [query, setQuery] = useState<ListQuery>({
-    page: 1,
-    limit: options.pageSize ?? 10,
-    filters: options.filters ?? {},
-    sortBy: sort.by,
-    sortOrder: sort.order,
+    page: fromUrl?.page ?? 1,
+    limit: fromUrl?.limit ?? options.pageSize ?? 10,
+    filters: fromUrl?.filters ?? options.filters ?? {},
+    sortBy: fromUrl?.sortBy ?? sort.by,
+    sortOrder: fromUrl?.sortOrder ?? sort.order,
+    ...(fromUrl?.search ? { search: fromUrl.search } : {}),
   });
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(fromUrl?.search ?? "");
   const search = useDebounce(searchText.trim(), 300);
   useEffect(() => {
     setQuery((q) =>
@@ -93,6 +138,27 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
     placeholderData: keepPreviousData,
   });
   const filters = useMemo(() => query.filters ?? {}, [query.filters]);
+  const syncUrl = options.syncUrl ?? false;
+  useEffect(() => {
+    if (!syncUrl) return;
+    setParams(
+      (current) => {
+        const next = new URLSearchParams();
+        for (const [key, value] of current.entries())
+          if (!isListParam(key)) next.append(key, value);
+        if (query.search) next.set("q", query.search);
+        if ((query.page ?? 1) > 1) next.set("page", String(query.page));
+        if (query.limit !== (options.pageSize ?? 10))
+          next.set("size", String(query.limit));
+        if (query.sortBy !== sort.by || query.sortOrder !== sort.order)
+          next.set("sort", `${query.sortBy}:${query.sortOrder}`);
+        for (const [key, values] of Object.entries(query.filters ?? {}))
+          for (const value of values) next.append(`f.${key}`, String(value));
+        return next.toString() === current.toString() ? current : next;
+      },
+      { replace: true },
+    );
+  }, [syncUrl, query, setParams, options.pageSize, sort.by, sort.order]);
   const [exporting, setExporting] = useState(false);
 
   const setFilter = useCallback(
@@ -204,19 +270,21 @@ export function useListQuery<T, P extends ListPage<T> = ListPage<T>>(options: {
     onRefresh: () => void result.refetch(),
     pagination,
     exportLoading: exporting,
-    // The filter builder works with one value per field ("equals").
+    // One value shows as a single choice in the filter builder, several as a multiple choice.
     filterValues: Object.fromEntries(
       Object.entries(filters).map(([key, values]) => [
         key,
-        values.length === 1 ? values[0] : undefined,
+        values.length === 1 ? values[0] : values,
       ]),
     ),
     onFilterChange: (key: string, value: unknown) =>
       setFilter(
         key,
-        value === undefined || value === null || value === ""
-          ? undefined
-          : [value as FilterValue],
+        Array.isArray(value)
+          ? (value as FilterValue[])
+          : value === undefined || value === null || value === ""
+            ? undefined
+            : [value as FilterValue],
       ),
     onClearFilters: () => setQuery((q) => ({ ...q, filters: {}, page: 1 })),
     onPaginationChange: (

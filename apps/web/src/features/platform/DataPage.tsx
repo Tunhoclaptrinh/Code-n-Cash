@@ -190,6 +190,7 @@ export default function DataPage() {
   };
   const allRows = useMemo(() => result.data?.rows ?? [], [result.data]);
   const list = useListQuery<Row>({
+    syncUrl: true,
     // A new run or another source is another document: the key changes with it.
     auditExport: "engine",
     key: [

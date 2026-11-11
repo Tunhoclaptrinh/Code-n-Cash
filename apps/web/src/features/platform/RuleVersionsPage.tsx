@@ -102,6 +102,7 @@ export default function RuleVersionsPage() {
   });
   const fetch = useMemo(() => localList(query.data ?? [], spec), [query.data]);
   const list = useListQuery<RuleVersion>({
+    syncUrl: true,
     key: ["rule-version-list", user.id, query.dataUpdatedAt],
     fetch,
     sort: spec.defaultSort,

@@ -37,6 +37,7 @@ export default function ExceptionQueuePage() {
   const user = useCurrentUser();
   // The queue is read page by page; state, buyer and reason are filters of the same query.
   const list = useListQuery<QueueRow>({
+    syncUrl: true,
     auditExport: "exceptions",
     key: ["exceptions", user.id],
     fetch: listExceptions,

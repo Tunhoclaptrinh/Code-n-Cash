@@ -143,6 +143,7 @@ export default function PermissionMatrixPage() {
     [roles, t],
   );
   const list = useListQuery<Row>({
+    syncUrl: true,
     auditExport: "permissions",
     key: ["permissions", "table", user.id, matrix.dataUpdatedAt],
     fetch: localList(rows, spec),

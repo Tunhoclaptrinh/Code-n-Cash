@@ -50,7 +50,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
                   {
                     title: (
                       <Link
-                        to="/contracts"
+                        to="/"
                         style={{
                           display: "flex",
                           alignItems: "center",

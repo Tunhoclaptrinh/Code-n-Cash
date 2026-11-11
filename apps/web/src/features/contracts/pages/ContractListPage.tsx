@@ -94,6 +94,7 @@ export default function ContractListPage() {
     ContractRow,
     Awaited<ReturnType<typeof listContracts>>
   >({
+    syncUrl: true,
     auditExport: "contracts",
     key: ["contract-summaries", user.id],
     fetch: listContracts,

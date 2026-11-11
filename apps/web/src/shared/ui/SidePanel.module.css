@@ -32,48 +32,6 @@
   color: var(--color-text);
 }
 
-.figures {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-}
-
-.figure {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-muted);
-  min-width: 0;
-}
-
-.figureLabel {
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--color-text-secondary);
-}
-
-.figureValue {
-  font-size: 17px;
-  font-weight: 650;
-  line-height: 1.35;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-}
-
-.figure[data-tone="warning"] {
-  background: var(--color-warning-soft);
-}
-
-.figure[data-tone="success"] {
-  background: var(--color-success-soft);
-}
-
-.figure[data-tone="danger"] {
-  background: var(--color-danger-soft);
-}
-
 .info {
   display: grid;
   grid-template-columns: minmax(110px, 40%) minmax(0, 1fr);

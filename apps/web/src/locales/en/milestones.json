@@ -449,9 +449,9 @@
       "demoReason": "Proposed to void the record filed by a party without authority for {{milestone}}."
     },
     "figures": {
-      "planned": "Milestone value (million)",
-      "penalty": "Penalty (million)",
-      "payable": "Payable (million)"
+      "planned": "Milestone value",
+      "penalty": "Penalty",
+      "payable": "Payable"
     },
     "conditionMet": "Met",
     "conditionMissing": "Not met"

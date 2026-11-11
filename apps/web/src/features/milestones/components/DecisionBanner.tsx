@@ -78,17 +78,20 @@ export function DecisionBanner({
           {
             key: "planned",
             label: t("decisionLite.figures.planned"),
+            unit: t("common.millionUnit"),
             value: formatDecimalString(money.plannedMillion),
           },
           {
             key: "penalty",
             label: t("decisionLite.figures.penalty"),
+            unit: t("common.millionUnit"),
             value: formatDecimalString(evaluation.penaltyMillion),
             tone: isZero(evaluation.penaltyMillion) ? undefined : "warning",
           },
           {
             key: "payable",
             label: t("decisionLite.figures.payable"),
+            unit: t("common.millionUnit"),
             value: formatDecimalString(evaluation.payableMillion),
             tone: isZero(evaluation.payableMillion) ? undefined : "success",
           },

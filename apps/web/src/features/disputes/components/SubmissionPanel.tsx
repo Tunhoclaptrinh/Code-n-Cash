@@ -5,7 +5,7 @@ import { actorName } from "@/shared/lib/domain";
 import { organizationInitials } from "@/shared/lib/initials";
 import { PersonChip } from "@/shared/ui/PersonChip";
 import { DecisionTag } from "@/shared/ui/DomainTags";
-import { SideSection } from "@/shared/ui/SidePanel";
+import { KeyFigures, SideSection } from "@/shared/ui/SidePanel";
 import type { DisputeView } from "../types";
 import styles from "./SubmissionPanel.module.css";
 
@@ -141,43 +141,42 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
         </SideSection>
       ) : null}
       <SideSection title={t("impact.title")}>
-        <div className={styles.impact}>
-          <div className={styles.impactCard}>
-            <div className={styles.impactLabel}>{t("impact.now")}</div>
-            <div className={styles.impactLine}>
-              <DecisionTag decision={evaluation.decision} />
-              <b className={styles.impactValue}>
-                {formatDecimalString(evaluation.payableMillion)}
-              </b>
-              <span className={styles.unit}>{t("impact.unit")}</span>
-            </div>
-            <div className={styles.impactLabel}>
-              {td(`reason.${evaluation.reasonCode}`)}
-            </div>
-          </div>
-          {preview ? (
-            <div className={`${styles.impactCard} ${styles.impactCardGood}`}>
-              <div className={styles.impactLabel}>
-                {t("impact.afterResolve")}
-              </div>
-              <div className={styles.impactLine}>
-                <DecisionTag decision={preview.decision} />
-                <b
-                  className={`${styles.impactValue} ${styles.impactValueGood}`}
-                >
-                  {formatDecimalString(preview.payableMillion)}
-                </b>
-                <span className={styles.unit}>{t("impact.unit")}</span>
-              </div>
-              <div className={styles.impactLabel}>
-                {td(`reason.${preview.reasonCode}`)}
-                {preview.penaltyMillion !== "0.00"
-                  ? ` · ${t("impact.penalty", { penalty: formatDecimalString(preview.penaltyMillion) })}`
-                  : ""}
-              </div>
-            </div>
-          ) : null}
-        </div>
+        <KeyFigures
+          minItemWidth={200}
+          items={[
+            {
+              key: "now",
+              label: t("impact.now"),
+              tag: <DecisionTag decision={evaluation.decision} />,
+              value: formatDecimalString(evaluation.payableMillion),
+              unit: t("impact.unit"),
+              description: td(`reason.${evaluation.reasonCode}`),
+              testId: "impact-now",
+            },
+            ...(preview
+              ? [
+                  {
+                    key: "after",
+                    label: t("impact.afterResolve"),
+                    tag: <DecisionTag decision={preview.decision} />,
+                    value: formatDecimalString(preview.payableMillion),
+                    unit: t("impact.unit"),
+                    tone:
+                      preview.decision === "RELEASE" ||
+                      preview.decision === "PENALTY"
+                        ? ("success" as const)
+                        : undefined,
+                    description: `${td(`reason.${preview.reasonCode}`)}${
+                      preview.penaltyMillion !== "0.00"
+                        ? ` · ${t("impact.penalty", { penalty: formatDecimalString(preview.penaltyMillion) })}`
+                        : ""
+                    }`,
+                    testId: "impact-after",
+                  },
+                ]
+              : []),
+          ]}
+        />
       </SideSection>
     </>
   );

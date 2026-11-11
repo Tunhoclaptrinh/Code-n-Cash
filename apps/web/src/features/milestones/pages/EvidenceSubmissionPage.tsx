@@ -311,13 +311,15 @@ function Workspace({
               items={[
                 {
                   key: "penalty",
-                  label: `${t("approve.proposal.penalty")} (${t("common.millionUnit")})`,
+                  label: t("approve.proposal.penalty"),
+                  unit: t("common.millionUnit"),
                   value: formatDecimalString(preview.penaltyMillion),
                   tone: isZero(preview.penaltyMillion) ? undefined : "warning",
                 },
                 {
                   key: "payable",
-                  label: `${t("approve.proposal.payable")} (${t("common.millionUnit")})`,
+                  label: t("approve.proposal.payable"),
+                  unit: t("common.millionUnit"),
                   value: formatDecimalString(preview.payableMillion),
                   tone: isZero(preview.payableMillion) ? undefined : "success",
                 },

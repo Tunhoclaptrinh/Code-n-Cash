@@ -203,18 +203,21 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
             items={[
               {
                 key: "planned",
-                label: `${t("approve.proposal.milestoneValue")} (${t("common.millionUnit")})`,
+                label: t("approve.proposal.milestoneValue"),
+                unit: t("common.millionUnit"),
                 value: formatDecimalString(milestone.plannedMillion),
               },
               {
                 key: "penalty",
-                label: `${t("approve.proposal.penalty")} (${t("common.millionUnit")})`,
+                label: t("approve.proposal.penalty"),
+                unit: t("common.millionUnit"),
                 value: formatDecimalString(penalty),
                 tone: isZero(penalty) ? undefined : "warning",
               },
               {
                 key: "payable",
-                label: `${t("approve.proposal.payable")} (${t("common.millionUnit")})`,
+                label: t("approve.proposal.payable"),
+                unit: t("common.millionUnit"),
                 value: formatDecimalString(payable),
                 tone: isZero(payable) ? undefined : "success",
               },

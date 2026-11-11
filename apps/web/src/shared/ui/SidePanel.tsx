@@ -1,3 +1,4 @@
+import { StatisticsCard } from "@codecash/ui";
 import type { ReactNode } from "react";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 import { Panel } from "./Panel";
@@ -49,19 +50,65 @@ export interface KeyFigure {
   label: ReactNode;
   value: ReactNode;
   tone?: "warning" | "success" | "danger";
+  /** Short unit after the value, in small type ("triệu"). */
+  unit?: ReactNode;
+  /** One small line under the value. */
+  description?: ReactNode;
+  /** A state tag; after the label by default, or before the value. */
+  tag?: ReactNode;
+  tagPlacement?: "title" | "value";
+  testId?: string;
 }
 
-/** The few numbers a decision turns on, as small tiles. */
-export function KeyFigures({ items }: { items: KeyFigure[] }) {
+const FIGURE_TONE = {
+  warning: {
+    backgroundColor: "var(--color-warning-soft)",
+    valueColor: "var(--color-warning)",
+  },
+  success: {
+    backgroundColor: "var(--color-success-soft)",
+    valueColor: "var(--color-success)",
+  },
+  danger: {
+    backgroundColor: "var(--color-danger-soft)",
+    valueColor: "var(--color-danger)",
+  },
+} as const;
+
+/**
+ * The few numbers a decision turns on, as small tiles: the base StatisticsCard in its stacked,
+ * small variant, so side panels and list headers share one statistic item.
+ */
+export function KeyFigures({
+  items,
+  minItemWidth = 120,
+}: {
+  items: KeyFigure[];
+  minItemWidth?: number;
+}) {
   return (
-    <div className={styles.figures}>
-      {items.map((item) => (
-        <div key={item.key} className={styles.figure} data-tone={item.tone}>
-          <span className={styles.figureLabel}>{item.label}</span>
-          <span className={styles.figureValue}>{item.value}</span>
-        </div>
-      ))}
-    </div>
+    <StatisticsCard
+      hideCard
+      variant="stacked"
+      size="small"
+      statShadow={false}
+      rowGutter={8}
+      minItemWidth={minItemWidth}
+      cardStyle={{ border: "none" }}
+      data={items.map((item) => ({
+        key: item.key,
+        title: item.label,
+        value: item.value,
+        unit: item.unit,
+        description: item.description,
+        tag: item.tag,
+        tagPlacement: item.tagPlacement,
+        testId: item.testId,
+        ...(item.tone
+          ? FIGURE_TONE[item.tone]
+          : { backgroundColor: "var(--color-surface-muted)" }),
+      }))}
+    />
   );
 }
 

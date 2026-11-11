@@ -449,9 +449,9 @@
       "demoReason": "Đề nghị vô hiệu chứng từ do bên không có thẩm quyền ghi nhận cho {{milestone}}."
     },
     "figures": {
-      "planned": "Giá trị mốc (triệu)",
-      "penalty": "Tiền phạt (triệu)",
-      "payable": "Được chi (triệu)"
+      "planned": "Giá trị mốc",
+      "penalty": "Tiền phạt",
+      "payable": "Được chi"
     },
     "conditionMet": "Đạt",
     "conditionMissing": "Chưa đạt"

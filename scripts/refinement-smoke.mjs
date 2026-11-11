@@ -585,7 +585,7 @@ try {
   await evaluate(
     'document.querySelector("[data-testid=demo-account-search]").focus()',
   );
-  await send("Input.insertText", { text: "Bui Van Khanh" });
+  await send("Input.insertText", { text: "Pham Thu Long" });
   await until(
     'document.querySelectorAll("[data-testid=demo-account]").length===1',
   );
@@ -605,7 +605,7 @@ try {
   await click("[data-testid=demo-account]");
   await until('location.pathname!=="/login"');
   assert.ok(
-    (await evaluate("document.body.innerText")).includes("Bùi Văn Khánh"),
+    (await evaluate("document.body.innerText")).includes("Phạm Thu Long"),
   );
   await send("Emulation.setDeviceMetricsOverride", {
     width: 390,

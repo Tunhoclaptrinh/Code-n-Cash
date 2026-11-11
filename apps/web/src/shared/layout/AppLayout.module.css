@@ -89,7 +89,7 @@
 
 .avatar {
   background: var(--color-primary) !important;
-  color: #fff !important;
+  color: var(--color-on-solid) !important;
   font-size: 12px !important;
   font-weight: 700;
 }

@@ -456,7 +456,7 @@ export const DataTable = <T extends Record<string, any>>({
             }}
           >
             {uiText("table.total")}
-            <span style={{ color: "#315bea", fontWeight: 800 }}>
+            <span style={{ color: token.colorLink, fontWeight: 800 }}>
               {totalCount}
             </span>
           </div>

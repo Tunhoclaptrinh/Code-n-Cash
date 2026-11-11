@@ -47,7 +47,7 @@ import styles from "./AppLayout.module.css";
 const roleColor: Record<string, string> = {
   CONTRACT_OWNER: "blue",
   LEGAL_REVIEWER: "geekblue",
-  FINANCE_APPROVER: "green",
+  FINANCE_APPROVER: "success",
   SECONDARY_APPROVER: "cyan",
   ADMIN_AUDITOR: "red",
   SYSTEM_ADMIN: "volcano",

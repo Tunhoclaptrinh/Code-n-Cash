@@ -212,7 +212,7 @@ export function ExtractionPanel({
               {t("extraction.page", { page: row.evidence.page })}
             </Typography.Text>
             {proposal.data?.extractor.kind === "GEMINI" ? (
-              <Tag color={row.evidence.verified ? "green" : "warning"}>
+              <Tag color={row.evidence.verified ? "success" : "warning"}>
                 {t(
                   row.evidence.verified
                     ? "extraction.quoteVerified"

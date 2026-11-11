@@ -32,6 +32,17 @@ export const lightThemeConfig: ThemeConfig = {
     green: "#15803D",
     orange: "#C2410C",
     gold: "#AD6800",
+    cyan: "#0891B2",
+    // Ant Design derives the light tint of the dark success seed as a grey-green (#a5b8af): the
+    // tag text then reads dim at 2.6:1. Use the light tint of tokens.css instead. Preset palettes
+    // (green1…) are regenerated from their seed and cannot be overridden this way, so tags that
+    // mean "done" use the success status colour, not the green preset.
+    colorSuccessBg: "#E4F6EC",
+    colorSuccessBgHover: "#D3EFDF",
+    colorSuccessBorder: "#A3D9BC",
+    colorSuccessBorderHover: "#6FC096",
+    // The derived warning tint leaves tag text at 4.3:1; a lighter one reaches 4.6:1.
+    colorWarningBg: "#FEF5E7",
     colorBgBase: "#FFFFFF",
     colorBgContainer: "#FFFFFF",
     colorBgElevated: "#FFFFFF",
@@ -78,26 +89,42 @@ export const darkThemeConfig: ThemeConfig = {
   token: {
     ...shared,
     // Bright seeds read on the dark surfaces; links get a lighter blue than the button fill.
+    // Text-carrying colours (info, error, presets, secondary text) are chosen so the dark
+    // algorithm's output keeps 4.5:1 on #111827; fills keep white or dark text at 4.5:1.
     colorWarning: "#F59E0B",
     colorSuccess: "#10B981",
-    colorError: "#EF4444",
+    colorError: "#F87171",
+    colorInfo: "#8AA4FF",
     colorLink: "#8AA4FF",
+    geekblue: "#6F8FF5",
+    green: "#269739",
     colorBgBase: "#0B0F19",
     colorBgContainer: "#111827",
     colorBgElevated: "#1F2937",
     colorBgLayout: "#0B0F19",
     colorText: "#F9FAFB",
-    colorTextSecondary: "#9CA3AF",
-    colorTextTertiary: "#6B7280",
+    colorTextSecondary: "#D1D5DB",
+    colorTextTertiary: "#9CA3AF",
     colorBorder: "rgba(255, 255, 255, 0.08)",
     colorBorderSecondary: "rgba(255, 255, 255, 0.04)",
   },
   components: {
     Button: {
       primaryColor: "#FFFFFF",
+      // The light error red needs dark text on a solid danger button.
+      dangerColor: "#0B0F19",
       controlHeight: 38,
       borderRadius: 8,
       fontWeight: 600,
+    },
+    // Count badges keep white text: a deeper red than the text-safe error colour.
+    Badge: { colorError: "#DC2626" },
+    Pagination: { itemActiveColor: "#8AA4FF", itemActiveColorHover: "#A6BDFF" },
+    Tabs: {
+      itemSelectedColor: "#8AA4FF",
+      itemActiveColor: "#8AA4FF",
+      itemHoverColor: "#A6BDFF",
+      inkBarColor: "#8AA4FF",
     },
     Card: {
       colorBgContainer: "#111827",

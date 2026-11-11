@@ -107,7 +107,7 @@ export function DecisionEventTable({
                 </Typography.Text>
               ) : null}
               {evidence.includes(e.id) ? (
-                <Tag color="green">{t("decision.events.inEvidence")}</Tag>
+                <Tag color="success">{t("decision.events.inEvidence")}</Tag>
               ) : null}
             </Space>
           ),

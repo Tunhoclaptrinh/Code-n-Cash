@@ -28,7 +28,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       </div>
       <Paragraph
         style={{
-          color: "#6B7280",
+          color: "var(--color-text-muted)",
           fontSize: 13,
           maxWidth: 420,
           margin: "0 auto 16px",

@@ -111,12 +111,12 @@
 
 .markerDone {
   background: var(--color-success-strong);
-  color: #fff;
+  color: var(--color-on-solid);
 }
 
 .markerCurrent {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-solid);
 }
 
 .markerPending {
@@ -125,7 +125,7 @@
 
 .markerStopped {
   background: var(--color-warning);
-  color: #fff;
+  color: var(--color-on-solid);
 }
 
 .stepBody {

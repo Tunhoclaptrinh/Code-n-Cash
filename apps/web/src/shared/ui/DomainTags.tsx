@@ -12,7 +12,7 @@ import { ToneTag } from "./ToneTag";
 const originColor: Record<Origin, string> = {
   DATA_PACK: "blue",
   SEED: "gold",
-  APP: "green",
+  APP: "success",
 };
 
 /**

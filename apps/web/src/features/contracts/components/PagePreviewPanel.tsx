@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react";
-import { SyncOutlined } from "@ant-design/icons";
-import { Alert, Spin, Tabs, Tag } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { DownloadOutlined, SyncOutlined } from "@ant-design/icons";
+import { Alert, Button, Spin, Tabs, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
-import { BaseCard } from "@codecash/ui";
+import { BaseCard, downloadBlob } from "@codecash/ui";
 import { draftProblems } from "@codecash/contracts";
 import { DocumentPreview } from "@/shared/ui/DocumentPreview";
 import { platform } from "@/shared/api/platform";
 import type { DraftInput } from "../lib/uploadDraft";
+import styles from "./PagePreviewPanel.module.css";
 
-/** Unsaved form preview never replaces the document selected for upload/signing. */
+/**
+ * The document beside the upload form: the contract being drafted (regenerated as the form
+ * changes) or the file chosen for signing. Unsaved form content never replaces the chosen file.
+ * The tabs are the header; the PDF download sits at their right, next to the viewer's own tools.
+ */
 export function PagePreviewPanel({
   draft,
   file,
@@ -27,6 +32,16 @@ export function PagePreviewPanel({
   const [result, setResult] = useState<{ key: string; file: File }>();
   const [failedKey, setFailedKey] = useState<string>();
   const [converting, setConverting] = useState(false);
+  // The PDF each tab shows, for the download button in the tab bar.
+  const [pdfs, setPdfs] = useState<{ draft?: Blob; file?: Blob }>({});
+  const onDraftPdf = useCallback(
+    (pdf?: Blob) => setPdfs((p) => ({ ...p, draft: pdf })),
+    [],
+  );
+  const onFilePdf = useCallback(
+    (pdf?: Blob) => setPdfs((p) => ({ ...p, file: pdf })),
+    [],
+  );
   const language = i18n.language.startsWith("vi") ? "vi" : "en";
   const complete =
     !!draft?.type &&
@@ -98,17 +113,6 @@ export function PagePreviewPanel({
     </Spin>
   ) : (
     <>
-      <div style={{ minHeight: 26, textAlign: "right" }}>
-        {updating && (
-          <Tag
-            color="processing"
-            icon={<SyncOutlined spin />}
-            data-testid="draft-preview-updating"
-          >
-            {t("contractUpload.preview.updating")}
-          </Tag>
-        )}
-      </div>
       {failedKey === key && (
         <Alert
           type="warning"
@@ -123,6 +127,8 @@ export function PagePreviewPanel({
           name={result.file.name}
           keepPrevious
           onLoadingChange={setConverting}
+          showDownload={false}
+          onDocumentChange={onDraftPdf}
         />
       ) : failedKey !== key ? (
         <Spin>
@@ -131,15 +137,47 @@ export function PagePreviewPanel({
       ) : null}
     </>
   );
+  const pdf = active === "draft" ? pdfs.draft : pdfs.file;
+  const pdfName =
+    (active === "draft" ? result?.file.name : name)?.replace(/\.[^.]+$/, "") ||
+    "contract";
   return (
-    <BaseCard title={t("contractUpload.preview.title")}>
+    <BaseCard bodyStyle={{ padding: "4px 20px 20px" }}>
       <Tabs
+        className={styles.tabs}
         activeKey={active}
         onChange={setActive}
+        tabBarExtraContent={
+          pdf ? (
+            <Tooltip title={t("contractUpload.preview.downloadPdf")}>
+              <Button
+                type="text"
+                icon={<DownloadOutlined />}
+                aria-label={t("contractUpload.preview.downloadPdf")}
+                onClick={() => downloadBlob(pdf, `${pdfName}.pdf`)}
+                data-testid="preview-download"
+              />
+            </Tooltip>
+          ) : null
+        }
         items={[
           {
             key: "draft",
-            label: t("contractUpload.preview.working"),
+            label: (
+              <span className={styles.tabLabel}>
+                {t("contractUpload.preview.working")}
+                {updating ? (
+                  <Tooltip title={t("contractUpload.preview.updating")}>
+                    <SyncOutlined
+                      spin
+                      className={styles.updating}
+                      aria-label={t("contractUpload.preview.updating")}
+                      data-testid="draft-preview-updating"
+                    />
+                  </Tooltip>
+                ) : null}
+              </span>
+            ),
             children: <div data-testid="draft-live-preview">{working}</div>,
           },
           {
@@ -150,6 +188,8 @@ export function PagePreviewPanel({
                 file={file}
                 documentId={documentId}
                 name={name}
+                showDownload={false}
+                onDocumentChange={onFilePdf}
               />
             ),
           },

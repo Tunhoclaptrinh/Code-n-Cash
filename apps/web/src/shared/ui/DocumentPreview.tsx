@@ -13,6 +13,8 @@ export function DocumentPreview({
   onReady,
   keepPrevious = false,
   onLoadingChange,
+  showDownload = true,
+  onDocumentChange,
 }: {
   previewPath?: string;
   file?: File;
@@ -23,6 +25,10 @@ export function DocumentPreview({
   keepPrevious?: boolean;
   /** True while a source is being fetched or converted; false once it rendered or failed. */
   onLoadingChange?: (loading: boolean) => void;
+  /** Off when the parent offers the download itself (for example in its header). */
+  showDownload?: boolean;
+  /** The rendered PDF, so a parent can offer it for download; undefined when there is none. */
+  onDocumentChange?: (pdf?: Blob) => void;
 }) {
   const { t } = useTranslation("contracts");
   const [result, setResult] = useState<{
@@ -100,6 +106,14 @@ export function DocumentPreview({
     keepPrevious,
     onLoadingChange,
   ]);
+  const shown =
+    !failed &&
+    !!source &&
+    !!result &&
+    (keepPrevious || result.source === source);
+  useEffect(() => {
+    onDocumentChange?.(shown ? result?.blob : undefined);
+  }, [shown, result, onDocumentChange]);
   if (!source)
     return <Alert type="info" title={t("contractUpload.preview.selectFile")} />;
   if (failed)
@@ -118,14 +132,16 @@ export function DocumentPreview({
     );
   return (
     <Space orientation="vertical" style={{ width: "100%" }}>
-      <Button
-        icon={<DownloadOutlined />}
-        onClick={() =>
-          downloadBlob(result.blob, name.replace(/\.[^.]+$/, "") + ".pdf")
-        }
-      >
-        {t("contractUpload.preview.downloadPdf")}
-      </Button>
+      {showDownload ? (
+        <Button
+          icon={<DownloadOutlined />}
+          onClick={() =>
+            downloadBlob(result.blob, name.replace(/\.[^.]+$/, "") + ".pdf")
+          }
+        >
+          {t("contractUpload.preview.downloadPdf")}
+        </Button>
+      ) : null}
       <iframe
         title={name}
         src={result.url}

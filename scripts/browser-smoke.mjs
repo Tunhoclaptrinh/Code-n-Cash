@@ -247,6 +247,14 @@ try {
       JSON.stringify(context),
     );
   }
+  // Colours fade between themes; measuring mid-transition reads a blend, not either theme.
+  async function settled() {
+    await pause(100);
+    await until(
+      "document.getAnimations().filter((a) => a instanceof CSSTransition).every((a) => a.playState !== 'running')",
+    );
+    await pause(50);
+  }
   async function checkBothThemes() {
     const initial = await evaluate("document.documentElement.dataset.theme");
     await checkButtons();
@@ -256,7 +264,7 @@ try {
     await until(
       `document.documentElement.dataset.theme !== ${JSON.stringify(initial)}`,
     );
-    await pause(250);
+    await settled();
     await checkTableActions();
     await checkButtons();
     await evaluate(
@@ -265,7 +273,7 @@ try {
     await until(
       `document.documentElement.dataset.theme === ${JSON.stringify(initial)}`,
     );
-    await pause(250);
+    await settled();
   }
   async function checkTableActions() {
     const layout = await evaluate(`(() => ({

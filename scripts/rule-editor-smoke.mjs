@@ -100,7 +100,11 @@ try {
     mobile: false,
   });
   await send("Page.navigate", { url: base + "/login" });
-  await until("!!document.querySelector('[data-testid=demo-accounts]')");
+  // The directory loads first: clicking the button while it is still loading opens nothing.
+  await until(
+    "!!document.querySelector('[data-testid=demo-accounts]:not(.ant-btn-loading)')",
+  );
+  await pause(400);
   await evaluate(
     "localStorage.setItem('codecash.onboarding','done'); localStorage.setItem('scw.language','en')",
   );

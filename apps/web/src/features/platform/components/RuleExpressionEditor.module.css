@@ -61,6 +61,12 @@
 .ruleTop :global(.ant-tag) {
   margin: 0;
 }
+.ruleCode {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .detail {
   min-width: 0;
 }
@@ -164,10 +170,21 @@
 /* Editable rule header of a version's own (APP_) scope. */
 .appMeta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 8px 12px;
   align-items: end;
   margin-bottom: 12px;
+}
+
+/* Name and reason labels are long; they take two columns when there is room. */
+.appMeta .wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 720px) {
+  .appMeta .wide {
+    grid-column: auto;
+  }
 }
 
 /* The version's own workflows above the milestone template table (RuleVersionsPage). */

@@ -104,8 +104,11 @@ export default function RuleVersionsPage() {
   const [rules, setRules] = useState<RuleVersion["rules"]>([]);
   const [templates, setTemplates] = useState<RuleVersion["templates"]>([]);
   const [editorTab, setEditorTab] = useState("rules");
+  const [ruleScope, setRuleScope] = useState<string>();
   const [publishing, setPublishing] = useState<RuleVersion>();
-  const [addingWorkflow, setAddingWorkflow] = useState(false);
+  const [addingWorkflow, setAddingWorkflow] = useState<
+    false | { contractType?: string; fromRules?: boolean }
+  >(false);
   const refresh = () =>
     client.invalidateQueries({ queryKey: ["rule-versions"] });
   const report = (error: unknown) =>
@@ -116,6 +119,7 @@ export default function RuleVersionsPage() {
     );
   const open = (version: RuleVersion) => {
     setEditorTab("rules");
+    setRuleScope(undefined);
     setSelected(version);
     setRules(structuredClone(version.rules));
     setTemplates(structuredClone(version.templates));
@@ -262,6 +266,7 @@ export default function RuleVersionsPage() {
         name: td(`milestoneType.${row.milestoneType}`),
       })) as typeof all),
     ]);
+    return added.rules[0]?.release_rule_code;
   };
   const removeWorkflow = (code: string) => {
     setRules((all) => all.filter((rule) => rule.rule_set_id !== code));
@@ -356,11 +361,12 @@ export default function RuleVersionsPage() {
     let priority = below;
     while (priority > 0 && used.has(priority)) priority--;
     const model = fallback ?? scoped[0];
+    const ruleId = `${model.rule_set_id}-${nextRuleNumber(rules, model.rule_set_id)}`;
     setRules((all) => [
       ...all,
       {
         ...model,
-        rule_id: `${model.rule_set_id}-${nextRuleNumber(all, model.rule_set_id)}`,
+        rule_id: ruleId,
         priority: String(Math.max(1, priority)),
         rule_name: t("rules.app.newRuleName"),
         rule_group: "APP",
@@ -372,6 +378,7 @@ export default function RuleVersionsPage() {
         rule_description_vi: t("rules.app.newRuleDescription"),
       },
     ]);
+    return ruleId;
   };
   const applyFamily = (id: string) => {
     const source = rules.find((rule) => rule.rule_id === id);
@@ -744,7 +751,7 @@ export default function RuleVersionsPage() {
                           {editable ? (
                             <Button
                               icon={<PlusOutlined />}
-                              onClick={() => setAddingWorkflow(true)}
+                              onClick={() => setAddingWorkflow({})}
                               data-testid="app-workflow-add"
                             >
                               {t("rules.app.addWorkflow")}
@@ -1066,6 +1073,11 @@ export default function RuleVersionsPage() {
                       workflowNames={workflowNames}
                       onApplyFamily={applyFamily}
                       onAddRule={addRule}
+                      onCreateWorkflow={(contractType) =>
+                        setAddingWorkflow({ contractType, fromRules: true })
+                      }
+                      scope={ruleScope}
+                      onScopeChange={setRuleScope}
                       onRemoveRule={(id) =>
                         setRules((all) =>
                           all.filter((row) => row.rule_id !== id),
@@ -1080,7 +1092,8 @@ export default function RuleVersionsPage() {
         ) : null}
       </Modal>
       <FormModal
-        open={addingWorkflow}
+        open={Boolean(addingWorkflow)}
+        initialValues={addingWorkflow || undefined}
         title={t("rules.app.addWorkflow")}
         onClose={() => setAddingWorkflow(false)}
         onSubmit={async (values: {
@@ -1089,8 +1102,10 @@ export default function RuleVersionsPage() {
           contractType: string;
         }) => {
           try {
-            addWorkflow(values);
-            setEditorTab("templates");
+            const scope = addWorkflow(values);
+            // From the rule editor, open the new workflow's first scope to add rules there.
+            if (addingWorkflow && addingWorkflow.fromRules) setRuleScope(scope);
+            else setEditorTab("templates");
             message.success(t("rules.app.created"));
           } catch {
             void message.error(

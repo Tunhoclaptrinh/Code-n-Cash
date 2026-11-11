@@ -291,7 +291,10 @@
       "newRuleName": "New rule",
       "newRuleDescription": "Describe the rule's condition and reason.",
       "moveUp": "Move up",
-      "moveDown": "Move down"
+      "moveDown": "Move down",
+      "organiserScope": "This is an organiser scope: expressions can be edited, rules cannot be added or removed",
+      "organiserScopeHint": "The organiser rules must give identical results on the 405 Data Pack milestones. To add rules or stages, create an own (APP_) workflow for the same contract type: it starts as a copy of these rules and applies only to newly drafted contracts.",
+      "addWorkflowFor": "Create own workflow for {{type}}"
     }
   },
   "fields": {

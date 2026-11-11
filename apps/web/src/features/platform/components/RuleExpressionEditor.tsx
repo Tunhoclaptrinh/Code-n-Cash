@@ -61,6 +61,9 @@ export function RuleExpressionEditor({
   onApplyFamily,
   onAddRule,
   onRemoveRule,
+  onCreateWorkflow,
+  scope: requestedScope,
+  onScopeChange,
 }: {
   rules: Rule[];
   original: Rule[];
@@ -73,8 +76,14 @@ export function RuleExpressionEditor({
   workflowNames?: Record<string, string>;
   /** Copies the selected organiser rule's expressions onto its 16 copies (same priority). */
   onApplyFamily?: (id: string) => void;
-  onAddRule?: (scope: string) => void;
+  /** Adds a rule to an app scope and returns its id, which the editor then selects. */
+  onAddRule?: (scope: string) => string;
   onRemoveRule?: (id: string) => void;
+  /** Opens the new-workflow form for a contract type: organiser scopes cannot gain rules. */
+  onCreateWorkflow?: (contractType: string) => void;
+  /** Controlled scope, so the page can open a workflow it has just created. */
+  scope?: string;
+  onScopeChange?: (scope: string) => void;
 }) {
   const { t, i18n } = useTranslation("trust");
   const { t: td } = useTranslation("domain");
@@ -85,7 +94,9 @@ export function RuleExpressionEditor({
     queryFn: trustApi.ruleLanguage,
     staleTime: Infinity,
   });
-  const [scope, setScope] = useState<string>();
+  const [ownScope, setOwnScope] = useState<string>();
+  const scope = requestedScope ?? ownScope;
+  const setScope = onScopeChange ?? setOwnScope;
   const [ruleId, setRuleId] = useState<string>();
   const [help, setHelp] = useState(false);
   const [search, setSearch] = useState("");
@@ -123,6 +134,10 @@ export function RuleExpressionEditor({
           defaultValue: row.rule_name,
         })
       : row.rule_name;
+  // A rule added in this draft has no saved revision to compare with or restore.
+  const saved = selected
+    ? original.find((row) => row.rule_id === selected.rule_id)
+    : undefined;
   const appScope = scoped.length > 0 && isAppRule(scoped[0]);
   // The organiser's 128 rules are 8 families of 16 identical copies; edits apply to a family.
   const family = selected ? ruleFamily(rules, selected.rule_id) : [];
@@ -229,6 +244,28 @@ export function RuleExpressionEditor({
           data-testid="rule-family-diverged"
         />
       ) : null}
+      {!appScope && editable && onCreateWorkflow && scoped.length ? (
+        <Alert
+          type="info"
+          showIcon
+          className={styles.notice}
+          title={t("rules.app.organiserScope")}
+          description={t("rules.app.organiserScopeHint")}
+          action={
+            <Button
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={() => onCreateWorkflow(scoped[0].contract_type)}
+              data-testid="rule-create-workflow"
+            >
+              {t("rules.app.addWorkflowFor", {
+                type: td(`contractType.${scoped[0].contract_type}`),
+              })}
+            </Button>
+          }
+          data-testid="rule-organiser-scope"
+        />
+      ) : null}
       <div className={styles.layout}>
         <nav
           aria-label={t("rules.language.orderList")}
@@ -238,7 +275,7 @@ export function RuleExpressionEditor({
             <Button
               size="small"
               icon={<PlusOutlined />}
-              onClick={() => onAddRule(activeScope)}
+              onClick={() => setRuleId(onAddRule(activeScope))}
               data-testid="rule-add"
             >
               {t("rules.app.addRule")}
@@ -259,7 +296,7 @@ export function RuleExpressionEditor({
               <span className={styles.ruleTop}>
                 <Tag>{row.priority}</Tag>
                 <Tag color={tone(row.decision)}>{row.decision}</Tag>
-                <small>{row.rule_id}</small>
+                <small className={styles.ruleCode}>{row.rule_id}</small>
               </span>
               <span>{labelOf(row)}</span>
             </button>
@@ -276,7 +313,11 @@ export function RuleExpressionEditor({
             </div>
             {isAppRule(selected) && editable ? (
               <div className={styles.appMeta} data-testid="rule-app-meta">
-                <Form.Item label={t("rules.app.name")} style={{ margin: 0 }}>
+                <Form.Item
+                  label={t("rules.app.name")}
+                  className={styles.wide}
+                  style={{ margin: 0 }}
+                >
                   <Input
                     value={selected.rule_name}
                     maxLength={200}
@@ -322,7 +363,11 @@ export function RuleExpressionEditor({
                     }
                   />
                 </Form.Item>
-                <Form.Item label={t("rules.app.reason")} style={{ margin: 0 }}>
+                <Form.Item
+                  label={t("rules.app.reason")}
+                  className={styles.wide}
+                  style={{ margin: 0 }}
+                >
                   <Select
                     value={selected.reason_code}
                     options={RULE_REASONS.map((value) => ({
@@ -378,13 +423,8 @@ export function RuleExpressionEditor({
                 })}
               </Typography.Text>
             </Space>
-            {fields.some(
-              (field) =>
-                selected[field] !==
-                original.find((row) => row.rule_id === selected.rule_id)?.[
-                  field
-                ],
-            ) ? (
+            {saved &&
+            fields.some((field) => selected[field] !== saved[field]) ? (
               <Alert
                 type="warning"
                 showIcon
@@ -409,11 +449,7 @@ export function RuleExpressionEditor({
                   key={`${selected.rule_id}-${field}`}
                   field={field}
                   value={selected[field]}
-                  original={
-                    original.find((row) => row.rule_id === selected.rule_id)?.[
-                      field
-                    ]
-                  }
+                  original={saved?.[field]}
                   editable={editable}
                   variables={variables}
                   issues={issues.filter(

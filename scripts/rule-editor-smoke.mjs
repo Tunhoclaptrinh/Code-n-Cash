@@ -311,6 +311,54 @@ try {
   await until(
     "document.querySelector('[data-testid=rule-preview-result]')?.classList.contains('ant-alert-success')",
   );
+  // An organiser scope cannot gain rules: the editor says so and offers an own workflow instead.
+  assert.equal(
+    await evaluate("!!document.querySelector('[data-testid=rule-add]')"),
+    false,
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-create-workflow]').click()",
+  );
+  await until(
+    "Array.from(document.querySelectorAll('.ant-modal input#code')).some(x => x.offsetParent)",
+  );
+  for (const [selector, text] of [
+    [".ant-modal input#name", "Fast goods delivery"],
+    [".ant-modal input#code", "FAST_GOODS"],
+  ]) {
+    await evaluate(
+      `Array.from(document.querySelectorAll(${JSON.stringify(selector)})).at(-1).focus()`,
+    );
+    await send("Input.insertText", { text });
+  }
+  await evaluate(
+    "Array.from(document.querySelectorAll('.ant-modal-footer button')).at(-1).click()",
+  );
+  await until("!!document.querySelector('[data-testid=rule-add]')");
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-expression-editor]').innerText.includes('APP_FAST_GOODS')",
+    ),
+  );
+  const before = await evaluate(
+    "document.querySelectorAll('[data-testid^=rule-option-]').length",
+  );
+  await evaluate("document.querySelector('[data-testid=rule-add]').click()");
+  await until(
+    `document.querySelectorAll('[data-testid^=rule-option-]').length === ${before + 1}`,
+  );
+  // The new rule is selected, and a rule without a saved revision is not reported as modified.
+  assert.ok(
+    await evaluate(
+      "document.querySelector('[data-testid=rule-app-meta] input').value === 'New rule'",
+    ),
+  );
+  assert.equal(
+    await evaluate(
+      "!!document.querySelector('[data-testid=rule-expression-detail] .ant-alert-warning')",
+    ),
+    false,
+  );
   const layout = await evaluate(
     "(() => { const body=document.querySelector('.ant-modal-body'); return {width:body.clientWidth,scroll:body.scrollWidth,overflow:getComputedStyle(body).overflowY}; })()",
   );

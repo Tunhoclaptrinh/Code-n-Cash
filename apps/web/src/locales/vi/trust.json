@@ -291,7 +291,10 @@
       "newRuleName": "Luật mới",
       "newRuleDescription": "Mô tả điều kiện và lý do của luật.",
       "moveUp": "Đưa lên",
-      "moveDown": "Đưa xuống"
+      "moveDown": "Đưa xuống",
+      "organiserScope": "Đây là phạm vi chuẩn của BTC: chỉ sửa được biểu thức, không thêm hay xoá luật",
+      "organiserScopeHint": "Bộ luật chuẩn phải cho kết quả giống hệt trên 405 mốc của Data Pack. Muốn thêm luật hoặc giai đoạn, tạo quy trình riêng (APP_) cùng loại hợp đồng: nó bắt đầu bằng bản sao các luật này và chỉ áp dụng cho hợp đồng soạn mới.",
+      "addWorkflowFor": "Tạo quy trình riêng cho {{type}}"
     }
   },
   "fields": {

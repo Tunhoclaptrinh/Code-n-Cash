@@ -2,7 +2,8 @@ import { Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { actorName } from "@/shared/lib/domain";
-import { initialsOf } from "@/shared/lib/initials";
+import { organizationInitials } from "@/shared/lib/initials";
+import { PersonChip } from "@/shared/ui/PersonChip";
 import { DecisionTag } from "@/shared/ui/DomainTags";
 import { SideSection } from "@/shared/ui/SidePanel";
 import type { DisputeView } from "../types";
@@ -25,53 +26,107 @@ export function SubmissionPanel({ view }: { view: DisputeView }) {
         {view.disputes.length ? null : (
           <Typography.Text type="secondary">{t("lite.none")}</Typography.Text>
         )}
-        {view.disputes.map(({ opened, resolution, state }) => (
-          <div
-            key={opened.id}
-            className={styles.message}
-            data-testid="dispute-case"
-          >
-            <div className={styles.author}>
-              <span className={styles.avatar}>
-                {initialsOf(opened.recordedBy ?? actorName(td, opened.actor))}
-              </span>
-              <b>
-                {opened.recordedBy
-                  ? t("submission.author", {
-                      name: opened.recordedBy,
-                      organization: actorName(td, opened.actor),
-                    })
-                  : actorName(td, opened.actor)}
-              </b>
-              <Tag color={state === "OPEN" ? "warning" : "success"}>
-                {t(`state.${state}`)}
-              </Tag>
-              <span className={styles.time}>{formatDateTime(opened.at)}</span>
-            </div>
-            {/* Organiser rows carry a placeholder note, not words a person wrote. */}
-            {opened.origin === "APP" && opened.note ? (
-              <div>{t("submission.quote", { message: opened.note })}</div>
-            ) : null}
-            {resolution ? (
-              <div className={styles.file}>
-                <span className={styles.fileKind}>
-                  {td("eventType.DISPUTE_RESOLVED")}
+        {view.disputes.map(
+          ({
+            opened,
+            resolution,
+            state,
+            side,
+            openedBy,
+            resolvedBy,
+            openDays,
+          }) => (
+            <div
+              key={opened.id}
+              className={styles.message}
+              data-testid="dispute-case"
+            >
+              <div className={styles.author}>
+                <span className={styles.avatar} aria-hidden>
+                  {organizationInitials(opened.actor.name)}
                 </span>
-                {t(
-                  resolution.origin === "APP" && resolution.note
-                    ? "submission.resolution"
-                    : "submission.resolutionPlain",
-                  {
-                    by:
-                      resolution.recordedBy ?? actorName(td, resolution.actor),
-                    at: formatDateTime(resolution.at),
-                    note: resolution.note,
-                  },
-                )}
+                <b>{actorName(td, opened.actor)}</b>
+                <Tag style={{ margin: 0 }} data-testid="dispute-side">
+                  {td(`side.${side}`)}
+                </Tag>
+                <Tag
+                  color={state === "OPEN" ? "warning" : "success"}
+                  style={{ margin: 0 }}
+                >
+                  {t(`state.${state}`)}
+                </Tag>
+                <span className={styles.time}>{formatDateTime(opened.at)}</span>
               </div>
-            ) : null}
-          </div>
-        ))}
+              <div className={styles.facts}>
+                <span className={styles.factLabel}>
+                  {t("submission.openedBy")}
+                </span>
+                {openedBy ? (
+                  <PersonChip
+                    person={openedBy}
+                    organizationName={actorName(td, opened.actor)}
+                  />
+                ) : (
+                  <span
+                    className={styles.muted}
+                    data-testid="opened-by-unknown"
+                  >
+                    {t("submission.openedByUnknown")}
+                  </span>
+                )}
+                <span className={styles.muted}>
+                  ·{" "}
+                  {openDays === 0
+                    ? t("submission.openToday")
+                    : t(
+                        state === "OPEN"
+                          ? "submission.openFor"
+                          : "submission.wasOpen",
+                        { count: openDays },
+                      )}
+                </span>
+              </div>
+              {state === "OPEN" && view.resolvers.length ? (
+                <div className={styles.facts} data-testid="dispute-resolvers">
+                  <span className={styles.factLabel}>
+                    {t("submission.resolvers")}
+                  </span>
+                  {view.resolvers.map((person) => (
+                    <PersonChip
+                      key={person.userId}
+                      person={person}
+                      organizationName={view.contract.buyer.name}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              {/* Organiser rows carry a placeholder note, not words a person wrote. */}
+              {opened.origin === "APP" && opened.note ? (
+                <div>{t("submission.quote", { message: opened.note })}</div>
+              ) : null}
+              {resolution ? (
+                <div className={styles.file}>
+                  <span className={styles.fileKind}>
+                    {td("eventType.DISPUTE_RESOLVED")}
+                  </span>
+                  {t(
+                    resolution.origin === "APP" && resolution.note
+                      ? "submission.resolution"
+                      : "submission.resolutionPlain",
+                    {
+                      by:
+                        resolvedBy?.name ??
+                        resolution.recordedBy ??
+                        actorName(td, resolution.actor),
+                      at: formatDateTime(resolution.at),
+                      note: resolution.note,
+                    },
+                  )}
+                </div>
+              ) : null}
+            </div>
+          ),
+        )}
       </SideSection>
       {view.notes.length ? (
         <SideSection title={t("notes.title")}>

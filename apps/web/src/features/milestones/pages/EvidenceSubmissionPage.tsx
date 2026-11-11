@@ -2,7 +2,7 @@ import { useState, type ChangeEvent, type DragEvent } from "react";
 import { Alert, App as AntApp, Button, Space, Tag } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type {
   Attachment,
   EvidenceSlot,
@@ -192,6 +192,9 @@ function Workspace({
   const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
   const [dragging, setDragging] = useState(false);
+  // "Nộp Hoá đơn" from the decision page opens here with ?type=INVOICE: that slot is brought into view.
+  const [search] = useSearchParams();
+  const focusType = search.get("type");
   const { milestone, contract, preview } = data;
   const deadline = milestone.dueDate
     ? new Date(
@@ -235,14 +238,31 @@ function Workspace({
               })}
             </div>
           ) : null}
-          {data.slots.map((slot) => (
-            <SlotCard
-              key={slot.eventType}
-              slot={slot}
-              onPick={onPick(slot.eventType)}
-              onRemove={onRemove}
-            />
-          ))}
+          {data.slots.map((slot) =>
+            slot.eventType === focusType ? (
+              <div
+                key={slot.eventType}
+                className={styles.slotFocus}
+                data-testid="evidence-slot-focus"
+                ref={(node) =>
+                  node?.scrollIntoView({ block: "center", behavior: "smooth" })
+                }
+              >
+                <SlotCard
+                  slot={slot}
+                  onPick={onPick(slot.eventType)}
+                  onRemove={onRemove}
+                />
+              </div>
+            ) : (
+              <SlotCard
+                key={slot.eventType}
+                slot={slot}
+                onPick={onPick(slot.eventType)}
+                onRemove={onRemove}
+              />
+            ),
+          )}
           {data.extras.map((file) => (
             <ExtraFile key={file.id} file={file} onRemove={onRemove} />
           ))}

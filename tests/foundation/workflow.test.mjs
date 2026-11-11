@@ -94,6 +94,111 @@ test("the Data Pack is imported as tables and evaluated by the specification eng
   );
 });
 
+test("each held milestone lists who must act next, with people, waiting time and deadline", async () => {
+  // CT0103 milestone 2: evidence done, the owner approved, finance has not.
+  const held = await call(
+    "u-owner",
+    "contracts",
+    "getMilestoneDetail",
+    "CT0103",
+    2,
+  );
+  const [first] = held.pending;
+  assert.equal(first.state, "BLOCKING");
+  assert.equal(first.kind, "APPROVAL");
+  assert.equal(first.subject, "FINANCE_APPROVER");
+  assert.deepEqual(
+    first.people.map((p) => p.userId),
+    ["u-finance"],
+  );
+  assert.equal(first.action.kind, "APPROVE");
+  assert.equal(first.action.mine, false);
+  assert.ok(first.waitingDays >= 0);
+  const owner = held.pending.find((i) => i.key === "APPROVAL:CONTRACT_OWNER");
+  assert.equal(owner.state, "DONE");
+  assert.equal(owner.done.by.userId, "u-owner");
+  assert.equal(owner.done.by.isYou, true);
+  assert.ok(
+    held.pending
+      .filter((i) => i.kind === "EVIDENCE")
+      .every((i) => i.state === "DONE" && i.side === "SUPPLIER"),
+  );
+  assert.deepEqual(held.milestone.waitingOn, [
+    {
+      kind: "APPROVAL",
+      side: "BUYER",
+      organizationName: held.contract.buyer.name,
+      roles: ["FINANCE_APPROVER"],
+      subjects: ["FINANCE_APPROVER"],
+    },
+  ]);
+
+  // The same item is the finance approver's own action.
+  const forFinance = await call(
+    "u-finance",
+    "contracts",
+    "getMilestoneDetail",
+    "CT0103",
+    2,
+  );
+  const mine = forFinance.pending.find(
+    (i) => i.key === "APPROVAL:FINANCE_APPROVER",
+  );
+  assert.equal(mine.action.mine, true);
+  assert.equal(mine.action.href, "/approvals/CT0103/2");
+
+  // CT0103 milestone 3: the buyer's acceptance is missing; approvals come after it.
+  const missing = await call(
+    "u-owner",
+    "contracts",
+    "getMilestoneDetail",
+    "CT0103",
+    3,
+  );
+  const acceptance = missing.pending.find((i) => i.key === "EVENT:ACCEPTANCE");
+  assert.equal(acceptance.state, "BLOCKING");
+  assert.equal(acceptance.side, "BUYER");
+  assert.deepEqual(acceptance.roles, ["LEGAL_REVIEWER"]);
+  assert.ok(acceptance.people.length > 0);
+  assert.match(acceptance.dueBy, /^\d{4}-\d{2}-\d{2}$/);
+  assert.match(
+    acceptance.action.href,
+    /^\/submissions\/CT0103\/3\?type=ACCEPTANCE$/,
+  );
+  assert.ok(
+    missing.pending
+      .filter((i) => i.kind === "APPROVAL")
+      .every((i) => i.state === "WAITING"),
+  );
+
+  // Only accounts of the contract's two parties are named, and nobody's e-mail.
+  for (const item of [...held.pending, ...missing.pending])
+    for (const person of item.people) {
+      assert.ok(
+        [held.contract.buyer.id, held.contract.supplier.id].includes(
+          person.organizationId,
+        ),
+      );
+      assert.equal("email" in person, false);
+    }
+});
+
+test("a dispute names the side that opened it, who opened it if known, and who may close it", async () => {
+  const view = await call("u-owner", "disputes", "getDispute", "CT0014", 2);
+  const [open] = view.disputes;
+  assert.equal(open.state, "OPEN");
+  assert.ok(["BUYER", "SUPPLIER"].includes(open.side));
+  // Organiser rows of a buyer or supplier name the party only: no person is made up.
+  if (open.opened.actor.type !== "APPROVER") assert.equal(open.openedBy, null);
+  assert.ok(open.openDays >= 0);
+  const owner = view.resolvers.find((p) => p.userId === "u-owner");
+  assert.equal(owner.isYou, true);
+  assert.ok(
+    view.resolvers.every((p) => p.organizationId === view.contract.buyer.id),
+  );
+  assert.ok(view.resolvers.every((p) => !("email" in p)));
+});
+
 test("opening a fresh contract does not resume or overwrite an existing draft", async () => {
   const before = await repo.list("contract-drafts");
   const resumed = await call("u-legal", "drafts", "getContractDraft", "CT0101");

@@ -117,3 +117,180 @@
     min-height: 32px;
   }
 }
+
+/* "What is left": who must do what next (PendingItems.tsx). */
+
+.pendingList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pendingRow {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 4px 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.pendingRow[data-state="BLOCKING"] {
+  background: var(--color-warning-soft);
+  border-color: color-mix(in srgb, var(--color-warning) 18%, transparent);
+}
+
+.pendingRow[data-state="DONE"] .pendingTitle {
+  color: var(--color-text-muted);
+}
+
+.pendingRow > :global(.anticon) {
+  margin-top: 3px;
+  font-size: 16px;
+}
+
+.pendingIconBlocking {
+  color: var(--color-warning);
+}
+
+.pendingIconWaiting {
+  color: var(--color-text-faint);
+}
+
+.pendingIconDone {
+  color: var(--color-success);
+}
+
+.pendingMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pendingTitleLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+/* Looks like text, behaves like a link: dotted underline, solid on hover and focus. */
+.pendingTitle {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--color-text);
+  text-align: left;
+  text-decoration: underline dotted var(--color-text-faint);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.pendingTitle:hover,
+.pendingTitle:focus-visible {
+  color: var(--color-primary);
+  text-decoration: underline solid var(--color-primary);
+  outline: none;
+}
+
+.pendingWho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 13px;
+}
+
+.pendingPeople {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.pendingWhen {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pendingWhen[data-overdue] {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.pendingMuted {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.pendingToggle {
+  padding-inline: 0 !important;
+}
+
+.pendingCard {
+  max-width: 340px;
+  font-size: 13px;
+}
+
+.pendingCardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pendingCardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.pendingCardHint {
+  margin: 2px 0 8px 24px;
+  color: var(--color-text-muted);
+}
+
+.pendingCardRows {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.pendingCardRows > div {
+  display: contents;
+}
+
+.pendingCardRows dt {
+  color: var(--color-text-muted);
+}
+
+.pendingCardRows dd {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.pendingPreview {
+  width: min(420px, calc(100vw - 48px));
+}
+
+@media (max-width: 480px) {
+  .pendingRow {
+    grid-template-columns: 18px minmax(0, 1fr);
+  }
+
+  .pendingRow > :last-child:not(.pendingMain) {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

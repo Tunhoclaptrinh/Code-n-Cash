@@ -9,6 +9,17 @@ import {
 import type { DisputeView } from "../types";
 import { TERMINAL } from "../vocabulary";
 import type { DryRun } from "./shared";
+import { businessNow } from "../factory";
+import { accountsOf, recorderOf, sideOfParty } from "./responsibility";
+
+const daysBetween = (from: string, to: string) =>
+  Math.max(
+    0,
+    Math.round(
+      (Date.parse(to.slice(0, 10)) - Date.parse(from.slice(0, 10))) /
+        86_400_000,
+    ),
+  );
 
 export async function disputeView(
   ctx: Ctx,
@@ -35,6 +46,13 @@ export async function disputeView(
         state: evaluation.openDisputeIds.includes(opened.event_id)
           ? ("OPEN" as const)
           : ("RESOLVED" as const),
+        side: sideOfParty(ctx, opened.actor_party_id),
+        openedBy: recorderOf(ctx, opened),
+        resolvedBy: resolution ? recorderOf(ctx, resolution) : null,
+        openDays: daysBetween(
+          opened.event_timestamp,
+          resolution?.event_timestamp ?? businessNow(),
+        ),
       };
     });
   const status = ctx.status(m);
@@ -69,5 +87,9 @@ export async function disputeView(
         contract.supplier_id === ctx.actor.organizationId) &&
       ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
     canResolve,
+    resolvers: accountsOf(ctx, contract.buyer_id, [
+      "CONTRACT_OWNER",
+      "LEGAL_REVIEWER",
+    ]),
   };
 }

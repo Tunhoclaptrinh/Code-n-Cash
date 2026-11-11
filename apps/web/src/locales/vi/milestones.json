@@ -478,5 +478,46 @@
     "signed": "Đã ký",
     "broken": "Chữ ký không khớp",
     "signedBy": "{{name}} ký lúc {{at}}"
+  },
+  "pending": {
+    "title": "Việc còn lại để mốc được chi",
+    "summary": "{{blocking}} việc đang chặn · {{waiting}} việc chờ sau",
+    "nothing": "Không còn việc nào: mốc đã khép.",
+    "showDone_one": "Đã xong {{count}} việc",
+    "showDone_other": "Đã xong {{count}} việc",
+    "hideDone": "Ẩn việc đã xong",
+    "hint": {
+      "BLOCKING": "Mốc đang bị giữ vì việc này.",
+      "WAITING": "Cần làm sau khi các việc đang chặn đã xong.",
+      "DONE": "Đã đạt."
+    },
+    "field": {
+      "party": "Bên phải làm",
+      "role": "Vai trò",
+      "people": "Người có thể làm",
+      "rule": "Luật liên quan",
+      "waited": "Đã chờ",
+      "deadline": "Hạn",
+      "done": "Đã làm",
+      "progress": "Tiến độ phê duyệt",
+      "grace": "Hết ân hạn"
+    },
+    "noPeople": "Chưa có tài khoản nào giữ vai trò này",
+    "ruleValue": "Luật {{priority}} · {{reason}}",
+    "waited_one": "{{count}} ngày",
+    "waited_other": "{{count}} ngày",
+    "waitedToday": "từ hôm nay",
+    "waitedShort_one": "chờ {{count}} ngày",
+    "waitedShort_other": "chờ {{count}} ngày",
+    "due": "Hạn {{date}}",
+    "overdue_one": "quá hạn {{count}} ngày",
+    "overdue_other": "quá hạn {{count}} ngày",
+    "doneBy": "{{name}} · {{at}}",
+    "progress": "{{done}}/{{quorum}} vai trò đã duyệt",
+    "waitingOn": "Đang chờ:",
+    "whoActs": "Ai đang được chờ?",
+    "nobodyWaiting": "Không chờ ai",
+    "loading": "Đang tải…",
+    "graceUntil": "ân hạn đến {{date}}"
   }
 }

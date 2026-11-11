@@ -334,5 +334,27 @@
     "LATE_COMPLETION": "Hoàn thành quá hạn và hết thời gian ân hạn thì bị phạt chậm, thanh toán sau khi trừ phạt.",
     "ALL_CONDITIONS_MET": "Đủ mọi điều kiện, không có tranh chấp và không bị từ chối thì thanh toán đủ giá trị mốc.",
     "UNRESOLVED_CONDITION": "Trường hợp không khớp các điều trên thì giữ lại để kiểm tra thủ công, không tự động thanh toán."
+  },
+  "pendingKind": {
+    "EVIDENCE": "Chứng từ",
+    "APPROVAL": "Phê duyệt",
+    "DISPUTE": "Tranh chấp đang mở",
+    "REJECTION": "Mốc đã bị từ chối",
+    "UNAUTHORIZED": "Chứng từ do bên không có thẩm quyền tạo",
+    "DATA_ISSUE": "Dữ liệu mốc cần kiểm tra",
+    "PAYMENT": "Lệnh chi chờ duyệt"
+  },
+  "pendingState": {
+    "DONE": "Đã xong",
+    "WAITING": "Chờ sau",
+    "BLOCKING": "Đang chặn"
+  },
+  "pendingAction": {
+    "SUBMIT": "Nộp {{subject}}",
+    "APPROVE": "Phê duyệt",
+    "RESOLVE": "Giải quyết tranh chấp",
+    "PROPOSE_EXCEPTION": "Đề xuất xử lý",
+    "TRANSFER": "Duyệt lệnh chi",
+    "CONTACT": "Xem quyết định"
   }
 }

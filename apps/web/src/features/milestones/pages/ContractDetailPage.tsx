@@ -4,6 +4,7 @@ import { PageContainer } from "@codecash/ui";
 import { ContractLifecycleSteps } from "../components/ContractLifecycleSteps";
 import { EvidenceDocumentLink } from "../components/EvidenceDocumentLink";
 import { SmartContractPanel } from "../components/SmartContractPanel";
+import { WaitingOnLine } from "../components/PendingItems";
 import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
 import {
   CheckCircleFilled,
@@ -39,7 +40,7 @@ import {
   formatDateTime,
   formatDecimalString,
 } from "@/shared/lib/format";
-import { initialsOf } from "@/shared/lib/initials";
+import { initialsOf, organizationInitials } from "@/shared/lib/initials";
 import {
   ContractStatusTag,
   MilestoneStatusTag,
@@ -465,7 +466,12 @@ function MilestoneItem({
               <span className={styles.factLabel}>
                 {t("detail.milestone.next")}{" "}
               </span>
-              <b>{describeNext(td, row.next)}</b>
+              <WaitingOnLine
+                contractId={contractId}
+                sequence={row.sequence}
+                waitingOn={row.waitingOn}
+                fallback={<b>{describeNext(td, row.next)}</b>}
+              />
             </div>
           </div>
           <div className={styles.side}>
@@ -830,7 +836,9 @@ function ParticipantRows({ data }: { data: ContractOverview }) {
             data-testid="participant"
           >
             <span className={styles.avatar}>
-              {initialsOf(person.personName ?? person.name)}
+              {person.personName
+                ? initialsOf(person.personName)
+                : organizationInitials(person.name)}
             </span>
             <div className={styles.personInfo}>
               <b>{person.personName ?? person.name}</b>

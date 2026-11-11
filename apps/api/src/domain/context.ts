@@ -36,6 +36,7 @@ import type {
   SignStepView,
 } from "./types";
 import { AUTHORITY, isBusinessEvent } from "./vocabulary";
+import { waitingOn } from "./views/responsibility";
 
 /** Collections every workflow view or action reads. */
 export const READ_TABLES = [
@@ -421,6 +422,7 @@ export class Ctx {
       openDispute: evaluation.openDisputeIds.length > 0,
       requirements: this.requirements(m),
       next: this.nextStep(m),
+      waitingOn: waitingOn(this, m),
       paid: this.paid(m.milestone_id),
     };
   }

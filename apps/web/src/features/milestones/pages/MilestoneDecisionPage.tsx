@@ -19,6 +19,7 @@ import { DecisionTrace } from "../components/DecisionTrace";
 import { RulesPanel } from "../components/RulesPanel";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 import { PaymentInstructionPanel } from "../components/PaymentInstructionPanel";
+import { PendingPanel } from "../components/PendingItems";
 
 /** Milestone decision with its full trace: rule, facts, events, amounts and status history (spec 14.5). */
 export default function MilestoneDecisionPage() {
@@ -123,6 +124,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
             transferring={transfer.isPending}
             onTransfer={confirmTransfer}
           />
+          <PendingPanel data={data} onTransfer={confirmTransfer} />
           <ConditionsPanel data={data} />
           <AmountsPanel money={money} />
           <RulesPanel data={data} />

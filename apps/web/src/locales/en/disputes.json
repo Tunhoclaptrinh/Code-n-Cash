@@ -9,7 +9,16 @@
     "author": "{{name}} · {{organization}}",
     "quote": "\"{{message}}\"",
     "resolution": "{{by}} · {{at}}: {{note}}",
-    "resolutionPlain": "{{by}} · {{at}}"
+    "resolutionPlain": "{{by}} · {{at}}",
+    "openedBy": "Opened by",
+    "openedByUnknown": "The source data names the organisation only, not the person",
+    "resolvedBy": "Closed by",
+    "resolvers": "Can close it",
+    "openFor_one": "Open for {{count}} day",
+    "openFor_other": "Open for {{count}} days",
+    "wasOpen_one": "Was open {{count}} day",
+    "wasOpen_other": "Was open {{count}} days",
+    "openToday": "Opened today"
   },
   "state": {
     "OPEN": "Open",

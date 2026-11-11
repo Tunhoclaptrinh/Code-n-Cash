@@ -9,6 +9,7 @@ import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { KeyFigures, SideSection } from "@/shared/ui/SidePanel";
 import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
+import { BlockingPeople } from "./PendingItems";
 import styles from "./MilestoneDecision.module.css";
 
 interface DecisionBannerProps {
@@ -95,7 +96,8 @@ export function DecisionBanner({
       ) : null}
       <div className={styles.next}>
         <span>{t("decision.next")}</span>{" "}
-        <b>{describeNext(td, milestone.next)}</b>
+        <b>{describeNext(td, milestone.next)}</b>{" "}
+        <BlockingPeople items={data.pending} />
       </div>
       <div className={styles.bannerActions}>
         <Button onClick={() => window.print()}>

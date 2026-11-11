@@ -3,6 +3,7 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { MilestoneDetail } from "@codecash/contracts";
 import { CheckList, InfoGrid, SideSection } from "@/shared/ui/SidePanel";
+import { PendingPopover } from "./PendingItems";
 import styles from "./MilestoneDecision.module.css";
 
 /** `EVENT:INVOICE` → "Hoá đơn", `APPROVAL_QUORUM:2` → "Đủ 2 vai trò phê duyệt". */
@@ -19,6 +20,23 @@ export function ConditionsPanel({ data }: { data: MilestoneDetail }) {
   const { t } = useTranslation("milestones");
   const { t: td } = useTranslation("domain");
   const { milestone, evaluation } = data;
+  const progress = evaluation.approvalRequired
+    ? { done: evaluation.validApprovalCount, quorum: evaluation.quorum }
+    : undefined;
+  // Each condition about a document or the approvals previews who answers for it.
+  const linked = (token: string) => {
+    const [kind, arg] = token.split(":");
+    const items = data.pending.filter((item) =>
+      kind === "EVENT"
+        ? item.key === `EVENT:${arg}`
+        : kind === "APPROVAL_QUORUM" && item.kind === "APPROVAL",
+    );
+    return (
+      <PendingPopover items={items} rules={data.rules} progress={progress}>
+        {tokenText(t, token)}
+      </PendingPopover>
+    );
+  };
   return (
     <SideSection title={t("decision.conditions.title")}>
       <CheckList
@@ -30,12 +48,12 @@ export function ConditionsPanel({ data }: { data: MilestoneDetail }) {
           ...evaluation.conditionsMet.map((token) => ({
             key: token,
             ok: true,
-            text: tokenText(t, token),
+            text: linked(token),
           })),
           ...evaluation.missingConditions.map((token) => ({
             key: token,
             ok: false,
-            text: tokenText(t, token),
+            text: linked(token),
           })),
         ]}
       />

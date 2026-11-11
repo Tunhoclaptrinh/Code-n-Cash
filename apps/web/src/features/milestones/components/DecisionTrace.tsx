@@ -54,7 +54,9 @@ export function DecisionTrace({ data, onChanged }: DecisionTraceProps) {
                   sequence={milestone.sequence}
                 />
                 <HistoryPanel history={data.history} />
-                <ExceptionPanel data={data} onChanged={onChanged} />
+                <div id="exceptions">
+                  <ExceptionPanel data={data} onChanged={onChanged} />
+                </div>
               </Space>
             ),
           },

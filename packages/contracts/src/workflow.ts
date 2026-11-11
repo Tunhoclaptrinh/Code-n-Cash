@@ -116,6 +116,77 @@ export type NextStep =
   | { kind: "SIGN_CONTRACT" }
   | { kind: "NONE" };
 
+/** Someone who can act on a pending item; only accounts of the contract's two parties are listed. */
+export interface PersonRef {
+  userId: string;
+  name: string;
+  title: string | null;
+  organizationId: string;
+  isYou: boolean;
+}
+
+export type PendingKind =
+  | "EVIDENCE"
+  | "APPROVAL"
+  | "DISPUTE"
+  | "REJECTION"
+  | "UNAUTHORIZED"
+  | "DATA_ISSUE"
+  | "PAYMENT";
+
+/** BLOCKING: the item decides the rule that holds the milestone now; WAITING: a later rule needs it. */
+export type PendingState = "DONE" | "WAITING" | "BLOCKING";
+
+export type PendingActionKind =
+  | "SUBMIT"
+  | "APPROVE"
+  | "RESOLVE"
+  | "PROPOSE_EXCEPTION"
+  | "TRANSFER"
+  | "CONTACT";
+
+/** One condition of a milestone and who answers for it. Computed by the API, shown as is. */
+export interface PendingItem {
+  key: string;
+  kind: PendingKind;
+  state: PendingState;
+  /** The rule of the milestone's scope this item feeds, when the scope has one. */
+  rule: { id: string; priority: number } | null;
+  /** The event type of evidence items, the approval role of approval items. */
+  subject: BusinessEventType | ApprovalRole | null;
+  side: Side;
+  organization: { id: string; name: string };
+  /** System roles of the accounts expected to act. */
+  roles: Role[];
+  people: PersonRef[];
+  /** Who did it and when, for DONE items. */
+  done: {
+    by: PersonRef | null;
+    byName: string;
+    at: string;
+    eventId: string | null;
+  } | null;
+  /** Since when the milestone waits for this item; null when the data does not say. */
+  waitingSince: string | null;
+  waitingDays: number | null;
+  /** The milestone's due date for evidence; null where nothing sets a deadline. */
+  dueBy: string | null;
+  /** Last day of the grace period; the late penalty runs after it. */
+  graceUntil: string | null;
+  /** Days past the due date while still open (same count as the evidence screen). */
+  overdueDays: number;
+  action: { kind: PendingActionKind; href: string; mine: boolean } | null;
+}
+
+/** "Who the milestone waits for", compact for lists: one entry per blocking party and role. */
+export interface WaitingOn {
+  kind: PendingKind;
+  side: Side;
+  organizationName: string;
+  roles: Role[];
+  subjects: Array<BusinessEventType | ApprovalRole>;
+}
+
 export interface PartyRef {
   id: string;
   name: string;
@@ -210,6 +281,7 @@ export interface MilestoneRow {
   openDispute: boolean;
   requirements: Requirement[];
   next: NextStep;
+  waitingOn: WaitingOn[];
   paid: boolean;
 }
 
@@ -589,6 +661,8 @@ export interface MilestoneDetail {
   contract: ContractRow;
   milestone: MilestoneRow;
   evaluation: Evaluation;
+  /** Every condition of the milestone with who answers for it, blocking items first. */
+  pending: PendingItem[];
   rules: Array<RuleRow & { outcome: RuleOutcome }>;
   /** The rule variables of the evaluation with their labels from the rule vocabulary. */
   variables: Array<{
@@ -691,6 +765,13 @@ export interface DisputeCase {
   opened: EventRow;
   resolution: EventRow | null;
   state: "OPEN" | "RESOLVED";
+  /** The side that opened it, from the party table. */
+  side: Side;
+  /** The person who opened it; null for organiser rows, which name only the party. */
+  openedBy: PersonRef | null;
+  resolvedBy: PersonRef | null;
+  /** Days it stayed open: until the resolution, or until today. */
+  openDays: number;
 }
 
 export interface NoteRow {
@@ -712,6 +793,8 @@ export interface DisputeView {
   notes: NoteRow[];
   canOpen: boolean;
   canResolve: boolean;
+  /** Accounts that may close a dispute: the buyer's contract owner and contract officer. */
+  resolvers: PersonRef[];
 }
 
 export type TaskKind =

@@ -31,6 +31,29 @@
   font-weight: 800;
 }
 
+.facts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding-left: 38px;
+  font-size: 13px;
+}
+
+.factLabel {
+  color: var(--color-text-muted);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 480px) {
+  .facts {
+    padding-left: 0;
+  }
+}
+
 .time {
   margin-left: auto;
   color: var(--color-text-muted);
@@ -85,6 +108,11 @@
   gap: 6px;
 }
 
+/* The decision tag sits on a tinted card of the same hue: a thin edge keeps its shape. */
+.impactLine :global(.ant-tag) {
+  border-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
 .impactLabel {
   color: var(--color-text-secondary);
   font-size: 13px;
@@ -97,7 +125,7 @@
 }
 
 .impactValueGood {
-  color: var(--color-success-strong);
+  color: var(--color-success);
 }
 
 .unit {

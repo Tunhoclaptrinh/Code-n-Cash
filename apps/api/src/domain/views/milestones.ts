@@ -20,6 +20,7 @@ import { isBusinessEvent, TERMINAL } from "../vocabulary";
 import { paymentInstruction } from "../actions/payments";
 import { historyOf, toException } from "./shared";
 import { variableLabels } from "../policy";
+import { pendingItems } from "./responsibility";
 
 function classify(
   e: EventRecord,
@@ -147,10 +148,51 @@ export function milestoneDetail(
         (e) => e.event_type === type && e.actor_party_id === ctx.actor.partyId,
       );
   const approved = votedOwn("APPROVAL");
+  const actions: MilestoneDetail["actions"] = {
+    submit:
+      open &&
+      evaluation.missing.some((t) => isBusinessEvent(t) && ctx.mayRecord(t)),
+    approve:
+      open &&
+      !!role &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      ctx.approvalRoles(m).includes(role) &&
+      !approved,
+    reject:
+      open &&
+      !!role &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      !votedOwn("REJECTION"),
+    openDispute:
+      open &&
+      mine &&
+      evaluation.openDisputeIds.length === 0 &&
+      ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
+    resolveDispute:
+      open &&
+      evaluation.openDisputeIds.length > 0 &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      ["LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
+    transfer:
+      !payment &&
+      status !== "REJECTED" &&
+      (evaluation.decision === "RELEASE" ||
+        evaluation.decision === "PENALTY") &&
+      ctx.actor.role === "FINANCE_APPROVER" &&
+      contract.buyer_id === ctx.actor.organizationId,
+    proposeException:
+      ctx.actor.role === "CONTRACT_OWNER" &&
+      contract.buyer_id === ctx.actor.organizationId &&
+      voidCandidates(ctx, m).length > 0,
+    decideException:
+      ctx.actor.role === "ADMIN_AUDITOR" &&
+      contract.buyer_id === ctx.actor.organizationId,
+  };
   return {
     contract: ctx.contractRow(contract),
     milestone: ctx.milestoneRow(m),
     evaluation,
+    pending: pendingItems(ctx, m, actions),
     rules,
     variables: Object.entries(evaluation.variables ?? {}).map(
       ([name, value]) => ({
@@ -196,48 +238,7 @@ export function milestoneDetail(
     // A paying decision draws up its instruction at once; finance only approves it.
     instruction: payment ? null : paymentInstruction(ctx, m, evaluation),
     exceptions: ctx.exceptionsOf(m.milestone_id).map(toException),
-    actions: {
-      submit:
-        open &&
-        evaluation.missing.some((t) => isBusinessEvent(t) && ctx.mayRecord(t)),
-      approve:
-        open &&
-        !!role &&
-        contract.buyer_id === ctx.actor.organizationId &&
-        ctx.approvalRoles(m).includes(role) &&
-        !approved,
-      reject:
-        open &&
-        !!role &&
-        contract.buyer_id === ctx.actor.organizationId &&
-        !votedOwn("REJECTION"),
-      openDispute:
-        open &&
-        mine &&
-        evaluation.openDisputeIds.length === 0 &&
-        ["SUPPLIER", "LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(
-          ctx.actor.role,
-        ),
-      resolveDispute:
-        open &&
-        evaluation.openDisputeIds.length > 0 &&
-        contract.buyer_id === ctx.actor.organizationId &&
-        ["LEGAL_REVIEWER", "CONTRACT_OWNER"].includes(ctx.actor.role),
-      transfer:
-        !payment &&
-        status !== "REJECTED" &&
-        (evaluation.decision === "RELEASE" ||
-          evaluation.decision === "PENALTY") &&
-        ctx.actor.role === "FINANCE_APPROVER" &&
-        contract.buyer_id === ctx.actor.organizationId,
-      proposeException:
-        ctx.actor.role === "CONTRACT_OWNER" &&
-        contract.buyer_id === ctx.actor.organizationId &&
-        voidCandidates(ctx, m).length > 0,
-      decideException:
-        ctx.actor.role === "ADMIN_AUDITOR" &&
-        contract.buyer_id === ctx.actor.organizationId,
-    },
+    actions,
   };
 }
 

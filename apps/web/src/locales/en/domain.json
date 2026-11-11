@@ -334,5 +334,27 @@
     "LATE_COMPLETION": "Completed after the due date and grace period: a late penalty is deducted from the payment.",
     "ALL_CONDITIONS_MET": "All conditions met, no dispute and no rejection: the full milestone value is paid.",
     "UNRESOLVED_CONDITION": "Anything not covered above is held for manual review, never paid automatically."
+  },
+  "pendingKind": {
+    "EVIDENCE": "Evidence",
+    "APPROVAL": "Approval",
+    "DISPUTE": "Open dispute",
+    "REJECTION": "Milestone rejected",
+    "UNAUTHORIZED": "Evidence filed by a party without authority",
+    "DATA_ISSUE": "Milestone data to check",
+    "PAYMENT": "Payment order awaiting approval"
+  },
+  "pendingState": {
+    "DONE": "Done",
+    "WAITING": "Later",
+    "BLOCKING": "Blocking"
+  },
+  "pendingAction": {
+    "SUBMIT": "Submit {{subject}}",
+    "APPROVE": "Approve",
+    "RESOLVE": "Resolve dispute",
+    "PROPOSE_EXCEPTION": "Propose handling",
+    "TRANSFER": "Approve payment",
+    "CONTACT": "Open decision"
   }
 }

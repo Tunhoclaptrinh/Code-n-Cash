@@ -478,5 +478,46 @@
     "signed": "Signed",
     "broken": "Signature does not match",
     "signedBy": "Signed by {{name}} at {{at}}"
+  },
+  "pending": {
+    "title": "What is left before this milestone can be paid",
+    "summary": "{{blocking}} blocking · {{waiting}} later",
+    "nothing": "Nothing left: the milestone is closed.",
+    "showDone_one": "{{count}} item done",
+    "showDone_other": "{{count}} items done",
+    "hideDone": "Hide done items",
+    "hint": {
+      "BLOCKING": "The milestone is held because of this.",
+      "WAITING": "Needed once the blocking items are done.",
+      "DONE": "Met."
+    },
+    "field": {
+      "party": "Party to act",
+      "role": "Role",
+      "people": "Who can do it",
+      "rule": "Related rule",
+      "waited": "Waiting for",
+      "deadline": "Deadline",
+      "done": "Done",
+      "progress": "Approval progress",
+      "grace": "Grace ends"
+    },
+    "noPeople": "No account holds this role yet",
+    "ruleValue": "Rule {{priority}} · {{reason}}",
+    "waited_one": "{{count}} day",
+    "waited_other": "{{count}} days",
+    "waitedToday": "since today",
+    "waitedShort_one": "waiting {{count}} day",
+    "waitedShort_other": "waiting {{count}} days",
+    "due": "Due {{date}}",
+    "overdue_one": "{{count}} day overdue",
+    "overdue_other": "{{count}} days overdue",
+    "doneBy": "{{name}} · {{at}}",
+    "progress": "{{done}}/{{quorum}} roles approved",
+    "waitingOn": "Waiting for:",
+    "whoActs": "Who is it waiting for?",
+    "nobodyWaiting": "Nobody",
+    "loading": "Loading…",
+    "graceUntil": "grace until {{date}}"
   }
 }

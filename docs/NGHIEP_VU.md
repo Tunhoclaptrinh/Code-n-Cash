@@ -588,3 +588,25 @@ Khi không phải `FIRST_MATCH`, màn truy vết hiển thị một ghi chú gi�
 | `PAYMENT_GUARD_FALLBACK` | Luật cho chi khớp nhưng chốt an toàn thanh toán không đạt, về ELSE        |
 | `RULE_ERROR_FALLBACK`    | Một luật không tính được trên dữ liệu của mốc, về ELSE                    |
 | `AMOUNT_GUARD_FALLBACK`  | Số tiền của luật khớp không đúng hợp đồng số tiền của quyết định, về ELSE |
+
+### 14.13. Việc còn lại của mốc
+
+Màn quyết định, chi tiết hợp đồng và thẻ xem nhanh liệt kê từng điều kiện của mốc cùng người chịu trách nhiệm (`MilestoneDetail.pending`, gọn cho danh sách là `MilestoneRow.waitingOn`). API tính từ kết quả engine, bảng thẩm quyền ở mục 2.1 và tài khoản của hai bên; không đổi quyết định nào.
+
+| Mã loại        | Từ nghiệp vụ                              | Ai chịu trách nhiệm                                       |
+| -------------- | ----------------------------------------- | --------------------------------------------------------- |
+| `EVIDENCE`     | Chứng từ (tên loại chứng từ)              | Nhà cung cấp, hoặc cán bộ hợp đồng bên mua (mục 2.1)      |
+| `UNAUTHORIZED` | Chứng từ do bên không có thẩm quyền tạo   | Bên đúng nộp lại; chủ hợp đồng đề xuất xử lý (BR-19)      |
+| `APPROVAL`     | Phê duyệt (tên vai trò)                   | Người giữ vai trò phê duyệt đó ở bên mua                  |
+| `DISPUTE`      | Tranh chấp đang mở                        | Chủ hợp đồng hoặc cán bộ hợp đồng bên mua                 |
+| `REJECTION`    | Mốc đã bị từ chối                         | Chủ hợp đồng, xử lý ngoài hệ thống                        |
+| `DATA_ISSUE`   | Dữ liệu mốc cần kiểm tra                  | Chủ hợp đồng hoặc cán bộ hợp đồng bên mua                 |
+| `PAYMENT`      | Lệnh chi chờ duyệt                        | Phê duyệt tài chính bên mua                               |
+
+| Mã trạng thái | Từ nghiệp vụ | Ý nghĩa                                                          |
+| ------------- | ------------ | ---------------------------------------------------------------- |
+| `BLOCKING`    | Đang chặn    | Điều kiện của luật đang giữ mốc                                  |
+| `WAITING`     | Chờ sau      | Điều kiện của luật ưu tiên thấp hơn, cần sau khi việc chặn xong |
+| `DONE`        | Đã xong      | Đã đạt, kèm người làm và thời điểm                               |
+
+Quá hạn tính từ ngày đến hạn như màn nộp chứng từ; ân hạn hiện riêng, phạt chỉ tính sau ân hạn (mục 5). Thời gian chờ chỉ hiện khi dữ liệu cho biết mốc bắt đầu chờ từ lúc nào (phê duyệt: từ khi đủ chứng từ; tranh chấp: từ lúc mở; lệnh chi: từ lần phê duyệt cuối).

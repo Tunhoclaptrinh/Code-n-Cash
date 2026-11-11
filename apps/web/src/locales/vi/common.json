@@ -269,5 +269,10 @@
     "open": "Xem hợp đồng",
     "ownPreview": "Xem trước · chữ ký của bạn sẽ hiện ở đây khi ký"
   },
-  "routeForbidden": "Vai trò của bạn không mở được màn đó, nên bạn được đưa về trang chính của vai trò."
+  "routeForbidden": "Vai trò của bạn không mở được màn đó, nên bạn được đưa về trang chính của vai trò.",
+  "person": {
+    "you": "Bạn",
+    "organization": "Tổ chức",
+    "title": "Chức danh"
+  }
 }

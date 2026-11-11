@@ -144,3 +144,10 @@
   font-size: 13px;
   line-height: 1.45;
 }
+
+/* The document the user came to submit (?type=…), outlined once. */
+.slotFocus {
+  border-radius: 10px;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

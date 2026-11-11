@@ -9,7 +9,16 @@
     "author": "{{name}} · {{organization}}",
     "quote": "\"{{message}}\"",
     "resolution": "{{by}} · {{at}}: {{note}}",
-    "resolutionPlain": "{{by}} · {{at}}"
+    "resolutionPlain": "{{by}} · {{at}}",
+    "openedBy": "Người mở",
+    "openedByUnknown": "Dữ liệu gốc chỉ ghi tổ chức, không ghi người mở",
+    "resolvedBy": "Người đóng",
+    "resolvers": "Người có thể đóng",
+    "openFor_one": "Đã mở {{count}} ngày",
+    "openFor_other": "Đã mở {{count}} ngày",
+    "wasOpen_one": "Mở {{count}} ngày",
+    "wasOpen_other": "Mở {{count}} ngày",
+    "openToday": "Mở hôm nay"
   },
   "state": {
     "OPEN": "Đang mở",

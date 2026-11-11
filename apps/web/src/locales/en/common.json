@@ -269,5 +269,10 @@
     "open": "View contract",
     "ownPreview": "Preview · your signature appears here when you sign"
   },
-  "routeForbidden": "Your role cannot open that screen, so you were taken to your role's home page."
+  "routeForbidden": "Your role cannot open that screen, so you were taken to your role's home page.",
+  "person": {
+    "you": "You",
+    "organization": "Organisation",
+    "title": "Job title"
+  }
 }

@@ -399,6 +399,7 @@ export default function ContractListPage() {
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}
         <DataTable<ContractRow>
+          hideCard
           rowKey="id"
           scroll={{ x: 1800 }}
           columns={columns.map((column) => ({

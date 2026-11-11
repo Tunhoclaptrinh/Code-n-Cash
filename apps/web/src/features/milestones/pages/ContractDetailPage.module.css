@@ -11,7 +11,7 @@
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -20,27 +20,29 @@
 .milestone {
   position: relative;
   display: flex;
-  gap: 16px;
+  gap: 12px;
 }
 
 .rail {
   flex: none;
-  width: 36px;
+  width: 28px;
   position: relative;
 }
 
 .railLine {
   position: absolute;
-  left: 17px;
-  top: 38px;
-  bottom: -16px;
+  left: 13px;
+  top: 40px;
+  bottom: -10px;
   width: 2px;
   background: var(--ms-line);
 }
 
 .marker {
-  width: 36px;
-  height: 36px;
+  margin-top: 10px;
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
   border-radius: 50%;
   color: var(--color-on-solid);
   font-weight: 800;
@@ -65,29 +67,44 @@
   background: var(--color-primary);
 }
 
+/* Each milestone is a discrete item, so it keeps a thin frame inside the page card. */
 .milestoneCard {
+  --panel-border: var(--color-border);
+  container-type: inline-size;
   flex: 1;
   min-width: 0;
-  padding: 16px 20px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.cardHead,
-.cardBody {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px 24px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .cardHead {
+  display: flex;
+  justify-content: space-between;
   align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 16px;
 }
 
+/* Facts on the left, actions on the right of the same rows. */
 .cardBody {
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 16px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-bottom: 2px;
+}
+
+.meta :global(.ant-tag) {
+  margin: 0;
 }
 
 .amountBlock {
@@ -115,7 +132,8 @@
 .info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .nameRow {
@@ -127,12 +145,13 @@
 }
 
 .name {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .due {
   color: var(--color-text-muted);
   font-size: 14px;
+  margin-inline-end: 4px;
 }
 
 .fact {
@@ -144,7 +163,7 @@
 }
 
 .amount {
-  font-size: 24px;
+  font-size: 20px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -153,9 +172,7 @@
 }
 
 .side {
-  margin-inline-start: auto;
   text-align: end;
-  max-width: 280px;
 }
 
 /* Sidebar cards */
@@ -312,26 +329,30 @@
 
 @media (max-width: 760px) {
   .milestone {
-    gap: 10px;
-  }
-  .rail,
-  .marker {
-    width: 28px;
-  }
-  .marker {
-    height: 28px;
-    font-size: 13px;
-  }
-  .railLine {
-    left: 13px;
-    top: 30px;
+    gap: 8px;
   }
   .milestoneCard {
-    padding: 14px 16px;
+    padding: 12px;
+  }
+  .cardBody {
+    grid-template-columns: minmax(0, 1fr);
   }
   .side {
-    margin-inline-start: 0;
     text-align: start;
-    max-width: none;
+  }
+}
+
+/* Tabs sit on the page card itself; the active tab's underline is the only frame they need. */
+.tabs :global(.ant-tabs-nav) {
+  margin-bottom: 0;
+}
+
+/* A narrow card (document column widened) puts its actions under the facts. */
+@container (max-width: 440px) {
+  .cardBody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side {
+    text-align: start;
   }
 }

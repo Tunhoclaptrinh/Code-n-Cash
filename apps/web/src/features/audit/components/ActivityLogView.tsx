@@ -226,6 +226,7 @@ export function ActivityLogView({
   return (
     <PageContainer>
       <DataTable<ActivityEntry>
+        hideCard
         rowKey="id"
         scroll={{ x: 1400 }}
         columns={columns.map((column) => ({

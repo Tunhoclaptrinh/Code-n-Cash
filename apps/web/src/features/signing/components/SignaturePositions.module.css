@@ -6,6 +6,10 @@
   gap: 20px;
 }
 
+.layoutSplit {
+  display: block;
+}
+
 .layoutExpanded {
   position: fixed;
   inset: 64px 12px 12px;

@@ -1,6 +1,7 @@
 import { DemoFillButton } from "@/shared/ui/DemoFillButton";
 import { Alert, Form, Typography } from "antd";
-import { BaseCard, FormFooter } from "@codecash/ui";
+import { FormFooter } from "@codecash/ui";
+import { Section } from "@/shared/ui/Section";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useContractUploadForm } from "../hooks/useContractUploadForm";
@@ -44,7 +45,7 @@ export function ContractUploadForm({
   const { save, sample, fillAll, onContinue, errorCode } = form;
 
   return (
-    <BaseCard bodyStyle={{ padding: 20 }}>
+    <Section>
       <Form
         className={styles.form}
         disabled={save.isPending || sample.isPending}
@@ -86,6 +87,6 @@ export function ContractUploadForm({
           onSubmit={onContinue}
         />
       </Form>
-    </BaseCard>
+    </Section>
   );
 }

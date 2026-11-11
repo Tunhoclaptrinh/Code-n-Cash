@@ -24,6 +24,8 @@ interface Props {
   guide?: GuideTopic;
   /** Extra class on the page body, e.g. for page-scoped CSS variables. */
   contentClassName?: string;
+  /** Leaves the content outside the page card, for screens that are a card layout themselves. */
+  bare?: boolean;
   children: ReactNode;
 }
 
@@ -40,6 +42,7 @@ export function AppPage({
   extra,
   guide,
   contentClassName,
+  bare = false,
   children,
 }: Props) {
   const { t } = useTranslation("common");
@@ -89,7 +92,13 @@ export function AppPage({
           ) : null}
         </div>
       ) : null}
-      {children}
+      {bare ? (
+        children
+      ) : (
+        <div className={styles.pageBody} data-testid="page-body">
+          {children}
+        </div>
+      )}
     </div>
   );
 }

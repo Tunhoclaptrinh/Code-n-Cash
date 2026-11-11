@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { PageContainer, BaseCard, LoadingState } from "@codecash/ui";
+import { PageContainer, LoadingState } from "@codecash/ui";
 import type { DraftInput } from "../lib/uploadDraft";
 import { Alert } from "antd";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { ApiError } from "@/shared/api/client";
 import { getContractDraft, getUploadFormOptions } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
+import { SplitView } from "@/shared/ui/SplitView";
 import { ContractUploadForm } from "../components/ContractUploadForm";
 import { FileChecksPanel } from "../components/FileChecksPanel";
 import { PagePreviewPanel } from "../components/PagePreviewPanel";
@@ -72,33 +73,47 @@ export default function ContractUploadPage() {
         ) : null}
         {draft.data && options.data ? (
           <>
-            <BaseCard>
-              <WizardStepper current={1} />
-            </BaseCard>
-            <div className={styles.columns}>
-              <ContractUploadForm
-                key={`${draft.data.code}-${draftCode ?? "new"}`}
-                startBlank={!draftCode}
-                draft={draft.data}
-                options={options.data}
-                onDraftChange={setWorkingDraft}
-                onPreviewFileChange={setPreviewFile}
-              />
-              <div className={styles.side}>
-                <PagePreviewPanel
-                  draft={current}
-                  file={previewFile}
-                  documentId={current?.file.documentId}
-                  name={current?.file.name ?? ""}
+            <WizardStepper current={1} />
+            {(() => {
+              const form = (
+                <ContractUploadForm
+                  key={`${draft.data.code}-${draftCode ?? "new"}`}
+                  startBlank={!draftCode}
+                  draft={draft.data}
+                  options={options.data}
+                  onDraftChange={setWorkingDraft}
+                  onPreviewFileChange={setPreviewFile}
                 />
-                <FileChecksPanel
-                  file={current?.file ?? draft.data.file}
-                  signingSteps={
-                    current?.signers.length ?? draft.data.signers.length
-                  }
+              );
+              const side = (
+                <div className={styles.side}>
+                  <PagePreviewPanel
+                    draft={current}
+                    file={previewFile}
+                    documentId={current?.file.documentId}
+                    name={current?.file.name ?? ""}
+                  />
+                  <FileChecksPanel
+                    file={current?.file ?? draft.data.file}
+                    signingSteps={
+                      current?.signers.length ?? draft.data.signers.length
+                    }
+                  />
+                </div>
+              );
+              // Like the workflow screens: the contract preview on the left, the form on the right.
+              return (
+                <SplitView
+                  storageKey="contract-upload"
+                  defaultStart="44%"
+                  minStart={340}
+                  minEnd={460}
+                  stackEndFirst
+                  start={side}
+                  end={form}
                 />
-              </div>
-            </div>
+              );
+            })()}
           </>
         ) : null}
       </PageContainer>

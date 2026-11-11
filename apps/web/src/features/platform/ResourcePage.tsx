@@ -471,6 +471,7 @@ function ResourceView({ resource }: { resource: string }) {
           <Alert type="info" showIcon title={t("managedDraftsNote")} />
         ) : null}
         <DataTable<Entity>
+          hideCard
           // The resources are tabs of one table: each tab is a different list, read from the server.
           tabs={definitions.data?.map((d) => ({
             key: d.name,

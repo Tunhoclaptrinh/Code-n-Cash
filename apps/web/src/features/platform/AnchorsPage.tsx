@@ -9,7 +9,7 @@ export default function AnchorsPage() {
       guide="integrity"
       breadcrumb={[{ label: t("anchors.title") }]}
     >
-      <AnchorPanel />
+      <AnchorPanel bare />
     </AppPage>
   );
 }

@@ -1,11 +1,3 @@
-.columns {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(380px, 1fr) minmax(0, 1.3fr);
-  gap: 16px;
-}
-
 .side {
   display: flex;
   flex-direction: column;
@@ -13,19 +5,11 @@
   min-height: 0;
 }
 
-@media (max-width: 1200px) {
-  .columns {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* Like the workflow screens: the contract preview on the left, the form on the right. */
-@media (min-width: 1201px) {
+/* Beside the form (SplitView), the preview stays in view while the form scrolls. */
+@media (min-width: 1200px) {
   .side {
-    order: -1;
     position: sticky;
-    top: 80px;
-    align-self: start;
+    top: 16px;
     max-height: calc(100dvh - 96px);
     overflow-y: auto;
     scrollbar-gutter: stable;

@@ -213,6 +213,7 @@ export default function ExceptionQueuePage() {
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}
         <DataTable<QueueRow>
+          hideCard
           rowKey={(row) => row.milestone.id}
           scroll={{ x: 1500 }}
           columns={columns.map((column) => ({

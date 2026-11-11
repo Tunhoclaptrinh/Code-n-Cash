@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { DownloadOutlined, SyncOutlined } from "@ant-design/icons";
 import { Alert, Button, Spin, Tabs, Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
-import { BaseCard, downloadBlob } from "@codecash/ui";
+import { downloadBlob } from "@codecash/ui";
+import { Section } from "@/shared/ui/Section";
 import { draftProblems } from "@codecash/contracts";
 import { DocumentPreview } from "@/shared/ui/DocumentPreview";
 import { platform } from "@/shared/api/platform";
@@ -142,7 +143,11 @@ export function PagePreviewPanel({
     (active === "draft" ? result?.file.name : name)?.replace(/\.[^.]+$/, "") ||
     "contract";
   return (
-    <BaseCard bodyStyle={{ padding: "4px 20px 20px" }}>
+    <Section
+      framed
+      style={{ background: "var(--bg-surface-alt)" }}
+      bodyStyle={{ padding: "4px 16px 16px" }}
+    >
       <Tabs
         className={styles.tabs}
         activeKey={active}
@@ -195,6 +200,6 @@ export function PagePreviewPanel({
           },
         ]}
       />
-    </BaseCard>
+    </Section>
   );
 }

@@ -428,6 +428,7 @@ export default function TaskInboxPage() {
           />
         ) : null}
         <DataTable<TaskRow>
+          hideCard
           rowKey="id"
           scroll={{ x: 1120 }}
           columns={columns.map((column) => ({

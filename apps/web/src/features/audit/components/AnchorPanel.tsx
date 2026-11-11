@@ -11,6 +11,7 @@ import {
   Typography,
   Upload,
 } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { downloadBlob, useAccess } from "@codecash/ui";
@@ -19,7 +20,8 @@ import { trustApi } from "@/shared/api/trust";
 import { useCurrentUser } from "@/shared/auth/session";
 import { formatDateTime } from "@/shared/lib/format";
 
-export function AnchorPanel() {
+/** Seal jobs and bundle checks; `bare` drops the card when the panel is the whole page. */
+export function AnchorPanel({ bare = false }: { bare?: boolean } = {}) {
   const { t } = useTranslation("trust");
   const { t: td } = useTranslation("domain");
   const user = useCurrentUser();
@@ -68,7 +70,13 @@ export function AnchorPanel() {
     }
   };
   return (
-    <Card title={t("anchors.title")} data-testid="anchor-panel">
+    <Card
+      title={bare ? undefined : t("anchors.title")}
+      variant={bare ? "borderless" : "outlined"}
+      styles={bare ? { body: { padding: 0 } } : undefined}
+      style={bare ? { background: "transparent" } : undefined}
+      data-testid="anchor-panel"
+    >
       {status.data ? (
         <>
           <Alert
@@ -102,7 +110,17 @@ export function AnchorPanel() {
             {t("anchors.create")}
           </Button>
         ) : null}
-        <Button onClick={() => void refresh()}>{t("refresh")}</Button>
+        <Tooltip title={t("refresh")}>
+          <Button
+            icon={<ReloadOutlined />}
+            aria-label={t("refresh")}
+            onClick={() => void refresh()}
+            data-testid="anchor-refresh"
+          />
+        </Tooltip>
+      </Space>
+      {/* Checking a saved bundle is its own two-step task: choose the file, then verify it. */}
+      <Space wrap style={{ marginBottom: 16, marginInlineStart: 16 }}>
         <Upload
           maxCount={1}
           accept=".json"

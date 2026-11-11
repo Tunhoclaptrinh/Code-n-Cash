@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppPage } from "@/shared/layout/AppPage";
+import { SplitView } from "@/shared/ui/SplitView";
 import { getSigningConfig, signingKeys } from "../api/signingConfig.api";
 import { PageState } from "@/shared/ui/PageState";
 import { WizardStepper } from "../components/WizardStepper";
@@ -96,26 +97,42 @@ function Editor({ contractId, config }: EditorProps) {
         }
       />
       <div
-        className={cx(styles.layout, view.expanded && styles.layoutExpanded)}
+        className={cx(
+          styles.layout,
+          styles.layoutSplit,
+          view.expanded && styles.layoutExpanded,
+        )}
         ref={view.layoutRef}
         style={
           { "--editor-side-height": `${view.sideHeight}px` } as CSSProperties
         }
       >
-        <PositionsCanvasCard
-          contractId={contractId}
-          config={config}
-          editor={editor}
-          view={view}
-          flags={flags}
-        />
-        <PositionsSidebar
-          contractId={contractId}
-          config={config}
-          editor={editor}
-          flags={flags}
-          problems={problems}
-          canContinue={canContinue}
+        <SplitView
+          storageKey="signature-positions"
+          defaultStart="72%"
+          minStart={480}
+          maxStart="82%"
+          minEnd={320}
+          collapsible={false}
+          start={
+            <PositionsCanvasCard
+              contractId={contractId}
+              config={config}
+              editor={editor}
+              view={view}
+              flags={flags}
+            />
+          }
+          end={
+            <PositionsSidebar
+              contractId={contractId}
+              config={config}
+              editor={editor}
+              flags={flags}
+              problems={problems}
+              canContinue={canContinue}
+            />
+          }
         />
       </div>
     </>

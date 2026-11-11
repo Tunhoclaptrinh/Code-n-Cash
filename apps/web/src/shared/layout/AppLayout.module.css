@@ -255,8 +255,39 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   min-width: 0;
+}
+
+/*
+ * Everything below the title row sits in one card. Sections inside it keep their border but
+ * drop their own shadow, so the page reads as one surface with parts rather than loose cards.
+ */
+.pageBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/*
+ * Parts inside the page card lose their own frame: no shadow and, for Panel, no border, so the
+ * page is one clean surface. A part that must stand out (the contract document, the milestone
+ * that needs action) sets `--panel-border` again or keeps its own tinted background.
+ */
+.pageBody > * {
+  --shadow-card: none;
+  --panel-border: transparent;
+}
+
+/* DataTable pads its rows for a card of its own; inside the page card it uses the card's edge. */
+.pageBody :global(.data-table-wrapper) {
+  margin: -28px -20px 0;
 }
 
 /* Title row: the breadcrumb is the heading, its last item the page title. */
@@ -325,7 +356,16 @@
     padding: 16px 12px;
   }
   .page {
-    gap: 16px;
+    gap: 12px;
+  }
+
+  .pageBody {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .pageBody :global(.data-table-wrapper) {
+    margin: -28px -12px 0;
   }
 
   .breadcrumb {

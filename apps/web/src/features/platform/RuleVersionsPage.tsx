@@ -463,6 +463,7 @@ export default function RuleVersionsPage() {
     >
       <PageContainer>
         <DataTable
+          hideCard
           rowKey="id"
           columns={columns}
           {...list.table}

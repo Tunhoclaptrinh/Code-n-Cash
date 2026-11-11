@@ -505,7 +505,7 @@ try {
       marks: [
         { n: 1, target: "h1" },
         { n: 2, target: ".ant-layout-content [data-testid=origin-SEED]" },
-        { n: 3, target: { text: "Nhật ký hợp đồng" } },
+        { n: 3, target: "[data-testid=contract-actions-more]" },
         { n: 4, target: ".ant-tabs-nav" },
         { n: 5, target: "[data-testid=milestone-item]" },
         {

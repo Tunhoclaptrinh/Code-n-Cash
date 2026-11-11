@@ -5,11 +5,23 @@ import { ContractLifecycleSteps } from "../components/ContractLifecycleSteps";
 import { EvidenceDocumentLink } from "../components/EvidenceDocumentLink";
 import { SmartContractPanel } from "../components/SmartContractPanel";
 import { WaitingOnLine } from "../components/PendingItems";
-import { Button, Space, Table, Tag, Timeline, Tooltip, Typography } from "antd";
+import {
+  Button,
+  Space,
+  Table,
+  Tabs,
+  Tag,
+  Timeline,
+  Tooltip,
+  Typography,
+} from "antd";
 import {
   CheckCircleFilled,
   CloseCircleFilled,
   ExclamationCircleFilled,
+  FileSearchOutlined,
+  HistoryOutlined,
+  SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -46,6 +58,7 @@ import {
   MilestoneStatusTag,
   OriginTag,
 } from "@/shared/ui/DomainTags";
+import { ActionBar } from "@/shared/ui/ActionBar";
 import { PageState } from "@/shared/ui/PageState";
 import { Panel } from "@/shared/ui/Panel";
 import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
@@ -149,26 +162,44 @@ export default function ContractDetailPage() {
       }
       extra={
         contract ? (
-          <Space wrap>
-            {contract.status === "AWAITING_SIGNATURE" ? (
-              <Button
-                type="primary"
-                onClick={() => navigate(`/contracts/${contract.id}/signing`)}
-              >
-                {t("detail.actions.signing")}
-              </Button>
-            ) : null}
-            {contract.signing ? (
-              <Button onClick={() => navigate(`/verify/${contract.id}`)}>
-                {t("detail.actions.verify")}
-              </Button>
-            ) : null}
-            <Button
-              onClick={() => navigate(`/activity-log?contract=${contract.id}`)}
-            >
-              {t("detail.actions.activity")}
-            </Button>
-          </Space>
+          // The guide button sits beside this bar, so two more actions already fold.
+          <ActionBar
+            testId="contract-actions"
+            foldFrom={2}
+            actions={[
+              ...(contract.status === "AWAITING_SIGNATURE"
+                ? [
+                    {
+                      key: "signing",
+                      label: t("detail.actions.signing"),
+                      pinned: true,
+                      button: { type: "primary" } as const,
+                      onClick: () =>
+                        navigate(`/contracts/${contract.id}/signing`),
+                    },
+                  ]
+                : []),
+              ...(contract.signing
+                ? [
+                    {
+                      key: "verify",
+                      label: t("detail.actions.verify"),
+                      icon: <SafetyCertificateOutlined />,
+                      onClick: () => navigate(`/verify/${contract.id}`),
+                      testId: "contract-verify",
+                    },
+                  ]
+                : []),
+              {
+                key: "activity",
+                label: t("detail.actions.activity"),
+                icon: <HistoryOutlined />,
+                onClick: () =>
+                  navigate(`/activity-log?contract=${contract.id}`),
+                testId: "contract-activity",
+              },
+            ]}
+          />
         ) : undefined
       }
       contentClassName={styles.page}
@@ -178,31 +209,33 @@ export default function ContractDetailPage() {
         <PageState kind="error" onRetry={() => void overview.refetch()} />
       ) : null}
       {data && contract ? (
-        <PageContainer
-          tabs={(
-            [
-              "documents",
-              "milestones",
-              "smart",
-              "events",
-              "history",
-              "signing",
-              "participants",
-            ] as TabKey[]
-          ).map((key) => ({
-            key,
-            tab: t(`detail.tabs.${key}`, {
-              count:
-                key === "events"
-                  ? data.events.length
-                  : key === "milestones"
-                    ? data.milestones.length
-                    : 0,
-            }),
-          }))}
-          activeTabKey={tab}
-          onTabChange={(key) => setTab(key as TabKey)}
-        >
+        <PageContainer>
+          <Tabs
+            className={styles.tabs}
+            items={(
+              [
+                "documents",
+                "milestones",
+                "smart",
+                "events",
+                "history",
+                "signing",
+                "participants",
+              ] as TabKey[]
+            ).map((key) => ({
+              key,
+              label: t(`detail.tabs.${key}`, {
+                count:
+                  key === "events"
+                    ? data.events.length
+                    : key === "milestones"
+                      ? data.milestones.length
+                      : 0,
+              }),
+            }))}
+            activeKey={tab}
+            onChange={(key) => setTab(key as TabKey)}
+          />
           {tab === "documents" ? (
             <ContractDocuments contractId={contract.id} />
           ) : null}
@@ -410,15 +443,15 @@ function MilestoneItem({
         </div>
         <div className={styles.cardBody}>
           <div className={styles.info}>
-            <div className={styles.due}>
-              {row.dueDate
-                ? tl("due", { due: formatDate(row.dueDate) })
-                : t("detail.milestone.noDue")}
-              {row.completedAt && emphasis !== "done"
-                ? ` · ${t("detail.milestone.completed", { at: formatDate(row.completedAt) })}`
-                : ""}
-            </div>
-            <Space size={[4, 4]} wrap style={{ margin: "6px 0" }}>
+            <div className={styles.meta}>
+              <span className={styles.due}>
+                {row.dueDate
+                  ? tl("due", { due: formatDate(row.dueDate) })
+                  : t("detail.milestone.noDue")}
+                {row.completedAt && emphasis !== "done"
+                  ? ` · ${t("detail.milestone.completed", { at: formatDate(row.completedAt) })}`
+                  : ""}
+              </span>
               {row.requirements.map((requirement) => (
                 <RequirementChip
                   key={requirement.eventType}
@@ -438,7 +471,7 @@ function MilestoneItem({
                   })}
                 </Tag>
               ) : null}
-            </Space>
+            </div>
             <div className={styles.fact}>
               <span className={styles.factLabel}>
                 {t("detail.milestone.reason")}{" "}
@@ -477,11 +510,7 @@ function MilestoneItem({
             </div>
           </div>
           <div className={styles.side}>
-            <Space
-              direction="vertical"
-              size={6}
-              style={{ alignItems: "flex-end" }}
-            >
+            <Space size={6} wrap>
               {action ? (
                 <Button
                   type="primary"
@@ -492,9 +521,15 @@ function MilestoneItem({
                   {t(`detail.milestone.action.${action}`)}
                 </Button>
               ) : null}
-              <Button size="small" onClick={() => navigate(decisionPath)}>
-                {t("detail.milestone.trace")}
-              </Button>
+              <Tooltip title={t("detail.milestone.trace")}>
+                <Button
+                  size="small"
+                  icon={<FileSearchOutlined />}
+                  aria-label={t("detail.milestone.trace")}
+                  onClick={() => navigate(decisionPath)}
+                  data-testid="milestone-trace"
+                />
+              </Tooltip>
             </Space>
           </div>
         </div>

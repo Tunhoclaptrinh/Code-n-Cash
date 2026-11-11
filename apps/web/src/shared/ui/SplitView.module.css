@@ -1,0 +1,52 @@
+.root {
+  min-width: 0;
+}
+
+.split {
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* Panels grow with their content: the page scrolls, not each column, so sticky children work. */
+.split .panel.panel {
+  overflow: visible;
+  min-width: 0;
+}
+
+.split .panel.panel:first-child {
+  padding-right: 6px;
+}
+
+.split .panel.panel:last-child {
+  padding-left: 6px;
+}
+
+/* Narrow screens: one column, no bar; Splitter's inline sizes are overridden, not re-rendered. */
+@media (max-width: 1199px) {
+  .split {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .split :global(.ant-splitter-bar) {
+    display: none;
+  }
+  .split .panel.panel {
+    flex: none !important;
+    width: 100% !important;
+    padding: 0;
+  }
+  .endFirst .split .panel.panel:last-child {
+    order: -1;
+  }
+}
+
+.noStart .split :global(.ant-splitter-bar),
+.noStart .split .panel.panel:first-child {
+  display: none;
+}
+
+.noStart .split .panel.panel:last-child {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  padding: 0;
+}

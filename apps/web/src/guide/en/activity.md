@@ -6,7 +6,7 @@ Activity connects user actions, business events and status changes. Records are 
 
 ## Follow a contract
 
-1. Open a contract and select its activity button. The log is filtered to that contract, such as CT0103.
+1. Open a contract, select the **☰** button beside **Guide**, then its contract activity. The log is filtered to that contract, such as CT0103.
 2. Read time, actor, category, contract/milestone, description and origin.
 3. Narrow results using tabs, search, filters or column filters.
 4. Open row details and export CSV/JSON when needed for reconciliation.

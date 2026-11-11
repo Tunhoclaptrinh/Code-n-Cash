@@ -20,7 +20,7 @@ Each milestone shows due date, required evidence, achieved/required approvals, c
 
 ## Explore tabs
 
-The events tab shows event type, actor, time and origin. History connects status changes with evaluation runs. Signing shows the assigned order; participants identifies the buyer, supplier and approvers. The contract activity button opens a log filtered to this contract.
+The events tab shows event type, actor, time and origin. History connects status changes with evaluation runs. Signing shows the assigned order; participants identifies the buyer, supplier and approvers. The **☰** button beside **Guide** holds the contract activity (a log filtered to this contract) and signature verification.
 
 ![Contract events](../../../public/guide/images/contract-detail-events.webp)
 

@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Button, Space } from "antd";
+import { Space } from "antd";
+import {
+  AuditOutlined,
+  ExclamationCircleOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { Decision, MilestoneDetail } from "@codecash/contracts";
@@ -7,6 +12,7 @@ import { getApprovalView } from "@/shared/api/domain";
 import { describeNext, statusRepeatsDecision } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
+import { ActionBar } from "@/shared/ui/ActionBar";
 import { KeyFigures, SideSection } from "@/shared/ui/SidePanel";
 import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
 import { BlockingPeople } from "./PendingItems";
@@ -103,55 +109,84 @@ export function DecisionBanner({
         <BlockingPeople items={data.pending} />
       </div>
       <div className={styles.bannerActions}>
-        <Button onClick={() => window.print()}>
-          {t("decision.actions.export")}
-        </Button>
-        {actions.openDispute && !actions.resolveDispute ? (
-          // Raising a dispute flags a problem, so it is not the main action.
-          <Button
-            color="orange"
-            variant="outlined"
-            onClick={() => navigate(`${base}/dispute`)}
-          >
-            {t("decision.actions.openDispute")}
-          </Button>
-        ) : null}
-        {actions.submit ? (
-          <Button
-            type="primary"
-            onClick={() =>
-              navigate(`/submissions/${contract.id}/${milestone.sequence}`)
-            }
-          >
-            {t("decision.actions.submit")}
-          </Button>
-        ) : null}
-        {canVote ? (
-          <Button
-            type={voteIsPrimary ? "primary" : "default"}
-            onClick={() =>
-              navigate(`/approvals/${contract.id}/${milestone.sequence}`)
-            }
-          >
-            {t("decision.actions.approve")}
-          </Button>
-        ) : null}
-        {actions.resolveDispute ? (
-          <Button type="primary" onClick={() => navigate(`${base}/dispute`)}>
-            {t("decision.actions.resolveDispute")}
-          </Button>
-        ) : null}
-        {actions.transfer ? (
-          <Button
-            color="green"
-            variant="solid"
-            loading={transferring}
-            onClick={onTransfer}
-            data-testid="transfer-payment"
-          >
-            {t("decision.actions.transfer")}
-          </Button>
-        ) : null}
+        <ActionBar
+          testId="decision-actions"
+          actions={[
+            {
+              key: "export",
+              label: t("decision.actions.export"),
+              icon: <PrinterOutlined />,
+              onClick: () => window.print(),
+            },
+            ...(actions.openDispute && !actions.resolveDispute
+              ? [
+                  {
+                    // Raising a dispute flags a problem, so it is not the main action.
+                    key: "openDispute",
+                    label: t("decision.actions.openDispute"),
+                    icon: <ExclamationCircleOutlined />,
+                    onClick: () => navigate(`${base}/dispute`),
+                    button: { color: "orange", variant: "outlined" } as const,
+                  },
+                ]
+              : []),
+            ...(actions.submit
+              ? [
+                  {
+                    key: "submit",
+                    label: t("decision.actions.submit"),
+                    pinned: true,
+                    button: { type: "primary" } as const,
+                    onClick: () =>
+                      navigate(
+                        `/submissions/${contract.id}/${milestone.sequence}`,
+                      ),
+                  },
+                ]
+              : []),
+            ...(canVote
+              ? [
+                  {
+                    key: "approve",
+                    label: t("decision.actions.approve"),
+                    icon: voteIsPrimary ? undefined : <AuditOutlined />,
+                    pinned: voteIsPrimary,
+                    button: {
+                      type: voteIsPrimary ? "primary" : "default",
+                    } as const,
+                    onClick: () =>
+                      navigate(
+                        `/approvals/${contract.id}/${milestone.sequence}`,
+                      ),
+                  },
+                ]
+              : []),
+            ...(actions.resolveDispute
+              ? [
+                  {
+                    key: "resolveDispute",
+                    label: t("decision.actions.resolveDispute"),
+                    pinned: true,
+                    button: { type: "primary" } as const,
+                    onClick: () => navigate(`${base}/dispute`),
+                  },
+                ]
+              : []),
+            ...(actions.transfer
+              ? [
+                  {
+                    key: "transfer",
+                    label: t("decision.actions.transfer"),
+                    pinned: true,
+                    loading: transferring,
+                    button: { color: "green", variant: "solid" } as const,
+                    onClick: onTransfer,
+                    testId: "transfer-payment",
+                  },
+                ]
+              : []),
+          ]}
+        />
       </div>
     </SideSection>
   );

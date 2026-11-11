@@ -21,7 +21,7 @@ Mở **Hợp đồng** hoặc **Hợp đồng của tôi**. Chủ hợp đồng 
 - Nhãn **Dữ liệu BTC**, **Bổ sung demo**, **Tạo trong app** phân biệt nguồn bản ghi. Dữ liệu demo không phải mẫu đáp án của BTC.
 - **Tổng quan thanh toán** cho biết tiền kế hoạch, tiền đủ điều kiện, tiền phạt và phần đã chuyển chi. Đọc đơn vị triệu đồng.
 - Mỗi mốc hiển thị hạn, điều kiện chứng từ, số phê duyệt đạt/cần và quyết định hiện tại. Bấm mốc hoặc thao tác tương ứng để nộp, duyệt hay xem giải thích.
-- **Nhật ký hợp đồng** mở nhật ký đã lọc đúng mã; **Kiểm tra chữ ký** mở thông tin luồng ký.
+- Nút **☰** cạnh **Hướng dẫn** chứa **Nhật ký hợp đồng** (nhật ký đã lọc đúng mã) và **Kiểm tra chữ ký** (thông tin luồng ký).
 
 ## Dùng các tab
 

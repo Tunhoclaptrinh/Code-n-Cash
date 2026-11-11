@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Alert, Space } from "antd";
-import { BaseCard } from "@codecash/ui";
+import { Section } from "@/shared/ui/Section";
 import type { ContractFile } from "../types";
 
 /** Lists only what is still missing before the signing positions can be placed. */
@@ -20,12 +20,12 @@ export function FileChecksPanel({
   ];
   if (!missing.length) return null;
   return (
-    <BaseCard title={t("checks.title")}>
+    <Section framed title={t("checks.title")}>
       <Space direction="vertical" size={8} style={{ width: "100%" }}>
         {missing.map((text) => (
           <Alert key={text} type="warning" showIcon title={text} />
         ))}
       </Space>
-    </BaseCard>
+    </Section>
   );
 }

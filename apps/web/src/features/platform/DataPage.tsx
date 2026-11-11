@@ -494,6 +494,7 @@ export default function DataPage() {
           />
         ) : null}
         <DataTable<Row>
+          hideCard
           rowKey="milestone_id"
           columns={columns}
           {...list.table}

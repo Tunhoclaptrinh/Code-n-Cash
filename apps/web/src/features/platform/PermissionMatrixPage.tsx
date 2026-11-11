@@ -299,6 +299,7 @@ export default function PermissionMatrixPage() {
           <Alert type="error" showIcon title={matrix.error.message} />
         ) : null}
         <DataTable<Row>
+          hideCard
           rowKey="key"
           columns={columns}
           {...list.table}

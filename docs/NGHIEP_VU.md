@@ -610,3 +610,13 @@ Màn quyết định, chi tiết hợp đồng và thẻ xem nhanh liệt kê t�
 | `DONE`        | Đã xong      | Đã đạt, kèm người làm và thời điểm                               |
 
 Quá hạn tính từ ngày đến hạn như màn nộp chứng từ; ân hạn hiện riêng, phạt chỉ tính sau ân hạn (mục 5). Thời gian chờ chỉ hiện khi dữ liệu cho biết mốc bắt đầu chờ từ lúc nào (phê duyệt: từ khi đủ chứng từ; tranh chấp: từ lúc mở; lệnh chi: từ lần phê duyệt cuối).
+
+Hộp việc (màn Việc cần làm) dựng từ đúng các mục trên, không tự suy luận:
+
+| Nhóm       | Từ nghiệp vụ             | Gồm                                                                                                     |
+| ---------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `MINE`     | Đến lượt tôi             | Mục `BLOCKING` mà người dùng tự làm được: nộp chứng từ, phê duyệt, giải quyết tranh chấp, duyệt lệnh chi, đề xuất xử lý; cùng việc ký và hoàn tất hồ sơ |
+| `UPCOMING` | Sắp tới lượt tôi         | Mục `WAITING` của người dùng (ví dụ phê duyệt khi còn thiếu chứng từ), kèm việc phải xong trước          |
+| `WAITING`  | Tôi đang chờ người khác  | Mốc của chủ hợp đồng, cán bộ hợp đồng, nhà cung cấp đang bị giữ bởi việc của người khác, kèm người được chờ và số ngày |
+
+Chuông thông báo và số trên menu chỉ đếm việc nhóm `MINE` còn đang giữ mốc hoặc hợp đồng; lệnh chi chờ duyệt (`TRANSFER_PAYMENT`) nằm trong hộp việc, xếp sau các việc đang giữ mốc, không báo lên chuông. Thiết kế, cách khớp đề và cách mở rộng: [09 Việc còn lại và hộp việc](09_VIEC_CON_LAI_VA_HOP_VIEC.md).

@@ -43,4 +43,4 @@ Finance can transfer RELEASE or PENALTY milestones once. The action creates a tr
 
 ![Accounting transfer action](../../../public/guide/images/transfer.webp)
 
-For unauthorized events use [BR-19](/guide/exceptions); for disputes use [Dispute handling](/guide/dispute). Neither bypasses other missing conditions.
+For unauthorized events use [Evidence exceptions](/guide/exceptions); for disputes use [Dispute handling](/guide/dispute). Neither bypasses other missing conditions.

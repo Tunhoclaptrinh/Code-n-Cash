@@ -188,11 +188,15 @@
       "lateDaysValue_one": "{{count}} day",
       "lateDaysValue_other": "{{count}} days",
       "rate": "Penalty rate",
-      "rateValue": "{{rate}}%/day, cap {{cap}}% = {{capAmount}}",
+      "rateValue": "{{rate}}% per day late",
       "noPenalty": "No late penalty on this milestone",
       "raw": "Raw penalty before rounding",
       "payable": "Eligible amount",
-      "note": "Amounts use exact decimals (Decimal), never floating point. Eligible is not the amount paid."
+      "note": "Amounts use exact decimals (Decimal), never floating point. Eligible is not the amount paid.",
+      "formula": "Penalty for the days late",
+      "formulaValue_one": "{{rate}}% × {{count}} day × {{planned}} = {{penalty}}",
+      "formulaValue_other": "{{rate}}% × {{count}} days × {{planned}} = {{penalty}}",
+      "cap": "Maximum penalty ({{cap}}% cap)"
     },
     "rules": {
       "priority": "Priority",
@@ -243,6 +247,14 @@
       },
       "empty": "The milestone has no events yet.",
       "error": "The replay failed. Try again later."
+    },
+    "projected": "If you approve: {{decision}}, penalty {{penalty}}, eligible {{payable}} million VND.",
+    "transferConfirm": {
+      "title": "Approve the payment instruction and send it to the gateway?",
+      "body": "Milestone {{no}} · {{decision}}: pay {{amount}} million VND from {{payer}} to {{payee}}. A sent instruction cannot be cancelled in CodeCash.",
+      "bodyShort": "Milestone {{no}}: pay {{amount}} million VND. A sent instruction cannot be cancelled in CodeCash.",
+      "submit": "Approve and send",
+      "cancel": "Back"
     }
   },
   "submit": {
@@ -276,7 +288,8 @@
       "choose": "Choose a file",
       "chooseAria": "Choose a file for {{document}}",
       "extraTitle": "Supporting file"
-    }
+    },
+    "pageTitle": "Submit evidence"
   },
   "approve": {
     "title": "Payment approval · Milestone {{no}} · {{name}}",
@@ -325,7 +338,8 @@
       "submit": "Approve",
       "cancel": "Back",
       "body": "Record your approval of milestone {{no}} · {{name}}. Expected: {{decision}}, eligible {{payable}} million VND."
-    }
+    },
+    "pageTitle": "Payment approval"
   },
   "workLite": {
     "evidence": {

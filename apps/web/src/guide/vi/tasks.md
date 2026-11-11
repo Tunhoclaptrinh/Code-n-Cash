@@ -22,7 +22,7 @@ Mở **Việc cần làm** để biết bước nào cần chính bạn xử lý
 | Ký hợp đồng           | Người ký hiện tại, tài liệu và phương thức     | Chuyển lượt; chữ ký cuối kích hoạt hợp đồng           |
 | Giải quyết tranh chấp | Hồ sơ đang mở, ghi chú và phương án            | Đánh giá lại, vẫn có thể HOLD vì thiếu điều kiện khác |
 | Hoàn tất hồ sơ        | Hồ sơ, vị trí ký và hạn cần xác nhận           | Khoá điều khoản, bắt đầu luồng ký                     |
-| Ngoại lệ BR-19        | Sự kiện sai bên ghi, người đề xuất             | Cần kiểm soát viên thứ hai quyết định                 |
+| Ngoại lệ chứng từ     | Sự kiện sai bên ghi, người đề xuất             | Cần kiểm soát viên thứ hai quyết định                 |
 
 ## Ví dụ theo tài khoản
 

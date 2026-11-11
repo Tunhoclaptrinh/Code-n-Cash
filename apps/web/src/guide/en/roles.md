@@ -1,18 +1,18 @@
 # Roles, access and demo scenarios
 
-Access depends on the authenticated person, organization and role. Switching accounts demonstrates handoffs between people. There are eight roles; the two controllers are separate people with the same role.
+Access depends on the authenticated person, organization and role. Switching accounts demonstrates handoffs between people. There are eight roles. An evidence exception needs two people: the contract owner proposes and the buyer's own controller decides.
 
-| Demo email               | Role                     | First scenario                                                 |
-| ------------------------ | ------------------------ | -------------------------------------------------------------- |
-| `owner@novaan.vn`        | Contract owner           | Resolve CT0019 milestone 3; approve according to policy        |
-| `finance@novaan.vn`      | Finance approver         | Approve CT0103 milestone 2; transfer milestone 1 to accounting |
-| `secondary@novaan.vn`    | Secondary approver       | Sign CT0102 after the supplier; provide required approvals     |
-| `legal@novaan.vn`        | Buyer's contract officer | Complete CT0101; submit CT0084 milestone 3 acceptance          |
-| `supplier@phuminh.vn`    | Supplier                 | Submit CT0104 milestone 2 evidence; sign CT0102                |
-| `admin@codecash.vn`      | Controller               | Propose voiding an unauthorized CT0090 event                   |
-| `controller@codecash.vn` | Second controller        | Review the other controller's proposal                         |
-| `sysadmin@codecash.vn`   | System administrator     | Manage users, organizations and permitted configuration        |
-| `auditor@codecash.vn`    | Auditor                  | Read records, export and check integrity                       |
+| Demo email              | Role                     | First scenario                                                 |
+| ----------------------- | ------------------------ | -------------------------------------------------------------- |
+| `owner@novaan.vn`       | Contract owner           | Resolve CT0019 milestone 3; approve according to policy        |
+| `finance@novaan.vn`     | Finance approver         | Approve CT0103 milestone 2; transfer milestone 1 to accounting |
+| `secondary@novaan.vn`   | Secondary approver       | Sign CT0102 after the supplier; provide required approvals     |
+| `legal@novaan.vn`       | Buyer's contract officer | Complete CT0101; submit CT0084 milestone 3 acceptance          |
+| `supplier@phuminh.vn`   | Supplier                 | Submit CT0104 milestone 2 evidence; sign CT0102                |
+| `controller@novaan.vn`  | Internal controller      | Decide evidence exceptions proposed by Nova An's owner         |
+| `controller@phuminh.vn` | Supplier controller      | Follow Phu Minh's contracts; no business actions               |
+| `sysadmin@codecash.vn`  | System administrator     | Manage users, organizations and permitted configuration        |
+| `auditor@codecash.vn`   | Auditor                  | Check integrity (hash chain, anchors); no contract access      |
 
 ## Business access
 
@@ -28,7 +28,7 @@ The contract officer submits buyer evidence such as acceptance and UAT. The supp
 
 ![Controller navigation](../../../public/guide/images/nav-admin.webp)
 
-Controllers review exceptions across organizations but cannot approve payments or manage accounts. System administrators manage configuration and accounts but cannot process exceptions or contract business actions. Auditors read and export; they cannot write business records or run a new stored evaluation.
+Each organization has one controller, who sees that organization's contracts; the buyer's controller decides evidence exceptions the contract owner proposes. Controllers cannot approve payments or manage accounts. System administrators manage configuration and accounts but cannot process exceptions or contract business actions. Auditors check integrity (hash chain, anchors) and do not open contracts; they cannot write business records or run a new stored evaluation.
 
 ![System administrator navigation](../../../public/guide/images/nav-sysadmin.webp)
 

@@ -2,11 +2,18 @@ import { Tag } from "antd";
 import type { ReactNode } from "react";
 
 export type Tone =
-  "success" | "warning" | "danger" | "primary" | "neutral" | "indigo";
+  | "success"
+  | "warning"
+  | "orange"
+  | "danger"
+  | "primary"
+  | "neutral"
+  | "indigo";
 
 const colors: Record<Tone, string> = {
   success: "success",
   warning: "warning",
+  orange: "orange",
   danger: "error",
   primary: "processing",
   neutral: "default",

@@ -1,4 +1,6 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { ClickableCell } from "@/shared/ui/ClickableCell";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -41,14 +43,14 @@ const scopeColor: Record<PermissionScope, string> = {
   assigned: "gold",
 };
 const roleColor: Record<Role, { bg: string; value: string }> = {
-  CONTRACT_OWNER: { bg: "rgba(49, 91, 234, 0.08)", value: "#315bea" },
-  LEGAL_REVIEWER: { bg: "rgba(99, 102, 241, 0.08)", value: "#6366F1" },
-  FINANCE_APPROVER: { bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
-  SECONDARY_APPROVER: { bg: "rgba(14, 165, 233, 0.08)", value: "#0EA5E9" },
-  ADMIN_AUDITOR: { bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
-  SYSTEM_ADMIN: { bg: "rgba(249, 115, 22, 0.08)", value: "#F97316" },
-  AUDITOR: { bg: "rgba(139, 92, 246, 0.08)", value: "#8B5CF6" },
-  SUPPLIER: { bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
+  CONTRACT_OWNER: { ...STAT_TONE.blue },
+  LEGAL_REVIEWER: { ...STAT_TONE.indigo },
+  FINANCE_APPROVER: { ...STAT_TONE.green },
+  SECONDARY_APPROVER: { ...STAT_TONE.sky },
+  ADMIN_AUDITOR: { ...STAT_TONE.red },
+  SYSTEM_ADMIN: { ...STAT_TONE.orange },
+  AUDITOR: { ...STAT_TONE.violet },
+  SUPPLIER: { ...STAT_TONE.amber },
 };
 
 /**
@@ -217,14 +219,14 @@ export default function PermissionMatrixPage() {
       sorter: true,
       ...columnSearch(),
       render: (key: string, row: Row) => (
-        <div style={{ cursor: "pointer" }} onClick={() => setDetail(row)}>
+        <ClickableCell onOpen={() => setDetail(row)}>
           <Typography.Text strong>{name(key)}</Typography.Text>
           <div>
-            <Typography.Text type="secondary" code style={{ fontSize: 11.5 }}>
+            <Typography.Text type="secondary" code style={{ fontSize: 12 }}>
               {key}
             </Typography.Text>
           </div>
-        </div>
+        </ClickableCell>
       ),
     },
     {

@@ -26,7 +26,7 @@ export function OriginTag({ origin }: { origin: Origin }) {
       <Tag
         color={originColor[origin]}
         variant="filled"
-        style={{ margin: 0, fontSize: 11.5, lineHeight: "18px" }}
+        style={{ margin: 0, fontSize: 12, lineHeight: "18px" }}
         data-testid={`origin-${origin}`}
       >
         {t(`origin.${origin}`)}

@@ -29,9 +29,10 @@ Chế độ local mặc định lưu dữ liệu ở `.data/`, không cần Dock
 | `secondary@novaan.vn` | Phê duyệt cấp 2 |
 | `legal@novaan.vn` | Cán bộ hợp đồng bên mua |
 | `supplier@phuminh.vn` | Nhà cung cấp (Phú Minh, S015) |
-| `admin@codecash.vn`, `controller@codecash.vn` | Kiểm soát viên (hai người cho duyệt ngoại lệ BR-19) |
+| `controller@novaan.vn` | Kiểm soát viên nội bộ của Nova An: duyệt đề nghị ngoại lệ chứng từ do chủ hợp đồng đề xuất (hai người khác nhau) |
+| `controller@phuminh.vn` | Kiểm soát viên của Phú Minh: theo dõi, không thao tác nghiệp vụ |
 | `sysadmin@codecash.vn` | Quản trị hệ thống: tài khoản, tổ chức, mẫu mốc, tham số |
-| `auditor@codecash.vn` | Kiểm toán: chỉ đọc, Kiểm tra toàn vẹn |
+| `auditor@codecash.vn` | Kiểm toán: chỉ Kiểm tra toàn vẹn (băm, bằng chứng), không mở hợp đồng |
 
 Mỗi tổ chức khác trong Data Pack cũng có tài khoản (69 tài khoản). Vai trò và quyền: [đặc tả nghiệp vụ](docs/NGHIEP_VU.md) mục 2. Muốn về dữ liệu ban đầu: đăng nhập tài khoản quản trị hệ thống, mở menu tài khoản, chọn "Khôi phục dữ liệu demo"; dữ liệu và nhật ký cũ được lưu trữ, không bị xoá.
 

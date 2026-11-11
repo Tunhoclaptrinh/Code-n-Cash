@@ -1,4 +1,5 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -65,10 +66,10 @@ const decisionColor: Record<
   Decision,
   { tag: string; bg: string; value: string }
 > = {
-  RELEASE: { tag: "success", bg: "rgba(16, 185, 129, 0.08)", value: "#10B981" },
-  PENALTY: { tag: "orange", bg: "rgba(249, 115, 22, 0.08)", value: "#F97316" },
-  HOLD: { tag: "warning", bg: "rgba(245, 158, 11, 0.08)", value: "#F59E0B" },
-  REJECT: { tag: "error", bg: "rgba(239, 68, 68, 0.08)", value: "#EF4444" },
+  RELEASE: { tag: "success", ...STAT_TONE.green },
+  PENALTY: { tag: "orange", ...STAT_TONE.orange },
+  HOLD: { tag: "warning", ...STAT_TONE.amber },
+  REJECT: { tag: "error", ...STAT_TONE.red },
 };
 /** The engine output is one document: it is searched, filtered and paged in the browser. */
 const ROWS: ListSpec<Row> = {

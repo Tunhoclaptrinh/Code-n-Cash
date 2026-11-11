@@ -1,4 +1,6 @@
 import { TableRowActions } from "@/shared/ui/TableRowActions";
+import { ClickableCell } from "@/shared/ui/ClickableCell";
+import { STAT_TONE } from "@/shared/ui/statTone";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -49,32 +51,27 @@ const tiles: Array<{
   {
     key: "YOUR_TURN",
     statuses: null,
-    bg: "rgba(49, 91, 234, 0.08)",
-    value: "#315bea",
+    ...STAT_TONE.blue,
   },
   {
     key: "PENDING_CONDITIONS",
     statuses: ["PENDING_CONDITIONS"],
-    bg: "rgba(245, 158, 11, 0.08)",
-    value: "#F59E0B",
+    ...STAT_TONE.amber,
   },
   {
     key: "NEEDS_REVIEW",
     statuses: ["NEEDS_REVIEW"],
-    bg: "rgba(239, 68, 68, 0.08)",
-    value: "#EF4444",
+    ...STAT_TONE.red,
   },
   {
     key: "AWAITING_SIGNATURE",
     statuses: ["AWAITING_SIGNATURE", "DRAFT"],
-    bg: "rgba(99, 102, 241, 0.08)",
-    value: "#6366F1",
+    ...STAT_TONE.indigo,
   },
   {
     key: "ALL_MILESTONES_ELIGIBLE",
     statuses: ["ALL_MILESTONES_ELIGIBLE", "CLOSED"],
-    bg: "rgba(16, 185, 129, 0.08)",
-    value: "#10B981",
+    ...STAT_TONE.green,
   },
 ];
 
@@ -119,7 +116,12 @@ export default function ContractListPage() {
       ? sameSet(filters.status, tile.statuses)
       : filters.yourTurn?.[0] === true;
   const statistics: StatisticsItem[] = tiles.map((tile, index) => ({
-    colSpan: { xs: index === tiles.length - 1 ? 24 : 12, sm: 12, md: 6 },
+    // Five tiles on a 24-column grid: three, then two wider ones, never a lone fifth tile.
+    colSpan: {
+      xs: index === tiles.length - 1 ? 24 : 12,
+      sm: 12,
+      md: index < 3 ? 8 : 12,
+    },
     title: t(`contractList.tiles.${tile.key}`),
     value: tile.statuses
       ? tile.statuses.reduce((sum, s) => sum + count("status", s), 0)
@@ -248,7 +250,7 @@ export default function ContractListPage() {
       sorter: true,
       ...columnSearch(),
       render: (_: unknown, c: ContractRow) => (
-        <div style={{ cursor: "pointer" }} onClick={() => setDetail(c)}>
+        <ClickableCell onOpen={() => setDetail(c)}>
           <Space size={6} wrap>
             <Typography.Text strong style={{ whiteSpace: "nowrap" }}>
               {c.id}
@@ -261,10 +263,10 @@ export default function ContractListPage() {
             ) : null}
           </Space>
           <div>{c.title}</div>
-          <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
             {td(`contractType.${c.type}`)}
           </Typography.Text>
-        </div>
+        </ClickableCell>
       ),
     },
     {
@@ -293,7 +295,10 @@ export default function ContractListPage() {
       width: 200,
       render: (_: unknown, c: ContractRow) =>
         c.milestones.total ? (
-          <>
+          // Room on the right so the bar does not run into the pinned actions column. The
+          // "n/m milestones" line below states the progress, so the bar shows no percentage of its
+          // own (that label sat under the pinned column).
+          <div style={{ paddingInlineEnd: 16 }}>
             <Progress
               percent={Math.round(
                 (c.milestones.eligible / c.milestones.total) * 100,
@@ -304,9 +309,10 @@ export default function ContractListPage() {
                 ),
               }}
               status={c.milestones.rejected ? "exception" : undefined}
+              showInfo={false}
               size="small"
             />
-            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
               {tl("progress", {
                 eligible: c.milestones.eligible,
                 total: c.milestones.total,
@@ -318,7 +324,7 @@ export default function ContractListPage() {
                 ? ` · ${t("contractList.progress.penalty", { count: c.milestones.penalty })}`
                 : ""}
             </Typography.Text>
-          </>
+          </div>
         ) : (
           <Typography.Text type="secondary">
             {t("contractList.progress.none")}

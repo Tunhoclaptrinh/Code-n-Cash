@@ -4,7 +4,7 @@ Quy ước cho `apps/web` và `packages/ui`. Chuẩn giao diện lấy theo base
 
 ## 1. Nguyên tắc với base
 
-- `packages/ui/src/components`, `hooks`, `utils` là bản chuyển từ UniFlow (xem [reuse-manifest.json](../packages/reuse-manifest.json)). **Không sửa hành vi hay giao diện của chúng.** Cần khác thì truyền props, dùng biến CSS, hoặc tạo component mới trong `apps/web/src/shared/ui`.
+- `packages/ui/src/components`, `hooks`, `utils` là bản chuyển từ UniFlow (xem [reuse-manifest.json](../packages/reuse-manifest.json)). **Giữ nguyên cấu trúc, bố cục và hành vi của chúng.** Chi tiết hiển thị (màu, độ tương phản, cỡ chữ, khoảng cách, trạng thái focus) được chỉnh khi rà soát thiết kế chỉ ra lỗi thật. Ưu tiên truyền props, dùng biến CSS hoặc tạo component mới trong `apps/web/src/shared/ui` trước khi sửa base.
 - Những thay đổi đã có so với bản UniFlow, và chỉ những thay đổi này: thương hiệu/màu CodeCash, chuỗi hiển thị qua `uiText()` với khóa có nghĩa (`table.search`, `export.scopeAll`…), hook `useResource` (CodeCash viết thêm, dùng TanStack Query).
 - Theme Ant Design nằm ở [`packages/ui/src/theme.ts`](../packages/ui/src/theme.ts) (`lightThemeConfig`/`darkThemeConfig`, cùng cấu trúc với UniFlow). Biến CSS ở [`packages/ui/src/styles/tokens.css`](../packages/ui/src/styles/tokens.css): nhóm `--bg-*`, `--border-*`, `--text-*` cho component base, nhóm `--color-*` cho CSS module của feature; cả hai có bản sáng và tối.
 - Style toàn cục kiểu UniFlow (kích thước nút, `base-sidebar-menu`, scrollbar) ở `apps/web/src/styles/global.css`.

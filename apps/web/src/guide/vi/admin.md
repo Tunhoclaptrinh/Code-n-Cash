@@ -1,6 +1,6 @@
 # Quản trị hệ thống và ma trận quyền
 
-Quản trị hệ thống dùng tài khoản `sysadmin@codecash.vn`; kiểm toán có quyền đọc và xuất. Vai trò này tách khỏi người xử lý ngoại lệ và người duyệt chi.
+Quản trị hệ thống dùng tài khoản `sysadmin@codecash.vn`; kiểm toán chỉ kiểm tra toàn vẹn. Vai trò này tách khỏi người xử lý ngoại lệ và người duyệt chi.
 
 ![Quản trị: 1 — giới hạn bản ghi; 2 — tab; 3 — thêm; 4 — nhập; 5 — xuất; 6 — nguồn; 7 — thao tác](../../../public/guide/images/admin-organizations.webp)
 

@@ -13,8 +13,8 @@ Dùng cho phần Demo/Mockup của buổi trình bày (slide 11 trong dàn slide
 | Thời lượng | Tài khoản | Màn hình | Nói gì |
 | --- | --- | --- | --- |
 | 20 giây | `finance@novaan.vn` | CT0103, mốc 2 (giao hàng): văn bản hợp đồng bên trái; bên phải là kết quả nếu phê duyệt, bằng chứng, vai trò phê duyệt | Trước khi bấm, engine chạy thử: Chi sau trừ phạt (PENALTY), phạt 2,22 triệu vì giao hàng trễ 2 ngày sau ân hạn; phê duyệt muộn không làm tăng phạt. Bấm phê duyệt: engine chạy lại và ghi nhận |
-| 20 giây | `controller@codecash.vn` | Kết quả Data Pack | 405 mốc, KPI kèm cỡ mẫu, bộ ca tổng hợp; tải CSV đầu ra |
-| 20 giây | `auditor@codecash.vn` | Nhật ký hoạt động, Kiểm tra toàn vẹn | Thao tác vừa rồi có trong nhật ký, chuỗi băm hợp lệ; kiểm toán chỉ đọc |
+| 20 giây | `controller@novaan.vn` | Kết quả Data Pack | 405 mốc, KPI kèm cỡ mẫu, bộ ca tổng hợp; tải CSV đầu ra |
+| 20 giây | `controller@novaan.vn`, rồi `auditor@codecash.vn` | Nhật ký hoạt động (kiểm soát viên), Kiểm tra toàn vẹn (kiểm toán) | Thao tác vừa rồi có trong nhật ký, chuỗi băm hợp lệ; kiểm toán chỉ thấy băm và bằng chứng, không mở hợp đồng |
 
 ## Bản đầy đủ (khoảng 5 phút, khi được chạy thử riêng)
 
@@ -24,9 +24,9 @@ Dùng cho phần Demo/Mockup của buổi trình bày (slide 11 trong dàn slide
 | 2 | `finance@novaan.vn` | CT0103 mốc 2, phê duyệt | Ngày hoàn thành không tính phê duyệt; Chi sau trừ phạt (PENALTY) 2,22 triệu |
 | 3 | `supplier@phuminh.vn` | Mở tranh chấp ở một mốc đang đủ điều kiện | Mốc chuyển Tạm giữ (HOLD); không mở được tranh chấp thứ hai khi đang có tranh chấp |
 | 4 | `owner@novaan.vn` | Giải quyết tranh chấp đó | Engine đánh giá lại; mốc trở lại quyết định trước tranh chấp |
-| 5 | `controller@codecash.vn` | Kết quả Data Pack, mở một dòng PENALTY | Luật áp dụng, bằng chứng, điều kiện đạt và thiếu, confidence |
-| 6 | `auditor@codecash.vn` | Nhật ký hoạt động, Kiểm tra toàn vẹn | Mọi thao tác đã ghi, chuỗi băm hợp lệ, mốc neo gần nhất khớp, quyết định đã niêm phong |
-| 7 | `auditor@codecash.vn` | Tổng quan hợp đồng | 100 hợp đồng trên một màn: tiền đủ điều kiện chi, đang giữ, phạt; các mốc cần xử lý (tranh chấp mở, sắp tới hạn) |
+| 5 | `controller@novaan.vn` | Kết quả Data Pack, mở một dòng PENALTY | Luật áp dụng, bằng chứng, điều kiện đạt và thiếu, confidence |
+| 6 | `controller@novaan.vn`, rồi `auditor@codecash.vn` | Nhật ký hoạt động (kiểm soát viên), Kiểm tra toàn vẹn (kiểm toán) | Mọi thao tác đã ghi, chuỗi băm hợp lệ, mốc neo gần nhất khớp, quyết định đã niêm phong |
+| 7 | `controller@novaan.vn` | Tổng quan hợp đồng | Mọi hợp đồng của Nova An trên một màn: tiền đủ điều kiện chi, đang giữ, phạt; các mốc cần xử lý (tranh chấp mở, sắp tới hạn). Mỗi tài khoản chỉ thấy hợp đồng của đơn vị mình; 405 mốc của cả Data Pack nằm ở màn Kết quả Data Pack |
 
 ## Câu hỏi thường gặp
 

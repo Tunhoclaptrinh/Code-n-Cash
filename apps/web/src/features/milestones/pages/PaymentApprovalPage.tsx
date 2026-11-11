@@ -33,6 +33,7 @@ export default function PaymentApprovalPage() {
   const { t } = useTranslation("milestones");
   const { t: tc } = useTranslation("common");
   const { t: td } = useTranslation("domain");
+  const navigate = useNavigate();
   const params = useParams();
   const routeContractId = params.contractId;
   const routeSequence = params.milestoneNo
@@ -60,7 +61,7 @@ export default function PaymentApprovalPage() {
                 no: data.milestone.sequence,
                 name: td(`milestoneType.${data.milestone.type}`),
               })
-            : (routeContractId ?? ""),
+            : (routeContractId ?? t("approve.pageTitle")),
         },
       ]}
       contentClassName={styles.content}
@@ -78,7 +79,15 @@ export default function PaymentApprovalPage() {
       {view.isPending ? <PageState kind="loading" /> : null}
       {view.isError ? (
         view.error instanceof ApiError && view.error.code === "NO_OPEN_TASK" ? (
-          <PageState kind="empty" title={td("errors.NO_OPEN_TASK")} />
+          <PageState
+            kind="empty"
+            title={td("errors.NO_OPEN_TASK")}
+            action={
+              <Button type="primary" onClick={() => navigate("/tasks")}>
+                {tc("common.backToTasks")}
+              </Button>
+            }
+          />
         ) : (
           <PageState kind="error" onRetry={() => void view.refetch()} />
         )

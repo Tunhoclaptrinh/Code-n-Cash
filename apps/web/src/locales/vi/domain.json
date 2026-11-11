@@ -176,7 +176,7 @@
     "APPROVE_PAYMENT": "Phê duyệt chi",
     "RESOLVE_DISPUTE": "Giải quyết tranh chấp",
     "SIGN_CONTRACT": "Ký hợp đồng",
-    "REVIEW_EXCEPTION": "Xem xét ngoại lệ (BR-19)",
+    "REVIEW_EXCEPTION": "Xem xét ngoại lệ chứng từ",
     "DECIDE_EXCEPTION": "Duyệt đề xuất ngoại lệ",
     "COMPLETE_DRAFT": "Hoàn tất hồ sơ hợp đồng"
   },
@@ -198,7 +198,7 @@
     "NOT_PAYABLE": "Mốc chưa đủ điều kiện chi.",
     "ALREADY_TRANSFERRED": "Mốc đã được chuyển chi (khoá idempotency).",
     "NOT_FINANCE_APPROVER": "Chỉ phê duyệt tài chính của bên mua được chuyển chi.",
-    "EVENT_NOT_VOIDABLE": "Chỉ event sai thẩm quyền hoặc bất thường mới được đề xuất vô hiệu (BR-19).",
+    "EVENT_NOT_VOIDABLE": "Chỉ event sai thẩm quyền hoặc bất thường mới được đề xuất vô hiệu.",
     "SECOND_CONTROLLER_REQUIRED": "Người đề xuất không được tự duyệt; kiểm soát viên của doanh nghiệp phải kiểm tra (SoD-2).",
     "EXCEPTION_ALREADY_DECIDED": "Đề xuất này đã được quyết định.",
     "CONTROLLERS_ONLY": "Chỉ kiểm soát viên của doanh nghiệp được thực hiện.",
@@ -311,7 +311,10 @@
     "ALREADY_DELIVERED": "Cổng thanh toán đã nhận lệnh chi này.",
     "TIMESTAMP_UNAVAILABLE": "Đơn vị cấp dấu thời gian chưa phản hồi hoặc trả dấu không hợp lệ. Bạn có thể thử lại.",
     "EVIDENCE_FILE_MISSING": "Chưa có tệp chứng từ được lưu cho lần đính kèm này. Hãy tải tệp lên lại.",
-    "UNSUPPORTED_EVIDENCE_FILE": "Chỉ nhận chứng từ dạng PDF, ảnh PNG/JPEG, Word (.docx) hoặc Excel (.xlsx)."
+    "UNSUPPORTED_EVIDENCE_FILE": "Chỉ nhận chứng từ dạng PDF, ảnh PNG/JPEG, Word (.docx) hoặc Excel (.xlsx).",
+    "NOT_ANCHORED_YET": "Mục nhật ký này chưa được niêm phong. Thử lại sau lần niêm phong kế tiếp.",
+    "PERMISSION_DENIED": "Vai trò của bạn không có quyền thực hiện thao tác này.",
+    "RESOURCE_NOT_FOUND": "Không tìm thấy loại dữ liệu này."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

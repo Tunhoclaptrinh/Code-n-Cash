@@ -16,14 +16,14 @@ export const statusTone: Record<MilestoneStatus, Tone> = {
   ON_HOLD: "warning",
   REJECTED: "danger",
   ELIGIBLE_FOR_PAYMENT: "success",
-  PAID_WITH_PENALTY: "warning",
+  PAID_WITH_PENALTY: "orange",
   COMPLETED: "neutral",
 };
 
 export const decisionTone: Record<Decision, Tone> = {
   RELEASE: "success",
-  PENALTY: "warning",
-  HOLD: "primary",
+  PENALTY: "orange",
+  HOLD: "warning",
   REJECT: "danger",
 };
 

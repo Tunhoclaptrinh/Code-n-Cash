@@ -1,14 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
 import { Button, Space } from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import type { MilestoneDetail } from "@codecash/contracts";
+import type { Decision, MilestoneDetail } from "@codecash/contracts";
+import { getApprovalView } from "@/shared/api/domain";
 import { describeNext, statusRepeatsDecision } from "@/shared/lib/domain";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
-import {
-  DecisionTag,
-  MilestoneStatusTag,
-  OriginTag,
-} from "@/shared/ui/DomainTags";
+import { MilestoneStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { KeyFigures, SideSection } from "@/shared/ui/SidePanel";
 import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
 import styles from "./MilestoneDecision.module.css";
@@ -21,7 +19,15 @@ interface DecisionBannerProps {
 
 const isZero = (amount: string) => /^0(\.0+)?$/.test(amount);
 
-/** Headline of the decision: reason, the amounts it turns on, the next step and the actor's actions. */
+/** Headline colour per decision: amber means held and nothing else. */
+const headlineTone: Record<Decision, string | undefined> = {
+  HOLD: "warning",
+  RELEASE: "success",
+  REJECT: "danger",
+  PENALTY: undefined,
+};
+
+/** Headline of the decision: the decision in words, its reason, the amounts, the next step and the actor's actions. */
 export function DecisionBanner({
   data,
   transferring,
@@ -32,15 +38,31 @@ export function DecisionBanner({
   const navigate = useNavigate();
   const { contract, milestone, evaluation, actions, money } = data;
   const base = `/contracts/${contract.id}/milestones/${milestone.sequence}`;
+  const canVote = actions.approve || actions.reject;
+  // The engine's dry run of this approver's vote (same query as the approval page), so the held
+  // figures are not the only ones on screen when the vote would release the money.
+  const approval = useQuery({
+    queryKey: ["milestones", "approval", contract.id, milestone.sequence],
+    queryFn: () => getApprovalView(contract.id, milestone.sequence),
+    enabled: canVote,
+  });
+  const preview = approval.data?.preview;
+  const projected =
+    preview && preview.decision !== evaluation.decision ? preview : null;
+  // Evidence still missing: voting now is allowed but premature, so it is not the main action.
+  const voteIsPrimary =
+    milestone.next.kind !== "SUBMIT" && !actions.transfer && !actions.submit;
   return (
     <SideSection>
       <div className={styles.bannerHeadline}>
-        <h2>{td(`reason.${evaluation.reasonCode}`)}</h2>
-        <DecisionTag decision={evaluation.decision} />
+        <h2 data-tone={headlineTone[evaluation.decision]}>
+          {td(`decision.${evaluation.decision}`)}
+        </h2>
         {statusRepeatsDecision(milestone.status, evaluation.decision) ? null : (
           <MilestoneStatusTag status={milestone.status} />
         )}
       </div>
+      <p className={styles.reason}>{td(`reason.${evaluation.reasonCode}`)}</p>
       <KeyFigures
         items={[
           {
@@ -62,6 +84,15 @@ export function DecisionBanner({
           },
         ]}
       />
+      {projected ? (
+        <div className={styles.projected} data-testid="decision-projected">
+          {t("decision.projected", {
+            decision: td(`decision.${projected.decision}`),
+            penalty: formatDecimalString(projected.penaltyMillion),
+            payable: formatDecimalString(projected.payableMillion),
+          })}
+        </div>
+      ) : null}
       <div className={styles.next}>
         <span>{t("decision.next")}</span>{" "}
         <b>{describeNext(td, milestone.next)}</b>
@@ -90,9 +121,9 @@ export function DecisionBanner({
             {t("decision.actions.submit")}
           </Button>
         ) : null}
-        {actions.approve || actions.reject ? (
+        {canVote ? (
           <Button
-            type="primary"
+            type={voteIsPrimary ? "primary" : "default"}
             onClick={() =>
               navigate(`/approvals/${contract.id}/${milestone.sequence}`)
             }

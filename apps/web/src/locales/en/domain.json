@@ -176,7 +176,7 @@
     "APPROVE_PAYMENT": "Approve payment",
     "RESOLVE_DISPUTE": "Resolve dispute",
     "SIGN_CONTRACT": "Sign contract",
-    "REVIEW_EXCEPTION": "Review exception (BR-19)",
+    "REVIEW_EXCEPTION": "Review evidence exception",
     "DECIDE_EXCEPTION": "Decide exception proposal",
     "COMPLETE_DRAFT": "Complete contract file"
   },
@@ -198,7 +198,7 @@
     "NOT_PAYABLE": "The milestone is not eligible for payment.",
     "ALREADY_TRANSFERRED": "Already transferred (idempotency key).",
     "NOT_FINANCE_APPROVER": "Only the buyer's finance approver can transfer.",
-    "EVENT_NOT_VOIDABLE": "Only unauthorised or anomalous events can be proposed for voiding (BR-19).",
+    "EVENT_NOT_VOIDABLE": "Only unauthorised or anomalous events can be proposed for voiding.",
     "SECOND_CONTROLLER_REQUIRED": "The proposer cannot approve it; the organisation's controller has to check it (SoD-2).",
     "EXCEPTION_ALREADY_DECIDED": "This proposal is already decided.",
     "CONTROLLERS_ONLY": "Only the organisation's controller can do this.",
@@ -311,7 +311,10 @@
     "ALREADY_DELIVERED": "The payment gateway already accepted this instruction.",
     "TIMESTAMP_UNAVAILABLE": "The time-stamp authority did not answer or returned an invalid stamp. Retry the job.",
     "EVIDENCE_FILE_MISSING": "No stored file backs this attachment. Upload the file again.",
-    "UNSUPPORTED_EVIDENCE_FILE": "Evidence must be a PDF, a PNG/JPEG image, a Word (.docx) or an Excel (.xlsx) file."
+    "UNSUPPORTED_EVIDENCE_FILE": "Evidence must be a PDF, a PNG/JPEG image, a Word (.docx) or an Excel (.xlsx) file.",
+    "NOT_ANCHORED_YET": "This log entry is not sealed yet. Try again after the next seal.",
+    "PERMISSION_DENIED": "Your role is not allowed to do this.",
+    "RESOURCE_NOT_FOUND": "This kind of data does not exist."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

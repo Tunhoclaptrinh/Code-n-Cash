@@ -7,7 +7,7 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { DecisionTag } from "@/shared/ui/DomainTags";
-import { TrackingCode } from "@/shared/ui/TechnicalInfo";
+import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
 
 /**
  * The payment instruction of a paying decision: drawn up by the decision itself, approved by finance,
@@ -93,37 +93,44 @@ function InstructionDetails({
 }) {
   const { t } = useTranslation("milestones");
   return (
-    <Descriptions
-      size="small"
-      column={1}
-      items={[
-        {
-          key: "decision",
-          label: t("instruction.decision"),
-          children: <DecisionTag decision={instruction.decision} />,
-        },
-        {
-          key: "amount",
-          label: t("instruction.amount"),
-          children: t("instruction.amountValue", {
-            amount: formatDecimalString(instruction.amountMillion),
-            penalty: formatDecimalString(instruction.penaltyMillion),
-          }),
-        },
-        {
-          key: "parties",
-          label: t("instruction.parties"),
-          children: t("instruction.partiesValue", {
-            payer: instruction.payer.name,
-            payee: instruction.payee.name,
-          }),
-        },
-        {
-          key: "digest",
-          label: t("instruction.digest"),
-          children: <TrackingCode code={instruction.decisionDigest} />,
-        },
-      ]}
-    />
+    <>
+      <Descriptions
+        size="small"
+        column={1}
+        items={[
+          {
+            key: "decision",
+            label: t("instruction.decision"),
+            children: <DecisionTag decision={instruction.decision} />,
+          },
+          {
+            key: "amount",
+            label: t("instruction.amount"),
+            children: t("instruction.amountValue", {
+              amount: formatDecimalString(instruction.amountMillion),
+              penalty: formatDecimalString(instruction.penaltyMillion),
+            }),
+          },
+          {
+            key: "parties",
+            label: t("instruction.parties"),
+            children: t("instruction.partiesValue", {
+              payer: instruction.payer.name,
+              payee: instruction.payee.name,
+            }),
+          },
+        ]}
+      />
+      {/* The digest proves which decision the instruction carries; it is for tracing, not reading. */}
+      <TechnicalDetails
+        items={[
+          {
+            key: "digest",
+            label: t("instruction.digest"),
+            value: <TrackingCode code={instruction.decisionDigest} />,
+          },
+        ]}
+      />
+    </>
   );
 }

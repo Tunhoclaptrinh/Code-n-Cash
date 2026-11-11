@@ -260,7 +260,7 @@
       "status": {
         "VALID": "Valid",
         "INVALID": "Invalid",
-        "UNVERIFIED": "Unverified"
+        "UNVERIFIED": "Signed outside the system"
       },
       "certificateExpired": "Expired since {{expiry}}",
       "contentChanged": "Has been changed"
@@ -284,7 +284,7 @@
     "notice": "Demo: digital signatures are simulated in the system and bound to the exact contract content and signer order. VNPT SmartCA/Viettel MySign are not connected to real providers and are not recognised by a certificate authority (CA).",
     "export": "Export signature proofs",
     "untrusted": "Test certificate, not recognised by a CA",
-    "unverifiedContent": "No digital signature proof yet",
+    "unverifiedContent": "Signature taken from the source contract data; CodeCash holds no digital signature proof to check it against",
     "key": "Key fingerprint",
     "basis": {
       "DOCUMENT_BYTES": "Bound to the original file",

@@ -56,7 +56,10 @@ export function DecisionBanner({
   return (
     <SideSection>
       <div className={styles.bannerHeadline}>
-        <h2 data-tone={headlineTone[evaluation.decision]}>
+        <h2
+          data-tone={headlineTone[evaluation.decision]}
+          data-decision={evaluation.decision}
+        >
           {td(`decision.${evaluation.decision}`)}
         </h2>
         {statusRepeatsDecision(milestone.status, evaluation.decision) ? null : (

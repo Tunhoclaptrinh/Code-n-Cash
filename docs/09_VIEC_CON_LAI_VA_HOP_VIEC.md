@@ -87,6 +87,7 @@ Quy tắc đã chọn và lý do:
 - Mốc bị từ chối hoặc đã chi không sinh việc: chúng đã khép.
 - Thứ tự: nhóm, rồi mức khẩn (nguy cơ phạt trễ, đến lượt bạn, mốc đang bị giữ, còn trong hạn), rồi việc đang giữ mốc trước lệnh chi, rồi hạn.
 - Chuông và số trên menu (`notifies`): chỉ nhóm `MINE` và không gồm lệnh chi. Lệnh chi chờ duyệt là hàng việc kế toán làm theo đợt; trên Data Pack có 48 mốc đã đủ điều kiện chi từ nhiều tháng trước, nếu báo lên chuông sẽ che mất việc phê duyệt cần làm ngay. Muốn báo cả lệnh chi thì sửa một dòng trong `notifies`.
+- Ngăn thông báo (bấm chuông) có ba tab: "Việc của tôi" (đúng danh sách trên, chia nhóm đã trễ hạn và đang chờ), "Cảnh báo" (mục cần chú ý của trang tổng quan: tranh chấp, quá hạn, sắp tới hạn) và "Cập nhật" (hoạt động của người khác trong phạm vi của bạn, API lọc và quyết định link). Hai tab sau không cộng vào số trên chuông; cập nhật chưa đọc chỉ hiện chấm xanh khi không có việc. Mốc "đã đọc" lưu trong trình duyệt, chỉ để tiện xem. Việc mới xuất hiện khi đang mở ứng dụng (làm mới 30 giây một lần) hiện một thông báo nhỏ ở góc màn hình.
 
 ## 6. Sửa và mở rộng
 

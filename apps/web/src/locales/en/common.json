@@ -274,5 +274,27 @@
     "you": "You",
     "organization": "Organisation",
     "title": "Job title"
+  },
+  "notifications": {
+    "tabs": {
+      "tasks": "My tasks",
+      "alerts": "Alerts",
+      "updates": "Updates"
+    },
+    "groups": {
+      "late": "Late",
+      "waiting": "Waiting for you"
+    },
+    "empty": {
+      "tasks": "Nothing is waiting for you",
+      "alerts": "No alerts in your scope",
+      "updates": "No updates from others yet"
+    },
+    "markRead": "Mark all as read",
+    "due": "Due {{date}}",
+    "openActivity": "Open the activity log",
+    "openOverview": "Open the contract overview",
+    "newTasks_one": "{{count}} new task for you",
+    "newTasks_other": "{{count}} new tasks for you"
   }
 }

@@ -21,7 +21,7 @@ import {
   RightOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Link,
@@ -32,7 +32,6 @@ import {
 } from "react-router-dom";
 import { useAccess, useLocalStorage } from "@codecash/ui";
 import { resetDemoData } from "../api/auth.api";
-import { listPendingTasks } from "../api/tasks.api";
 import { useDemoMode } from "../auth/useDemoMode";
 import { useCurrentUser, useSession } from "../auth/session";
 import { initialsOf } from "../lib/initials";
@@ -40,6 +39,7 @@ import { useOnboarding } from "../onboarding/OnboardingContext";
 import { BrandMark } from "../ui/BrandMark";
 import { navFor, type NavItem } from "./navConfig";
 import { NotificationDrawer } from "./NotificationDrawer";
+import { useNotifications } from "./useNotifications";
 import { PageChromeContext, type PageChrome } from "./pageChrome";
 import { PreferenceControls } from "./PreferenceControls";
 import styles from "./AppLayout.module.css";
@@ -80,12 +80,9 @@ export function AppLayout() {
   const [chrome, setChrome] = useState<PageChrome>({ breadcrumb: [] });
   const publish = useCallback((next: PageChrome) => setChrome(next), []);
 
-  // Count the same list the notification drawer shows, so badge and list always agree.
-  const pending = useQuery({
-    queryKey: ["pending-tasks", user.id],
-    queryFn: listPendingTasks,
-  });
-  const pendingCount = pending.data?.length ?? 0;
+  // One feed for the bell, the drawer and the inbox menu badge, refreshed in the background.
+  const feed = useNotifications(user);
+  const pendingCount = feed.tasks.length;
 
   // Demo deployments only: the system administrator restores the initial data before a session.
   const { modal, message } = App.useApp();
@@ -256,7 +253,13 @@ export function AppLayout() {
           <PreferenceControls compact={!desktop} />
           {inbox ? (
             <Tooltip title={t("topbar.notifications")}>
-              <Badge count={pendingCount} size="small" offset={[-4, 4]}>
+              <Badge
+                count={feed.badge}
+                dot={!feed.badge && feed.hasUnread}
+                color={feed.badge ? undefined : "blue"}
+                size="small"
+                offset={[-4, 4]}
+              >
                 <Button
                   type="text"
                   shape="circle"
@@ -354,6 +357,8 @@ export function AppLayout() {
         <NotificationDrawer
           open={notificationsOpen}
           userId={user.id}
+          permissions={user.permissions}
+          feed={feed}
           inboxPath={inbox.to}
           onClose={() => setNotificationsOpen(false)}
         />

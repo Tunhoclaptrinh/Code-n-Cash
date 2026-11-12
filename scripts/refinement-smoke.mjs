@@ -186,6 +186,44 @@ try {
     mobile: false,
   });
   await login("legal@novaan.vn");
+  // Overview tiles: tiles that share a row line up top and bottom, nothing spills sideways.
+  await go(
+    "/dashboard",
+    '!!document.querySelector("[data-testid=dashboard-contracts]")',
+  );
+  const tiles = await evaluate(`(() => {
+    const boxes = [...document.querySelectorAll("[data-tile]")].map((el) => {
+      const r = el.getBoundingClientRect();
+      return { top: Math.round(r.top), height: Math.round(r.height), spill: el.scrollWidth - el.clientWidth };
+    });
+    const rows = {};
+    for (const b of boxes) (rows[b.top] ??= []).push(b.height);
+    return {
+      count: boxes.length,
+      uneven: Object.values(rows).filter((h) => new Set(h).size > 1).length,
+      spill: boxes.filter((b) => b.spill > 1).length,
+      pageSpill: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  })()`);
+  assert.equal(tiles.count, 7, "DASHBOARD_TILES");
+  assert.equal(tiles.uneven, 0, "DASHBOARD_ROWS_ALIGNED");
+  assert.equal(tiles.spill, 0, "DASHBOARD_TILE_OVERFLOW");
+  assert.ok(tiles.pageSpill <= 0, "DASHBOARD_PAGE_OVERFLOW");
+  assert.ok(
+    await evaluate(
+      '!!document.querySelector("[data-testid=dashboard-status] svg circle")',
+    ),
+    "DASHBOARD_DONUT",
+  );
+  // Notification centre: the bell opens tabs; the last tab (updates or alerts) lists its rows.
+  await click("[data-testid=header-notifications]");
+  await until('!!document.querySelector("[data-testid=notifications-tabs]")');
+  await click(
+    "[data-testid=notifications-tabs] .ant-segmented-item:last-child input",
+  );
+  await until(
+    '!!document.querySelector("[data-testid=notifications-updates] [data-testid=notification-update], [data-testid=notifications-alerts] [data-testid=notification-alert]")',
+  );
   await go(
     "/contracts/new",
     '!!document.querySelector("[data-testid=contract-fill-demo]")',

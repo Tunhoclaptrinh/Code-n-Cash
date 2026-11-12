@@ -94,7 +94,10 @@
     "transferToAccounting": "Chuyển chi",
     "proposeException": "Đề xuất ngoại lệ",
     "decideException": "Quyết định ngoại lệ",
-    "getSigningRequest": "Cập nhật yêu cầu ký"
+    "getSigningRequest": "Cập nhật yêu cầu ký",
+    "EXTRACT_TERMS": "Đọc điều khoản từ văn bản hợp đồng",
+    "CONFIRM_EXTRACTION": "Xác nhận điều khoản đã đọc",
+    "recordPaymentDelivery": "Ghi nhận kết quả chuyển lệnh chi"
   },
   "detail": {
     "view": "Xem chi tiết",

@@ -274,5 +274,27 @@
     "you": "Bạn",
     "organization": "Tổ chức",
     "title": "Chức danh"
+  },
+  "notifications": {
+    "tabs": {
+      "tasks": "Việc của tôi",
+      "alerts": "Cảnh báo",
+      "updates": "Cập nhật"
+    },
+    "groups": {
+      "late": "Đã trễ hạn",
+      "waiting": "Đang chờ bạn"
+    },
+    "empty": {
+      "tasks": "Không có việc nào đang chờ bạn",
+      "alerts": "Không có cảnh báo nào trong phạm vi của bạn",
+      "updates": "Chưa có cập nhật nào từ người khác"
+    },
+    "markRead": "Đánh dấu đã đọc",
+    "due": "Hạn {{date}}",
+    "openActivity": "Mở nhật ký hoạt động",
+    "openOverview": "Mở tổng quan hợp đồng",
+    "newTasks_one": "Có {{count}} việc mới đến lượt bạn",
+    "newTasks_other": "Có {{count}} việc mới đến lượt bạn"
   }
 }

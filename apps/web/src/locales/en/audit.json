@@ -94,7 +94,10 @@
     "transferToAccounting": "Transferred a payment",
     "proposeException": "Proposed an exception",
     "decideException": "Decided an exception",
-    "getSigningRequest": "Signing request updated"
+    "getSigningRequest": "Signing request updated",
+    "EXTRACT_TERMS": "Read the terms from the contract document",
+    "CONFIRM_EXTRACTION": "Confirm the extracted terms",
+    "recordPaymentDelivery": "Record the payment order delivery"
   },
   "detail": {
     "view": "View details",

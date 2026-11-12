@@ -386,3 +386,29 @@
     font-size: 18px;
   }
 }
+
+/* Printing any page: the page itself on white, without the header, the sidebar or page actions. */
+@media print {
+  .header,
+  .sider,
+  .pageExtra,
+  .collapse {
+    display: none !important;
+  }
+
+  :global(html),
+  :global(body),
+  .shell,
+  .content {
+    background: #fff !important;
+  }
+
+  .content {
+    padding: 0;
+    min-height: 0;
+  }
+
+  .page {
+    max-width: none;
+  }
+}

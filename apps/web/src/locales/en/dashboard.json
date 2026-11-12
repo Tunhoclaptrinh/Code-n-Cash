@@ -13,7 +13,9 @@
     "data": "Data Pack results",
     "verify": "Verify signatures",
     "refresh": "Refresh figures",
-    "more": "Other screens"
+    "more": "Other screens",
+    "print": "Print / save report as PDF",
+    "csv": "Download figures (CSV)"
   },
   "kpi": {
     "myTurn": "Your turn",
@@ -156,5 +158,31 @@
     "milestones": "milestones",
     "statusLabel": "Contracts by status",
     "decisionLabel": "Milestones by current decision"
+  },
+  "report": {
+    "title": "Contract overview report",
+    "meta": "{{org}} · {{name}} ({{role}}) · figures at {{at}} · business date {{today}}",
+    "columns": {
+      "section": "Section",
+      "item": "Item",
+      "value": "Value",
+      "unit": "Unit"
+    },
+    "sections": {
+      "totals": "Totals",
+      "months": "By due month",
+      "reasons": "Why money is held",
+      "status": "Contracts by status",
+      "decisions": "Milestones by decision",
+      "attention": "Needs attention",
+      "contracts": "Contracts holding money"
+    },
+    "items": {
+      "contracts": "Contracts",
+      "milestones": "Milestones",
+      "planned": "Planned value",
+      "overdue": "Overdue milestones",
+      "dueSoon": "Milestones due soon"
+    }
   }
 }

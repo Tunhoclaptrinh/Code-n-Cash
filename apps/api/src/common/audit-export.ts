@@ -19,6 +19,8 @@ const sources: Record<string, string> = {
   exceptions: "exceptions:read",
   permissions: "permissions:read",
   engine: "engine:read",
+  // The contract overview report (print/PDF or its figures as CSV).
+  dashboard: "contracts:read",
 };
 
 /** Client exports record the user's download request; they cannot attest that a file was saved. */
@@ -47,7 +49,7 @@ export class AuditExportController {
     if (
       !Number.isSafeInteger(body.count) ||
       Number(body.count) < 0 ||
-      !["csv", "json", "xlsx"].includes(String(body.format)) ||
+      !["csv", "json", "xlsx", "pdf"].includes(String(body.format)) ||
       !["page", "all", "custom"].includes(String(body.scope)) ||
       !Array.isArray(body.columns) ||
       body.columns.length > 100 ||

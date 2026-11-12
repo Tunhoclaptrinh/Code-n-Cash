@@ -73,7 +73,8 @@ export interface StatisticsItem {
   backgroundColor?: string;
   valueColor?: string;
   selected?: boolean;
-  colSpan?: Record<string, number>;
+  /** Grid span per breakpoint: a number of 24 columns, or `{ flex }` for an exact share. */
+  colSpan?: Record<string, number | { span?: number; flex?: string | number }>;
   /** Short unit after the value, in small muted type ("million", "%", "days"). */
   unit?: React.ReactNode;
   /** One small line under the value: a reason, a comparison, a hint. */
@@ -93,7 +94,8 @@ export interface StatisticsCardProps {
   loading?: boolean;
   containerStyle?: React.CSSProperties;
   cardStyle?: React.CSSProperties;
-  colSpan?: Record<string, number>;
+  /** Grid span per breakpoint: a number of 24 columns, or `{ flex }` for an exact share. */
+  colSpan?: Record<string, number | { span?: number; flex?: string | number }>;
   hideCard?: boolean;
   rowGutter?: number;
   borderleft?: boolean;

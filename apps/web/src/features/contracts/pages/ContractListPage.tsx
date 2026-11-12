@@ -32,6 +32,7 @@ import { columnSearch } from "@/shared/ui/columnSearch";
 import { ContractStatusTag, OriginTag } from "@/shared/ui/DomainTags";
 import { ContractModal } from "../components/ContractModal";
 import type { ContractRow } from "../types";
+import { statSpan } from "@/shared/lib/statLayout";
 
 const STATUSES: ContractStatus[] = [
   "PENDING_CONDITIONS",
@@ -117,12 +118,7 @@ export default function ContractListPage() {
       ? sameSet(filters.status, tile.statuses)
       : filters.yourTurn?.[0] === true;
   const statistics: StatisticsItem[] = tiles.map((tile, index) => ({
-    // Five tiles on a 24-column grid: three, then two wider ones, never a lone fifth tile.
-    colSpan: {
-      xs: index === tiles.length - 1 ? 24 : 12,
-      sm: 12,
-      md: index < 3 ? 8 : 12,
-    },
+    colSpan: statSpan(index, tiles.length),
     title: t(`contractList.tiles.${tile.key}`),
     value: tile.statuses
       ? tile.statuses.reduce((sum, s) => sum + count("status", s), 0)
@@ -405,19 +401,19 @@ export default function ContractListPage() {
         <DataTable<ContractRow>
           hideCard
           rowKey="id"
-          scroll={{ x: 1800 }}
+          scroll={{ x: 1060 }}
           columns={columns.map((column) => ({
             ...column,
             width:
               (
                 {
-                  contract: 280,
-                  buyer: 190,
-                  supplier: 190,
-                  valueMillion: 150,
-                  progress: 200,
-                  status: 230,
-                  nextDue: 250,
+                  contract: 250,
+                  buyer: 160,
+                  supplier: 160,
+                  valueMillion: 110,
+                  progress: 150,
+                  status: 170,
+                  nextDue: 170,
                 } as Record<string, number>
               )[String(column.key)] ?? 200,
           }))}

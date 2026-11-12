@@ -6,7 +6,7 @@ import { AppPage } from "@/shared/layout/AppPage";
 import { SplitView } from "@/shared/ui/SplitView";
 import { getSigningConfig, signingKeys } from "../api/signingConfig.api";
 import { PageState } from "@/shared/ui/PageState";
-import { WizardStepper } from "../components/WizardStepper";
+import { WizardStepper } from "@/shared/ui/WizardStepper";
 import { PositionsAlerts } from "../components/PositionsAlerts";
 import { PositionsCanvasCard } from "../components/PositionsCanvasCard";
 import { PositionsSidebar } from "../components/PositionsSidebar";

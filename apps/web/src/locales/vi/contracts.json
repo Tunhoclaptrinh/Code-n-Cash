@@ -91,14 +91,6 @@
     }
   },
   "contractUpload": {
-    "steps": {
-      "label": "Các bước đăng ký hợp đồng",
-      "upload": "Tải lên",
-      "positions": "Vị trí ký",
-      "review": "Rà soát điều khoản",
-      "sign": "Ký số",
-      "effective": "Có hiệu lực"
-    },
     "form": {
       "type": {
         "label": "Loại hợp đồng"

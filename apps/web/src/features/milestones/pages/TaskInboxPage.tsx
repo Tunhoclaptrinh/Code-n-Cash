@@ -452,18 +452,18 @@ export default function TaskInboxPage() {
         <DataTable<TaskRow>
           hideCard
           rowKey="id"
-          scroll={{ x: 1120 }}
+          scroll={{ x: 1060 }}
           columns={columns.map((column) => ({
             ...column,
             width:
               (
                 {
-                  kind: 220,
-                  contract: 210,
-                  who: 210,
+                  kind: 190,
+                  contract: 230,
+                  who: 180,
                   amount: 110,
-                  dueDate: 135,
-                  badge: 130,
+                  dueDate: 130,
+                  badge: 140,
                 } as Record<string, number>
               )[String(column.key)] ?? 200,
           }))}

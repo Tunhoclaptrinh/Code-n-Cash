@@ -14,7 +14,7 @@ import {
 import { confirmDigitization, getDigitization } from "../api/digitization.api";
 import { signingKeys } from "../api/signingConfig.api";
 import { PageState } from "@/shared/ui/PageState";
-import { WizardStepper } from "../components/WizardStepper";
+import { WizardStepper } from "@/shared/ui/WizardStepper";
 import {
   capitalize,
   cx,

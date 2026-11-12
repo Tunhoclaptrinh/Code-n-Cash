@@ -264,7 +264,7 @@ export default function DataPage() {
     {
       ...list.column("contract_id"),
       dataIndex: "contract_id",
-      width: 140,
+      width: 110,
       title: t("data.columns.contract_id"),
       sorter: true,
       filters: distinct("contract_id").map(({ value }) => ({
@@ -280,7 +280,7 @@ export default function DataPage() {
     {
       ...list.column("milestone_id"),
       dataIndex: "milestone_id",
-      width: 140,
+      width: 110,
       title: t("data.columns.milestone_id"),
       sorter: true,
       ...columnSearch(),
@@ -288,7 +288,7 @@ export default function DataPage() {
     {
       ...list.column("milestone_type"),
       dataIndex: "milestone_type",
-      width: 170,
+      width: 140,
       title: t("data.columns.milestone_type"),
       filters: distinct("milestone_type").map(({ value }) => ({
         text: value,
@@ -300,7 +300,7 @@ export default function DataPage() {
     {
       ...list.column("predicted_decision"),
       dataIndex: "predicted_decision",
-      width: 150,
+      width: 120,
       title: t("data.columns.predicted_decision"),
       filters: DECISIONS.map((value) => ({ text: value, value })),
       filterMultiple: false,
@@ -313,7 +313,7 @@ export default function DataPage() {
     {
       ...list.column("payable_amount_vnd_mn"),
       dataIndex: "payable_amount_vnd_mn",
-      width: 170,
+      width: 150,
       title: t("data.columns.payable_amount_vnd_mn"),
       align: "right" as const,
       sorter: true,
@@ -322,7 +322,7 @@ export default function DataPage() {
     {
       ...list.column("penalty_amount_vnd_mn"),
       dataIndex: "penalty_amount_vnd_mn",
-      width: 160,
+      width: 140,
       title: t("data.columns.penalty_amount_vnd_mn"),
       align: "right" as const,
       sorter: true,
@@ -331,7 +331,7 @@ export default function DataPage() {
     {
       ...list.column("reason_code"),
       dataIndex: "reason_code",
-      width: 230,
+      width: 260,
       title: t("data.columns.reason_code"),
       filters: distinct("reason_code").map(({ value }) => ({
         text: value,
@@ -497,6 +497,7 @@ export default function DataPage() {
         <DataTable<Row>
           hideCard
           rowKey="milestone_id"
+          scroll={{ x: 1110 }}
           columns={columns}
           {...list.table}
           loading={list.table.loading || result.isPending || evaluate.isPending}

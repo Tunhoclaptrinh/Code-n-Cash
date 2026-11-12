@@ -6,7 +6,8 @@
       "REVIEW": "Clause review",
       "SIGN": "Sign",
       "EFFECTIVE": "In force"
-    }
+    },
+    "label": "Steps to put the contract into force"
   },
   "party": {
     "BUYER": "Buyer",

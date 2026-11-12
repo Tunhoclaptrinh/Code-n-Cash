@@ -13,6 +13,11 @@ import {
   LocalSigningProvider,
   getSigningProvider,
 } from "../trust/signing-provider";
+import {
+  pinnedCa,
+  verifyRemoteSignature,
+  type RemoteTransaction,
+} from "../trust/remote-signer";
 import { outcome, newEvent, type Outcome } from "./actions";
 import type { Ctx } from "./context";
 import { businessNow, entity, nextId } from "./factory";
@@ -28,6 +33,7 @@ import type {
   SignMethod,
   SigningConfig,
   SigningOverview,
+  RemoteSignatureProof,
   SigningRequest,
   SlotMap,
   VerificationResult,
@@ -40,6 +46,11 @@ const signingProvider = {
     getSigningProvider().verify(subject, proof),
 };
 const REQUEST_LIFETIME_MS = 5 * 60 * 1000;
+/** Signing goes through the remote signing service and the person's device. */
+const isRemote = () => !!getSigningProvider().remote;
+type RemoteRequestRecord = SigningRequestRecord & {
+  payload?: Record<string, unknown>;
+};
 /** The simulated signer confirms on the phone a few seconds after the request is sent. */
 const SIMULATED_CONFIRM_DELAY_MS = 7000;
 const METHODS: SignMethod[] = [
@@ -270,6 +281,11 @@ const plain = (r: SigningRequestRecord): SigningRequest => ({
   sentAt: r.sentAt,
   expiresAt: r.expiresAt,
   autoConfirmAt: r.autoConfirmAt,
+  remote: !!r.remote,
+  channel: r.channel ?? null,
+  transactionId: r.transactionId ?? null,
+  hash: r.hash ?? null,
+  failure: r.failure ?? null,
 });
 
 function assertSigner(ctx: Ctx, contractCode: string, stepNo: number) {
@@ -288,6 +304,7 @@ function assertSigner(ctx: Ctx, contractCode: string, stepNo: number) {
 async function complete(
   ctx: Ctx,
   request: SigningRequestRecord,
+  remoteProof?: RemoteSignatureProof,
 ): Promise<Outcome> {
   const record = stored(ctx, request.contractCode);
   const step = record.steps.find((s) => s.stepNo === request.stepNo)!;
@@ -305,26 +322,31 @@ async function complete(
   const previous = record.steps.find(
     (s) => s.stepNo === step.stepNo - 1,
   )?.localProof;
-  const proof = await signingProvider.sign(`signer:${step.signerUserId}`, {
-    kind: "CONTRACT_SIGNATURE",
-    contractCode: request.contractCode,
-    requestId: request.id,
-    stepNo: step.stepNo,
-    signerUserId: step.signerUserId,
-    declaredMethod: request.method,
-    documentDigest: document.digest,
-    basis: document.basis,
-    signedAt,
-    termsDigest: document.termsDigest,
-    previousSignatureHash: previous ? sha256(canonical(previous)) : null,
-    certificateTrusted: false,
-  });
-  if (!signingProvider.verify(`signer:${step.signerUserId}`, proof))
+  const proof =
+    remoteProof ??
+    (await signingProvider.sign(`signer:${step.signerUserId}`, {
+      kind: "CONTRACT_SIGNATURE",
+      contractCode: request.contractCode,
+      requestId: request.id,
+      stepNo: step.stepNo,
+      signerUserId: step.signerUserId,
+      declaredMethod: request.method,
+      documentDigest: document.digest,
+      basis: document.basis,
+      signedAt,
+      termsDigest: document.termsDigest,
+      previousSignatureHash: previous ? sha256(canonical(previous)) : null,
+      certificateTrusted: false,
+    }));
+  if (
+    proof.provider !== "REMOTE_CA" &&
+    !signingProvider.verify(`signer:${step.signerUserId}`, proof)
+  )
     throw new BadRequestException("INVALID_SIGNATURE_PROOF");
   step.localProof = proof;
-  step.proofSource = getSigningProvider().kind as NonNullable<
-    typeof step.proofSource
-  >;
+  step.proofSource = remoteProof
+    ? "REMOTE_CA"
+    : (getSigningProvider().kind as NonNullable<typeof step.proofSource>);
   request.status = "COMPLETED";
   step.status = "SIGNED";
   step.signedAt = signedAt;
@@ -410,6 +432,7 @@ export async function readRequest(
     if (Date.parse(request.expiresAt) <= now) request.status = "EXPIRED";
     else if (
       getSigningProvider().simulated &&
+      !request.remote &&
       request.autoConfirmAt &&
       Date.parse(request.autoConfirmAt) <= now
     )
@@ -438,28 +461,60 @@ export function sendRequest(
     )
       open.status = "CANCELLED";
   const now = Date.now();
-  const request = entity(
-    nextId(
-      "RQ-",
-      requestsOf(ctx).map((r) => r.id),
-      6,
-    ),
-    {
-      contractCode,
-      stepNo,
-      method,
-      status: "PENDING" as const,
-      code: String(randomInt(1000, 10000)),
-      sentAt: new Date(now).toISOString(),
-      expiresAt: new Date(now + REQUEST_LIFETIME_MS).toISOString(),
-      autoConfirmAt: getSigningProvider().simulated
+  const id = nextId(
+    "RQ-",
+    requestsOf(ctx).map((r) => r.id),
+    6,
+  );
+  // Through the signing service the person signs a payload fixed now: its hash travels, the
+  // document never does. A signature image stays an in-app confirmation.
+  const remote = isRemote() && method !== "IMAGE";
+  const document = signingDigest(ctx, contractCode);
+  const previous = record.steps.find(
+    (s) => s.stepNo === step.stepNo - 1,
+  )?.localProof;
+  const payload = remote
+    ? {
+        kind: "CONTRACT_SIGNATURE",
+        contractCode,
+        requestId: id,
+        stepNo,
+        signerUserId: step.signerUserId,
+        declaredMethod: method,
+        documentDigest: document.digest,
+        basis: document.basis,
+        termsDigest: document.termsDigest,
+        previousSignatureHash: previous ? sha256(canonical(previous)) : null,
+        requestedAt: new Date(now).toISOString(),
+        certificateTrusted: false,
+      }
+    : undefined;
+  const request = entity(id, {
+    contractCode,
+    stepNo,
+    method,
+    status: "PENDING" as const,
+    code: String(randomInt(1000, 10000)),
+    sentAt: new Date(now).toISOString(),
+    expiresAt: new Date(now + REQUEST_LIFETIME_MS).toISOString(),
+    autoConfirmAt:
+      getSigningProvider().simulated && !remote
         ? new Date(now + SIMULATED_CONFIRM_DELAY_MS).toISOString()
         : null,
-      documentDigest: signingDigest(ctx, contractCode).digest,
-      termsDigest: signingDigest(ctx, contractCode).termsDigest,
-      organizationId: step.organizationId,
-    },
-  ) as SigningRequestRecord;
+    remote,
+    channel: remote
+      ? method === "USB_TOKEN"
+        ? "USB_TOKEN"
+        : "MOBILE_APP"
+      : null,
+    transactionId: null,
+    hash: payload ? sha256(canonical(payload)) : null,
+    payload,
+    failure: null,
+    documentDigest: signingDigest(ctx, contractCode).digest,
+    termsDigest: signingDigest(ctx, contractCode).termsDigest,
+    organizationId: step.organizationId,
+  }) as SigningRequestRecord;
   requestsOf(ctx).push(request);
   return outcome(ctx, plain(request));
 }
@@ -472,11 +527,129 @@ function pending(ctx: Ctx, contractCode: string, stepNo: number) {
   return request;
 }
 
-export const confirmRequest = (
+export function confirmRequest(ctx: Ctx, contractCode: string, stepNo: number) {
+  const request = pending(ctx, contractCode, stepNo);
+  // The person confirms on their device; the app cannot sign in their place.
+  if (request.remote) throw new BadRequestException("CONFIRM_ON_DEVICE");
+  return complete(ctx, request);
+}
+
+/* ----------------------- remote signing service (apps/signer) ---------------------- */
+
+/** What the signing service needs for the open request: who signs, the hash and its labels. */
+export function remoteDispatch(ctx: Ctx, contractCode: string, stepNo: number) {
+  const request = pending(ctx, contractCode, stepNo);
+  if (!request.remote || !request.hash)
+    throw new BadRequestException("NOT_REMOTE_REQUEST");
+  const { step } = assertSigner(ctx, contractCode, stepNo);
+  const contract = ctx.contract(contractCode);
+  return {
+    requestId: request.id,
+    transactionId: request.transactionId ?? null,
+    hash: request.hash,
+    channel: request.channel ?? "MOBILE_APP",
+    subscriberId: step.signerUserId,
+    title: `${contractCode} · ${String(contract.contract_title ?? "")}`.slice(
+      0,
+      190,
+    ),
+    reference: `${request.id} · step ${stepNo}`,
+  };
+}
+
+function requestById(ctx: Ctx, requestId: string) {
+  const request = requestsOf(ctx).find((r) => r.id === requestId) as
+    RemoteRequestRecord | undefined;
+  if (!request) throw new NotFoundException("REQUEST_NOT_FOUND");
+  return request;
+}
+
+/** The service accepted the request: keep its transaction and the code both screens show. */
+export function attachTransaction(
   ctx: Ctx,
-  contractCode: string,
-  stepNo: number,
-) => complete(ctx, pending(ctx, contractCode, stepNo));
+  requestId: string,
+  transaction: RemoteTransaction,
+): Outcome {
+  const request = requestById(ctx, requestId);
+  if (request.status === "PENDING") {
+    request.transactionId = transaction.id;
+    request.code = transaction.confirmationCode;
+    request.expiresAt = transaction.expiresAt;
+  }
+  return outcome(ctx, plain(request));
+}
+
+/** The service could not be reached: the request stops and says why. */
+export function failRemote(
+  ctx: Ctx,
+  requestId: string,
+  reason: string,
+): Outcome {
+  const request = requestById(ctx, requestId);
+  if (request.status === "PENDING") {
+    request.status = "CANCELLED";
+    request.failure = reason.slice(0, 120);
+  }
+  return outcome(ctx, plain(request));
+}
+
+/**
+ * The service reports how a transaction ended (webhook, or a poll when the webhook was lost).
+ * A signature counts only after it is verified here against the pinned CA and the payload.
+ */
+export async function applyRemoteResult(
+  ctx: Ctx,
+  transaction: RemoteTransaction,
+): Promise<Outcome> {
+  const request = requestsOf(ctx).find(
+    (r) => r.transactionId === transaction.id,
+  ) as RemoteRequestRecord | undefined;
+  if (!request) throw new NotFoundException("REQUEST_NOT_FOUND");
+  if (request.status !== "PENDING" || transaction.status === "PENDING")
+    return outcome(ctx, plain(request));
+  if (transaction.status !== "SIGNED") {
+    request.status =
+      transaction.status === "REJECTED"
+        ? "REJECTED"
+        : transaction.status === "EXPIRED"
+          ? "EXPIRED"
+          : "CANCELLED";
+    return outcome(ctx, plain(request));
+  }
+  const record = stored(ctx, request.contractCode);
+  const step = record.steps.find((s) => s.stepNo === request.stepNo)!;
+  const result = transaction.result;
+  // A certificate from another CA than the pinned one is refused with its own reason, so an
+  // operator sees a changed (or reset) signing service rather than a bad signature.
+  if (
+    result &&
+    result.certificate.issuer.keyFingerprint !== pinnedCa()?.keyFingerprint
+  )
+    throw new BadRequestException("SIGNER_CA_MISMATCH");
+  if (
+    !result ||
+    !request.payload ||
+    !request.hash ||
+    transaction.hash !== request.hash ||
+    !verifyRemoteSignature({
+      payload: request.payload,
+      hash: request.hash,
+      signature: result.signature,
+      certificate: result.certificate,
+      signerUserId: step.signerUserId,
+    })
+  )
+    throw new BadRequestException("INVALID_SIGNATURE_PROOF");
+  return complete(ctx, request, {
+    provider: "REMOTE_CA",
+    payload: request.payload,
+    hash: request.hash,
+    signature: result.signature,
+    keyFingerprint: result.certificate.keyFingerprint,
+    transactionId: transaction.id,
+    certificate: result.certificate,
+  });
+}
 
 export function rejectRequest(
   ctx: Ctx,
@@ -561,19 +734,29 @@ export function verification(
       const previous = record.steps.find(
         (step) => step.stepNo === s.stepNo - 1,
       )?.localProof;
+      const remote = proof?.provider === "REMOTE_CA";
       const cryptoValid =
         !!proof &&
-        (s.proofSource === "HTTP_ED25519_BRIDGE"
-          ? !getSigningProvider().simulated &&
-            signingProvider.verify(`signer:${s.signerUserId}`, proof)
-          : new LocalSigningProvider().verify(
-              `signer:${s.signerUserId}`,
-              proof,
-            )) &&
+        (proof.provider === "REMOTE_CA"
+          ? verifyRemoteSignature({
+              payload: proof.payload,
+              hash: proof.hash,
+              signature: proof.signature,
+              certificate: proof.certificate,
+              signerUserId: s.signerUserId,
+            })
+          : s.proofSource === "HTTP_ED25519_BRIDGE"
+            ? !getSigningProvider().simulated &&
+              signingProvider.verify(`signer:${s.signerUserId}`, proof)
+            : new LocalSigningProvider().verify(
+                `signer:${s.signerUserId}`,
+                proof,
+              )) &&
         proof.payload.contractCode === contractCode &&
         proof.payload.signerUserId === s.signerUserId &&
         proof.payload.stepNo === s.stepNo &&
-        proof.payload.signedAt === s.signedAt &&
+        // A remote payload is fixed when requested; the service sets the signing time.
+        (remote || proof.payload.signedAt === s.signedAt) &&
         proof.payload.declaredMethod === s.method &&
         proof.payload.previousSignatureHash ===
           (previous ? sha256(canonical(previous)) : null);
@@ -588,8 +771,14 @@ export function verification(
         signerName: s.signerName,
         signedAt: s.signedAt!,
         method: s.method!,
-        certExpiryMonth: certificate?.expiryMonth ?? expiry.getUTCMonth() + 1,
-        certExpiryYear: certificate?.expiryYear ?? expiry.getUTCFullYear(),
+        certExpiryMonth:
+          proof?.provider === "REMOTE_CA"
+            ? new Date(proof.certificate.notAfter).getUTCMonth() + 1
+            : (certificate?.expiryMonth ?? expiry.getUTCMonth() + 1),
+        certExpiryYear:
+          proof?.provider === "REMOTE_CA"
+            ? new Date(proof.certificate.notAfter).getUTCFullYear()
+            : (certificate?.expiryYear ?? expiry.getUTCFullYear()),
         status: !proof
           ? ("UNVERIFIED" as const)
           : cryptoValid && contentIntact

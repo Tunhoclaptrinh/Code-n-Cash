@@ -1131,14 +1131,45 @@ export interface SignStep {
   status: SignStepStatus;
   signedAt: string | null;
   method: SignMethod | null;
-  proofSource?: "LOCAL_ED25519" | "HTTP_ED25519_BRIDGE";
-  localProof?: {
-    provider: "LOCAL_ED25519";
-    payload: Record<string, unknown>;
-    publicKey: string;
-    keyFingerprint: string;
-    signature: string;
-  };
+  proofSource?: "LOCAL_ED25519" | "HTTP_ED25519_BRIDGE" | "REMOTE_CA";
+  localProof?:
+    | {
+        provider: "LOCAL_ED25519";
+        payload: Record<string, unknown>;
+        publicKey: string;
+        keyFingerprint: string;
+        signature: string;
+      }
+    | RemoteSignatureProof;
+}
+
+/** A certificate of the remote signing provider's (demo) CA, in canonical JSON. */
+export interface RemoteSignerCertificate {
+  version: 1;
+  serial: string;
+  subject: { subscriberId: string; commonName: string; organization: string };
+  issuer: { commonName: string; keyFingerprint: string };
+  publicKey: string;
+  keyFingerprint: string;
+  notBefore: string;
+  notAfter: string;
+  keyUsage: string[];
+  policy: string;
+  signature: string;
+}
+
+/**
+ * A signature made by the remote signing service after the person confirmed on their device:
+ * the payload CodeCash prepared, its hash, the signature over that hash and the certificate.
+ */
+export interface RemoteSignatureProof {
+  provider: "REMOTE_CA";
+  payload: Record<string, unknown>;
+  hash: string;
+  signature: string;
+  keyFingerprint: string;
+  transactionId: string;
+  certificate: RemoteSignerCertificate;
 }
 
 export interface SignStepView extends SignStep {
@@ -1231,6 +1262,16 @@ export interface SigningRequest {
   autoConfirmAt: string | null;
   documentDigest?: string;
   termsDigest?: string;
+  /** Confirmed on a device through the remote signing service, not in this app. */
+  remote?: boolean;
+  /** Where the person confirms: the signing app on a phone, or a USB token. */
+  channel?: "MOBILE_APP" | "USB_TOKEN" | null;
+  /** The signing service's transaction, once the request reached it. */
+  transactionId?: string | null;
+  /** SHA-256 of the canonical payload the person signs (shown on both screens). */
+  hash?: string | null;
+  /** Why the request stopped when the service could not be reached. */
+  failure?: string | null;
 }
 
 export interface SignerCertificate {

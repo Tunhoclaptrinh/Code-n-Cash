@@ -27,7 +27,16 @@
     "timestampBy": "Signed by {{signer}}",
     "timestampTrusted": "Valid time stamp: {{signer}} attested it at {{at}}.",
     "timestampUntrusted": "The time-stamp signature is correct but its authority ({{signer}}) is not trusted. Time on the stamp: {{at}}.",
-    "timestampInvalid": "The time stamp does not match this seal bundle."
+    "timestampInvalid": "The time stamp does not match this seal bundle.",
+    "stats": {
+      "total": "Seal bundles",
+      "confirmed": "Confirmed",
+      "failed": "Failed",
+      "latest": "Latest chain head"
+    },
+    "empty": "No seal bundle yet. Choose “Create seal bundle” to seal the current head of the audit chain.",
+    "verifyTitle": "Check a saved bundle",
+    "verifyHint": "Choose a JSON bundle exported earlier; the app checks its signature, chain head and timestamp against the current chain."
   },
   "extraction": {
     "title": "Extract and review terms",
@@ -295,7 +304,8 @@
       "organiserScope": "This is an organiser scope: expressions can be edited, rules cannot be added or removed",
       "organiserScopeHint": "The organiser rules must give identical results on the 405 Data Pack milestones. To add rules or stages, create an own (APP_) workflow for the same contract type: it starts as a copy of these rules and applies only to newly drafted contracts.",
       "addWorkflowFor": "Create own workflow for {{type}}"
-    }
+    },
+    "empty": "No rule version yet. Choose “New version” to start from the rules in use."
   },
   "fields": {
     "valueMillion": "Contract value (million VND)",

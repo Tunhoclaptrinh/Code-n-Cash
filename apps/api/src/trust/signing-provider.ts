@@ -7,6 +7,8 @@ import type { LocalProof } from "./types";
 export interface SigningProvider {
   readonly kind: string;
   readonly simulated: boolean;
+  /** Signing happens on the person's device through the remote signing service. */
+  readonly remote?: boolean;
   sign(
     subject: string,
     payload: Record<string, unknown>,
@@ -81,11 +83,28 @@ export class HttpSigningProvider implements SigningProvider {
     return verifyLocalProof(proof, this.fingerprint);
   }
 }
+/**
+ * The remote signing service (apps/signer): the person confirms on a device and the service signs
+ * with the key it holds. Signing is asynchronous, so `sign` is never called in this mode; see
+ * trust/remote-signer.ts and the signing handlers in workflow.controller.ts.
+ */
+export class RemoteSigningProvider implements SigningProvider {
+  readonly kind = "REMOTE_CA";
+  readonly simulated = true;
+  readonly remote = true;
+  sign(): LocalProof {
+    throw new BadRequestException("CONFIRM_ON_DEVICE");
+  }
+  verify() {
+    return false;
+  }
+}
 let selected: SigningProvider | undefined;
 export function getSigningProvider(): SigningProvider {
   if (selected) return selected;
   const mode = process.env.SIGNING_PROVIDER ?? "local";
   if (mode === "local") selected = new LocalSigningProvider();
+  else if (mode === "remote") selected = new RemoteSigningProvider();
   else if (mode === "http")
     selected = new HttpSigningProvider(
       process.env.SIGNING_URL ?? "",

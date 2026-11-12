@@ -58,7 +58,10 @@
     "valueMillion": "Giá trị (triệu VND)",
     "graceDays": "Số ngày ân hạn",
     "penaltyRatePct": "Phạt mỗi ngày (%)",
-    "maxPenaltyPct": "Trần phạt (%)"
+    "maxPenaltyPct": "Trần phạt (%)",
+    "at": "Thời điểm",
+    "seq": "STT chuỗi",
+    "hash": "Hash"
   },
   "data": {
     "title": "Kết quả Data Pack",
@@ -399,5 +402,69 @@
   "lite": {
     "previewFirst": "Chạy thử trước khi gửi duyệt.",
     "uploadHint": "Cần: contracts, parties, milestones, events, payment_rules (.csv hoặc một tệp ZIP)."
+  },
+  "systemInfo": "Thông tin hệ thống",
+  "emptyResource": "Chưa có bản ghi nào trong {{name}}.",
+  "auditDigestNote": "Vai trò quản trị và kiểm toán chỉ xem bản tóm tắt chuỗi nhật ký: hành động, đối tượng, thời điểm và hash để đối chiếu. Ai làm và nội dung thay đổi được ẩn (đặc tả mục 2.2); xem đầy đủ ở Nhật ký hoạt động của từng tổ chức.",
+  "fieldOverrides": {
+    "users": {
+      "title": "Chức danh",
+      "partyId": "Mã bên trong Data Pack",
+      "active": "Đang hoạt động"
+    },
+    "organizations": {
+      "kind": "Loại tổ chức"
+    },
+    "contract-templates": {
+      "active": "Đang dùng"
+    }
+  },
+  "fieldHints": {
+    "users": {
+      "organizationId": "Người dùng chỉ thấy hợp đồng của tổ chức này.",
+      "partyId": "Để trống nếu tổ chức chưa có trong Data Pack."
+    },
+    "milestone-templates": {
+      "requiredEvents": "Mã sự kiện cách nhau bằng dấu chấm phẩy, ví dụ DELIVERY;INVOICE.",
+      "paymentPercent": "Phần trăm giá trị hợp đồng của mốc, ví dụ 30.00."
+    },
+    "contract-templates": {
+      "signerRoles": "Thứ tự người ký từ trên xuống."
+    }
+  },
+  "settingKeys": {
+    "DATA_PACK_SNAPSHOT": {
+      "label": "Ngày chốt Data Pack",
+      "hint": "bản dữ liệu BTC đang dùng"
+    },
+    "SPEC_VERSION": {
+      "label": "Phiên bản đặc tả",
+      "hint": "đặc tả nghiệp vụ áp dụng"
+    },
+    "DEMO_BUYER": {
+      "label": "Bên mua demo",
+      "hint": "tổ chức dùng cho tài khoản demo bên mua"
+    },
+    "DEMO_SUPPLIER": {
+      "label": "Nhà cung cấp demo",
+      "hint": "tổ chức dùng cho tài khoản demo nhà cung cấp"
+    },
+    "EVALUATION_MODE": {
+      "label": "Chế độ đánh giá",
+      "hint": "cách engine đọc lịch sử sự kiện"
+    }
+  },
+  "auditResources": {
+    "users": "Tài khoản",
+    "datapack": "Data Pack",
+    "integrity": "Kiểm tra toàn vẹn",
+    "app-migrations": "Cập nhật dữ liệu ứng dụng",
+    "workflow": "Nghiệp vụ hợp đồng",
+    "notification-cursors": "Thông báo",
+    "anchors": "Niêm phong độc lập",
+    "rule-versions": "Phiên bản quy tắc",
+    "exports": "Xuất dữ liệu",
+    "documents": "Tài liệu",
+    "engine": "Engine Data Pack"
   }
 }

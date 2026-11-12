@@ -1,0 +1,452 @@
+openapi: 3.1.0
+info:
+  title: CodeCash Sign — remote signing service (simulated)
+  version: 1.0.0
+  description: |
+    A simulated remote signing provider, run as its own service. It plays the part a commercial
+    CA plays for remote signing: it holds each subscriber's key and certificate, receives the
+    SHA-256 hash of what a person signs from a relying party (CodeCash), asks the person to
+    confirm on their device, signs only after the PIN, and reports the result by webhook.
+
+    Two audiences, two credentials:
+    - **Relying party** (CodeCash API, server to server): HTTP Basic `client_id:client_secret`.
+    - **Device** (the person's signing app or USB token, here simulated in the browser): a
+      short-lived bearer token the relying party obtains for its signed-in user.
+
+    The CA is a demo: certificates carry `policy: DEMO_NOT_QUALIFIED` and are not in any trust
+    list. A real provider adapter keeps this contract's shape (hash in, signature + certificate
+    out, asynchronous confirmation, signed callback).
+servers:
+  - url: http://127.0.0.1:3200
+    description: Development (pnpm dev:signer)
+  - url: /signer-api
+    description: Through the gateway (Vite proxy in development, nginx in production)
+tags:
+  - name: Discovery
+  - name: Relying party
+  - name: Device
+  - name: Webhook
+
+paths:
+  /health:
+    get:
+      tags: [Discovery]
+      summary: Liveness
+      responses:
+        "200":
+          description: The service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  service: { type: string, example: codecash-signer }
+  /v1/ca:
+    get:
+      tags: [Discovery]
+      summary: The CA's public key, for the relying party to pin
+      responses:
+        "200":
+          description: CA description
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaInfo" }
+
+  /v1/credentials:
+    post:
+      tags: [Relying party]
+      summary: Enrol a subscriber (idempotent)
+      description: Issues a key pair and a certificate for the person; returns the existing one when already enrolled.
+      security: [{ client: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subscriberId, commonName]
+              properties:
+                subscriberId:
+                  { type: string, description: The relying party's user id }
+                commonName: { type: string }
+                organization: { type: string }
+      responses:
+        "200":
+          description: The credential
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Credential" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/credentials/{subscriberId}:
+    get:
+      tags: [Relying party]
+      summary: Read a subscriber's credential
+      security: [{ client: [] }]
+      parameters:
+        - {
+            name: subscriberId,
+            in: path,
+            required: true,
+            schema: { type: string },
+          }
+      responses:
+        "200":
+          description: The credential
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Credential" }
+        "404": { $ref: "#/components/responses/Problem" }
+  /v1/device-sessions:
+    post:
+      tags: [Relying party]
+      summary: Issue a device session token for a signed-in person
+      description: The relying party has authenticated the person; the token lets their device read and decide their own requests for 12 hours.
+      security: [{ client: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subscriberId]
+              properties:
+                subscriberId: { type: string }
+      responses:
+        "200":
+          description: Device token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  expiresAt: { type: string, format: date-time }
+  /v1/signatures:
+    post:
+      tags: [Relying party]
+      summary: Ask a subscriber to sign a hash
+      description: |
+        Creates a pending transaction (5 minutes) and notifies the person's devices. Any older
+        pending request of the same person is cancelled. Repeating a call with the same
+        `Idempotency-Key` returns the first transaction.
+      security: [{ client: [] }]
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema: { type: string, maxLength: 100 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subscriberId, hash]
+              properties:
+                subscriberId: { type: string }
+                hash:
+                  {
+                    type: string,
+                    pattern: "^[a-f0-9]{64}$",
+                    description: SHA-256 of what is signed,
+                  }
+                channel:
+                  {
+                    type: string,
+                    enum: [MOBILE_APP, USB_TOKEN],
+                    default: MOBILE_APP,
+                  }
+                display:
+                  type: object
+                  properties:
+                    title: { type: string }
+                    relyingParty: { type: string }
+                    reference: { type: string }
+                callbackUrl:
+                  {
+                    type: string,
+                    format: uri,
+                    description: Receives the signed webhook,
+                  }
+      responses:
+        "201":
+          description: The pending transaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
+  /v1/signatures/{id}:
+    get:
+      tags: [Relying party]
+      summary: Read a transaction (polling fallback)
+      description: Includes `result` once signed.
+      security: [{ client: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The transaction
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+        "404": { $ref: "#/components/responses/Problem" }
+  /v1/signatures/{id}/cancel:
+    post:
+      tags: [Relying party]
+      summary: Withdraw a pending transaction
+      security: [{ client: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The transaction, cancelled if it was pending
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+
+  /v1/device/credential:
+    get:
+      tags: [Device]
+      summary: The person's certificate and PIN state
+      security: [{ device: [] }]
+      responses:
+        "200":
+          description: Credential
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Credential" }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/device/transactions:
+    get:
+      tags: [Device]
+      summary: The person's last ten requests, newest first
+      security: [{ device: [] }]
+      responses:
+        "200":
+          description: Requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Transaction" }
+  /v1/device/events:
+    get:
+      tags: [Device]
+      summary: Server-sent events for the person's requests
+      description: "`event: ready` once connected, then `event: transaction` with the transaction on every change. Comment lines keep the stream open."
+      security: [{ device: [] }]
+      responses:
+        "200":
+          description: text/event-stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+  /v1/device/transactions/{id}/approve:
+    post:
+      tags: [Device]
+      summary: Confirm with the PIN; the service signs the hash
+      description: Three wrong PINs lock the credential for five minutes.
+      security: [{ device: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pin]
+              properties:
+                pin: { type: string, pattern: "^[0-9]{6}$" }
+      responses:
+        "200":
+          description: Signed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+        "401":
+          {
+            description: "WRONG_PIN, with triesLeft",
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Problem" } },
+              },
+          }
+        "409":
+          {
+            description: TRANSACTION_NOT_PENDING or TRANSACTION_EXPIRED,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Problem" } },
+              },
+          }
+        "423":
+          {
+            description: "PIN_LOCKED, with lockedUntil",
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/Problem" } },
+              },
+          }
+  /v1/device/transactions/{id}/reject:
+    post:
+      tags: [Device]
+      summary: Refuse to sign
+      security: [{ device: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Transaction" }
+
+webhooks:
+  signatureFinished:
+    post:
+      tags: [Webhook]
+      summary: A transaction ended (signed, rejected, expired or cancelled)
+      description: |
+        Posted to the transaction's `callbackUrl`. `X-Signer-Signature: sha256=<hex HMAC-SHA256 of
+        the raw body with the shared webhook secret>`; `X-Signer-Event` repeats the type. Retried
+        after 1, 5 and 25 seconds; the relying party also polls, so a lost webhook only delays.
+      parameters:
+        - {
+            name: X-Signer-Signature,
+            in: header,
+            required: true,
+            schema: { type: string },
+          }
+        - { name: X-Signer-Event, in: header, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    [
+                      signature.completed,
+                      signature.rejected,
+                      signature.expired,
+                      signature.cancelled,
+                    ]
+                transaction: { $ref: "#/components/schemas/Transaction" }
+      responses:
+        "200": { description: Accepted }
+
+components:
+  securitySchemes:
+    client:
+      type: http
+      scheme: basic
+      description: Relying party client id and secret (SIGNER_CLIENT_ID / SIGNER_CLIENT_SECRET)
+    device:
+      type: http
+      scheme: bearer
+      description: Device session token from POST /v1/device-sessions
+  responses:
+    Problem:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Problem" }
+  schemas:
+    Problem:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, example: TRANSACTION_NOT_PENDING }
+        triesLeft: { type: integer }
+        lockedUntil: { type: string, format: date-time }
+    CaInfo:
+      type: object
+      properties:
+        commonName: { type: string, example: CodeCash Demo CA }
+        publicKey: { type: string, description: SPKI PEM, Ed25519 }
+        keyFingerprint: { type: string, description: SHA-256 hex of the PEM }
+        algorithm: { type: string, example: Ed25519 }
+        trusted: { type: boolean, example: false }
+    Certificate:
+      type: object
+      description: Canonical JSON (keys sorted); `signature` is the CA's Ed25519 signature over the rest.
+      properties:
+        version: { type: integer, example: 1 }
+        serial: { type: string }
+        subject:
+          type: object
+          properties:
+            subscriberId: { type: string }
+            commonName: { type: string }
+            organization: { type: string }
+        issuer:
+          type: object
+          properties:
+            commonName: { type: string }
+            keyFingerprint: { type: string }
+        publicKey: { type: string }
+        keyFingerprint: { type: string }
+        notBefore: { type: string, format: date-time }
+        notAfter: { type: string, format: date-time }
+        keyUsage: { type: array, items: { type: string } }
+        policy: { type: string, example: DEMO_NOT_QUALIFIED }
+        signature: { type: string, description: base64 }
+    Credential:
+      type: object
+      properties:
+        id: { type: string }
+        subscriberId: { type: string }
+        certificate: { $ref: "#/components/schemas/Certificate" }
+        locked: { type: boolean }
+        lockedUntil: { type: [string, "null"], format: date-time }
+        triesLeft: { type: integer }
+        demoPin:
+          {
+            type: string,
+            description: The demo PIN,
+            shown by the simulated device,
+          }
+    Transaction:
+      type: object
+      properties:
+        id: { type: string, example: TX-1A2B3C4D5E6F }
+        status:
+          {
+            type: string,
+            enum: [PENDING, SIGNED, REJECTED, EXPIRED, CANCELLED],
+          }
+        channel: { type: string, enum: [MOBILE_APP, USB_TOKEN] }
+        display:
+          type: object
+          properties:
+            title: { type: string }
+            relyingParty: { type: string }
+            reference: { type: string }
+        hash: { type: string }
+        confirmationCode:
+          { type: string, description: Four digits shown on both screens }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        finishedAt: { type: [string, "null"], format: date-time }
+        result:
+          type: object
+          description: Present once signed (relying party reads only)
+          properties:
+            algorithm: { type: string, example: Ed25519 }
+            signature:
+              {
+                type: string,
+                description: base64 signature over the 32 hash bytes,
+              }
+            certificate: { $ref: "#/components/schemas/Certificate" }

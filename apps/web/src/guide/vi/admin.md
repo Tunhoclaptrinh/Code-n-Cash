@@ -10,6 +10,12 @@ Các tab quản lý tổ chức, người dùng, hồ sơ hợp đồng, mẫu m
 
 Hợp đồng nghiệp vụ phải thay đổi tại các trang hợp đồng, số hoá, ký, nộp hoặc phê duyệt. Không dùng bảng tài nguyên để sửa quyết định, trạng thái hay nhật ký.
 
+Các tab chỉ hiện tài nguyên mà vai trò của bạn được đọc. Tổ chức, người dùng và mẫu mốc có hàng thẻ số liệu ở đầu (theo loại tổ chức, vai trò, quy trình); bấm một thẻ để lọc, bấm lại để bỏ lọc. Bảng **Cấu hình** ghi tên dễ hiểu và mô tả ngắn cạnh mã khoá; **Mẫu mốc** hiện loại mốc và sự kiện bắt buộc bằng nhãn, kèm mã gốc.
+
+## Nhật ký hệ thống
+
+Quản trị và kiểm toán chỉ xem bản tóm tắt chuỗi nhật ký: thời điểm, số thứ tự trong chuỗi, hành động, đối tượng và hash, đủ để đối chiếu chuỗi không bị sửa. Ai làm và nội dung thay đổi được ẩn với hai vai trò này (đặc tả mục 2.2); mỗi tổ chức xem đầy đủ ở **Nhật ký hoạt động** của mình. Nhật ký chỉ đọc: không có nút thêm, nhập hay sửa.
+
 ## Thêm và sửa bản ghi được phép
 
 1. Chọn tab rồi bấm **Thêm mới**.

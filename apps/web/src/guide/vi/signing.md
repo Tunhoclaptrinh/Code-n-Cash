@@ -68,6 +68,15 @@ Bấm **Xác nhận** tạo các mốc thật và khoá điều khoản, chuyể
 
 Thử CT0102 bằng `supplier@phuminh.vn` ở bước 2, rồi `secondary@novaan.vn` ở bước cuối. Ký chưa đến lượt bị chặn. Huỷ luồng ký là quyền của người quản lý hồ sơ; cần đọc xác nhận và lý do trước khi thực hiện.
 
+### Ký qua thiết bị (khi bật dịch vụ ký)
+
+Khi hệ thống ký qua dịch vụ ký số từ xa, CodeCash không tự ký thay bạn. Sau khi bấm **Gửi yêu cầu ký**, màn hình hiện mã xác nhận 4 số, mã băm nội dung và thời gian còn lại; bạn xác nhận trên thiết bị:
+
+- **Trên máy tính:** nút điện thoại ở góc dưới bên phải sáng lên khi có yêu cầu. Bấm để mở thiết bị giả lập, kiểm tra mã xác nhận trùng, nhập PIN (bản demo: `123456`) rồi bấm **Xác nhận ký**. Với USB token, bấm **Cắm token** trước khi nhập PIN.
+- **Trên điện thoại:** đăng nhập cùng tài khoản và mở `/device` (hoặc quét mã QR trong thiết bị ở góc). Yêu cầu hiện ngay trên điện thoại, xác nhận như trên.
+
+Màn CodeCash tự chuyển sang trang Kiểm tra chữ ký khi ký xong. Sai PIN ba lần thì thiết bị khoá năm phút. Thiết bị và CA chỉ là giả lập, chữ ký không có giá trị pháp lý.
+
 ## 5. Kiểm tra chữ ký
 
 ![Thông tin chữ ký đã ghi trong hợp đồng](../../../public/guide/images/verify.webp)

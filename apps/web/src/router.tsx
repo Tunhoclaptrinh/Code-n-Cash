@@ -23,6 +23,11 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [{ errorElement: <RouteErrorPage />, children: pages() }],
       },
+      // The signing device stands for a separate app (a CA's phone app), so it has no app chrome.
+      {
+        path: "/device",
+        lazy: () => import("@/features/signing/pages/DevicePage").then(asRoute),
+      },
     ],
   },
 ]);

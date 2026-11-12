@@ -4,7 +4,7 @@ import { resourceDemoInput } from "./lib/demoInput";
 import { SigningRolePicker } from "@/shared/ui/SigningRolePicker";
 import { useMemo, useState, type Key, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Form,
@@ -57,6 +57,9 @@ import { formatDateTime, formatNumber } from "@/shared/lib/format";
 import { OriginTag } from "@/shared/ui/DomainTags";
 import { ImportPreviewModal } from "@/shared/ui/ImportPreviewModal";
 import { AuditDetails } from "@/shared/ui/AuditDetails";
+import { TechnicalDetails } from "@/shared/ui/TechnicalInfo";
+import { STAT_TONE, type StatTone } from "@/shared/ui/statTone";
+import { statSpan } from "@/shared/lib/statLayout";
 
 type Option = { value: string; label: string };
 
@@ -82,6 +85,23 @@ function typedRow(
   return result;
 }
 
+/** The field whose values head a resource's list as statistic tiles (one count per value). */
+const STAT_FIELD: Record<string, string> = {
+  organizations: "kind",
+  users: "role",
+  "milestone-templates": "workflowTemplate",
+};
+const TILE_TONES: StatTone[] = [
+  "blue",
+  "green",
+  "violet",
+  "amber",
+  "sky",
+  "orange",
+  "indigo",
+  "red",
+];
+
 /** One page per resource: switching tabs starts with fresh search, filters, sort and selection. */
 export default function ResourcePage() {
   const { resource = "organizations" } = useParams();
@@ -92,6 +112,8 @@ function ResourceView({ resource }: { resource: string }) {
   const navigate = useNavigate();
   const { t } = useTranslation("platform");
   const { t: tc } = useTranslation("common");
+  const { t: td } = useTranslation("domain");
+  const { t: ta } = useTranslation("audit");
   const { message } = AntApp.useApp();
   const user = useCurrentUser();
   const { hasPermission } = useAccess(user);
@@ -147,7 +169,30 @@ function ResourceView({ resource }: { resource: string }) {
   const filters = state.filters;
   const busy = state.create.isPending || state.update.isPending;
 
-  const fieldLabel = (key: string) => t(`fields.${key}`, { defaultValue: key });
+  // One light count per value of the tile field (limit 1: only the total is read).
+  const statField = fields.find((f) => f.key === STAT_FIELD[resource]);
+  const statCounts = useQueries({
+    queries: (statField?.options ?? []).map((value) => ({
+      queryKey: ["resource", resource, "stat", statField?.key, value],
+      queryFn: () =>
+        service.list({
+          page: 1,
+          limit: 1,
+          filters: { [statField!.key]: value },
+        }),
+    })),
+  });
+
+  /** A field's name on this resource: an override when the shared word misleads (users.title). */
+  const fieldLabel = (key: string) =>
+    t(`fieldOverrides.${resource}.${key}`, {
+      defaultValue: t(`fields.${key}`, { defaultValue: key }),
+    });
+  const fieldHint = (key: string) =>
+    t(`fieldHints.${resource}.${key}`, { defaultValue: "" }) || undefined;
+  const importable = !readOnly && can("import");
+  /** Platform roles read a digest of the audit chain: what and when, never who (spec 2.2). */
+  const auditDigest = resource === "audit" && !items.some((x) => x.actorId);
   const optionLabel = (field: ResourceField, value: string) =>
     field.key === "role"
       ? tc(`roles.${value}.name`, { defaultValue: value })
@@ -187,7 +232,12 @@ function ResourceView({ resource }: { resource: string }) {
         .split(";")
         .map((role, index) => `${index + 1}. ${tc(`roles.${role}.name`)}`)
         .join(" → ");
-    if (field.ref) return refName(value);
+    if (field.ref)
+      return (
+        <Typography.Text ellipsis={{ tooltip: refName(value) }}>
+          {refName(value)}
+        </Typography.Text>
+      );
     if (field.key === "sha256")
       return (
         <Typography.Text
@@ -199,7 +249,62 @@ function ResourceView({ resource }: { resource: string }) {
       );
     if (field.key === "size" && typeof value === "number")
       return `${formatNumber(value / 1024, 1)} KB`;
-    return String(value);
+    if (field.key === "milestoneType")
+      return (
+        <span>
+          {td(`milestoneType.${value}`, { defaultValue: String(value) })}{" "}
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {String(value)}
+          </Typography.Text>
+        </span>
+      );
+    if (field.key === "requiredEvents")
+      return (
+        <Space size={[4, 4]} wrap>
+          {String(value)
+            .split(";")
+            .filter(Boolean)
+            .map((code) => (
+              <Tag key={code} style={{ margin: 0 }}>
+                {td(`eventType.${code}`, { defaultValue: code })}
+              </Tag>
+            ))}
+        </Space>
+      );
+    if (resource === "settings" && field.key === "name") {
+      const hint = t(`settingKeys.${value}.hint`, { defaultValue: "" });
+      return (
+        <span>
+          <Typography.Text strong>
+            {t(`settingKeys.${value}.label`, { defaultValue: String(value) })}
+          </Typography.Text>
+          <br />
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {String(value)}
+            {hint ? ` · ${hint}` : ""}
+          </Typography.Text>
+        </span>
+      );
+    }
+    if (resource === "audit" && field.key === "action")
+      return (
+        <span>
+          {ta(`actionCodes.${value}`, { defaultValue: String(value) })}
+          <br />
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {String(value)}
+          </Typography.Text>
+        </span>
+      );
+    if (resource === "audit" && field.key === "resource")
+      return t(`auditResources.${value}`, {
+        defaultValue: t(`resources.${value}`, { defaultValue: String(value) }),
+      });
+    return (
+      <Typography.Text ellipsis={{ tooltip: String(value) }}>
+        {String(value)}
+      </Typography.Text>
+    );
   };
   /** Column filter options for fields with a closed set of values (server-side, exact match). */
   const columnFilters = (field: ResourceField) =>
@@ -217,14 +322,61 @@ function ResourceView({ resource }: { resource: string }) {
           ? refOptions(field).map((o) => ({ text: o.label, value: o.value }))
           : undefined;
 
+  /** Width by what a field holds, so the common screen widths need no sideways scrolling. */
+  const widthOf = (field: ResourceField) =>
+    resource === "settings" && field.key === "name"
+      ? 340
+      : ["name", "displayName", "description"].includes(field.key) ||
+          (field.key === "title" && resource !== "users")
+        ? 220
+        : field.key === "requiredEvents"
+          ? 260
+          : field.key === "signerRoles"
+            ? 300
+            : field.type === "email" || field.ref
+              ? 200
+              : field.type === "select"
+                ? 150
+                : field.type === "boolean" || field.type === "number"
+                  ? 110
+                  : ["code", "sha256", "recordId"].includes(field.key)
+                    ? 130
+                    : 180;
+  const shownFields = fields.filter(
+    (field) =>
+      // Long text is read in the detail view, not squeezed into a cell.
+      field.type !== "textarea" && !(auditDigest && field.key === "actorId"),
+  );
   const columns = [
-    ...fields.map((field) => {
+    ...(resource === "audit"
+      ? [
+          {
+            key: "createdAt",
+            dataIndex: "createdAt",
+            title: t("fields.at"),
+            width: 170,
+            sorter: true,
+            render: (value: string) => (value ? formatDateTime(value) : "—"),
+          },
+          {
+            key: "seq",
+            dataIndex: "seq",
+            title: t("fields.seq"),
+            width: 80,
+            align: "right" as const,
+            render: (value: unknown) => (value ? `#${value}` : "—"),
+          },
+        ]
+      : []),
+    ...shownFields.map((field) => {
       const options = columnFilters(field);
       return {
         ...state.column(field.key),
         dataIndex: field.key,
         title: fieldLabel(field.key),
+        width: widthOf(field),
         sorter: true,
+        ...(field.type === "number" ? { align: "right" as const } : {}),
         ...(options
           ? {
               filters: options,
@@ -234,25 +386,51 @@ function ResourceView({ resource }: { resource: string }) {
         render: (value: unknown) => renderValue(field, value),
       };
     }),
+    ...(resource === "audit"
+      ? [
+          {
+            key: "hash",
+            dataIndex: "hash",
+            title: t("fields.hash"),
+            width: 150,
+            render: (value: unknown) =>
+              value ? (
+                <Typography.Text code style={{ fontSize: 12 }}>
+                  {String(value).slice(0, 10)}…
+                </Typography.Text>
+              ) : (
+                "—"
+              ),
+          },
+        ]
+      : []),
     ...(items.some((item) => item.origin)
       ? [
           {
             key: "origin",
             dataIndex: "origin",
             title: fieldLabel("origin"),
+            width: 130,
             render: (value: Origin | undefined) =>
               value ? <OriginTag origin={value} /> : "—",
           },
         ]
       : []),
-    {
-      key: "updatedAt",
-      dataIndex: "updatedAt",
-      title: fieldLabel("updatedAt"),
-      sorter: true,
-      render: (value: string) => (value ? formatDateTime(value) : "—"),
-    },
+    ...(resource === "audit"
+      ? []
+      : [
+          {
+            key: "updatedAt",
+            dataIndex: "updatedAt",
+            title: fieldLabel("updatedAt"),
+            width: 150,
+            sorter: true,
+            render: (value: string) => (value ? formatDateTime(value) : "—"),
+          },
+        ]),
   ];
+  const tableWidth =
+    columns.reduce((sum, column) => sum + (column.width ?? 180), 0) + 104 + 48;
 
   const report = (error: unknown) =>
     message.error(
@@ -447,15 +625,43 @@ function ResourceView({ resource }: { resource: string }) {
         {resource === "contract-drafts" && !readOnly && can("update") ? (
           <Alert type="info" showIcon title={t("managedDraftsNote")} />
         ) : null}
+        {auditDigest ? (
+          <Alert type="info" showIcon title={t("auditDigestNote")} />
+        ) : null}
         <DataTable<Entity>
+          statisticsData={
+            statField
+              ? (statField.options ?? []).map((value, index, all) => {
+                  const tone = STAT_TONE[TILE_TONES[index % TILE_TONES.length]];
+                  const selected =
+                    filters[statField.key]?.length === 1 &&
+                    filters[statField.key]?.[0] === value;
+                  return {
+                    key: value,
+                    title: optionLabel(statField, value),
+                    value: statCounts[index]?.data?.total ?? "—",
+                    backgroundColor: tone.bg,
+                    valueColor: tone.value,
+                    selected,
+                    colSpan: statSpan(index, all.length),
+                    onClick: () =>
+                      state.setFilter(statField.key, selected ? null : [value]),
+                    testId: `resource-stat-${value}`,
+                  };
+                })
+              : undefined
+          }
           mobileCards
           columnSettings={{ storageKey: `resource-${resource}` }}
           hideCard
           // The resources are tabs of one table: each tab is a different list, read from the server.
-          tabs={definitions.data?.map((d) => ({
-            key: d.name,
-            label: t(`resources.${d.name}`),
-          }))}
+          // Only the resources this role may read appear as tabs.
+          tabs={definitions.data
+            ?.filter((d) => hasPermission(`${d.name}:read`))
+            .map((d) => ({
+              key: d.name,
+              label: t(`resources.${d.name}`),
+            }))}
           activeTab={resource}
           onTabChange={(key) => navigate(`/platform/${key}`)}
           extra={
@@ -471,8 +677,13 @@ function ResourceView({ resource }: { resource: string }) {
             ) : undefined
           }
           rowKey="id"
-          scroll={{ x: Math.max(1100, columns.length * 200 + 240) }}
-          columns={columns.map((column) => ({ ...column, width: 200 }))}
+          scroll={{ x: tableWidth }}
+          columns={columns}
+          emptyText={
+            state.params.search || Object.keys(filters).length
+              ? undefined
+              : t("emptyResource", { name: t(`resources.${resource}`) })
+          }
           {...state.table}
           loading={state.query.isPending}
           searchPlaceholder={t("searchPlaceholder")}
@@ -499,23 +710,31 @@ function ResourceView({ resource }: { resource: string }) {
           exportable={can("export")}
           exportFilename={resource}
           onExport={(options) => void exportFile(options)}
-          importable={!readOnly && can("import")}
+          importable={importable}
           importColumns={fields.map((f) => ({
             key: f.key,
             dataIndex: f.key,
             title: fieldLabel(f.key),
           }))}
-          onDownloadTemplate={async () => {
-            try {
-              downloadBlob(
-                await platform.download(`/resources/${resource}/template`),
-                `${resource}_template.csv`,
-              );
-            } catch (error) {
-              report(error);
-            }
-          }}
-          onImport={(selected) => void validateImport(selected)}
+          onDownloadTemplate={
+            importable
+              ? async () => {
+                  try {
+                    downloadBlob(
+                      await platform.download(
+                        `/resources/${resource}/template`,
+                      ),
+                      `${resource}_template.csv`,
+                    );
+                  } catch (error) {
+                    report(error);
+                  }
+                }
+              : undefined
+          }
+          onImport={
+            importable ? (selected) => void validateImport(selected) : undefined
+          }
         />
       </PageContainer>
       <ImportPreviewModal
@@ -528,9 +747,20 @@ function ResourceView({ resource }: { resource: string }) {
       />
       <FormModal
         open={editor !== undefined}
-        width={resource === "contract-templates" ? 860 : 580}
+        width={
+          resource === "contract-templates"
+            ? 860
+            : fields.length > 3
+              ? 720
+              : 520
+        }
         title={t(editor ? "edit" : "create")}
-        initialValues={toForm(editor)}
+        // A new account or template starts active; everything else starts empty.
+        initialValues={
+          editor === null && fields.some((f) => f.key === "active")
+            ? { active: true }
+            : toForm(editor)
+        }
         loading={busy}
         onClose={() => setEditor(undefined)}
         onSubmit={async (values: Record<string, unknown>) => {
@@ -551,20 +781,23 @@ function ResourceView({ resource }: { resource: string }) {
       >
         <div
           data-testid="resource-form-fields"
-          style={
-            resource === "contract-templates"
+          // Two columns of short fields; long ones (text, lists) take the whole row.
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              fields.length > 3
+                ? "repeat(auto-fit, minmax(min(100%, 300px), 1fr))"
+                : "minmax(0, 1fr)",
+            columnGap: 24,
+            ...(resource === "contract-templates"
               ? {
                   maxHeight: "62dvh",
                   overflowY: "auto",
                   scrollbarGutter: "stable",
                   paddingRight: 12,
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
-                  columnGap: 24,
                 }
-              : undefined
-          }
+              : {}),
+          }}
         >
           <div style={{ gridColumn: "1 / -1", marginBottom: 12 }}>
             <DemoFormFill
@@ -583,13 +816,17 @@ function ResourceView({ resource }: { resource: string }) {
             <Form.Item
               key={field.key}
               style={
-                resource === "contract-templates" &&
-                ["signerRoles", "documentBody"].includes(field.key)
+                field.type === "textarea" ||
+                ["signerRoles", "requiredEvents", "description"].includes(
+                  field.key,
+                )
                   ? { gridColumn: "1 / -1" }
                   : undefined
               }
               name={field.key}
               label={fieldLabel(field.key)}
+              required={!!field.required}
+              extra={fieldHint(field.key)}
               valuePropName={field.type === "boolean" ? "checked" : "value"}
               validateTrigger={["onChange", "onBlur"]}
               rules={[
@@ -798,22 +1035,65 @@ function ResourceView({ resource }: { resource: string }) {
                 ...fields.map((field) => ({
                   key: field.key,
                   label: fieldLabel(field.key),
-                  value: renderValue(field, viewing[field.key]),
+                  value:
+                    field.type === "textarea" ? (
+                      <Typography.Paragraph
+                        style={{ whiteSpace: "pre-wrap", margin: 0 }}
+                        ellipsis={{ rows: 6, expandable: true }}
+                      >
+                        {String(viewing[field.key] ?? "—")}
+                      </Typography.Paragraph>
+                    ) : (
+                      renderValue(field, viewing[field.key])
+                    ),
+                  span:
+                    field.type === "textarea" ||
+                    ["signerRoles", "requiredEvents", "description"].includes(
+                      field.key,
+                    )
+                      ? 2
+                      : undefined,
                 })),
+                // Record bookkeeping, kept apart from the business fields.
                 {
-                  key: "version",
-                  label: t("fields.version"),
-                  value: String(viewing.version),
-                },
-                {
-                  key: "createdAt",
-                  label: t("fields.createdAt"),
-                  value: formatDateTime(viewing.createdAt),
-                },
-                {
-                  key: "updatedAt",
-                  label: fieldLabel("updatedAt"),
-                  value: formatDateTime(viewing.updatedAt),
+                  key: "system",
+                  label: t("systemInfo"),
+                  span: 2,
+                  value: (
+                    <TechnicalDetails
+                      items={[
+                        { key: "id", label: "ID", value: viewing.id },
+                        {
+                          key: "origin",
+                          label: fieldLabel("origin"),
+                          value: viewing.origin ? (
+                            <OriginTag origin={viewing.origin as Origin} />
+                          ) : null,
+                        },
+                        {
+                          key: "version",
+                          label: t("fields.version"),
+                          value: viewing.version
+                            ? String(viewing.version)
+                            : null,
+                        },
+                        {
+                          key: "createdAt",
+                          label: t("fields.createdAt"),
+                          value: viewing.createdAt
+                            ? formatDateTime(viewing.createdAt)
+                            : null,
+                        },
+                        {
+                          key: "updatedAt",
+                          label: fieldLabel("updatedAt"),
+                          value: viewing.updatedAt
+                            ? formatDateTime(viewing.updatedAt)
+                            : null,
+                        },
+                      ]}
+                    />
+                  ),
                 },
               ]
             : []

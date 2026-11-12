@@ -41,6 +41,7 @@ import { navFor, type NavItem } from "./navConfig";
 import { NotificationDrawer } from "./NotificationDrawer";
 import { useNotifications } from "./useNotifications";
 import { useLiveUpdates } from "./useLiveUpdates";
+import { SigningDeviceDock } from "@/features/signing/device/SigningDeviceDock";
 import { PageChromeContext, type PageChrome } from "./pageChrome";
 import { PreferenceControls } from "./PreferenceControls";
 import styles from "./AppLayout.module.css";
@@ -356,6 +357,7 @@ export function AppLayout() {
         </Layout.Content>
       </Layout>
 
+      <SigningDeviceDock userId={user.id} />
       {inbox ? (
         <NotificationDrawer
           open={notificationsOpen}

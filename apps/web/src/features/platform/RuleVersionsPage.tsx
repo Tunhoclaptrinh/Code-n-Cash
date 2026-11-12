@@ -474,6 +474,7 @@ export default function RuleVersionsPage() {
           mobileCards
           columnSettings={{ storageKey: "rule-versions" }}
           hideCard
+          emptyText={list.query.search ? undefined : t("rules.empty")}
           rowKey="id"
           columns={columns}
           {...list.table}

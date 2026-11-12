@@ -398,6 +398,8 @@ test("who: only the roles of spec 17 reach each write action; every other role i
   );
   const registered = [
     ...source.matchAll(/(?:write|sends)\(\s*"[\w:-]+",\s*"(\w+)"/g),
+    // Signing writes that go through the remote signing service have their own handlers.
+    ...source.matchAll(/(\w+):\s*(?:sendThroughService|withdrawThroughService\()/g),
   ].map((match) => match[1]);
   assert.deepEqual(
     registered.filter((name) => name !== "getSigningRequest").sort(),

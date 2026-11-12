@@ -5,6 +5,15 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 
 const apiTarget = process.env.VITE_API_PROXY ?? "http://127.0.0.1:3000";
+/** The remote signing service (apps/signer), reached by devices through this gateway path. */
+const signerTarget = process.env.VITE_SIGNER_PROXY ?? "http://127.0.0.1:3200";
+const proxy = {
+  "/api": apiTarget,
+  "/signer-api": {
+    target: signerTarget,
+    rewrite: (path: string) => path.replace(/^\/signer-api/, ""),
+  },
+};
 const { version } = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
 ) as { version: string };
@@ -29,8 +38,8 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["src/test/setup.ts"],
   },
-  server: { port: 5173, proxy: { "/api": apiTarget } },
-  preview: { port: 4173, proxy: { "/api": apiTarget } },
+  server: { port: 5173, proxy },
+  preview: { port: 4173, proxy },
   build: {
     // Ant Design is one shared, long-cached chunk (~365 kB gzip); everything else stays well below.
     chunkSizeWarningLimit: 1300,

@@ -58,7 +58,10 @@
     "valueMillion": "Value (million VND)",
     "graceDays": "Grace days",
     "penaltyRatePct": "Daily penalty (%)",
-    "maxPenaltyPct": "Penalty cap (%)"
+    "maxPenaltyPct": "Penalty cap (%)",
+    "at": "Time",
+    "seq": "Chain no.",
+    "hash": "Hash"
   },
   "data": {
     "title": "Data Pack results",
@@ -399,5 +402,69 @@
   "lite": {
     "previewFirst": "Run a preview before submitting for review.",
     "uploadHint": "Required: contracts, parties, milestones, events, payment_rules (.csv or one ZIP)."
+  },
+  "systemInfo": "System information",
+  "emptyResource": "No records in {{name}} yet.",
+  "auditDigestNote": "Administrators and auditors read a digest of the audit chain: action, object, time and hashes to check the chain. Who acted and what changed stay hidden (spec 2.2); each organisation reads the full trail in its Activity log.",
+  "fieldOverrides": {
+    "users": {
+      "title": "Job title",
+      "partyId": "Data Pack party code",
+      "active": "Active"
+    },
+    "organizations": {
+      "kind": "Organisation type"
+    },
+    "contract-templates": {
+      "active": "In use"
+    }
+  },
+  "fieldHints": {
+    "users": {
+      "organizationId": "The user sees only this organisation's contracts.",
+      "partyId": "Leave empty when the organisation is not in the Data Pack."
+    },
+    "milestone-templates": {
+      "requiredEvents": "Event codes separated by semicolons, e.g. DELIVERY;INVOICE.",
+      "paymentPercent": "Share of the contract value for this milestone, e.g. 30.00."
+    },
+    "contract-templates": {
+      "signerRoles": "Signing order, top to bottom."
+    }
+  },
+  "settingKeys": {
+    "DATA_PACK_SNAPSHOT": {
+      "label": "Data Pack snapshot date",
+      "hint": "organiser data in use"
+    },
+    "SPEC_VERSION": {
+      "label": "Specification version",
+      "hint": "business specification applied"
+    },
+    "DEMO_BUYER": {
+      "label": "Demo buyer",
+      "hint": "organisation behind the demo buyer accounts"
+    },
+    "DEMO_SUPPLIER": {
+      "label": "Demo supplier",
+      "hint": "organisation behind the demo supplier accounts"
+    },
+    "EVALUATION_MODE": {
+      "label": "Evaluation mode",
+      "hint": "how the engine reads the event history"
+    }
+  },
+  "auditResources": {
+    "users": "Accounts",
+    "datapack": "Data Pack",
+    "integrity": "Integrity check",
+    "app-migrations": "App data update",
+    "workflow": "Contract workflow",
+    "notification-cursors": "Notifications",
+    "anchors": "Independent seals",
+    "rule-versions": "Rule versions",
+    "exports": "Data export",
+    "documents": "Documents",
+    "engine": "Data Pack engine"
   }
 }

@@ -1,0 +1,269 @@
+/*
+ * The simulated device. In the corner widget it reads as a small phone (or token reader); on the
+ * phone page it fills the screen. Colours come from the theme tokens so both modes work.
+ */
+.device {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 0;
+}
+
+.device[data-variant="dock"] {
+  width: 100%;
+  border-radius: 22px;
+  border: 6px solid #1f2937;
+  box-shadow: 0 18px 40px -14px rgba(15, 23, 42, 0.45);
+  overflow: hidden;
+}
+
+.device[data-variant="page"] {
+  min-height: 100dvh;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  background: var(--brand-800);
+  color: #fff;
+}
+
+.bar b {
+  flex: 1;
+}
+
+.live {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.live[data-live] {
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3);
+}
+
+.idle,
+.request,
+.done {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.idleText {
+  margin: 8px 0 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.cert {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-primary-soft);
+  font-size: 12.5px;
+}
+
+.cert > :global(.anticon) {
+  font-size: 22px;
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+.cert div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: var(--color-text-secondary);
+}
+
+.cert b {
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.recent {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.recent li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--color-text-secondary);
+}
+
+.recent li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent em {
+  font-style: normal;
+  flex: none;
+}
+
+.recent em[data-status="SIGNED"] {
+  color: var(--color-success);
+}
+
+.recent em[data-status="REJECTED"],
+.recent em[data-status="EXPIRED"] {
+  color: var(--color-danger);
+}
+
+.from {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.docTitle {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px dashed var(--color-primary-soft-border);
+  background: var(--color-primary-subtle);
+}
+
+.code span,
+.code small {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.code b {
+  font-size: 30px;
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary-dark);
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.facts dt {
+  color: var(--color-text-muted);
+}
+
+.facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.soon {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.token {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.token p {
+  margin: 0;
+}
+
+.tokenIcon {
+  font-size: 34px;
+  color: var(--color-primary);
+}
+
+.pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pin label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pinHint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.done {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.done b {
+  font-size: 18px;
+  color: var(--color-text);
+}
+
+.doneOk,
+.doneNo {
+  font-size: 48px;
+}
+
+.doneOk {
+  color: var(--color-success);
+}
+
+.doneNo {
+  color: var(--color-danger);
+}
+
+.footer {
+  padding: 8px 12px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+}

@@ -345,5 +345,104 @@
     "rules": "Bộ luật thực thi",
     "ruleVersion": "Phiên bản luật được ghim cho bộ \"{{ruleSet}}\"",
     "ruleSet": "Bộ luật \"{{ruleSet}}\""
+  },
+  "device": {
+    "name": {
+      "app": "Ứng dụng ký số",
+      "token": "USB token"
+    },
+    "live": "Đang kết nối dịch vụ ký",
+    "offline": "Đang kết nối lại dịch vụ ký",
+    "simulated": "Thiết bị giả lập · CA demo, không có giá trị pháp lý",
+    "idle": "Không có yêu cầu ký nào. Yêu cầu mới sẽ hiện ở đây.",
+    "cert": {
+      "issuer": "Cấp bởi {{issuer}}",
+      "serial": "Số serial {{serial}}",
+      "until": "hiệu lực đến {{date}}"
+    },
+    "status": {
+      "PENDING": "Đang chờ",
+      "SIGNED": "Đã ký",
+      "REJECTED": "Đã từ chối",
+      "EXPIRED": "Hết hạn",
+      "CANCELLED": "Đã huỷ"
+    },
+    "request": {
+      "from": "{{party}} yêu cầu ký số",
+      "code": "Mã xác nhận",
+      "codeHint": "Phải trùng với mã trên màn hình CodeCash",
+      "hash": "Mã băm SHA-256",
+      "left": "Còn lại"
+    },
+    "token": {
+      "insert": "Cắm USB token có chứng thư của bạn vào máy để tiếp tục.",
+      "insertAction": "Cắm token"
+    },
+    "pin": {
+      "app": "Nhập mã PIN để ký",
+      "token": "Nhập PIN của token",
+      "demo": "PIN demo: {{pin}}",
+      "wrong_one": "Sai PIN, còn {{count}} lần thử",
+      "wrong_other": "Sai PIN, còn {{count}} lần thử",
+      "locked": "Thiết bị bị khoá do nhập sai PIN nhiều lần, mở lại lúc {{at}}"
+    },
+    "errors": {
+      "TRANSACTION_EXPIRED": "Yêu cầu đã hết hạn.",
+      "TRANSACTION_NOT_PENDING": "Yêu cầu không còn chờ ký.",
+      "PIN_LOCKED": "Thiết bị đang bị khoá.",
+      "UNKNOWN": "Không ký được, thử lại."
+    },
+    "actions": {
+      "approve": "Xác nhận ký",
+      "reject": "Từ chối"
+    },
+    "result": {
+      "SIGNED": "Đã ký",
+      "SIGNEDHint": "CodeCash sẽ cập nhật ngay.",
+      "REJECTED": "Đã từ chối",
+      "REJECTEDHint": "Yêu cầu ký đã bị huỷ ở CodeCash."
+    },
+    "dock": {
+      "title": "Thiết bị ký (giả lập)",
+      "open": "Mở thiết bị ký",
+      "close": "Đóng thiết bị ký",
+      "idle": "Thiết bị ký: chưa có yêu cầu",
+      "pending_one": "{{count}} yêu cầu ký đang chờ",
+      "pending_other": "{{count}} yêu cầu ký đang chờ",
+      "phone": "Mở trên điện thoại",
+      "phoneHint": "Quét mã bằng điện thoại, đăng nhập cùng tài khoản để nhận yêu cầu ký trên điện thoại."
+    },
+    "off": {
+      "title": "Chưa bật ký qua dịch vụ",
+      "body": "CodeCash đang ký ngay trong ứng dụng, nên không cần thiết bị ký. Bật SIGNING_PROVIDER=remote để dùng.",
+      "back": "Về trang chính"
+    }
+  },
+  "remote": {
+    "send": "Gửi yêu cầu ký",
+    "waiting": {
+      "app": "Đang chờ bạn xác nhận trên {{method}}",
+      "token": "Đang chờ bạn ký bằng {{method}}",
+      "lead": "Yêu cầu đã gửi tới dịch vụ ký. Màn hình này tự chuyển khi bạn ký xong."
+    },
+    "code": "Mã xác nhận",
+    "codeHint": "Thiết bị phải hiện đúng mã này",
+    "hash": "Mã băm nội dung ký",
+    "left": "Còn lại",
+    "transaction": "Mã giao dịch",
+    "steps": {
+      "open": "Mở thiết bị ký: bấm <b>nút điện thoại ở góc dưới bên phải</b>, hoặc trên điện thoại đăng nhập cùng tài khoản và mở <b>/device</b>.",
+      "match": "Kiểm tra mã xác nhận trên thiết bị trùng với mã ở trên.",
+      "pin": "Nhập PIN (bản demo: 123456) rồi bấm Xác nhận ký.",
+      "token": "Bấm Cắm token, nhập PIN của token (bản demo: 123456) rồi bấm Xác nhận ký."
+    },
+    "cancel": "Huỷ yêu cầu",
+    "resend": "Gửi lại",
+    "ended": {
+      "REJECTED": "Yêu cầu trước đã bị từ chối trên thiết bị.",
+      "EXPIRED": "Yêu cầu trước đã hết hạn mà chưa được xác nhận.",
+      "CANCELLED": "Yêu cầu trước đã được huỷ.",
+      "FAILED": "Không kết nối được dịch vụ ký. Kiểm tra dịch vụ rồi gửi lại."
+    }
   }
 }

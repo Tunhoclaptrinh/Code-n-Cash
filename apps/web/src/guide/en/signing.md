@@ -59,6 +59,15 @@ Sign in as the current signer, read the document, choose a method and complete t
 
 Try CT0102 as supplier, then secondary approver. Attempts before your turn are blocked. Workflow cancellation belongs to the draft manager and requires reviewing its confirmation.
 
+### Sign on a device (when the signing service is on)
+
+When CodeCash signs through the remote signing service, it never signs for you. After **Send signing request**, the screen shows a four-digit confirmation code, the hash of what you sign and the time left; you confirm on a device:
+
+- **On the computer:** the phone button at the bottom right lights up when a request waits. Open it, check the confirmation code matches, enter the PIN (demo: `123456`) and choose **Confirm and sign**. For a USB token, choose **Insert token** first.
+- **On a phone:** sign in with the same account and open `/device` (or scan the QR code in the corner device). The request appears there at once; confirm the same way.
+
+CodeCash moves on to signature verification when you have signed. Three wrong PINs lock the device for five minutes. The device and its CA are simulated; the signature has no legal effect.
+
 ## Verify recorded signatures
 
 ![Recorded signature information](../../../public/guide/images/verify.webp)

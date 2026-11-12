@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Calendar, Empty } from "antd";
+import { Button, Calendar } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import dayjs, { type Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -57,8 +57,8 @@ export function DueCalendar({
         onChange={(value) => setSelected(value)}
         headerRender={({ value, onChange }) => (
           <div className={styles.header}>
-            <b>{t("calendar.month", { month: value.format("MM/YYYY") })}</b>
-            <span>
+            <h2 className={styles.title}>{t("calendar.title")}</h2>
+            <span className={styles.nav}>
               <Button
                 type="text"
                 size="small"
@@ -66,13 +66,7 @@ export function DueCalendar({
                 aria-label={t("calendar.previous")}
                 onClick={() => onChange(value.subtract(1, "month"))}
               />
-              <Button
-                type="text"
-                size="small"
-                onClick={() => onChange(dayjs(today))}
-              >
-                {t("calendar.today")}
-              </Button>
+              <b className={styles.month}>{value.format("MM/YYYY")}</b>
               <Button
                 type="text"
                 size="small"
@@ -80,6 +74,13 @@ export function DueCalendar({
                 aria-label={t("calendar.next")}
                 onClick={() => onChange(value.add(1, "month"))}
               />
+              <Button
+                size="small"
+                onClick={() => onChange(dayjs(today))}
+                disabled={value.isSame(dayjs(today), "day")}
+              >
+                {t("calendar.today")}
+              </Button>
             </span>
           </div>
         )}
@@ -124,7 +125,9 @@ export function DueCalendar({
         ))}
       </div>
       <div className={styles.day} aria-live="polite">
-        <b>{t("calendar.dayTitle", { date: formatDate(day) })}</b>
+        <b className={styles.dayTitle}>
+          {t("calendar.dayTitle", { date: formatDate(day) })}
+        </b>
         {dayItems.length ? (
           <ul>
             {dayItems.map((item) => (
@@ -143,10 +146,7 @@ export function DueCalendar({
             ))}
           </ul>
         ) : (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={t("calendar.none")}
-          />
+          <p className={styles.dayEmpty}>{t("calendar.none")}</p>
         )}
       </div>
     </div>

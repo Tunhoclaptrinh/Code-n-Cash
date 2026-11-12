@@ -1,5 +1,14 @@
+/* Fills its tile: header and month grid at a fixed size, the selected day's list takes the rest. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
 .wrap :global(.ant-picker-calendar) {
   background: transparent;
+  flex: none;
 }
 
 .wrap :global(.ant-picker-panel) {
@@ -7,26 +16,67 @@
   background: transparent;
 }
 
+.wrap :global(.ant-picker-calendar-date-content),
+.wrap :global(.ant-picker-body) {
+  padding: 0 !important;
+}
+
+.wrap :global(.ant-picker-content) {
+  height: auto !important;
+}
+
 .wrap :global(.ant-picker-content th) {
+  height: 26px;
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+.wrap :global(.ant-picker-content td) {
+  padding: 1px 0 !important;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 0 6px;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.month {
+  min-width: 62px;
+  text-align: center;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav :global(.ant-btn:last-child) {
+  margin-left: 6px;
 }
 
 .cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 3px 0 2px;
+  gap: 1px;
+  padding: 2px 0 1px;
   border-radius: 8px;
-  min-height: 38px;
+  height: 34px;
 }
 
 .cell:hover {
@@ -34,11 +84,11 @@
 }
 
 .dayNumber {
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
   border-radius: 50%;
-  font-size: 13px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   color: var(--color-text);
 }
@@ -83,29 +133,44 @@
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  margin-top: 8px;
-  font-size: 12px;
+  justify-content: center;
+  gap: 2px 9px;
+  margin-top: 6px;
+  font-size: 11px;
   color: var(--color-text-secondary);
 }
 
 .legend span {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  white-space: nowrap;
 }
 
+/* The selected day: its own scroll area, so the tile keeps its height on a busy day. */
 .day {
-  margin-top: 12px;
-  padding-top: 10px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--color-border);
   font-size: 13px;
 }
 
+.dayTitle {
+  flex: none;
+  font-size: 12.5px;
+}
+
 .day ul {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   list-style: none;
   margin: 6px 0 0;
-  padding: 0;
+  padding: 0 2px 0 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -118,6 +183,12 @@
   gap: 8px;
 }
 
+.day li a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .day li span {
   color: var(--color-text-secondary);
   font-size: 12px;
@@ -126,4 +197,10 @@
 .amount {
   font-variant-numeric: tabular-nums;
   color: var(--color-text) !important;
+}
+
+.dayEmpty {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
 }

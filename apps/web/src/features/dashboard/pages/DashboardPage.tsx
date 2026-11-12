@@ -1,18 +1,18 @@
 import { useState, type ReactNode } from "react";
 import {
   Button,
-  Col,
   Empty,
   Progress,
-  Row,
+  Segmented,
   Space,
   Table,
   Tag,
-  Typography,
+  Tooltip,
 } from "antd";
 import {
   ArrowRightOutlined,
   AuditOutlined,
+  CheckCircleOutlined,
   CloudUploadOutlined,
   DatabaseOutlined,
   ExceptionOutlined,
@@ -34,7 +34,6 @@ import { AppPage } from "@/shared/layout/AppPage";
 import { routeAllowed } from "@/shared/layout/navConfig";
 import {
   formatDate,
-  formatDateTime,
   formatDecimalString,
   formatMonth,
 } from "@/shared/lib/format";
@@ -45,6 +44,8 @@ import { STAT_TONE } from "@/shared/ui/statTone";
 import { TableRowActions } from "@/shared/ui/TableRowActions";
 import {
   BarList,
+  Donut,
+  Legend,
   SegmentedBar,
   StackedColumns,
   type ChartPart,
@@ -58,8 +59,12 @@ type Attention = DashboardView["attention"][number];
 
 /** Near real time: the overview refreshes on its own while it is open. */
 const REFRESH_MS = 30_000;
-/** Attention rows shown before "show all". */
-const ATTENTION_PREVIEW = 6;
+/** Plot height of the monthly chart, sized to its fixed-height tile. */
+const CHART_HEIGHT = 322;
+/** Rows of the "most money held" table; the full list is one click away. */
+const TOP_CONTRACTS = 8;
+
+type Spread = "status" | "decision";
 
 const DECISION_COLOR: Record<Decision, string> = {
   RELEASE: "var(--viz-payable)",
@@ -83,6 +88,15 @@ const STATUS_ORDER: ContractSummary["status"][] = [
   "CLOSED",
   "DRAFT",
 ];
+/** Fixed categorical slot per status, so a status keeps its colour whatever else is shown. */
+const STATUS_COLOR: Record<ContractSummary["status"], string> = {
+  AWAITING_SIGNATURE: "var(--viz-c1)",
+  PENDING_CONDITIONS: "var(--viz-c2)",
+  NEEDS_REVIEW: "var(--viz-c3)",
+  ALL_MILESTONES_ELIGIBLE: "var(--viz-c4)",
+  CLOSED: "var(--viz-c5)",
+  DRAFT: "var(--viz-c6)",
+};
 
 /** Million VND string to a number, for drawing only: shown amounts keep the exact string. */
 const size = (value: string) => Number(value) || 0;
@@ -97,7 +111,6 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const user = useCurrentUser();
   const can = (path: string) => routeAllowed(path, user.permissions);
-  const [allAttention, setAllAttention] = useState(false);
   const view = useQuery({
     queryKey: ["dashboard", user.id],
     queryFn: getDashboard,
@@ -168,6 +181,7 @@ export default function DashboardPage() {
   return (
     <AppPage
       active="dashboard"
+      bare
       breadcrumb={[{ label: t("title") }]}
       extra={
         <ActionBar
@@ -193,8 +207,6 @@ export default function DashboardPage() {
             canList={can("/contracts")}
             canTasks={can("/tasks")}
             canActivity={can("/activity-log")}
-            allAttention={allAttention}
-            onToggleAttention={() => setAllAttention((all) => !all)}
           />
         )}
       </PageContainer>
@@ -210,8 +222,6 @@ function Overview({
   canList,
   canTasks,
   canActivity,
-  allAttention,
-  onToggleAttention,
 }: {
   data: DashboardView;
   myTasks: number | null;
@@ -220,8 +230,6 @@ function Overview({
   canList: boolean;
   canTasks: boolean;
   canActivity: boolean;
-  allAttention: boolean;
-  onToggleAttention: () => void;
 }) {
   const { t } = useTranslation("dashboard");
   const { t: td } = useTranslation("domain");
@@ -273,17 +281,17 @@ function Overview({
       ) : undefined,
   }));
 
-  const attention = allAttention
-    ? data.attention
-    : data.attention.slice(0, ATTENTION_PREVIEW);
+  const [spread, setSpread] = useState<Spread>("status");
+
+  const series = DECISIONS.map((decision) => ({
+    key: decision,
+    label: td(`decision.${decision}`),
+    color: DECISION_COLOR[decision],
+  }));
 
   return (
     <div className={styles.dashboard} data-testid="dashboard">
       <WelcomeBanner user={user} data={data} tasks={tasks} />
-      <Typography.Text type="secondary" className={styles.updated}>
-        {t("updated", { at: formatDateTime(data.generatedAt) })} ·{" "}
-        {t("today", { date: formatDate(data.today) })}
-      </Typography.Text>
 
       <StatisticsCard
         hideCard
@@ -377,356 +385,405 @@ function Overview({
         }))}
       />
 
-      <Block
-        title={t("money.title")}
-        subtitle={t("money.caption", {
-          planned: million(amounts.plannedMillion),
-          count: milestones.total,
-        })}
-      >
-        <SegmentedBar
-          parts={moneyParts}
-          label={t("money.label")}
-          testId="dashboard-money"
-        />
-      </Block>
+      <div className={styles.grid}>
+        <Tile
+          className={styles.money}
+          title={t("money.title")}
+          subtitle={t("money.caption", {
+            planned: million(amounts.plannedMillion),
+            count: milestones.total,
+          })}
+          extra={
+            <Legend
+              inline
+              total={planned}
+              parts={moneyParts.map((part) => ({ ...part, display: "" }))}
+            />
+          }
+        >
+          <SegmentedBar
+            parts={moneyParts}
+            legend={false}
+            label={t("money.label")}
+            testId="dashboard-money"
+          />
+        </Tile>
 
-      <Row gutter={[24, 24]}>
-        <Col xs={24} xl={15}>
-          <Block title={t("months.title")} subtitle={t("months.caption")}>
-            {months.length ? (
-              <StackedColumns
-                data={months}
-                series={DECISIONS.map((decision) => ({
-                  key: decision,
-                  label: td(`decision.${decision}`),
-                  color: DECISION_COLOR[decision],
-                }))}
-                label={t("months.label")}
-                height={280}
-                onSelect={
-                  canTasks
-                    ? (month) =>
-                        navigate(
-                          `/tasks?${new URLSearchParams({ "f.dueMonth": month })}`,
-                        )
-                    : undefined
-                }
-                testId="dashboard-months"
-              />
-            ) : (
-              <Empty description={t("months.empty")} />
-            )}
-          </Block>
-        </Col>
-        <Col xs={24} xl={9}>
-          <Block title={t("calendar.title")} subtitle={t("calendar.caption")}>
-            <DueCalendar items={data.dueItems} today={data.today} />
-          </Block>
-        </Col>
-      </Row>
+        <Tile
+          className={styles.months}
+          title={t("months.title")}
+          subtitle={t("months.caption")}
+          extra={
+            <Legend
+              inline
+              parts={series.map((s) => ({ ...s, value: 0, display: "" }))}
+            />
+          }
+        >
+          {months.length ? (
+            <StackedColumns
+              data={months}
+              series={series}
+              legend={false}
+              label={t("months.label")}
+              height={CHART_HEIGHT}
+              onSelect={
+                canTasks
+                  ? (month) =>
+                      navigate(
+                        `/tasks?${new URLSearchParams({ "f.dueMonth": month })}`,
+                      )
+                  : undefined
+              }
+              testId="dashboard-months"
+            />
+          ) : (
+            <Empty description={t("months.empty")} />
+          )}
+        </Tile>
 
-      <Row gutter={[24, 24]}>
-        <Col xs={24} xl={15}>
-          <Block
-            id="dashboard-attention"
-            title={t("attention.title")}
-            subtitle={t("attention.caption", {
-              count: data.attentionCount,
-            })}
-          >
-            {attention.length ? (
-              <>
-                <ul
-                  className={styles.attention}
-                  data-testid="dashboard-attention"
-                >
-                  {attention.map((item, index) => (
-                    <li
-                      key={`${item.contractId}-${item.sequence}-${item.kind}-${index}`}
-                    >
+        <Tile className={styles.calendar}>
+          <DueCalendar items={data.dueItems} today={data.today} />
+        </Tile>
+
+        <Tile
+          id="dashboard-attention"
+          className={styles.attentionTile}
+          title={t("attention.title")}
+          extra={
+            data.attentionCount ? (
+              <span className={styles.count}>{data.attentionCount}</span>
+            ) : undefined
+          }
+        >
+          {data.attention.length ? (
+            <ul className={styles.attention} data-testid="dashboard-attention">
+              {data.attention.map((item, index) => {
+                const href = `/contracts/${item.contractId}/milestones/${item.sequence}/${
+                  item.kind === "OPEN_DISPUTE" ? "dispute" : "decision"
+                }`;
+                return (
+                  <li
+                    key={`${item.contractId}-${item.sequence}-${item.kind}-${index}`}
+                    data-kind={item.kind}
+                  >
+                    <Link to={href} className={styles.attentionLink}>
+                      {item.contractId} ·{" "}
+                      {td("milestoneNo", { no: item.sequence })}
+                    </Link>
+                    <span className={styles.attentionAmount}>
+                      {t("million", { value: million(item.amountMillion) })}
+                    </span>
+                    <span className={styles.attentionKind}>
                       <Tag color={ATTENTION_COLOR[item.kind]}>
                         {t(`attention.kind.${item.kind}`)}
                       </Tag>
-                      <Link
-                        to={`/contracts/${item.contractId}/milestones/${item.sequence}/decision`}
-                        className={styles.attentionLink}
-                      >
-                        {item.contractId} ·{" "}
-                        {td("milestoneNo", { no: item.sequence })}
-                      </Link>
-                      <span className={styles.attentionMeta}>
-                        {t("million", { value: million(item.amountMillion) })}
-                        {item.dueDate
-                          ? ` · ${t("attention.due", { date: formatDate(item.dueDate) })}`
-                          : ""}
-                      </span>
-                      <Button
-                        type="text"
-                        size="small"
-                        color={
-                          item.kind === "OPEN_DISPUTE" ? "orange" : "primary"
-                        }
-                        variant="text"
-                        icon={<ArrowRightOutlined />}
-                        aria-label={t("attention.open")}
-                        title={t("attention.open")}
-                        onClick={() =>
-                          navigate(
-                            item.kind === "OPEN_DISPUTE"
-                              ? `/contracts/${item.contractId}/milestones/${item.sequence}/dispute`
-                              : `/contracts/${item.contractId}/milestones/${item.sequence}/decision`,
-                          )
-                        }
-                      />
-                    </li>
-                  ))}
-                </ul>
-                {data.attention.length > ATTENTION_PREVIEW ? (
-                  <Button type="link" onClick={onToggleAttention}>
-                    {allAttention
-                      ? t("attention.showLess")
-                      : t("attention.showAll", {
-                          count: data.attention.length,
-                        })}
-                  </Button>
-                ) : null}
-              </>
-            ) : (
-              <Empty description={t("attention.none")} />
-            )}
-          </Block>
-        </Col>
-        <Col xs={24} xl={9}>
-          <Space orientation="vertical" size={24} style={{ width: "100%" }}>
-            <Block title={t("reasons.title")}>
-              {data.holdReasons.length ? (
-                <BarList
-                  testId="dashboard-reasons"
-                  data={data.holdReasons.map((reason) => ({
-                    key: reason.reason,
-                    label: td(`reason.${reason.reason}`),
-                    value: size(reason.amountMillion),
-                    display: t("reasons.value", {
-                      amount: million(reason.amountMillion),
-                      count: reason.milestones,
-                    }),
-                    color: "var(--viz-held)",
-                  }))}
-                />
-              ) : (
-                <Empty description={t("reasons.none")} />
-              )}
-            </Block>
-            <Block
-              title={t("status.title")}
-              subtitle={canList ? t("status.caption") : undefined}
-            >
-              <BarList
-                testId="dashboard-status"
-                data={STATUS_ORDER.filter((key) => status(key) > 0).map(
-                  (key) => ({
-                    key,
-                    label: td(`contractStatus.${key}`),
-                    value: status(key),
-                    display: status(key),
-                    color: "var(--viz-paid)",
-                  }),
-                )}
-                onSelect={
-                  canList
-                    ? (key) =>
-                        navigate(
-                          `/contracts?${new URLSearchParams({ "f.status": key })}`,
-                        )
-                    : undefined
-                }
-              />
-            </Block>
-            <Block title={t("decisions.title")}>
-              <BarList
-                testId="dashboard-decisions"
-                data={DECISIONS.map((decision) => ({
-                  key: decision,
-                  label: td(`decision.${decision}`),
-                  value: data.byDecision[decision] ?? 0,
-                  display: data.byDecision[decision] ?? 0,
-                  color: DECISION_COLOR[decision],
-                }))}
-              />
-            </Block>
-          </Space>
-        </Col>
-      </Row>
-
-      <Block
-        title={t("contracts.title")}
-
-        extra={
-          canList ? (
-            <Link to="/contracts">
-              {t("contracts.all")} <ArrowRightOutlined />
-            </Link>
-          ) : undefined
-        }
-      >
-        <Table<ContractSummary>
-          size="small"
-          rowKey="contractId"
-          pagination={false}
-          scroll={{ x: 900 }}
-          dataSource={data.contracts}
-          data-testid="dashboard-contracts"
-          columns={[
-            {
-              key: "contract",
-              title: t("contracts.columns.contract"),
-              width: 260,
-              render: (_, row) => (
-                <Link to={`/contracts/${row.contractId}`}>
-                  <b>{row.contractId}</b> · {row.title}
-                </Link>
-              ),
-            },
-            {
-              key: "status",
-              title: t("contracts.columns.status"),
-              width: 150,
-              render: (_, row) => <ContractStatusTag status={row.status} />,
-            },
-            {
-              key: "progress",
-              title: t("contracts.columns.progress"),
-              width: 200,
-              render: (_, row) => {
-                const total = size(row.plannedMillion);
-                const paid = total ? (size(row.paidMillion) / total) * 100 : 0;
-                const ready = total
-                  ? (size(row.payableMillion) / total) * 100
-                  : 0;
-                return (
-                  <div>
-                    <Progress
-                      percent={Math.round(paid + ready)}
-                      success={{ percent: Math.round(paid) }}
-                      showInfo={false}
+                      {item.dueDate
+                        ? t("attention.due", { date: formatDate(item.dueDate) })
+                        : null}
+                    </span>
+                    <Button
                       size="small"
+                      color={
+                        item.kind === "OPEN_DISPUTE" ? "orange" : "primary"
+                      }
+                      variant="text"
+                      icon={<ArrowRightOutlined />}
+                      aria-label={t("attention.open")}
+                      title={t("attention.open")}
+                      onClick={() => navigate(href)}
+                      className={styles.attentionGo}
                     />
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      {t("contracts.progressText", {
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <Calm text={t("attention.none")} />
+          )}
+        </Tile>
+
+        <Tile className={styles.reasons} title={t("reasons.title")}>
+          {data.holdReasons.length ? (
+            <BarList
+              testId="dashboard-reasons"
+              data={data.holdReasons.map((reason) => ({
+                key: reason.reason,
+                label: td(`reason.${reason.reason}`),
+                value: size(reason.amountMillion),
+                display: t("reasons.value", {
+                  amount: million(reason.amountMillion),
+                  count: reason.milestones,
+                }),
+                color: "var(--viz-held)",
+              }))}
+            />
+          ) : (
+            <Calm text={t("reasons.none")} />
+          )}
+        </Tile>
+
+        <Tile
+          className={styles.spread}
+          title={t("spread.title")}
+          extra={
+            <Segmented
+              size="small"
+              value={spread}
+              onChange={(value) => setSpread(value as Spread)}
+              options={[
+                { value: "status", label: t("spread.status") },
+                { value: "decision", label: t("spread.decision") },
+              ]}
+              data-testid="dashboard-spread"
+            />
+          }
+        >
+          {spread === "status" ? (
+            <Donut
+              testId="dashboard-status"
+              label={t("spread.statusLabel")}
+              total={data.contractCount}
+              caption={t("spread.contracts")}
+              data={STATUS_ORDER.filter((key) => status(key) > 0).map(
+                (key) => ({
+                  key,
+                  label: td(`contractStatus.${key}`),
+                  value: status(key),
+                  display: status(key),
+                  color: STATUS_COLOR[key],
+                }),
+              )}
+              onSelect={
+                canList
+                  ? (key) =>
+                      navigate(
+                        `/contracts?${new URLSearchParams({ "f.status": key })}`,
+                      )
+                  : undefined
+              }
+            />
+          ) : (
+            <Donut
+              testId="dashboard-decisions"
+              label={t("spread.decisionLabel")}
+              total={milestones.total}
+              caption={t("spread.milestones")}
+              data={DECISIONS.map((decision) => ({
+                key: decision,
+                label: td(`decision.${decision}`),
+                value: data.byDecision[decision] ?? 0,
+                display: data.byDecision[decision] ?? 0,
+                color: DECISION_COLOR[decision],
+              }))}
+            />
+          )}
+          {spread === "status" && canList ? (
+            <p className={styles.hint}>{t("status.caption")}</p>
+          ) : null}
+        </Tile>
+
+        <Tile
+          className={styles.contracts}
+          title={t("contracts.title")}
+          extra={
+            canList ? (
+              <Link to="/contracts" className={styles.allLink}>
+                {t("contracts.all")} <ArrowRightOutlined />
+              </Link>
+            ) : undefined
+          }
+        >
+          <Table<ContractSummary>
+            size="small"
+            rowKey="contractId"
+            pagination={false}
+            tableLayout="fixed"
+            scroll={{ x: 1132 }}
+            dataSource={data.contracts.slice(0, TOP_CONTRACTS)}
+            data-testid="dashboard-contracts"
+            columns={[
+              {
+                key: "contract",
+                title: t("contracts.columns.contract"),
+                width: 300,
+                ellipsis: { showTitle: false },
+                render: (_, row) => (
+                  <Link
+                    to={`/contracts/${row.contractId}`}
+                    title={`${row.contractId} · ${row.title}`}
+                  >
+                    <b>{row.contractId}</b>
+                    <span className={styles.contractTitle}> · {row.title}</span>
+                  </Link>
+                ),
+              },
+              {
+                key: "status",
+                title: t("contracts.columns.status"),
+                width: 168,
+                render: (_, row) => <ContractStatusTag status={row.status} />,
+              },
+              {
+                key: "progress",
+                title: t("contracts.columns.progress"),
+                width: 176,
+                render: (_, row) => {
+                  const total = size(row.plannedMillion);
+                  const paid = total
+                    ? (size(row.paidMillion) / total) * 100
+                    : 0;
+                  const ready = total
+                    ? (size(row.payableMillion) / total) * 100
+                    : 0;
+                  return (
+                    <Tooltip
+                      title={t("contracts.progressText", {
                         ready: Math.round(paid + ready),
                         paid: million(row.paidMillion),
                         planned: million(row.plannedMillion),
                       })}
-                    </Typography.Text>
-                  </div>
-                );
+                    >
+                      <Progress
+                        percent={Math.round(paid + ready)}
+                        success={{ percent: Math.round(paid) }}
+                        size="small"
+                        className={styles.progress}
+                      />
+                    </Tooltip>
+                  );
+                },
               },
-            },
-            {
-              key: "held",
-              title: t("contracts.columns.held"),
-              width: 170,
-              align: "right",
-              render: (_, row) =>
-                row.held
-                  ? t("contracts.heldValue", {
-                      amount: million(row.heldMillion),
-                      count: row.held,
-                    })
-                  : "—",
-            },
-            {
-              key: "issues",
-              title: t("contracts.columns.issues"),
-              width: 170,
-              render: (_, row) =>
-                row.overdue || row.openDisputes ? (
-                  <Space size={4} wrap>
-                    {row.overdue ? (
-                      <Tag color="volcano" style={{ margin: 0 }}>
-                        {t("contracts.overdue", { count: row.overdue })}
-                      </Tag>
-                    ) : null}
-                    {row.openDisputes ? (
-                      <Tag color="error" style={{ margin: 0 }}>
-                        {t("contracts.disputes", { count: row.openDisputes })}
-                      </Tag>
-                    ) : null}
-                  </Space>
-                ) : (
-                  <Typography.Text type="secondary">
-                    {t("contracts.noIssue")}
-                  </Typography.Text>
+              {
+                key: "held",
+                title: t("contracts.columns.held"),
+                width: 150,
+                align: "right",
+                render: (_, row) =>
+                  row.held ? (
+                    <span className={styles.num}>
+                      {million(row.heldMillion)}
+                      <span className={styles.numSub}>
+                        {t("contracts.heldCount", { count: row.held })}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className={styles.none}>—</span>
+                  ),
+              },
+              {
+                key: "issues",
+                title: t("contracts.columns.issues"),
+                width: 150,
+                render: (_, row) =>
+                  row.overdue || row.openDisputes ? (
+                    <Space size={4} wrap={false}>
+                      {row.overdue ? (
+                        <Tag color="volcano" style={{ margin: 0 }}>
+                          {t("contracts.overdue", { count: row.overdue })}
+                        </Tag>
+                      ) : null}
+                      {row.openDisputes ? (
+                        <Tag color="error" style={{ margin: 0 }}>
+                          {t("contracts.disputes", { count: row.openDisputes })}
+                        </Tag>
+                      ) : null}
+                    </Space>
+                  ) : (
+                    <span className={styles.none}>—</span>
+                  ),
+              },
+              {
+                key: "nextDue",
+                title: t("contracts.columns.nextDue"),
+                width: 112,
+                render: (_, row) =>
+                  row.nextDue ? (
+                    <span className={styles.num}>
+                      {formatDate(row.nextDue)}
+                    </span>
+                  ) : (
+                    <span className={styles.none}>—</span>
+                  ),
+              },
+              {
+                key: "actions",
+                width: 76,
+                render: (_, row) => (
+                  <TableRowActions
+                    primary={{
+                      label: t("contracts.open"),
+                      icon: <ArrowRightOutlined />,
+                      onClick: () => navigate(`/contracts/${row.contractId}`),
+                    }}
+                    menu={
+                      canActivity
+                        ? [
+                            {
+                              key: "activity",
+                              icon: <AuditOutlined />,
+                              label: t("contracts.activity"),
+                              onClick: () =>
+                                navigate(
+                                  `/activity-log?${new URLSearchParams({ "f.contractCode": row.contractId })}`,
+                                ),
+                            },
+                          ]
+                        : undefined
+                    }
+                  />
                 ),
-            },
-            {
-              key: "nextDue",
-              title: t("contracts.columns.nextDue"),
-              width: 120,
-              render: (_, row) => (row.nextDue ? formatDate(row.nextDue) : "—"),
-            },
-            {
-              key: "actions",
-              width: 84,
-              fixed: "right",
-              render: (_, row) => (
-                <TableRowActions
-                  primary={{
-                    label: t("contracts.open"),
-                    icon: <ArrowRightOutlined />,
-                    onClick: () => navigate(`/contracts/${row.contractId}`),
-                  }}
-                  menu={
-                    canActivity
-                      ? [
-                          {
-                            key: "activity",
-                            icon: <AuditOutlined />,
-                            label: t("contracts.activity"),
-                            onClick: () =>
-                              navigate(
-                                `/activity-log?${new URLSearchParams({ "f.contractCode": row.contractId })}`,
-                              ),
-                          },
-                        ]
-                      : undefined
-                  }
-                />
-              ),
-            },
-          ]}
-        />
-      </Block>
+              },
+            ]}
+          />
+        </Tile>
+      </div>
     </div>
   );
 }
 
-/** A titled part of the dashboard: heading and caption on the left, an optional link on the right. */
-function Block({
+/**
+ * One tile of the dashboard grid: a white card with a heading row (title, short caption, and an
+ * optional control on the right) over a body that fills the tile. Tiles in a row share a fixed
+ * height set by the grid; a body taller than that scrolls inside the tile.
+ */
+function Tile({
   id,
+  className,
   title,
   subtitle,
   extra,
   children,
 }: {
   id?: string;
-  title: string;
+  className?: string;
+  title?: string;
   subtitle?: string;
   extra?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className={styles.block}>
-      <header className={styles.blockHead}>
-        <div>
-          <h2 className={styles.blockTitle}>{title}</h2>
-          {subtitle ? <p className={styles.blockCaption}>{subtitle}</p> : null}
-        </div>
-        {extra}
-      </header>
-      {children}
+    <section id={id} className={`${styles.tile} ${className ?? ""}`} data-tile>
+      {title ? (
+        <header className={styles.tileHead}>
+          <div className={styles.tileHeading}>
+            <h2 className={styles.tileTitle}>{title}</h2>
+            {subtitle ? <p className={styles.tileCaption}>{subtitle}</p> : null}
+          </div>
+          {extra ? <div className={styles.tileExtra}>{extra}</div> : null}
+        </header>
+      ) : null}
+      <div className={styles.tileBody}>{children}</div>
     </section>
+  );
+}
+
+/** A quiet "nothing here" line, centred in the tile. */
+function Calm({ text }: { text: string }) {
+  return (
+    <p className={styles.calm}>
+      <CheckCircleOutlined /> {text}
+    </p>
   );
 }
 

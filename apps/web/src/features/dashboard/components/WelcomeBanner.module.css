@@ -1,17 +1,82 @@
-/* Greeting on the left, rotating task and notice cards on the right. */
+/*
+ * Greeting on the left on a brand gradient, rotating task and notice cards floating on the right.
+ * The gradient has its own fixed colours in both themes so white text keeps >= 4.5:1; soft rings
+ * and a dot grid in the corner are decoration only.
+ */
 .banner {
+  --hero-from: #2849bd;
+  --hero-to: #3d63ee;
+  --hero-accent: #5a46d6;
+  --hero-ink: #ffffff;
+  --hero-ink-soft: rgba(255, 255, 255, 0.82);
+  --hero-glass: rgba(255, 255, 255, 0.14);
+  --hero-glass-border: rgba(255, 255, 255, 0.24);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
   align-items: stretch;
-  padding: 20px 24px;
+  padding: 22px 24px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-primary-soft-border);
-  background: linear-gradient(
-    120deg,
-    var(--color-primary-soft) 0%,
-    var(--color-surface) 75%
+  color: var(--hero-ink);
+  background:
+    radial-gradient(120% 140% at 0% 0%, var(--hero-from) 0%, transparent 60%),
+    linear-gradient(
+      115deg,
+      var(--hero-from) 0%,
+      var(--hero-to) 55%,
+      var(--hero-accent) 100%
+    );
+  box-shadow: 0 8px 24px -12px rgba(40, 73, 189, 0.55);
+}
+
+:global(:root[data-theme="dark"]) .banner {
+  --hero-from: #1a2b66;
+  --hero-to: #22408f;
+  --hero-accent: #3a2f86;
+  box-shadow: none;
+  border: 1px solid #2c3f7a;
+}
+
+/* Two soft rings bottom-left of the cards and a dot grid in the top-right corner. */
+.decor,
+.decor::before,
+.decor::after {
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.decor {
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.22) 1px,
+    transparent 1.5px
   );
+  background-size: 14px 14px;
+  mask-image: radial-gradient(60% 70% at 100% 0%, #000 0%, transparent 70%);
+}
+
+.decor::before {
+  content: "";
+  width: 340px;
+  height: 340px;
+  left: 30%;
+  bottom: -230px;
+  border-radius: 50%;
+  border: 40px solid rgba(255, 255, 255, 0.06);
+}
+
+.decor::after {
+  content: "";
+  width: 180px;
+  height: 180px;
+  left: -60px;
+  top: -80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .greeting {
@@ -23,36 +88,116 @@
 }
 
 .kicker {
-  margin: 0;
-  font-size: 13px;
+  margin: 0 0 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--hero-glass);
+  border: 1px solid var(--hero-glass-border);
+  font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary-dark);
+  color: var(--hero-ink);
+}
+
+.kickerDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7ee2b8;
+  box-shadow: 0 0 0 3px rgba(126, 226, 184, 0.25);
 }
 
 .name {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
-  line-height: 1.25;
-  color: var(--color-text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--hero-ink);
 }
 
 .role {
   margin: 0;
   font-size: 13px;
-  color: var(--color-text-secondary);
+  color: var(--hero-ink-soft);
 }
 
-.summary {
-  margin: 8px 0 12px;
+/* Figure chips: number first, its word after; tinted when late or needing attention. */
+.chips {
+  list-style: none;
+  margin: 12px 0 14px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.chips li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: var(--hero-glass);
+  border: 1px solid var(--hero-glass-border);
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--hero-ink-soft);
+}
+
+.chips b {
   font-size: 14px;
-  line-height: 1.55;
-  color: var(--color-text);
-  max-width: 60ch;
+  font-weight: 800;
+  color: var(--hero-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.chips li[data-tone="warn"] {
+  background: rgba(255, 196, 77, 0.22);
+  border-color: rgba(255, 210, 120, 0.5);
+}
+
+.chips li[data-tone="alert"] {
+  background: rgba(255, 99, 99, 0.28);
+  border-color: rgba(255, 150, 150, 0.6);
+}
+
+.chips li[data-zero] {
+  opacity: 0.75;
+}
+
+.greetingFoot {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+/* The call to action reads as the brightest thing on the gradient: a white button. */
+.cta:global(.ant-btn) {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #1e3a8a;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+}
+
+.cta:global(.ant-btn):hover {
+  background: #eef2ff !important;
+  border-color: #eef2ff !important;
+  color: #1e3a8a !important;
+}
+
+.updated {
+  font-size: 12px;
+  color: var(--hero-ink-soft);
 }
 
 .clear {
-  color: var(--color-success);
+  color: var(--hero-ink);
   font-weight: 600;
 }
 
@@ -60,12 +205,19 @@
 .feedCard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+  border: 1px solid transparent;
   background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 6px 18px -8px rgba(15, 23, 42, 0.35);
+  align-self: center;
+}
+
+:global(:root[data-theme="dark"]) .feedCard {
+  border-color: var(--color-border);
 }
 
 .feedHead {
@@ -90,17 +242,65 @@
   margin-right: 4px;
 }
 
+/* A little inset so the next slide's accent edge never shows at the card's right edge. */
+.slideFrame {
+  padding: 0 3px 0 1px;
+}
+
 .slide {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 104px;
-  padding-left: 10px;
-  border-left: 3px solid var(--color-primary);
+  height: 112px;
 }
 
-.slide[data-urgent] {
-  border-left-color: var(--color-danger-strong);
+.slideHead {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.slideText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Icon tile: tone tells task, warning or late at a glance, the words say it too. */
+.slideIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.slideIcon[data-tone="primary"] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.slideIcon[data-tone="warning"] {
+  background: rgba(237, 161, 0, 0.16);
+  color: #9a6400;
+}
+
+.slideIcon[data-tone="danger"] {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-strong);
+}
+
+:global(:root[data-theme="dark"]) .slideIcon[data-tone="warning"] {
+  color: #f0b94a;
+}
+
+.slide[data-urgent] .cardMeta {
+  color: var(--color-danger-strong);
+  font-weight: 600;
 }
 
 .cardTitle {
@@ -134,7 +334,7 @@
 
 .feedEmpty {
   margin: 0;
-  min-height: 104px;
+  height: 112px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -142,9 +342,18 @@
   font-weight: 600;
 }
 
+.feedTitle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
 .feedMore {
-  align-self: flex-end;
-  font-size: 13px;
+  margin-left: 6px;
+  font-size: 12.5px;
+  font-weight: 400;
 }
 
 @media (max-width: 1279px) {

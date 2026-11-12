@@ -1,59 +1,241 @@
+/*
+ * The overview is a tile grid on the page background (no page card): banner, statistics, then
+ * twelve columns of white tiles. Tiles in one row share a fixed height so their edges line up;
+ * a list taller than its tile scrolls inside it.
+ */
 .dashboard {
+  --tile-pad: 16px 20px;
+  --row-flow: 448px;
+  --row-lists: 344px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   min-width: 0;
 }
 
-.updated {
-  font-size: 13px;
-  margin-bottom: -12px;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.block {
+.tile {
   display: flex;
   flex-direction: column;
   gap: 14px;
   min-width: 0;
+  min-height: 0;
+  padding: var(--tile-pad);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
-.blockHead {
+.tileHead {
+  flex: none;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px 16px;
+  min-height: 24px;
 }
 
-.blockTitle {
+.tileHeading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  min-width: 0;
+}
+
+.tileTitle {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.6;
   color: var(--color-text);
+  white-space: nowrap;
 }
 
-.blockCaption {
-  margin: 2px 0 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
-
-/* Attention rows: kind, milestone link, amount and due date, then the action at the end. */
-.attention {
-  list-style: none;
+.tileCaption {
   margin: 0;
-  padding: 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.tileExtra {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.tileBody {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
+/* Placement: twelve columns on a wide screen. */
+.money,
+.contracts {
+  grid-column: span 12;
+}
+
+.months {
+  grid-column: span 8;
+  height: var(--row-flow);
+}
+
+.calendar {
+  grid-column: span 4;
+  height: var(--row-flow);
+}
+
+.attentionTile,
+.reasons,
+.spread {
+  grid-column: span 4;
+  height: var(--row-lists);
+}
+
+.months .tileBody {
+  justify-content: flex-end;
+}
+
+/* The series legend stays on one line; the caption under the title gives way instead. */
+.months .tileHeading {
+  flex: 1 1 0;
+}
+
+.months .tileExtra {
+  flex: none;
+}
+
+.reasons .tileBody,
+.spread .tileBody {
+  overflow: hidden auto;
+  padding: 4px;
+  margin: -4px;
+}
+
+.money .tileHead {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tileCaption {
+  white-space: nowrap;
+}
+
+/* Medium screens: the chart takes a full row, the rest pair up. */
+@media (max-width: 1279px) {
+  .months {
+    grid-column: span 12;
+  }
+  .calendar,
+  .attentionTile {
+    grid-column: span 6;
+    height: var(--row-flow);
+  }
+  .reasons,
+  .spread {
+    grid-column: span 6;
+  }
+}
+
+/* Phones: one column; height follows the content except the chart. */
+@media (max-width: 760px) {
+  .dashboard {
+    --tile-pad: 14px;
+  }
+  .grid {
+    gap: 12px;
+  }
+  .months,
+  .calendar,
+  .attentionTile,
+  .reasons,
+  .spread {
+    grid-column: span 12;
+    height: auto;
+  }
+  .attentionTile .tileBody {
+    max-height: 360px;
+  }
+  .tileHead {
+    flex-wrap: wrap;
+  }
+  .months .tileHeading {
+    flex-basis: 100%;
+  }
+  .months .tileExtra {
+    flex: 0 1 auto;
+  }
+}
+
+.count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: var(--color-danger-soft, var(--bg-surface-alt));
+  color: var(--color-danger-strong, var(--color-text));
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.allLink {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hint {
+  margin: auto 0 0;
+  padding-top: 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.calm {
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.calm :global(.anticon) {
+  color: var(--color-success);
+}
+
+/*
+ * Attention rows, two lines each: milestone and amount, then what is wrong and when it is due,
+ * with the open button on the right of both. The list scrolls inside its tile.
+ */
+.attention {
+  list-style: none;
+  margin: 0 -6px;
+  padding: 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .attention li {
   display: grid;
-  grid-template-columns: 210px minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto 28px;
+  grid-template-areas:
+    "link amount go"
+    "kind kind go";
   align-items: center;
-  gap: 8px 12px;
-  padding: 8px 0;
+  gap: 4px 10px;
+  padding: 9px 6px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -61,31 +243,99 @@
   border-bottom: none;
 }
 
-.attention li :global(.ant-tag) {
-  margin: 0;
-  justify-self: start;
-}
-
 .attentionLink {
+  grid-area: link;
   font-weight: 600;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.attentionMeta {
+.attentionAmount {
+  grid-area: amount;
   font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.attentionKind {
+  grid-area: kind;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
   color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-@media (max-width: 760px) {
-  .attention li {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-  .attention li :global(.ant-tag) {
-    grid-column: 1 / -1;
-  }
-  .attentionMeta {
-    grid-column: 1;
-  }
+.attentionKind :global(.ant-tag) {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attentionGo {
+  grid-area: go;
+}
+
+/* Top contracts table: one line per row, figures right-aligned. */
+.contracts :global(.ant-table-wrapper) {
+  width: calc(100% + 40px);
+  max-width: none;
+  margin-inline: -20px;
+  margin-bottom: -16px;
+}
+
+.contracts :global(.ant-table) {
+  background: transparent;
+}
+
+.contracts :global(.ant-table-thead > tr > th:first-child),
+.contracts :global(.ant-table-tbody > tr > td:first-child) {
+  padding-left: 20px !important;
+}
+
+.contracts :global(.ant-table-thead > tr > th:last-child),
+.contracts :global(.ant-table-tbody > tr > td:last-child) {
+  padding-right: 16px !important;
+}
+
+.contracts :global(.ant-table-tbody > tr:last-child > td) {
+  border-bottom: none;
+}
+
+.contractTitle {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.progress {
+  margin: 0 !important;
+}
+
+.progress :global(.ant-progress-text) {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.numSub {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.none {
+  color: var(--color-text-faint);
 }

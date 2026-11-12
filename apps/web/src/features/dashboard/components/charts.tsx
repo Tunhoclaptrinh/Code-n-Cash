@@ -23,17 +23,22 @@ const share = (value: number, total: number) =>
 export function Legend({
   parts,
   total,
+  inline = false,
 }: {
   parts: ChartPart[];
   total?: number;
+  /** Sits in a header row: no top margin, smaller text. */
+  inline?: boolean;
 }) {
   return (
-    <div className={styles.legend}>
+    <div
+      className={`${styles.viz} ${styles.legend} ${inline ? styles.legendInline : ""}`}
+    >
       {parts.map((part) => (
         <span key={part.key} className={styles.legendItem}>
           <span className={styles.swatch} style={{ background: part.color }} />
           {part.label}
-          <b>{part.display}</b>
+          {part.display ? <b>{part.display}</b> : null}
           {total ? (
             <span>{formatNumber(share(part.value, total), 1)}%</span>
           ) : null}
@@ -51,11 +56,14 @@ export function Legend({
 export function SegmentedBar({
   parts,
   label,
+  legend = true,
   testId,
 }: {
   parts: ChartPart[];
   /** Accessible name of the whole bar. */
   label: string;
+  /** False when the caller places the legend itself (e.g. in a header). */
+  legend?: boolean;
   testId?: string;
 }) {
   const total = parts.reduce((sum, part) => sum + part.value, 0);
@@ -88,7 +96,7 @@ export function SegmentedBar({
           );
         })}
       </div>
-      <Legend parts={parts} total={total} />
+      {legend ? <Legend parts={parts} total={total} /> : null}
     </div>
   );
 }
@@ -124,6 +132,7 @@ export function StackedColumns({
   height = 200,
   onSelect,
   label,
+  legend = true,
   testId,
 }: {
   data: ColumnDatum[];
@@ -132,6 +141,8 @@ export function StackedColumns({
   height?: number;
   onSelect?: (key: string) => void;
   label: string;
+  /** False when the caller places the series legend itself (e.g. in a header). */
+  legend?: boolean;
   testId?: string;
 }) {
   const totals = data.map((d) => d.parts.reduce((s, p) => s + p.value, 0));
@@ -235,7 +246,9 @@ export function StackedColumns({
           ))}
         </div>
       </div>
-      <Legend parts={series.map((s) => ({ ...s, value: 0, display: "" }))} />
+      {legend ? (
+        <Legend parts={series.map((s) => ({ ...s, value: 0, display: "" }))} />
+      ) : null}
     </div>
   );
 }
@@ -265,7 +278,14 @@ export function BarList({
         const body = (
           <>
             <span className={styles.barHead}>
-              <span>{datum.label}</span>
+              <span
+                className={styles.barLabel}
+                title={
+                  typeof datum.label === "string" ? datum.label : undefined
+                }
+              >
+                {datum.label}
+              </span>
               <b>{datum.display}</b>
             </span>
             <span className={styles.barTrack}>
@@ -297,6 +317,124 @@ export function BarList({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export interface DonutDatum {
+  key: string;
+  label: string;
+  value: number;
+  /** Shown beside the label, e.g. a count or an exact amount. */
+  display: ReactNode;
+  color: string;
+}
+
+const RING_RADIUS = 46;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+/** Surface gap between segments, in ring units (about 2px at the drawn size). */
+const RING_GAP = 2.2;
+
+/**
+ * A donut for one whole split into at most six parts, always beside a list that names each
+ * part with its figure and share, so close values are read from the numbers, not the angles.
+ * Segments keep the caller's fixed order and colour (colour follows the entity). Hover or focus
+ * a segment or a row for its tooltip; `onSelect` makes both a link.
+ */
+export function Donut({
+  data,
+  total,
+  caption,
+  label,
+  onSelect,
+  testId,
+}: {
+  data: DonutDatum[];
+  /** Big figure in the middle of the ring. */
+  total: ReactNode;
+  /** Small word under it, e.g. "hợp đồng". */
+  caption: string;
+  /** Accessible name of the chart. */
+  label: string;
+  onSelect?: (key: string) => void;
+  testId?: string;
+}) {
+  const sum = data.reduce((s, d) => s + d.value, 0);
+  const shown = data.filter((d) => d.value > 0);
+  const gap = shown.length > 1 ? RING_GAP : 0;
+  let start = 0;
+  const arcs = shown.map((d) => {
+    const length = (d.value / sum) * RING_LENGTH;
+    const arc = { ...d, start, length: Math.max(length - gap, 0.6) };
+    start += length;
+    return arc;
+  });
+  const tip = (d: DonutDatum) =>
+    `${d.label}: ${typeof d.display === "string" || typeof d.display === "number" ? d.display : d.value} · ${formatNumber(share(d.value, sum), 1)}%`;
+  const select = (key: string) => (onSelect ? () => onSelect(key) : undefined);
+  return (
+    <div className={`${styles.viz} ${styles.donut}`} data-testid={testId}>
+      <div className={styles.donutRing}>
+        <svg viewBox="0 0 120 120" role="img" aria-label={label}>
+          <circle
+            cx="60"
+            cy="60"
+            r={RING_RADIUS}
+            className={styles.donutTrack}
+          />
+          {arcs.map((arc) => (
+            <Tooltip key={arc.key} title={tip(arc)}>
+              <circle
+                cx="60"
+                cy="60"
+                r={RING_RADIUS}
+                className={styles.donutArc}
+                stroke={arc.color}
+                strokeDasharray={`${arc.length} ${RING_LENGTH - arc.length}`}
+                strokeDashoffset={-arc.start}
+                onClick={select(arc.key)}
+                data-clickable={onSelect ? true : undefined}
+                data-testid={testId ? `${testId}-${arc.key}` : undefined}
+              />
+            </Tooltip>
+          ))}
+        </svg>
+        <div className={styles.donutCenter} aria-hidden>
+          <b>{total}</b>
+          <span>{caption}</span>
+        </div>
+      </div>
+      <ul className={styles.donutList}>
+        {data.map((d) => {
+          const body = (
+            <>
+              <span className={styles.swatch} style={{ background: d.color }} />
+              <span className={styles.donutLabel} title={d.label}>
+                {d.label}
+              </span>
+              <b>{d.display}</b>
+              <span className={styles.donutShare}>
+                {formatNumber(share(d.value, sum), 0)}%
+              </span>
+            </>
+          );
+          return (
+            <li key={d.key} data-zero={d.value === 0 || undefined}>
+              {onSelect && d.value > 0 ? (
+                <button
+                  type="button"
+                  className={styles.donutRow}
+                  onClick={() => onSelect(d.key)}
+                >
+                  {body}
+                </button>
+              ) : (
+                <span className={styles.donutRow}>{body}</span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

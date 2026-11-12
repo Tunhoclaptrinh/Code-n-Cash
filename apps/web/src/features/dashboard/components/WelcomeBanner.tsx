@@ -8,12 +8,19 @@ import {
   RightOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  ExclamationCircleOutlined,
+  FireOutlined,
+  WarningOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import type { Actor, DashboardView, TaskRow } from "@codecash/contracts";
-import { formatDate, formatDecimalString } from "@/shared/lib/format";
+import {
+  formatDate,
+  formatDecimalString,
+  formatTime,
+} from "@/shared/lib/format";
 import styles from "./WelcomeBanner.module.css";
 
 interface FeedItem {
@@ -25,6 +32,13 @@ interface FeedItem {
   meta: string;
   href: string;
   action: string;
+}
+
+interface Chip {
+  key: string;
+  count: number;
+  /** `alert` for what is already late, `warn` for what needs attention soon. */
+  tone?: "alert" | "warn";
 }
 
 /** Slides per card: the user's own tasks in one, what needs attention in their scope in the other. */
@@ -111,44 +125,79 @@ export function WelcomeBanner({
   })();
 
   const first = tasks?.[0];
-  const summary =
+  // Short figures instead of a sentence: each chip is one number with its word.
+  const chips: Chip[] =
     tasks === null
-      ? t("banner.summaryNoTasks", {
-          contracts: data.contractCount,
-          attention: data.attentionCount,
-        })
-      : t("banner.summary", {
-          tasks: tasks.length,
-          late: late.length,
-          overdue: data.milestones.overdue,
-          disputes,
-        });
+      ? [
+          { key: "contracts", count: data.contractCount },
+          {
+            key: "attention",
+            count: data.attentionCount,
+            tone: data.attentionCount ? "warn" : undefined,
+          },
+        ]
+      : [
+          { key: "tasks", count: tasks.length },
+          {
+            key: "late",
+            count: late.length,
+            tone: late.length ? "alert" : undefined,
+          },
+          {
+            key: "overdue",
+            count: data.milestones.overdue,
+            tone: data.milestones.overdue ? "warn" : undefined,
+          },
+          {
+            key: "disputes",
+            count: disputes,
+            tone: disputes ? "warn" : undefined,
+          },
+        ];
 
   return (
     <section className={styles.banner} data-testid="welcome-banner">
+      <span className={styles.decor} aria-hidden />
       <div className={styles.greeting}>
         <p className={styles.kicker}>
+          <span className={styles.kickerDot} />
           {t(`banner.hello.${part}`)} · {formatDate(data.today)}
         </p>
         <h2 className={styles.name}>{user.displayName}</h2>
         <p className={styles.role}>
           {tc(`roles.${user.role}.name`)} · {user.roleChipOrganization}
         </p>
-        <p className={styles.summary}>{summary}</p>
-        {first ? (
-          <Button
-            type="primary"
-            icon={<ThunderboltOutlined />}
-            onClick={() => navigate(first.href)}
-            data-testid="banner-first-task"
-          >
-            {t("banner.start", { task: td(`taskKind.${first.kind}`) })}
-          </Button>
-        ) : (
-          <span className={styles.clear}>
-            <CheckCircleOutlined /> {t("banner.clear")}
+        <ul className={styles.chips} data-testid="banner-chips">
+          {chips.map((chip) => (
+            <li
+              key={chip.key}
+              data-tone={chip.tone}
+              data-zero={chip.count === 0 || undefined}
+            >
+              <b>{chip.count}</b>
+              {t(`banner.chips.${chip.key}`, { count: chip.count })}
+            </li>
+          ))}
+        </ul>
+        <div className={styles.greetingFoot}>
+          {first ? (
+            <Button
+              className={styles.cta}
+              icon={<ThunderboltOutlined />}
+              onClick={() => navigate(first.href)}
+              data-testid="banner-first-task"
+            >
+              {t("banner.start", { task: td(`taskKind.${first.kind}`) })}
+            </Button>
+          ) : (
+            <span className={styles.clear}>
+              <CheckCircleOutlined /> {t("banner.clear")}
+            </span>
+          )}
+          <span className={styles.updated}>
+            {t("updated", { at: formatTime(data.generatedAt) })}
           </span>
-        )}
+        </div>
       </div>
       <FeedCard
         title={t("banner.source.task")}
@@ -200,8 +249,19 @@ function FeedCard({
   return (
     <article className={styles.feedCard} data-testid={testId}>
       <header className={styles.feedHead}>
-        <b>
+        <b className={styles.feedTitle}>
           {icon} {title}
+          {more ? (
+            more.to.startsWith("#") ? (
+              <a className={styles.feedMore} href={more.to}>
+                {more.label}
+              </a>
+            ) : (
+              <Link className={styles.feedMore} to={more.to}>
+                {more.label}
+              </Link>
+            )
+          ) : null}
         </b>
         {slides.length > 1 ? (
           <span className={styles.feedNav}>
@@ -237,14 +297,41 @@ function FeedCard({
           beforeChange={(_from, to) => setIndex(to)}
         >
           {slides.map((slide) => (
-            <div key={slide.key}>
+            <div key={slide.key} className={styles.slideFrame}>
               <div
                 className={styles.slide}
                 data-urgent={slide.urgent || undefined}
                 data-testid="banner-slide"
               >
-                <b className={styles.cardTitle}>{slide.title}</b>
-                <span className={styles.cardSubject}>{slide.subject}</span>
+                <div className={styles.slideHead}>
+                  <span
+                    className={styles.slideIcon}
+                    data-tone={
+                      slide.urgent
+                        ? "danger"
+                        : slide.source === "task"
+                          ? "primary"
+                          : "warning"
+                    }
+                    aria-hidden
+                  >
+                    {slide.urgent ? (
+                      slide.source === "task" ? (
+                        <FireOutlined />
+                      ) : (
+                        <ExclamationCircleOutlined />
+                      )
+                    ) : slide.source === "task" ? (
+                      <ClockCircleOutlined />
+                    ) : (
+                      <WarningOutlined />
+                    )}
+                  </span>
+                  <span className={styles.slideText}>
+                    <b className={styles.cardTitle}>{slide.title}</b>
+                    <span className={styles.cardSubject}>{slide.subject}</span>
+                  </span>
+                </div>
                 <div className={styles.cardBottom}>
                   <span className={styles.cardMeta}>{slide.meta}</span>
                   <Button
@@ -267,17 +354,6 @@ function FeedCard({
           <CheckCircleOutlined /> {empty}
         </p>
       )}
-      {more ? (
-        more.to.startsWith("#") ? (
-          <a className={styles.feedMore} href={more.to}>
-            {more.label} <ArrowRightOutlined />
-          </a>
-        ) : (
-          <Link className={styles.feedMore} to={more.to}>
-            {more.label} <ArrowRightOutlined />
-          </Link>
-        )
-      ) : null}
     </article>
   );
 }

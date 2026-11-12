@@ -91,6 +91,56 @@ export class ApiClient {
   delete<T>(path: string) {
     return this.request<T>(path, { method: "DELETE" });
   }
+  put<T>(path: string, data: unknown) {
+    return this.request<T>(path, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+  /**
+   * Reads a server-sent event stream with the session token in the header (EventSource cannot
+   * send one). Calls `onEvent` per event until `signal` aborts; resolves when the stream ends, so
+   * the caller decides when to reconnect. A 401 signs the user out like any other request.
+   */
+  async stream(
+    path: string,
+    onEvent: (event: { event: string; data: string }) => void,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const headers = new Headers({ Accept: "text/event-stream" });
+    const token = this.options.getToken?.();
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    const response = await (this.options.fetch ?? fetch)(
+      this.options.baseUrl + path,
+      { headers, signal },
+    );
+    if (!response.ok || !response.body) {
+      if (response.status === 401) this.options.onUnauthorized?.();
+      throw new ApiError(response.status, "STREAM_FAILED", response.statusText);
+    }
+    const reader = response.body
+      .pipeThrough(new TextDecoderStream())
+      .getReader();
+    let buffer = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) return;
+      buffer += value;
+      let end: number;
+      while ((end = buffer.indexOf("\n\n")) >= 0) {
+        const block = buffer.slice(0, end);
+        buffer = buffer.slice(end + 2);
+        let event = "message";
+        const data: string[] = [];
+        for (const line of block.split("\n")) {
+          if (line.startsWith("event:")) event = line.slice(6).trim();
+          else if (line.startsWith("data:"))
+            data.push(line.slice(5).trimStart());
+        }
+        if (data.length) onEvent({ event, data: data.join("\n") });
+      }
+    }
+  }
   login(email: string, password: string) {
     return this.post<AuthResult>("/auth/login", { email, password });
   }

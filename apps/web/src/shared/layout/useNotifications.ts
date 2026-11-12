@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { App } from "antd";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import type { ActivityEntry, TaskRow } from "@codecash/contracts";
 import { listActivity } from "../api/domain";
+import {
+  getNotificationCursor,
+  markNotificationsSeen,
+} from "../api/notifications.api";
 import { listPendingTasks } from "../api/tasks.api";
 import { routeAllowed } from "./navConfig";
 
@@ -14,24 +18,6 @@ const TASKS_EVERY_MS = 30_000;
 const UPDATES_EVERY_MS = 60_000;
 /** Newest updates kept in the drawer; older ones live in the activity log. */
 const UPDATES_LIMIT = 30;
-
-const seenKey = (userId: string) => `codecash.notifications.seen.${userId}`;
-
-function readSeen(userId: string): string | null {
-  try {
-    return localStorage.getItem(seenKey(userId));
-  } catch {
-    return null;
-  }
-}
-
-function writeSeen(userId: string, at: string) {
-  try {
-    localStorage.setItem(seenKey(userId), at);
-  } catch {
-    /* Storage blocked: unread marks then last for this page only. */
-  }
-}
 
 export interface Notifications {
   /** Open tasks of the user, as the task inbox shows them. */
@@ -56,9 +42,10 @@ export interface Notifications {
 
 /**
  * One source for the bell, the drawer and the overview: the user's tasks and what others did
- * recently, both refreshed in the background. "Read" is a per-browser marker (the newest update
- * time the user has seen), a viewing convenience only: it never hides a task, and tasks count
- * until they are done. A task that appears while the app is open raises a short notice.
+ * recently, both refreshed in the background (and at once when the change stream says so).
+ * "Read" is the newest update time the user marked, kept on the server so it follows them across
+ * devices; it never hides a task, and tasks count until they are done. A task that appears while
+ * the app is open raises a short notice.
  */
 export function useNotifications(user: {
   id: string;
@@ -92,16 +79,34 @@ export function useNotifications(user: {
     select: (page) => page.items,
   });
 
-  const [seenAt, setSeenAt] = useState(() => readSeen(user.id));
+  const cache = useQueryClient();
+  const cursorKey = ["notification-cursor", user.id];
+  const cursor = useQuery({
+    queryKey: cursorKey,
+    queryFn: getNotificationCursor,
+    enabled: canUpdates,
+    staleTime: 60_000,
+  });
+  const seen = useMutation({
+    mutationFn: markNotificationsSeen,
+    // Shown at once; the server answer (never older than what it had) replaces it.
+    onMutate: (at: string) =>
+      cache.setQueryData(
+        cursorKey,
+        (old: { seenAt: string | null } | undefined) =>
+          old?.seenAt && old.seenAt >= at ? old : { seenAt: at },
+      ),
+    onSuccess: (stored) => cache.setQueryData(cursorKey, stored),
+  });
+  const seenAt = cursor.data?.seenAt ?? null;
   const newest = updates.data?.[0]?.at;
-  // First visit on this browser: start from "everything so far is read", not from a backlog.
+  // First visit: start from "everything so far is read", not from a backlog.
+  const started = useRef(false);
   useEffect(() => {
-    if (seenAt === null && updates.isSuccess) {
-      const at = newest ?? new Date().toISOString();
-      writeSeen(user.id, at);
-      setSeenAt(at);
-    }
-  }, [seenAt, updates.isSuccess, newest, user.id]);
+    if (started.current || !cursor.isSuccess || !updates.isSuccess) return;
+    started.current = true;
+    if (cursor.data.seenAt === null && newest) seen.mutate(newest);
+  }, [cursor.isSuccess, cursor.data, updates.isSuccess, newest, seen]);
 
   const unread = useMemo(
     () =>
@@ -115,11 +120,10 @@ export function useNotifications(user: {
     [updates.data, seenAt],
   );
 
+  const { mutate: markSeen } = seen;
   const markAllRead = useCallback(() => {
-    const at = newest ?? new Date().toISOString();
-    writeSeen(user.id, at);
-    setSeenAt(at);
-  }, [newest, user.id]);
+    if (newest) markSeen(newest);
+  }, [newest, markSeen]);
 
   // A notice for each refresh that brings new tasks (not for the first load).
   const known = useRef<Set<string> | null>(null);

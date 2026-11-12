@@ -235,7 +235,8 @@
     "SIGNATURE_EXPORT": "Signature proofs exported",
     "ANCHOR_EXPORT": "Anchor bundle exported",
     "SYSTEM_WRITE": "System data written",
-    "PAYMENT_DELIVERY": "Payment instruction sent"
+    "PAYMENT_DELIVERY": "Payment instruction sent",
+    "MARK_NOTIFICATIONS_READ": "Mark notifications as read"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",

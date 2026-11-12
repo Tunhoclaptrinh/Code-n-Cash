@@ -339,7 +339,8 @@
     "APP_SCOPE_REASONS": "Scope: must give all 8 reasons of the brief (dispute, rejection, unauthorised, missing evidence, missing approval, late, all met, unresolved).",
     "APP_SCOPE_SIZE": "Scope: 30 rules at most.",
     "INVALID_WORKFLOW": "The milestone workflow is not in the pinned rule version or not for this contract type.",
-    "APP_WORKFLOW_COUNT": "A version holds at most 8 own workflows."
+    "APP_WORKFLOW_COUNT": "A version holds at most 8 own workflows.",
+    "INVALID_SEEN_AT": "The time marked as read is not valid."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

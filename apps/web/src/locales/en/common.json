@@ -295,6 +295,14 @@
     "openActivity": "Open the activity log",
     "openOverview": "Open the contract overview",
     "newTasks_one": "{{count}} new task for you",
-    "newTasks_other": "{{count}} new tasks for you"
+    "newTasks_other": "{{count}} new tasks for you",
+    "live": {
+      "live": "Live",
+      "liveHint": "Changes arrive as they happen",
+      "connecting": "Connecting",
+      "connectingHint": "Opening the live update channel",
+      "offline": "Reconnecting",
+      "offlineHint": "Live channel lost; still refreshing every 30 seconds"
+    }
   }
 }

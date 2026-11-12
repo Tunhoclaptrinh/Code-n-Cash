@@ -16,6 +16,15 @@ import { auditChanges, enrichAudit } from "./audit-events";
 export class Repository implements OnModuleDestroy {
   private data: Record<string, RecordEntity[]> = {};
   private queue: Promise<unknown> = Promise.resolve();
+  private listeners = new Set<(resources: string[]) => void>();
+  /**
+   * Called after every committed write with the collections it touched (never the rows). Used to
+   * tell open clients that something changed; they re-read what their own scope allows.
+   */
+  onChange(listener: (resources: string[]) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
   private db?: mongoose.Connection;
   readonly driver = process.env.STORAGE_DRIVER ?? "file";
   readonly path = resolve(
@@ -249,6 +258,18 @@ export class Repository implements OnModuleDestroy {
       throw error;
     });
     this.queue = normalized.catch(() => {});
+    void normalized.then(
+      () => {
+        for (const listener of this.listeners) {
+          try {
+            listener(names);
+          } catch {
+            /* A listener never breaks a write. */
+          }
+        }
+      },
+      () => {},
+    );
     return normalized;
   }
   async onModuleDestroy() {

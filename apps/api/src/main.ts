@@ -32,6 +32,7 @@ import { TransformInterceptor } from "./common/interceptors/transform.intercepto
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { EngineController } from "./engine";
 import { PermissionsController } from "./permissions.controller";
+import { NotificationsController } from "./notifications";
 import { DomainService } from "./domain/service";
 import { warmMockOriginals } from "./mock-originals";
 import { auditContext } from "./common/audit-events";
@@ -70,6 +71,7 @@ class HealthController {
     ContractFilesController,
     SampleDocumentsController,
     PermissionsController,
+    NotificationsController,
   ],
   providers: [
     TrustService,

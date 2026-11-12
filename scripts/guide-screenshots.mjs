@@ -888,7 +888,17 @@ try {
     await until(
       "!!document.querySelector('[data-testid=extraction-load-suggestions]')",
     );
-    await click("[data-testid=extraction-load-suggestions]");
+    // The table may render before its suggestions can be loaded; press again until they are.
+    for (let tries = 0; tries < 10; tries++) {
+      await click("[data-testid=extraction-load-suggestions]");
+      await pause(500);
+      if (
+        await evaluate(
+          "!!document.querySelector('[data-testid=extraction-review-ack]') && !document.querySelector('[data-testid=extraction-review-ack]').disabled",
+        )
+      )
+        break;
+    }
     await until(
       "!!document.querySelector('[data-testid=extraction-review-ack]') && !document.querySelector('[data-testid=extraction-review-ack]').disabled",
     );
@@ -1089,7 +1099,7 @@ try {
         { n: 2, target: ".data-table-wrapper .ant-row", pad: 2 },
         {
           n: 3,
-          target: ".ant-table-thead th:nth-child(4) .ant-table-filter-trigger",
+          target: ".ant-table-thead th:nth-child(5) .ant-table-filter-trigger",
           pad: 6,
         },
         { n: 4, target: ".ant-table-tbody .ant-table-row td:last-child" },
@@ -1357,6 +1367,56 @@ try {
   });
 
   /* ------------------------------ auditor, secondary approver ------------------------------ */
+  // An amendment of a signed contract: the buyer proposes, the supplier answers.
+  await attempt("amendment", async () => {
+    await loginAs("legal@novaan.vn");
+    await go(
+      "/contracts/CT0103",
+      "!!document.querySelector('[data-testid=contract-actions]')",
+    );
+    await evaluate(
+      "(() => { const b = document.querySelector('[data-testid=contract-amend]'); if (b) { b.click(); return; } document.querySelector('[data-testid=contract-actions] .ant-dropdown-trigger')?.click(); })()",
+    );
+    await pause(400);
+    await evaluate(
+      "document.querySelector('[data-testid=contract-amend]')?.click()",
+    );
+    await until("!!document.querySelector('[data-testid=amendment-reason]')");
+    await evaluate(`(() => {
+      const set = (el, value) => {
+        const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+        Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, value);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      set(document.querySelector('[data-testid=amendment-reason]'), 'Bên mua chậm bàn giao mặt bằng lắp đặt 20 ngày');
+      const due = document.querySelector('[data-testid=amendment-due-3]');
+      const next = new Date(Date.parse(due.value) + 20 * 86400000).toISOString().slice(0, 10);
+      set(due, next);
+    })()`);
+    await pause(400);
+    await shot("amendment-form", {
+      clip: ".ant-modal",
+      marks: [
+        { n: 1, target: "[data-testid=amendment-reason]" },
+        { n: 2, target: "[data-testid=amendment-due-3]" },
+      ],
+    });
+    await click({ text: "Gửi nhà cung cấp", tag: "button" });
+    await until("!!document.querySelector('[data-testid=amendment-card]')");
+    await loginAs("supplier@phuminh.vn");
+    await go(
+      "/contracts/CT0103?tab=amendments",
+      "!!document.querySelector('[data-testid=amendment-accept]')",
+    );
+    await pause(400);
+    await shot("amendment-review", {
+      marks: [
+        { n: 1, target: "[data-testid=amendment-card]" },
+        { n: 2, target: "[data-testid=amendment-accept]" },
+      ],
+    });
+  });
   await attempt("auditor", async () => {
     await loginAs("auditor@codecash.vn");
     await sidebar("auditor");

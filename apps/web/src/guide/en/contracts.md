@@ -39,3 +39,15 @@ See [Decision trace](/guide/decision), [New contracts and signing](/guide/signin
 **CT0084** has a contract-signed event, but **MS0337 — Acceptance** lacks `ACCEPTANCE`. Two approvals do not replace the acceptance evidence, so that milestone is **HOLD**. The warning names the milestone and missing action. Do not mark every payment complete just because the signing view says 3/3.
 
 **Contract owner** is a role; **Project director** is a job title. A signer may also approve payments where the policy allows it, subject to the separate conditions and quorum of each milestone. **Role/organisation: Organiser data** alongside **Demo identity** distinguishes Data Pack functions from demo personal names/emails.
+
+## Contract amendments
+
+After signing, the schedule changes only through an amendment. The buyer's contract officer or owner presses **Propose amendment**, gives the reason, new due dates for milestones whose payment is not decided and/or a new end date. New dates keep the milestone order and stay within the contract period.
+
+![Proposing an amendment: 1 — reason; 2 — new due date](../../../public/guide/images/amendment-form.webp)
+
+The supplier gets a **Review amendment** task and answers on the **Amendments** tab: accepting puts the new dates in force and the milestones are evaluated again; rejecting needs a reason. The buyer may withdraw an open amendment. The signed terms are never edited, so the signatures still verify; each amendment has its own digest and every step is in the audit log. The organiser's contracts stay as given and cannot be amended.
+
+![The supplier reviews an amendment: 1 — the change; 2 — accept](../../../public/guide/images/amendment-review.webp)
+
+The top of the contract page also says what needs attention: milestones without a due date, signing after the start date, an end date passed with open milestones, or every milestone settled.

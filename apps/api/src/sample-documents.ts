@@ -18,7 +18,25 @@ import {
   uploadFormOptions,
   validateDraftSigners,
 } from "./domain/drafts";
-import { addDays } from "./domain/templates";
+import { scheduleDueDates } from "./domain/templates";
+import type { StageTemplate } from "./domain/records";
+
+/** The document's milestone table, dated by the same schedule the digitised milestones use. */
+const scheduled = (
+  stages: StageTemplate[],
+  period: { startDate: string; endDate: string } | null,
+) => {
+  const dates = period
+    ? scheduleDueDates(period.startDate, period.endDate, stages)
+    : {};
+  return stages.map((stage) => ({
+    type: stage.type,
+    name: stage.name,
+    paymentPercent: stage.paymentPercent,
+    dueDate: dates[stage.sequence] ?? SAMPLE_PLACEHOLDER,
+    requiredEvents: stage.eventTypes.join(", "),
+  }));
+};
 import type { ContractDraft } from "./domain/types";
 
 export const generateSampleDocx = (input: unknown): Promise<Buffer> =>
@@ -129,7 +147,7 @@ export class SampleDocumentsController {
       // Only complete, valid fields reach the document; the engine never sees unvalidated values.
       const shown = <K extends keyof ContractDraft>(key: K) =>
         partial && problems[key] ? SAMPLE_PLACEHOLDER : draft[key];
-      const validStart = !problems.startDate;
+      const validPeriod = !problems.startDate && !problems.endDate;
       return {
         ...(partial ? { partial } : {}),
         documentBody: draft.documentBody ?? selected?.documentBody ?? "",
@@ -152,24 +170,19 @@ export class SampleDocumentsController {
           name: String(ctx.user(signer.userId)!.displayName),
         })),
         stages: options.types.includes(draft.type)
-          ? stagesOf(
-              ctx,
-              draft.type,
-              // The draft's own pinned version, or the one a new draft would pin.
-              (ctx.draft(draft.code)?.ruleVersionId as string | undefined) ??
-                (ctx.t["rule-versions"] ?? []).find(
-                  (row) => row.status === "PUBLISHED",
-                )?.id,
-              draft.workflowTemplate,
-            ).map((stage) => ({
-              type: stage.type,
-              name: stage.name,
-              paymentPercent: stage.paymentPercent,
-              dueDate: validStart
-                ? addDays(draft.startDate, stage.offsetDays)
-                : SAMPLE_PLACEHOLDER,
-              requiredEvents: stage.eventTypes.join(", "),
-            }))
+          ? scheduled(
+              stagesOf(
+                ctx,
+                draft.type,
+                // The draft's own pinned version, or the one a new draft would pin.
+                (ctx.draft(draft.code)?.ruleVersionId as string | undefined) ??
+                  (ctx.t["rule-versions"] ?? []).find(
+                    (row) => row.status === "PUBLISHED",
+                  )?.id,
+                draft.workflowTemplate,
+              ),
+              validPeriod ? draft : null,
+            )
           : [],
       };
     });

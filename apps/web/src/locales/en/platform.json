@@ -49,7 +49,7 @@
     "sequence": "Sequence",
     "paymentPercent": "Payment share (%)",
     "latePenalty": "Late penalty applies",
-    "offsetDays": "Due (days after start)",
+    "offsetDays": "Reference due day",
     "origin": "Source",
     "signerRoles": "Signing role order",
     "documentBody": "Template content",

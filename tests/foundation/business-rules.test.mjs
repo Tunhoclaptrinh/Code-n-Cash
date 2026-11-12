@@ -399,7 +399,9 @@ test("who: only the roles of spec 17 reach each write action; every other role i
   const registered = [
     ...source.matchAll(/(?:write|sends)\(\s*"[\w:-]+",\s*"(\w+)"/g),
     // Signing writes that go through the remote signing service have their own handlers.
-    ...source.matchAll(/(\w+):\s*(?:sendThroughService|withdrawThroughService\()/g),
+    ...source.matchAll(
+      /(\w+):\s*(?:sendThroughService|withdrawThroughService\()/g,
+    ),
   ].map((match) => match[1]);
   assert.deepEqual(
     registered.filter((name) => name !== "getSigningRequest").sort(),
@@ -5010,7 +5012,7 @@ test("document: an app-made contract needs a reviewed extraction and matching si
     U.LEGAL,
     "drafts",
     "confirmDigitization",
-    [code, { dueDate: "2027-12-31" }],
+    [code, { dueDate: saved.endDate }],
     "EXTRACTION_REVIEW_REQUIRED",
   );
   const extractor = new ExtractionService(w.repo, w.domain);
@@ -5072,7 +5074,7 @@ test("document: an app-made contract needs a reviewed extraction and matching si
     version: config.layoutVersion,
   });
   await ok(w, U.LEGAL, "drafts", "confirmDigitization", code, {
-    dueDate: "2027-12-31",
+    dueDate: saved.endDate,
   });
   // Replacing the file after a request was sent cancels the signature: the digest no longer matches.
   const path = join(w.dir, "uploads", documentId);

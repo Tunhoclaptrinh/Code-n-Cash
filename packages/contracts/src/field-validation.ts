@@ -98,7 +98,8 @@ export function draftProblems(input: {
   if (!validIsoDate(input.startDate)) errors.startDate = "INVALID_DATES";
   if (
     !validIsoDate(input.endDate) ||
-    (validIsoDate(input.startDate) && input.endDate < input.startDate)
+    // Milestones are spread over the period, so it must last at least a day.
+    (validIsoDate(input.startDate) && input.endDate <= input.startDate)
   )
     errors.endDate = "INVALID_DATES";
   if (

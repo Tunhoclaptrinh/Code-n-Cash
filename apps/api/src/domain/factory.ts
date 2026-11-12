@@ -70,6 +70,8 @@ export function milestonesFor(
       milestone_sequence: String(stage.sequence),
       milestone_type: stage.type,
       milestone_name: stage.name,
+      // Drafts pass their scaled schedule (scheduleDueDates); only the curated seed contracts
+      // fall back to the plain offsets their scenario events were timed against.
       due_date:
         dueDates[stage.sequence] ??
         addDays(contract.start_date, stage.offsetDays),

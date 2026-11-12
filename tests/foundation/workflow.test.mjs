@@ -718,9 +718,26 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     digitized.milestones.map((m) => m.type),
     ["KICKOFF", "INTERIM_DELIVERY", "FINAL_ACCEPTANCE", "WARRANTY_CLOSE"],
   );
+  // Like the Data Pack, the stages are spread over the contract period and the last one is due
+  // on the end date; the warranty's relative term needs a date inside that order.
+  const [kickoff, interim, final] = digitized.milestones;
+  assert.ok(
+    saved.startDate < kickoff.dueDate &&
+      kickoff.dueDate < interim.dueDate &&
+      interim.dueDate < final.dueDate &&
+      final.dueDate < saved.endDate,
+  );
+  assert.equal(digitized.suggestedDueDate, saved.endDate);
+  assert.ok(digitized.milestones[3].relativeTermMonths >= 1);
   await placeActualSignatures(saved.code);
+  // Before the final acceptance, or after the contract has ended.
+  for (const dueDate of [kickoff.dueDate, "2999-12-31"])
+    await assert.rejects(
+      call("u-legal", "drafts", "confirmDigitization", saved.code, { dueDate }),
+      /DUE_DATE_OUT_OF_RANGE/,
+    );
   await call("u-legal", "drafts", "confirmDigitization", saved.code, {
-    dueDate: "2027-12-31",
+    dueDate: saved.endDate,
   });
   const overview = await call(
     "u-owner",
@@ -758,7 +775,7 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
   }
   assert.equal(
     created.find((m) => m.milestone_type === "WARRANTY_CLOSE").due_date,
-    "2027-12-31",
+    saved.endDate,
   );
   const unchanged = (await repo.list("milestones")).find(
     (m) => m.milestone_id === "MS0412",

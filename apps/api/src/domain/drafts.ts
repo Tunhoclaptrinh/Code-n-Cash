@@ -18,7 +18,14 @@ import {
   type StageTemplate,
 } from "./records";
 import { MAX_SIGNERS, previewPagesFor, assertSlots } from "./signing-layout";
-import { addDays, fromCents, shareOf, toCents } from "./templates";
+import {
+  addDays,
+  daysBetween,
+  fromCents,
+  scheduleDueDates,
+  shareOf,
+  toCents,
+} from "./templates";
 import type {
   ApprovalPolicy,
   ContractDraft,
@@ -373,7 +380,7 @@ export function saveDraft(
     throw new BadRequestException("INVALID_POLICY");
   if (!value || toCents(value) <= 0n)
     throw new BadRequestException("INVALID_VALUE");
-  if (!start || !end || start > end)
+  if (!start || !end || start >= end)
     throw new BadRequestException("INVALID_DATES");
   if (!rate || !cap || !Number.isInteger(grace) || grace < 0 || grace > 60)
     throw new BadRequestException("INVALID_PENALTY");
@@ -603,9 +610,11 @@ export function digitization(ctx: Ctx, code: string): Digitization {
     draft.ruleVersionId as string | undefined,
     draft.workflowTemplate,
   );
+  const schedule = scheduleDueDates(draft.startDate, draft.endDate, stages);
   let allocated = 0n;
   const milestones: DigitizedMilestone[] = stages.map((stage, i) => {
     const last = i === stages.length - 1;
+    const previous = i ? schedule[stages[i - 1].sequence] : draft.startDate;
     const value = last
       ? fromCents(toCents(draft.valueMillion) - allocated)
       : shareOf(draft.valueMillion, stage.paymentPercent);
@@ -616,14 +625,20 @@ export function digitization(ctx: Ctx, code: string): Digitization {
       type: stage.type as MilestoneType,
       valueMillion: value,
       paymentPercent: stage.paymentPercent,
-      dueDate: warranty ? null : addDays(draft.startDate, stage.offsetDays),
+      dueDate: warranty ? null : schedule[stage.sequence],
       eventTypes: stage.eventTypes,
       penalty: stage.latePenalty
         ? { ratePct: draft.penaltyRatePct, capPct: draft.maxPenaltyPct }
         : null,
       source: warranty ? "NEEDS_CONFIRMATION" : "MATCH",
       sourceClause: CLAUSE_OF[stage.type] ?? null,
-      relativeTermMonths: warranty ? 12 : null,
+      // The text states the warranty as a term after the previous stage, not as a date.
+      relativeTermMonths: warranty
+        ? Math.max(
+            1,
+            Math.round(daysBetween(previous, schedule[stage.sequence]) / 30),
+          )
+        : null,
     };
   });
   const warrantyStage = stages.find((s) => s.type.startsWith("WARRANTY"));
@@ -639,9 +654,7 @@ export function digitization(ctx: Ctx, code: string): Digitization {
     milestones,
     approvers: APPROVAL_ROLES_BY_POLICY[draft.approvalPolicy],
     requiredApprovals: APPROVAL_ROLES_BY_POLICY[draft.approvalPolicy].length,
-    suggestedDueDate: warrantyStage
-      ? addDays(draft.startDate, warrantyStage.offsetDays)
-      : null,
+    suggestedDueDate: warrantyStage ? schedule[warrantyStage.sequence] : null,
     locked: draft.state !== "DRAFT",
   };
 }
@@ -701,11 +714,25 @@ export function confirmDigitization(
   const dueDate = input?.dueDate ? isoDate(String(input.dueDate)) : null;
   if (input?.dueDate && !dueDate)
     throw new BadRequestException("INVALID_DATES");
-  for (const m of result.milestones)
-    if (m.source === "NEEDS_CONFIRMATION") {
-      m.dueDate = dueDate;
-      m.source = "CONFIRMED";
-    }
+  result.milestones.forEach((m, i) => {
+    if (m.source !== "NEEDS_CONFIRMATION") return;
+    // Stages stay in order inside the contract period: not before the previous stage's due date,
+    // not after the next one's or the end date.
+    const before = result.milestones
+      .slice(0, i)
+      .map((other) => other.dueDate)
+      .filter((date): date is string => !!date);
+    const after = result.milestones
+      .slice(i + 1)
+      .map((other) => other.dueDate)
+      .filter((date): date is string => !!date);
+    const earliest = before.at(-1) ?? draft.startDate;
+    const latest = after[0] ?? draft.endDate;
+    if (dueDate && (dueDate < earliest || dueDate > latest))
+      throw new BadRequestException("DUE_DATE_OUT_OF_RANGE");
+    m.dueDate = dueDate;
+    m.source = "CONFIRMED";
+  });
   result.locked = true;
   // Ids of milestones removed with a cancelled signing sequence live on in the status history,
   // so they are never handed out again.

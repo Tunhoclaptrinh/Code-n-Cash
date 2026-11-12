@@ -49,7 +49,7 @@
     "sequence": "Thứ tự",
     "paymentPercent": "Tỷ lệ thanh toán (%)",
     "latePenalty": "Áp dụng phạt trễ",
-    "offsetDays": "Hạn (ngày sau khi bắt đầu)",
+    "offsetDays": "Hạn theo lịch chuẩn (ngày)",
     "origin": "Nguồn",
     "signerRoles": "Thứ tự vai trò ký",
     "documentBody": "Nội dung mẫu",

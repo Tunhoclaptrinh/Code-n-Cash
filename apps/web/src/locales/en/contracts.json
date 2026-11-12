@@ -175,7 +175,7 @@
         "INVALID_TYPE": "Invalid contract type.",
         "INVALID_POLICY": "Invalid approval policy.",
         "INVALID_VALUE": "The value must be positive with at most two decimals.",
-        "INVALID_DATES": "The start date must not be after the end date.",
+        "INVALID_DATES": "The end date must come after the start date.",
         "INVALID_PENALTY": "Invalid penalty terms (grace 0–60 days, 0–5%/day, cap 0–8%).",
         "INVALID_SUPPLIER": "Pick a supplier from the list.",
         "SIGNER_COUNT": "One to four signers are required.",

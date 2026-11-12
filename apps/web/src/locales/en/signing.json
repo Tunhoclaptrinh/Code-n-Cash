@@ -309,7 +309,7 @@
     },
     "digitize": {
       "sourceToggle": "Workflow template terms (illustration)",
-      "ambiguityHint": "Leave empty: this milestone waits until a date is known.",
+      "ambiguityHint": "Leave empty: this milestone waits until a date is known. The suggestion follows the workflow schedule (the last milestone falls on the contract end date); the due date must follow the previous milestone.",
       "totalMatch": "Matches contract value",
       "lockNote": "Cannot be edited after confirming.",
       "locked": "Confirmed and locked.",

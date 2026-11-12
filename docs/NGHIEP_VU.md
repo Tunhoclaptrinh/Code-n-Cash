@@ -214,6 +214,8 @@ Mỗi kết quả ghi lại cách chọn luật (`selection`: `FIRST_MATCH` ho�
 | Sửa một luật của BTC rồi áp cho cả 16 bản cùng ưu tiên; cảnh báo khi các bản đã lệch nhau | tab Luật |
 | Bên soạn hợp đồng chọn quy trình riêng khi phiên bản đang công bố có quy trình cho loại hợp đồng đó | Tải hợp đồng lên, ô Quy trình mốc |
 
+Hạn mốc của hợp đồng soạn trong ứng dụng: "số ngày tới hạn" của mẫu là lịch chuẩn, được co giãn theo thời hạn hợp đồng, giai đoạn có số ngày lớn nhất rơi đúng ngày kết thúc. Đây là quy luật của Data Pack (100/100 hợp đồng có mốc cuối bằng `end_date`; co giãn trung vị tái lập cả 405 hạn mốc, lệch tối đa 1 ngày, còn cộng thẳng số ngày vào ngày bắt đầu lệch tới 96 ngày và đẩy 64 mốc ra sau ngày kết thúc). Vì vậy ngày kết thúc phải sau ngày bắt đầu; hạn bảo hành xác nhận khi số hoá phải nằm giữa hạn mốc liền trước và mốc liền sau hoặc ngày kết thúc (`DUE_DATE_OUT_OF_RANGE`). Hợp đồng demo dựng sẵn (`SEED`) giữ hạn cũ vì sự kiện của kịch bản được hẹn theo đó.
+
 Vì sao không đổi 405 mốc: mốc Data Pack luôn dùng phạm vi của BTC trong bảng luật gốc; phiên bản đã công bố được chép thêm dưới mã bộ luật có hậu tố phiên bản, và chỉ hợp đồng ghim phiên bản đó mới dùng. Phép xem trước vẫn chạy lại cả 405 mốc và phải không đổi gì.
 
 Quy trình riêng được kiểm bằng ba lớp trước khi công bố:

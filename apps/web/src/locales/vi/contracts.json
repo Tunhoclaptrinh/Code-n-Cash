@@ -175,7 +175,7 @@
         "INVALID_TYPE": "Loại hợp đồng không hợp lệ.",
         "INVALID_POLICY": "Chính sách phê duyệt không hợp lệ.",
         "INVALID_VALUE": "Giá trị phải là số dương, tối đa 2 chữ số thập phân.",
-        "INVALID_DATES": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.",
+        "INVALID_DATES": "Ngày kết thúc phải sau ngày bắt đầu.",
         "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–8%).",
         "INVALID_SUPPLIER": "Chọn nhà cung cấp trong danh sách.",
         "SIGNER_COUNT": "Cần từ 1 đến 4 người ký.",

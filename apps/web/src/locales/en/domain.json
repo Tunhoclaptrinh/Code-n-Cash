@@ -232,6 +232,7 @@
     "INVALID_CREDENTIALS": "Wrong email or password.",
     "INVALID_DATASET": "Invalid dataset.",
     "INVALID_DATES": "The end date must come after the start date.",
+    "DUE_DATE_OUT_OF_RANGE": "The due date must fall between the previous and the next milestone (or the contract end date).",
     "INVALID_DOCUMENT": "Invalid document.",
     "INVALID_FILE": "Invalid file.",
     "INVALID_INPUT": "Invalid input.",

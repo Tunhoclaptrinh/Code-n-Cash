@@ -306,7 +306,7 @@
     },
     "digitize": {
       "sourceToggle": "Điều khoản theo mẫu quy trình (minh họa)",
-      "ambiguityHint": "Để trống: mốc này chờ đến khi có ngày.",
+      "ambiguityHint": "Để trống: mốc này chờ đến khi có ngày. Ngày gợi ý theo lịch chuẩn của quy trình (mốc cuối rơi vào ngày kết thúc hợp đồng); hạn phải nằm sau mốc liền trước.",
       "totalMatch": "Khớp giá trị hợp đồng",
       "lockNote": "Không sửa được sau khi xác nhận.",
       "locked": "Đã xác nhận và khóa.",

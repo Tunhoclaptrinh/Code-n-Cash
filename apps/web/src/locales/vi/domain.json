@@ -232,6 +232,7 @@
     "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
     "INVALID_DATASET": "Bộ dữ liệu không hợp lệ.",
     "INVALID_DATES": "Ngày kết thúc phải sau ngày bắt đầu.",
+    "DUE_DATE_OUT_OF_RANGE": "Hạn mốc phải nằm giữa hạn của mốc liền trước và mốc liền sau (hoặc ngày kết thúc hợp đồng).",
     "INVALID_DOCUMENT": "Tài liệu không hợp lệ.",
     "INVALID_FILE": "Tệp không hợp lệ.",
     "INVALID_INPUT": "Dữ liệu gửi lên không hợp lệ.",

@@ -248,7 +248,7 @@ test("uploaded DOCX is bound to the draft, extracted with provenance and needs e
   await assert.rejects(extraction.extract(saved.code, actors["u-supplier"]));
   await assert.rejects(
     call("u-legal", "drafts", "confirmDigitization", saved.code, {
-      dueDate: "2028-12-01",
+      dueDate: "2027-12-01",
     }),
     /EXTRACTION_REVIEW_REQUIRED/,
   );
@@ -274,7 +274,7 @@ test("uploaded DOCX is bound to the draft, extracted with provenance and needs e
   assert.equal(current.penaltyRatePct, "0.25");
   await placeActualSignatures(saved.code);
   await call("u-legal", "drafts", "confirmDigitization", saved.code, {
-    dueDate: "2028-12-01",
+    dueDate: "2027-12-01",
   });
 });
 
@@ -687,6 +687,7 @@ test("partial sample DOCX previews an unfinished draft with placeholders but kee
     type: "GOODS_SUPPLY",
     valueMillion: "abc",
     startDate: "2027-01-10",
+    endDate: "2027-04-14",
     graceDays: 5,
     signers: [
       { party: "BUYER", userId: "u-owner" },
@@ -699,6 +700,8 @@ test("partial sample DOCX previews an unfinished draft with placeholders but kee
   assert.ok(text.includes("2027-01-10"));
   // Milestone names follow the document language.
   assert.ok(text.includes("Contract signing") && text.includes("2027-01-15"));
+  // Stages are spread over the period: the warranty, last, is due on the end date.
+  assert.ok(text.includes("2027-04-14"));
   assert.ok(!text.includes("abc"), "invalid values never reach the document");
 
   const supplierId = "S015";

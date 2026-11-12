@@ -110,7 +110,7 @@ Trước khi demo: chạy `pnpm dev` với `SIGNING_PROVIDER=remote`. Dùng CT01
 **Cách 2 — máy tính và điện thoại (giống thật nhất)**
 
 1. Cho điện thoại vào được máy chạy web:
-   - chạy web với `pnpm --filter @codecash/web dev -- --host 0.0.0.0`;
+   - chạy `pnpm dev:api`, `pnpm dev:signer` và `pnpm dev:web:lan` (web mở cho cả mạng LAN, thay cho `pnpm dev`);
    - điện thoại và máy tính dùng chung mạng Wi-Fi;
    - mở `http://<IP máy tính>:5173`.
 2. Trên điện thoại, đăng nhập **cùng tài khoản** `supplier@phuminh.vn` và mở `/device`. Cách khác: trên máy tính, bấm nút ở góc → biểu tượng QR, rồi quét bằng điện thoại.

@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "concurrently -k -n api,web,signer \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:signer\"",
     "dev:web": "pnpm --filter @codecash/web dev",
+    "dev:web:lan": "pnpm --filter @codecash/web dev:lan",
     "dev:api": "pnpm --filter @codecash/api dev",
     "dev:signer": "pnpm --filter @codecash/signer dev",
     "dev:engine": "python3 apps/engine/server.py",

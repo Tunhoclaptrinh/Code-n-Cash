@@ -47,10 +47,23 @@ export class EvidenceDocumentsController {
     @UploadedFile()
     file: { buffer: Buffer; originalname: string; size: number } | undefined,
     @Body()
-    body: { contractId?: string; sequence?: string; eventType?: string },
+    body: {
+      contractId?: string;
+      sequence?: string;
+      eventType?: string;
+      /** JSON of the invoice's data, with an INVOICE document. */
+      invoice?: string;
+    },
     @Req() req: SessionRequest,
   ) {
     if (!file?.size) throw new BadRequestException("INVALID_FILE");
+    let invoice: unknown;
+    if (body.invoice)
+      try {
+        invoice = JSON.parse(String(body.invoice).slice(0, 2000));
+      } catch {
+        throw new BadRequestException("INVOICE_DATA_REQUIRED");
+      }
     // Multer reads names as latin1; browsers send UTF-8.
     const fileName = Buffer.from(file.originalname, "latin1").toString("utf8");
     let stored;
@@ -73,6 +86,7 @@ export class EvidenceDocumentsController {
             fileName,
             sha256: stored.sha256,
             mediaType: stored.mediaType,
+            invoice,
           },
         ],
       },

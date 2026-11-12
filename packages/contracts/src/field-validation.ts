@@ -116,3 +116,36 @@ export function draftProblems(input: {
     errors.maxPenaltyPct = "PENALTY_OVER_LEGAL_CAP";
   return errors;
 }
+
+/**
+ * Format checks of an invoice's own data (Thông tư 78/2021/TT-BTC): template symbol of seven
+ * characters (kind 1-9, C or K, two-digit year, type letter, two letters of the seller), a number
+ * of at most eight digits, a real issue date in the symbol's year, a tax code of ten digits (with
+ * a three-digit branch suffix) or a twelve-digit personal number, and a positive total. Shared by
+ * the API and the form; the API adds the checks that need the contract (amount, dates, duplicates).
+ */
+export function invoiceProblems(input: {
+  symbol?: unknown;
+  number?: unknown;
+  issueDate?: unknown;
+  sellerTaxCode?: unknown;
+  amountMillion?: unknown;
+}): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const symbol = typeof input.symbol === "string" ? input.symbol.trim() : "";
+  if (!/^[1-9][CK]\d{2}[TDLMNBGH][A-Z]{2}$/.test(symbol))
+    errors.symbol = "INVOICE_SYMBOL_INVALID";
+  const number = typeof input.number === "string" ? input.number.trim() : "";
+  if (!/^\d{1,8}$/.test(number) || /^0+$/.test(number))
+    errors.number = "INVOICE_NUMBER_INVALID";
+  if (!validIsoDate(input.issueDate)) errors.issueDate = "INVOICE_DATE_INVALID";
+  else if (!errors.symbol && input.issueDate.slice(2, 4) !== symbol.slice(2, 4))
+    errors.issueDate = "INVOICE_YEAR_MISMATCH";
+  const taxCode =
+    typeof input.sellerTaxCode === "string" ? input.sellerTaxCode.trim() : "";
+  if (!/^(\d{10}(-\d{3})?|\d{12})$/.test(taxCode))
+    errors.sellerTaxCode = "INVOICE_TAX_CODE_INVALID";
+  if (!exactDecimal(input.amountMillion, "1000000", true))
+    errors.amountMillion = "INVOICE_AMOUNT_INVALID";
+  return errors;
+}

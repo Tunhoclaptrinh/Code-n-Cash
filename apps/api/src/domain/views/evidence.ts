@@ -50,7 +50,10 @@ export async function evidenceWorkspace(
     contract.lifecycle === "ACTIVE" &&
     !TERMINAL.includes(ctx.status(m)) &&
     pending.length > 0 &&
-    pending.every((s) => s.attachment);
+    pending.every(
+      (s) =>
+        s.attachment && (s.eventType !== "INVOICE" || s.attachment.invoice),
+    );
   const hypothetical = draftEvents(ctx, m);
   const preview = hypothetical.length
     ? previewOf((await dryRun(hypothetical)).get(m.milestone_id))
@@ -74,6 +77,7 @@ const toAttachment = (a: AttachmentRecord) => ({
   eventType: a.eventType,
   fileName: a.fileName,
   sizeMb: a.sizeMb,
+  ...(a.invoice ? { invoice: a.invoice } : {}),
   addedBy: a.addedBy,
   addedAt: a.addedAt,
 });

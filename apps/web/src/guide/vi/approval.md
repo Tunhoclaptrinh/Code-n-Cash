@@ -7,10 +7,12 @@ Chủ hợp đồng, phê duyệt tài chính hoặc phê duyệt cấp 2 mở v
 ## Kiểm tra trước khi quyết định
 
 1. Đọc mã hợp đồng, mốc, giá trị kế hoạch và trạng thái hiện tại.
-2. Xem **Bằng chứng hợp lệ**: loại, tài liệu, bên ghi và thời điểm. Bằng chứng thiếu vẫn có thể làm mốc HOLD sau khi bạn duyệt.
+2. Xem **Bằng chứng hợp lệ** và bấm **Xem** ở từng chứng từ: tệp gốc mở ngay trên trang (hệ thống băm lại để chắc tệp không bị thay), kèm chữ ký của người nộp; hoá đơn có thêm ký hiệu, số, ngày, mã số thuế và đối chiếu tổng tiền với giá trị mốc. Chứng từ của dữ liệu mẫu ban tổ chức chỉ có mã tài liệu, không kèm tệp. Bằng chứng thiếu vẫn có thể làm mốc HOLD sau khi bạn duyệt.
 3. Xem **Vai trò phê duyệt** để biết ai đã duyệt và ai đang chờ. Ví dụ CT0103 cần tài chính và chủ hợp đồng, không phải bất kỳ hai người nào.
 4. Đọc **Kết quả nếu bạn phê duyệt**, bao gồm quyết định, tiền phạt, tiền được trả và lý do.
 5. Mở **Truy vết quyết định** nếu cần xem chi tiết rule hoặc cách tính ngày trễ.
+
+![Xem chứng từ: 1 — dữ liệu hoá đơn và đối chiếu tổng tiền với giá trị mốc](../../../public/guide/images/approval-evidence.webp)
 
 ## Ba lựa chọn
 

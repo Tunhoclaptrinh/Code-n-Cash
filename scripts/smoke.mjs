@@ -430,11 +430,12 @@ assert.deepEqual(
 assert.equal(stages.filter((s) => s.state === "CURRENT").length, 1);
 assert.equal(stages.at(-1).state, "PENDING");
 // Evidence files: stored under their hash, signed by the submitter, downloadable by the other side.
-const uploadEvidence = (task, eventType, bytes, name) => {
+const uploadEvidence = (task, eventType, bytes, name, invoice) => {
   const form = new FormData();
   form.append("contractId", task.contractId);
   form.append("sequence", String(task.sequence));
   form.append("eventType", eventType);
+  if (invoice) form.append("invoice", JSON.stringify(invoice));
   form.append("file", new Blob([bytes]), name);
   return fetch(`${base}/evidence-documents`, {
     method: "POST",
@@ -455,6 +456,34 @@ const rejected = await uploadEvidence(
 assert.equal(rejected.status, 400);
 assert.equal(rejected.body.code, "UNSUPPORTED_EVIDENCE_FILE");
 const pdfBytes = `%PDF-1.4\n% smoke ${Date.now()}\n`;
+// An invoice is uploaded with its own data; the total must be the milestone's planned payment.
+const evidenceView = (
+  await workflow(
+    "evidence",
+    "getEvidenceWorkspace",
+    [evidenceTask.contractId, evidenceTask.sequence],
+    supplier,
+  )
+).body.data;
+const issueDate = new Date(Date.now() + 7 * 3_600_000)
+  .toISOString()
+  .slice(0, 10);
+const invoice = {
+  symbol: `1C${issueDate.slice(2, 4)}TAA`,
+  number: String(Date.now() % 100_000_000),
+  issueDate,
+  sellerTaxCode: "0109876543",
+  amountMillion: evidenceView.milestone.plannedMillion,
+};
+if (evidenceTask.eventTypes.includes("INVOICE")) {
+  const missing = await uploadEvidence(
+    evidenceTask,
+    "INVOICE",
+    pdfBytes,
+    "INVOICE.pdf",
+  );
+  assert.equal(missing.body.code, "INVOICE_DATA_REQUIRED");
+}
 for (const eventType of evidenceTask.eventTypes)
   assert.equal(
     (
@@ -463,6 +492,7 @@ for (const eventType of evidenceTask.eventTypes)
         eventType,
         pdfBytes,
         `${eventType}.pdf`,
+        eventType === "INVOICE" ? invoice : undefined,
       )
     ).status,
     201,

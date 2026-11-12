@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { downloadBlob } from "@codecash/ui";
 import type { EventRow } from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
-import { formatDateTime } from "@/shared/lib/format";
+import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
 
 /**
@@ -26,7 +26,21 @@ export function EvidenceDocumentLink({ event }: { event: EventRow }) {
       ),
     onError: failed,
   });
-  if (!document) return <>{event.fileName ?? "—"}</>;
+  const invoice = event.invoice ? (
+    <Tag style={{ margin: 0 }} data-testid="invoice-reference">
+      {t("invoice.summary", {
+        reference: `${event.invoice.symbol} · ${event.invoice.number}`,
+        amount: formatDecimalString(event.invoice.amountMillion),
+      })}
+    </Tag>
+  ) : null;
+  if (!document)
+    return (
+      <Space size={4} wrap>
+        {event.fileName ?? "—"}
+        {invoice}
+      </Space>
+    );
   const intact = document.signatureValid && document.stored;
   return (
     <Space size={4} wrap>
@@ -51,6 +65,7 @@ export function EvidenceDocumentLink({ event }: { event: EventRow }) {
           {t(intact ? "evidenceDocument.signed" : "evidenceDocument.broken")}
         </Tag>
       </Tooltip>
+      {invoice}
     </Space>
   );
 }

@@ -24,6 +24,7 @@ import { PageState } from "@/shared/ui/PageState";
 import { KeyFigures, SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
+import { EvidenceViewerButton } from "../components/EvidenceViewer";
 import { MilestoneJourney } from "../components/MilestoneJourney";
 import styles from "./PaymentApprovalPage.module.css";
 
@@ -243,12 +244,23 @@ function ApprovalWorkspace({ data }: { data: ApprovalView }) {
                 <div className={styles.documentInfo}>
                   <b>{td(`eventType.${event.type}`)}</b>
                   <span className={styles.documentMeta}>
-                    {t("approve.documents.recorded", {
-                      by: event.recordedBy ?? actorName(td, event.actor),
-                      at: formatDateTime(event.at),
-                    })}
+                    {event.invoice
+                      ? t("invoice.summary", {
+                          reference: `${event.invoice.symbol} · ${event.invoice.number}`,
+                          amount: formatDecimalString(
+                            event.invoice.amountMillion,
+                          ),
+                        })
+                      : t("approve.documents.recorded", {
+                          by: event.recordedBy ?? actorName(td, event.actor),
+                          at: formatDateTime(event.at),
+                        })}
                   </span>
                 </div>
+                <EvidenceViewerButton
+                  event={event}
+                  plannedMillion={milestone.plannedMillion}
+                />
               </li>
             ))}
             {milestone.requirements

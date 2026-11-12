@@ -604,5 +604,41 @@
     "disputeNone": "Không có tranh chấp mở",
     "paymentDone": "Đã chi",
     "paymentWaiting": "Chờ duyệt chi"
+  },
+  "invoice": {
+    "form": {
+      "title": "Thông tin hoá đơn",
+      "submit": "Đính kèm hoá đơn",
+      "notice": "Nhập đúng các thông tin in trên hoá đơn {{fileName}}. Tổng tiền phải bằng giá trị mốc: {{planned}} triệu đồng."
+    },
+    "fields": {
+      "symbol": "Ký hiệu hoá đơn",
+      "number": "Số hoá đơn",
+      "issueDate": "Ngày lập",
+      "sellerTaxCode": "Mã số thuế người bán",
+      "amountMillion": "Tổng tiền thanh toán (triệu đồng)",
+      "reference": "Ký hiệu · số"
+    },
+    "hints": {
+      "symbol": "7 ký tự theo Thông tư 78/2021/TT-BTC, ví dụ {{example}}.",
+      "sellerTaxCode": "10 chữ số, 10 chữ số kèm mã chi nhánh (-001), hoặc 12 chữ số.",
+      "amountMillion": "Phải bằng giá trị mốc: {{planned}}. Tiền phạt (nếu có) trừ vào khoản chi, không trừ trên hoá đơn."
+    },
+    "summary": "Hoá đơn {{reference}} · {{amount}} triệu",
+    "matches": "Khớp giá trị mốc",
+    "mismatch": "Lệch giá trị mốc ({{planned}})"
+  },
+  "evidenceViewer": {
+    "open": "Xem",
+    "intact": "Tệp còn nguyên vẹn, có chữ ký của {{name}} lúc {{at}}.",
+    "broken": "Tệp đã thay đổi hoặc không còn trong kho; không dựa vào chứng từ này.",
+    "event": "Mã sự kiện",
+    "documentId": "Mã tài liệu",
+    "noFile": {
+      "DATA_PACK": "Chứng từ từ dữ liệu mẫu của ban tổ chức, không kèm tệp",
+      "SEED": "Chứng từ của hợp đồng demo dựng sẵn, không kèm tệp",
+      "APP": "Chứng từ ghi trước khi hệ thống lưu tệp, không kèm tệp"
+    },
+    "noFileHint": "Chỉ có mã tài liệu ({{fileName}}). Đối chiếu với bản giấy hoặc hệ thống của bên nộp trước khi duyệt."
   }
 }

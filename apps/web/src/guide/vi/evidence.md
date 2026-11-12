@@ -21,6 +21,10 @@ API xác định bên ghi từ người đăng nhập. NCC không thể nộp bi
 4. Đọc **Nếu nộp ngay bây giờ (engine chạy thử)**. Dự báo này cho thấy còn thiếu gì sau khi nộp.
 5. Khi nút **Nộp chứng từ** bật, bấm nộp; chờ thông báo thành công và kết quả được đánh giá lại.
 
+Với **Hoá đơn**, hệ thống hỏi thêm thông tin in trên hoá đơn (Thông tư 78/2021/TT-BTC): ký hiệu, số, ngày lập, mã số thuế người bán và tổng tiền. Tổng tiền phải bằng giá trị mốc (tiền phạt trừ vào khoản chi, không trừ trên hoá đơn); ngày lập không trước ngày ký hợp đồng, không ở tương lai; một hoá đơn chỉ dùng cho một chứng từ.
+
+![Thông tin hoá đơn: 1 — tổng tiền phải bằng giá trị mốc](../../../public/guide/images/evidence-invoice.webp)
+
 ![Sẵn sàng nộp: 1 — tệp đã tải; 2 — kết quả xem trước; 3 — nộp](../../../public/guide/images/evidence-ready.webp)
 
 ## Ví dụ CT0104 mốc 2

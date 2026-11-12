@@ -359,6 +359,7 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
       "2026-10-16T09:20:00",
       "DN-CT0103-02",
     );
+    // The demo invoice states its own data like an app-submitted one (synthetic seller tax code).
     seedEvent(
       delivery,
       "INVOICE",
@@ -367,7 +368,13 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
       "2026-10-16T15:10:00",
       "INV-CT0103-02",
       { amount: delivery.planned_payment_vnd_mn },
-    );
+    ).invoice = {
+      symbol: "1C26TPM",
+      number: "00000128",
+      issueDate: "2026-10-16",
+      sellerTaxCode: "0109876543",
+      amountMillion: delivery.planned_payment_vnd_mn,
+    };
     seedEvent(
       delivery,
       "APPROVAL",

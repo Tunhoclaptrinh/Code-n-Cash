@@ -674,6 +674,32 @@ const file = (extra) => ({
   ...extra,
 });
 
+/** A valid invoice for a milestone: its planned total, issued on the signing date, a fresh number. */
+let invoiceNumber = 0;
+const invoiceOf = (w, ref) => invoiceIn(w.tbl, ref);
+/** The same from a domain context's tables, for the sweeps that call actions directly. */
+const ctxInvoice = (ctx, ref, type) =>
+  type === "INVOICE" ? { invoice: invoiceIn((name) => ctx.t[name], ref) } : {};
+const invoiceIn = (tbl, ref) => {
+  const m = tbl("milestones").find(
+    (row) =>
+      row.contract_id === ref.contractId &&
+      Number(row.milestone_sequence) === Number(ref.sequence),
+  );
+  const contract = tbl("contracts").find(
+    (row) => row.contract_id === ref.contractId,
+  );
+  const issueDate = contract?.signing_date || "2026-01-15";
+  invoiceNumber += 1;
+  return {
+    symbol: `1C${issueDate.slice(2, 4)}TAA`,
+    number: String(invoiceNumber),
+    issueDate,
+    sellerTaxCode: "0109876543",
+    amountMillion: m?.planned_payment_vnd_mn ?? "1.00",
+  };
+};
+
 /* ------------------------------ 3. evidence: attach / remove / submit ------------------------------ */
 
 // Spec 4.2: which side may create each required event. Written from the spec table, not from the code.
@@ -727,6 +753,7 @@ test("evidence: each of the 11 required event types can be attached only by the 
     const { id } = await ok(w, right, "evidence", "attachEvidenceFile", {
       ...ref,
       ...file({ eventType }),
+      ...(eventType === "INVOICE" ? { invoice: invoiceOf(w, ref) } : {}),
     });
     const row = w.tbl("attachments").find((a) => a.id === id);
     assert.equal(row.side, side);
@@ -803,6 +830,7 @@ test("evidence: the same document type cannot be attached twice (duplicates are 
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...ref,
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, ref),
   });
   await denied(
     w,
@@ -952,6 +980,7 @@ test("evidence: ids, organisation, side and actor sent in the request are ignore
   const { id } = await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, w.ref("CT0104", 2)),
     id: "ATT-HACKED",
     side: "BUYER",
     organizationId: "B001",
@@ -1141,6 +1170,7 @@ test("evidence: submit needs every missing type of the actor's own side and reco
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...ref,
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, ref),
   });
   const result = await ok(w, U.SUPPLIER, "evidence", "submitEvidence", ref);
   assert.equal(result.eventIds.length, 2);
@@ -1185,6 +1215,7 @@ test("evidence: a type that is already valid is not recorded again, so a re-sent
   await ok(w, supplier, "evidence", "attachEvidenceFile", {
     ...ref,
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, ref),
   });
   const result = await ok(w, supplier, "evidence", "submitEvidence", ref);
   assert.equal(result.eventIds.length, 1);
@@ -1198,6 +1229,79 @@ test("evidence: a type that is already valid is not recorded again, so a re-sent
     before,
   );
   assert.equal(w.tbl("attachments").length, 0);
+});
+
+test("evidence: an invoice states its own data, matches the milestone and backs one event only (Thông tư 78/2021)", async () => {
+  const w = await world();
+  const ref = w.ref("CT0104", 2); // the supplier owes SERVICE_COMPLETED and INVOICE
+  const good = invoiceOf(w, ref);
+  const attach = (invoice, at = ref, user = U.SUPPLIER) =>
+    w.call(user, "evidence", "attachEvidenceFile", {
+      ...at,
+      ...file({ eventType: "INVOICE" }),
+      ...(invoice === undefined ? {} : { invoice }),
+    });
+  const refused = async (invoice, code, at, user) =>
+    assert.rejects(attach(invoice, at, user), new RegExp(code));
+  await refused(undefined, "INVOICE_DATA_REQUIRED");
+  await refused({ ...good, symbol: "XYZ" }, "INVOICE_SYMBOL_INVALID");
+  await refused({ ...good, number: "000" }, "INVOICE_NUMBER_INVALID");
+  await refused({ ...good, number: "123456789" }, "INVOICE_NUMBER_INVALID");
+  await refused({ ...good, symbol: "1C19TAA" }, "INVOICE_YEAR_MISMATCH");
+  await refused(
+    { ...good, sellerTaxCode: "12345" },
+    "INVOICE_TAX_CODE_INVALID",
+  );
+  await refused({ ...good, amountMillion: 516 }, "INVOICE_AMOUNT_INVALID");
+  // The total is the milestone's planned payment, exactly (a penalty is deducted from the payment).
+  const planned = w.milestone("CT0104", 2).planned_payment_vnd_mn;
+  const centLess = (value) => {
+    const cents = BigInt(value.replace(".", "")) - 1n;
+    return `${cents / 100n}.${String(cents % 100n).padStart(2, "0")}`;
+  };
+  await refused(
+    { ...good, amountMillion: centLess(planned) },
+    "INVOICE_AMOUNT_MISMATCH",
+  );
+  const signed = w
+    .tbl("contracts")
+    .find((c) => c.contract_id === "CT0104").signing_date;
+  const dayBefore = new Date(Date.parse(signed) - 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  await refused(
+    { ...good, issueDate: dayBefore, symbol: `1C${dayBefore.slice(2, 4)}TAA` },
+    "INVOICE_BEFORE_SIGNING",
+  );
+  await refused(
+    { ...good, issueDate: "2099-01-01", symbol: "1C99TAA" },
+    "INVOICE_DATE_FUTURE",
+  );
+  await attach({ ...good, amountMillion: planned.replace(/\.00$/, "") });
+  await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
+    ...ref,
+    ...file({ eventType: "SERVICE_COMPLETED" }),
+  });
+  const result = await ok(w, U.SUPPLIER, "evidence", "submitEvidence", ref);
+  const event = w
+    .tbl("events")
+    .find(
+      (e) => result.eventIds.includes(e.event_id) && e.event_type === "INVOICE",
+    );
+  assert.deepEqual(event.invoice, {
+    ...good,
+    number: good.number.padStart(8, "0"),
+    amountMillion: planned,
+  });
+  assert.equal(event.amount_vnd_mn, planned);
+  // The same invoice (seller, symbol, number) cannot back another milestone, even another contract's.
+  const other = w.ref("CT0025", 2);
+  await refused(
+    { ...invoiceOf(w, other), symbol: good.symbol, number: good.number },
+    "INVOICE_DUPLICATE",
+    other,
+    supplierOf(w, "CT0025"),
+  );
 });
 
 test("evidence: a replacement for an unauthorised event does not lift the hold by itself (BR-07)", async () => {
@@ -3709,6 +3813,7 @@ function flagMismatches() {
               eventType: fresh[0],
               fileName: "x.pdf",
               sha256: EVIDENCE,
+              ...ctxInvoice(ctx, ref, fresh[0]),
             }),
           ) === "OK"
         : missingMine.length > 0 && offered.submit;
@@ -3852,6 +3957,7 @@ test("sweep: no action records anything on a paid or rejected milestone, an unsi
           eventType: type,
           fileName: "x.pdf",
           sha256: EVIDENCE,
+          ...ctxInvoice(ctx, ref, type),
         }),
     };
     const results = Object.fromEntries(
@@ -3939,6 +4045,7 @@ test("sweep: on every milestone each party may do exactly what the specification
             eventType: type,
             fileName: "x.pdf",
             sha256: EVIDENCE,
+            ...ctxInvoice(ctx, ref, type),
           }),
         ),
       );
@@ -4727,6 +4834,7 @@ test("audit: every successful write is sealed in the chain under the signed-in a
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, w.ref("CT0104", 2)),
     ...claims,
   });
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
@@ -5202,6 +5310,7 @@ test("repetition: the same action sent twice at once (a double click) takes effe
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, w.ref("CT0104", 2)),
   });
   await both(
     U.SUPPLIER,

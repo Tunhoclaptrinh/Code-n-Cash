@@ -7,10 +7,12 @@ Owners, finance approvers and secondary approvers act according to the contract'
 ## Review before choosing
 
 1. Verify contract, milestone, planned amount and current status.
-2. Read valid evidence, including issuer and time.
+2. Read valid evidence, including issuer and time. Press **View** on each document: the original file opens on the page (re-hashed so a swapped file shows), with the submitter's signature; an invoice also shows its symbol, number, date, tax code and total checked against the milestone value. Documents of the organiser's sample data carry only a reference, no file.
 3. Check achieved/required roles. CT0103 needs finance and owner, rather than any two people.
 4. Read the predicted decision, penalty and payable amount.
 5. Open the trace when you need the rules or lateness calculation.
+
+![Viewing a document: 1 — the invoice data and its total checked against the milestone](../../../public/guide/images/approval-evidence.webp)
 
 ## Three actions
 

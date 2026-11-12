@@ -395,6 +395,9 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
     }),
     /NOT_YOUR_EVENT_TYPE/,
   );
+  const planned = (await repo.list("milestones")).find(
+    (m) => m.contract_id === "CT0104" && m.milestone_sequence === "2",
+  ).planned_payment_vnd_mn;
   for (const eventType of ["SERVICE_COMPLETED", "INVOICE"])
     await call("u-supplier", "evidence", "attachEvidenceFile", {
       contractId: "CT0104",
@@ -402,6 +405,17 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
       eventType,
       fileName: `${eventType}.pdf`,
       sha256: EVIDENCE,
+      ...(eventType === "INVOICE"
+        ? {
+            invoice: {
+              symbol: "1C26TAA",
+              number: "4521",
+              issueDate: "2026-05-01",
+              sellerTaxCode: "0109876543",
+              amountMillion: planned,
+            },
+          }
+        : {}),
     });
   const workspace = await call(
     "u-supplier",

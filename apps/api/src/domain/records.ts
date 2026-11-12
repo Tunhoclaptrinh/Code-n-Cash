@@ -19,6 +19,7 @@ import type {
   Attachment,
   Digitization,
   EvidenceDocument,
+  InvoiceData,
 } from "./types";
 import type { LocalProof } from "../trust/types";
 
@@ -198,6 +199,7 @@ export type EventRecord = RecordEntity &
     recordedByUserId?: string | null;
     fileName?: string | null;
     document?: SignedEvidence;
+    invoice?: InvoiceData;
   };
 
 /** The evidence document behind an app event with the submitter's signature over it. */

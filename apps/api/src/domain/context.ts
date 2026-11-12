@@ -302,6 +302,7 @@ export class Ctx {
       recordedBy: e.recordedBy ?? null,
       fileName: e.fileName ?? null,
       document: e.document ? eventDocument(e.document) : null,
+      invoice: e.invoice ?? null,
     };
   }
 

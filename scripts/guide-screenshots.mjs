@@ -630,10 +630,21 @@ try {
             index: 0,
           },
         },
-        { n: 2, target: { text: "Kết quả nếu bạn phê duyệt", tag: "h2" } },
+        { n: 2, target: { text: "Kết quả nếu bạn phê duyệt", contains: true } },
         { n: 3, target: "[data-testid=approve-payment]" },
       ],
     });
+    // Each document opens beside the decision: the invoice's data checked against the milestone.
+    await evaluate(
+      "[...document.querySelectorAll('[data-testid=evidence-view]')].at(-1).click()",
+    );
+    await until("!!document.querySelector('[data-testid=invoice-card]')");
+    await pause(500);
+    await shot("approval-evidence", {
+      marks: [{ n: 1, target: "[data-testid=invoice-card]" }],
+    });
+    await evaluate("document.querySelector('.ant-drawer-close').click()");
+    await pause(400);
     await evaluate(
       "document.querySelector('[data-testid=approve-payment]').click()",
     );
@@ -937,6 +948,18 @@ try {
         selector: `[data-testid=evidence-input-${type}]`,
       });
       await send("DOM.setFileInputFiles", { nodeId, files: [pdf] });
+      if (type === "INVOICE") {
+        // An invoice is attached with its own data: the demo fill, then confirm.
+        await until(
+          "!!document.querySelector('[data-testid=invoice-demo-fill]')",
+        );
+        await click("[data-testid=invoice-demo-fill]");
+        await pause(300);
+        await shot("evidence-invoice", {
+          marks: [{ n: 1, target: "[data-testid=invoice-amount]" }],
+        });
+        await click({ text: "Đính kèm hoá đơn" });
+      }
       await pause(1200);
     }
     await until(
@@ -946,7 +969,10 @@ try {
     await shot("evidence-ready", {
       marks: [
         { n: 1, target: "[data-testid=evidence-slot]" },
-        { n: 2, target: { text: "Nếu nộp ngay bây giờ (chạy thử)" } },
+        {
+          n: 2,
+          target: { text: "Nếu nộp ngay bây giờ (chạy thử)", contains: true },
+        },
         { n: 3, target: "[data-testid=submit-evidence]" },
       ],
     });

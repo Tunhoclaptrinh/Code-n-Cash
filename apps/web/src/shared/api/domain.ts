@@ -25,6 +25,7 @@ import type {
   UploadFormOptions,
   VerificationResult,
   DashboardView,
+  InvoiceData,
 } from "@codecash/contracts";
 import { ApiError as HttpError } from "@codecash/api-client";
 import { ApiError } from "./client";
@@ -108,12 +109,18 @@ export const getEvidenceWorkspace = (contractId?: string, sequence?: number) =>
   ]);
 /** Uploads the file itself; the API stores it under its SHA-256 and attaches it to the milestone. */
 export async function uploadEvidenceFile(
-  input: MilestoneRef & { eventType: string; file: File },
+  input: MilestoneRef & {
+    eventType: string;
+    file: File;
+    /** The invoice's own data, with an INVOICE document. */
+    invoice?: InvoiceData;
+  },
 ) {
   const body = new FormData();
   body.append("contractId", input.contractId);
   body.append("sequence", String(input.sequence));
   body.append("eventType", input.eventType);
+  if (input.invoice) body.append("invoice", JSON.stringify(input.invoice));
   body.append("file", input.file);
   try {
     const result = await platform.request<{ id: string }>(

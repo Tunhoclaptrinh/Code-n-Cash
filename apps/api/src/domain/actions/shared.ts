@@ -7,6 +7,7 @@ import type {
   ActivityCategory,
   EventStatus,
   EventType,
+  InvoiceData,
   Trigger,
 } from "../types";
 import { TERMINAL } from "../vocabulary";
@@ -75,6 +76,7 @@ export function newEvent(
     fileName?: string | null;
     at?: string;
     document?: SignedEvidence;
+    invoice?: InvoiceData;
   } = {},
 ): EventRecord {
   const actor = ctx.party(actorPartyId);
@@ -108,6 +110,7 @@ export function newEvent(
     fileName: opts.fileName ?? null,
   });
   if (opts.document) record.document = opts.document;
+  if (opts.invoice) record.invoice = opts.invoice;
   ctx.events.push(record);
   return record;
 }

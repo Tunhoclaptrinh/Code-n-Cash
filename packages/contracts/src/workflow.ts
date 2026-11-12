@@ -313,6 +313,23 @@ export interface EventRow {
   fileName: string | null;
   /** The document behind an event recorded in the app; null for imported events. */
   document: EventDocument | null;
+  /** The invoice's own data, entered with an INVOICE document; null for imported events. */
+  invoice: InvoiceData | null;
+}
+
+/**
+ * What a Vietnamese invoice states (Nghị định 123/2020/NĐ-CP, Thông tư 78/2021/TT-BTC): template
+ * symbol (`1C26TAA`: kind, with/without tax-authority code, year, type, the seller's own letters),
+ * number, issue date, the seller's tax code and the total. The total must equal the milestone's
+ * planned payment (as in all 140 Data Pack invoices); a penalty is deducted from the payment, not
+ * from the invoice.
+ */
+export interface InvoiceData {
+  symbol: string;
+  number: string;
+  issueDate: string;
+  sellerTaxCode: string;
+  amountMillion: string;
 }
 
 /** An evidence document: stored by its SHA-256 and signed by the person who submitted it. */
@@ -713,6 +730,8 @@ export interface Attachment {
   sizeMb: number;
   /** SHA-256 of the stored file; absent on attachments made before files were kept. */
   sha256?: string;
+  /** INVOICE attachments: the invoice's data, checked when attached. */
+  invoice?: InvoiceData;
   addedBy: string;
   addedAt: string;
 }

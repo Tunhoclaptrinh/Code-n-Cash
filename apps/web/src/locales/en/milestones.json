@@ -604,5 +604,41 @@
     "disputeNone": "No open dispute",
     "paymentDone": "Paid",
     "paymentWaiting": "Awaiting approval"
+  },
+  "invoice": {
+    "form": {
+      "title": "Invoice details",
+      "submit": "Attach invoice",
+      "notice": "Enter the details printed on {{fileName}}. The total must equal the milestone value: {{planned}} million VND."
+    },
+    "fields": {
+      "symbol": "Invoice symbol",
+      "number": "Invoice number",
+      "issueDate": "Issue date",
+      "sellerTaxCode": "Seller tax code",
+      "amountMillion": "Total (million VND)",
+      "reference": "Symbol · number"
+    },
+    "hints": {
+      "symbol": "Seven characters under Circular 78/2021/TT-BTC, for example {{example}}.",
+      "sellerTaxCode": "10 digits, 10 digits with a branch suffix (-001), or 12 digits.",
+      "amountMillion": "Must equal the milestone value: {{planned}}. A penalty is deducted from the payment, not from the invoice."
+    },
+    "summary": "Invoice {{reference}} · {{amount}} million",
+    "matches": "Matches the milestone value",
+    "mismatch": "Differs from the milestone value ({{planned}})"
+  },
+  "evidenceViewer": {
+    "open": "View",
+    "intact": "The file is intact and signed by {{name}} at {{at}}.",
+    "broken": "The file changed or is no longer stored; do not rely on this document.",
+    "event": "Event ID",
+    "documentId": "Document ID",
+    "noFile": {
+      "DATA_PACK": "From the organiser's sample data, no file attached",
+      "SEED": "From a prepared demo contract, no file attached",
+      "APP": "Recorded before files were kept, no file attached"
+    },
+    "noFileHint": "Only the document reference is known ({{fileName}}). Check the paper copy or the submitter's system before approving."
   }
 }

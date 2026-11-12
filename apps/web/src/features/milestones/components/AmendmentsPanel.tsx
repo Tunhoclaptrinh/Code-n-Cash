@@ -123,6 +123,7 @@ export function AmendmentFormModal({
     endDate: string;
     dueDates: Record<string, string>;
   }>();
+  // Filled once when the form opens; a live refetch of the contract must not wipe what is typed.
   useEffect(() => {
     if (open)
       form.setFieldsValue({
@@ -132,7 +133,8 @@ export function AmendmentFormModal({
           data.milestones.map((m) => [String(m.sequence), m.dueDate]),
         ),
       });
-  }, [open, form, data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the form opens
+  }, [open, form]);
   const submit = useMutation({
     mutationFn: proposeAmendment,
     onSuccess: async () => {

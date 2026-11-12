@@ -235,7 +235,8 @@
     "SIGNATURE_EXPORT": "Xuất bằng chứng chữ ký",
     "ANCHOR_EXPORT": "Xuất gói neo hash",
     "SYSTEM_WRITE": "Ghi dữ liệu hệ thống",
-    "PAYMENT_DELIVERY": "Gửi lệnh chi"
+    "PAYMENT_DELIVERY": "Gửi lệnh chi",
+    "MARK_NOTIFICATIONS_READ": "Đánh dấu thông báo đã đọc"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",

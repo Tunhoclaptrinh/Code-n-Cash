@@ -13,7 +13,9 @@
     "data": "Kết quả Data Pack",
     "verify": "Kiểm tra chữ ký",
     "refresh": "Làm mới số liệu",
-    "more": "Màn hình khác"
+    "more": "Màn hình khác",
+    "print": "In / lưu PDF báo cáo",
+    "csv": "Tải số liệu (CSV)"
   },
   "kpi": {
     "myTurn": "Đến lượt bạn",
@@ -156,5 +158,31 @@
     "milestones": "mốc",
     "statusLabel": "Hợp đồng theo trạng thái",
     "decisionLabel": "Mốc theo quyết định hiện tại"
+  },
+  "report": {
+    "title": "Báo cáo tổng quan hợp đồng",
+    "meta": "{{org}} · {{name}} ({{role}}) · số liệu lúc {{at}} · ngày nghiệp vụ {{today}}",
+    "columns": {
+      "section": "Mục",
+      "item": "Chỉ tiêu",
+      "value": "Giá trị",
+      "unit": "Đơn vị"
+    },
+    "sections": {
+      "totals": "Tổng quan",
+      "months": "Theo tháng đến hạn",
+      "reasons": "Lý do giữ tiền",
+      "status": "Hợp đồng theo trạng thái",
+      "decisions": "Mốc theo quyết định",
+      "attention": "Cần chú ý",
+      "contracts": "Hợp đồng đang giữ tiền"
+    },
+    "items": {
+      "contracts": "Số hợp đồng",
+      "milestones": "Số mốc",
+      "planned": "Tổng giá trị kế hoạch",
+      "overdue": "Mốc quá hạn",
+      "dueSoon": "Mốc sắp đến hạn"
+    }
   }
 }

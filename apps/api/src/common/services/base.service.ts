@@ -168,7 +168,9 @@ export class BaseService {
       this.visible(def.name, x, actor),
     );
     items = items.filter((x) =>
-      Object.entries(filters).every(([k, v]) => x[k] === v),
+      Object.entries(filters).every(([k, values]) =>
+        (values as unknown[]).includes(x[k]),
+      ),
     );
     if (query.search) {
       // Every word must appear, accents and case ignored; a reference also matches by its name.
@@ -214,8 +216,12 @@ export class BaseService {
   }
   async list(name: string, query: Record<string, unknown>, actor: Actor) {
     const def = this.access(name, actor, "read");
-    const { page, limit } = parsePage(query);
+    const { page: asked, limit } = parsePage(query);
     const items = await this.query(def, query, actor);
+    // A page past the end (rows removed meanwhile) is answered with the last page, as the
+    // workflow lists do; the client follows the page it was served.
+    const totalPages = Math.max(1, Math.ceil(items.length / limit));
+    const page = Math.min(asked, totalPages);
     return {
       items: items
         .slice((page - 1) * limit, page * limit)
@@ -223,7 +229,7 @@ export class BaseService {
       total: items.length,
       page,
       limit,
-      totalPages: Math.ceil(items.length / limit),
+      totalPages,
     };
   }
   async get(name: string, id: string, actor: Actor) {

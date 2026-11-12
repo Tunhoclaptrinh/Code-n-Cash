@@ -31,6 +31,10 @@ Choose CSV or JSON, then current page, all matching rows or the first N rows. Se
 
 The base dialog may label the current page as “10 records” even when the selected page size differs; the actual file uses the current page and its real row count.
 
+## Choose columns, and tables on a phone
+
+**Columns** on the toolbar lets you hide or show columns; the choice is kept per table in this browser, and **Reset** brings every column back. The first column and **Actions** always stay. On a phone each row shows as a card: the record's name first, the other columns as label and value pairs, the actions at the bottom.
+
 ## Import and details
 
 Import appears only for permitted administrative resources. Download that resource's template, preview validation results and import valid rows. See [Administration](/guide/admin). Click a record name for a quick view; expand its detail dialog for more space. Open the dedicated workflow page to submit evidence, approve or sign.

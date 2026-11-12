@@ -70,7 +70,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       onCancel={onCancel}
       title={
         <Space>
-          <DownloadOutlined style={{ color: "#315bea" }} />
+          <DownloadOutlined
+            style={{ color: "var(--color-primary, #315bea)" }}
+          />
           <span style={{ fontWeight: 700, fontSize: 16 }}>
             {uiText("export.title")}
           </span>
@@ -167,7 +169,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </section>
         </Space>
 
-        <section style={{ borderLeft: "1px solid #E5E7EB", paddingLeft: 20 }}>
+        <section
+          style={{
+            borderLeft: "1px solid var(--border-subtle, #E5E7EB)",
+            paddingLeft: 20,
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -177,16 +184,18 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             }}
           >
             <Typography.Text strong>{uiText("export.columns")}</Typography.Text>
-            <OrderedListOutlined style={{ color: "#9CA3AF" }} />
+            <OrderedListOutlined
+              style={{ color: "var(--text-muted, #9CA3AF)" }}
+            />
           </div>
           <div
             style={{
               maxHeight: 280,
               overflowY: "auto",
-              background: "#F9FAFB",
+              background: "var(--bg-surface-subtle, #F9FAFB)",
               padding: "10px 14px",
               borderRadius: 8,
-              border: "1px solid #E5E7EB",
+              border: "1px solid var(--border-subtle, #E5E7EB)",
             }}
           >
             <Checkbox.Group

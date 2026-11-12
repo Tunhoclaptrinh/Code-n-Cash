@@ -24,14 +24,18 @@ export const StatusTag: React.FC<StatusTagProps> = ({
     case "CONNECTED":
       return (
         <Tag
-          icon={<CheckCircleFilled style={{ color: "#10B981" }} />}
+          icon={
+            <CheckCircleFilled
+              style={{ color: "var(--status-success, #10B981)" }}
+            />
+          }
           style={{
             borderRadius: 4,
             fontWeight: 700,
             fontSize: 11,
             background: "rgba(16, 185, 129, 0.12)",
             border: "1px solid rgba(16, 185, 129, 0.25)",
-            color: "#10B981",
+            color: "var(--status-success, #10B981)",
           }}
         >
           {label ||
@@ -45,14 +49,19 @@ export const StatusTag: React.FC<StatusTagProps> = ({
     case "IN_TRANSIT":
       return (
         <Tag
-          icon={<SyncOutlined spin style={{ color: "#3B82F6" }} />}
+          icon={
+            <SyncOutlined
+              spin
+              style={{ color: "var(--status-info, #3B82F6)" }}
+            />
+          }
           style={{
             borderRadius: 4,
             fontWeight: 700,
             fontSize: 11,
             background: "rgba(59, 130, 246, 0.12)",
             border: "1px solid rgba(59, 130, 246, 0.25)",
-            color: "#3B82F6",
+            color: "var(--status-info, #3B82F6)",
           }}
         >
           {label || uiText("status.processing")}
@@ -63,14 +72,18 @@ export const StatusTag: React.FC<StatusTagProps> = ({
     case "WARNING":
       return (
         <Tag
-          icon={<ClockCircleFilled style={{ color: "#F59E0B" }} />}
+          icon={
+            <ClockCircleFilled
+              style={{ color: "var(--status-warning, #F59E0B)" }}
+            />
+          }
           style={{
             borderRadius: 4,
             fontWeight: 700,
             fontSize: 11,
             background: "rgba(245, 158, 11, 0.12)",
             border: "1px solid rgba(245, 158, 11, 0.25)",
-            color: "#F59E0B",
+            color: "var(--status-warning, #F59E0B)",
           }}
         >
           {label || uiText("status.awaiting")}
@@ -80,14 +93,18 @@ export const StatusTag: React.FC<StatusTagProps> = ({
     case "HEALED":
       return (
         <Tag
-          icon={<ThunderboltFilled style={{ color: "#8B5CF6" }} />}
+          icon={
+            <ThunderboltFilled
+              style={{ color: "var(--status-accent, #8B5CF6)" }}
+            />
+          }
           style={{
             borderRadius: 4,
             fontWeight: 700,
             fontSize: 11,
             background: "rgba(139, 92, 246, 0.12)",
             border: "1px solid rgba(139, 92, 246, 0.25)",
-            color: "#8B5CF6",
+            color: "var(--status-accent, #8B5CF6)",
           }}
         >
           {label || uiText("status.aiRecovered")}
@@ -99,14 +116,18 @@ export const StatusTag: React.FC<StatusTagProps> = ({
     case "MANUAL_REQUIRED":
       return (
         <Tag
-          icon={<CloseCircleFilled style={{ color: "#EF4444" }} />}
+          icon={
+            <CloseCircleFilled
+              style={{ color: "var(--status-danger, #EF4444)" }}
+            />
+          }
           style={{
             borderRadius: 4,
             fontWeight: 700,
             fontSize: 11,
             background: "rgba(239, 68, 68, 0.12)",
             border: "1px solid rgba(239, 68, 68, 0.25)",
-            color: "#EF4444",
+            color: "var(--status-danger, #EF4444)",
           }}
         >
           {label ||

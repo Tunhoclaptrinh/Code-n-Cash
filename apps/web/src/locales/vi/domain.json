@@ -339,7 +339,8 @@
     "APP_SCOPE_REASONS": "Phạm vi: phải có đủ 8 mã lý do của đề (tranh chấp, từ chối, sai thẩm quyền, thiếu chứng từ, thiếu phê duyệt, trễ hạn, đủ điều kiện, chưa xác định).",
     "APP_SCOPE_SIZE": "Phạm vi: tối đa 30 luật.",
     "INVALID_WORKFLOW": "Quy trình mốc không thuộc phiên bản luật đã ghim hoặc không dành cho loại hợp đồng này.",
-    "APP_WORKFLOW_COUNT": "Một phiên bản có tối đa 8 quy trình riêng."
+    "APP_WORKFLOW_COUNT": "Một phiên bản có tối đa 8 quy trình riêng.",
+    "INVALID_SEEN_AT": "Thời điểm đánh dấu đã đọc không hợp lệ."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

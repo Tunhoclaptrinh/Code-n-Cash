@@ -54,7 +54,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           }}
         >
           <Space size={8}>
-            <EyeOutlined style={{ color: "#315bea" }} />
+            <EyeOutlined style={{ color: "var(--color-primary, #315bea)" }} />
             <span style={{ fontWeight: 700, fontSize: 16 }}>
               {title || uiText("detail.title", { name: entityName })}
             </span>
@@ -84,7 +84,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 4,
-                color: "#EF4444",
+                color: "var(--status-danger, #EF4444)",
                 fontSize: 13,
                 fontWeight: 600,
                 padding: "5px 10px",
@@ -93,17 +93,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 userSelect: "none",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#DC2626";
+                e.currentTarget.style.color =
+                  "var(--status-danger-strong, #DC2626)";
                 e.currentTarget.style.backgroundColor =
                   "rgba(239, 68, 68, 0.08)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#EF4444";
+                e.currentTarget.style.color = "var(--status-danger, #EF4444)";
                 e.currentTarget.style.backgroundColor = "transparent";
               }}
               title={uiText("detail.delete", { name: entityName })}
             >
-              <DeleteOutlined style={{ fontSize: 13, color: "#EF4444" }} />
+              <DeleteOutlined
+                style={{ fontSize: 13, color: "var(--status-danger, #EF4444)" }}
+              />
               <span>{uiText("action.delete")}</span>
             </span>
           )}

@@ -9,7 +9,11 @@ export interface PageQuery {
   search?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
-  filters?: Record<string, string | number | boolean>;
+  /** Field -> one value or several (a record matches any value of a field, and every field). */
+  filters?: Record<
+    string,
+    string | number | boolean | Array<string | number | boolean>
+  >;
 }
 export interface PageResult<T> {
   items: T[];

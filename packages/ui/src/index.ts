@@ -7,6 +7,7 @@ export * from "./hooks/useFilters";
 export * from "./hooks/useLocalStorage";
 export * from "./hooks/useAsync";
 export * from "./hooks/usePagination";
+export * from "./hooks/useListState";
 export * from "./hooks/useResource";
 export * from "./utils/export";
 export * from "./utils/clipboard";

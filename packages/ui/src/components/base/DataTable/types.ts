@@ -51,6 +51,13 @@ export interface DataTableColumn<T = any> extends ColumnType<T> {
   exportHidden?: boolean;
 }
 export interface DataTableProps<T = any> {
+  /**
+   * Lets the viewer hide and show columns from the toolbar; the choice is kept in this browser
+   * under `storageKey`. The first column, `required` columns and actions always stay.
+   */
+  columnSettings?: { storageKey: string } | false;
+  /** Below 576px, render each row as a card (first column as heading) instead of a wide table. */
+  mobileCards?: boolean;
   data?: T[];
   dataSource?: T[];
   loading?: boolean;

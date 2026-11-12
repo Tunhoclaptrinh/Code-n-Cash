@@ -471,6 +471,8 @@ export default function RuleVersionsPage() {
     >
       <PageContainer>
         <DataTable
+          mobileCards
+          columnSettings={{ storageKey: "rule-versions" }}
           hideCard
           rowKey="id"
           columns={columns}

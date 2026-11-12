@@ -29,7 +29,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   }, [debouncedValue, onSearchChange]);
   return (
     <Input
-      prefix={<SearchOutlined style={{ color: "#9CA3AF" }} />}
+      prefix={
+        <SearchOutlined style={{ color: "var(--text-muted, #9CA3AF)" }} />
+      }
       allowClear
       placeholder={placeholder}
       value={innerValue}

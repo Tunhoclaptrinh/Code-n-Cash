@@ -295,6 +295,14 @@
     "openActivity": "Mở nhật ký hoạt động",
     "openOverview": "Mở tổng quan hợp đồng",
     "newTasks_one": "Có {{count}} việc mới đến lượt bạn",
-    "newTasks_other": "Có {{count}} việc mới đến lượt bạn"
+    "newTasks_other": "Có {{count}} việc mới đến lượt bạn",
+    "live": {
+      "live": "Trực tiếp",
+      "liveHint": "Thông báo đến ngay khi có thay đổi",
+      "connecting": "Đang kết nối",
+      "connectingHint": "Đang mở kênh cập nhật trực tiếp",
+      "offline": "Đang kết nối lại",
+      "offlineHint": "Mất kênh trực tiếp; vẫn tự làm mới mỗi 30 giây"
+    }
   }
 }

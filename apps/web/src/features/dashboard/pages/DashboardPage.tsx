@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import {
   Button,
   Empty,
+  Grid,
   Progress,
   Segmented,
   Space,
@@ -18,22 +19,31 @@ import {
   ExceptionOutlined,
   FileTextOutlined,
   HistoryOutlined,
+  PrinterOutlined,
   ReloadOutlined,
+  DownloadOutlined,
   SafetyCertificateOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
-import { PageContainer, StatisticsCard } from "@codecash/ui";
+import {
+  exportToCSV,
+  PageContainer,
+  StatisticsCard,
+  useAppConfig,
+} from "@codecash/ui";
 import type { DashboardView, Decision, TaskRow } from "@codecash/contracts";
 import { getDashboard } from "@/shared/api/domain";
+import { platform } from "@/shared/api/platform";
 import { listPendingTasks } from "@/shared/api/tasks.api";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { routeAllowed } from "@/shared/layout/navConfig";
 import {
   formatDate,
+  formatDateTime,
   formatDecimalString,
   formatMonth,
 } from "@/shared/lib/format";
@@ -52,6 +62,8 @@ import {
 } from "../components/charts";
 import { DueCalendar } from "../components/DueCalendar";
 import { WelcomeBanner } from "../components/WelcomeBanner";
+import { fillMonths } from "../lib/months";
+import { reportRows } from "../lib/report";
 import styles from "./DashboardPage.module.css";
 
 type ContractSummary = DashboardView["contracts"][number];
@@ -108,6 +120,8 @@ const size = (value: string) => Number(value) || 0;
  */
 export default function DashboardPage() {
   const { t } = useTranslation("dashboard");
+  const { t: td } = useTranslation("domain");
+  const { themeMode, setThemeMode } = useAppConfig();
   const navigate = useNavigate();
   const user = useCurrentUser();
   const can = (path: string) => routeAllowed(path, user.permissions);
@@ -125,6 +139,18 @@ export default function DashboardPage() {
   const data = view.data;
   const myTasks = tasks.data?.filter((task) => task.group === "MINE") ?? [];
   const lateTasks = myTasks.filter((task) => task.overdueDays > 0).length;
+
+  // Every report taken from the overview is recorded in the audit log, like list exports.
+  const recordExport = (format: "pdf" | "csv", count: number) =>
+    platform
+      .post("/exports", {
+        source: "dashboard",
+        count,
+        format,
+        scope: "all",
+        columns: [],
+      })
+      .catch(() => undefined);
 
   const shortcut = (
     key: string,
@@ -168,6 +194,44 @@ export default function DashboardPage() {
     ...shortcut("activity", "/activity-log", <HistoryOutlined />),
     ...shortcut("data", "/data", <DatabaseOutlined />),
     ...shortcut("verify", "/verify", <SafetyCertificateOutlined />),
+    ...(data
+      ? [
+          {
+            key: "print",
+            label: t("actions.print"),
+            icon: <PrinterOutlined />,
+            onClick: () => {
+              void recordExport("pdf", data.contractCount);
+              // The report prints on white: switch a dark screen to light for the print only.
+              if (themeMode !== "dark") return window.print();
+              setThemeMode("light");
+              const back = () => {
+                window.removeEventListener("afterprint", back);
+                setThemeMode("dark");
+              };
+              window.addEventListener("afterprint", back);
+              window.setTimeout(() => window.print(), 300);
+            },
+            testId: "dashboard-print",
+          },
+          {
+            key: "csv",
+            label: t("actions.csv"),
+            icon: <DownloadOutlined />,
+            onClick: () => {
+              const rows = reportRows(data, t, td).map((row) => ({
+                [t("report.columns.section")]: row.section,
+                [t("report.columns.item")]: row.item,
+                [t("report.columns.value")]: row.value,
+                [t("report.columns.unit")]: row.unit,
+              }));
+              void recordExport("csv", rows.length);
+              exportToCSV(rows, `tong-quan-hop-dong-${data.today}`);
+            },
+            testId: "dashboard-csv",
+          },
+        ]
+      : []),
     {
       key: "refresh",
       label: t("actions.refresh"),
@@ -233,6 +297,7 @@ function Overview({
 }) {
   const { t } = useTranslation("dashboard");
   const { t: td } = useTranslation("domain");
+  const { t: tc } = useTranslation("common");
   const navigate = useNavigate();
   const user = useCurrentUser();
   const { amounts, milestones } = data;
@@ -282,6 +347,8 @@ function Overview({
   }));
 
   const [spread, setSpread] = useState<Spread>("status");
+  // On a phone the table keeps the contract, the money held and the action; the rest is a tap away.
+  const wideTable = Grid.useBreakpoint().md !== false;
 
   const series = DECISIONS.map((decision) => ({
     key: decision,
@@ -291,6 +358,22 @@ function Overview({
 
   return (
     <div className={styles.dashboard} data-testid="dashboard">
+      {/* Shown on paper only: what this report is, whose scope and when it was taken. */}
+      <header
+        className={styles.printHeader}
+        data-testid="dashboard-print-header"
+      >
+        <p>
+          <b>{t("report.title")}</b> ·
+          {t("report.meta", {
+            org: user.roleChipOrganization,
+            name: user.displayName,
+            role: tc(`roles.${user.role}.name`),
+            at: formatDateTime(data.generatedAt),
+            today: formatDate(data.today),
+          })}
+        </p>
+      </header>
       <WelcomeBanner user={user} data={data} tasks={tasks} />
 
       <StatisticsCard
@@ -599,14 +682,14 @@ function Overview({
             rowKey="contractId"
             pagination={false}
             tableLayout="fixed"
-            scroll={{ x: 1132 }}
+            scroll={wideTable ? { x: 1132 } : undefined}
             dataSource={data.contracts.slice(0, TOP_CONTRACTS)}
             data-testid="dashboard-contracts"
             columns={[
               {
                 key: "contract",
                 title: t("contracts.columns.contract"),
-                width: 300,
+                width: wideTable ? 300 : undefined,
                 ellipsis: { showTitle: false },
                 render: (_, row) => (
                   <Link
@@ -621,12 +704,14 @@ function Overview({
               {
                 key: "status",
                 title: t("contracts.columns.status"),
+                responsive: ["md"],
                 width: 168,
                 render: (_, row) => <ContractStatusTag status={row.status} />,
               },
               {
                 key: "progress",
                 title: t("contracts.columns.progress"),
+                responsive: ["md"],
                 width: 176,
                 render: (_, row) => {
                   const total = size(row.plannedMillion);
@@ -674,6 +759,7 @@ function Overview({
               {
                 key: "issues",
                 title: t("contracts.columns.issues"),
+                responsive: ["md"],
                 width: 150,
                 render: (_, row) =>
                   row.overdue || row.openDisputes ? (
@@ -696,6 +782,7 @@ function Overview({
               {
                 key: "nextDue",
                 title: t("contracts.columns.nextDue"),
+                responsive: ["md"],
                 width: 112,
                 render: (_, row) =>
                   row.nextDue ? (
@@ -785,32 +872,4 @@ function Calm({ text }: { text: string }) {
       <CheckCircleOutlined /> {text}
     </p>
   );
-}
-
-/** Months with no due milestone become zero columns between the first and the last month. */
-function fillMonths(
-  months: DashboardView["byMonth"],
-): DashboardView["byMonth"] {
-  if (months.length < 2) return months;
-  const byKey = new Map(months.map((m) => [m.month, m]));
-  const zero = Object.fromEntries(DECISIONS.map((d) => [d, "0.00"])) as Record<
-    Decision,
-    string
-  >;
-  const out: DashboardView["byMonth"] = [];
-  let [year, month] = months[0].month.split("-").map(Number);
-  const last = months[months.length - 1].month;
-  for (let guard = 0; guard < 240; guard++) {
-    const key = `${year}-${String(month).padStart(2, "0")}`;
-    out.push(
-      byKey.get(key) ?? { month: key, amounts: zero, paidMillion: "0.00" },
-    );
-    if (key >= last) break;
-    month += 1;
-    if (month > 12) {
-      month = 1;
-      year += 1;
-    }
-  }
-  return out;
 }

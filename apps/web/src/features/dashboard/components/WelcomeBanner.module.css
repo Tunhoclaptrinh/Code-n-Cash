@@ -4,7 +4,7 @@
  * and a dot grid in the corner are decoration only.
  */
 .banner {
-  --hero-from: #2849bd;
+  --hero-from: var(--brand-600);
   --hero-to: #3d63ee;
   --hero-accent: #5a46d6;
   --hero-ink: #ffffff;
@@ -180,7 +180,7 @@
 .cta:global(.ant-btn) {
   background: #ffffff;
   border-color: #ffffff;
-  color: #1e3a8a;
+  color: var(--brand-900);
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
 }
@@ -188,7 +188,7 @@
 .cta:global(.ant-btn):hover {
   background: #eef2ff !important;
   border-color: #eef2ff !important;
-  color: #1e3a8a !important;
+  color: var(--brand-900) !important;
 }
 
 .updated {
@@ -285,17 +285,13 @@
 }
 
 .slideIcon[data-tone="warning"] {
-  background: rgba(237, 161, 0, 0.16);
-  color: #9a6400;
+  background: var(--color-warning-tint);
+  color: var(--color-warning-icon);
 }
 
 .slideIcon[data-tone="danger"] {
   background: var(--color-danger-soft);
   color: var(--color-danger-strong);
-}
-
-:global(:root[data-theme="dark"]) .slideIcon[data-tone="warning"] {
-  color: #f0b94a;
 }
 
 .slide[data-urgent] .cardMeta {

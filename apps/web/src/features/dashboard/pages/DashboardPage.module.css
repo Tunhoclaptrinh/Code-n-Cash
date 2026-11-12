@@ -339,3 +339,122 @@
 .none {
   color: var(--color-text-faint);
 }
+
+/* The report header exists for print only. */
+.printHeader {
+  display: none;
+}
+
+/*
+ * Print / save as PDF: one flowing report on white. Tiles keep their content whole (no inner
+ * scrolling, no split across pages), the greeting banner and every control are left out.
+ */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  .dashboard {
+    gap: 10px;
+    /* Fits the totals and the chart on the first landscape page. */
+    zoom: 0.82;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .printHeader {
+    display: block;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--color-text);
+  }
+
+  .printHeader p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .dashboard :global([data-testid="welcome-banner"]),
+  .dashboard :global(.ant-segmented),
+  .dashboard :global(.ant-btn),
+  .dashboard :global([data-testid="table-row-actions"]),
+  .allLink,
+  .attentionGo,
+  .hint {
+    display: none !important;
+  }
+
+  .grid {
+    gap: 10px;
+  }
+
+  .months,
+  .calendar,
+  .attentionTile,
+  .reasons,
+  .spread {
+    height: auto;
+  }
+
+  .tile {
+    break-inside: avoid;
+    border-color: #c8ccd4;
+  }
+
+  /* Long lists may continue on the next page; their rows stay whole. */
+  .contracts,
+  .attentionTile {
+    break-inside: auto;
+  }
+
+  .attention li,
+  .contracts :global(.ant-table-row) {
+    break-inside: avoid;
+  }
+
+  .tileBody,
+  .attention,
+  .reasons .tileBody,
+  .spread .tileBody {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* A shorter chart so it shares the first page with the totals. */
+  .months :global([style*="--plot-height"]) {
+    --plot-height: 190px !important;
+  }
+
+  /* The whole table on the page width, no scrollbar. */
+  .contracts :global(.ant-table-wrapper) {
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  .contracts :global(.ant-table-content) {
+    overflow: visible !important;
+  }
+
+  .contracts :global(.ant-table table) {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: auto !important;
+  }
+
+  .contracts :global(.ant-table-cell) {
+    white-space: normal;
+  }
+
+  /* The table may run onto the next page; a frame around it would not follow, so drop it. */
+  .contracts {
+    border: none;
+    padding: 4px 0 0;
+    background: transparent;
+  }
+
+  .contracts :global(.ant-table-thead th:last-child),
+  .contracts :global(.ant-table-tbody td:last-child) {
+    display: none;
+  }
+}

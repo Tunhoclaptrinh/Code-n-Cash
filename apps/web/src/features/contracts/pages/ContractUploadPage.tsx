@@ -13,7 +13,7 @@ import { SplitView } from "@/shared/ui/SplitView";
 import { ContractUploadForm } from "../components/ContractUploadForm";
 import { FileChecksPanel } from "../components/FileChecksPanel";
 import { PagePreviewPanel } from "../components/PagePreviewPanel";
-import { WizardStepper } from "../components/WizardStepper";
+import { WizardStepper } from "@/shared/ui/WizardStepper";
 import styles from "./ContractUploadPage.module.css";
 
 export default function ContractUploadPage() {
@@ -73,7 +73,7 @@ export default function ContractUploadPage() {
         ) : null}
         {draft.data && options.data ? (
           <>
-            <WizardStepper current={1} />
+            <WizardStepper current="UPLOAD" />
             {(() => {
               const form = (
                 <ContractUploadForm

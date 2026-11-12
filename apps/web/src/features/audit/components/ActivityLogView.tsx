@@ -378,6 +378,8 @@ export function ActivityLogView({
   return (
     <PageContainer>
       <DataTable<ActivityEntry>
+        mobileCards
+        columnSettings={{ storageKey: "activity" }}
         hideCard
         rowKey="id"
         scroll={{ x: 1100 }}

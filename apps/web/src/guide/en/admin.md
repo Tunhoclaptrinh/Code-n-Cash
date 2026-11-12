@@ -2,7 +2,7 @@
 
 Use `sysadmin@codecash.vn` for administration; auditors only check integrity. Administration is separated from exception review and payment approval.
 
-![Resource tabs, protected-record notice and row actions](../../../public/guide/images/admin-organizations.webp)
+![Resource tabs, create, import, export, column choice, source and row actions](../../../public/guide/images/admin-organizations.webp)
 
 ## Choose and edit a resource
 

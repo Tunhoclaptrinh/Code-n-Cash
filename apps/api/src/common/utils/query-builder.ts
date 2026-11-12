@@ -1,9 +1,17 @@
 import { BadRequestException } from "@nestjs/common";
 /** Only resource-declared fields may enter a filter; organization scope is applied independently. */
+type Scalar = string | number | boolean;
+const isScalar = (v: unknown): v is Scalar =>
+  ["string", "number", "boolean"].includes(typeof v);
+
+/**
+ * `filters` of a resource list: field -> one value or a non-empty list of values (a record
+ * matches any value of a field, and every field). Always returned as lists.
+ */
 export function parseFilters(
   raw: unknown,
   allowed: string[],
-): Record<string, string | number | boolean> {
+): Record<string, Scalar[]> {
   if (!raw) return {};
   let value: unknown;
   try {
@@ -13,11 +21,17 @@ export function parseFilters(
   }
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new BadRequestException("INVALID_FILTER");
-  for (const [key, item] of Object.entries(value))
+  const out: Record<string, Scalar[]> = {};
+  for (const [key, item] of Object.entries(value)) {
+    const values = Array.isArray(item) ? item : [item];
     if (
       !allowed.includes(key) ||
-      !["string", "number", "boolean"].includes(typeof item)
+      values.length === 0 ||
+      values.length > 50 ||
+      !values.every(isScalar)
     )
       throw new BadRequestException("INVALID_FILTER");
-  return value as Record<string, string | number | boolean>;
+    out[key] = values;
+  }
+  return out;
 }

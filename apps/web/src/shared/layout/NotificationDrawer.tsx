@@ -30,6 +30,7 @@ import {
 } from "../lib/format";
 import { routeAllowed } from "./navConfig";
 import type { Notifications } from "./useNotifications";
+import type { LiveStatus } from "./useLiveUpdates";
 import styles from "./NotificationDrawer.module.css";
 
 type Tab = "tasks" | "alerts" | "updates";
@@ -75,6 +76,7 @@ export function NotificationDrawer({
   permissions,
   inboxPath,
   feed,
+  live,
   onClose,
 }: {
   open: boolean;
@@ -82,6 +84,7 @@ export function NotificationDrawer({
   permissions: readonly string[];
   inboxPath: string;
   feed: Notifications;
+  live: LiveStatus;
   onClose: () => void;
 }) {
   const { t } = useTranslation("common");
@@ -257,7 +260,18 @@ export function NotificationDrawer({
       className={styles.drawer}
       title={
         <span className={styles.head}>
-          {t("topbar.notifications")}
+          <span className={styles.title}>
+            {t("topbar.notifications")}
+            <span
+              className={styles.live}
+              data-status={live}
+              title={t(`notifications.live.${live}Hint`)}
+              data-testid="notifications-live"
+            >
+              <i aria-hidden />
+              {t(`notifications.live.${live}`)}
+            </span>
+          </span>
           {feed.canUpdates ? (
             <Button
               type="link"

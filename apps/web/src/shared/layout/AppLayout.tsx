@@ -40,6 +40,7 @@ import { BrandMark } from "../ui/BrandMark";
 import { navFor, type NavItem } from "./navConfig";
 import { NotificationDrawer } from "./NotificationDrawer";
 import { useNotifications } from "./useNotifications";
+import { useLiveUpdates } from "./useLiveUpdates";
 import { PageChromeContext, type PageChrome } from "./pageChrome";
 import { PreferenceControls } from "./PreferenceControls";
 import styles from "./AppLayout.module.css";
@@ -82,6 +83,8 @@ export function AppLayout() {
 
   // One feed for the bell, the drawer and the inbox menu badge, refreshed in the background.
   const feed = useNotifications(user);
+  // One change stream per session: open screens refresh as soon as someone else writes.
+  const live = useLiveUpdates(user.id);
   const pendingCount = feed.tasks.length;
 
   // Demo deployments only: the system administrator restores the initial data before a session.
@@ -359,6 +362,7 @@ export function AppLayout() {
           userId={user.id}
           permissions={user.permissions}
           feed={feed}
+          live={live}
           inboxPath={inbox.to}
           onClose={() => setNotificationsOpen(false)}
         />

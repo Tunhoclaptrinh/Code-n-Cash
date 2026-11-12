@@ -201,7 +201,7 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({
       item.icon && isValidElement(item.icon)
         ? React.cloneElement(item.icon as ReactElement<any>, {
             style: {
-              color: item.valueColor || "#315bea",
+              color: item.valueColor || "var(--color-primary, #315bea)",
               ...((item.icon as ReactElement<any>).props.style || {}),
             },
           })
@@ -365,7 +365,7 @@ export const StatisticsCard: React.FC<StatisticsCardProps> = ({
             fontSize: 14,
             fontWeight: 700,
             marginBottom: 10,
-            color: "#4B5563",
+            color: "var(--text-secondary, #4B5563)",
           }}
         >
           {title}

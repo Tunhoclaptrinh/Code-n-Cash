@@ -10,7 +10,7 @@ import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import { cancelSigning } from "../api/signingFlow.api";
 import { PageState } from "@/shared/ui/PageState";
 import { SideCard, SideSection } from "@/shared/ui/SidePanel";
-import { WizardStepper } from "../components/WizardStepper";
+import { WizardStepper } from "@/shared/ui/WizardStepper";
 import { useCurrentUser } from "@/shared/auth/session";
 import { useDemoMode } from "@/shared/auth/useDemoMode";
 import { cx } from "../lib/helpers";
@@ -83,11 +83,11 @@ function Flow({
   });
 
   return (
-    <ContractSideLayout contractId={contractId}>
+    <ContractSideLayout
+      contractId={contractId}
+      nav={<WizardStepper current={allSigned ? "EFFECTIVE" : "SIGN"} />}
+    >
       <SideCard>
-        <SideSection>
-          <WizardStepper current={allSigned ? "EFFECTIVE" : "SIGN"} />
-        </SideSection>
         <SideSection
           title={
             <span className={styles.titleRow}>

@@ -2,7 +2,7 @@
 
 Quản trị hệ thống dùng tài khoản `sysadmin@codecash.vn`; kiểm toán chỉ kiểm tra toàn vẹn. Vai trò này tách khỏi người xử lý ngoại lệ và người duyệt chi.
 
-![Quản trị: 1 — giới hạn bản ghi; 2 — tab; 3 — thêm; 4 — nhập; 5 — xuất; 6 — nguồn; 7 — thao tác](../../../public/guide/images/admin-organizations.webp)
+![Quản trị: 1 — tab; 2 — thêm; 3 — nhập; 4 — xuất; 5 — chọn cột; 6 — nguồn; 7 — thao tác](../../../public/guide/images/admin-organizations.webp)
 
 ## Chọn đúng tài nguyên
 
@@ -46,7 +46,7 @@ Mở tab **Người dùng**. Dùng biểu tượng sửa để thay thông tin �
 
 ## Đọc ma trận quyền
 
-![Ma trận các vai trò và hành động](../../../public/guide/images/admin-permissions.webp)
+![Ma trận quyền: 1 — số quyền theo vai trò (bấm để lọc); 2 — chọn cột vai trò cần xem](../../../public/guide/images/admin-permissions.webp)
 
 Ma trận cho biết vai trò nào được xem, tạo, sửa, nhập, xuất và chạy hành động. Tìm nhóm như kiểm soát, hợp đồng hoặc tài khoản. Đây là màn đọc quyền hiện có, không phải nơi bấm bật/tắt quyền động.
 

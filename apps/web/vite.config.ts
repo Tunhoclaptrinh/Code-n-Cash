@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFileSync } from "node:fs";
@@ -21,6 +22,12 @@ export default defineConfig({
       "@tanstack/react-query",
     ],
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+  },
+  test: {
+    // Component and hook tests run in a browser-like DOM; pure helpers need none.
+    environment: "jsdom",
+    include: ["src/**/*.test.{ts,tsx}"],
+    setupFiles: ["src/test/setup.ts"],
   },
   server: { port: 5173, proxy: { "/api": apiTarget } },
   preview: { port: 4173, proxy: { "/api": apiTarget } },

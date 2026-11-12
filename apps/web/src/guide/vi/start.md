@@ -25,10 +25,23 @@ Chọn ngôn ngữ và giao diện rồi bấm **Bắt đầu**. Các lựa ch�
 
 Sau khi đăng nhập, ứng dụng mở **Tổng quan hợp đồng**: lời chào kèm việc đến lượt, cảnh báo, lịch đến hạn và biểu đồ dòng tiền của các hợp đồng bạn được xem. Tài khoản quản trị hệ thống và kiểm tra toàn vẹn không xem hợp đồng nên vào thẳng màn của mình.
 
+![Tổng quan hợp đồng: 1 — lời chào và việc đang chờ; 2 — số liệu chính; 3 — giá trị hợp đồng đang ở đâu; 4 — lối tắt, in báo cáo, tải số liệu](../../../public/guide/images/dashboard.webp)
+
+1. Lời chào tóm tắt bằng vài con số; hai thẻ bên phải lần lượt chạy qua việc của bạn và các thông báo.
+2. Bấm một thẻ số liệu để mở danh sách tương ứng.
+3. Thanh màu chia tổng giá trị theo trạng thái tiền; rê chuột để xem số tiền chính xác.
+4. Menu ☰ có các màn khác, **In / lưu PDF báo cáo** và **Tải số liệu (CSV)**. Mỗi lần xuất được ghi vào nhật ký.
+
+![Giá trị theo tháng đến hạn và lịch đến hạn](../../../public/guide/images/dashboard-tiles.webp)
+
+Bấm một cột tháng để mở việc của tháng đó; bấm một ngày trên lịch để xem các mốc đến hạn hôm ấy.
+
+![Thông báo: 1 — ba tab; 2 — kênh trực tiếp; 3 — đánh dấu đã đọc](../../../public/guide/images/notifications.webp)
+
 ![Thanh đầu trang: 1 — hướng dẫn; 2 — ngôn ngữ; 3 — giao diện; 4 — thông báo](../../../public/guide/images/header-tips.webp)
 
 - **Hướng dẫn** mở tài liệu này. Nút cạnh tiêu đề từng trang mở đúng nội dung cần dùng trong ngăn bên; chọn **Mở trang hướng dẫn** để đọc toàn màn.
-- **Thông báo** có ba tab: việc đến lượt bạn, cảnh báo trong phạm vi của bạn (tranh chấp, quá hạn, sắp tới hạn) và cập nhật do người khác làm trên hợp đồng của bạn. Số trên chuông chỉ đếm việc của bạn; chấm xanh nghĩa là có cập nhật chưa đọc. Khi đang mở ứng dụng mà có việc mới, góc màn hình hiện một thông báo nhỏ.
+- **Thông báo** có ba tab: việc đến lượt bạn, cảnh báo trong phạm vi của bạn (tranh chấp, quá hạn, sắp tới hạn) và cập nhật do người khác làm trên hợp đồng của bạn. Số trên chuông chỉ đếm việc của bạn; chấm xanh nghĩa là có cập nhật chưa đọc. Mốc đã đọc lưu trên máy chủ nên đổi máy vẫn giữ. Dòng **Trực tiếp** cho biết thay đổi của người khác hiện ngay; khi mất kết nối, ứng dụng vẫn tự làm mới mỗi 30 giây. Khi đang mở ứng dụng mà có việc mới, góc màn hình hiện một thông báo nhỏ.
 - Bấm vào ảnh trong hướng dẫn để phóng lớn, xem chi tiết rồi đóng ảnh để tiếp tục đọc.
 
 ## Thử nhanh một vòng nghiệp vụ

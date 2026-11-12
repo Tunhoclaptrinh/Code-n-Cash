@@ -91,14 +91,6 @@
     }
   },
   "contractUpload": {
-    "steps": {
-      "label": "Contract registration steps",
-      "upload": "Upload",
-      "positions": "Signature positions",
-      "review": "Clause review",
-      "sign": "Digital signing",
-      "effective": "In force"
-    },
     "form": {
       "type": {
         "label": "Contract type"

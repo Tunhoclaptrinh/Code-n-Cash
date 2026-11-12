@@ -55,6 +55,24 @@
   --color-danger-soft: #fdebea;
   --color-warning: #7a4b00;
   --color-warning-soft: #fff1d6;
+  /* Vivid status hues for dots, icons and solid status buttons (white text on them). */
+  --status-info: #3b82f6;
+  --status-success: #10b981;
+  --status-success-strong: #059669;
+  --status-warning: #f59e0b;
+  --status-attention: #fcc20f;
+  --status-danger: #ef4444;
+  --status-danger-strong: #dc2626;
+  --status-accent: #8b5cf6;
+  /* Icon on a pale warning tile; the tile itself is --color-warning-tint. */
+  --color-warning-icon: #9a6400;
+  --color-warning-tint: rgba(237, 161, 0, 0.16);
+  /* Brand surfaces that stay the same in both themes (sign-in hero, greeting banner). */
+  --brand-500: #315bea;
+  --brand-600: #2849bd;
+  --brand-700: #2140b0;
+  --brand-800: #1a2f80;
+  --brand-900: #1e3a8a;
   --color-neutral-badge: #2e3a7c;
   --color-neutral-badge-soft: #eef0fb;
 
@@ -111,6 +129,14 @@
   --color-danger-soft: #4c2225;
   --color-warning: #ffe09a;
   --color-warning-soft: #43381f;
+  --status-info: #60a5fa;
+  --status-success: #34d399;
+  --status-success-strong: #059669;
+  --status-warning: #fbbf24;
+  --status-danger: #f87171;
+  --status-danger-strong: #dc2626;
+  --status-accent: #a78bfa;
+  --color-warning-icon: #f0b94a;
   --color-neutral-badge: #c8d2ff;
   --color-neutral-badge-soft: #2c3352;
 

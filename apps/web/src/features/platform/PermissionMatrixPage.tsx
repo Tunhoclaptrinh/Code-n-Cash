@@ -29,6 +29,7 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { localList, useListQuery } from "@/shared/lib/useListQuery";
 import { columnSearch } from "@/shared/ui/columnSearch";
+import { statSpan } from "@/shared/lib/statLayout";
 
 interface Row {
   key: string;
@@ -100,8 +101,9 @@ export default function PermissionMatrixPage() {
     (users.data ?? []).filter(
       (user) => row.grants[user.role as Role] && user.active !== false,
     );
+  // Permission keys contain ":", which i18next would read as a namespace separator.
   const name = (key: string) =>
-    t(`permissions.items.${key}`, { defaultValue: key });
+    t(`permissions.items.${key}`, { defaultValue: key, nsSeparator: false });
   const roleName = (role: Role) => tc(`roles.${role}.name`);
   // The matrix is one document; the list engine searches, filters and pages it in the browser.
   const spec = useMemo<ListSpec<Row>>(
@@ -160,17 +162,17 @@ export default function PermissionMatrixPage() {
       value: rows.length,
       backgroundColor: "var(--bg-surface-alt)",
       valueColor: "var(--text-primary)",
-      colSpan: { xs: 12, md: 8, xl: 4 },
+      colSpan: statSpan(0, roles.length + 1),
       selected: !filters.role,
       onClick: () => setFilter("role", undefined),
     },
-    ...roles.map((role) => ({
+    ...roles.map((role, index) => ({
       title: roleName(role),
       value: rows.filter((row) => row.grants[role]).length,
       backgroundColor: roleColor[role].bg,
       valueColor: roleColor[role].value,
       selected: filters.role?.[0] === role,
-      colSpan: { xs: 12, md: 8, xl: 4 },
+      colSpan: statSpan(index + 1, roles.length + 1),
       onClick: () =>
         setFilter("role", filters.role?.[0] === role ? undefined : [role]),
     })),
@@ -300,6 +302,8 @@ export default function PermissionMatrixPage() {
           <Alert type="error" showIcon title={matrix.error.message} />
         ) : null}
         <DataTable<Row>
+          mobileCards
+          columnSettings={{ storageKey: "permissions" }}
           hideCard
           rowKey="key"
           columns={columns}

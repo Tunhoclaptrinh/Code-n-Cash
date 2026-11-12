@@ -124,7 +124,10 @@
     "search": "Search…",
     "total": "Total:",
     "totalRecords": "Total {{count}} records",
-    "view": "View details"
+    "view": "View details",
+    "columns": "Columns",
+    "columnsShown": "{{shown}} of {{total}} shown",
+    "columnsReset": "Reset"
   },
   "validation": {
     "code": "Use uppercase letters, digits, underscores or hyphens.",

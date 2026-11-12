@@ -214,6 +214,8 @@ export default function ExceptionQueuePage() {
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}
         <DataTable<QueueRow>
+          mobileCards
+          columnSettings={{ storageKey: "exceptions" }}
           hideCard
           rowKey={(row) => row.milestone.id}
           scroll={{ x: 1500 }}

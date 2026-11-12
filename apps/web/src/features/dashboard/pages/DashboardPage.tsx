@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import {
   Button,
   Empty,
+  Grid,
   Progress,
   Segmented,
   Space,
@@ -282,6 +283,8 @@ function Overview({
   }));
 
   const [spread, setSpread] = useState<Spread>("status");
+  // On a phone the table keeps the contract, the money held and the action; the rest is a tap away.
+  const wideTable = Grid.useBreakpoint().md !== false;
 
   const series = DECISIONS.map((decision) => ({
     key: decision,
@@ -599,14 +602,14 @@ function Overview({
             rowKey="contractId"
             pagination={false}
             tableLayout="fixed"
-            scroll={{ x: 1132 }}
+            scroll={wideTable ? { x: 1132 } : undefined}
             dataSource={data.contracts.slice(0, TOP_CONTRACTS)}
             data-testid="dashboard-contracts"
             columns={[
               {
                 key: "contract",
                 title: t("contracts.columns.contract"),
-                width: 300,
+                width: wideTable ? 300 : undefined,
                 ellipsis: { showTitle: false },
                 render: (_, row) => (
                   <Link
@@ -621,12 +624,14 @@ function Overview({
               {
                 key: "status",
                 title: t("contracts.columns.status"),
+                responsive: ["md"],
                 width: 168,
                 render: (_, row) => <ContractStatusTag status={row.status} />,
               },
               {
                 key: "progress",
                 title: t("contracts.columns.progress"),
+                responsive: ["md"],
                 width: 176,
                 render: (_, row) => {
                   const total = size(row.plannedMillion);
@@ -674,6 +679,7 @@ function Overview({
               {
                 key: "issues",
                 title: t("contracts.columns.issues"),
+                responsive: ["md"],
                 width: 150,
                 render: (_, row) =>
                   row.overdue || row.openDisputes ? (
@@ -696,6 +702,7 @@ function Overview({
               {
                 key: "nextDue",
                 title: t("contracts.columns.nextDue"),
+                responsive: ["md"],
                 width: 112,
                 render: (_, row) =>
                   row.nextDue ? (

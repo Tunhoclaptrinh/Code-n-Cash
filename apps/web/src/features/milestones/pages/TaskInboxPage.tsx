@@ -450,6 +450,8 @@ export default function TaskInboxPage() {
           <Alert type="info" showIcon title={t(`inbox.groupHint.${group}`)} />
         ) : null}
         <DataTable<TaskRow>
+          mobileCards
+          columnSettings={{ storageKey: "tasks" }}
           hideCard
           rowKey="id"
           scroll={{ x: 1060 }}

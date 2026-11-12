@@ -11,6 +11,7 @@ import {
   Alert,
   Card,
   Tabs,
+  Grid,
   theme,
 } from "antd";
 import {
@@ -33,6 +34,9 @@ import { FilterBuilder } from "./FilterBuilder";
 import { ExportModal } from "./ExportModal";
 import { ImportModal } from "./ImportModal";
 import { DataTableProps, DataTableColumn } from "./types";
+import { ColumnSettings } from "./ColumnSettings";
+import { MobileCardList } from "./MobileCardList";
+import { columnId, useHiddenColumns } from "./columnPrefs";
 import { exportToCSV, exportToJSON } from "../../../utils/export";
 export const DataTable = <T extends Record<string, any>>({
   data,
@@ -97,9 +101,16 @@ export const DataTable = <T extends Record<string, any>>({
   activeTab,
   onTabChange,
   searchFields = [],
+  columnSettings = false,
+  mobileCards = false,
   ...antTableProps
 }: DataTableProps<T>) => {
   const { token } = theme.useToken();
+  const screens = Grid.useBreakpoint();
+  const asCards = mobileCards && screens.sm === false;
+  const [hiddenColumns, setHiddenColumns] = useHiddenColumns(
+    columnSettings ? columnSettings.storageKey : undefined,
+  );
   const [localPagination, setLocalPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -224,6 +235,9 @@ export const DataTable = <T extends Record<string, any>>({
       },
     });
   }
+  const shownColumns = columnSettings
+    ? tableColumns.filter((c) => !hiddenColumns.includes(columnId(c)))
+    : tableColumns;
   const addFilterCondition = (key: string) => {
     const config = filters.find((f) => f.key === key);
     if (config && !activeFilters.find((f) => f.key === key)) {
@@ -458,6 +472,14 @@ export const DataTable = <T extends Record<string, any>>({
             </Tooltip>
           )}
 
+          {columnSettings && !asCards && (
+            <ColumnSettings
+              columns={tableColumns}
+              hidden={hiddenColumns}
+              onChange={setHiddenColumns}
+            />
+          )}
+
           <div
             style={{
               height: 32,
@@ -487,45 +509,78 @@ export const DataTable = <T extends Record<string, any>>({
         </div>
       )}
 
-      <Table
-        className="main-table"
-        rowKey={rowKey}
-        columns={tableColumns as any}
-        dataSource={filteredData}
-        loading={loading}
-        size={size}
-        bordered={bordered}
-        rowSelection={rowSelection}
-        pagination={
-          pagination !== false
-            ? {
-                showSizeChanger: true,
-                showQuickJumper: true,
-                pageSizeOptions: ["10", "20", "50", "100"],
-                showTotal: (total: number) =>
-                  uiText("table.totalRecords", { count: total }),
-                ...(pagination || {}),
-              }
-            : false
-        }
-        onChange={(page, filters, sorter) => {
-          setLocalPagination({
-            current: page.current ?? 1,
-            pageSize: page.pageSize ?? 10,
-          });
-          onPaginationChange?.(page, filters, sorter);
-        }}
-        scroll={scroll || { x: 1000 }}
-        locale={{
-          emptyText: (
+      {asCards ? (
+        <MobileCardList<T>
+          columns={shownColumns.filter((c) => !c.hidden)}
+          data={filteredData}
+          rowKey={rowKey as any}
+          loading={loading}
+          empty={
             <EmptyState
               title={emptyText || uiText("table.emptyTitle")}
               description={uiText("table.emptyHint")}
             />
-          ),
-        }}
-        {...antTableProps}
-      />
+          }
+          pagination={
+            pagination === false
+              ? false
+              : {
+                  current:
+                    (pagination && pagination.current) ??
+                    localPagination.current,
+                  pageSize:
+                    (pagination && pagination.pageSize) ??
+                    localPagination.pageSize,
+                  total: pagination ? pagination.total : undefined,
+                  serverTotal: !!pagination && pagination.total !== undefined,
+                }
+          }
+          onPageChange={(current, pageSize) => {
+            setLocalPagination({ current, pageSize });
+            onPaginationChange?.({ current, pageSize } as any, {}, {} as any);
+          }}
+        />
+      ) : (
+        <Table
+          className="main-table"
+          rowKey={rowKey}
+          columns={shownColumns as any}
+          dataSource={filteredData}
+          loading={loading}
+          size={size}
+          bordered={bordered}
+          rowSelection={rowSelection}
+          pagination={
+            pagination !== false
+              ? {
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  pageSizeOptions: ["10", "20", "50", "100"],
+                  showTotal: (total: number) =>
+                    uiText("table.totalRecords", { count: total }),
+                  ...(pagination || {}),
+                }
+              : false
+          }
+          onChange={(page, filters, sorter) => {
+            setLocalPagination({
+              current: page.current ?? 1,
+              pageSize: page.pageSize ?? 10,
+            });
+            onPaginationChange?.(page, filters, sorter);
+          }}
+          scroll={scroll || { x: 1000 }}
+          locale={{
+            emptyText: (
+              <EmptyState
+                title={emptyText || uiText("table.emptyTitle")}
+                description={uiText("table.emptyHint")}
+              />
+            ),
+          }}
+          {...antTableProps}
+        />
+      )}
 
       <Modal
         open={filterModalOpen}

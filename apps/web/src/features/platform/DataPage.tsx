@@ -495,6 +495,8 @@ export default function DataPage() {
           />
         ) : null}
         <DataTable<Row>
+          mobileCards
+          columnSettings={{ storageKey: "data-pack" }}
           hideCard
           rowKey="milestone_id"
           scroll={{ x: 1110 }}

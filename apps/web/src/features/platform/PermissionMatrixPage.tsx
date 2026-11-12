@@ -302,6 +302,8 @@ export default function PermissionMatrixPage() {
           <Alert type="error" showIcon title={matrix.error.message} />
         ) : null}
         <DataTable<Row>
+          mobileCards
+          columnSettings={{ storageKey: "permissions" }}
           hideCard
           rowKey="key"
           columns={columns}

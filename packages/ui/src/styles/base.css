@@ -174,3 +174,62 @@
   outline: 2px solid var(--color-primary, #315bea);
   outline-offset: 1px;
 }
+
+/* DataTable on a phone (mobileCards): one card per row, label and value pairs, actions last. */
+.cc-mcards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 20px;
+}
+
+.cc-mcard {
+  border: 1px solid var(--border-subtle, #e5e7eb);
+  border-radius: 10px;
+  background: var(--bg-surface-card, #fff);
+  padding: 12px 14px;
+}
+
+.cc-mcard-head {
+  font-weight: 600;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+
+.cc-mcard-fields {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.cc-mcard-field {
+  display: grid;
+  grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  font-size: 13px;
+}
+
+.cc-mcard-field dt {
+  color: var(--text-secondary, #6b7280);
+  font-size: 12px;
+}
+
+.cc-mcard-field dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cc-mcard-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle, #e5e7eb);
+}
+
+.cc-mcards-empty {
+  padding: 24px 0;
+}

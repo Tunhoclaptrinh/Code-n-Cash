@@ -399,6 +399,8 @@ export default function ContractListPage() {
           <Alert type="error" showIcon title={String(list.result.error)} />
         ) : null}
         <DataTable<ContractRow>
+          mobileCards
+          columnSettings={{ storageKey: "contracts" }}
           hideCard
           rowKey="id"
           scroll={{ x: 1060 }}

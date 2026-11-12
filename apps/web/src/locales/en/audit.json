@@ -236,7 +236,20 @@
     "ANCHOR_EXPORT": "Anchor bundle exported",
     "SYSTEM_WRITE": "System data written",
     "PAYMENT_DELIVERY": "Payment instruction sent",
-    "MARK_NOTIFICATIONS_READ": "Mark notifications as read"
+    "MARK_NOTIFICATIONS_READ": "Mark notifications as read",
+    "BULK_DELETE": "Delete several records",
+    "CREATE": "Create a record",
+    "DELETE": "Delete a record",
+    "EVALUATE": "Run the Data Pack evaluation",
+    "IMPORT": "Import data",
+    "IMPORT_DATA_PACK": "Load the Data Pack",
+    "LOGIN_DEMO": "Sign in with a demo account",
+    "REFRESH_PDF_LAYOUT": "Refresh the PDF layout",
+    "RESET_DEMO_DATA": "Reset demo data",
+    "RESET_PASSWORD": "Reset a password",
+    "UPDATE": "Edit a record",
+    "UPLOAD": "Upload a document",
+    "VOID": "Void a record"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",

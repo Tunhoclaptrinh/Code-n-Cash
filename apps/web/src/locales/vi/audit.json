@@ -236,7 +236,20 @@
     "ANCHOR_EXPORT": "Xuất gói neo hash",
     "SYSTEM_WRITE": "Ghi dữ liệu hệ thống",
     "PAYMENT_DELIVERY": "Gửi lệnh chi",
-    "MARK_NOTIFICATIONS_READ": "Đánh dấu thông báo đã đọc"
+    "MARK_NOTIFICATIONS_READ": "Đánh dấu thông báo đã đọc",
+    "BULK_DELETE": "Xoá nhiều bản ghi",
+    "CREATE": "Tạo bản ghi",
+    "DELETE": "Xoá bản ghi",
+    "EVALUATE": "Chạy đánh giá Data Pack",
+    "IMPORT": "Nhập dữ liệu",
+    "IMPORT_DATA_PACK": "Nạp Data Pack",
+    "LOGIN_DEMO": "Đăng nhập tài khoản demo",
+    "REFRESH_PDF_LAYOUT": "Làm mới bố cục PDF",
+    "RESET_DEMO_DATA": "Khôi phục dữ liệu demo",
+    "RESET_PASSWORD": "Đặt lại mật khẩu",
+    "UPDATE": "Sửa bản ghi",
+    "UPLOAD": "Tải tài liệu lên",
+    "VOID": "Huỷ bản ghi"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",

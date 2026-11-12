@@ -14,6 +14,12 @@ To add an allowed record, choose **Create**, fill required fields and references
 
 ![Create organization form](../../../public/guide/images/admin-create.webp)
 
+## System log
+
+Administrators and auditors read a digest of the audit chain: time, chain number, action, object and hash, enough to check that the chain is untouched. Who acted and what changed stay hidden from these roles (spec 2.2); each organisation reads the full trail in its own **Activity log**. The log is read only: no create, import or edit.
+
+Tabs show only the resources your role may read. Organisations, users and milestone templates start with statistic tiles (by organisation type, role, workflow); select a tile to filter, again to clear. **Settings** shows a readable name and a short note next to each key; **Milestone templates** show milestone types and required events as labels with their codes.
+
 ## Import resources
 
 ![Resource import and preview](../../../public/guide/images/admin-import.webp)

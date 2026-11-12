@@ -23,10 +23,12 @@ Nếu nhập email thủ công, dùng mật khẩu do người quản trị môi
 
 Chọn ngôn ngữ và giao diện rồi bấm **Bắt đầu**. Các lựa chọn được lưu trong trình duyệt. Ở những lần sau, dùng các nút trên thanh đầu trang để đổi lại.
 
+Sau khi đăng nhập, ứng dụng mở **Tổng quan hợp đồng**: lời chào kèm việc đến lượt, cảnh báo, lịch đến hạn và biểu đồ dòng tiền của các hợp đồng bạn được xem. Tài khoản quản trị hệ thống và kiểm tra toàn vẹn không xem hợp đồng nên vào thẳng màn của mình.
+
 ![Thanh đầu trang: 1 — hướng dẫn; 2 — ngôn ngữ; 3 — giao diện; 4 — thông báo](../../../public/guide/images/header-tips.webp)
 
 - **Hướng dẫn** mở tài liệu này. Nút cạnh tiêu đề từng trang mở đúng nội dung cần dùng trong ngăn bên; chọn **Mở trang hướng dẫn** để đọc toàn màn.
-- **Thông báo** đưa bạn tới việc cần làm trong phạm vi tài khoản hiện tại.
+- **Thông báo** có ba tab: việc đến lượt bạn, cảnh báo trong phạm vi của bạn (tranh chấp, quá hạn, sắp tới hạn) và cập nhật do người khác làm trên hợp đồng của bạn. Số trên chuông chỉ đếm việc của bạn; chấm xanh nghĩa là có cập nhật chưa đọc. Khi đang mở ứng dụng mà có việc mới, góc màn hình hiện một thông báo nhỏ.
 - Bấm vào ảnh trong hướng dẫn để phóng lớn, xem chi tiết rồi đóng ảnh để tiếp tục đọc.
 
 ## Thử nhanh một vòng nghiệp vụ

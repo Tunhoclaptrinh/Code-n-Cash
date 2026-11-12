@@ -177,7 +177,7 @@ try {
   await evaluate("document.querySelector('.ant-drawer-close')?.click()");
   await until("!document.querySelector('.ant-drawer-open')");
   await loginAs("controller@novaan.vn");
-  assert.equal(await evaluate("location.pathname"), "/exceptions");
+  assert.equal(await evaluate("location.pathname"), "/dashboard");
   // First visit after login: language and theme must be chosen, then the header tips show once.
   await until("!!document.querySelector('[data-testid=welcome-start]')");
   assert.equal(
@@ -203,6 +203,7 @@ try {
   );
   // Each party has its own controller: Nova An buys none of the six Data Pack milestones with an
   // unauthorised event, so its queue is empty; Cửu Long's controller sees its own three.
+  await send("Page.navigate", { url: base + "/exceptions" });
   await until("!!document.querySelector('.ant-table-placeholder')");
   await loginAs("controller@cuulong.vn");
   await send("Page.navigate", { url: base + "/exceptions" });
@@ -213,7 +214,7 @@ try {
   // The held milestone names who must act; its controller may open the decision.
   await until("!!document.querySelector('[data-testid=pending-list]')");
   await loginAs("controller@novaan.vn");
-  assert.equal(await evaluate("location.pathname"), "/exceptions");
+  assert.equal(await evaluate("location.pathname"), "/dashboard");
   const screens = [];
   const buttonAudit = [];
   await mkdir("artifacts/browser", { recursive: true });

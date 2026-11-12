@@ -253,14 +253,18 @@ export function navFor(role: Role, permissions: readonly string[]) {
     .filter((section) => section.items.length > 0);
 }
 
-/** First screen after signing in: the work waiting for the user. */
+/**
+ * First screen after signing in: the contract overview (greeting, tasks, warnings, due dates) for
+ * every role that may read contracts; the platform roles, which never open a contract, land on
+ * their own screens.
+ */
 export const homeByRole: Record<Role, string> = {
-  CONTRACT_OWNER: "/tasks",
-  LEGAL_REVIEWER: "/tasks",
-  FINANCE_APPROVER: "/tasks",
-  SECONDARY_APPROVER: "/tasks",
-  ADMIN_AUDITOR: "/exceptions",
+  CONTRACT_OWNER: "/dashboard",
+  LEGAL_REVIEWER: "/dashboard",
+  FINANCE_APPROVER: "/dashboard",
+  SECONDARY_APPROVER: "/dashboard",
+  ADMIN_AUDITOR: "/dashboard",
   SYSTEM_ADMIN: "/platform/organizations",
   AUDITOR: "/integrity",
-  SUPPLIER: "/tasks",
+  SUPPLIER: "/dashboard",
 };

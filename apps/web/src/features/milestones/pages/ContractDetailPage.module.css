@@ -156,19 +156,31 @@
   white-space: nowrap;
 }
 
+/*
+ * State shows on the rail marker and the status tag; the card itself stays a plain 1px frame,
+ * only tinted toward the state colour. The milestone that is up next also lifts a little.
+ */
 .cardAttention {
-  border: 2px solid var(--ms-amber);
-  background: var(--ms-amber-wash);
+  --panel-border: color-mix(in srgb, var(--ms-amber) 45%, var(--color-border));
 }
 
 .cardDanger {
-  border: 2px solid var(--color-danger-strong);
-  background: var(--color-danger-soft);
+  --panel-border: color-mix(
+    in srgb,
+    var(--color-danger-strong) 40%,
+    var(--color-border)
+  );
 }
 
 .cardActive {
-  border: 2px solid var(--color-primary);
-  background: var(--ms-blue-wash);
+  --panel-border: color-mix(
+    in srgb,
+    var(--color-primary) 45%,
+    var(--color-border)
+  );
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 6px 16px -10px rgba(49, 91, 234, 0.45);
 }
 
 .info {
@@ -358,15 +370,11 @@
 .page {
   --ms-line: #d9dfee;
   --ms-amber: #e0a93b;
-  --ms-amber-wash: #fffcf5;
-  --ms-blue-wash: #f6f9ff;
 }
 
 :global(:root[data-theme="dark"]) .page {
   --ms-line: #343e50;
   --ms-amber: #d49b2c;
-  --ms-amber-wash: #2a2416;
-  --ms-blue-wash: #17213a;
 }
 
 @media (max-width: 760px) {

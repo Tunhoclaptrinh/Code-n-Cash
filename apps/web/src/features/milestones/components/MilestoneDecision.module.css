@@ -301,11 +301,24 @@
   color: var(--color-primary-dark) !important;
 }
 
-/* The event a link points at (activity log ?event=): a tinted row with a primary edge. */
+/* The event a link points at (activity log ?event=): a tinted row inside a thin primary frame. */
 .focusRow > td {
   background: var(--color-primary-soft) !important;
+  box-shadow:
+    inset 0 1px 0 var(--color-primary-soft-border),
+    inset 0 -1px 0 var(--color-primary-soft-border);
 }
 
 .focusRow > td:first-child {
-  box-shadow: inset 3px 0 0 var(--color-primary);
+  box-shadow:
+    inset 1px 0 0 var(--color-primary-soft-border),
+    inset 0 1px 0 var(--color-primary-soft-border),
+    inset 0 -1px 0 var(--color-primary-soft-border);
+}
+
+.focusRow > td:last-child {
+  box-shadow:
+    inset -1px 0 0 var(--color-primary-soft-border),
+    inset 0 1px 0 var(--color-primary-soft-border),
+    inset 0 -1px 0 var(--color-primary-soft-border);
 }

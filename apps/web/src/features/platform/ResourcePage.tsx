@@ -328,19 +328,19 @@ function ResourceView({ resource }: { resource: string }) {
       ? 340
       : ["name", "displayName", "description"].includes(field.key) ||
           (field.key === "title" && resource !== "users")
-        ? 240
+        ? 220
         : field.key === "requiredEvents"
           ? 260
           : field.key === "signerRoles"
             ? 300
             : field.type === "email" || field.ref
-              ? 220
+              ? 200
               : field.type === "select"
-                ? 170
+                ? 150
                 : field.type === "boolean" || field.type === "number"
                   ? 110
                   : ["code", "sha256", "recordId"].includes(field.key)
-                    ? 150
+                    ? 130
                     : 180;
   const shownFields = fields.filter(
     (field) =>
@@ -410,7 +410,7 @@ function ResourceView({ resource }: { resource: string }) {
             key: "origin",
             dataIndex: "origin",
             title: fieldLabel("origin"),
-            width: 140,
+            width: 130,
             render: (value: Origin | undefined) =>
               value ? <OriginTag origin={value} /> : "—",
           },
@@ -423,7 +423,7 @@ function ResourceView({ resource }: { resource: string }) {
             key: "updatedAt",
             dataIndex: "updatedAt",
             title: fieldLabel("updatedAt"),
-            width: 160,
+            width: 150,
             sorter: true,
             render: (value: string) => (value ? formatDateTime(value) : "—"),
           },

@@ -1075,6 +1075,8 @@ try {
 
   /* ------------------------------ system administrator ------------------------------ */
   await attempt("sysadmin sign-in", async () => {
+    // Also when run on its own (GUIDE_STEPS): the first-visit welcome is not part of these pictures.
+    await evaluate("localStorage.setItem('codecash.onboarding', 'done')");
     await loginAs("sysadmin@codecash.vn");
     await sidebar("sysadmin");
   });

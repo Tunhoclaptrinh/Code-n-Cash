@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1.7
-# Two deployable images from one build:
-#   docker build --target api -t codecash/api .   NestJS API + Python engine CLI
-#   docker build --target web -t codecash/web .   nginx serving the SPA and proxying /api
+# Three deployable images from one build:
+#   docker build --target api -t codecash/api .        NestJS API + Python engine CLI
+#   docker build --target signer -t codecash/signer .  remote signing service (simulated CA)
+#   docker build --target web -t codecash/web .        nginx serving the SPA, proxying /api and /signer-api
 ARG NODE_IMAGE=node:24-bookworm-slim
 ARG NGINX_IMAGE=nginx:1.27-alpine
 
@@ -16,6 +17,7 @@ WORKDIR /app
 FROM base AS manifests
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/
+COPY apps/signer/package.json apps/signer/
 COPY apps/web/package.json apps/web/
 COPY packages/api-client/package.json packages/api-client/
 COPY packages/config/package.json packages/config/
@@ -66,8 +68,23 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=5 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.API_PORT||3000)+'/api/v1/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
 CMD ["node", "apps/api/dist/main.js"]
 
+# The signing service is its own process with its own data and keys; it needs only Node itself.
+FROM ${NODE_IMAGE} AS signer
+ENV NODE_ENV=production \
+    SIGNER_PORT=3200 \
+    SIGNER_DATA_DIR=/data
+WORKDIR /app
+COPY --from=build /app/apps/signer/dist ./dist
+RUN mkdir -p /data && chown node:node /data
+USER node
+EXPOSE 3200
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
+  CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.SIGNER_PORT||3200)+'/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+CMD ["node", "dist/main.js"]
+
 FROM ${NGINX_IMAGE} AS web
-ENV API_UPSTREAM=http://api:3000
+ENV API_UPSTREAM=http://api:3000 \
+    SIGNER_UPSTREAM=http://signer:3200
 COPY infra/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY infra/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html

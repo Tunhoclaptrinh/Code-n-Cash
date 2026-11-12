@@ -33,6 +33,7 @@ import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { EngineController } from "./engine";
 import { PermissionsController } from "./permissions.controller";
 import { NotificationsController } from "./notifications";
+import { SigningServiceController } from "./signing-service";
 import { DomainService } from "./domain/service";
 import { warmMockOriginals } from "./mock-originals";
 import { auditContext } from "./common/audit-events";
@@ -72,6 +73,7 @@ class HealthController {
     SampleDocumentsController,
     PermissionsController,
     NotificationsController,
+    SigningServiceController,
   ],
   providers: [
     TrustService,
@@ -90,7 +92,10 @@ class ApplicationModule {}
 async function main() {
   getSigningProvider();
   const app =
-    await NestFactory.create<NestExpressApplication>(ApplicationModule);
+    // rawBody: the signing service's webhook is authenticated by an HMAC of the exact bytes.
+    await NestFactory.create<NestExpressApplication>(ApplicationModule, {
+      rawBody: true,
+    });
   // A complete 128-rule revision exceeds Express's default 100 KB JSON limit.
   app.useBodyParser("json", { limit: "4mb" });
   // Normalize parser errors before Nest maps SyntaxError to its implementation message.

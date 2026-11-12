@@ -20,6 +20,8 @@ import { DomainService } from "./domain/service";
 import { sendInstruction } from "./payment-gateway";
 import * as signing from "./domain/signing";
 import * as views from "./domain/views";
+import * as remoteSigner from "./trust/remote-signer";
+import { getSigningProvider } from "./trust/signing-provider";
 
 type Args = unknown[];
 interface Handler {
@@ -112,6 +114,132 @@ const sends = (permission: string, _name: string): Handler => ({
   permission,
   run: (domain, actor, [paymentId]) =>
     deliverPayment(domain, actor, str(paymentId)),
+});
+
+/* ------------------- signing through the remote signing service ------------------- */
+
+const remoteMode = () => !!getSigningProvider().remote;
+
+/** The open request's service details, or null when there is none or it is not remote. */
+const openRemote = (
+  domain: DomainService,
+  actor: Actor,
+  code: string,
+  step: number,
+) =>
+  domain.read(actor, (ctx) => {
+    try {
+      return signing.remoteDispatch(ctx, code, step);
+    } catch {
+      return null;
+    }
+  });
+
+/**
+ * Sends a signing request. Through the signing service it is recorded first, then handed to the
+ * service outside any transaction (like the payment gateway), then linked to the service's
+ * transaction; when the service cannot be reached the request stops and says so.
+ */
+const sendThroughService: Handler = {
+  permission: "signing:sign",
+  run: async (domain, actor, [code, step, method]) => {
+    const sent = await domain.write(
+      actor,
+      "sendSigningRequest",
+      (ctx) =>
+        signing.sendRequest(ctx, str(code), num(step), str(method) as never),
+      str(code),
+    );
+    if (!(sent as { remote?: boolean }).remote) return sent;
+    const open = await openRemote(domain, actor, str(code), num(step));
+    if (!open) return sent;
+    try {
+      await remoteSigner.ensureCa();
+      await remoteSigner.enroll({
+        subscriberId: actor.id,
+        commonName: actor.displayName,
+        organization: actor.roleChipOrganization ?? "",
+      });
+      const transaction = await remoteSigner.createSignature(
+        open,
+        open.requestId,
+      );
+      return domain.write(
+        actor,
+        "attachSigningTransaction",
+        (ctx) => signing.attachTransaction(ctx, open.requestId, transaction),
+        str(code),
+      );
+    } catch {
+      await domain.write(
+        actor,
+        "failSigningRequest",
+        (ctx) => signing.failRemote(ctx, open.requestId, "SIGNER_UNAVAILABLE"),
+        str(code),
+      );
+      throw new BadRequestException("SIGNER_UNAVAILABLE");
+    }
+  },
+};
+
+/**
+ * Reads the request. When a webhook from the signing service was lost, asking the service here
+ * brings the result in anyway (the service stays the source of what the person decided).
+ */
+const readThroughService: Handler = {
+  permission: "contracts:read",
+  run: async (domain, actor, [code, step]) => {
+    if (remoteMode()) {
+      const open = await openRemote(domain, actor, str(code), num(step));
+      if (open?.transactionId)
+        try {
+          const transaction = await remoteSigner.getSignature(
+            open.transactionId,
+          );
+          if (transaction.status !== "PENDING") {
+            await remoteSigner.ensureCa();
+            await domain.write(
+              actor,
+              "applySigningResult",
+              (ctx) => signing.applyRemoteResult(ctx, transaction),
+              str(code),
+            );
+          }
+        } catch {
+          /* The service is unreachable: the request keeps waiting until it expires. */
+        }
+    }
+    return domain.write(
+      actor,
+      "getSigningRequest",
+      (ctx) => signing.readRequest(ctx, str(code), num(step)),
+      str(code),
+    );
+  },
+};
+
+/** Rejecting or cancelling here also withdraws the request from the person's device. */
+const withdrawThroughService = (
+  name: "rejectSigningRequest" | "cancelSigningRequest",
+): Handler => ({
+  permission: "signing:sign",
+  run: async (domain, actor, [code, step]) => {
+    const open = remoteMode()
+      ? await openRemote(domain, actor, str(code), num(step))
+      : null;
+    const result = await domain.write(
+      actor,
+      name,
+      (ctx) =>
+        name === "rejectSigningRequest"
+          ? signing.rejectRequest(ctx, str(code), num(step))
+          : signing.cancelRequest(ctx, str(code), num(step)),
+      str(code),
+    );
+    if (open?.transactionId)
+      await remoteSigner.cancelSignature(open.transactionId).catch(() => {});
+    return result;
+  },
 });
 
 /**
@@ -284,32 +412,15 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
           layout ? input(layout) : undefined,
         ),
     ),
-    getSigningRequest: write(
-      "contracts:read",
-      "getSigningRequest",
-      (ctx, [code, step]) => signing.readRequest(ctx, str(code), num(step)),
-    ),
-    sendSigningRequest: write(
-      "signing:sign",
-      "sendSigningRequest",
-      (ctx, [code, step, method]) =>
-        signing.sendRequest(ctx, str(code), num(step), str(method) as never),
-    ),
+    getSigningRequest: readThroughService,
+    sendSigningRequest: sendThroughService,
     confirmSigningRequest: write(
       "signing:sign",
       "confirmSigningRequest",
       (ctx, [code, step]) => signing.confirmRequest(ctx, str(code), num(step)),
     ),
-    rejectSigningRequest: write(
-      "signing:sign",
-      "rejectSigningRequest",
-      (ctx, [code, step]) => signing.rejectRequest(ctx, str(code), num(step)),
-    ),
-    cancelSigningRequest: write(
-      "signing:sign",
-      "cancelSigningRequest",
-      (ctx, [code, step]) => signing.cancelRequest(ctx, str(code), num(step)),
-    ),
+    rejectSigningRequest: withdrawThroughService("rejectSigningRequest"),
+    cancelSigningRequest: withdrawThroughService("cancelSigningRequest"),
     cancelSigning: write("signing:cancel", "cancelSigning", (ctx, [code]) =>
       signing.cancelSigning(ctx, str(code)),
     ),

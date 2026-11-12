@@ -348,5 +348,104 @@
     "rules": "Executable rules",
     "ruleVersion": "Pinned rule version of \"{{ruleSet}}\"",
     "ruleSet": "Rule set \"{{ruleSet}}\""
+  },
+  "device": {
+    "name": {
+      "app": "Signing app",
+      "token": "USB token"
+    },
+    "live": "Connected to the signing service",
+    "offline": "Reconnecting to the signing service",
+    "simulated": "Simulated device · demo CA, no legal effect",
+    "idle": "No signing request. New requests appear here.",
+    "cert": {
+      "issuer": "Issued by {{issuer}}",
+      "serial": "Serial {{serial}}",
+      "until": "valid until {{date}}"
+    },
+    "status": {
+      "PENDING": "Waiting",
+      "SIGNED": "Signed",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "request": {
+      "from": "{{party}} asks you to sign",
+      "code": "Confirmation code",
+      "codeHint": "Must match the code on the CodeCash screen",
+      "hash": "SHA-256 hash",
+      "left": "Time left"
+    },
+    "token": {
+      "insert": "Insert the USB token holding your certificate to continue.",
+      "insertAction": "Insert token"
+    },
+    "pin": {
+      "app": "Enter your PIN to sign",
+      "token": "Enter the token PIN",
+      "demo": "Demo PIN: {{pin}}",
+      "wrong_one": "Wrong PIN, {{count}} try left",
+      "wrong_other": "Wrong PIN, {{count}} tries left",
+      "locked": "Locked after too many wrong PINs, until {{at}}"
+    },
+    "errors": {
+      "TRANSACTION_EXPIRED": "The request has expired.",
+      "TRANSACTION_NOT_PENDING": "The request is no longer waiting.",
+      "PIN_LOCKED": "The device is locked.",
+      "UNKNOWN": "Could not sign, try again."
+    },
+    "actions": {
+      "approve": "Confirm and sign",
+      "reject": "Reject"
+    },
+    "result": {
+      "SIGNED": "Signed",
+      "SIGNEDHint": "CodeCash updates at once.",
+      "REJECTED": "Rejected",
+      "REJECTEDHint": "The signing request is cancelled in CodeCash."
+    },
+    "dock": {
+      "title": "Signing device (simulated)",
+      "open": "Open the signing device",
+      "close": "Close the signing device",
+      "idle": "Signing device: no request",
+      "pending_one": "{{count}} signing request waiting",
+      "pending_other": "{{count}} signing requests waiting",
+      "phone": "Open on a phone",
+      "phoneHint": "Scan with a phone and sign in with the same account to receive signing requests there."
+    },
+    "off": {
+      "title": "Signing through the service is off",
+      "body": "CodeCash signs inside the app, so no signing device is needed. Set SIGNING_PROVIDER=remote to use it.",
+      "back": "Back to the app"
+    }
+  },
+  "remote": {
+    "send": "Send signing request",
+    "waiting": {
+      "app": "Waiting for you to confirm in {{method}}",
+      "token": "Waiting for you to sign with {{method}}",
+      "lead": "The request went to the signing service. This screen moves on once you have signed."
+    },
+    "code": "Confirmation code",
+    "codeHint": "Your device must show this code",
+    "hash": "Hash of what you sign",
+    "left": "Time left",
+    "transaction": "Transaction",
+    "steps": {
+      "open": "Open the signing device: the <b>phone button at the bottom right</b>, or sign in with the same account on a phone and open <b>/device</b>.",
+      "match": "Check that the device shows the same confirmation code.",
+      "pin": "Enter the PIN (demo: 123456) and choose Confirm and sign.",
+      "token": "Choose Insert token, enter the token PIN (demo: 123456) and confirm."
+    },
+    "cancel": "Cancel request",
+    "resend": "Send again",
+    "ended": {
+      "REJECTED": "The previous request was rejected on the device.",
+      "EXPIRED": "The previous request expired before it was confirmed.",
+      "CANCELLED": "The previous request was cancelled.",
+      "FAILED": "The signing service could not be reached. Check it and send again."
+    }
   }
 }

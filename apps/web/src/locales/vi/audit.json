@@ -97,7 +97,10 @@
     "getSigningRequest": "Cập nhật yêu cầu ký",
     "EXTRACT_TERMS": "Đọc điều khoản từ văn bản hợp đồng",
     "CONFIRM_EXTRACTION": "Xác nhận điều khoản đã đọc",
-    "recordPaymentDelivery": "Ghi nhận kết quả chuyển lệnh chi"
+    "recordPaymentDelivery": "Ghi nhận kết quả chuyển lệnh chi",
+    "attachSigningTransaction": "Gửi yêu cầu ký tới dịch vụ ký",
+    "failSigningRequest": "Không gửi được yêu cầu tới dịch vụ ký",
+    "applySigningResult": "Nhận kết quả ký từ dịch vụ ký"
   },
   "detail": {
     "view": "Xem chi tiết",

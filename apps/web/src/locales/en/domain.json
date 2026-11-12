@@ -340,7 +340,15 @@
     "APP_SCOPE_SIZE": "Scope: 30 rules at most.",
     "INVALID_WORKFLOW": "The milestone workflow is not in the pinned rule version or not for this contract type.",
     "APP_WORKFLOW_COUNT": "A version holds at most 8 own workflows.",
-    "INVALID_SEEN_AT": "The time marked as read is not valid."
+    "INVALID_SEEN_AT": "The time marked as read is not valid.",
+    "CONFIRM_ON_DEVICE": "Confirm on your signing device (app or USB token), not in CodeCash.",
+    "SIGNER_UNAVAILABLE": "The signing service could not be reached.",
+    "NOT_REMOTE_REQUEST": "This request does not go through the signing service.",
+    "SIGNER_DISABLED": "Signing through the service is off.",
+    "INVALID_WEBHOOK_SIGNATURE": "The signing service notice is not authentic.",
+    "REQUEST_NOT_FOUND": "Signing request not found.",
+    "SIGNER_CA_INVALID": "The signing service CA key is not valid.",
+    "SIGNER_CA_MISMATCH": "The signing service CA key does not match the pinned key."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

@@ -97,7 +97,10 @@
     "getSigningRequest": "Signing request updated",
     "EXTRACT_TERMS": "Read the terms from the contract document",
     "CONFIRM_EXTRACTION": "Confirm the extracted terms",
-    "recordPaymentDelivery": "Record the payment order delivery"
+    "recordPaymentDelivery": "Record the payment order delivery",
+    "attachSigningTransaction": "Send the signing request to the signing service",
+    "failSigningRequest": "Could not reach the signing service",
+    "applySigningResult": "Receive the result from the signing service"
   },
   "detail": {
     "view": "View details",

@@ -340,7 +340,15 @@
     "APP_SCOPE_SIZE": "Phạm vi: tối đa 30 luật.",
     "INVALID_WORKFLOW": "Quy trình mốc không thuộc phiên bản luật đã ghim hoặc không dành cho loại hợp đồng này.",
     "APP_WORKFLOW_COUNT": "Một phiên bản có tối đa 8 quy trình riêng.",
-    "INVALID_SEEN_AT": "Thời điểm đánh dấu đã đọc không hợp lệ."
+    "INVALID_SEEN_AT": "Thời điểm đánh dấu đã đọc không hợp lệ.",
+    "CONFIRM_ON_DEVICE": "Xác nhận ký trên thiết bị ký (ứng dụng hoặc USB token), không xác nhận trong CodeCash.",
+    "SIGNER_UNAVAILABLE": "Không kết nối được dịch vụ ký.",
+    "NOT_REMOTE_REQUEST": "Yêu cầu này không ký qua dịch vụ ký.",
+    "SIGNER_DISABLED": "Chưa bật ký qua dịch vụ ký.",
+    "INVALID_WEBHOOK_SIGNATURE": "Thông báo từ dịch vụ ký không hợp lệ.",
+    "REQUEST_NOT_FOUND": "Không tìm thấy yêu cầu ký.",
+    "SIGNER_CA_INVALID": "Khoá CA của dịch vụ ký không hợp lệ.",
+    "SIGNER_CA_MISMATCH": "Khoá CA của dịch vụ ký không khớp khoá đã ghim."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

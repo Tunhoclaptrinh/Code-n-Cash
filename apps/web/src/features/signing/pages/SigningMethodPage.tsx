@@ -1,7 +1,7 @@
 import { SignaturePlacementPreview } from "@/shared/ui/SignaturePlacementPreview";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { SigningSubject } from "../components/SigningSubject";
-import { Button, Tag, Tooltip } from "antd";
+import { Alert, Button, Tag, Tooltip } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -11,10 +11,13 @@ import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
 import { getSigningOverview, signingKeys } from "../api/signingConfig.api";
 import {
+  cancelSigningRequest,
   confirmSigningRequest,
   getSigningRequest,
   sendSigningRequest,
 } from "../api/signingFlow.api";
+import { getDeviceSession } from "../device/deviceApi";
+import { RemoteWaiting } from "../components/RemoteWaiting";
 import { PageState } from "@/shared/ui/PageState";
 import { cx } from "../lib/helpers";
 import { SIGN_METHODS } from "../lib/methods";
@@ -86,11 +89,25 @@ function MethodSelection({
   const completed = useRef(false);
   const requestKey = signingKeys.request(contractId, stepNo);
 
+  // Through the remote signing service the person confirms on a device: the request is only sent
+  // here, and the screen waits for the device (webhook, or the next poll) to bring the result.
+  const service = useQuery({
+    queryKey: ["signing-device", userId],
+    queryFn: getDeviceSession,
+    retry: false,
+    staleTime: 10 * 60_000,
+  });
+  const remoteMode = service.isSuccess && selected !== "IMAGE";
   const request = useQuery({
     queryKey: requestKey,
     queryFn: () => getSigningRequest(contractId, stepNo),
+    refetchInterval: (query) =>
+      query.state.data?.remote && query.state.data.status === "PENDING"
+        ? 3000
+        : false,
   });
   const current = request.data ?? null;
+  const waiting = !!current?.remote && current.status === "PENDING";
 
   useEffect(() => {
     if (current?.status !== "COMPLETED" || completed.current) return;
@@ -106,9 +123,14 @@ function MethodSelection({
   // binds the signature to the document digest and the signer's turn exactly as before.
   const sign = useMutation({
     mutationFn: async () => {
-      await sendSigningRequest(contractId, stepNo, selected);
+      const sent = await sendSigningRequest(contractId, stepNo, selected);
+      if (sent.remote) return sent;
       return confirmSigningRequest(contractId, stepNo);
     },
+    onSuccess: (value) => queryClient.setQueryData(requestKey, value),
+  });
+  const cancel = useMutation({
+    mutationFn: () => cancelSigningRequest(contractId, stepNo),
     onSuccess: (value) => queryClient.setQueryData(requestKey, value),
   });
 
@@ -154,54 +176,86 @@ function MethodSelection({
       </div>
 
       <div className={styles.layout}>
-        <section className={cx(shared.card, styles.methods)}>
-          <h2>{t("signMethod.methods.title")}</h2>
-          <div
-            className={styles.methodList}
-            role="radiogroup"
-            aria-label={t("signMethod.methods.label")}
-          >
-            {SIGN_METHODS.filter(
-              (method) =>
-                !(method === "IMAGE" && overview.digitalSignatureRequired),
-            ).map((method) => (
-              <MethodCard
-                key={method}
-                method={method}
-                lastUsed={overview.lastMethod === method}
-                selected={selected === method}
-                onSelect={() => setSelected(method)}
+        {waiting && current ? (
+          <RemoteWaiting
+            request={current}
+            cancelling={cancel.isPending}
+            resending={sign.isPending}
+            onCancel={() => cancel.mutate()}
+            onResend={() => {
+              setSelected(current.method);
+              sign.mutate();
+            }}
+          />
+        ) : (
+          <section className={cx(shared.card, styles.methods)}>
+            {current?.remote &&
+            ["REJECTED", "EXPIRED", "CANCELLED"].includes(current.status) ? (
+              <Alert
+                type={
+                  current.status === "CANCELLED" && !current.failure
+                    ? "info"
+                    : "warning"
+                }
+                showIcon
+                title={t(
+                  current.failure
+                    ? "remote.ended.FAILED"
+                    : `remote.ended.${current.status}`,
+                )}
+                data-testid="remote-ended"
               />
-            ))}
-          </div>
-          {sign.error ? (
-            <p role="alert" className={styles.error}>
-              {t(`errors.${errorCode}`, { defaultValue: t("errors.UNKNOWN") })}
-            </p>
-          ) : null}
-          <SignaturePlacementPreview config={overview} stepNo={step.stepNo} />
-          <SigningSubject contractId={contractId} />
-          <div className={styles.footer}>
-            <Link
-              to={`/contracts/${contractId}/signing`}
-              className={shared.btnSecondary}
+            ) : null}
+            <h2>{t("signMethod.methods.title")}</h2>
+            <div
+              className={styles.methodList}
+              role="radiogroup"
+              aria-label={t("signMethod.methods.label")}
             >
-              {t("signMethod.actions.back")}
-            </Link>
-            <Button
-              color="green"
-              variant="solid"
-              loading={sign.isPending}
-              disabled={
-                selected === "IMAGE" && overview.digitalSignatureRequired
-              }
-              onClick={() => sign.mutate()}
-              data-testid="sign-now"
-            >
-              {t("lite.signNow")}
-            </Button>
-          </div>
-        </section>
+              {SIGN_METHODS.filter(
+                (method) =>
+                  !(method === "IMAGE" && overview.digitalSignatureRequired),
+              ).map((method) => (
+                <MethodCard
+                  key={method}
+                  method={method}
+                  lastUsed={overview.lastMethod === method}
+                  selected={selected === method}
+                  onSelect={() => setSelected(method)}
+                />
+              ))}
+            </div>
+            {sign.error ? (
+              <p role="alert" className={styles.error}>
+                {t(`errors.${errorCode}`, {
+                  defaultValue: t("errors.UNKNOWN"),
+                })}
+              </p>
+            ) : null}
+            <SignaturePlacementPreview config={overview} stepNo={step.stepNo} />
+            <SigningSubject contractId={contractId} />
+            <div className={styles.footer}>
+              <Link
+                to={`/contracts/${contractId}/signing`}
+                className={shared.btnSecondary}
+              >
+                {t("signMethod.actions.back")}
+              </Link>
+              <Button
+                color="green"
+                variant="solid"
+                loading={sign.isPending}
+                disabled={
+                  selected === "IMAGE" && overview.digitalSignatureRequired
+                }
+                onClick={() => sign.mutate()}
+                data-testid="sign-now"
+              >
+                {t(remoteMode ? "remote.send" : "lite.signNow")}
+              </Button>
+            </div>
+          </section>
+        )}
       </div>
     </ContractSideLayout>
   );

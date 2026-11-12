@@ -1,0 +1,28 @@
+.page {
+  min-height: 100dvh;
+  background: var(--bg-root);
+  display: flex;
+  justify-content: center;
+}
+
+/* Phone width on a phone; a phone-sized column on a desktop screen. */
+.frame {
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.off {
+  max-width: 440px;
+  margin: 15vh auto 0;
+  padding: 24px;
+  text-align: center;
+}
+
+.off h1 {
+  font-size: 20px;
+}
+
+.off p {
+  color: var(--color-text-secondary);
+}

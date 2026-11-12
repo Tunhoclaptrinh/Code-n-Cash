@@ -141,14 +141,16 @@
       "current": "Digitisation and clause review"
     },
     "source": {
-      "location": "Illustrative section {{article}}",
+      "location": "Article {{article}} of the template",
       "vnd": "{{value}} million VND",
       "clause": {
         "TOTAL_VALUE": "The total contract value is <mark>{{value}}</mark>, paid in {{milestones}} milestones.",
         "DELIVERY": "Delivery milestone: <mark>{{value}}</mark>, delivery due <mark>{{date}}</mark>. Documents: {{documents}}.",
         "LATE_PENALTY": "Late delivery is penalised at <mark>{{rate}}% of the milestone value per day</mark>, with a total penalty of no more than <mark>{{cap}}% of the milestone value</mark>.",
         "APPROVALS": "Each payment needs the approval of <mark>{{approvers}} buyer role(s)</mark>."
-      }
+      },
+      "locationPage": "Article {{article}} · page {{page}} of the file",
+      "quote": "Quoted from the file: “{{quote}}”"
     },
     "result": {
       "title_one": "Digitised terms: {{count}} payment milestone",
@@ -159,19 +161,23 @@
         "dueDate": "Due",
         "documents": "Required documents",
         "penalty": "Late penalty",
-        "source": "Source"
+        "source": "Source",
+        "approval": "Approval"
       },
       "milestoneCode": "MS{{no}}",
       "dueUnknown": "Unknown",
       "penalty": {
         "NONE": "None",
-        "RATE": "{{rate}}%/day, cap {{cap}}%"
+        "RATE": "{{rate}}%/day, cap {{cap}}%",
+        "RATE_GRACE": "{{rate}}%/day after {{grace}} grace days, capped at {{cap}}%"
       },
       "sourceStatus": {
-        "MATCH": "Matches",
+        "MATCH": "From the workflow",
         "NEEDS_CONFIRMATION": "Needs confirmation",
         "CONFIRMED": "Confirmed"
-      }
+      },
+      "noApproval": "Not needed",
+      "documentBy": "{{document}} ({{side}})"
     },
     "ambiguity": {
       "title": "MS{{no}}: the contract only says \"after {{months}} months of warranty\"",

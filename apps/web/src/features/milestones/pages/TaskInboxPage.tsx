@@ -56,6 +56,7 @@ const KINDS: TaskKind[] = [
   "RESOLVE_DISPUTE",
   "TRANSFER_PAYMENT",
   "SIGN_CONTRACT",
+  "REVIEW_AMENDMENT",
   "COMPLETE_DRAFT",
   "REVIEW_EXCEPTION",
   "DECIDE_EXCEPTION",
@@ -430,7 +431,9 @@ export default function TaskInboxPage() {
     kind === "TRANSFER_PAYMENT" ||
     kind === "SIGN_CONTRACT"
       ? "success"
-      : kind === "RESOLVE_DISPUTE" || kind === "REVIEW_EXCEPTION"
+      : kind === "RESOLVE_DISPUTE" ||
+          kind === "REVIEW_EXCEPTION" ||
+          kind === "REVIEW_AMENDMENT"
         ? "warning"
         : kind === "FOLLOW_UP"
           ? "neutral"

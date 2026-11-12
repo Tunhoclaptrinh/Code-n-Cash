@@ -41,7 +41,8 @@
       "REVIEW_EXCEPTION": "Review exception",
       "DECIDE_EXCEPTION": "Decide proposal",
       "TRANSFER_PAYMENT": "Approve payment",
-      "FOLLOW_UP": "Open milestone"
+      "FOLLOW_UP": "Open milestone",
+      "REVIEW_AMENDMENT": "Review amendment"
     },
     "detail": {
       "reason": "Why it is on hold",
@@ -117,7 +118,9 @@
       "signing": "Signing",
       "participants": "Participants",
       "documents": "Original documents",
-      "smart": "Smart contract"
+      "smart": "Smart contract",
+      "amendments_one": "Amendments ({{count}})",
+      "amendments_other": "Amendments ({{count}})"
     },
     "noMilestones": "No milestones yet. They are created when the digitised terms are locked.",
     "terms": {
@@ -640,5 +643,58 @@
       "APP": "Recorded before files were kept, no file attached"
     },
     "noFileHint": "Only the document reference is known ({{fileName}}). Check the paper copy or the submitter's system before approving."
+  },
+  "notices": {
+    "MISSING_DUE_DATE": "{{milestones}} have no due date and are on hold. Add the agreed dates with an amendment.",
+    "SIGNED_AFTER_START": "The contract was fully signed {{days}} days after its start date. Check the schedule; amend it if needed.",
+    "PAST_END": "The contract ended on {{date}} with {{count}} milestones still open. Extend it with an amendment or settle the rest.",
+    "SETTLED": "Every milestone is paid or closed."
+  },
+  "amendments": {
+    "intro": "An amendment adjusts the schedule of a signed contract: the buyer proposes new due dates for milestones whose payment is not decided and/or a new end date, the supplier accepts or rejects. The signed terms stay as they are; only an accepted amendment takes effect, and lateness is recomputed from the new dates.",
+    "propose": "Propose amendment",
+    "empty": "No amendments yet.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "withdraw": "Withdraw",
+    "locked": "Payment decided",
+    "noDate": "No due date",
+    "digest": "Amendment digest",
+    "rejectTitle": "Reject {{code}}",
+    "rejectPlaceholder": "Reason for rejecting (required)",
+    "acceptConfirm": {
+      "title": "Accept {{code}}?",
+      "body": "Due dates and the end date change as proposed; the milestones are evaluated again, so lateness and penalties may change. This cannot be undone."
+    },
+    "state": {
+      "PROPOSED": "Awaiting supplier",
+      "ACCEPTED": "In force",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "proposed": "Proposed by {{name}} at {{at}}",
+    "decided": {
+      "ACCEPTED": "accepted by {{name}} at {{at}}",
+      "REJECTED": "rejected by {{name}} at {{at}}",
+      "WITHDRAWN": "withdrawn by {{name}} at {{at}}"
+    },
+    "change": {
+      "endDate": "End date: {{from}} → {{to}}",
+      "dueDate": "{{milestone}} {{name}}: {{from}} → {{to}}"
+    },
+    "fields": {
+      "reason": "Reason",
+      "endDate": "New end date",
+      "milestone": "Milestone",
+      "currentDue": "Current due date",
+      "newDue": "New due date"
+    },
+    "form": {
+      "title": "Propose amendment {{code}}",
+      "submit": "Send to supplier",
+      "notice": "Change only what both parties agreed. New dates keep the milestone order and stay within the contract period; a milestone whose payment is decided keeps its date.",
+      "reasonRequired": "Enter the reason.",
+      "endDateHint": "In force: {{date}}. Leave it unless the contract is extended."
+    }
   }
 }

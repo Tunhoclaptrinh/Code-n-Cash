@@ -180,7 +180,8 @@
     "DECIDE_EXCEPTION": "Duyệt đề xuất ngoại lệ",
     "COMPLETE_DRAFT": "Hoàn tất hồ sơ hợp đồng",
     "TRANSFER_PAYMENT": "Duyệt lệnh chi",
-    "FOLLOW_UP": "Theo dõi mốc"
+    "FOLLOW_UP": "Theo dõi mốc",
+    "REVIEW_AMENDMENT": "Xem xét phụ lục hợp đồng"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "Loại chứng từ này do bên kia tạo (ma trận thẩm quyền 4.2).",
@@ -238,6 +239,7 @@
     "INVALID_INPUT": "Dữ liệu gửi lên không hợp lệ.",
     "INVALID_METHOD": "Phương thức ký không hợp lệ.",
     "INVALID_PENALTY": "Tỷ lệ phạt hoặc mức trần không hợp lệ.",
+    "PENALTY_INCONSISTENT": "Mức phạt mỗi ngày và trần phạt phải cùng bằng 0 hoặc cùng lớn hơn 0.",
     "INVALID_POLICY": "Chính sách phê duyệt không hợp lệ.",
     "INVALID_RESOLUTION": "Cách xử lý tranh chấp không hợp lệ.",
     "INVALID_REVIEWER": "Chọn cán bộ hợp đồng đang hoạt động của bên mua.",
@@ -360,7 +362,14 @@
     "INVOICE_AMOUNT_MISMATCH": "Tổng tiền hoá đơn phải bằng giá trị mốc.",
     "INVOICE_BEFORE_SIGNING": "Hoá đơn không thể lập trước ngày ký hợp đồng.",
     "INVOICE_DATE_FUTURE": "Ngày lập hoá đơn không được ở tương lai.",
-    "INVOICE_DUPLICATE": "Hoá đơn này (cùng người bán, ký hiệu và số) đã được dùng cho một chứng từ khác."
+    "INVOICE_DUPLICATE": "Hoá đơn này (cùng người bán, ký hiệu và số) đã được dùng cho một chứng từ khác.",
+    "CANNOT_AMEND": "Chỉ cán bộ hợp đồng hoặc chủ hợp đồng của bên mua được lập phụ lục.",
+    "DATA_PACK_LOCKED": "Hợp đồng của dữ liệu ban tổ chức được giữ nguyên, không lập phụ lục.",
+    "AMENDMENT_PENDING": "Hợp đồng đang có một phụ lục chờ nhà cung cấp trả lời.",
+    "AMENDMENT_EMPTY": "Phụ lục chưa thay đổi hạn mốc hay ngày kết thúc nào.",
+    "AMENDMENT_NOT_FOUND": "Không tìm thấy phụ lục.",
+    "AMENDMENT_CLOSED": "Phụ lục này đã được xử lý.",
+    "CANNOT_DECIDE_AMENDMENT": "Chỉ nhà cung cấp của hợp đồng trả lời phụ lục."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

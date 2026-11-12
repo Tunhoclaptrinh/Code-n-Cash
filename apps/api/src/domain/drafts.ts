@@ -37,7 +37,7 @@ import type {
   SourceClauseKind,
   UploadFormOptions,
 } from "./types";
-import { CONTRACT_TYPES, WORKFLOW_BY_TYPE } from "./vocabulary";
+import { AUTHORITY, CONTRACT_TYPES, WORKFLOW_BY_TYPE } from "./vocabulary";
 import { draftProblems, validIsoDate } from "../common/field-validation";
 import { pinnedVersion, versionRuleSet } from "./rule-versions";
 
@@ -596,6 +596,54 @@ const CLAUSE_OF: Record<string, SourceClauseKind | null> = {
 };
 
 /**
+ * The articles of the system's contract template (apps/engine/templates/sample-*.json): 3 value,
+ * 4 schedule and milestones, 6 approvals, 8 late penalty. A page and quote are given only when
+ * the reviewed extraction of the uploaded file found the value there; nothing is made up.
+ */
+function sourceClauses(
+  ctx: Ctx,
+  code: string,
+  draft: DraftRecord,
+): Digitization["clauses"] {
+  const proposal = [...(ctx.t["extraction-proposals"] ?? [])]
+    .reverse()
+    .find(
+      (row) =>
+        row.contractCode === code &&
+        row.confirmedBy &&
+        row.documentSha256 === draft.file.sha256,
+    ) as
+    | {
+        fields?: {
+          path: string;
+          evidence: { page: number; quote: string } | null;
+        }[];
+      }
+    | undefined;
+  const found = (path: string) =>
+    proposal?.fields?.find((field) => field.path === path)?.evidence ?? null;
+  const clause = (
+    kind: SourceClauseKind,
+    article: number,
+    path?: string,
+  ): Digitization["clauses"][number] => {
+    const evidence = path ? found(path) : null;
+    return {
+      kind,
+      article,
+      page: evidence?.page ?? null,
+      quote: evidence?.quote ?? null,
+    };
+  };
+  return [
+    clause("TOTAL_VALUE", 3, "valueMillion"),
+    clause("DELIVERY", 4),
+    clause("APPROVALS", 6),
+    clause("LATE_PENALTY", 8, "penaltyRatePct"),
+  ];
+}
+
+/**
  * Simulated extraction of the contract terms: milestones are cut from the workflow of the
  * contract type; the warranty term is relative in the text, so its date needs confirmation.
  */
@@ -627,8 +675,20 @@ export function digitization(ctx: Ctx, code: string): Digitization {
       paymentPercent: stage.paymentPercent,
       dueDate: warranty ? null : schedule[stage.sequence],
       eventTypes: stage.eventTypes,
+      documents: stage.eventTypes.map((eventType) => ({
+        eventType,
+        side: AUTHORITY[eventType],
+      })),
+      approvalRoles:
+        stage.approval === "NONE"
+          ? []
+          : APPROVAL_ROLES_BY_POLICY[draft.approvalPolicy],
       penalty: stage.latePenalty
-        ? { ratePct: draft.penaltyRatePct, capPct: draft.maxPenaltyPct }
+        ? {
+            ratePct: draft.penaltyRatePct,
+            capPct: draft.maxPenaltyPct,
+            graceDays: draft.graceDays,
+          }
         : null,
       source: warranty ? "NEEDS_CONFIRMATION" : "MATCH",
       sourceClause: CLAUSE_OF[stage.type] ?? null,
@@ -645,12 +705,7 @@ export function digitization(ctx: Ctx, code: string): Digitization {
   return {
     contractCode: code,
     contractValueMillion: contract.contract_value_vnd_mn,
-    clauses: [
-      { kind: "TOTAL_VALUE", article: 3, page: 4 },
-      { kind: "DELIVERY", article: 5, page: 6 },
-      { kind: "LATE_PENALTY", article: 9, page: 10 },
-      { kind: "APPROVALS", article: 11, page: 12 },
-    ],
+    clauses: sourceClauses(ctx, code, draft),
     milestones,
     approvers: APPROVAL_ROLES_BY_POLICY[draft.approvalPolicy],
     requiredApprovals: APPROVAL_ROLES_BY_POLICY[draft.approvalPolicy].length,

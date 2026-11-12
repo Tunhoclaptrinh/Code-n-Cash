@@ -20,6 +20,7 @@ import type {
   Digitization,
   EvidenceDocument,
   InvoiceData,
+  Amendment,
 } from "./types";
 import type { LocalProof } from "../trust/types";
 
@@ -41,6 +42,7 @@ export const TABLE = {
   notes: "notes",
   exceptions: "exceptions",
   payments: "payments",
+  amendments: "amendments",
 } as const;
 
 export type Tables = Record<string, RecordEntity[]>;
@@ -187,6 +189,8 @@ export type ContractRecord = RecordEntity &
     origin: Origin;
     /** DRAFT until the terms are confirmed, SIGNING until every signer signed, then ACTIVE. */
     lifecycle: "DRAFT" | "SIGNING" | "ACTIVE";
+    /** End date in force after an accepted amendment; the signed end_date never changes. */
+    amendedEndDate?: string;
   };
 
 export type MilestoneRecord = RecordEntity &
@@ -275,6 +279,7 @@ export interface AttachmentRecord extends RecordEntity, Omit<Attachment, "id"> {
 export type NoteRecord = RecordEntity & NoteRow;
 export type ExceptionRecord = RecordEntity & ExceptionRequest;
 export type PaymentRecord = RecordEntity & Payment;
+export type AmendmentRecord = RecordEntity & Amendment;
 
 /** Stage of a Data Pack workflow, as found in milestones.csv. */
 export interface StageTemplate {

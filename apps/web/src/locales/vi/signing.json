@@ -141,14 +141,16 @@
       "current": "Số hóa và rà soát điều khoản"
     },
     "source": {
-      "location": "Mục minh họa {{article}}",
+      "location": "Điều {{article}} của văn bản mẫu",
       "vnd": "{{value}} triệu đồng",
       "clause": {
         "TOTAL_VALUE": "Tổng giá trị hợp đồng là <mark>{{value}}</mark>, thanh toán theo {{milestones}} mốc.",
         "DELIVERY": "Mốc giao hàng: <mark>{{value}}</mark>, hạn giao <mark>{{date}}</mark>. Chứng từ gồm {{documents}}.",
         "LATE_PENALTY": "Giao chậm bị phạt <mark>{{rate}}% giá trị mốc mỗi ngày</mark>, tổng mức phạt không quá <mark>{{cap}}% giá trị mốc</mark>.",
         "APPROVALS": "Mỗi lần thanh toán cần phê duyệt của <mark>{{approvers}} vai trò</mark> phía Bên mua."
-      }
+      },
+      "locationPage": "Điều {{article}} · trang {{page}} của tệp",
+      "quote": "Trích từ tệp: “{{quote}}”"
     },
     "result": {
       "title_other": "Bản số hóa: {{count}} mốc thanh toán",
@@ -158,19 +160,23 @@
         "dueDate": "Hạn",
         "documents": "Chứng từ bắt buộc",
         "penalty": "Phạt chậm",
-        "source": "Nguồn"
+        "source": "Nguồn",
+        "approval": "Phê duyệt"
       },
       "milestoneCode": "MS{{no}}",
       "dueUnknown": "Chưa rõ",
       "penalty": {
         "NONE": "Không",
-        "RATE": "{{rate}}%/ngày, trần {{cap}}%"
+        "RATE": "{{rate}}%/ngày, trần {{cap}}%",
+        "RATE_GRACE": "{{rate}}%/ngày sau {{grace}} ngày ân hạn, trần {{cap}}%"
       },
       "sourceStatus": {
-        "MATCH": "Khớp",
+        "MATCH": "Theo quy trình mẫu",
         "NEEDS_CONFIRMATION": "Cần xác nhận",
         "CONFIRMED": "Đã xác nhận"
-      }
+      },
+      "noApproval": "Không cần",
+      "documentBy": "{{document}} ({{side}})"
     },
     "ambiguity": {
       "title": "MS{{no}}: hợp đồng chỉ ghi \"sau {{months}} tháng bảo hành\"",

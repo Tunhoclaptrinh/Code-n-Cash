@@ -303,6 +303,27 @@ const WRITE_ACTIONS = [
     reaches: "MILESTONE_NOT_FOUND",
   },
   {
+    name: "proposeAmendment",
+    module: "amendments",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", reason: "x" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "decideAmendment",
+    module: "amendments",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", amendmentId: "x", choice: "ACCEPT" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "withdrawAmendment",
+    module: "amendments",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", amendmentId: "x" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
     name: "openDispute",
     module: "disputes",
     allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
@@ -408,7 +429,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 18);
+  assert.equal(WRITE_ACTIONS.length, 21);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -1301,6 +1322,203 @@ test("evidence: an invoice states its own data, matches the milestone and backs 
     "INVOICE_DUPLICATE",
     other,
     supplierOf(w, "CT0025"),
+  );
+});
+
+test("amendment: the buyer proposes a new schedule, the supplier agrees, the engine re-evaluates and the signed terms still verify", async () => {
+  const w = await world();
+  const code = "CT0104"; // demo maintenance contract: #1 paid, #2 overdue, #3 open
+  const propose = (user, body) =>
+    w.call(user, "amendments", "proposeAmendment", {
+      contractId: code,
+      ...body,
+    });
+  const decide = (user, body) =>
+    w.call(user, "amendments", "decideAmendment", {
+      contractId: code,
+      ...body,
+    });
+  const due = (n) => w.milestone(code, n).due_date;
+  const [first, second, third] = [due(1), due(2), due(3)];
+  const end = w.tbl("contracts").find((c) => c.contract_id === code).end_date;
+  const later = (date, days) =>
+    new Date(Date.parse(date) + days * 86_400_000).toISOString().slice(0, 10);
+  const lateBefore = w.evaluation(w.milestone(code, 2).milestone_id);
+
+  // The organiser's contracts are sealed as given.
+  await expectCode(
+    w.call(ownerOf(w, "CT0001"), "amendments", "proposeAmendment", {
+      contractId: "CT0001",
+      reason: "x",
+      endDate: "2030-01-01",
+    }),
+    "DATA_PACK_LOCKED",
+  );
+  await expectCode(
+    propose(U.SUPPLIER, { reason: "x", endDate: later(end, 30) }),
+    "CANNOT_AMEND",
+  );
+  await expectCode(
+    propose(U.LEGAL, { reason: "", endDate: later(end, 30) }),
+    "NOTE_REQUIRED",
+  );
+  await expectCode(propose(U.LEGAL, { reason: "x" }), "AMENDMENT_EMPTY");
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 2, dueDate: second }],
+    }),
+    "AMENDMENT_EMPTY",
+  );
+  // A paid milestone keeps its date; dates stay in order inside the period in force.
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 1, dueDate: later(first, 1) }],
+    }),
+    "MILESTONE_CLOSED",
+  );
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 2, dueDate: later(third, 1) }],
+    }),
+    "DUE_DATE_OUT_OF_RANGE",
+  );
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 3, dueDate: later(end, 1) }],
+    }),
+    "DUE_DATE_OUT_OF_RANGE",
+  );
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      endDate: w.tbl("contracts").find((c) => c.contract_id === code)
+        .start_date,
+    }),
+    "INVALID_DATES",
+  );
+
+  // PL-01: service completion moves 40 days later.
+  const moved = later(second, 40) < third ? later(second, 40) : third;
+  const pl1 = await ok(w, U.LEGAL, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Hạ tầng của bên mua chậm bàn giao",
+    dueDates: [{ sequence: 2, dueDate: moved }],
+  });
+  assert.equal(pl1.state, "PROPOSED");
+  assert.deepEqual(
+    pl1.dueDates.map((d) => [d.sequence, d.from, d.to]),
+    [[2, second, moved]],
+  );
+  assert.equal(due(2), second, "nothing changes before the supplier agrees");
+  await expectCode(
+    propose(U.OWNER, { reason: "y", endDate: later(end, 5) }),
+    "AMENDMENT_PENDING",
+  );
+  await expectCode(
+    decide(U.LEGAL, { amendmentId: pl1.id, choice: "ACCEPT" }),
+    "CANNOT_DECIDE_AMENDMENT",
+  );
+  const supplierTasks = await w.call(U.SUPPLIER, "tasks", "getTaskInbox");
+  assert.ok(
+    supplierTasks.some(
+      (t) => t.kind === "REVIEW_AMENDMENT" && t.contractId === code,
+    ),
+  );
+  await expectCode(
+    decide(U.SUPPLIER, { amendmentId: pl1.id, choice: "REJECT" }),
+    "NOTE_REQUIRED",
+  );
+  const accepted = await ok(w, U.SUPPLIER, "amendments", "decideAmendment", {
+    contractId: code,
+    amendmentId: pl1.id,
+    choice: "ACCEPT",
+  });
+  assert.equal(accepted.state, "ACCEPTED");
+  assert.equal(due(2), moved);
+  assert.ok(
+    w.evaluation(w.milestone(code, 2).milestone_id).runId !== lateBefore.runId,
+    "the engine evaluated the new schedule",
+  );
+  await expectCode(
+    decide(U.SUPPLIER, { amendmentId: pl1.id, choice: "ACCEPT" }),
+    "AMENDMENT_CLOSED",
+  );
+
+  // PL-02: a later end date; the signed end date stays in the signed terms.
+  const pl2 = await ok(w, U.OWNER, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Gia hạn để nghiệm thu",
+    endDate: later(end, 60),
+    dueDates: [{ sequence: 3, dueDate: later(end, 45) }],
+  });
+  await ok(w, U.SUPPLIER, "amendments", "decideAmendment", {
+    contractId: code,
+    amendmentId: pl2.id,
+    choice: "ACCEPT",
+    note: "Đồng ý",
+  });
+  const overview = await w.call(
+    U.OWNER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  assert.equal(overview.contract.endDate, later(end, 60));
+  assert.equal(overview.contract.signedEndDate, end);
+  assert.equal(
+    w.tbl("contracts").find((c) => c.contract_id === code).end_date,
+    end,
+  );
+  assert.deepEqual(
+    overview.amendments.map((a) => [a.number, a.state]),
+    [
+      [2, "ACCEPTED"],
+      [1, "ACCEPTED"],
+    ],
+  );
+  assert.match(overview.amendments[0].digest, /^[a-f0-9]{64}$/);
+  const smart = await w.call(U.OWNER, "contracts", "getSmartContract", code);
+  assert.equal(smart.binding.intact, true, "the signatures still verify");
+
+  // PL-03 withdrawn by the buyer; a rejection needs a reason and changes nothing.
+  const pl3 = await ok(w, U.LEGAL, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Thử",
+    endDate: later(end, 90),
+  });
+  await ok(w, U.LEGAL, "amendments", "withdrawAmendment", {
+    contractId: code,
+    amendmentId: pl3.id,
+  });
+  const pl4 = await ok(w, U.LEGAL, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Thử lần nữa",
+    endDate: later(end, 90),
+  });
+  await ok(w, U.SUPPLIER, "amendments", "decideAmendment", {
+    contractId: code,
+    amendmentId: pl4.id,
+    choice: "REJECT",
+    note: "Không đồng ý",
+  });
+  const after = await w.call(
+    U.SUPPLIER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  assert.equal(after.contract.endDate, later(end, 60));
+  assert.deepEqual(
+    after.amendments.map((a) => a.state),
+    ["REJECTED", "WITHDRAWN", "ACCEPTED", "ACCEPTED"],
+  );
+  assert.ok(
+    w.tbl("audit").filter((e) => e.detail?.kind === "AMENDMENT").length >= 7,
+    "every step is in the audit chain",
   );
 });
 
@@ -3350,6 +3568,9 @@ test("draft: terms are validated exactly (no floats for money, bounded penalty, 
     // Luật Thương mại 2005, Điều 301: a commercial penalty may not exceed 8%.
     [{ maxPenaltyPct: "8.01" }, "PENALTY_OVER_LEGAL_CAP"],
     [{ maxPenaltyPct: "12.00" }, "PENALTY_OVER_LEGAL_CAP"],
+    // A rate without a cap, or a cap without a rate, is a penalty that can never apply.
+    [{ maxPenaltyPct: "0.00" }, "PENALTY_INCONSISTENT"],
+    [{ penaltyRatePct: "0" }, "PENALTY_INCONSISTENT"],
     [{ type: "LEASE" }, "INVALID_TYPE"],
     [{ approvalPolicy: "NO_APPROVAL" }, "INVALID_POLICY"],
     [{ supplierId: "B010" }, "INVALID_SUPPLIER"], // a buyer is not a supplier

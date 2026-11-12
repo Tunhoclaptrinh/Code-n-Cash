@@ -742,6 +742,32 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
       final.dueDate < saved.endDate,
   );
   assert.equal(digitized.suggestedDueDate, saved.endDate);
+  // Each milestone says who approves it and which side records each document.
+  for (const m of digitized.milestones) {
+    assert.deepEqual(m.approvalRoles, ["CONTRACT_OWNER", "FINANCE_APPROVER"]);
+    assert.deepEqual(
+      m.documents.map((d) => d.eventType),
+      m.eventTypes,
+    );
+  }
+  assert.deepEqual(
+    digitized.milestones[1].documents.find((d) => d.eventType === "INVOICE"),
+    { eventType: "INVOICE", side: "SUPPLIER" },
+  );
+  assert.equal(digitized.milestones[1].penalty.graceDays, 9);
+  // Articles of the system's template; a page and quote only where the extraction found the value.
+  assert.deepEqual(
+    digitized.clauses.map((c) => [c.kind, c.article]),
+    [
+      ["TOTAL_VALUE", 3],
+      ["DELIVERY", 4],
+      ["APPROVALS", 6],
+      ["LATE_PENALTY", 8],
+    ],
+  );
+  const value = digitized.clauses[0];
+  assert.ok(value.page >= 1 && value.quote.length > 0, JSON.stringify(value));
+  assert.equal(digitized.clauses[1].quote, null);
   assert.ok(digitized.milestones[3].relativeTermMonths >= 1);
   await placeActualSignatures(saved.code);
   // Before the final acceptance, or after the contract has ended.

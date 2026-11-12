@@ -347,7 +347,8 @@
       "contract-templates:update": "Edit contract templates",
       "contract-templates:delete": "Delete contract templates",
       "contract-templates:import": "Import contract templates",
-      "contract-templates:export": "Export contract templates"
+      "contract-templates:export": "Export contract templates",
+      "contracts:amend": "Propose and answer contract amendments"
     },
     "scopeLabel": "Scope",
     "searchPlaceholder": "Search permission name, key or module"

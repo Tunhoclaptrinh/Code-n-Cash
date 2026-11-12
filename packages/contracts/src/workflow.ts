@@ -212,7 +212,10 @@ export interface ContractRow {
   valueMillion: string;
   signingDate: string | null;
   startDate: string;
+  /** The end date in force: the signed one, or the one of the latest accepted amendment. */
   endDate: string;
+  /** The end date as signed, when an amendment has moved it; null otherwise. */
+  signedEndDate: string | null;
   approvalPolicy: ApprovalPolicy;
   status: ContractStatus;
   milestones: MilestoneCounts;
@@ -601,7 +604,58 @@ export interface ContractOverview {
   timeline: TimelineEntry[];
   signing: SigningSummary | null;
   lifecycle: ContractLifecycle;
+  /** Amendments (phụ lục) of the schedule, newest first. */
+  amendments: Amendment[];
+  /** What needs attention on the contract as a whole, decided by the API. */
+  notices: ContractNotice[];
+  /** The signed-in user may propose an amendment now / accept or reject the open one. */
+  canProposeAmendment: boolean;
+  canDecideAmendment: boolean;
+  canWithdrawAmendment: boolean;
 }
+
+export type AmendmentState = "PROPOSED" | "ACCEPTED" | "REJECTED" | "WITHDRAWN";
+
+/**
+ * An amendment (phụ lục) to a signed contract's schedule: the buyer proposes new due dates for open
+ * milestones and/or a new end date, with a reason; the supplier accepts or rejects it. The signed
+ * terms stay as they were (their digest still verifies); an accepted amendment moves the milestone
+ * due dates the engine reads and the end date in force, and its own digest is kept.
+ */
+export interface Amendment {
+  id: string;
+  contractCode: string;
+  /** PL-01, PL-02, ... within the contract. */
+  number: number;
+  state: AmendmentState;
+  reason: string;
+  endDate: { from: string; to: string } | null;
+  dueDates: {
+    sequence: number;
+    milestoneId: string;
+    /** Null when the milestone had no due date yet. */
+    from: string | null;
+    to: string;
+  }[];
+  proposedBy: { id: string; name: string };
+  proposedAt: string;
+  decidedBy: { id: string; name: string } | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  /** SHA-256 of the canonical change set the parties agreed to. */
+  digest: string;
+}
+
+/**
+ * MISSING_DUE_DATE: open milestones without a due date (they stay on hold until an amendment);
+ * SIGNED_AFTER_START: the last signature came after the start date; PAST_END: the end date has
+ * passed with milestones still open; SETTLED: every milestone is paid or closed.
+ */
+export type ContractNotice =
+  | { code: "MISSING_DUE_DATE"; milestones: number[] }
+  | { code: "SIGNED_AFTER_START"; days: number }
+  | { code: "PAST_END"; date: string; open: number }
+  | { code: "SETTLED" };
 
 /**
  * The contract as a state machine: drafted, signed, each payment milestone settled (paid, or closed by
@@ -828,6 +882,7 @@ export type TaskKind =
   | "DECIDE_EXCEPTION"
   | "COMPLETE_DRAFT"
   | "TRANSFER_PAYMENT"
+  | "REVIEW_AMENDMENT"
   | "FOLLOW_UP";
 
 /**
@@ -1068,6 +1123,7 @@ export type ActivityAction =
     }
   | { kind: "SIGNATURE"; stepNo: number; totalSteps: number; isFinal: boolean }
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
+  | { kind: "AMENDMENT"; state: AmendmentState; number: number }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
   | { kind: "PAYMENT"; amountMillion: string }
   | {
@@ -1447,10 +1503,15 @@ export type SourceStatus = "MATCH" | "NEEDS_CONFIRMATION" | "CONFIRMED";
 export type SourceClauseKind =
   "TOTAL_VALUE" | "DELIVERY" | "LATE_PENALTY" | "APPROVALS";
 
+/**
+ * Where a term sits in the contract text: the article of the system's contract template, and, when
+ * the reviewed extraction found the value in the uploaded file, its page and the line quoted.
+ */
 export interface SourceClause {
   kind: SourceClauseKind;
   article: number;
-  page: number;
+  page: number | null;
+  quote: string | null;
 }
 
 export interface DigitizedMilestone {
@@ -1460,7 +1521,15 @@ export interface DigitizedMilestone {
   paymentPercent: string;
   dueDate: string | null;
   eventTypes: BusinessEventType[];
-  penalty: { ratePct: string; capPct: string } | null;
+  /** Which side records each required document (spec 4.2). */
+  documents: { eventType: BusinessEventType; side: Side }[];
+  /** Roles that approve this milestone; empty when the stage needs no approval. */
+  approvalRoles: ApprovalRole[];
+  penalty: { ratePct: string; capPct: string; graceDays: number } | null;
+  /**
+   * MATCH: cut from the workflow of the contract type, as stated in the contract's schedule;
+   * NEEDS_CONFIRMATION: stated as a relative term, its date is entered; CONFIRMED: entered.
+   */
   source: SourceStatus;
   sourceClause: SourceClauseKind | null;
   relativeTermMonths: number | null;

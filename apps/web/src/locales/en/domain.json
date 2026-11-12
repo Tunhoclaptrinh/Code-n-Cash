@@ -180,7 +180,8 @@
     "DECIDE_EXCEPTION": "Decide exception proposal",
     "COMPLETE_DRAFT": "Complete contract file",
     "TRANSFER_PAYMENT": "Approve payment order",
-    "FOLLOW_UP": "Follow up a milestone"
+    "FOLLOW_UP": "Follow up a milestone",
+    "REVIEW_AMENDMENT": "Review a contract amendment"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "The other party creates this document (authority matrix 4.2).",
@@ -238,6 +239,7 @@
     "INVALID_INPUT": "Invalid input.",
     "INVALID_METHOD": "Invalid signing method.",
     "INVALID_PENALTY": "Invalid penalty rate or cap.",
+    "PENALTY_INCONSISTENT": "The daily rate and the cap must both be 0 or both above 0.",
     "INVALID_POLICY": "Invalid approval policy.",
     "INVALID_RESOLUTION": "Invalid way to settle the dispute.",
     "INVALID_REVIEWER": "Choose an active contract officer from the buyer organization.",
@@ -360,7 +362,14 @@
     "INVOICE_AMOUNT_MISMATCH": "The invoice total must equal the milestone value.",
     "INVOICE_BEFORE_SIGNING": "An invoice cannot be issued before the contract was signed.",
     "INVOICE_DATE_FUTURE": "The issue date cannot be in the future.",
-    "INVOICE_DUPLICATE": "This invoice (same seller, symbol and number) already backs another document."
+    "INVOICE_DUPLICATE": "This invoice (same seller, symbol and number) already backs another document.",
+    "CANNOT_AMEND": "Only the buyer's contract officer or owner proposes amendments.",
+    "DATA_PACK_LOCKED": "The organiser's contracts stay as given; they cannot be amended.",
+    "AMENDMENT_PENDING": "An amendment is already waiting for the supplier.",
+    "AMENDMENT_EMPTY": "The amendment changes no due date or end date.",
+    "AMENDMENT_NOT_FOUND": "Amendment not found.",
+    "AMENDMENT_CLOSED": "This amendment has already been handled.",
+    "CANNOT_DECIDE_AMENDMENT": "Only the contract's supplier answers an amendment."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

@@ -341,6 +341,23 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
       actions.castVote(ctx, input(value)),
     ),
   },
+  amendments: {
+    proposeAmendment: write(
+      "contracts:amend",
+      "proposeAmendment",
+      (ctx, [value]) => actions.proposeAmendment(ctx, input(value)),
+    ),
+    decideAmendment: write(
+      "contracts:amend",
+      "decideAmendment",
+      (ctx, [value]) => actions.decideAmendment(ctx, input(value)),
+    ),
+    withdrawAmendment: write(
+      "contracts:amend",
+      "withdrawAmendment",
+      (ctx, [value]) => actions.withdrawAmendment(ctx, input(value)),
+    ),
+  },
   disputes: {
     getDispute: read("disputes:read", (ctx, [id, sequence], dryRun) =>
       views.disputeView(

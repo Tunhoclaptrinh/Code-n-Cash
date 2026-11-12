@@ -347,7 +347,8 @@
       "contract-templates:update": "Sửa mẫu hợp đồng",
       "contract-templates:delete": "Xoá mẫu hợp đồng",
       "contract-templates:import": "Nhập mẫu hợp đồng",
-      "contract-templates:export": "Xuất mẫu hợp đồng"
+      "contract-templates:export": "Xuất mẫu hợp đồng",
+      "contracts:amend": "Lập và trả lời phụ lục hợp đồng"
     },
     "scopeLabel": "Phạm vi",
     "searchPlaceholder": "Tìm theo tên quyền, mã quyền, nhóm (không cần dấu)"

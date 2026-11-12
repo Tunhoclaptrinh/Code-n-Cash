@@ -26,6 +26,7 @@ import type {
   VerificationResult,
   DashboardView,
   InvoiceData,
+  Amendment,
 } from "@codecash/contracts";
 import { ApiError as HttpError } from "@codecash/api-client";
 import { ApiError } from "./client";
@@ -163,6 +164,25 @@ export const castVote = (
   );
 
 /* ------------------------------- disputes ------------------------------- */
+
+/* ------------------------------ amendments ------------------------------ */
+
+export const proposeAmendment = (input: {
+  contractId: string;
+  reason: string;
+  endDate: string | null;
+  dueDates: { sequence: number; dueDate: string }[];
+}) => workflowCall<Amendment>("amendments", "proposeAmendment", [input]);
+export const decideAmendment = (input: {
+  contractId: string;
+  amendmentId: string;
+  choice: "ACCEPT" | "REJECT";
+  note?: string;
+}) => workflowCall<Amendment>("amendments", "decideAmendment", [input]);
+export const withdrawAmendment = (input: {
+  contractId: string;
+  amendmentId: string;
+}) => workflowCall<Amendment>("amendments", "withdrawAmendment", [input]);
 
 export const getDispute = (contractId: string, sequence: number) =>
   workflowCall<DisputeView>("disputes", "getDispute", [contractId, sequence]);

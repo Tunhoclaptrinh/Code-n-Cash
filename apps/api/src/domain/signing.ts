@@ -381,31 +381,33 @@ async function complete(
   if (record.steps.some((s) => s.status !== "SIGNED"))
     return outcome(ctx, plain(request), { audit });
   const contract = ctx.contract(request.contractCode);
-  const signingMilestone = ctx
+  // Every milestone whose conditions include the signature gets it (an app workflow may have several).
+  const signedMilestones = ctx
     .milestonesOf(contract.contract_id)
-    .find((m) => m.required_event_types.split(";").includes("CONTRACT_SIGNED"));
+    .filter((m) =>
+      m.required_event_types.split(";").includes("CONTRACT_SIGNED"),
+    );
+  const signingMilestone = signedMilestones[0];
   contract.lifecycle = "ACTIVE";
   contract.signing_date = signedAt.slice(0, 10);
   contract.initial_contract_status = "ACTIVE";
   contract.version += 1;
   const draft = ctx.draft(contract.contract_id);
   if (draft) draft.state = "ACTIVE";
-  const events = signingMilestone
-    ? [
-        newEvent(
-          ctx,
-          signingMilestone,
-          "CONTRACT_SIGNED",
-          "CONFIRMED",
-          contract.buyer_id,
-          {
-            note: `Signed by ${record.steps.length} signers in order.`,
-            fileName: record.fileName,
-            at: signedAt,
-          },
-        ),
-      ]
-    : [];
+  const events = signedMilestones.map((milestone) =>
+    newEvent(
+      ctx,
+      milestone,
+      "CONTRACT_SIGNED",
+      "CONFIRMED",
+      contract.buyer_id,
+      {
+        note: `Signed by ${record.steps.length} signers in order.`,
+        fileName: record.fileName,
+        at: signedAt,
+      },
+    ),
+  );
   return outcome(ctx, plain(request), {
     events,
     evaluate: true,

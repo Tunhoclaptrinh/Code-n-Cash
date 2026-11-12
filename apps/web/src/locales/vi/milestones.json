@@ -41,7 +41,8 @@
       "REVIEW_EXCEPTION": "Xem xét ngoại lệ",
       "DECIDE_EXCEPTION": "Duyệt đề xuất",
       "TRANSFER_PAYMENT": "Duyệt lệnh chi",
-      "FOLLOW_UP": "Xem mốc"
+      "FOLLOW_UP": "Xem mốc",
+      "REVIEW_AMENDMENT": "Xem xét phụ lục"
     },
     "detail": {
       "reason": "Lý do đang giữ",
@@ -117,7 +118,9 @@
       "signing": "Ký hợp đồng",
       "participants": "Người tham gia",
       "documents": "Tài liệu gốc",
-      "smart": "Hợp đồng thông minh"
+      "smart": "Hợp đồng thông minh",
+      "amendments_one": "Phụ lục ({{count}})",
+      "amendments_other": "Phụ lục ({{count}})"
     },
     "noMilestones": "Hợp đồng chưa có mốc. Mốc được tạo khi khoá điều khoản số hoá.",
     "terms": {
@@ -640,5 +643,58 @@
       "APP": "Chứng từ ghi trước khi hệ thống lưu tệp, không kèm tệp"
     },
     "noFileHint": "Chỉ có mã tài liệu ({{fileName}}). Đối chiếu với bản giấy hoặc hệ thống của bên nộp trước khi duyệt."
+  },
+  "notices": {
+    "MISSING_DUE_DATE": "{{milestones}} chưa có hạn nên đang bị giữ. Lập phụ lục để bổ sung hạn đã thống nhất.",
+    "SIGNED_AFTER_START": "Hợp đồng ký xong sau ngày bắt đầu {{days}} ngày. Kiểm tra lại lịch mốc; nếu cần, lập phụ lục điều chỉnh.",
+    "PAST_END": "Hợp đồng đã hết hạn ngày {{date}} nhưng còn {{count}} mốc chưa xong. Gia hạn bằng phụ lục hoặc xử lý các mốc còn lại.",
+    "SETTLED": "Mọi mốc đã được chi hoặc đã đóng."
+  },
+  "amendments": {
+    "intro": "Phụ lục điều chỉnh lịch của hợp đồng đã ký: bên mua đề xuất hạn mới cho các mốc chưa được quyết định chi và/hoặc ngày kết thúc mới, nhà cung cấp chấp nhận hoặc từ chối. Điều khoản đã ký giữ nguyên; phụ lục được chấp nhận mới có hiệu lực, và hệ thống tính lại ngày trễ theo hạn mới.",
+    "propose": "Lập phụ lục",
+    "empty": "Chưa có phụ lục.",
+    "accept": "Chấp nhận",
+    "reject": "Từ chối",
+    "withdraw": "Rút lại",
+    "locked": "Đã quyết định chi",
+    "noDate": "Chưa có hạn",
+    "digest": "Mã băm phụ lục",
+    "rejectTitle": "Từ chối {{code}}",
+    "rejectPlaceholder": "Lý do từ chối (bắt buộc)",
+    "acceptConfirm": {
+      "title": "Chấp nhận {{code}}?",
+      "body": "Hạn mốc và ngày kết thúc đổi theo phụ lục; hệ thống đánh giá lại các mốc nên ngày trễ và tiền phạt có thể thay đổi. Không hoàn tác được."
+    },
+    "state": {
+      "PROPOSED": "Chờ nhà cung cấp",
+      "ACCEPTED": "Đã có hiệu lực",
+      "REJECTED": "Bị từ chối",
+      "WITHDRAWN": "Đã rút lại"
+    },
+    "proposed": "Đề xuất bởi {{name}} lúc {{at}}",
+    "decided": {
+      "ACCEPTED": "chấp nhận bởi {{name}} lúc {{at}}",
+      "REJECTED": "từ chối bởi {{name}} lúc {{at}}",
+      "WITHDRAWN": "rút lại bởi {{name}} lúc {{at}}"
+    },
+    "change": {
+      "endDate": "Ngày kết thúc: {{from}} → {{to}}",
+      "dueDate": "{{milestone}} {{name}}: {{from}} → {{to}}"
+    },
+    "fields": {
+      "reason": "Lý do",
+      "endDate": "Ngày kết thúc mới",
+      "milestone": "Mốc",
+      "currentDue": "Hạn hiện tại",
+      "newDue": "Hạn mới"
+    },
+    "form": {
+      "title": "Lập phụ lục {{code}}",
+      "submit": "Gửi nhà cung cấp",
+      "notice": "Chỉ đổi những gì hai bên đã thống nhất. Hạn mới phải theo đúng thứ tự mốc và nằm trong thời hạn hợp đồng; mốc đã được quyết định chi giữ nguyên hạn.",
+      "reasonRequired": "Nhập lý do điều chỉnh.",
+      "endDateHint": "Đang có hiệu lực: {{date}}. Để nguyên nếu không gia hạn."
+    }
   }
 }

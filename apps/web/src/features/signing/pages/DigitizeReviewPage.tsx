@@ -166,22 +166,52 @@ function Review({
               {
                 key: "docs",
                 title: t("digitize.result.columns.documents"),
+                // Each document with the side that records it (older digitisations have no sides).
                 render: (_, m) =>
                   capitalize(
-                    m.eventTypes
-                      .map((type) => td(`eventType.${type}`))
+                    (
+                      m.documents ??
+                      m.eventTypes.map((eventType) => ({
+                        eventType,
+                        side: null,
+                      }))
+                    )
+                      .map(({ eventType, side }) =>
+                        side
+                          ? t("digitize.result.documentBy", {
+                              document: td(`eventType.${eventType}`),
+                              side: td(`side.${side}`),
+                            })
+                          : td(`eventType.${eventType}`),
+                      )
                       .join(", "),
                   ),
+              },
+              {
+                key: "approval",
+                title: t("digitize.result.columns.approval"),
+                render: (_, m) => {
+                  const roles = m.approvalRoles ?? data.approvers;
+                  return roles.length
+                    ? roles.map((role) => td(`approvalRole.${role}`)).join(", ")
+                    : t("digitize.result.noApproval");
+                },
               },
               {
                 key: "penalty",
                 title: t("digitize.result.columns.penalty"),
                 render: (_, m) =>
                   m.penalty
-                    ? t("digitize.result.penalty.RATE", {
-                        rate: m.penalty.ratePct,
-                        cap: m.penalty.capPct,
-                      })
+                    ? t(
+                        m.penalty.graceDays === undefined
+                          ? "digitize.result.penalty.RATE"
+                          : "digitize.result.penalty.RATE_GRACE",
+                        {
+                          rate: m.penalty.ratePct,
+                          cap: m.penalty.capPct,
+                          grace: m.penalty.graceDays,
+                        },
+                      )
                     : t("digitize.result.penalty.NONE"),
               },
               {
@@ -414,10 +444,12 @@ function SourceClauseText({
   return (
     <div className={highlighted ? styles.clauseOn : styles.clause}>
       <div className={styles.clauseLocation}>
-        {t("digitize.source.location", {
-          article: clause.article,
-          page: clause.page,
-        })}
+        {clause.page
+          ? t("digitize.source.locationPage", {
+              article: clause.article,
+              page: clause.page,
+            })
+          : t("digitize.source.location", { article: clause.article })}
       </div>
       <Trans
         t={t}
@@ -425,6 +457,11 @@ function SourceClauseText({
         values={values}
         components={{ mark: <mark className={styles.mark} /> }}
       />
+      {clause.quote ? (
+        <div className={styles.clauseLocation} data-testid="clause-quote">
+          {t("digitize.source.quote", { quote: clause.quote })}
+        </div>
+      ) : null}
     </div>
   );
 }

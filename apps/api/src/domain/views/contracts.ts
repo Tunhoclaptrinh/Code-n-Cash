@@ -1,8 +1,10 @@
 import { canonical, sha256 } from "../../common/audit-chain";
-import type { Ctx } from "../context";
+import * as actions from "../actions/amendments";
+import { today, type Ctx } from "../context";
 import { enginePolicy, policySha256 } from "../policy";
 import {
   type ContractRecord,
+  type MilestoneRecord,
   type PaymentRecord,
   type RuleRecord,
   TABLE,
@@ -12,6 +14,7 @@ import { sumMillion } from "../templates";
 import type {
   ContractLifecycle,
   ContractList,
+  ContractNotice,
   ContractOverview,
   LifecycleStage,
   LifecycleStageState,
@@ -22,7 +25,7 @@ import type {
   SmartContractView,
   TimelineEntry,
 } from "../types";
-import { INTERNAL_ROLES } from "../vocabulary";
+import { INTERNAL_ROLES, TERMINAL } from "../vocabulary";
 import { ruleRows } from "./milestones";
 import { historyOf } from "./shared";
 
@@ -275,7 +278,48 @@ export function contractOverview(
             origin: signing.origin,
           }
         : null,
+    amendments: actions.amendmentList(ctx, contractId),
+    notices: contractNotices(ctx, contract, milestones),
+    canProposeAmendment:
+      actions.mayProposeAmendment(ctx, contract) &&
+      !actions.openAmendment(ctx, contractId),
+    canDecideAmendment:
+      actions.mayDecideAmendment(ctx, contract) &&
+      !!actions.openAmendment(ctx, contractId),
+    canWithdrawAmendment:
+      actions.mayProposeAmendment(ctx, contract) &&
+      !!actions.openAmendment(ctx, contractId),
   };
+}
+
+/** What needs attention on a signed contract as a whole (ContractNotice). */
+function contractNotices(
+  ctx: Ctx,
+  contract: ContractRecord,
+  milestones: MilestoneRecord[],
+): ContractNotice[] {
+  if (contract.lifecycle !== "ACTIVE") return [];
+  const open = milestones.filter((m) => !TERMINAL.includes(ctx.status(m)));
+  const notices: ContractNotice[] = [];
+  const undated = open.filter((m) => !m.due_date);
+  if (undated.length)
+    notices.push({
+      code: "MISSING_DUE_DATE",
+      milestones: undated.map((m) => Number(m.milestone_sequence)),
+    });
+  if (contract.signing_date && contract.signing_date > contract.start_date)
+    notices.push({
+      code: "SIGNED_AFTER_START",
+      days: Math.round(
+        (Date.parse(contract.signing_date) - Date.parse(contract.start_date)) /
+          86_400_000,
+      ),
+    });
+  const end = contract.amendedEndDate ?? contract.end_date;
+  if (open.length && end < today())
+    notices.push({ code: "PAST_END", date: end, open: open.length });
+  if (milestones.length && !open.length) notices.push({ code: "SETTLED" });
+  return notices;
 }
 
 export const draftsOf = (ctx: Ctx) =>

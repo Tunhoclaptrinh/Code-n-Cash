@@ -114,6 +114,14 @@ export function draftProblems(input: {
     errors.maxPenaltyPct = "INVALID_PENALTY";
   else if (!exactDecimal(input.maxPenaltyPct, LEGAL_PENALTY_CAP_PCT))
     errors.maxPenaltyPct = "PENALTY_OVER_LEGAL_CAP";
+  // A daily rate with a zero cap (or a cap with no rate) states a penalty that can never apply.
+  const zero = (value: string) => /^0+(?:[.,]0+)?$/.test(value.trim());
+  if (
+    !errors.penaltyRatePct &&
+    !errors.maxPenaltyPct &&
+    zero(input.penaltyRatePct) !== zero(input.maxPenaltyPct)
+  )
+    errors.maxPenaltyPct = "PENALTY_INCONSISTENT";
   return errors;
 }
 

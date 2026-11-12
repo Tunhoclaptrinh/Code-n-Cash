@@ -177,6 +177,7 @@
         "INVALID_VALUE": "Giá trị phải là số dương, tối đa 2 chữ số thập phân.",
         "INVALID_DATES": "Ngày kết thúc phải sau ngày bắt đầu.",
         "INVALID_PENALTY": "Tham số phạt không hợp lệ (ân hạn 0–60 ngày, phạt 0–5%/ngày, trần 0–8%).",
+        "PENALTY_INCONSISTENT": "Mức phạt mỗi ngày và trần phạt phải cùng bằng 0 (không phạt) hoặc cùng lớn hơn 0.",
         "INVALID_SUPPLIER": "Chọn nhà cung cấp trong danh sách.",
         "SIGNER_COUNT": "Cần từ 1 đến 4 người ký.",
         "INVALID_SIGNER": "Người ký phải thuộc đúng bên và không trùng nhau.",

@@ -51,6 +51,10 @@ Các điều kiện, tìm kiếm và tab kết hợp với nhau; lọc mới kh�
 
 Nhãn “Trang hiện tại (10 bản ghi)” trong hộp xuất của phần nền có thể vẫn ghi 10; tệp thực tế dùng cỡ trang và số dòng hiện tại. Không dùng nhãn này để suy số lượng bản ghi.
 
+## Chọn cột và xem trên điện thoại
+
+Nút **Cột** trên thanh công cụ mở danh sách cột để ẩn hoặc hiện; lựa chọn được nhớ cho từng bảng trên trình duyệt này, **Mặc định** đưa về đủ cột. Cột đầu (tên bản ghi) và cột **Thao tác** luôn hiện. Trên điện thoại, mỗi dòng của bảng hiện thành một thẻ: dòng đầu là tên bản ghi, các cột còn lại thành cặp nhãn và giá trị, nút thao tác ở cuối thẻ.
+
 ## Nhập và xem nhanh
 
 Nhập chỉ có ở tài nguyên quản trị được cấp quyền. Tải mẫu, điền dữ liệu, xem lỗi từng dòng rồi nhập dòng hợp lệ; xem [Quản trị](/guide/admin). Bấm tên bản ghi để xem nhanh; ở hộp chi tiết có nút phóng toàn màn. Muốn ghi nghiệp vụ như phê duyệt hoặc nộp chứng từ, mở trang nghiệp vụ tương ứng.

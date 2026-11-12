@@ -141,7 +141,7 @@ try {
       );
     return result.result.value;
   };
-  async function until(expression, tries = 150) {
+  async function until(expression, tries = 300) {
     for (let i = 0; i < tries; i++) {
       if (await evaluate(expression).catch(() => false)) return;
       await pause(100);
@@ -173,6 +173,15 @@ try {
       await fn();
     } catch (error) {
       failures.push(`${name}: ${error.message.split("\n")[0].slice(0, 240)}`);
+      // A picture of the page as it was when the step gave up, next to the originals.
+      await send("Page.captureScreenshot", { format: "png" })
+        .then(({ data }) =>
+          writeFile(
+            join(originalOut, `failed-${name.replace(/\W+/g, "-")}.png`),
+            Buffer.from(data, "base64"),
+          ),
+        )
+        .catch(() => {});
       await send("Input.dispatchKeyEvent", {
         type: "keyDown",
         key: "Escape",
@@ -373,6 +382,44 @@ try {
     await pause(400);
   });
 
+  /* ------------------------------ overview and the bell ------------------------------ */
+  await attempt("owner overview", async () => {
+    await go(
+      "/dashboard",
+      "!!document.querySelector('[data-testid=dashboard-contracts]')",
+    );
+    await pause(800);
+    await shot("dashboard", {
+      marks: [
+        { n: 1, target: "[data-testid=welcome-banner]" },
+        { n: 2, target: "[data-testid=kpi-my-turn]" },
+        { n: 3, target: "[data-testid=dashboard-money]" },
+        { n: 4, target: "[data-testid=dashboard-actions]" },
+      ],
+    });
+    await shot("dashboard-tiles", {
+      clip: "[data-testid=dashboard-months]",
+      marks: [
+        { n: 1, target: "[data-testid=dashboard-months]" },
+        { n: 2, target: "[data-testid=due-calendar]" },
+      ],
+    });
+    await evaluate(
+      "document.querySelector('[data-testid=header-notifications]').click()",
+    );
+    await until("!!document.querySelector('[data-testid=notifications-tabs]')");
+    await pause(700);
+    await shot("notifications", {
+      marks: [
+        { n: 1, target: "[data-testid=notifications-tabs]" },
+        { n: 2, target: "[data-testid=notifications-live]" },
+        { n: 3, target: "[data-testid=notifications-read-all]" },
+      ],
+    });
+    await evaluate("document.querySelector('.ant-drawer-close')?.click()");
+    await pause(400);
+  });
+
   /* -------------------------------- contract owner -------------------------------- */
   await attempt("owner lists", async () => {
     await go(
@@ -555,7 +602,8 @@ try {
     await pause(1500);
     await go(
       "/contracts/CT0019/milestones/3/decision",
-      "document.body.innerText.includes('RELEASE')",
+      // Workflow screens show the decision's label, not its code.
+      "document.body.innerText.includes('Chi đủ')",
     );
     await shot("dispute-resolved");
   });
@@ -610,13 +658,14 @@ try {
     await pause(400);
   };
   await attempt("decision", async () => {
+    await loginAs("finance@novaan.vn");
     await go(
       "/contracts/CT0103/milestones/2/decision",
-      "document.body.innerText.includes('PENALTY')",
+      "document.body.innerText.includes('Chi sau trừ phạt')",
     );
     await shot("decision");
     await shot("decision-amounts", {
-      clip: { text: "Tính tiền", contains: true, up: "[class*=panel]" },
+      clip: { text: "Hạn và tính tiền", contains: true, up: "[class*=panel]" },
     });
     await evaluate(
       "[...document.querySelectorAll('button')].find((b) => b.textContent.includes('Xem cả'))?.click()",
@@ -626,7 +675,7 @@ try {
       clip: {
         text: "Luật áp dụng",
         contains: true,
-        tag: "h2",
+        tag: "h3",
         up: "section",
       },
     });
@@ -919,7 +968,8 @@ try {
 
   /* ---------------------------- controllers (BR-19) ---------------------------- */
   await attempt("admin sign-in", async () => {
-    await loginAs("admin@codecash.vn");
+    // The controller of the buyer that owns CT0090 (exceptions are scoped by organisation).
+    await loginAs("controller@cuulong.vn");
     await sidebar("admin");
   });
   await attempt("exceptions", async () => {
@@ -943,6 +993,8 @@ try {
     });
   });
   await attempt("exception propose", async () => {
+    // The buyer's contract owner proposes; the controller decides (SoD).
+    await loginAs("owner@cuulong.vn");
     await go(
       "/contracts/CT0090/milestones/3/decision",
       "!!document.querySelector('[data-testid=trace-details]')",
@@ -970,6 +1022,7 @@ try {
     await pause(1500);
   });
   await attempt("integrity", async () => {
+    await loginAs("auditor@codecash.vn");
     await go(
       "/integrity",
       "document.querySelectorAll('[data-testid=verdict-ok]').length === 4",
@@ -985,13 +1038,14 @@ try {
     });
   });
   await attempt("activity", async () => {
+    await loginAs("controller@cuulong.vn");
     await go(
       "/activity-log",
       "document.querySelectorAll('.ant-table-row').length > 0",
     );
     await shot("activity", {
       marks: [
-        { n: 1, target: ".ant-alert-info" },
+        { n: 1, target: "[data-testid=activity-scope]" },
         { n: 2, target: ".data-table-wrapper .ant-row", pad: 2 },
         {
           n: 3,
@@ -1003,7 +1057,7 @@ try {
     });
   });
   await attempt("exception decide", async () => {
-    await loginAs("controller@codecash.vn");
+    await loginAs("controller@cuulong.vn");
     await go(
       "/contracts/CT0090/milestones/3/decision",
       "!!document.querySelector('[data-testid=trace-details]')",
@@ -1031,11 +1085,11 @@ try {
     );
     await shot("admin-organizations", {
       marks: [
-        { n: 1, target: ".ant-alert-info" },
-        { n: 2, target: ".data-table-wrapper .ant-tabs-nav" },
-        { n: 3, target: { text: "Thêm mới" } },
-        { n: 4, target: { text: "Nhập" } },
-        { n: 5, target: { text: "Xuất" } },
+        { n: 1, target: ".data-table-wrapper .ant-tabs-nav" },
+        { n: 2, target: { text: "Thêm mới" } },
+        { n: 3, target: { text: "Nhập" } },
+        { n: 4, target: { text: "Xuất" } },
+        { n: 5, target: "[data-testid=column-settings]" },
         {
           n: 6,
           target: ".ant-table-tbody .ant-table-row td:nth-child(6) .ant-tag",
@@ -1104,8 +1158,8 @@ try {
     );
     await shot("admin-permissions", {
       marks: [
-        { n: 1, target: ".ant-alert-info" },
-        { n: 2, target: ".data-table-wrapper .ant-row", pad: 2 },
+        { n: 1, target: ".data-table-wrapper .ant-row", pad: 2 },
+        { n: 2, target: "[data-testid=column-settings]" },
       ],
     });
   });
@@ -1287,9 +1341,10 @@ try {
   });
   await attempt("phone", async () => {
     await viewport(390, 844);
+    // On a phone each task is a card.
     await go(
       "/tasks",
-      "document.querySelectorAll('.ant-table-row').length > 0",
+      "document.querySelectorAll('[data-testid=mobile-card]').length > 0",
     );
     await shot("mobile-tasks");
   });

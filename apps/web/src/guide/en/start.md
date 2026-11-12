@@ -25,7 +25,15 @@ Select a language and theme, then start. Header controls let you change these pr
 
 ![Header: help, language, theme and notifications](../../../public/guide/images/header-tips.webp)
 
-After sign-in the app opens the **Contract overview**: a greeting with your tasks, alerts, a due-date calendar and money charts for the contracts you may see. The system administrator and the integrity auditor, who never open contracts, land on their own screens. The bell has three tabs: your tasks, alerts in your scope (disputes, overdue, due soon) and updates others made on your contracts. Its number counts your tasks only; a blue dot means unread updates. A new task arriving while the app is open shows a short notice in the corner.
+After sign-in the app opens the **Contract overview**: a greeting with your tasks, alerts, a due-date calendar and money charts for the contracts you may see. The system administrator and the integrity auditor, who never open contracts, land on their own screens. The bell has three tabs: your tasks, alerts in your scope (disputes, overdue, due soon) and updates others made on your contracts. Its number counts your tasks only; a blue dot means unread updates. A new task arriving while the app is open shows a short notice in the corner. The read marker is kept on the server, so it follows you to another device. **Live** in the drawer means other people's changes appear at once; without it the app still refreshes every 30 seconds.
+
+![Contract overview: greeting, key figures, where the money is, shortcuts and report export](../../../public/guide/images/dashboard.webp)
+
+Select a figure to open the matching list. The ☰ menu holds the other screens, **Print / save report as PDF** and **Download figures (CSV)**; each export is recorded in the audit log.
+
+![Value by due month and the due-date calendar](../../../public/guide/images/dashboard-tiles.webp)
+
+![Notifications: tabs, live channel, mark as read](../../../public/guide/images/notifications.webp)
 
 Click any guide screenshot to zoom; close the preview to continue reading. Screenshots use Vietnamese labels, light theme and fresh demo data captured on 23 October 2026.
 

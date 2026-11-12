@@ -2,7 +2,7 @@
 
 Nhật ký nối các thao tác người dùng, sự kiện và lần đổi trạng thái để giải thích một kết quả. Dữ liệu chỉ được ghi thêm, không sửa hoặc xoá qua ứng dụng. Bạn chỉ xem được phạm vi được cấp; kiểm soát viên và kiểm toán có phạm vi toàn hệ thống.
 
-![Nhật ký: 1 — lưu ý chỉ ghi thêm; 2 — thống kê; 3 — lọc nguồn; 4 — chi tiết dòng](../../../public/guide/images/activity.webp)
+![Nhật ký: 1 — Mọi người / Do tôi; 2 — thống kê; 3 — lọc nguồn; 4 — thao tác của dòng](../../../public/guide/images/activity.webp)
 
 ## Theo dõi một hợp đồng
 

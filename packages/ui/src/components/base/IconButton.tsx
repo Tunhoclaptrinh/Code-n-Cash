@@ -38,19 +38,22 @@ export const IconButton = React.forwardRef<HTMLSpanElement, IconButtonProps>(
     const { themeMode } = useAppConfig();
     const isLight = themeMode === "light";
     const defaultColor = danger
-      ? "#EF4444"
+      ? "var(--status-danger, #EF4444)"
       : success
-        ? "#10B981"
+        ? "var(--status-success, #10B981)"
         : primary
           ? "var(--color-primary, #315bea)"
-          : color || (isLight ? "#4B5563" : "#9CA3AF");
+          : color ||
+            (isLight
+              ? "var(--text-secondary, #4B5563)"
+              : "var(--text-muted, #9CA3AF)");
     const activeHoverColor = danger
-      ? "#DC2626"
+      ? "var(--status-danger-strong, #DC2626)"
       : success
-        ? "#059669"
+        ? "var(--status-success-strong, #059669)"
         : primary
           ? "var(--color-primary-dark, #2849bd)"
-          : hoverColor || "#315bea";
+          : hoverColor || "var(--color-primary, #315bea)";
     const [isHovered, setIsHovered] = React.useState(false);
     const buttonNode = (
       <span

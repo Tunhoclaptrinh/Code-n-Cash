@@ -23,7 +23,12 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       title={
         <Space>
           <ExclamationCircleFilled
-            style={{ color: danger ? "#EF4444" : "#fcc20f", fontSize: 20 }}
+            style={{
+              color: danger
+                ? "var(--status-danger, #EF4444)"
+                : "var(--status-attention, #fcc20f)",
+              fontSize: 20,
+            }}
           />
           <span style={{ fontWeight: 700, fontSize: 16 }}>{title}</span>
         </Space>
@@ -46,7 +51,12 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       destroyOnHidden
     >
       <Paragraph
-        style={{ color: "#4B5563", fontSize: 14, lineHeight: 1.6, margin: 0 }}
+        style={{
+          color: "var(--text-secondary, #4B5563)",
+          fontSize: 14,
+          lineHeight: 1.6,
+          margin: 0,
+        }}
       >
         {content}
       </Paragraph>

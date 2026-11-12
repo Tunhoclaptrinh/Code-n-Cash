@@ -125,7 +125,7 @@ export function PreferenceControls({ compact = false }: { compact?: boolean }) {
                 isLight ? (
                   <MoonOutlined />
                 ) : (
-                  <SunOutlined style={{ color: "#fcc20f" }} />
+                  <SunOutlined style={{ color: "var(--status-attention)" }} />
                 )
               }
               onClick={toggleTheme}

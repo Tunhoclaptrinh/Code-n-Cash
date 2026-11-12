@@ -298,7 +298,11 @@ export const DataTable = <T extends Record<string, any>>({
         ? [
             {
               key: "batch-delete",
-              icon: <DeleteOutlined style={{ color: "#EF4444" }} />,
+              icon: (
+                <DeleteOutlined
+                  style={{ color: "var(--status-danger, #EF4444)" }}
+                />
+              ),
               label: uiText("table.deleteSelected", {
                 count: activeSelectedRowKeys.length,
               }),

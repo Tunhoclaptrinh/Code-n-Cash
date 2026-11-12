@@ -47,7 +47,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({
       onCancel={onCancel}
       title={
         <Space>
-          <UploadOutlined style={{ color: "#315bea" }} />
+          <UploadOutlined style={{ color: "var(--color-primary, #315bea)" }} />
           <span style={{ fontWeight: 700, fontSize: 16 }}>
             {uiText("import.title", { name: entityName })}
           </span>
@@ -114,7 +114,9 @@ export const ImportModal: React.FC<ImportModalProps> = ({
           accept=".csv,.json"
         >
           <p className="ant-upload-drag-icon">
-            <InboxOutlined style={{ color: "#315bea", fontSize: 44 }} />
+            <InboxOutlined
+              style={{ color: "var(--color-primary, #315bea)", fontSize: 44 }}
+            />
           </p>
           <p className="ant-upload-text" style={{ fontWeight: 600 }}>
             {uiText("import.dropzone")}

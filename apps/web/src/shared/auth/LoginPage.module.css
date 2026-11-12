@@ -22,7 +22,12 @@
       rgba(255, 255, 255, 0.18),
       transparent 45%
     ),
-    linear-gradient(150deg, #315bea 0%, #2140b0 60%, #1a2f80 100%);
+    linear-gradient(
+      150deg,
+      var(--brand-500) 0%,
+      var(--brand-700) 60%,
+      var(--brand-800) 100%
+    );
 }
 
 .brand {

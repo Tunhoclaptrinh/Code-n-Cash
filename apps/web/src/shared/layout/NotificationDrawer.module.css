@@ -86,8 +86,8 @@
 }
 
 .icon[data-tone="warning"] {
-  background: rgba(237, 161, 0, 0.16);
-  color: #9a6400;
+  background: var(--color-warning-tint);
+  color: var(--color-warning-icon);
 }
 
 .icon[data-tone="primary"] {
@@ -103,10 +103,6 @@
 .icon[data-tone="neutral"] {
   background: var(--bg-surface-alt);
   color: var(--color-text-secondary);
-}
-
-:global(:root[data-theme="dark"]) .icon[data-tone="warning"] {
-  color: #f0b94a;
 }
 
 .text {

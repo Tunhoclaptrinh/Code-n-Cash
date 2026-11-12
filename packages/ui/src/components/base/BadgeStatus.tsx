@@ -2,13 +2,13 @@ import React from "react";
 import { BadgeStatusProps } from "./types";
 export const BadgeStatus: React.FC<BadgeStatusProps> = ({ status, text }) => {
   const colorMap: Record<string, string> = {
-    processing: "#3B82F6",
-    success: "#10B981",
-    error: "#EF4444",
-    warning: "#F59E0B",
-    default: "#9CA3AF",
+    processing: "var(--status-info, #3B82F6)",
+    success: "var(--status-success, #10B981)",
+    error: "var(--status-danger, #EF4444)",
+    warning: "var(--status-warning, #F59E0B)",
+    default: "var(--text-muted, #9CA3AF)",
   };
-  const dotColor = colorMap[status] || "#10B981";
+  const dotColor = colorMap[status] || "var(--status-success, #10B981)";
   return (
     <div
       style={{
@@ -21,7 +21,7 @@ export const BadgeStatus: React.FC<BadgeStatusProps> = ({ status, text }) => {
         border: "1px solid var(--border-subtle, #E5E7EB)",
         fontSize: 12,
         fontWeight: 600,
-        color: "#4B5563",
+        color: "var(--text-secondary, #4B5563)",
       }}
     >
       <span

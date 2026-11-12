@@ -27,14 +27,20 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
           <LoadingOutlined
             style={{
               fontSize: size === "large" ? 36 : size === "small" ? 18 : 24,
-              color: "#315bea",
+              color: "var(--color-primary, #315bea)",
             }}
             spin
           />
         }
       />
       {tip && (
-        <span style={{ color: "#6B7280", fontSize: 13, fontWeight: 500 }}>
+        <span
+          style={{
+            color: "var(--color-text-faint, #6B7280)",
+            fontSize: 13,
+            fontWeight: 500,
+          }}
+        >
           {tip}
         </span>
       )}

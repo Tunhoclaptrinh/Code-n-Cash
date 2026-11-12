@@ -123,7 +123,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
                       width: 140,
                       fontWeight: 600,
                       fontSize: 13,
-                      color: "#374151",
+                      color: "var(--color-text-secondary, #374151)",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
@@ -252,8 +252,8 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
               style={{
                 width: "100%",
                 borderStyle: "dashed",
-                background: "#FFFFFF",
-                color: "#4B5563",
+                background: "var(--bg-surface-card, #FFFFFF)",
+                color: "var(--text-secondary, #4B5563)",
               }}
               icon={<PlusOutlined />}
             >
@@ -271,7 +271,7 @@ export const FilterBuilder: React.FC<FilterBuilderProps> = ({
             gap: 10,
             marginTop: 16,
             paddingTop: 14,
-            borderTop: "1px solid #E5E7EB",
+            borderTop: "1px solid var(--border-subtle, #E5E7EB)",
           }}
         >
           {onCancel && (

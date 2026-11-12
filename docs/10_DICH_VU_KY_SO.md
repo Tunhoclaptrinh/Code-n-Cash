@@ -103,15 +103,25 @@ Trước khi demo: chạy `pnpm dev` với `SIGNING_PROVIDER=remote`. Dùng CT01
 3. Nút điện thoại ở góc dưới bên phải sáng lên. Bấm vào để mở thiết bị giả lập: kiểm tra mã xác nhận trùng, nhập PIN `123456` (USB token: bấm **Cắm token** trước), bấm **Xác nhận ký**.
 4. Màn CodeCash tự chuyển sang trang Kiểm tra chữ ký; bước 2 hiện "Hợp lệ".
 
+![Màn ký đang chờ thiết bị](../apps/web/public/guide/images/sign-remote-waiting.webp)
+
+![USB token trong thiết bị ở góc](../apps/web/public/guide/images/sign-dock-token.webp)
+
 **Cách 2 — máy tính và điện thoại (giống thật nhất)**
 
 1. Cho điện thoại vào được máy chạy web:
-   - chạy web với `pnpm --filter @codecash/web dev -- --host 0.0.0.0`;
+   - chạy `pnpm dev:api`, `pnpm dev:signer` và `pnpm dev:web:lan` (web mở cho cả mạng LAN, thay cho `pnpm dev`);
    - điện thoại và máy tính dùng chung mạng Wi-Fi;
    - mở `http://<IP máy tính>:5173`.
 2. Trên điện thoại, đăng nhập **cùng tài khoản** `supplier@phuminh.vn` và mở `/device`. Cách khác: trên máy tính, bấm nút ở góc → biểu tượng QR, rồi quét bằng điện thoại.
 3. Trên máy tính, gửi yêu cầu ký như cách 1. Điện thoại nhận yêu cầu ngay qua luồng SSE của dịch vụ ký, không cần tải lại trang.
 4. Trên điện thoại: so mã xác nhận, nhập PIN, xác nhận. Màn máy tính tự chuyển sang trang Kiểm tra chữ ký.
+
+![Điện thoại: chờ, nhận yêu cầu, sai PIN, đã ký](../apps/web/public/guide/images/sign-phone-steps.webp)
+
+![Mã QR mở thiết bị trên điện thoại](../apps/web/public/guide/images/sign-dock-qr.webp)
+
+![Kiểm tra chữ ký sau khi ký](../apps/web/public/guide/images/sign-verified.webp)
 5. Thử thêm:
    - nhập sai PIN để thấy số lần còn lại;
    - bấm **Từ chối** để thấy màn máy tính báo bị từ chối;

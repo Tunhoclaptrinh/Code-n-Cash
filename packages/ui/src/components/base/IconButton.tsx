@@ -46,7 +46,7 @@ export const IconButton = React.forwardRef<HTMLSpanElement, IconButtonProps>(
           : color ||
             (isLight
               ? "var(--text-secondary, #4B5563)"
-              : "var(--text-muted, #9CA3AF)");
+              : "var(--color-text-muted, #9CA3AF)");
     const activeHoverColor = danger
       ? "var(--status-danger-strong, #DC2626)"
       : success

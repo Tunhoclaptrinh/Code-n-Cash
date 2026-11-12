@@ -68,7 +68,7 @@ export const BaseButton = React.forwardRef<any, BaseButtonProps>(
           : "1px solid rgba(255, 255, 255, 0.12)",
         color: isLight
           ? "var(--color-text-secondary, #374151)"
-          : "var(--border-subtle, #E5E7EB)",
+          : "var(--color-text-secondary, #E5E7EB)",
         boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
       };
     } else if (variant === "gold") {
@@ -105,7 +105,7 @@ export const BaseButton = React.forwardRef<any, BaseButtonProps>(
           : "1px solid rgba(255, 255, 255, 0.1)",
         color: isLight
           ? "var(--text-secondary, #4B5563)"
-          : "var(--text-muted, #9CA3AF)",
+          : "var(--color-text-muted, #9CA3AF)",
       };
     }
     const btnElement = (

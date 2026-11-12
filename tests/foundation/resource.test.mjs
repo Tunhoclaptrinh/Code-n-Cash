@@ -68,6 +68,38 @@ test("tenant scope cannot be overridden through filters or direct IDs", async ()
   assert.throws(() => parseFilters('{"$or":[]}', ["title"]));
   assert.throws(() => parseFilters('{"organizationId":"org-one"}', ["title"]));
 });
+test("resource filters take one value or a list and match any listed value", async () => {
+  const one = await service.create("contract-drafts", draft("ONE"), actor);
+  const two = await service.create("contract-drafts", draft("TWO"), actor);
+  assert.deepEqual(parseFilters('{"title":"A"}', ["title"]), { title: ["A"] });
+  assert.deepEqual(parseFilters({ title: ["A", "B"] }, ["title"]), {
+    title: ["A", "B"],
+  });
+  for (const bad of ['{"title":[]}', '{"title":[{}]}', '{"title":{}}'])
+    assert.throws(() => parseFilters(bad, ["title"]), /INVALID_FILTER/);
+  const both = await service.list(
+    "contract-drafts",
+    { filters: JSON.stringify({ id: [one.id, two.id] }) },
+    actor,
+  );
+  assert.equal(both.total, 2);
+  const single = await service.list(
+    "contract-drafts",
+    { filters: JSON.stringify({ id: [two.id] }) },
+    actor,
+  );
+  assert.deepEqual(
+    single.items.map((x) => x.id),
+    [two.id],
+  );
+  const past = await service.list(
+    "contract-drafts",
+    { page: 9, limit: 1 },
+    actor,
+  );
+  assert.equal(past.page, 2);
+  assert.equal(past.items.length, 1);
+});
 test("optimistic versions reject stale writes and updates are audited atomically", async () => {
   const item = await service.create("contract-drafts", draft("ONE"), actor);
   const updated = await service.update(
@@ -244,7 +276,14 @@ test("reset password and logout invalidate prior tokens without exposing secrets
   await auth.logout(next.user);
   await assert.rejects(auth.authenticate(next.token));
   const audit = await repo.list("audit");
-  assert.deepEqual(audit.filter((row) => ["LOGIN", "RESET_PASSWORD", "LOGOUT"].includes(row.action)).map((row) => row.action), ["LOGIN", "RESET_PASSWORD", "LOGIN", "LOGOUT"]);
+  assert.deepEqual(
+    audit
+      .filter((row) =>
+        ["LOGIN", "RESET_PASSWORD", "LOGOUT"].includes(row.action),
+      )
+      .map((row) => row.action),
+    ["LOGIN", "RESET_PASSWORD", "LOGIN", "LOGOUT"],
+  );
   assert.equal(JSON.stringify(audit).includes("ChangedPassword123!"), false);
 });
 

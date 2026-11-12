@@ -2,7 +2,7 @@ import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { DemoFormFill } from "@/shared/ui/DemoFillButton";
 import { resourceDemoInput } from "./lib/demoInput";
 import { SigningRolePicker } from "@/shared/ui/SigningRolePicker";
-import { useEffect, useMemo, useState, type Key, type ReactNode } from "react";
+import { useMemo, useState, type Key, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -37,7 +37,6 @@ import {
   PageContainer,
   FormModal,
   useAccess,
-  useDebounce,
   useResource,
   parseImportFile,
   downloadBlob,
@@ -47,7 +46,6 @@ import type {
   Entity,
   ImportValidationReport,
   Origin,
-  PageQuery,
   ResourceDefinition,
   ResourceField,
 } from "@codecash/contracts";
@@ -60,7 +58,6 @@ import { OriginTag } from "@/shared/ui/DomainTags";
 import { ImportPreviewModal } from "@/shared/ui/ImportPreviewModal";
 import { AuditDetails } from "@/shared/ui/AuditDetails";
 
-type Filters = NonNullable<PageQuery["filters"]>;
 type Option = { value: string; label: string };
 
 /** Reference fields restricted to one organization kind when picking a value. */
@@ -112,18 +109,8 @@ function ResourceView({ resource }: { resource: string }) {
     () => platform.resource<Entity>(resource),
     [resource],
   );
+  // Paging, debounced search, filters (several values each) and sort: the shared list state.
   const state = useResource(resource, service);
-  // Typing waits 300 ms before asking the server, and a new search starts on page 1.
-  const [searchText, setSearchText] = useState("");
-  const search = useDebounce(searchText.trim(), 300);
-  const { setParams } = state;
-  useEffect(
-    () =>
-      setParams((p) =>
-        (p.search ?? "") === search ? p : { ...p, search, page: 1 },
-      ),
-    [search, setParams],
-  );
   const [exporting, setExporting] = useState(false);
   const definitions = useQuery({
     queryKey: ["definitions"],
@@ -157,7 +144,7 @@ function ResourceView({ resource }: { resource: string }) {
     !definition?.managedOrigins?.includes(String(record.origin)) &&
     can(operation);
   const items = state.query.data?.items ?? [];
-  const filters: Filters = state.params.filters ?? {};
+  const filters = state.filters;
   const busy = state.create.isPending || state.update.isPending;
 
   const fieldLabel = (key: string) => t(`fields.${key}`, { defaultValue: key });
@@ -234,17 +221,14 @@ function ResourceView({ resource }: { resource: string }) {
     ...fields.map((field) => {
       const options = columnFilters(field);
       return {
-        key: field.key,
+        ...state.column(field.key),
         dataIndex: field.key,
         title: fieldLabel(field.key),
         sorter: true,
         ...(options
           ? {
               filters: options,
-              filterMultiple: false,
               filterSearch: !!field.ref,
-              filteredValue:
-                filters[field.key] !== undefined ? [filters[field.key]] : null,
             }
           : {}),
         render: (value: unknown) => renderValue(field, value),
@@ -308,14 +292,6 @@ function ResourceView({ resource }: { resource: string }) {
       setDeleting(false);
     }
   };
-  const setFilter = (key: string, value: unknown) =>
-    state.setParams((previous) => {
-      const next = { ...previous.filters };
-      if (value === undefined || value === "" || value === null)
-        delete next[key];
-      else next[key] = value as string | number | boolean;
-      return { ...previous, filters: next, page: 1 };
-    });
 
   // Row actions follow the UniFlow base: one primary icon, the rest in a menu.
   const menuFor = (record: Entity): MenuProps["items"] => [
@@ -495,51 +471,12 @@ function ResourceView({ resource }: { resource: string }) {
             ) : undefined
           }
           rowKey="id"
-          dataSource={items}
           scroll={{ x: Math.max(1100, columns.length * 200 + 240) }}
           columns={columns.map((column) => ({ ...column, width: 200 }))}
+          {...state.table}
           loading={state.query.isPending}
-          searchValue={searchText}
-          onSearch={setSearchText}
           searchPlaceholder={t("searchPlaceholder")}
           exportLoading={exporting}
-          onRefresh={() => void state.refresh()}
-          pagination={{
-            current: state.params.page,
-            pageSize: state.params.limit,
-            total: state.query.data?.total ?? 0,
-          }}
-          onPaginationChange={(
-            page: { current?: number; pageSize?: number },
-            tableFilters: Record<string, unknown[] | null>,
-            sorter: { order?: string; field?: unknown },
-          ) =>
-            state.setParams((previous) => {
-              const sortBy = sorter.order ? String(sorter.field) : "createdAt";
-              const sortOrder = sorter.order === "ascend" ? "asc" : "desc";
-              const nextFilters = { ...previous.filters };
-              for (const field of fields) {
-                if (!(field.key in tableFilters)) continue;
-                const picked = tableFilters[field.key]?.[0];
-                if (picked === undefined) delete nextFilters[field.key];
-                else nextFilters[field.key] = picked as string | boolean;
-              }
-              const changed =
-                sortBy !== (previous.sortBy ?? "createdAt") ||
-                sortOrder !== (previous.sortOrder ?? "desc") ||
-                page.pageSize !== previous.limit ||
-                JSON.stringify(nextFilters) !==
-                  JSON.stringify(previous.filters ?? {});
-              return {
-                ...previous,
-                filters: nextFilters,
-                page: changed ? 1 : page.current,
-                limit: page.pageSize,
-                sortBy,
-                sortOrder,
-              };
-            })
-          }
           actionsWidth={104}
           customActions={rowActions}
           onAdd={!readOnly && can("create") ? () => setEditor(null) : undefined}
@@ -559,9 +496,6 @@ function ResourceView({ resource }: { resource: string }) {
                 label: o.text,
               })),
             }))}
-          filterValues={filters}
-          onFilterChange={setFilter}
-          onClearFilters={() => state.change.filter({})}
           exportable={can("export")}
           exportFilename={resource}
           onExport={(options) => void exportFile(options)}

@@ -14,11 +14,12 @@ import {
 import { ReloadOutlined } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { downloadBlob, useAccess } from "@codecash/ui";
+import { downloadBlob, StatisticsCard, useAccess } from "@codecash/ui";
 import type { AnchorJob } from "@codecash/contracts";
 import { trustApi } from "@/shared/api/trust";
 import { useCurrentUser } from "@/shared/auth/session";
 import { formatDateTime } from "@/shared/lib/format";
+import { STAT_TONE } from "@/shared/ui/statTone";
 
 /** Seal jobs and bundle checks; `bare` drops the card when the panel is the whole page. */
 export function AnchorPanel({ bare = false }: { bare?: boolean } = {}) {
@@ -69,6 +70,15 @@ export function AnchorPanel({ bare = false }: { bare?: boolean } = {}) {
       void failure(error);
     }
   };
+  const tone = (name: keyof typeof STAT_TONE) => ({
+    backgroundColor: STAT_TONE[name].bg,
+    valueColor: STAT_TONE[name].value,
+  });
+  const latest = (jobs.data ?? []).reduce<AnchorJob | undefined>(
+    (best, job) =>
+      !best || job.payload.sequence > best.payload.sequence ? job : best,
+    undefined,
+  );
   return (
     <Card
       title={bare ? undefined : t("anchors.title")}
@@ -91,69 +101,84 @@ export function AnchorPanel({ bare = false }: { bare?: boolean } = {}) {
                 : t("anchors.localNotice")
             }
           />
-          <Typography.Paragraph>
-            {t("anchors.key")}:{" "}
-            <Typography.Text code copyable style={{ overflowWrap: "anywhere" }}>
-              {status.data.witnessKeyFingerprint}
-            </Typography.Text>
-          </Typography.Paragraph>
         </>
       ) : null}
-      <Space wrap style={{ marginBottom: 16 }}>
-        {hasPermission("anchors:write") ? (
-          <Button
-            type="primary"
-            loading={create.isPending}
-            onClick={() => create.mutate()}
-            data-testid="anchor-create"
-          >
-            {t("anchors.create")}
-          </Button>
+      <StatisticsCard
+        hideCard
+        statShadow={false}
+        rowGutter={10}
+        containerStyle={{ marginBottom: 12 }}
+        data={[
+          {
+            key: "total",
+            title: t("anchors.stats.total"),
+            value: (jobs.data ?? []).length,
+            ...tone("blue"),
+          },
+          {
+            key: "confirmed",
+            title: t("anchors.stats.confirmed"),
+            value: (jobs.data ?? []).filter((j) => j.status === "CONFIRMED")
+              .length,
+            ...tone("green"),
+          },
+          {
+            key: "failed",
+            title: t("anchors.stats.failed"),
+            value: (jobs.data ?? []).filter((j) => j.status === "FAILED")
+              .length,
+            ...tone("red"),
+          },
+          {
+            key: "latest",
+            title: t("anchors.stats.latest"),
+            value: latest ? `#${latest.payload.sequence}` : "—",
+            ...tone("violet"),
+          },
+        ]}
+      />
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          marginBottom: 12,
+        }}
+      >
+        <Space wrap>
+          {hasPermission("anchors:write") ? (
+            <Button
+              type="primary"
+              loading={create.isPending}
+              onClick={() => create.mutate()}
+              data-testid="anchor-create"
+            >
+              {t("anchors.create")}
+            </Button>
+          ) : null}
+          <Tooltip title={t("refresh")}>
+            <Button
+              icon={<ReloadOutlined />}
+              aria-label={t("refresh")}
+              onClick={() => void refresh()}
+              data-testid="anchor-refresh"
+            />
+          </Tooltip>
+        </Space>
+        {status.data ? (
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            {t("anchors.key")}:{" "}
+            <Typography.Text
+              code
+              copyable={{ text: status.data.witnessKeyFingerprint }}
+            >
+              {status.data.witnessKeyFingerprint.slice(0, 16)}…
+            </Typography.Text>
+          </Typography.Text>
         ) : null}
-        <Tooltip title={t("refresh")}>
-          <Button
-            icon={<ReloadOutlined />}
-            aria-label={t("refresh")}
-            onClick={() => void refresh()}
-            data-testid="anchor-refresh"
-          />
-        </Tooltip>
-      </Space>
-      {/* Checking a saved bundle is its own two-step task: choose the file, then verify it. */}
-      <Space wrap style={{ marginBottom: 16, marginInlineStart: 16 }}>
-        <Upload
-          maxCount={1}
-          accept=".json"
-          beforeUpload={async (file) => {
-            if (file.size > 1024 * 1024) {
-              message.error(t("anchors.invalidBundle"));
-              return Upload.LIST_IGNORE;
-            }
-            try {
-              setBundle(JSON.parse(await file.text()));
-              verify.reset();
-            } catch {
-              message.error(t("anchors.invalidBundle"));
-              return Upload.LIST_IGNORE;
-            }
-            return false;
-          }}
-          onRemove={() => {
-            setBundle(undefined);
-            verify.reset();
-          }}
-        >
-          <Button>{t("anchors.chooseBundle")}</Button>
-        </Upload>
-        <Button
-          disabled={!bundle}
-          loading={verify.isPending}
-          onClick={() => verify.mutate(bundle)}
-          data-testid="anchor-verify"
-        >
-          {t("anchors.verify")}
-        </Button>
-      </Space>
+      </div>
       {[create.error, retry.error, verify.error, jobs.error]
         .filter(Boolean)
         .map((error, index) => (
@@ -202,8 +227,9 @@ export function AnchorPanel({ bare = false }: { bare?: boolean } = {}) {
         rowKey="id"
         loading={jobs.isFetching}
         dataSource={jobs.data ?? []}
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 5, hideOnSinglePage: true }}
         scroll={{ x: 900 }}
+        locale={{ emptyText: t("anchors.empty") }}
         columns={[
           {
             title: t("anchors.createdAt"),
@@ -283,6 +309,56 @@ export function AnchorPanel({ bare = false }: { bare?: boolean } = {}) {
           },
         ]}
       />
+      <section
+        style={{
+          marginTop: 20,
+          paddingTop: 16,
+          borderTop: "1px solid var(--color-border)",
+        }}
+        data-testid="anchor-verify-section"
+      >
+        <Typography.Title level={5} style={{ marginTop: 0 }}>
+          {t("anchors.verifyTitle")}
+        </Typography.Title>
+        <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
+          {t("anchors.verifyHint")}
+        </Typography.Paragraph>
+        {/* Checking a saved bundle is its own two-step task: choose the file, then verify it. */}
+        <Space wrap>
+          <Upload
+            maxCount={1}
+            accept=".json"
+            beforeUpload={async (file) => {
+              if (file.size > 1024 * 1024) {
+                message.error(t("anchors.invalidBundle"));
+                return Upload.LIST_IGNORE;
+              }
+              try {
+                setBundle(JSON.parse(await file.text()));
+                verify.reset();
+              } catch {
+                message.error(t("anchors.invalidBundle"));
+                return Upload.LIST_IGNORE;
+              }
+              return false;
+            }}
+            onRemove={() => {
+              setBundle(undefined);
+              verify.reset();
+            }}
+          >
+            <Button>{t("anchors.chooseBundle")}</Button>
+          </Upload>
+          <Button
+            disabled={!bundle}
+            loading={verify.isPending}
+            onClick={() => verify.mutate(bundle)}
+            data-testid="anchor-verify"
+          >
+            {t("anchors.verify")}
+          </Button>
+        </Space>
+      </section>
     </Card>
   );
 }

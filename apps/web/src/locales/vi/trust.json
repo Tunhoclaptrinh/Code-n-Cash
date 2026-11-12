@@ -27,7 +27,16 @@
     "timestampBy": "Ký bởi {{signer}}",
     "timestampTrusted": "Dấu thời gian hợp lệ: {{signer}} xác nhận lúc {{at}}.",
     "timestampUntrusted": "Chữ ký dấu thời gian đúng nhưng đơn vị cấp ({{signer}}) không thuộc danh sách tin cậy. Thời điểm ghi trên dấu: {{at}}.",
-    "timestampInvalid": "Dấu thời gian không khớp với gói niêm phong."
+    "timestampInvalid": "Dấu thời gian không khớp với gói niêm phong.",
+    "stats": {
+      "total": "Gói niêm phong",
+      "confirmed": "Đã đối chiếu",
+      "failed": "Thất bại",
+      "latest": "Đầu chuỗi mới nhất"
+    },
+    "empty": "Chưa có gói niêm phong nào. Bấm “Tạo gói niêm phong” để niêm phong đầu chuỗi nhật ký hiện tại.",
+    "verifyTitle": "Kiểm tra một gói đã lưu",
+    "verifyHint": "Chọn tệp JSON đã xuất trước đây; hệ thống so chữ ký, hash đầu chuỗi và dấu thời gian với chuỗi hiện tại."
   },
   "extraction": {
     "title": "Trích xuất và đối chiếu điều khoản",
@@ -295,7 +304,8 @@
       "organiserScope": "Đây là phạm vi chuẩn của BTC: chỉ sửa được biểu thức, không thêm hay xoá luật",
       "organiserScopeHint": "Bộ luật chuẩn phải cho kết quả giống hệt trên 405 mốc của Data Pack. Muốn thêm luật hoặc giai đoạn, tạo quy trình riêng (APP_) cùng loại hợp đồng: nó bắt đầu bằng bản sao các luật này và chỉ áp dụng cho hợp đồng soạn mới.",
       "addWorkflowFor": "Tạo quy trình riêng cho {{type}}"
-    }
+    },
+    "empty": "Chưa có phiên bản quy tắc nào. Bấm “Soạn phiên bản mới” để bắt đầu từ bộ luật đang dùng."
   },
   "fields": {
     "valueMillion": "Giá trị hợp đồng (triệu VND)",

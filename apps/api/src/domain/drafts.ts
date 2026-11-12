@@ -32,6 +32,7 @@ import type {
   ContractType,
   Digitization,
   DigitizedMilestone,
+  MilestoneEdit,
   MilestoneType,
   PersonOption,
   SourceClauseKind,
@@ -440,6 +441,17 @@ export function saveDraft(
     initial_contract_status: "DRAFT",
     data_is_synthetic: "TRUE",
   };
+  // Hand corrections of the milestones belong to one workflow and one period; a change of either
+  // drops them (they are checked again when the terms are locked anyway).
+  const previousDraft = ctx.draft(expectedCode);
+  if (
+    previousDraft?.milestoneEdits &&
+    (previousDraft.contractType !== input.type ||
+      previousDraft.workflowTemplate !== workflow.template ||
+      previousDraft.startDate !== start ||
+      previousDraft.endDate !== end)
+  )
+    previousDraft.milestoneEdits = null;
   if (existing)
     Object.assign(existing, fields, {
       version: existing.version + 1,
@@ -652,13 +664,8 @@ export function digitization(ctx: Ctx, code: string): Digitization {
   const draft = ctx.draft(code);
   if (!draft) throw new NotFoundException("DRAFT_NOT_FOUND");
   if (draft.digitization) return draft.digitization;
-  const stages = stagesOf(
-    ctx,
-    draft.contractType,
-    draft.ruleVersionId as string | undefined,
-    draft.workflowTemplate,
-  );
-  const schedule = scheduleDueDates(draft.startDate, draft.endDate, stages);
+  const { base, stages, edits } = effectiveStages(ctx, draft);
+  const schedule = scheduleDueDates(draft.startDate, draft.endDate, base);
   let allocated = 0n;
   const milestones: DigitizedMilestone[] = stages.map((stage, i) => {
     const last = i === stages.length - 1;
@@ -668,12 +675,23 @@ export function digitization(ctx: Ctx, code: string): Digitization {
       : shareOf(draft.valueMillion, stage.paymentPercent);
     allocated += toCents(value);
     const warranty = stage.type.startsWith("WARRANTY");
+    const proposed = warranty ? null : schedule[stage.sequence];
+    const edit = edits?.find((row) => row.sequence === stage.sequence);
+    const dueDate = edit ? edit.dueDate : proposed;
+    // A row a person changed in any way says so; the rest keep the workflow's proposal.
+    const changed =
+      !!edit &&
+      (dueDate !== proposed ||
+        !sameStage(
+          stage,
+          base.find((row) => row.sequence === stage.sequence)!,
+        ));
     return {
       sequence: stage.sequence,
       type: stage.type as MilestoneType,
       valueMillion: value,
       paymentPercent: stage.paymentPercent,
-      dueDate: warranty ? null : schedule[stage.sequence],
+      dueDate,
       eventTypes: stage.eventTypes,
       documents: stage.eventTypes.map((eventType) => ({
         eventType,
@@ -690,7 +708,11 @@ export function digitization(ctx: Ctx, code: string): Digitization {
             graceDays: draft.graceDays,
           }
         : null,
-      source: warranty ? "NEEDS_CONFIRMATION" : "MATCH",
+      source: changed
+        ? "EDITED"
+        : warranty && !dueDate
+          ? "NEEDS_CONFIRMATION"
+          : "MATCH",
       sourceClause: CLAUSE_OF[stage.type] ?? null,
       // The text states the warranty as a term after the previous stage, not as a date.
       relativeTermMonths: warranty
@@ -711,7 +733,158 @@ export function digitization(ctx: Ctx, code: string): Digitization {
     requiredApprovals: APPROVAL_ROLES_BY_POLICY[draft.approvalPolicy].length,
     suggestedDueDate: warrantyStage ? schedule[warrantyStage.sequence] : null,
     locked: draft.state !== "DRAFT",
+    edited: draft.milestoneEdits
+      ? { by: draft.milestoneEdits.byName, at: draft.milestoneEdits.at }
+      : null,
   };
+}
+
+const sameStage = (a: StageTemplate, b: StageTemplate) =>
+  a.paymentPercent === b.paymentPercent &&
+  a.latePenalty === b.latePenalty &&
+  (a.approval ?? "CONTRACT") === (b.approval ?? "CONTRACT") &&
+  a.eventTypes.join(";") === b.eventTypes.join(";");
+
+/** The workflow's stages, with a person's corrections applied (MilestoneEdit). */
+function effectiveStages(ctx: Ctx, draft: DraftRecord) {
+  const base = stagesOf(
+    ctx,
+    draft.contractType,
+    draft.ruleVersionId as string | undefined,
+    draft.workflowTemplate,
+  );
+  const edits = draft.milestoneEdits?.milestones ?? null;
+  const stages = edits
+    ? base.map((stage) => {
+        const edit = edits.find((row) => row.sequence === stage.sequence);
+        return edit
+          ? {
+              ...stage,
+              paymentPercent: edit.paymentPercent,
+              eventTypes: edit.eventTypes,
+              latePenalty: edit.latePenalty,
+              approval: edit.approval,
+            }
+          : stage;
+      })
+    : base;
+  return { base, stages, edits };
+}
+
+const MAX_EVENTS = 6;
+
+/**
+ * Checks a person's corrections against the workflow and the draft: every stage once, each share
+ * a positive exact decimal and the shares adding up to exactly 100%, 1 to 6 distinct required
+ * documents of the specification's types, and due dates inside the contract period in stage order.
+ */
+export function checkMilestoneEdits(
+  draft: Pick<DraftRecord, "startDate" | "endDate">,
+  base: StageTemplate[],
+  value: unknown,
+): MilestoneEdit[] {
+  if (!Array.isArray(value) || value.length !== base.length)
+    throw new BadRequestException("MILESTONE_EDIT_INVALID");
+  const rows = [...value].sort(
+    (a, b) => Number(a?.sequence) - Number(b?.sequence),
+  );
+  let total = 0n;
+  let previous = draft.startDate;
+  const edits = rows.map((row, i): MilestoneEdit => {
+    if (
+      !row ||
+      typeof row !== "object" ||
+      Number(row.sequence) !== base[i].sequence
+    )
+      throw new BadRequestException("MILESTONE_EDIT_INVALID");
+    const percent = decimal(row.paymentPercent, 100);
+    if (!percent || toCents(percent) <= 0n)
+      throw new BadRequestException("PERCENT_INVALID");
+    total += toCents(percent);
+    const events = Array.isArray(row.eventTypes) ? row.eventTypes : [];
+    if (
+      !events.length ||
+      events.length > MAX_EVENTS ||
+      new Set(events).size !== events.length ||
+      !events.every(
+        (type: unknown) => typeof type === "string" && type in AUTHORITY,
+      )
+    )
+      throw new BadRequestException("INVALID_EVENTS");
+    if (
+      typeof row.latePenalty !== "boolean" ||
+      !["CONTRACT", "NONE"].includes(row.approval)
+    )
+      throw new BadRequestException("MILESTONE_EDIT_INVALID");
+    const dueDate = row.dueDate === null ? null : isoDate(row.dueDate);
+    if (row.dueDate !== null && !dueDate)
+      throw new BadRequestException("INVALID_DATES");
+    if (dueDate) {
+      if (dueDate < previous || dueDate > draft.endDate)
+        throw new BadRequestException("DUE_DATE_OUT_OF_RANGE");
+      previous = dueDate;
+    }
+    return {
+      sequence: base[i].sequence,
+      paymentPercent: percent,
+      dueDate,
+      eventTypes: events as MilestoneEdit["eventTypes"],
+      latePenalty: row.latePenalty,
+      approval: row.approval,
+    };
+  });
+  // Exactly 100%: the last milestone takes the remainder of the value, never more or less.
+  if (total !== 10000n) throw new BadRequestException("PERCENT_TOTAL");
+  return edits;
+}
+
+/**
+ * Stores a person's corrections of the digitised milestones (or clears them with `reset`), while
+ * the draft is open. The draft version stays, so the reviewed extraction still applies.
+ */
+export function editMilestones(
+  ctx: Ctx,
+  code: string,
+  input: { milestones?: unknown; reset?: boolean },
+): Outcome<Digitization> {
+  assertEditor(ctx);
+  const contract = ctx.contract(code);
+  const draft = ctx.draft(code);
+  if (
+    !draft ||
+    draft.organizationId !== ctx.actor.organizationId ||
+    contract.lifecycle !== "DRAFT" ||
+    draft.state !== "DRAFT"
+  )
+    throw new BadRequestException("DRAFT_LOCKED");
+  const { base } = effectiveStages(ctx, draft);
+  const edits = input?.reset
+    ? null
+    : checkMilestoneEdits(draft, base, input?.milestones);
+  draft.milestoneEdits = edits
+    ? {
+        milestones: edits,
+        by: ctx.actor.id,
+        byName: ctx.actor.displayName,
+        at: new Date().toISOString(),
+      }
+    : null;
+  draft.updatedAt = new Date().toISOString();
+  const result = digitization(ctx, code);
+  return outcome(ctx, result, {
+    audit: [
+      {
+        category: "SYSTEM",
+        contractId: code,
+        milestoneId: null,
+        detail: {
+          kind: "DIGITIZATION_EDITED",
+          milestoneCount: result.milestones.filter((m) => m.source === "EDITED")
+            .length,
+        },
+      },
+    ],
+  });
 }
 
 /**
@@ -764,6 +937,10 @@ export function confirmDigitization(
       layout.steps,
     );
   }
+  // Corrections are checked again against the draft as it is now (its period may have changed).
+  const effective = effectiveStages(ctx, draft);
+  if (effective.edits)
+    checkMilestoneEdits(draft, effective.base, effective.edits);
   const result = digitization(ctx, code);
   // The whole value must be a date; trailing text is refused rather than cut off.
   const dueDate = input?.dueDate ? isoDate(String(input.dueDate)) : null;
@@ -799,12 +976,7 @@ export function confirmDigitization(
     Math.max(0, ...usedIds.map((id) => Number(id.replace(/\D/g, "")) || 0)) + 1;
   const created = milestonesFor(
     contract,
-    stagesOf(
-      ctx,
-      draft.contractType,
-      draft.ruleVersionId as string | undefined,
-      draft.workflowTemplate,
-    ),
+    effective.stages,
     first,
     Object.fromEntries(
       result.milestones.map((m) => [m.sequence, m.dueDate ?? ""]),

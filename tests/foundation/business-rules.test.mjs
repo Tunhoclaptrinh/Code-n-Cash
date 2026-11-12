@@ -408,6 +408,13 @@ const WRITE_ACTIONS = [
     args: ["CT9999", { dueDate: null }],
     reaches: "CONTRACT_NOT_FOUND",
   },
+  {
+    name: "editDigitizedMilestones",
+    module: "drafts",
+    allowed: BUYER_EDITORS,
+    args: ["CT9999", { reset: true }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
 ];
 
 test("who: only the roles of spec 17 reach each write action; every other role is refused and nothing is stored", async () => {
@@ -429,7 +436,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 21);
+  assert.equal(WRITE_ACTIONS.length, 22);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)

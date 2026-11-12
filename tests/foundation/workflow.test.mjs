@@ -17,6 +17,15 @@ const evaluationOf = async (milestoneId) =>
   (await repo.list("evaluations")).find((e) => e.milestoneId === milestoneId);
 
 let EVIDENCE;
+/** Share of a decimal amount in hundredths, as the API cuts it (no floats). */
+const sharesOf = (total, percent) => {
+  const cents = (v) => {
+    const [whole, fraction = ""] = v.split(".");
+    return BigInt(whole) * 100n + BigInt(fraction.padEnd(2, "0"));
+  };
+  const value = (cents(total) * cents(percent)) / 10000n;
+  return `${value / 100n}.${String(value % 100n).padStart(2, "0")}`;
+};
 before(async () => {
   dir = await mkdtemp(join(tmpdir(), "codecash-workflow-"));
   process.env.REPO_ROOT = process.cwd();
@@ -769,6 +778,87 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
   assert.ok(value.page >= 1 && value.quote.length > 0, JSON.stringify(value));
   assert.equal(digitized.clauses[1].quote, null);
   assert.ok(digitized.milestones[3].relativeTermMonths >= 1);
+  // A person corrects the milestones to what the signed document says; the API checks them.
+  const asEdits = (rows) =>
+    rows.map((m) => ({
+      sequence: m.sequence,
+      paymentPercent: m.paymentPercent,
+      dueDate: m.dueDate,
+      eventTypes: m.eventTypes,
+      latePenalty: !!m.penalty,
+      approval: m.approvalRoles.length ? "CONTRACT" : "NONE",
+    }));
+  const editMilestones = (milestones) =>
+    call("u-legal", "drafts", "editDigitizedMilestones", saved.code, {
+      milestones,
+    });
+  const schedule = asEdits(digitized.milestones);
+  for (const [bad, code] of [
+    [schedule.slice(1), /MILESTONE_EDIT_INVALID/],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, paymentPercent: "14.99" })),
+      /PERCENT_TOTAL/,
+    ],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, paymentPercent: "0" })),
+      /PERCENT_INVALID/,
+    ],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, eventTypes: [] })),
+      /INVALID_EVENTS/,
+    ],
+    [
+      schedule.map((m, i) =>
+        i ? m : { ...m, eventTypes: ["INVOICE", "INVOICE"] },
+      ),
+      /INVALID_EVENTS/,
+    ],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, eventTypes: ["APPROVAL"] })),
+      /INVALID_EVENTS/,
+    ],
+    [
+      schedule.map((m, i) =>
+        i === 1
+          ? { ...m, dueDate: kickoff.dueDate }
+          : i === 0
+            ? { ...m, dueDate: interim.dueDate }
+            : m,
+      ),
+      /DUE_DATE_OUT_OF_RANGE/,
+    ],
+    [
+      schedule.map((m, i) => (i === 2 ? { ...m, dueDate: "2999-01-01" } : m)),
+      /DUE_DATE_OUT_OF_RANGE/,
+    ],
+  ])
+    await assert.rejects(editMilestones(bad), code);
+  await assert.rejects(
+    call("u-supplier", "drafts", "editDigitizedMilestones", saved.code, {
+      milestones: schedule,
+    }),
+  );
+  const corrected = schedule.map((m, i) =>
+    i === 0
+      ? { ...m, paymentPercent: "20.00" }
+      : i === 1
+        ? {
+            ...m,
+            paymentPercent: "30.00",
+            eventTypes: [...m.eventTypes, "ACCEPTANCE"],
+          }
+        : m,
+  );
+  const edited = await editMilestones(corrected);
+  assert.deepEqual(
+    edited.milestones.map((m) => m.source),
+    ["EDITED", "EDITED", "MATCH", "NEEDS_CONFIRMATION"],
+  );
+  assert.equal(edited.edited.by, actor("u-legal").displayName);
+  assert.equal(
+    edited.milestones[1].valueMillion,
+    sharesOf(saved.valueMillion, "30.00"),
+  );
   await placeActualSignatures(saved.code);
   // Before the final acceptance, or after the contract has ended.
   for (const dueDate of [kickoff.dueDate, "2999-12-31"])
@@ -817,6 +907,13 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     created.find((m) => m.milestone_type === "WARRANTY_CLOSE").due_date,
     saved.endDate,
   );
+  // The milestones are created from the corrected terms.
+  assert.deepEqual(
+    created.map((m) => m.payment_percent),
+    ["20.00", "30.00", "40.00", "10.00"],
+  );
+  assert.equal(created[1].required_event_types, "DELIVERY;INVOICE;ACCEPTANCE");
+  assert.match(created[1].required_condition, /EVENT:ACCEPTANCE/);
   const unchanged = (await repo.list("milestones")).find(
     (m) => m.milestone_id === "MS0412",
   );

@@ -24,6 +24,12 @@ The background displays the actual uploaded PDF pages. Suggest signature areas, 
 
 ![Digitization review and deadline confirmation](../../../public/guide/images/upload-digitize.webp)
 
+The milestones are built from the workflow of the contract type, not read from the document: due dates are spread over the contract period and the last falls on the end date. When the text differs, press **Edit milestones** and correct each milestone's share, due date, required documents, penalty or approval. The API checks the shares add up to exactly 100%, dates follow the milestone order inside the period, and each milestone has 1–6 distinct documents. Corrected rows are marked **Edited** with who and when; **Back to the workflow** drops the corrections, as does changing the contract type or period in step 1.
+
+![Editing milestones: 1 — each share; 2 — the total must be 100%; 3 — save](../../../public/guide/images/upload-digitize-edit.webp)
+
+After signing, the schedule changes only through an **Amendment** on the contract page: the buyer proposes new dates or an extension with a reason, the supplier accepts or rejects; the signed terms stay as they are, so the signatures still verify.
+
 > When Gemini is enabled, the API sends the rendered PDF to Google and suggests six terms with page quotations. Quotes are checked against text on the claimed page; values still require human review. Scan quotations require manual checking. Local mode extracts text without AI. Milestone templates still come from the Data Pack. Placement uses actual PDF page coordinates; simulated signatures remain detached proofs rather than embedded PAdES signatures.
 
 Confirmation creates milestones, locks terms and starts signing. The final milestone absorbs rounding remainder so amounts add to the contract value. An unresolved structural gap can leave a milestone on HOLD.

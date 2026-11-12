@@ -78,7 +78,9 @@
     "AMENDMENT_PROPOSED": "Proposed amendment PL-{{number}}",
     "AMENDMENT_ACCEPTED": "Accepted amendment PL-{{number}}",
     "AMENDMENT_REJECTED": "Rejected amendment PL-{{number}}",
-    "AMENDMENT_WITHDRAWN": "Withdrew amendment PL-{{number}}"
+    "AMENDMENT_WITHDRAWN": "Withdrew amendment PL-{{number}}",
+    "DIGITIZATION_EDITED_one": "Corrected the digitised terms ({{count}} milestone)",
+    "DIGITIZATION_EDITED_other": "Corrected the digitised terms ({{count}} milestones)"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -107,7 +109,8 @@
     "applySigningResult": "Receive the result from the signing service",
     "proposeAmendment": "Propose amendment",
     "decideAmendment": "Answer amendment",
-    "withdrawAmendment": "Withdraw amendment"
+    "withdrawAmendment": "Withdraw amendment",
+    "editDigitizedMilestones": "Edit digitised milestones"
   },
   "detail": {
     "view": "View details",
@@ -260,7 +263,8 @@
     "UPDATE": "Edit a record",
     "UPLOAD": "Upload a document",
     "VOID": "Void a record",
-    "AMENDMENT": "Contract amendment"
+    "AMENDMENT": "Contract amendment",
+    "DIGITIZATION_EDITED": "Digitised terms corrected"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",

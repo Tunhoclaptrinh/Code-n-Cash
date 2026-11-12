@@ -907,6 +907,20 @@ try {
         { n: 2, target: "[data-testid=digitize-confirm]" },
       ],
     });
+    // A person corrects the milestones to the document: the editor checks the shares add up.
+    await click("[data-testid=digitize-edit]");
+    await until("!!document.querySelector('[data-testid=milestone-editor]')");
+    await pause(400);
+    await shot("upload-digitize-edit", {
+      clip: "[data-testid=digitization-milestones]",
+      marks: [
+        { n: 1, target: "[data-testid=edit-percent-1]" },
+        { n: 2, target: "[data-testid=edit-total]" },
+        { n: 3, target: "[data-testid=edit-save]" },
+      ],
+    });
+    await click({ text: "Huỷ", tag: "button" });
+    await until("!document.querySelector('[data-testid=milestone-editor]')");
     await evaluate(
       "(() => {const fill = document.querySelector('[data-testid=load-deadline-suggestion]'); if (fill) fill.click();})()",
     );

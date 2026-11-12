@@ -1123,6 +1123,7 @@ export type ActivityAction =
     }
   | { kind: "SIGNATURE"; stepNo: number; totalSteps: number; isFinal: boolean }
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
+  | { kind: "DIGITIZATION_EDITED"; milestoneCount: number }
   | { kind: "AMENDMENT"; state: AmendmentState; number: number }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
   | { kind: "PAYMENT"; amountMillion: string }
@@ -1499,7 +1500,24 @@ export interface UploadFormOptions {
   >;
 }
 
-export type SourceStatus = "MATCH" | "NEEDS_CONFIRMATION" | "CONFIRMED";
+export type SourceStatus =
+  "MATCH" | "NEEDS_CONFIRMATION" | "CONFIRMED" | "EDITED";
+
+/**
+ * A person's correction of one digitised milestone, so the data says what the signed document
+ * says. The stages themselves (count, order, milestone types) come from the workflow and its rule
+ * scopes; another structure is a workflow of a rule version (section 6.3).
+ */
+export interface MilestoneEdit {
+  sequence: number;
+  paymentPercent: string;
+  /** Null leaves the date to be confirmed (it is then held until an amendment). */
+  dueDate: string | null;
+  eventTypes: BusinessEventType[];
+  latePenalty: boolean;
+  /** NONE releases the milestone without the contract's approvals once its conditions hold. */
+  approval: "CONTRACT" | "NONE";
+}
 export type SourceClauseKind =
   "TOTAL_VALUE" | "DELIVERY" | "LATE_PENALTY" | "APPROVALS";
 
@@ -1544,4 +1562,6 @@ export interface Digitization {
   requiredApprovals: number;
   suggestedDueDate: string | null;
   locked: boolean;
+  /** Who corrected the milestones by hand, if anyone (MilestoneEdit). */
+  edited: { by: string; at: string } | null;
 }

@@ -8,9 +8,12 @@ import { ApiError } from "@/shared/api/client";
 import { AppPage } from "@/shared/layout/AppPage";
 import {
   formatDate,
+  formatDateTime,
   formatDecimalString,
   sumDecimalStrings,
 } from "@/shared/lib/format";
+import { EditOutlined } from "@ant-design/icons";
+import { MilestoneEditor } from "../components/MilestoneEditor";
 import { confirmDigitization, getDigitization } from "../api/digitization.api";
 import { signingKeys } from "../api/signingConfig.api";
 import { PageState } from "@/shared/ui/PageState";
@@ -83,6 +86,7 @@ function Review({
   const [deadlineInvalid, setDeadlineInvalid] = useState(false);
   const [highlighted, setHighlighted] = useState<SourceClauseKind | null>(null);
   const [extractionReady, setExtractionReady] = useState(false);
+  const [editing, setEditing] = useState(false);
   const confirm = useMutation({
     mutationFn: (dueDate: string | null) =>
       confirmDigitization(contractId, { dueDate }),
@@ -121,115 +125,146 @@ function Review({
             <h2>
               {t("digitize.result.title", { count: data.milestones.length })}
             </h2>
+            {!data.locked && !editing ? (
+              <Button
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => setEditing(true)}
+                data-testid="digitize-edit"
+              >
+                {t("digitize.edit.open")}
+              </Button>
+            ) : null}
           </div>
-          <Table<DigitizedMilestone>
-            rowKey="sequence"
-            dataSource={data.milestones}
-            pagination={false}
-            tableLayout="auto"
-            // Columns wrap to the card; only a narrow screen scrolls sideways.
-            scroll={{ x: 720 }}
-            onRow={(m) => ({
-              tabIndex: 0,
-              onClick: () => setHighlighted(m.sourceClause),
-              onKeyDown: (event) => {
-                if (event.key === "Enter") setHighlighted(m.sourceClause);
-              },
-            })}
-            columns={[
-              {
-                key: "milestone",
-                title: t("digitize.result.columns.milestone"),
-                render: (_, m) => (
-                  <>
-                    <b>
-                      {t("digitize.result.milestoneCode", { no: m.sequence })}
-                    </b>{" "}
-                    {td(`milestoneType.${m.type}`)}
-                  </>
-                ),
-              },
-              {
-                key: "value",
-                title: t("digitize.result.columns.value"),
-                render: (_, m) =>
-                  `${formatDecimalString(m.valueMillion)} (${m.paymentPercent}%)`,
-              },
-              {
-                key: "due",
-                title: t("digitize.result.columns.dueDate"),
-                render: (_, m) =>
-                  m.dueDate
-                    ? formatDate(m.dueDate)
-                    : t("digitize.result.dueUnknown"),
-              },
-              {
-                key: "docs",
-                title: t("digitize.result.columns.documents"),
-                // Each document with the side that records it (older digitisations have no sides).
-                render: (_, m) =>
-                  capitalize(
-                    (
-                      m.documents ??
-                      m.eventTypes.map((eventType) => ({
-                        eventType,
-                        side: null,
-                      }))
-                    )
-                      .map(({ eventType, side }) =>
-                        side
-                          ? t("digitize.result.documentBy", {
-                              document: td(`eventType.${eventType}`),
-                              side: td(`side.${side}`),
-                            })
-                          : td(`eventType.${eventType}`),
-                      )
-                      .join(", "),
-                  ),
-              },
-              {
-                key: "approval",
-                title: t("digitize.result.columns.approval"),
-                render: (_, m) => {
-                  const roles = m.approvalRoles ?? data.approvers;
-                  return roles.length
-                    ? roles.map((role) => td(`approvalRole.${role}`)).join(", ")
-                    : t("digitize.result.noApproval");
-                },
-              },
-              {
-                key: "penalty",
-                title: t("digitize.result.columns.penalty"),
-                render: (_, m) =>
-                  m.penalty
-                    ? t(
-                        m.penalty.graceDays === undefined
-                          ? "digitize.result.penalty.RATE"
-                          : "digitize.result.penalty.RATE_GRACE",
-                        {
-                          rate: m.penalty.ratePct,
-                          cap: m.penalty.capPct,
-                          grace: m.penalty.graceDays,
-                        },
-                      )
-                    : t("digitize.result.penalty.NONE"),
-              },
-              {
-                key: "source",
-                title: t("digitize.result.columns.source"),
-                render: (_, m) => (
-                  <Tag
-                    style={{ margin: 0, whiteSpace: "nowrap" }}
-                    color={
-                      m.source === "NEEDS_CONFIRMATION" ? "warning" : "success"
-                    }
-                  >
-                    {t(`digitize.result.sourceStatus.${m.source}`)}
-                  </Tag>
-                ),
-              },
-            ]}
+          <Alert
+            type={data.edited ? "warning" : "info"}
+            showIcon
+            style={{ marginBottom: 12 }}
+            title={
+              data.edited
+                ? t("digitize.edit.editedBy", {
+                    name: data.edited.by,
+                    at: formatDateTime(data.edited.at),
+                  })
+                : t("digitize.edit.origin")
+            }
           />
+          {editing ? (
+            <MilestoneEditor data={data} onDone={() => setEditing(false)} />
+          ) : (
+            <Table<DigitizedMilestone>
+              rowKey="sequence"
+              dataSource={data.milestones}
+              pagination={false}
+              tableLayout="auto"
+              // Columns wrap to the card; only a narrow screen scrolls sideways.
+              scroll={{ x: 720 }}
+              onRow={(m) => ({
+                tabIndex: 0,
+                onClick: () => setHighlighted(m.sourceClause),
+                onKeyDown: (event) => {
+                  if (event.key === "Enter") setHighlighted(m.sourceClause);
+                },
+              })}
+              columns={[
+                {
+                  key: "milestone",
+                  title: t("digitize.result.columns.milestone"),
+                  render: (_, m) => (
+                    <>
+                      <b>
+                        {t("digitize.result.milestoneCode", { no: m.sequence })}
+                      </b>{" "}
+                      {td(`milestoneType.${m.type}`)}
+                    </>
+                  ),
+                },
+                {
+                  key: "value",
+                  title: t("digitize.result.columns.value"),
+                  render: (_, m) =>
+                    `${formatDecimalString(m.valueMillion)} (${m.paymentPercent}%)`,
+                },
+                {
+                  key: "due",
+                  title: t("digitize.result.columns.dueDate"),
+                  render: (_, m) =>
+                    m.dueDate
+                      ? formatDate(m.dueDate)
+                      : t("digitize.result.dueUnknown"),
+                },
+                {
+                  key: "docs",
+                  title: t("digitize.result.columns.documents"),
+                  // Each document with the side that records it (older digitisations have no sides).
+                  render: (_, m) =>
+                    capitalize(
+                      (
+                        m.documents ??
+                        m.eventTypes.map((eventType) => ({
+                          eventType,
+                          side: null,
+                        }))
+                      )
+                        .map(({ eventType, side }) =>
+                          side
+                            ? t("digitize.result.documentBy", {
+                                document: td(`eventType.${eventType}`),
+                                side: td(`side.${side}`),
+                              })
+                            : td(`eventType.${eventType}`),
+                        )
+                        .join(", "),
+                    ),
+                },
+                {
+                  key: "approval",
+                  title: t("digitize.result.columns.approval"),
+                  render: (_, m) => {
+                    const roles = m.approvalRoles ?? data.approvers;
+                    return roles.length
+                      ? roles
+                          .map((role) => td(`approvalRole.${role}`))
+                          .join(", ")
+                      : t("digitize.result.noApproval");
+                  },
+                },
+                {
+                  key: "penalty",
+                  title: t("digitize.result.columns.penalty"),
+                  render: (_, m) =>
+                    m.penalty
+                      ? t(
+                          m.penalty.graceDays === undefined
+                            ? "digitize.result.penalty.RATE"
+                            : "digitize.result.penalty.RATE_GRACE",
+                          {
+                            rate: m.penalty.ratePct,
+                            cap: m.penalty.capPct,
+                            grace: m.penalty.graceDays,
+                          },
+                        )
+                      : t("digitize.result.penalty.NONE"),
+                },
+                {
+                  key: "source",
+                  title: t("digitize.result.columns.source"),
+                  render: (_, m) => (
+                    <Tag
+                      style={{ margin: 0, whiteSpace: "nowrap" }}
+                      color={
+                        m.source === "NEEDS_CONFIRMATION"
+                          ? "warning"
+                          : "success"
+                      }
+                    >
+                      {t(`digitize.result.sourceStatus.${m.source}`)}
+                    </Tag>
+                  ),
+                },
+              ]}
+            />
+          )}
           {pending ? (
             <div className={cx(shared.notice, styles.ambiguity)}>
               <b className={shared.noticeTitle}>
@@ -360,7 +395,11 @@ function Review({
             <Button
               type="primary"
               size="small"
-              disabled={confirm.isPending || (!data.locked && !extractionReady)}
+              disabled={
+                confirm.isPending ||
+                editing ||
+                (!data.locked && !extractionReady)
+              }
               onClick={onConfirm}
               data-testid="digitize-confirm"
             >

@@ -174,7 +174,8 @@
       "sourceStatus": {
         "MATCH": "From the workflow",
         "NEEDS_CONFIRMATION": "Needs confirmation",
-        "CONFIRMED": "Confirmed"
+        "CONFIRMED": "Confirmed",
+        "EDITED": "Edited"
       },
       "noApproval": "Not needed",
       "documentBy": "{{document}} ({{side}})"
@@ -200,7 +201,23 @@
       "confirm": "Confirm digitised terms and continue to signing",
       "continue": "Continue to signing"
     },
-    "goExtraction": "Go to the next step"
+    "goExtraction": "Go to the next step",
+    "edit": {
+      "open": "Edit milestones",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "reset": "Back to the workflow",
+      "saved": "The corrected milestones are saved.",
+      "percent": "Share",
+      "total": "Total share: {{total}}% (must be exactly 100%)",
+      "notice": "Correct the milestones to match the contract text: payment share, due date, required documents, late penalty and approval of each. The number and types of milestones follow the chosen workflow. Dates keep the milestone order inside the contract period; leave a date empty if the text gives none (the milestone then waits for an amendment).",
+      "origin": "The milestones are built from the workflow of the contract type, not read from the document. Compare them with the text and correct any difference.",
+      "editedBy": "{{name}} corrected the milestones by hand at {{at}}. Rows marked \"Edited\" differ from the workflow proposal.",
+      "approval": {
+        "CONTRACT": "Per policy",
+        "NONE": "No approval"
+      }
+    }
   },
   "flow": {
     "breadcrumb": {

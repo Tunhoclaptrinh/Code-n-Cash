@@ -457,6 +457,12 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     getDigitization: read("contracts:read", (ctx, [code]) =>
       drafts.digitization(ctx, str(code)),
     ),
+    editDigitizedMilestones: write(
+      "contracts:digitize",
+      "editDigitizedMilestones",
+      (ctx, [code, value]) =>
+        drafts.editMilestones(ctx, str(code), input(value)),
+    ),
     confirmDigitization: write(
       "contracts:digitize",
       "confirmDigitization",

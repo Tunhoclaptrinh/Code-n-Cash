@@ -21,6 +21,7 @@ import type {
   EvidenceDocument,
   InvoiceData,
   Amendment,
+  MilestoneEdit,
 } from "./types";
 import type { LocalProof } from "../trust/types";
 
@@ -269,6 +270,13 @@ export interface DraftRecord extends RecordEntity {
   appendixNames: string[];
   appendixDocuments?: Array<{ id: string; name: string; sha256: string }>;
   digitization: Digitization | null;
+  /** Hand corrections of the digitised milestones before they are locked. */
+  milestoneEdits?: {
+    milestones: MilestoneEdit[];
+    by: string;
+    byName: string;
+    at: string;
+  } | null;
 }
 
 export interface AttachmentRecord extends RecordEntity, Omit<Attachment, "id"> {

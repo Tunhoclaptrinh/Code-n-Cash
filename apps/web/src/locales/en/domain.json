@@ -369,7 +369,11 @@
     "AMENDMENT_EMPTY": "The amendment changes no due date or end date.",
     "AMENDMENT_NOT_FOUND": "Amendment not found.",
     "AMENDMENT_CLOSED": "This amendment has already been handled.",
-    "CANNOT_DECIDE_AMENDMENT": "Only the contract's supplier answers an amendment."
+    "CANNOT_DECIDE_AMENDMENT": "Only the contract's supplier answers an amendment.",
+    "MILESTONE_EDIT_INVALID": "The correction must cover every milestone of the workflow with valid data.",
+    "PERCENT_INVALID": "Each share must be above 0 with at most two decimals.",
+    "PERCENT_TOTAL": "The shares must add up to exactly 100%.",
+    "INVALID_EVENTS": "Each milestone needs 1–6 distinct required documents."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

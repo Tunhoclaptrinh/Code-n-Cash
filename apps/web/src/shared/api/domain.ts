@@ -27,6 +27,7 @@ import type {
   DashboardView,
   InvoiceData,
   Amendment,
+  MilestoneEdit,
 } from "@codecash/contracts";
 import { ApiError as HttpError } from "@codecash/api-client";
 import { ApiError } from "./client";
@@ -321,6 +322,15 @@ export const saveContractDraft = (draft: ContractDraft) =>
   workflowCall<ContractDraft>("drafts", "saveContractDraft", [draft]);
 export const getDigitization = (contractCode: string) =>
   workflowCall<Digitization>("drafts", "getDigitization", [contractCode]);
+/** A person's corrections of the digitised milestones, or `reset` to the workflow's proposal. */
+export const editDigitizedMilestones = (
+  contractCode: string,
+  input: { milestones?: MilestoneEdit[]; reset?: boolean },
+) =>
+  workflowCall<Digitization>("drafts", "editDigitizedMilestones", [
+    contractCode,
+    input,
+  ]);
 export const confirmDigitization = (
   contractCode: string,
   input: { dueDate: string | null },

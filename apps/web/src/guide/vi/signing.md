@@ -47,7 +47,13 @@ Mở lại hồ sơ chưa xác nhận vẫn thấy hướng dẫn và cần xác
 
 ![Rà soát: 1 — hạn cần xác nhận; 2 — xác nhận điều khoản](../../../public/guide/images/upload-digitize.webp)
 
-Đối chiếu tổng giá trị, tỷ lệ và số tiền từng mốc, loại chứng từ, chính sách phê duyệt, phạt và ngày đến hạn. Mốc có thuật ngữ tương đối như “12 tháng” cần nhập ngày cụ thể. Nếu để trống hạn được phép thiếu, mốc có thể bị HOLD vì thiếu cấu trúc; không tự suy ra ngày để hoàn tất demo.
+Đối chiếu tổng giá trị, tỷ lệ và số tiền từng mốc, loại chứng từ, chính sách phê duyệt, phạt và ngày đến hạn. Mốc có thuật ngữ tương đối như “sau 2 tháng bảo hành” cần nhập ngày cụ thể. Nếu để trống hạn được phép thiếu, mốc có thể bị HOLD vì thiếu cấu trúc; không tự suy ra ngày để hoàn tất demo.
+
+Mốc được dựng từ quy trình mẫu của loại hợp đồng, không đọc từ văn bản: hạn chia theo tỷ lệ thời hạn hợp đồng, mốc cuối rơi vào ngày kết thúc. Nếu văn bản ghi khác, bấm **Chỉnh sửa mốc** và sửa tỷ lệ, hạn, chứng từ bắt buộc, áp phạt hoặc phê duyệt của từng mốc. API kiểm lại: tổng tỷ lệ đúng 100%, hạn theo thứ tự mốc và trong thời hạn hợp đồng, 1–6 chứng từ không trùng. Dòng đã sửa mang nhãn **Đã chỉnh tay**, kèm người sửa và thời điểm; **Khôi phục theo quy trình** bỏ toàn bộ chỉnh sửa. Đổi loại hợp đồng hoặc thời hạn ở bước 1 cũng bỏ chỉnh sửa.
+
+![Chỉnh sửa mốc: 1 — tỷ lệ từng mốc; 2 — tổng phải đúng 100%; 3 — lưu](../../../public/guide/images/upload-digitize-edit.webp)
+
+Sau khi ký, lịch mốc chỉ đổi qua **Phụ lục** ở trang hợp đồng: bên mua đề xuất hạn mới hoặc gia hạn kèm lý do, nhà cung cấp chấp nhận hay từ chối; điều khoản đã ký giữ nguyên để chữ ký vẫn kiểm được.
 
 > **Trích xuất:** nếu được quản trị bật Gemini, hệ thống gửi bản PDF đến Google để đề xuất sáu điều khoản kèm trang và đoạn trích. Với PDF có text, đoạn trích được kiểm lại trên đúng trang; điều này không thay việc xác nhận ý nghĩa và giá trị. Bản scan cần người dùng đối chiếu thủ công. Chế độ local đọc text, không gọi AI. Mốc nghiệp vụ vẫn lấy từ mẫu quy trình Data Pack. Vị trí ký gắn với trang PDF thật; chữ ký demo vẫn là bằng chứng tách rời, chưa nhúng chữ ký PAdES vào PDF.
 

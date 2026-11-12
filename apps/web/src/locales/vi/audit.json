@@ -78,7 +78,9 @@
     "AMENDMENT_PROPOSED": "Lập phụ lục PL-{{number}}",
     "AMENDMENT_ACCEPTED": "Chấp nhận phụ lục PL-{{number}}",
     "AMENDMENT_REJECTED": "Từ chối phụ lục PL-{{number}}",
-    "AMENDMENT_WITHDRAWN": "Rút lại phụ lục PL-{{number}}"
+    "AMENDMENT_WITHDRAWN": "Rút lại phụ lục PL-{{number}}",
+    "DIGITIZATION_EDITED_one": "Chỉnh tay bản số hoá ({{count}} mốc)",
+    "DIGITIZATION_EDITED_other": "Chỉnh tay bản số hoá ({{count}} mốc)"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",
@@ -107,7 +109,8 @@
     "applySigningResult": "Nhận kết quả ký từ dịch vụ ký",
     "proposeAmendment": "Lập phụ lục",
     "decideAmendment": "Trả lời phụ lục",
-    "withdrawAmendment": "Rút lại phụ lục"
+    "withdrawAmendment": "Rút lại phụ lục",
+    "editDigitizedMilestones": "Chỉnh sửa mốc số hoá"
   },
   "detail": {
     "view": "Xem chi tiết",
@@ -260,7 +263,8 @@
     "UPDATE": "Sửa bản ghi",
     "UPLOAD": "Tải tài liệu lên",
     "VOID": "Huỷ bản ghi",
-    "AMENDMENT": "Phụ lục hợp đồng"
+    "AMENDMENT": "Phụ lục hợp đồng",
+    "DIGITIZATION_EDITED": "Chỉnh tay bản số hoá"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",

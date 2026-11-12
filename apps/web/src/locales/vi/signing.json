@@ -173,7 +173,8 @@
       "sourceStatus": {
         "MATCH": "Theo quy trình mẫu",
         "NEEDS_CONFIRMATION": "Cần xác nhận",
-        "CONFIRMED": "Đã xác nhận"
+        "CONFIRMED": "Đã xác nhận",
+        "EDITED": "Đã chỉnh tay"
       },
       "noApproval": "Không cần",
       "documentBy": "{{document}} ({{side}})"
@@ -199,7 +200,23 @@
       "confirm": "Xác nhận bản số hóa và chuyển sang ký",
       "continue": "Chuyển sang ký"
     },
-    "goExtraction": "Đến bước cần làm"
+    "goExtraction": "Đến bước cần làm",
+    "edit": {
+      "open": "Chỉnh sửa mốc",
+      "save": "Lưu chỉnh sửa",
+      "cancel": "Huỷ",
+      "reset": "Khôi phục theo quy trình",
+      "saved": "Đã lưu bản số hoá đã chỉnh.",
+      "percent": "Tỷ lệ",
+      "total": "Tổng tỷ lệ: {{total}}% (phải đúng 100%)",
+      "notice": "Sửa cho khớp văn bản hợp đồng: tỷ lệ thanh toán, hạn, chứng từ bắt buộc, áp phạt và phê duyệt của từng mốc. Số mốc và loại mốc theo quy trình đã chọn. Hạn phải theo thứ tự mốc, trong thời hạn hợp đồng; để trống hạn nếu văn bản chưa ghi ngày (mốc sẽ chờ phụ lục).",
+      "origin": "Mốc được dựng từ quy trình mẫu của loại hợp đồng, không đọc từ văn bản. Đối chiếu với văn bản và chỉnh sửa nếu khác.",
+      "editedBy": "{{name}} đã chỉnh tay bản số hoá lúc {{at}}. Các dòng \"Đã chỉnh tay\" khác đề xuất của quy trình.",
+      "approval": {
+        "CONTRACT": "Theo chính sách",
+        "NONE": "Không cần duyệt"
+      }
+    }
   },
   "flow": {
     "breadcrumb": {

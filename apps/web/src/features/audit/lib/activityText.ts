@@ -38,6 +38,10 @@ export function describeAction(
       return t("actions.DIGITIZATION_CONFIRMED", {
         count: action.milestoneCount,
       });
+    case "DIGITIZATION_EDITED":
+      return t("actions.DIGITIZATION_EDITED", {
+        count: action.milestoneCount,
+      });
     case "AMENDMENT":
       return t(`actions.AMENDMENT_${action.state}`, {
         number: String(action.number).padStart(2, "0"),

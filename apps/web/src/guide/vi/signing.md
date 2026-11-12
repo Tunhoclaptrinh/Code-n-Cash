@@ -70,12 +70,24 @@ Thử CT0102 bằng `supplier@phuminh.vn` ở bước 2, rồi `secondary@novaan
 
 ### Ký qua thiết bị (khi bật dịch vụ ký)
 
+![Màn ký đang chờ xác nhận trên thiết bị: mã xác nhận, mã băm, thời gian còn lại; nút thiết bị ở góc dưới phải sáng lên](../../../public/guide/images/sign-remote-waiting.webp)
+
 Khi hệ thống ký qua dịch vụ ký số từ xa, CodeCash không tự ký thay bạn. Sau khi bấm **Gửi yêu cầu ký**, màn hình hiện mã xác nhận 4 số, mã băm nội dung và thời gian còn lại; bạn xác nhận trên thiết bị:
 
 - **Trên máy tính:** nút điện thoại ở góc dưới bên phải sáng lên khi có yêu cầu. Bấm để mở thiết bị giả lập, kiểm tra mã xác nhận trùng, nhập PIN (bản demo: `123456`) rồi bấm **Xác nhận ký**. Với USB token, bấm **Cắm token** trước khi nhập PIN.
 - **Trên điện thoại:** đăng nhập cùng tài khoản và mở `/device` (hoặc quét mã QR trong thiết bị ở góc). Yêu cầu hiện ngay trên điện thoại, xác nhận như trên.
 
-Màn CodeCash tự chuyển sang trang Kiểm tra chữ ký khi ký xong. Sai PIN ba lần thì thiết bị khoá năm phút. Thiết bị và CA chỉ là giả lập, chữ ký không có giá trị pháp lý.
+![USB token trong thiết bị ở góc: cắm token, rồi nhập PIN](../../../public/guide/images/sign-dock-token.webp)
+
+![Điện thoại: chờ yêu cầu, nhận yêu cầu cùng mã xác nhận, sai PIN còn 2 lần thử, đã ký](../../../public/guide/images/sign-phone-steps.webp)
+
+![Mở thiết bị trên điện thoại bằng mã QR](../../../public/guide/images/sign-dock-qr.webp)
+
+Màn CodeCash tự chuyển sang trang Kiểm tra chữ ký khi ký xong.
+
+![Kiểm tra chữ ký sau khi ký qua thiết bị](../../../public/guide/images/sign-verified.webp)
+
+Sai PIN ba lần thì thiết bị khoá năm phút. Thiết bị và CA chỉ là giả lập, chữ ký không có giá trị pháp lý.
 
 ## 5. Kiểm tra chữ ký
 

@@ -61,10 +61,16 @@ Try CT0102 as supplier, then secondary approver. Attempts before your turn are b
 
 ### Sign on a device (when the signing service is on)
 
+![Waiting for the device: confirmation code, hash, time left; the corner device lights up](../../../public/guide/images/sign-remote-waiting.webp)
+
 When CodeCash signs through the remote signing service, it never signs for you. After **Send signing request**, the screen shows a four-digit confirmation code, the hash of what you sign and the time left; you confirm on a device:
 
 - **On the computer:** the phone button at the bottom right lights up when a request waits. Open it, check the confirmation code matches, enter the PIN (demo: `123456`) and choose **Confirm and sign**. For a USB token, choose **Insert token** first.
 - **On a phone:** sign in with the same account and open `/device` (or scan the QR code in the corner device). The request appears there at once; confirm the same way.
+
+![USB token in the corner device: insert the token, then enter the PIN](../../../public/guide/images/sign-dock-token.webp)
+
+![On a phone: waiting, the request with its code, a wrong PIN, signed](../../../public/guide/images/sign-phone-steps.webp)
 
 CodeCash moves on to signature verification when you have signed. Three wrong PINs lock the device for five minutes. The device and its CA are simulated; the signature has no legal effect.
 

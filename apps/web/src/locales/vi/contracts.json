@@ -135,8 +135,9 @@
         "continue": "Tiếp tục: gán vị trí ký"
       },
       "value": {
-        "label": "Giá trị hợp đồng",
-        "unit": "triệu VND"
+        "label": "Giá trị hợp đồng (đã gồm VAT)",
+        "unit": "triệu VND",
+        "hint": "Tổng tiền phải trả, đã gồm thuế GTGT. Hoá đơn của mỗi mốc phải ghi đúng số tiền của mốc tính từ giá trị này."
       },
       "start": {
         "label": "Ngày bắt đầu"

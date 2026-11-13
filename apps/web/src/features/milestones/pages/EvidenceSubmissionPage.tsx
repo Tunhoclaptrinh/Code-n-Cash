@@ -252,6 +252,7 @@ function Workspace({
           open={!!invoiceFile}
           fileName={invoiceFile?.name ?? ""}
           plannedMillion={milestone.plannedMillion}
+          sellerTaxCode={data.sellerTaxCode}
           today={localToday()}
           busy={busy}
           onCancel={() => setInvoiceFile(null)}

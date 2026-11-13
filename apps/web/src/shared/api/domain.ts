@@ -27,6 +27,7 @@ import type {
   DashboardView,
   InvoiceData,
   Amendment,
+  Liquidation,
   MilestoneEdit,
 } from "@codecash/contracts";
 import { ApiError as HttpError } from "@codecash/api-client";
@@ -165,6 +166,20 @@ export const castVote = (
   );
 
 /* ------------------------------- disputes ------------------------------- */
+
+/* ------------------------------ liquidation ------------------------------ */
+
+export const proposeLiquidation = (input: {
+  contractId: string;
+  note?: string;
+}) => workflowCall<Liquidation>("liquidation", "proposeLiquidation", [input]);
+export const decideLiquidation = (input: {
+  contractId: string;
+  choice: "ACCEPT" | "REJECT";
+  note?: string;
+}) => workflowCall<Liquidation>("liquidation", "decideLiquidation", [input]);
+export const withdrawLiquidation = (input: { contractId: string }) =>
+  workflowCall<Liquidation>("liquidation", "withdrawLiquidation", [input]);
 
 /* ------------------------------ amendments ------------------------------ */
 

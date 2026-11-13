@@ -324,6 +324,27 @@ const WRITE_ACTIONS = [
     reaches: "CONTRACT_NOT_FOUND",
   },
   {
+    name: "proposeLiquidation",
+    module: "liquidation",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "decideLiquidation",
+    module: "liquidation",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", choice: "ACCEPT" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "withdrawLiquidation",
+    module: "liquidation",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
     name: "openDispute",
     module: "disputes",
     allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
@@ -436,7 +457,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 22);
+  assert.equal(WRITE_ACTIONS.length, 25);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -1281,6 +1302,11 @@ test("evidence: an invoice states its own data, matches the milestone and backs 
     "INVOICE_TAX_CODE_INVALID",
   );
   await refused({ ...good, amountMillion: 516 }, "INVOICE_AMOUNT_INVALID");
+  // The seller is the contract's supplier, whose tax code is on record (Phú Minh: 0109876543).
+  await refused(
+    { ...good, sellerTaxCode: "0100000000" },
+    "INVOICE_SELLER_MISMATCH",
+  );
   // The total is the milestone's planned payment, exactly (a penalty is deducted from the payment).
   const planned = w.milestone("CT0104", 2).planned_payment_vnd_mn;
   const centLess = (value) => {
@@ -1526,6 +1552,144 @@ test("amendment: the buyer proposes a new schedule, the supplier agrees, the eng
   assert.ok(
     w.tbl("audit").filter((e) => e.detail?.kind === "AMENDMENT").length >= 7,
     "every step is in the audit chain",
+  );
+});
+
+test("liquidation: once every milestone is settled the buyer proposes the record, the supplier confirms and the contract is closed for good", async () => {
+  const w = await world();
+  const code = "CT0104";
+  const liquidation = (user, action, body = {}) =>
+    w.call(user, "liquidation", action, { contractId: code, ...body });
+  await expectCode(
+    liquidation(U.LEGAL, "proposeLiquidation"),
+    "MILESTONES_OPEN",
+  );
+  await expectCode(
+    w.call(ownerOf(w, "CT0001"), "liquidation", "proposeLiquidation", {
+      contractId: "CT0001",
+    }),
+    "DATA_PACK_LOCKED",
+  );
+  // Settle every milestone: payable ones are transferred, the others rejected.
+  for (let n = 1; n <= 3; n++) {
+    const status = w.evaluation(w.milestone(code, n).milestone_id).status;
+    if (["ELIGIBLE_FOR_PAYMENT", "PAID_WITH_PENALTY"].includes(status))
+      await ok(
+        w,
+        U.FINANCE,
+        "payments",
+        "transferToAccounting",
+        w.ref(code, n),
+      );
+    else if (!["COMPLETED", "REJECTED"].includes(status))
+      await ok(w, U.OWNER, "approvals", "castVote", {
+        ...w.ref(code, n),
+        choice: "REJECT",
+        note: "Không đạt yêu cầu",
+      });
+  }
+  const settled = await w.call(
+    U.OWNER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  const statuses = settled.milestones.map((m) => m.status);
+  assert.ok(
+    statuses.every((s) => ["COMPLETED", "REJECTED"].includes(s)),
+    statuses.join(),
+  );
+  assert.equal(settled.contract.status, "CLOSED");
+  assert.ok(settled.canProposeLiquidation);
+  const legalTasks = await w.call(U.LEGAL, "tasks", "getTaskInbox");
+  assert.ok(
+    legalTasks.some(
+      (t) => t.kind === "LIQUIDATE_CONTRACT" && t.contractId === code,
+    ),
+  );
+  await expectCode(
+    liquidation(U.SUPPLIER, "proposeLiquidation"),
+    "CANNOT_LIQUIDATE",
+  );
+  const proposed = await ok(w, U.LEGAL, "liquidation", "proposeLiquidation", {
+    contractId: code,
+    note: "Đã hoàn tất nghĩa vụ",
+  });
+  assert.equal(proposed.state, "PROPOSED");
+  assert.equal(proposed.totals.valueMillion, "960.00");
+  assert.match(proposed.digest, /^[a-f0-9]{64}$/);
+  await expectCode(
+    liquidation(U.OWNER, "proposeLiquidation"),
+    "LIQUIDATION_PENDING",
+  );
+  await expectCode(
+    liquidation(U.LEGAL, "decideLiquidation", { choice: "ACCEPT" }),
+    "CANNOT_DECIDE_LIQUIDATION",
+  );
+  const supplierTasks = await w.call(U.SUPPLIER, "tasks", "getTaskInbox");
+  assert.ok(
+    supplierTasks.some(
+      (t) => t.kind === "REVIEW_LIQUIDATION" && t.contractId === code,
+    ),
+  );
+  await expectCode(
+    liquidation(U.SUPPLIER, "decideLiquidation", { choice: "REJECT" }),
+    "NOTE_REQUIRED",
+  );
+  await ok(w, U.SUPPLIER, "liquidation", "decideLiquidation", {
+    contractId: code,
+    choice: "REJECT",
+    note: "Số liệu chưa khớp",
+  });
+  await ok(w, U.LEGAL, "liquidation", "proposeLiquidation", {
+    contractId: code,
+  });
+  await ok(w, U.LEGAL, "liquidation", "withdrawLiquidation", {
+    contractId: code,
+  });
+  await ok(w, U.LEGAL, "liquidation", "proposeLiquidation", {
+    contractId: code,
+  });
+  await ok(w, U.SUPPLIER, "liquidation", "decideLiquidation", {
+    contractId: code,
+    choice: "ACCEPT",
+  });
+  const overview = await w.call(
+    U.OWNER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  assert.equal(overview.contract.status, "LIQUIDATED");
+  assert.equal(overview.liquidation.state, "ACCEPTED");
+  assert.deepEqual(
+    overview.notices.map((n) => n.code),
+    ["LIQUIDATED"],
+  );
+  assert.equal(overview.lifecycle.stages.at(-1).state, "DONE");
+  assert.equal(overview.canProposeAmendment, false);
+  // Closed for good: nothing more is recorded.
+  await expectCode(
+    liquidation(U.LEGAL, "proposeLiquidation"),
+    "CONTRACT_CLOSED",
+  );
+  await expectCode(
+    w.call(U.LEGAL, "amendments", "proposeAmendment", {
+      contractId: code,
+      reason: "x",
+      endDate: "2030-01-01",
+    }),
+    "CONTRACT_CLOSED",
+  );
+  await expectCode(
+    w.call(U.SUPPLIER, "disputes", "openDispute", {
+      ...w.ref(code, 2),
+      note: "x",
+    }),
+    "CONTRACT_CLOSED",
+  );
+  assert.ok(
+    w.tbl("audit").filter((e) => e.detail?.kind === "LIQUIDATION").length >= 6,
   );
 });
 

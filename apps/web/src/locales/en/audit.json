@@ -80,7 +80,11 @@
     "AMENDMENT_REJECTED": "Rejected amendment PL-{{number}}",
     "AMENDMENT_WITHDRAWN": "Withdrew amendment PL-{{number}}",
     "DIGITIZATION_EDITED_one": "Corrected the digitised terms ({{count}} milestone)",
-    "DIGITIZATION_EDITED_other": "Corrected the digitised terms ({{count}} milestones)"
+    "DIGITIZATION_EDITED_other": "Corrected the digitised terms ({{count}} milestones)",
+    "LIQUIDATION_PROPOSED": "Made the liquidation record",
+    "LIQUIDATION_ACCEPTED": "Confirmed the contract liquidation",
+    "LIQUIDATION_REJECTED": "Rejected the liquidation record",
+    "LIQUIDATION_WITHDRAWN": "Withdrew the liquidation record"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -110,7 +114,10 @@
     "proposeAmendment": "Propose amendment",
     "decideAmendment": "Answer amendment",
     "withdrawAmendment": "Withdraw amendment",
-    "editDigitizedMilestones": "Edit digitised milestones"
+    "editDigitizedMilestones": "Edit digitised milestones",
+    "proposeLiquidation": "Make liquidation record",
+    "decideLiquidation": "Answer liquidation record",
+    "withdrawLiquidation": "Withdraw liquidation record"
   },
   "detail": {
     "view": "View details",
@@ -264,7 +271,8 @@
     "UPLOAD": "Upload a document",
     "VOID": "Void a record",
     "AMENDMENT": "Contract amendment",
-    "DIGITIZATION_EDITED": "Digitised terms corrected"
+    "DIGITIZATION_EDITED": "Digitised terms corrected",
+    "LIQUIDATION": "Contract liquidation"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",

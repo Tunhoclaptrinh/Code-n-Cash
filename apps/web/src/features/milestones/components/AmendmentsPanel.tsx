@@ -61,17 +61,28 @@ function useFailure() {
 export function ContractNotices({
   notices,
   onAmend,
+  onLiquidate,
 }: {
   notices: ContractNotice[];
   onAmend?: () => void;
+  onLiquidate?: () => void;
 }) {
   const { t } = useTranslation("milestones");
   if (!notices.length) return null;
-  const amend = onAmend ? (
-    <Button size="small" onClick={onAmend}>
-      {t("amendments.propose")}
-    </Button>
-  ) : undefined;
+  const actionFor = (code: ContractNotice["code"]) =>
+    code === "SETTLED"
+      ? onLiquidate && (
+          <Button size="small" onClick={onLiquidate}>
+            {t("liquidation.propose")}
+          </Button>
+        )
+      : code === "LIQUIDATED"
+        ? undefined
+        : onAmend && (
+            <Button size="small" onClick={onAmend}>
+              {t("amendments.propose")}
+            </Button>
+          );
   return (
     <Space orientation="vertical" size={8} style={{ width: "100%" }}>
       {notices.map((notice) => (
@@ -80,7 +91,7 @@ export function ContractNotices({
           data-testid={`contract-notice-${notice.code}`}
           showIcon
           type={
-            notice.code === "SETTLED"
+            notice.code === "SETTLED" || notice.code === "LIQUIDATED"
               ? "success"
               : notice.code === "SIGNED_AFTER_START"
                 ? "info"
@@ -92,10 +103,15 @@ export function ContractNotices({
                 ? notice.milestones.map((n) => `MS${n}`).join(", ")
                 : "",
             days: notice.code === "SIGNED_AFTER_START" ? notice.days : 0,
-            date: notice.code === "PAST_END" ? formatDate(notice.date) : "",
+            date:
+              notice.code === "PAST_END"
+                ? formatDate(notice.date)
+                : notice.code === "LIQUIDATED"
+                  ? formatDate(notice.at)
+                  : "",
             count: notice.code === "PAST_END" ? notice.open : 0,
           })}
-          action={notice.code === "SETTLED" ? undefined : amend}
+          action={actionFor(notice.code) || undefined}
         />
       ))}
     </Space>

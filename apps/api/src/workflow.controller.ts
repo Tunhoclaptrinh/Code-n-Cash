@@ -341,6 +341,23 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
       actions.castVote(ctx, input(value)),
     ),
   },
+  liquidation: {
+    proposeLiquidation: write(
+      "contracts:liquidate",
+      "proposeLiquidation",
+      (ctx, [value]) => actions.proposeLiquidation(ctx, input(value)),
+    ),
+    decideLiquidation: write(
+      "contracts:liquidate",
+      "decideLiquidation",
+      (ctx, [value]) => actions.decideLiquidation(ctx, input(value)),
+    ),
+    withdrawLiquidation: write(
+      "contracts:liquidate",
+      "withdrawLiquidation",
+      (ctx, [value]) => actions.withdrawLiquidation(ctx, input(value)),
+    ),
+  },
   amendments: {
     proposeAmendment: write(
       "contracts:amend",

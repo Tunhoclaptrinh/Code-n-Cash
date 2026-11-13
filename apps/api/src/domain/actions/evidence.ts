@@ -119,6 +119,12 @@ function checkedInvoice(
   };
   if (toCents(invoice.amountMillion) !== toCents(m.planned_payment_vnd_mn))
     throw new BadRequestException("INVOICE_AMOUNT_MISMATCH");
+  // The seller is the contract's supplier: when its tax code is on record, the invoice states it.
+  const sellerTaxCode = ctx.organizationTaxCode(
+    ctx.contract(m.contract_id).supplier_id,
+  );
+  if (sellerTaxCode && sellerTaxCode !== invoice.sellerTaxCode)
+    throw new BadRequestException("INVOICE_SELLER_MISMATCH");
   const signed = ctx.contract(m.contract_id).signing_date;
   if (signed && invoice.issueDate < signed)
     throw new BadRequestException("INVOICE_BEFORE_SIGNING");

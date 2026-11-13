@@ -700,8 +700,10 @@ test("partial sample DOCX previews an unfinished draft with placeholders but kee
   assert.ok(text.includes("2027-01-10"));
   // Milestone names follow the document language.
   assert.ok(text.includes("Contract signing") && text.includes("2027-01-15"));
-  // Stages are spread over the period: the warranty, last, is due on the end date.
-  assert.ok(text.includes("2027-04-14"));
+  // The warranty is written as the relative term the digitisation then asks a date for.
+  assert.ok(text.includes("1 month after Acceptance"), text);
+  // Each party with its legal identity: the buyer's is on record, the supplier is not chosen yet.
+  assert.ok(text.includes("Tax code: 0101234567"), text);
   assert.ok(!text.includes("abc"), "invalid values never reach the document");
 
   const supplierId = "S015";

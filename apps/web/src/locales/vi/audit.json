@@ -80,7 +80,11 @@
     "AMENDMENT_REJECTED": "Từ chối phụ lục PL-{{number}}",
     "AMENDMENT_WITHDRAWN": "Rút lại phụ lục PL-{{number}}",
     "DIGITIZATION_EDITED_one": "Chỉnh tay bản số hoá ({{count}} mốc)",
-    "DIGITIZATION_EDITED_other": "Chỉnh tay bản số hoá ({{count}} mốc)"
+    "DIGITIZATION_EDITED_other": "Chỉnh tay bản số hoá ({{count}} mốc)",
+    "LIQUIDATION_PROPOSED": "Lập biên bản thanh lý",
+    "LIQUIDATION_ACCEPTED": "Xác nhận thanh lý hợp đồng",
+    "LIQUIDATION_REJECTED": "Từ chối biên bản thanh lý",
+    "LIQUIDATION_WITHDRAWN": "Rút lại biên bản thanh lý"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",
@@ -110,7 +114,10 @@
     "proposeAmendment": "Lập phụ lục",
     "decideAmendment": "Trả lời phụ lục",
     "withdrawAmendment": "Rút lại phụ lục",
-    "editDigitizedMilestones": "Chỉnh sửa mốc số hoá"
+    "editDigitizedMilestones": "Chỉnh sửa mốc số hoá",
+    "proposeLiquidation": "Lập biên bản thanh lý",
+    "decideLiquidation": "Trả lời biên bản thanh lý",
+    "withdrawLiquidation": "Rút lại biên bản thanh lý"
   },
   "detail": {
     "view": "Xem chi tiết",
@@ -264,7 +271,8 @@
     "UPLOAD": "Tải tài liệu lên",
     "VOID": "Huỷ bản ghi",
     "AMENDMENT": "Phụ lục hợp đồng",
-    "DIGITIZATION_EDITED": "Chỉnh tay bản số hoá"
+    "DIGITIZATION_EDITED": "Chỉnh tay bản số hoá",
+    "LIQUIDATION": "Thanh lý hợp đồng"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",

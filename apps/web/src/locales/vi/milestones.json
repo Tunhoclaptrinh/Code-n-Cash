@@ -42,7 +42,9 @@
       "DECIDE_EXCEPTION": "Duyệt đề xuất",
       "TRANSFER_PAYMENT": "Duyệt lệnh chi",
       "FOLLOW_UP": "Xem mốc",
-      "REVIEW_AMENDMENT": "Xem xét phụ lục"
+      "REVIEW_AMENDMENT": "Xem xét phụ lục",
+      "LIQUIDATE_CONTRACT": "Lập biên bản thanh lý",
+      "REVIEW_LIQUIDATION": "Xác nhận thanh lý"
     },
     "detail": {
       "reason": "Lý do đang giữ",
@@ -120,7 +122,8 @@
       "documents": "Tài liệu gốc",
       "smart": "Hợp đồng thông minh",
       "amendments_one": "Phụ lục ({{count}})",
-      "amendments_other": "Phụ lục ({{count}})"
+      "amendments_other": "Phụ lục ({{count}})",
+      "liquidation": "Thanh lý"
     },
     "noMilestones": "Hợp đồng chưa có mốc. Mốc được tạo khi khoá điều khoản số hoá.",
     "terms": {
@@ -612,20 +615,21 @@
     "form": {
       "title": "Thông tin hoá đơn",
       "submit": "Đính kèm hoá đơn",
-      "notice": "Nhập đúng các thông tin in trên hoá đơn {{fileName}}. Tổng tiền phải bằng giá trị mốc: {{planned}} triệu đồng."
+      "notice": "Nhập đúng các thông tin in trên hoá đơn {{fileName}}. Tổng tiền thanh toán (đã gồm VAT) phải bằng giá trị mốc: {{planned}} triệu đồng."
     },
     "fields": {
       "symbol": "Ký hiệu hoá đơn",
       "number": "Số hoá đơn",
       "issueDate": "Ngày lập",
       "sellerTaxCode": "Mã số thuế người bán",
-      "amountMillion": "Tổng tiền thanh toán (triệu đồng)",
+      "amountMillion": "Tổng tiền thanh toán, đã gồm VAT (triệu đồng)",
       "reference": "Ký hiệu · số"
     },
     "hints": {
       "symbol": "7 ký tự theo Thông tư 78/2021/TT-BTC, ví dụ {{example}}.",
       "sellerTaxCode": "10 chữ số, 10 chữ số kèm mã chi nhánh (-001), hoặc 12 chữ số.",
-      "amountMillion": "Phải bằng giá trị mốc: {{planned}}. Tiền phạt (nếu có) trừ vào khoản chi, không trừ trên hoá đơn."
+      "amountMillion": "Phải bằng giá trị mốc: {{planned}}. Tiền phạt (nếu có) trừ vào khoản chi, không trừ trên hoá đơn.",
+      "sellerOnRecord": "Phải trùng mã số thuế của nhà cung cấp trong hồ sơ: {{taxCode}}."
     },
     "summary": "Hoá đơn {{reference}} · {{amount}} triệu",
     "matches": "Khớp giá trị mốc",
@@ -648,7 +652,8 @@
     "MISSING_DUE_DATE": "{{milestones}} chưa có hạn nên đang bị giữ. Lập phụ lục để bổ sung hạn đã thống nhất.",
     "SIGNED_AFTER_START": "Hợp đồng ký xong sau ngày bắt đầu {{days}} ngày. Kiểm tra lại lịch mốc; nếu cần, lập phụ lục điều chỉnh.",
     "PAST_END": "Hợp đồng đã hết hạn ngày {{date}} nhưng còn {{count}} mốc chưa xong. Gia hạn bằng phụ lục hoặc xử lý các mốc còn lại.",
-    "SETTLED": "Mọi mốc đã được chi hoặc đã đóng."
+    "SETTLED": "Mọi mốc đã được chi hoặc đã đóng. Lập biên bản thanh lý để khép lại hợp đồng.",
+    "LIQUIDATED": "Hợp đồng đã thanh lý ngày {{date}}; không ghi thêm chứng từ, phê duyệt, tranh chấp hay phụ lục."
   },
   "amendments": {
     "intro": "Phụ lục điều chỉnh lịch của hợp đồng đã ký: bên mua đề xuất hạn mới cho các mốc chưa được quyết định chi và/hoặc ngày kết thúc mới, nhà cung cấp chấp nhận hoặc từ chối. Điều khoản đã ký giữ nguyên; phụ lục được chấp nhận mới có hiệu lực, và hệ thống tính lại ngày trễ theo hạn mới.",
@@ -696,5 +701,49 @@
       "reasonRequired": "Nhập lý do điều chỉnh.",
       "endDateHint": "Đang có hiệu lực: {{date}}. Để nguyên nếu không gia hạn."
     }
+  },
+  "lifecycle": {
+    "CLOSED": "Thanh lý"
+  },
+  "liquidation": {
+    "intro": "Thanh lý là bước cuối: khi mọi mốc đã chi hoặc bị từ chối, bên mua lập biên bản thanh lý với số liệu chốt do hệ thống tính, nhà cung cấp xác nhận hoặc từ chối. Đã thanh lý thì hợp đồng khoá hẳn.",
+    "propose": "Lập biên bản thanh lý",
+    "send": "Gửi nhà cung cấp",
+    "accept": "Xác nhận thanh lý",
+    "reject": "Từ chối",
+    "withdraw": "Rút lại",
+    "title": "Biên bản thanh lý",
+    "million": "{{value}} triệu đồng",
+    "note": "Ghi chú",
+    "state": {
+      "PROPOSED": "Chờ nhà cung cấp",
+      "ACCEPTED": "Đã thanh lý",
+      "REJECTED": "Bị từ chối",
+      "WITHDRAWN": "Đã rút lại"
+    },
+    "totals": {
+      "value": "Giá trị hợp đồng (đã gồm VAT)",
+      "paid": "Đã chi (sau khi trừ phạt)",
+      "penalty": "Tiền phạt đã trừ",
+      "rejected": "Giá trị các mốc bị từ chối"
+    },
+    "accounted": "Đã chi + tiền phạt + bị từ chối = giá trị hợp đồng",
+    "unaccounted": "Đã chi + tiền phạt + bị từ chối khác giá trị hợp đồng: đối chiếu trước khi xác nhận",
+    "proposed": "Lập bởi {{name}} lúc {{at}}",
+    "decided": {
+      "ACCEPTED": "xác nhận bởi {{name}} lúc {{at}}",
+      "REJECTED": "từ chối bởi {{name}} lúc {{at}}",
+      "WITHDRAWN": "rút lại bởi {{name}} lúc {{at}}"
+    },
+    "digest": "Mã băm biên bản",
+    "acceptConfirm": {
+      "title": "Xác nhận thanh lý hợp đồng?",
+      "body": "Sau khi thanh lý, hợp đồng khoá hẳn: không ghi thêm chứng từ, phê duyệt, tranh chấp, phụ lục hay khoản chi nào. Không hoàn tác được."
+    },
+    "proposeNotice": "Số liệu chốt (đã chi, tiền phạt, bị từ chối) do hệ thống tính từ các mốc; nhà cung cấp sẽ đối chiếu và xác nhận.",
+    "notePlaceholder": "Ghi chú cho biên bản (không bắt buộc)",
+    "rejectPlaceholder": "Lý do từ chối (bắt buộc)",
+    "waitingOfficer": "Mọi mốc đã xong; chờ bên mua lập biên bản thanh lý.",
+    "notYet": "Chưa thể thanh lý: còn mốc chưa được chi hoặc chưa bị từ chối."
   }
 }

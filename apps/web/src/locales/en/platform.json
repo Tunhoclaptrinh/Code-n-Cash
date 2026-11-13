@@ -61,7 +61,9 @@
     "maxPenaltyPct": "Penalty cap (%)",
     "at": "Time",
     "seq": "Chain no.",
-    "hash": "Hash"
+    "hash": "Hash",
+    "taxCode": "Tax code",
+    "address": "Address"
   },
   "data": {
     "title": "Data Pack results",
@@ -348,7 +350,8 @@
       "contract-templates:delete": "Delete contract templates",
       "contract-templates:import": "Import contract templates",
       "contract-templates:export": "Export contract templates",
-      "contracts:amend": "Propose and answer contract amendments"
+      "contracts:amend": "Propose and answer contract amendments",
+      "contracts:liquidate": "Make and confirm contract liquidation"
     },
     "scopeLabel": "Scope",
     "searchPlaceholder": "Search permission name, key or module"

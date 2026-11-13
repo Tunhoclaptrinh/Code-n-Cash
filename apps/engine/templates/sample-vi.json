@@ -29,19 +29,19 @@
     },
     {
       "title": "Giá trị hợp đồng",
-      "body": "Giá trị hợp đồng: {valueMillion} triệu VND. Các khoản thanh toán được phân bổ theo tiến độ tại Điều 4. Việc thanh toán căn cứ hồ sơ bàn giao, nghiệm thu và phê duyệt theo thỏa thuận."
+      "body": "Giá trị hợp đồng: {valueMillion} triệu VND, đã bao gồm thuế giá trị gia tăng (VAT) và mọi chi phí để hoàn thành công việc. Giá trị được thanh toán theo các mốc tại Điều 4; tổng số tiền các mốc bằng giá trị hợp đồng."
     },
     {
       "title": "Tiến độ và mốc thanh toán",
-      "body": "Các mốc dưới đây lấy từ mẫu quy trình đang cấu hình. Người rà soát phải xác nhận lại thời hạn trước khi phát hành."
+      "body": "Các mốc dưới đây lấy từ quy trình của loại hợp đồng; hạn được chia theo thời hạn hợp đồng, mốc cuối đến hạn vào ngày kết thúc. Người rà soát đối chiếu và xác nhận lại trước khi ký. Một mốc chỉ được thanh toán khi có đủ hồ sơ ghi ở cột \"Hồ sơ cần có\", do đúng bên ghi trong ngoặc cung cấp."
     },
     {
       "title": "Chứng từ nghiệm thu",
-      "body": "Nhà cung cấp giao đủ hồ sơ, hóa đơn và biên bản theo từng mốc. Bên mua kiểm tra, phản hồi yêu cầu bổ sung hoặc xác nhận nghiệm thu bằng văn bản."
+      "body": "Mỗi hồ sơ là tệp điện tử do bên có thẩm quyền nộp và ký xác nhận. Hóa đơn là hóa đơn điện tử theo Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC, ghi ký hiệu, số, ngày lập, mã số thuế người bán và tổng tiền thanh toán bằng đúng số tiền của mốc; hóa đơn lập không sớm hơn ngày ký hợp đồng và mỗi hóa đơn chỉ dùng cho một mốc. Bên mua kiểm tra, yêu cầu bổ sung hoặc xác nhận nghiệm thu bằng văn bản."
     },
     {
       "title": "Chính sách phê duyệt",
-      "body": "Các bên chỉ định người có thẩm quyền phê duyệt từng khoản thanh toán. Việc ký hợp đồng không thay thế việc kiểm tra chứng từ và phê duyệt thanh toán."
+      "body": "Chính sách phê duyệt: {approvalPolicyText}. Khoản thanh toán của một mốc chỉ được chi khi đồng thời có đủ hồ sơ tại Điều 4, đủ phê duyệt theo chính sách này và không có tranh chấp đang mở về mốc đó. Việc ký hợp đồng không thay thế việc kiểm tra hồ sơ và phê duyệt thanh toán."
     },
     {
       "title": "Người ký và thứ tự ký",
@@ -49,7 +49,7 @@
     },
     {
       "title": "Phạt chậm và ân hạn",
-      "body": "Ngày bắt đầu: {startDate}. Ngày kết thúc: {endDate}. Thời gian ân hạn: {graceDays} ngày. Tỷ lệ phạt: {penaltyRatePct}% mỗi ngày."
+      "body": "Ngày bắt đầu: {startDate}. Ngày kết thúc: {endDate}. Thời gian ân hạn: {graceDays} ngày. Tỷ lệ phạt: {penaltyRatePct}% mỗi ngày. Mốc có áp phạt tại Điều 4 mà hoàn thành sau ngày đến hạn cộng thời gian ân hạn thì bị phạt theo tỷ lệ này, tính trên số tiền của mốc, cho mỗi ngày chậm. Ngày hoàn thành là ngày của hồ sơ cuối cùng hợp lệ. Tiền phạt được trừ vào khoản thanh toán của chính mốc đó."
     },
     {
       "title": "Giới hạn trách nhiệm",
@@ -57,7 +57,7 @@
     },
     {
       "title": "Bảo hành và hỗ trợ",
-      "body": "Nhà cung cấp tiếp nhận yêu cầu hỗ trợ và thực hiện bảo hành theo phạm vi công việc. Thời hạn và hồ sơ xác nhận hoàn tất được các bên đối chiếu ở từng mốc."
+      "body": "Nhà cung cấp tiếp nhận yêu cầu hỗ trợ và thực hiện bảo hành theo phạm vi công việc. Mốc bảo hành hoàn tất khi có hồ sơ xác nhận hoàn tất bảo hành; nếu hợp đồng chỉ ghi thời hạn bảo hành tương đối, các bên xác nhận ngày cụ thể khi rà soát."
     },
     {
       "title": "Tranh chấp",
@@ -65,17 +65,17 @@
     },
     {
       "title": "Quản lý thay đổi",
-      "body": "Thay đổi phạm vi, giá trị hoặc tiến độ phải được lập thành phụ lục, xác định người có thẩm quyền và lưu cùng bản hợp đồng được các bên xác nhận."
+      "body": "Thay đổi phạm vi, giá trị hoặc tiến độ phải được lập thành phụ lục. Phụ lục điều chỉnh tiến độ (hạn mốc, ngày kết thúc) do Bên mua đề xuất kèm lý do và chỉ có hiệu lực khi Nhà cung cấp chấp thuận; mốc đã được quyết định thanh toán không thay đổi hạn. Điều khoản đã ký giữ nguyên; phụ lục được lưu cùng hợp đồng."
     },
     {
       "title": "Hiệu lực và lưu trữ",
-      "body": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Tài liệu này được tạo cho thử nghiệm, chưa ký và không dùng thay hợp đồng đã được rà soát."
+      "body": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Khi mọi mốc đã được thanh toán hoặc đã đóng, các bên lập biên bản thanh lý hợp đồng; sau khi thanh lý không phát sinh thêm hồ sơ hay khoản thanh toán. Các bên lưu bản gốc và hồ sơ kèm theo. Tài liệu này được tạo cho thử nghiệm, chưa ký và không dùng thay hợp đồng đã được rà soát."
     }
   ],
   "fields": {
     "valueMillion": {
       "label": "Giá trị hợp đồng",
-      "value": "{value} triệu VND"
+      "value": "{value} triệu VND (đã gồm VAT)"
     },
     "startDate": {
       "label": "Ngày bắt đầu",
@@ -102,9 +102,12 @@
   "table": {
     "index": "STT",
     "milestone": "Mốc",
-    "share": "Tỷ lệ",
+    "share": "Tỷ lệ, số tiền",
     "due": "Thời hạn",
-    "evidence": "Hồ sơ cần có"
+    "evidence": "Hồ sơ cần có (bên cung cấp)",
+    "penalty": "Áp phạt",
+    "penaltyYes": "Có",
+    "penaltyNo": "Không"
   },
   "single": "Một người ký: chữ ký duy nhất hoàn tất quy trình ký của tài liệu này.",
   "multiple": "Nhiều người ký: cần hoàn thành tất cả lượt theo thứ tự, có đại diện của hai bên.",
@@ -123,7 +126,7 @@
   "anchor": "VỊ TRÍ KÝ",
   "original": {
     "notice": "Bản hợp đồng mô phỏng, lập từ dữ liệu hợp đồng của Ban tổ chức để xem và đối chiếu",
-    "closing": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Bản này được lập lại từ dữ liệu hợp đồng để xem trên hệ thống."
+    "closing": "Hợp đồng có hiệu lực sau khi hoàn tất các lượt ký đã thỏa thuận. Các bên lưu bản gốc và hồ sơ kèm theo. Bản này được lập lại từ dữ liệu hợp đồng để xem trên hệ thống. Khi mọi mốc đã được thanh toán hoặc đã đóng, các bên lập biên bản thanh lý hợp đồng."
   },
   "milestoneTypes": {
     "SIGNING": "Ký hợp đồng",
@@ -159,5 +162,18 @@
     "DISPUTE_OPENED": "Mở tranh chấp",
     "DISPUTE_RESOLVED": "Đóng tranh chấp",
     "OTHER": "Tài liệu kèm theo"
-  }
+  },
+  "approvalPolicies": {
+    "AUTO_IF_ALL_CONDITIONS": "tự động thanh toán khi đủ điều kiện, không cần phê duyệt",
+    "SINGLE_BUYER_APPROVAL": "Chủ hợp đồng của Bên mua phê duyệt",
+    "DUAL_APPROVAL": "Chủ hợp đồng và người phê duyệt cấp 2 của Bên mua cùng phê duyệt",
+    "FINANCE_PLUS_OWNER": "người phê duyệt tài chính và Chủ hợp đồng của Bên mua cùng phê duyệt"
+  },
+  "approvalExempt": "Các mốc sau không cần phê duyệt, được thanh toán khi đủ hồ sơ và không có tranh chấp: {milestones}.",
+  "amountUnit": "triệu",
+  "scheduleNote": "Số tiền mỗi mốc bằng tỷ lệ nhân giá trị hợp đồng, làm tròn xuống đến 0,01 triệu; mốc cuối nhận phần còn lại để tổng khớp giá trị hợp đồng.",
+  "relativeDue": "{months} tháng sau mốc {previous}",
+  "dueOpen": "Các bên xác nhận sau",
+  "relativeDueOne": "1 tháng sau mốc {previous}",
+  "partyIdentity": "Mã số thuế: {taxCode}. Địa chỉ: {address}."
 }

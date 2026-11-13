@@ -3,6 +3,7 @@ import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
 import { ContractLifecycleSteps } from "../components/ContractLifecycleSteps";
 import { EvidenceDocumentLink } from "../components/EvidenceDocumentLink";
+import { LiquidationPanel } from "../components/LiquidationPanel";
 import {
   AmendmentFormModal,
   AmendmentsPanel,
@@ -79,6 +80,7 @@ type TabKey =
   | "history"
   | "signing"
   | "amendments"
+  | "liquidation"
   | "participants";
 type Emphasis = "done" | "attention" | "danger" | "active";
 
@@ -137,9 +139,12 @@ export default function ContractDetailPage() {
   const contractId = useParams().contractId ?? "";
   // A task can open a tab directly (?tab=amendments for an amendment to review).
   const [search] = useSearchParams();
-  const [tab, setTab] = useState<TabKey>(
-    search.get("tab") === "amendments" ? "amendments" : "milestones",
-  );
+  const [tab, setTab] = useState<TabKey>(() => {
+    const requested = search.get("tab");
+    return requested === "amendments" || requested === "liquidation"
+      ? requested
+      : "milestones";
+  });
   const [amending, setAmending] = useState(false);
   const overview = useQuery({
     queryKey: ["milestones", "overview", contractId],
@@ -238,6 +243,11 @@ export default function ContractDetailPage() {
             onAmend={
               data.canProposeAmendment ? () => setAmending(true) : undefined
             }
+            onLiquidate={
+              data.canProposeLiquidation
+                ? () => setTab("liquidation")
+                : undefined
+            }
           />
           <AmendmentFormModal
             open={amending}
@@ -256,6 +266,10 @@ export default function ContractDetailPage() {
                 "history",
                 "signing",
                 ...(contract.signing ? ["amendments"] : []),
+                // The organiser's contracts are not liquidated in the app.
+                ...(contract.signing && contract.origin !== "DATA_PACK"
+                  ? ["liquidation"]
+                  : []),
                 "participants",
               ] as TabKey[]
             ).map((key) => ({
@@ -358,6 +372,7 @@ export default function ContractDetailPage() {
             <SmartContractPanel contractId={contract.id} />
           ) : null}
           {tab === "signing" ? <SigningPanel data={data} /> : null}
+          {tab === "liquidation" ? <LiquidationPanel data={data} /> : null}
           {tab === "amendments" ? (
             <AmendmentsPanel data={data} onPropose={() => setAmending(true)} />
           ) : null}

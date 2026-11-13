@@ -169,6 +169,7 @@ export function UploadDetailsSection({
         <Col xs={24} md={8}>
           <Form.Item
             label={t("contractUpload.form.value.label")}
+            tooltip={t("contractUpload.form.value.hint")}
             required
             {...feedback("valueMillion")}
           >

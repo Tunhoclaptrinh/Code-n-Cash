@@ -112,7 +112,8 @@
     "PENDING_CONDITIONS": "Pending conditions",
     "NEEDS_REVIEW": "Needs review",
     "ALL_MILESTONES_ELIGIBLE": "All milestones eligible",
-    "CLOSED": "Closed"
+    "CLOSED": "All milestones settled",
+    "LIQUIDATED": "Liquidated"
   },
   "approvalRole": {
     "CONTRACT_OWNER": "Contract owner",
@@ -181,7 +182,9 @@
     "COMPLETE_DRAFT": "Complete contract file",
     "TRANSFER_PAYMENT": "Approve payment order",
     "FOLLOW_UP": "Follow up a milestone",
-    "REVIEW_AMENDMENT": "Review a contract amendment"
+    "REVIEW_AMENDMENT": "Review a contract amendment",
+    "LIQUIDATE_CONTRACT": "Make the contract liquidation record",
+    "REVIEW_LIQUIDATION": "Confirm the contract liquidation"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "The other party creates this document (authority matrix 4.2).",
@@ -373,7 +376,15 @@
     "MILESTONE_EDIT_INVALID": "The correction must cover every milestone of the workflow with valid data.",
     "PERCENT_INVALID": "Each share must be above 0 with at most two decimals.",
     "PERCENT_TOTAL": "The shares must add up to exactly 100%.",
-    "INVALID_EVENTS": "Each milestone needs 1–6 distinct required documents."
+    "INVALID_EVENTS": "Each milestone needs 1–6 distinct required documents.",
+    "CONTRACT_CLOSED": "The contract is liquidated; nothing more can be recorded.",
+    "CANNOT_LIQUIDATE": "Only the buyer's contract officer or owner makes the liquidation record.",
+    "MILESTONES_OPEN": "Some milestones are neither paid nor rejected; the contract cannot be liquidated yet.",
+    "LIQUIDATION_PENDING": "A liquidation record is already waiting for the supplier.",
+    "LIQUIDATION_NOT_FOUND": "No liquidation record is waiting.",
+    "CANNOT_DECIDE_LIQUIDATION": "Only the contract's supplier confirms the liquidation.",
+    "LIQUIDATION_STALE": "The figures changed since the record was made; the buyer must make it again.",
+    "INVOICE_SELLER_MISMATCH": "The seller tax code differs from the supplier's tax code on record."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

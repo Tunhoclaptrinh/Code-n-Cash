@@ -723,6 +723,11 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
   );
   const extractor = new ExtractionService(repo, domain);
   const proposal = await extractor.extract(saved.code, actor("u-legal"));
+  // The system's own contract text states all six terms the extraction reads, each once.
+  assert.deepEqual(
+    proposal.fields.filter((field) => field.value === null).map((f) => f.path),
+    [],
+  );
   await extractor.confirm(
     saved.code,
     proposal.id,
@@ -1349,6 +1354,24 @@ test("administrators manage persistent templates; drafts pin a version and survi
     ),
     /CONTRACT_TEMPLATE_INVALID/,
   );
+  // A template fills a draft, so it follows the draft's rules (otherwise every draft from it fails).
+  for (const [patch, code] of [
+    [{ maxPenaltyPct: "10.00" }, /PENALTY_OVER_LEGAL_CAP/],
+    [{ maxPenaltyPct: "0.00" }, /PENALTY_INCONSISTENT/],
+    [{ penaltyRatePct: "0", maxPenaltyPct: "5.00" }, /PENALTY_INCONSISTENT/],
+    [
+      { signerRoles: "CONTRACT_OWNER;CONTRACT_OWNER;SUPPLIER" },
+      /CONTRACT_TEMPLATE_INVALID/,
+    ],
+  ])
+    await assert.rejects(
+      base.create(
+        "contract-templates",
+        { ...template, ...patch },
+        actor("u-sysadmin"),
+      ),
+      code,
+    );
   const created = await base.create(
     "contract-templates",
     template,

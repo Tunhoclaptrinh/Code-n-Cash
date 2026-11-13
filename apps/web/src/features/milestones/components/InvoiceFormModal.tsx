@@ -16,6 +16,7 @@ export function InvoiceFormModal({
   open,
   fileName,
   plannedMillion,
+  sellerTaxCode,
   today,
   busy,
   onCancel,
@@ -24,6 +25,8 @@ export function InvoiceFormModal({
   open: boolean;
   fileName: string;
   plannedMillion: string;
+  /** The supplier's tax code on record, if any: the API requires the invoice to state it. */
+  sellerTaxCode: string | null;
   today: string;
   busy: boolean;
   onCancel: () => void;
@@ -80,7 +83,7 @@ export function InvoiceFormModal({
                 symbol: `1C${year}TAA`,
                 number: String(Date.now() % 100_000_000).padStart(8, "0"),
                 issueDate: today,
-                sellerTaxCode: "0109876543",
+                sellerTaxCode: sellerTaxCode ?? "0109876543",
                 amountMillion: plannedMillion,
               })
             }
@@ -118,7 +121,11 @@ export function InvoiceFormModal({
         <Form.Item
           name="sellerTaxCode"
           label={t("invoice.fields.sellerTaxCode")}
-          extra={t("invoice.hints.sellerTaxCode")}
+          extra={
+            sellerTaxCode
+              ? t("invoice.hints.sellerOnRecord", { taxCode: sellerTaxCode })
+              : t("invoice.hints.sellerTaxCode")
+          }
           rules={[{ required: true, message: "" }, rule("sellerTaxCode")]}
         >
           <Input maxLength={14} data-testid="invoice-tax-code" />

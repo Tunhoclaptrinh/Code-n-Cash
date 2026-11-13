@@ -112,7 +112,8 @@
     "PENDING_CONDITIONS": "Chờ điều kiện",
     "NEEDS_REVIEW": "Cần xem xét",
     "ALL_MILESTONES_ELIGIBLE": "Mọi mốc đủ điều kiện",
-    "CLOSED": "Đã đóng"
+    "CLOSED": "Đã xong các mốc",
+    "LIQUIDATED": "Đã thanh lý"
   },
   "approvalRole": {
     "CONTRACT_OWNER": "Chủ hợp đồng",
@@ -181,7 +182,9 @@
     "COMPLETE_DRAFT": "Hoàn tất hồ sơ hợp đồng",
     "TRANSFER_PAYMENT": "Duyệt lệnh chi",
     "FOLLOW_UP": "Theo dõi mốc",
-    "REVIEW_AMENDMENT": "Xem xét phụ lục hợp đồng"
+    "REVIEW_AMENDMENT": "Xem xét phụ lục hợp đồng",
+    "LIQUIDATE_CONTRACT": "Lập biên bản thanh lý hợp đồng",
+    "REVIEW_LIQUIDATION": "Xác nhận thanh lý hợp đồng"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "Loại chứng từ này do bên kia tạo (ma trận thẩm quyền 4.2).",
@@ -373,7 +376,15 @@
     "MILESTONE_EDIT_INVALID": "Bản chỉnh sửa phải có đủ các mốc của quy trình với dữ liệu hợp lệ.",
     "PERCENT_INVALID": "Tỷ lệ mỗi mốc phải lớn hơn 0, tối đa 2 chữ số thập phân.",
     "PERCENT_TOTAL": "Tổng tỷ lệ các mốc phải đúng 100%.",
-    "INVALID_EVENTS": "Mỗi mốc cần 1–6 chứng từ bắt buộc, không trùng nhau."
+    "INVALID_EVENTS": "Mỗi mốc cần 1–6 chứng từ bắt buộc, không trùng nhau.",
+    "CONTRACT_CLOSED": "Hợp đồng đã thanh lý; không ghi thêm được gì.",
+    "CANNOT_LIQUIDATE": "Chỉ cán bộ hợp đồng hoặc chủ hợp đồng của bên mua lập biên bản thanh lý.",
+    "MILESTONES_OPEN": "Còn mốc chưa được chi hoặc chưa bị từ chối; chưa thể thanh lý.",
+    "LIQUIDATION_PENDING": "Đang có biên bản thanh lý chờ nhà cung cấp xác nhận.",
+    "LIQUIDATION_NOT_FOUND": "Không có biên bản thanh lý đang chờ.",
+    "CANNOT_DECIDE_LIQUIDATION": "Chỉ nhà cung cấp của hợp đồng xác nhận thanh lý.",
+    "LIQUIDATION_STALE": "Số liệu đã thay đổi từ khi lập biên bản; bên mua cần lập lại.",
+    "INVOICE_SELLER_MISMATCH": "Mã số thuế người bán khác mã số thuế của nhà cung cấp trong hồ sơ hợp đồng."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

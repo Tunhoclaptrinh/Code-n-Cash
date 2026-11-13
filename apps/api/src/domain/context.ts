@@ -476,6 +476,7 @@ export class Ctx {
   contractStatus(contract: ContractRecord): ContractStatus {
     if (contract.lifecycle === "DRAFT") return "DRAFT";
     if (contract.lifecycle === "SIGNING") return "AWAITING_SIGNATURE";
+    if (contract.lifecycle === "CLOSED") return "LIQUIDATED";
     const statuses = this.milestonesOf(contract.contract_id)
       .filter((m) => this.hasEvaluation(m.milestone_id))
       .map((m) => this.status(m));
@@ -492,6 +493,20 @@ export class Ctx {
     )
       return "PENDING_CONDITIONS";
     return "ALL_MILESTONES_ELIGIBLE";
+  }
+
+  /** An organisation's tax code and address, when its record has them (organizations). */
+  organizationTaxCode(organizationId: string): string | null {
+    const row = (this.t.organizations ?? []).find(
+      (org) => org.id === organizationId,
+    );
+    return typeof row?.taxCode === "string" && row.taxCode ? row.taxCode : null;
+  }
+  organizationAddress(organizationId: string): string | null {
+    const row = (this.t.organizations ?? []).find(
+      (org) => org.id === organizationId,
+    );
+    return typeof row?.address === "string" && row.address ? row.address : null;
   }
 
   contractRow(contract: ContractRecord): ContractRow {

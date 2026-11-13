@@ -26,6 +26,17 @@
         "key": "email",
         "type": "email",
         "maxLength": 254
+      },
+      {
+        "key": "taxCode",
+        "type": "string",
+        "maxLength": 14,
+        "pattern": "^(\\d{10}(-\\d{3})?|\\d{12})$"
+      },
+      {
+        "key": "address",
+        "type": "textarea",
+        "maxLength": 250
       }
     ]
   },

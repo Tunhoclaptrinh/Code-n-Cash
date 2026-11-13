@@ -536,8 +536,25 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
     ) as ProfileRecord[];
 
   const now = new Date().toISOString();
+  // The two demo organisations get a synthetic legal identity (tax code, address) so their
+  // contracts and invoices carry one; the Data Pack parties have none and stay as given.
+  const identity: Record<string, { taxCode: string; address: string }> = {
+    [DEMO_BUYER]: {
+      taxCode: "0101234567",
+      address: "Số 12 Duy Tân, Cầu Giấy, Hà Nội",
+    },
+    [DEMO_SUPPLIER]: {
+      taxCode: "0109876543",
+      address: "Số 8 Phạm Hùng, Nam Từ Liêm, Hà Nội",
+    },
+  };
   const organizationRecords = organizations.map((o) =>
-    entity(o.id, { ...o, organizationId: o.id, createdAt: now }),
+    entity(o.id, {
+      ...o,
+      ...(identity[o.id] ?? {}),
+      organizationId: o.id,
+      createdAt: now,
+    }),
   );
   return {
     tables: {

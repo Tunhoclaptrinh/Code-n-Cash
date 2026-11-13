@@ -41,6 +41,7 @@ const STATUSES: ContractStatus[] = [
   "DRAFT",
   "ALL_MILESTONES_ELIGIBLE",
   "CLOSED",
+  "LIQUIDATED",
 ];
 type Tile = "YOUR_TURN" | ContractStatus;
 const tiles: Array<{
@@ -71,7 +72,7 @@ const tiles: Array<{
   },
   {
     key: "ALL_MILESTONES_ELIGIBLE",
-    statuses: ["ALL_MILESTONES_ELIGIBLE", "CLOSED"],
+    statuses: ["ALL_MILESTONES_ELIGIBLE", "CLOSED", "LIQUIDATED"],
     ...STAT_TONE.green,
   },
 ];

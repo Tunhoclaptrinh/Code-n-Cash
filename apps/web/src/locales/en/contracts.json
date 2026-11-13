@@ -135,8 +135,9 @@
         "continue": "Continue: assign signature positions"
       },
       "value": {
-        "label": "Contract value",
-        "unit": "million VND"
+        "label": "Contract value (VAT included)",
+        "unit": "million VND",
+        "hint": "The total payable, value added tax included. Each milestone invoice must state exactly the milestone amount cut from this value."
       },
       "start": {
         "label": "Start date"

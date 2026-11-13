@@ -184,6 +184,14 @@ def build_document(data):
         custom = re.sub(r'\{\{(title|code|buyer|supplier|valueMillion|startDate|endDate|graceDays|penaltyRatePct|maxPenaltyPct)\}\}', lambda match: str(data[match.group(1)]), custom)
         labels['sections'][1]['body'] = custom.replace('{', '{{').replace('}', '}}')
 
+    # The approval policy is written out in words, never as its code; exempt milestones are named.
+    policy_text = labels['approvalPolicies'].get(str(data.get('approvalPolicy', '')), placeholder)
+    exempt = [labels['milestoneTypes'].get(stage.get('type', ''), stage['name'])
+              for stage in data['stages'] if stage.get('approval') == 'NONE']
+    data = {**data, 'approvalPolicyText': policy_text}
+    if exempt and data.get('approvalPolicy') != 'AUTO_IF_ALL_CONDITIONS':
+        labels['sections'][5]['body'] += '\n' + labels['approvalExempt'].format(milestones=', '.join(exempt))
+
     header, table_labels = labels['header'], labels['table']
     # The motto rule is a paragraph border limited by the indents; English text is longer.
     motto_indent = 2600 if language == 'vi' else 1800
@@ -199,6 +207,11 @@ def build_document(data):
     content.append(para(labels['dateLine']))
     for party, key in (('BUYER', 'buyer'), ('SUPPLIER', 'supplier')):
         content.append(para([run(labels['parties'][party], bold=True), run(data[key], tab=True)], 'Party'))
+        # Tax code and address when the organisation record has them; otherwise left to fill in.
+        identity = (data.get('parties') or {}).get(party) or {}
+        content.append(para(labels['partyIdentity'].format(
+            taxCode=identity.get('taxCode') or placeholder,
+            address=identity.get('address') or placeholder)))
     content.append(para(labels['intro']))
     content.append(table([[labels['fields'][key]['label'], labels['fields'][key]['value'].format(value=data[key])] for key in TERM_KEYS],
                          [3600, TEXT_WIDTH - 3600]))
@@ -212,14 +225,41 @@ def build_document(data):
         closing = index == len(labels['sections']) - 1 and count <= 2
         content += [para(line, keep_next=closing and number == len(lines) - 1) for number, line in enumerate(lines)]
         if index == 3:
-            rows = [[table_labels[key] for key in ('index', 'milestone', 'share', 'due', 'evidence')]]
+            # Each milestone with what the system executes: share and amount, due date, every
+            # required document with the side that provides it, and whether a late penalty applies.
+            columns = ('index', 'milestone', 'share', 'due', 'evidence', 'penalty')
+            rows = [[table_labels[key] for key in columns]]
             for number, stage in enumerate(data['stages'], 1):
-                required = ', '.join(labels['eventTypes'].get(event.strip(), event.strip()) for event in stage['requiredEvents'].split(',') if event.strip())
+                documents = stage.get('documents') or [
+                    {'eventType': event.strip(), 'side': None}
+                    for event in stage['requiredEvents'].split(',') if event.strip()]
+                required = ', '.join(
+                    labels['eventTypes'].get(document['eventType'], document['eventType'])
+                    + (f" ({labels['sides'][document['side']]})" if document.get('side') else '')
+                    for document in documents)
                 name = labels['milestoneTypes'].get(stage.get('type', ''), stage['name'])
-                rows.append([str(number), name, f"{stage['paymentPercent']}%", stage['dueDate'], required])
+                share = f"{stage['paymentPercent']}%"
+                if stage.get('amountMillion'):
+                    share += f" = {stage['amountMillion']} {labels['amountUnit']}"
+                penalty = placeholder if stage.get('latePenalty') is None \
+                    else table_labels['penaltyYes' if stage['latePenalty'] else 'penaltyNo']
+                # A relative warranty term is written as the contract states it; its date is
+                # confirmed when the terms are digitised.
+                due = stage['dueDate']
+                if not due and stage.get('relativeTermMonths') and number > 1:
+                    previous = data['stages'][number - 2]
+                    template = labels['relativeDueOne' if stage['relativeTermMonths'] == 1 else 'relativeDue']
+                    due = template.format(
+                        months=stage['relativeTermMonths'],
+                        previous=labels['milestoneTypes'].get(previous.get('type', ''), previous['name']))
+                elif not due:
+                    due = labels['dueOpen']
+                rows.append([str(number), name, share, due, required, penalty])
             if len(rows) == 1:
-                rows.append([placeholder] * 5)
-            content.append(table(rows, [700, 2300, 1000, 1700, TEXT_WIDTH - 5700], header=True, aligns=['center', 'left', 'right', 'center', 'left']))
+                rows.append([placeholder] * len(columns))
+            widths = [720, 1730, 1750, 1350, TEXT_WIDTH - 6450, 900]
+            content.append(table(rows, widths, header=True, aligns=['center', 'left', 'right', 'center', 'left', 'center']))
+            content.append(para(labels['scheduleNote']))
         if index == 6:
             content.append(para(signers_note))
             for sequence, signer in enumerate(data['signers'], 1):

@@ -102,7 +102,10 @@ export type ContractStatus =
   | "PENDING_CONDITIONS"
   | "NEEDS_REVIEW"
   | "ALL_MILESTONES_ELIGIBLE"
-  | "CLOSED";
+  /** Every milestone is paid or rejected; the contract still waits for its liquidation. */
+  | "CLOSED"
+  /** Both parties confirmed the liquidation record; nothing more can happen. */
+  | "LIQUIDATED";
 
 /** Who must act next on a milestone (spec 9.5), derived from the latest evaluation. */
 export type NextStep =
@@ -612,6 +615,34 @@ export interface ContractOverview {
   canProposeAmendment: boolean;
   canDecideAmendment: boolean;
   canWithdrawAmendment: boolean;
+  /** The latest liquidation record, if any (biên bản thanh lý). */
+  liquidation: Liquidation | null;
+  canProposeLiquidation: boolean;
+  canDecideLiquidation: boolean;
+  canWithdrawLiquidation: boolean;
+}
+
+/**
+ * The liquidation record (biên bản thanh lý): once every milestone is paid or rejected, the buyer
+ * proposes it with the settled figures, the supplier confirms or rejects it. Confirmed, the
+ * contract is closed for good: no documents, approvals, disputes or amendments any more.
+ */
+export interface Liquidation {
+  state: AmendmentState;
+  note: string;
+  totals: {
+    valueMillion: string;
+    paidMillion: string;
+    penaltyMillion: string;
+    rejectedMillion: string;
+  };
+  proposedBy: { id: string; name: string };
+  proposedAt: string;
+  decidedBy: { id: string; name: string } | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  /** SHA-256 of the canonical record both parties confirm. */
+  digest: string;
 }
 
 export type AmendmentState = "PROPOSED" | "ACCEPTED" | "REJECTED" | "WITHDRAWN";
@@ -655,7 +686,8 @@ export type ContractNotice =
   | { code: "MISSING_DUE_DATE"; milestones: number[] }
   | { code: "SIGNED_AFTER_START"; days: number }
   | { code: "PAST_END"; date: string; open: number }
-  | { code: "SETTLED" };
+  | { code: "SETTLED" }
+  | { code: "LIQUIDATED"; at: string };
 
 /**
  * The contract as a state machine: drafted, signed, each payment milestone settled (paid, or closed by
@@ -808,6 +840,8 @@ export interface EvidenceWorkspace {
   extras: Attachment[];
   overdueDays: number;
   canSubmit: boolean;
+  /** The supplier's tax code on record; an invoice must state it as the seller's. */
+  sellerTaxCode: string | null;
   /** Engine result if the attached documents were submitted now (dry run). */
   preview: Preview | null;
 }
@@ -883,6 +917,8 @@ export type TaskKind =
   | "COMPLETE_DRAFT"
   | "TRANSFER_PAYMENT"
   | "REVIEW_AMENDMENT"
+  | "LIQUIDATE_CONTRACT"
+  | "REVIEW_LIQUIDATION"
   | "FOLLOW_UP";
 
 /**
@@ -1125,6 +1161,7 @@ export type ActivityAction =
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
   | { kind: "DIGITIZATION_EDITED"; milestoneCount: number }
   | { kind: "AMENDMENT"; state: AmendmentState; number: number }
+  | { kind: "LIQUIDATION"; state: AmendmentState }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
   | { kind: "PAYMENT"; amountMillion: string }
   | {

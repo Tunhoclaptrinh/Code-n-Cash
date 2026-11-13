@@ -339,7 +339,9 @@ function ResourceView({ resource }: { resource: string }) {
                 ? 150
                 : field.type === "boolean" || field.type === "number"
                   ? 110
-                  : ["code", "sha256", "recordId"].includes(field.key)
+                  : ["code", "sha256", "recordId", "taxCode"].includes(
+                        field.key,
+                      )
                     ? 130
                     : 180;
   const shownFields = fields.filter(

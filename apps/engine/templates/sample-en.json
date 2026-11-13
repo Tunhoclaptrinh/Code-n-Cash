@@ -29,19 +29,19 @@
     },
     {
       "title": "Contract value",
-      "body": "Contract value: {valueMillion} million VND. Value is stated in million VND with two decimal places. Payment follows the rule version pinned to the contract."
+      "body": "Contract value: {valueMillion} million VND, including value added tax (VAT) and every cost of completing the work. It is paid by the milestones of Article 4; the milestone amounts add up to the contract value."
     },
     {
       "title": "Milestones and payment",
-      "body": "The milestones below come from the configured workflow template. A reviewer must confirm the dates before issuance."
+      "body": "The milestones below come from the workflow of the contract type; due dates are spread over the contract period and the last falls on the end date. A reviewer compares and confirms them before signing. A milestone is paid only when every document in the \"Required evidence\" column is provided by the side shown in brackets."
     },
     {
       "title": "Acceptance evidence",
-      "body": "Evidence must be provided by this contract supplier. Incomplete documents or invalid signatures do not authorize payment."
+      "body": "Each document is an electronic file submitted and signed by the party responsible for it. An invoice is an electronic invoice under Decree 123/2020/ND-CP and Circular 78/2021/TT-BTC stating its symbol, number, issue date, seller tax code and a total equal to the milestone amount; it is issued no earlier than signing and backs one milestone only. The buyer checks, asks for more or confirms acceptance in writing."
     },
     {
       "title": "Approval policy",
-      "body": "Approval policy: {approvalPolicy}. Only the assigned roles and parties may vote. Contract signing does not replace payment approval."
+      "body": "Approval policy: {approvalPolicyText}. A milestone is paid only when its documents under Article 4 are complete, the approvals of this policy are given and no dispute about it is open. Signing the contract does not replace checking documents and approving payment."
     },
     {
       "title": "Signers and order",
@@ -49,7 +49,7 @@
     },
     {
       "title": "Late penalty and grace",
-      "body": "Start date: {startDate}. End date: {endDate}. Grace period: {graceDays} days. Penalty rate: {penaltyRatePct}% per day."
+      "body": "Start date: {startDate}. End date: {endDate}. Grace period: {graceDays} days. Penalty rate: {penaltyRatePct}% per day. A milestone marked for penalty in Article 4 completed after its due date plus the grace period is charged this rate on the milestone amount for each day late. Completion is the date of the last valid document. The penalty is deducted from that milestone's payment."
     },
     {
       "title": "Liability cap",
@@ -57,7 +57,7 @@
     },
     {
       "title": "Warranty and support",
-      "body": "The warranty milestone opens only after its predecessor completes. Required evidence follows the configured contract workflow."
+      "body": "The supplier handles support requests and the warranty within the scope of work. The warranty milestone completes with the document confirming the warranty is complete; when the contract states only a relative warranty term, the parties confirm the exact date during review."
     },
     {
       "title": "Disputes",
@@ -65,17 +65,17 @@
     },
     {
       "title": "Change control",
-      "body": "A rule change needs a version, reason, regression check and independent reviewer. Existing contracts retain their pinned version."
+      "body": "Changes to scope, value or schedule are made by an amendment. A schedule amendment (milestone due dates, end date) is proposed by the buyer with its reason and takes effect only when the supplier accepts it; a milestone whose payment is decided keeps its due date. The signed terms stay unchanged; amendments are kept with the contract."
     },
     {
       "title": "Effect and retention",
-      "body": "The contract becomes effective when all configured signing steps complete. This fixture is unsigned; demo LOCAL_ED25519 proof is not an externally trusted CA/PAdES certificate."
+      "body": "The contract becomes effective when all configured signing steps complete. When every milestone is paid or closed, the parties sign a liquidation record and no further documents or payments arise. This fixture is unsigned; demo LOCAL_ED25519 proof is not an externally trusted CA/PAdES certificate."
     }
   ],
   "fields": {
     "valueMillion": {
       "label": "Contract value",
-      "value": "{value} million VND"
+      "value": "{value} million VND (VAT included)"
     },
     "startDate": {
       "label": "Start date",
@@ -102,9 +102,12 @@
   "table": {
     "index": "No.",
     "milestone": "Milestone",
-    "share": "Share",
+    "share": "Share, amount",
     "due": "Due date",
-    "evidence": "Required evidence"
+    "evidence": "Required evidence (provided by)",
+    "penalty": "Penalty",
+    "penaltyYes": "Yes",
+    "penaltyNo": "No"
   },
   "single": "Single signer: this signature completes the configured signing workflow.",
   "multiple": "Multiple signers: all steps must complete in order, representing both parties.",
@@ -123,7 +126,7 @@
   "anchor": "SIGNING AREA",
   "original": {
     "notice": "Simulated contract, rebuilt from the organiser's contract data for viewing and cross-checking",
-    "closing": "The contract becomes effective when all agreed signing steps complete. The parties keep the original and its records. This copy is rebuilt from the contract data for viewing in the system."
+    "closing": "The contract becomes effective when all agreed signing steps complete. The parties keep the original and its records. This copy is rebuilt from the contract data for viewing in the system. When every milestone is paid or closed, the parties sign a liquidation record."
   },
   "milestoneTypes": {
     "SIGNING": "Contract signing",
@@ -159,5 +162,18 @@
     "DISPUTE_OPENED": "Dispute opened",
     "DISPUTE_RESOLVED": "Dispute resolved",
     "OTHER": "Supporting file"
-  }
+  },
+  "approvalPolicies": {
+    "AUTO_IF_ALL_CONDITIONS": "paid automatically when the conditions hold, no approval",
+    "SINGLE_BUYER_APPROVAL": "approved by the buyer's contract owner",
+    "DUAL_APPROVAL": "approved together by the buyer's contract owner and secondary approver",
+    "FINANCE_PLUS_OWNER": "approved together by the buyer's finance approver and contract owner"
+  },
+  "approvalExempt": "These milestones need no approval and are paid when their documents are complete and no dispute is open: {milestones}.",
+  "amountUnit": "million",
+  "scheduleNote": "Each milestone amount is its share of the contract value, rounded down to 0.01 million; the last milestone takes the remainder so the amounts add up to the contract value.",
+  "relativeDue": "{months} months after {previous}",
+  "dueOpen": "To be confirmed",
+  "relativeDueOne": "1 month after {previous}",
+  "partyIdentity": "Tax code: {taxCode}. Address: {address}."
 }

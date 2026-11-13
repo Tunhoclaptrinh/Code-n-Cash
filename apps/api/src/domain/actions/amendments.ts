@@ -103,6 +103,8 @@ export function proposeAmendment(
   },
 ): Outcome<Amendment> {
   const contract = ctx.contract(String(input?.contractId));
+  if (contract.lifecycle === "CLOSED")
+    throw new BadRequestException("CONTRACT_CLOSED");
   if (contract.lifecycle !== "ACTIVE")
     throw new BadRequestException("CONTRACT_NOT_SIGNED");
   if (contract.origin === "DATA_PACK")

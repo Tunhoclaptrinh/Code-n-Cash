@@ -22,6 +22,7 @@ import type {
   InvoiceData,
   Amendment,
   MilestoneEdit,
+  Liquidation,
 } from "./types";
 import type { LocalProof } from "../trust/types";
 
@@ -189,7 +190,9 @@ export type ContractRecord = RecordEntity &
   Columns<"contracts"> & {
     origin: Origin;
     /** DRAFT until the terms are confirmed, SIGNING until every signer signed, then ACTIVE. */
-    lifecycle: "DRAFT" | "SIGNING" | "ACTIVE";
+    lifecycle: "DRAFT" | "SIGNING" | "ACTIVE" | "CLOSED";
+    /** Liquidation records, oldest first; the contract is CLOSED once one is accepted. */
+    liquidations?: Liquidation[];
     /** End date in force after an accepted amendment; the signed end_date never changes. */
     amendedEndDate?: string;
   };

@@ -98,6 +98,7 @@ const STATUS_ORDER: ContractSummary["status"][] = [
   "NEEDS_REVIEW",
   "ALL_MILESTONES_ELIGIBLE",
   "CLOSED",
+  "LIQUIDATED",
   "DRAFT",
 ];
 /** Fixed categorical slot per status, so a status keeps its colour whatever else is shown. */
@@ -107,6 +108,7 @@ const STATUS_COLOR: Record<ContractSummary["status"], string> = {
   NEEDS_REVIEW: "var(--viz-c3)",
   ALL_MILESTONES_ELIGIBLE: "var(--viz-c4)",
   CLOSED: "var(--viz-c5)",
+  LIQUIDATED: "var(--viz-c7)",
   DRAFT: "var(--viz-c6)",
 };
 

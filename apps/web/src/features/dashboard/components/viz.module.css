@@ -16,6 +16,8 @@
   --viz-c4: #eda100;
   --viz-c5: #e87ba4;
   --viz-c6: #008300;
+  /* Finished for good (a liquidated contract): neutral, so it never competes with live states. */
+  --viz-c7: #8a94a6;
   --viz-track: var(--bg-surface-alt);
   --viz-grid: var(--color-border);
   --viz-gap: var(--color-surface);
@@ -34,6 +36,7 @@
   --viz-c4: #c98500;
   --viz-c5: #d55181;
   --viz-c6: #008300;
+  --viz-c7: #7d8796;
 }
 
 /* Segmented bar: one whole split into parts, 2px surface gaps, labels inside when they fit. */

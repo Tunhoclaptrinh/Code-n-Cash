@@ -68,6 +68,7 @@ export async function evidenceWorkspace(
       .map(toAttachment),
     overdueDays: ctx.lateness(m).overdueDays,
     canSubmit,
+    sellerTaxCode: ctx.organizationTaxCode(contract.supplier_id),
     preview,
   };
 }

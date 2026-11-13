@@ -1,5 +1,6 @@
 import { canonical, sha256 } from "../../common/audit-chain";
 import * as actions from "../actions/amendments";
+import * as closing from "../actions/liquidation";
 import { today, type Ctx } from "../context";
 import { enginePolicy, policySha256 } from "../policy";
 import {
@@ -189,17 +190,34 @@ function lifecycle(
         total: steps.length,
       },
       ...milestoneStages,
-      {
-        kind: "CLOSED",
-        state: closed ? "DONE" : "PENDING",
-        at: closed
-          ? (milestoneStages
-              .map((s) => s.at)
-              .filter((at): at is string => !!at)
-              .sort()
-              .at(-1) ?? null)
-          : null,
-      },
+      // The last step is the liquidation: done once both parties confirmed it, current while
+      // every milestone is settled and it is still to be made. The organiser's contracts are not
+      // liquidated in the app, so for them the step completes with their last milestone.
+      contract.origin === "DATA_PACK"
+        ? {
+            kind: "CLOSED" as const,
+            state: closed ? ("DONE" as const) : ("PENDING" as const),
+            at: closed
+              ? (milestoneStages
+                  .map((s) => s.at)
+                  .filter((at): at is string => !!at)
+                  .sort()
+                  .at(-1) ?? null)
+              : null,
+          }
+        : {
+            kind: "CLOSED" as const,
+            state:
+              contract.lifecycle === "CLOSED"
+                ? ("DONE" as const)
+                : closed
+                  ? ("CURRENT" as const)
+                  : ("PENDING" as const),
+            at:
+              contract.lifecycle === "CLOSED"
+                ? (closing.latestLiquidation(contract)?.decidedAt ?? null)
+                : null,
+          },
     ],
   };
 }
@@ -289,6 +307,10 @@ export function contractOverview(
     canWithdrawAmendment:
       actions.mayProposeAmendment(ctx, contract) &&
       !!actions.openAmendment(ctx, contractId),
+    liquidation: closing.latestLiquidation(contract),
+    canProposeLiquidation: closing.mayProposeLiquidation(ctx, contract),
+    canDecideLiquidation: closing.mayDecideLiquidation(ctx, contract),
+    canWithdrawLiquidation: closing.mayWithdrawLiquidation(ctx, contract),
   };
 }
 
@@ -298,6 +320,9 @@ function contractNotices(
   contract: ContractRecord,
   milestones: MilestoneRecord[],
 ): ContractNotice[] {
+  const liquidated = closing.latestLiquidation(contract);
+  if (contract.lifecycle === "CLOSED" && liquidated?.decidedAt)
+    return [{ code: "LIQUIDATED", at: liquidated.decidedAt }];
   if (contract.lifecycle !== "ACTIVE") return [];
   const open = milestones.filter((m) => !TERMINAL.includes(ctx.status(m)));
   const notices: ContractNotice[] = [];

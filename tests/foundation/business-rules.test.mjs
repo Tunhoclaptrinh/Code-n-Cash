@@ -1601,6 +1601,20 @@ test("liquidation: once every milestone is settled the buyer proposes the record
   );
   assert.equal(settled.contract.status, "CLOSED");
   assert.ok(settled.canProposeLiquidation);
+  assert.deepEqual(
+    settled.notices.find((n) => n.code === "SETTLED"),
+    { code: "SETTLED", liquidable: true },
+  );
+  assert.equal(settled.lifecycle.stages.at(-1).liquidation, true);
+  // An organiser's contract simply completes with its last milestone: no liquidation step.
+  const organiser = await w.call(
+    ownerOf(w, "CT0001"),
+    "contracts",
+    "getContractOverview",
+    "CT0001",
+  );
+  assert.equal(organiser.lifecycle.stages.at(-1).liquidation, false);
+  assert.equal(organiser.canProposeLiquidation, false);
   const legalTasks = await w.call(U.LEGAL, "tasks", "getTaskInbox");
   assert.ok(
     legalTasks.some(

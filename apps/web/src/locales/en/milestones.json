@@ -202,7 +202,8 @@
       "CLOSED": "Closed",
       "imported": "Drafted outside the system",
       "signedCount": "Signed {{signed}}/{{total}}",
-      "paid": "Paid {{value}} million"
+      "paid": "Paid {{value}} million",
+      "COMPLETED": "Completed"
     },
     "timeline": {
       "all": "All ({{count}})",
@@ -653,7 +654,8 @@
     "SIGNED_AFTER_START": "The contract was fully signed {{days}} days after its start date. Check the schedule; amend it if needed.",
     "PAST_END": "The contract ended on {{date}} with {{count}} milestones still open. Extend it with an amendment or settle the rest.",
     "SETTLED": "Every milestone is paid or closed. Make the liquidation record to close the contract.",
-    "LIQUIDATED": "The contract was liquidated on {{date}}; no more documents, approvals, disputes or amendments."
+    "LIQUIDATED": "The contract was liquidated on {{date}}; no more documents, approvals, disputes or amendments.",
+    "SETTLED_FINAL": "Every milestone is paid or closed."
   },
   "amendments": {
     "intro": "An amendment adjusts the schedule of a signed contract: the buyer proposes new due dates for milestones whose payment is not decided and/or a new end date, the supplier accepts or rejects. The signed terms stay as they are; only an accepted amendment takes effect, and lateness is recomputed from the new dates.",

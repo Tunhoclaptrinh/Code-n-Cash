@@ -202,7 +202,8 @@
       "CLOSED": "Hoàn tất",
       "imported": "Lập ngoài hệ thống",
       "signedCount": "Đã ký {{signed}}/{{total}}",
-      "paid": "Đã chi {{value}} triệu"
+      "paid": "Đã chi {{value}} triệu",
+      "COMPLETED": "Hoàn tất"
     },
     "timeline": {
       "all": "Tất cả ({{count}})",
@@ -653,7 +654,8 @@
     "SIGNED_AFTER_START": "Hợp đồng ký xong sau ngày bắt đầu {{days}} ngày. Kiểm tra lại lịch mốc; nếu cần, lập phụ lục điều chỉnh.",
     "PAST_END": "Hợp đồng đã hết hạn ngày {{date}} nhưng còn {{count}} mốc chưa xong. Gia hạn bằng phụ lục hoặc xử lý các mốc còn lại.",
     "SETTLED": "Mọi mốc đã được chi hoặc đã đóng. Lập biên bản thanh lý để khép lại hợp đồng.",
-    "LIQUIDATED": "Hợp đồng đã thanh lý ngày {{date}}; không ghi thêm chứng từ, phê duyệt, tranh chấp hay phụ lục."
+    "LIQUIDATED": "Hợp đồng đã thanh lý ngày {{date}}; không ghi thêm chứng từ, phê duyệt, tranh chấp hay phụ lục.",
+    "SETTLED_FINAL": "Mọi mốc đã được chi hoặc đã đóng."
   },
   "amendments": {
     "intro": "Phụ lục điều chỉnh lịch của hợp đồng đã ký: bên mua đề xuất hạn mới cho các mốc chưa được quyết định chi và/hoặc ngày kết thúc mới, nhà cung cấp chấp nhận hoặc từ chối. Điều khoản đã ký giữ nguyên; phụ lục được chấp nhận mới có hiệu lực, và hệ thống tính lại ngày trễ theo hạn mới.",

@@ -196,6 +196,7 @@ function lifecycle(
       contract.origin === "DATA_PACK"
         ? {
             kind: "CLOSED" as const,
+            liquidation: false,
             state: closed ? ("DONE" as const) : ("PENDING" as const),
             at: closed
               ? (milestoneStages
@@ -207,6 +208,7 @@ function lifecycle(
           }
         : {
             kind: "CLOSED" as const,
+            liquidation: true,
             state:
               contract.lifecycle === "CLOSED"
                 ? ("DONE" as const)
@@ -343,7 +345,11 @@ function contractNotices(
   const end = contract.amendedEndDate ?? contract.end_date;
   if (open.length && end < today())
     notices.push({ code: "PAST_END", date: end, open: open.length });
-  if (milestones.length && !open.length) notices.push({ code: "SETTLED" });
+  if (milestones.length && !open.length)
+    notices.push({
+      code: "SETTLED",
+      liquidable: contract.origin !== "DATA_PACK",
+    });
   return notices;
 }
 

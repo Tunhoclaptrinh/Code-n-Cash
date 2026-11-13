@@ -686,7 +686,8 @@ export type ContractNotice =
   | { code: "MISSING_DUE_DATE"; milestones: number[] }
   | { code: "SIGNED_AFTER_START"; days: number }
   | { code: "PAST_END"; date: string; open: number }
-  | { code: "SETTLED" }
+  /** `liquidable`: the next step is the liquidation record (not for the organiser's contracts). */
+  | { code: "SETTLED"; liquidable: boolean }
   | { code: "LIQUIDATED"; at: string };
 
 /**
@@ -724,7 +725,14 @@ export type LifecycleStage =
       /** What last changed the milestone's status. */
       trigger: Trigger["kind"] | null;
     }
-  | { kind: "CLOSED"; state: LifecycleStageState; at: string | null };
+  | {
+      kind: "CLOSED";
+      state: LifecycleStageState;
+      at: string | null;
+      /** True when the step is a liquidation both parties confirm; false for the organiser's
+       * contracts, which simply complete with their last milestone. */
+      liquidation: boolean;
+    };
 
 /**
  * A contract as a smart contract: what both parties bound themselves to, the engine that executes it and,

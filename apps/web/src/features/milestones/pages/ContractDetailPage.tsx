@@ -265,7 +265,10 @@ export default function ContractDetailPage() {
                 "events",
                 "history",
                 "signing",
-                ...(contract.signing ? ["amendments"] : []),
+                // The organiser's contracts stay as given: no amendments, no liquidation.
+                ...(contract.signing && contract.origin !== "DATA_PACK"
+                  ? ["amendments"]
+                  : []),
                 // The organiser's contracts are not liquidated in the app.
                 ...(contract.signing && contract.origin !== "DATA_PACK"
                   ? ["liquidation"]

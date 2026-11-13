@@ -71,7 +71,8 @@ export function ContractNotices({
   if (!notices.length) return null;
   const actionFor = (code: ContractNotice["code"]) =>
     code === "SETTLED"
-      ? onLiquidate && (
+      ? notices.some((n) => n.code === "SETTLED" && n.liquidable) &&
+        onLiquidate && (
           <Button size="small" onClick={onLiquidate}>
             {t("liquidation.propose")}
           </Button>
@@ -97,20 +98,25 @@ export function ContractNotices({
                 ? "info"
                 : "warning"
           }
-          title={t(`notices.${notice.code}`, {
-            milestones:
-              notice.code === "MISSING_DUE_DATE"
-                ? notice.milestones.map((n) => `MS${n}`).join(", ")
-                : "",
-            days: notice.code === "SIGNED_AFTER_START" ? notice.days : 0,
-            date:
-              notice.code === "PAST_END"
-                ? formatDate(notice.date)
-                : notice.code === "LIQUIDATED"
-                  ? formatDate(notice.at)
+          title={t(
+            notice.code === "SETTLED" && !notice.liquidable
+              ? "notices.SETTLED_FINAL"
+              : `notices.${notice.code}`,
+            {
+              milestones:
+                notice.code === "MISSING_DUE_DATE"
+                  ? notice.milestones.map((n) => `MS${n}`).join(", ")
                   : "",
-            count: notice.code === "PAST_END" ? notice.open : 0,
-          })}
+              days: notice.code === "SIGNED_AFTER_START" ? notice.days : 0,
+              date:
+                notice.code === "PAST_END"
+                  ? formatDate(notice.date)
+                  : notice.code === "LIQUIDATED"
+                    ? formatDate(notice.at)
+                    : "",
+              count: notice.code === "PAST_END" ? notice.open : 0,
+            },
+          )}
           action={actionFor(notice.code) || undefined}
         />
       ))}

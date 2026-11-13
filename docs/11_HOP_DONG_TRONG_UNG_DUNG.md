@@ -64,6 +64,8 @@ Màn quản trị báo đúng mã lỗi; trước đây mọi lỗi đều hiệ
 
 Hồ sơ tổ chức có thêm **mã số thuế** (10 chữ số, kèm `-XXX` nếu là chi nhánh, hoặc 12 chữ số) và **địa chỉ**, đều không bắt buộc. Văn bản hợp đồng in hai thông tin này dưới tên mỗi bên, chỗ nào thiếu thì để "……" cho người ký điền. Khi nhà cung cấp đã có mã số thuế trong hồ sơ, hoá đơn phải ghi đúng mã đó (7.1). Data Pack không có mã số thuế; hai tổ chức demo (Nova An, Phú Minh) được gán mã và địa chỉ giả lập.
 
+**Lưu ý với dữ liệu đang chạy:** dữ liệu mẫu chỉ được dựng khi kho dữ liệu trống. Kho đã có từ trước sẽ chưa có mã số thuế demo; dùng chức năng **khôi phục dữ liệu demo** của quản trị viên (dữ liệu cũ được lưu trữ, không xoá) hoặc nhập mã ở màn Quản trị → Tổ chức.
+
 ## 3. Bước 2–3: văn bản và trích xuất điều khoản
 
 Người soạn tải PDF hoặc DOCX lên (hoặc tạo văn bản mẫu từ chính bản nháp), đặt vị trí chữ ký trên trang thật, rồi chạy **Trích xuất điều khoản**. Phần trích xuất (Gemini khi bật, nếu không thì đọc văn bản bằng quy tắc) **chỉ đề xuất 6 trường**: giá trị, ân hạn, mức phạt, trần phạt, ngày bắt đầu, ngày kết thúc. Mỗi đề xuất kèm trang và câu trích; người rà soát đối chiếu, sửa nếu cần và xác nhận.
@@ -78,7 +80,7 @@ Văn bản do hệ thống sinh (và bản gốc mô phỏng của hợp đồng
 | --- | --- |
 | Đầu văn bản | Tên, mã số thuế và địa chỉ của từng bên; bảng điều khoản (giá trị **đã gồm VAT**, ngày, ân hạn, phạt, trần) |
 | 3 Giá trị | Đã gồm VAT; tổng số tiền các mốc bằng giá trị hợp đồng |
-| 4 Tiến độ | Bảng mốc: tỷ lệ **và số tiền**, hạn, **hồ sơ cần có kèm bên cung cấp**, **có áp phạt hay không**; cách chia tiền (mốc cuối nhận phần dư). Mốc bảo hành ghi thời hạn tương đối, ví dụ "2 tháng sau mốc Nghiệm thu", đúng với điều màn số hoá yêu cầu xác nhận |
+| 4 Tiến độ | Bảng mốc: tỷ lệ **và số tiền**, hạn, **chứng từ cần có kèm bên cung cấp**, **có áp phạt hay không**; cách chia tiền (mốc cuối nhận phần dư). Mốc bảo hành ghi thời hạn tương đối, ví dụ "2 tháng sau mốc Nghiệm thu", đúng với điều màn số hoá yêu cầu xác nhận |
 | 5 Chứng từ | Hoá đơn điện tử theo NĐ 123/2020, TT 78/2021, tổng tiền bằng số tiền mốc, không sớm hơn ngày ký, mỗi hoá đơn một mốc |
 | 6 Phê duyệt | Chính sách duyệt **viết bằng chữ** (trước đây bản tiếng Anh in mã `FINANCE_PLUS_OWNER`); các mốc miễn duyệt nếu có; ba điều kiện chi (đủ hồ sơ, đủ duyệt, không tranh chấp) |
 | 8 Phạt chậm | Tỷ lệ phạt mỗi ngày; phạt khi hoàn thành sau hạn cộng ân hạn, tính trên số tiền mốc, trừ vào khoản chi của chính mốc đó |
@@ -334,6 +336,8 @@ Màn hình đối chiếu "đã chi + phạt + bị từ chối = giá trị". M
 | Hợp đồng BTC không thanh lý trong app | `DATA_PACK_LOCKED` |
 
 Trạng thái hợp đồng tách rõ: **Đã xong các mốc** (`CLOSED`, tự động khi mọi mốc xong, chờ thanh lý) và **Đã thanh lý** (`LIQUIDATED`, sau khi hai bên xác nhận).
+
+Hợp đồng của BTC không có phụ lục hay thanh lý: hai tab này không hiện. Khi xong mọi mốc, hợp đồng BTC chỉ báo "Mọi mốc đã được chi hoặc đã đóng" và bước cuối vòng đời ghi **Hoàn tất**, không ghi **Thanh lý** (cờ `liquidation` của bước và `liquidable` của cảnh báo do API đặt).
 
 ## 11. Cảnh báo ở đầu trang hợp đồng
 

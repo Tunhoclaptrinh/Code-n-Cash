@@ -51,3 +51,9 @@ The supplier gets a **Review amendment** task and answers on the **Amendments** 
 ![The supplier reviews an amendment: 1 — the change; 2 — accept](../../../public/guide/images/amendment-review.webp)
 
 The top of the contract page also says what needs attention: milestones without a due date, signing after the start date, an end date passed with open milestones, or every milestone settled.
+
+## Contract liquidation
+
+When every milestone is paid or rejected, the contract status is **All milestones settled** and the contract officer gets a **Make liquidation record** task. On the **Liquidation** tab the system computes the settled figures: value, paid net of penalties, penalties, value of rejected milestones, checked against the contract value. The supplier gets a **Confirm liquidation** task: confirming makes the contract **Liquidated** and closes it for good; rejecting needs a reason, and the buyer makes a new record once it is clarified.
+
+![The supplier confirms the liquidation: 1 — settled figures; 2 — confirm](../../../public/guide/images/liquidation-review.webp)

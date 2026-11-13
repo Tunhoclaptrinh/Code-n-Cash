@@ -1144,7 +1144,7 @@ try {
         { n: 5, target: "[data-testid=column-settings]" },
         {
           n: 6,
-          target: ".ant-table-tbody .ant-table-row td:nth-child(6) .ant-tag",
+          target: ".ant-table-tbody .ant-table-row td:nth-child(7) .ant-tag",
         },
         { n: 7, target: "[data-testid=table-row-actions]" },
       ],
@@ -1414,6 +1414,70 @@ try {
       marks: [
         { n: 1, target: "[data-testid=amendment-card]" },
         { n: 2, target: "[data-testid=amendment-accept]" },
+      ],
+    });
+  });
+  // Liquidation of CT0104: its milestones are settled through the API (finance pays the payable
+  // ones, the owner rejects the rest), then the buyer makes the record and the supplier confirms.
+  const workflowCall = (module, action, args) =>
+    evaluate(`(async () => {
+      const response = await fetch('/api/v1/workflow/${module}/${action}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('codecash.accessToken') },
+        body: JSON.stringify({ args: ${JSON.stringify(args)} }),
+      });
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.code || json.message);
+      return json.data;
+    })()`);
+  await attempt("liquidation", async () => {
+    await loginAs("finance@novaan.vn");
+    await go("/tasks");
+    const overview = await workflowCall("contracts", "getContractOverview", [
+      "CT0104",
+    ]);
+    for (const m of overview.milestones)
+      if (
+        ["ELIGIBLE_FOR_PAYMENT", "PAID_WITH_PENALTY"].includes(m.status) &&
+        !m.paid
+      )
+        await workflowCall("payments", "transferToAccounting", [
+          { contractId: "CT0104", sequence: m.sequence },
+        ]);
+    await loginAs("owner@novaan.vn");
+    await go("/tasks");
+    const after = await workflowCall("contracts", "getContractOverview", [
+      "CT0104",
+    ]);
+    for (const m of after.milestones)
+      if (!["COMPLETED", "REJECTED"].includes(m.status))
+        await workflowCall("approvals", "castVote", [
+          {
+            contractId: "CT0104",
+            sequence: m.sequence,
+            choice: "REJECT",
+            note: "Không nghiệm thu được phần việc còn lại",
+          },
+        ]);
+    await loginAs("legal@novaan.vn");
+    await go(
+      "/contracts/CT0104?tab=liquidation",
+      "!!document.querySelector('[data-testid=liquidation-propose]')",
+    );
+    await click("[data-testid=liquidation-propose]");
+    await until("!!document.querySelector('[data-testid=liquidation-note]')");
+    await click({ text: "Gửi nhà cung cấp", tag: "button" });
+    await until("!!document.querySelector('[data-testid=liquidation-card]')");
+    await loginAs("supplier@phuminh.vn");
+    await go(
+      "/contracts/CT0104?tab=liquidation",
+      "!!document.querySelector('[data-testid=liquidation-accept]')",
+    );
+    await pause(400);
+    await shot("liquidation-review", {
+      marks: [
+        { n: 1, target: "[data-testid=liquidation-card] .ant-descriptions" },
+        { n: 2, target: "[data-testid=liquidation-accept]" },
       ],
     });
   });

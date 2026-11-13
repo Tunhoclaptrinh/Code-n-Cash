@@ -65,3 +65,9 @@ Nhà cung cấp nhận việc **Xem xét phụ lục** và trả lời ở tab *
 ![Nhà cung cấp xem phụ lục: 1 — nội dung thay đổi; 2 — chấp nhận](../../../public/guide/images/amendment-review.webp)
 
 Đầu trang chi tiết còn nhắc những gì cần chú ý: mốc chưa có hạn, ký xong sau ngày bắt đầu, đã quá ngày kết thúc mà còn mốc mở, hoặc mọi mốc đã xong.
+
+## Thanh lý hợp đồng
+
+Khi mọi mốc đã chuyển chi hoặc bị từ chối, trạng thái hợp đồng là **Đã xong các mốc** và cán bộ hợp đồng có việc **Lập biên bản thanh lý**. Ở tab **Thanh lý**, hệ thống tự tính số liệu chốt: giá trị, đã chi sau khi trừ phạt, tiền phạt, giá trị các mốc bị từ chối, và đối chiếu tổng với giá trị hợp đồng. Nhà cung cấp nhận việc **Xác nhận thanh lý**: xác nhận thì hợp đồng chuyển sang **Đã thanh lý** và khoá hẳn; từ chối phải ghi lý do, bên mua lập lại sau khi làm rõ.
+
+![Nhà cung cấp xác nhận thanh lý: 1 — số liệu chốt; 2 — xác nhận](../../../public/guide/images/liquidation-review.webp)

@@ -19,6 +19,7 @@ flowchart LR
   H --> I[Chi tiền]
   F -.-> J[9. Phụ lục khi cần đổi lịch]
   J -.-> G
+  I --> K[10. Thanh lý<br/>hai bên xác nhận]
 ```
 
 | Vai trò | Tài khoản demo | Làm gì trong luồng này |
@@ -34,7 +35,9 @@ Mật khẩu demo xem [Kịch bản demo](KICH_BAN_DEMO.md). Danh tính và quy�
 
 **Ai:** cán bộ hợp đồng hoặc chủ hợp đồng bên mua. **Màn:** Tải hợp đồng lên, bước 1.
 
-Người soạn chọn loại hợp đồng (quyết định quy trình mốc), nhà cung cấp, giá trị, thời hạn, chính sách phê duyệt, ân hạn, mức phạt mỗi ngày, trần phạt, người ký và người rà soát.
+Người soạn chọn loại hợp đồng (quyết định quy trình mốc), nhà cung cấp, giá trị, thời hạn, chính sách phê duyệt, ân hạn, mức phạt mỗi ngày, trần phạt, người ký và người rà soát. Có thể bắt đầu từ một **mẫu hợp đồng** do quản trị viên soạn (2.1).
+
+**Giá trị đã gồm VAT.** Ô giá trị ghi rõ "đã gồm VAT": đó là tổng tiền phải trả. Hoá đơn của mỗi mốc phải bằng đúng số tiền mốc cắt từ giá trị này (7.1). Nếu nhập giá trị chưa thuế thì mọi hoá đơn sẽ bị từ chối, nên văn bản hợp đồng (Điều 3) và form hoá đơn cũng nói rõ điều này.
 
 | Quy tắc | Mã lỗi | Vì sao |
 | --- | --- | --- |
@@ -47,11 +50,44 @@ Người soạn chọn loại hợp đồng (quyết định quy trình mốc), 
 
 **Lưu ý.** Đổi loại hợp đồng, quy trình hoặc thời hạn sau khi đã chỉnh tay mốc (bước 5) sẽ **bỏ** phần chỉnh tay, vì các chỉnh sửa gắn với một quy trình và một thời hạn cụ thể.
 
+### 2.1. Mẫu hợp đồng và hồ sơ tổ chức (quản trị viên)
+
+Mẫu hợp đồng (Quản trị → Mẫu hợp đồng, tạo, sửa hoặc nhập từ tệp) điền sẵn loại hợp đồng, chính sách phê duyệt, giá trị, ân hạn, phạt, thứ tự vai trò ký và nội dung riêng của Điều 2. Vì mẫu dùng để điền bản nháp, API áp **đúng quy tắc của bản nháp**. Trước đợt này, mẫu nhận trần phạt tới 100% và vai trò trùng nhau, nên tạo được mẫu mà mọi bản nháp từ nó đều bị từ chối.
+
+| Quy tắc của mẫu | Mã lỗi |
+| --- | --- |
+| Trần phạt không quá 8% | `PENALTY_OVER_LEGAL_CAP` |
+| Mức phạt và trần cùng bằng 0 hoặc cùng lớn hơn 0 | `PENALTY_INCONSISTENT` |
+| 1–4 vai trò ký, có cả hai bên khi nhiều hơn một, mỗi vai trò bên mua một lần (mỗi vai trò là một người) | `CONTRACT_TEMPLATE_INVALID` |
+
+Màn quản trị báo đúng mã lỗi; trước đây mọi lỗi đều hiện chung là "mẫu không hợp lệ".
+
+Hồ sơ tổ chức có thêm **mã số thuế** (10 chữ số, kèm `-XXX` nếu là chi nhánh, hoặc 12 chữ số) và **địa chỉ**, đều không bắt buộc. Văn bản hợp đồng in hai thông tin này dưới tên mỗi bên, chỗ nào thiếu thì để "……" cho người ký điền. Khi nhà cung cấp đã có mã số thuế trong hồ sơ, hoá đơn phải ghi đúng mã đó (7.1). Data Pack không có mã số thuế; hai tổ chức demo (Nova An, Phú Minh) được gán mã và địa chỉ giả lập.
+
 ## 3. Bước 2–3: văn bản và trích xuất điều khoản
 
 Người soạn tải PDF hoặc DOCX lên (hoặc tạo văn bản mẫu từ chính bản nháp), đặt vị trí chữ ký trên trang thật, rồi chạy **Trích xuất điều khoản**. Phần trích xuất (Gemini khi bật, nếu không thì đọc văn bản bằng quy tắc) **chỉ đề xuất 6 trường**: giá trị, ân hạn, mức phạt, trần phạt, ngày bắt đầu, ngày kết thúc. Mỗi đề xuất kèm trang và câu trích; người rà soát đối chiếu, sửa nếu cần và xác nhận.
 
 **Lưu ý quan trọng.** Trích xuất **không đọc lịch mốc** trong văn bản. Lịch mốc ở bước 4 do hệ thống dựng từ quy trình; người dùng phải đối chiếu và chỉnh ở bước 5. Màn số hoá nói rõ điều này.
+
+### 3.1. Văn bản mẫu nói gì
+
+Văn bản do hệ thống sinh (và bản gốc mô phỏng của hợp đồng BTC) ghi đúng những gì hệ thống sẽ thực thi, để người ký đọc văn bản là biết điều kiện chi:
+
+| Điều | Nội dung |
+| --- | --- |
+| Đầu văn bản | Tên, mã số thuế và địa chỉ của từng bên; bảng điều khoản (giá trị **đã gồm VAT**, ngày, ân hạn, phạt, trần) |
+| 3 Giá trị | Đã gồm VAT; tổng số tiền các mốc bằng giá trị hợp đồng |
+| 4 Tiến độ | Bảng mốc: tỷ lệ **và số tiền**, hạn, **hồ sơ cần có kèm bên cung cấp**, **có áp phạt hay không**; cách chia tiền (mốc cuối nhận phần dư). Mốc bảo hành ghi thời hạn tương đối, ví dụ "2 tháng sau mốc Nghiệm thu", đúng với điều màn số hoá yêu cầu xác nhận |
+| 5 Chứng từ | Hoá đơn điện tử theo NĐ 123/2020, TT 78/2021, tổng tiền bằng số tiền mốc, không sớm hơn ngày ký, mỗi hoá đơn một mốc |
+| 6 Phê duyệt | Chính sách duyệt **viết bằng chữ** (trước đây bản tiếng Anh in mã `FINANCE_PLUS_OWNER`); các mốc miễn duyệt nếu có; ba điều kiện chi (đủ hồ sơ, đủ duyệt, không tranh chấp) |
+| 8 Phạt chậm | Tỷ lệ phạt mỗi ngày; phạt khi hoàn thành sau hạn cộng ân hạn, tính trên số tiền mốc, trừ vào khoản chi của chính mốc đó |
+| 12 Thay đổi | Phụ lục điều chỉnh tiến độ: bên mua đề xuất, nhà cung cấp chấp thuận; mốc đã quyết định chi giữ hạn |
+| 13 Hiệu lực | Thanh lý khi mọi mốc đã chi hoặc đã đóng |
+
+Văn bản sinh lại sau khi đã chỉnh tay mốc (bước 5) sẽ theo bản đã chỉnh.
+
+**Kiểm thử hồi quy:** test kiểm rằng văn bản của chính hệ thống luôn để trích xuất đọc được đủ 6 trường. Khi viết lại Điều 8 trong đợt này, câu "Tỷ lệ phạt: x% mỗi ngày" từng bị mất và trích xuất không còn đọc được mức phạt; test đã bắt được lỗi này.
 
 **Tinh chỉnh đợt này.** Trước đây ô nhập trên bảng trích xuất bị xoá trắng mỗi khi dữ liệu được tải lại, mà cập nhật trực tiếp (SSE) tải lại dữ liệu mỗi khi có thay đổi ở bất kỳ đâu. Nay các ô chỉ được đặt lại khi có đề xuất mới hoặc khi đã xác nhận, nên giá trị đang nhập dở không bị mất.
 
@@ -211,6 +247,7 @@ API kiểm thêm những điều cần đến hợp đồng:
 | Tổng tiền **bằng đúng** giá trị mốc | `INVOICE_AMOUNT_MISMATCH` | 140/140 hoá đơn Data Pack bằng giá trị mốc. Tiền phạt trừ vào khoản chi, không trừ trên hoá đơn |
 | Ngày lập không trước ngày ký hợp đồng, không sau hôm nay | `INVOICE_BEFORE_SIGNING`, `INVOICE_DATE_FUTURE` | Hoá đơn trước khi có hợp đồng, hoặc ghi ngày tương lai, là dấu hiệu sai |
 | Cùng mã số thuế, ký hiệu và số chưa từng dùng, ở bất kỳ hợp đồng nào | `INVOICE_DUPLICATE` | Chống dùng một hoá đơn để đòi tiền hai lần |
+| Mã số thuế người bán trùng mã của nhà cung cấp trong hồ sơ (khi hồ sơ có) | `INVOICE_SELLER_MISMATCH` | Hoá đơn phải do chính nhà cung cấp của hợp đồng lập |
 
 **Ví dụ:** CT0104 mốc 2 (Hoàn thành dịch vụ) có giá trị 480,00 triệu. Hoá đơn `1C26TAA` số `00700713`, ngày lập hôm nay, MST `0109876543`, tổng 480,00 thì hợp lệ. Nhập 479,99 sẽ bị từ chối với `INVOICE_AMOUNT_MISMATCH`.
 
@@ -275,18 +312,42 @@ Kiểm tra "Hợp đồng thông minh" và "Kiểm tra chữ ký" vẫn báo ngu
 
 **Ví dụ:** CT0103 mốc 3 (Nghiệm thu) có hạn 31/10/2026. Bên mua lập PL-01 với lý do "Bên mua chậm bàn giao mặt bằng lắp đặt 20 ngày" và hạn mới 20/11/2026. Nhà cung cấp chấp nhận, hạn đổi và mốc được đánh giá lại. Hạn MS1 hiện "Đã quyết định chi" nên không sửa được.
 
-## 10. Cảnh báo ở đầu trang hợp đồng
+## 10. Bước 10: thanh lý hợp đồng
+
+**Ai lập:** cán bộ hoặc chủ hợp đồng bên mua; cán bộ hợp đồng có việc **Lập biên bản thanh lý** khi mọi mốc xong. **Ai xác nhận:** nhà cung cấp (việc **Xác nhận thanh lý**). **Màn:** trang hợp đồng, tab **Thanh lý**. **Hành động API:** `liquidation.proposeLiquidation`, `decideLiquidation`, `withdrawLiquidation` (quyền `contracts:liquidate`).
+
+Biên bản ghi số liệu chốt do hệ thống tính:
+
+- giá trị hợp đồng;
+- đã chi (sau khi trừ phạt);
+- tiền phạt đã trừ;
+- giá trị các mốc bị từ chối.
+
+Màn hình đối chiếu "đã chi + phạt + bị từ chối = giá trị". Mỗi biên bản có mã băm của nội dung. Khi được xác nhận, hợp đồng chuyển sang **Đã thanh lý** và khoá hẳn: mọi thao tác trên mốc, phụ lục hay thanh lý lại đều trả về `CONTRACT_CLOSED`. Bước cuối của vòng đời hiển thị trên trang hợp đồng là **Thanh lý**.
+
+| Quy tắc | Mã lỗi |
+| --- | --- |
+| Mọi mốc đã chuyển chi hoặc bị từ chối | `MILESTONES_OPEN` |
+| Không có phụ lục đang chờ; mỗi lúc một biên bản chờ | `AMENDMENT_PENDING`, `LIQUIDATION_PENDING` |
+| Lập: bên mua; xác nhận/từ chối: nhà cung cấp; từ chối phải có lý do | `CANNOT_LIQUIDATE`, `CANNOT_DECIDE_LIQUIDATION`, `NOTE_REQUIRED` |
+| Lúc xác nhận, số liệu phải còn đúng như lúc lập | `LIQUIDATION_STALE` |
+| Hợp đồng BTC không thanh lý trong app | `DATA_PACK_LOCKED` |
+
+Trạng thái hợp đồng tách rõ: **Đã xong các mốc** (`CLOSED`, tự động khi mọi mốc xong, chờ thanh lý) và **Đã thanh lý** (`LIQUIDATED`, sau khi hai bên xác nhận).
+
+## 11. Cảnh báo ở đầu trang hợp đồng
 
 | Mã | Khi nào | Nên làm gì |
 | --- | --- | --- |
 | `MISSING_DUE_DATE` | Mốc còn mở chưa có hạn | Lập phụ lục bổ sung hạn đã thống nhất; trước đó mốc bị giữ |
 | `SIGNED_AFTER_START` | Ký xong sau ngày bắt đầu | Xem lại lịch; lập phụ lục nếu các bên đồng ý dời |
 | `PAST_END` | Đã qua ngày kết thúc đang hiệu lực mà còn mốc mở | Gia hạn bằng phụ lục, hoặc xử lý dứt điểm các mốc còn lại |
-| `SETTLED` | Mọi mốc đã chi hoặc đã đóng | Không cần làm gì |
+| `SETTLED` | Mọi mốc đã chi hoặc đã đóng | Lập biên bản thanh lý (nút **Lập biên bản thanh lý**) |
+| `LIQUIDATED` | Hai bên đã xác nhận thanh lý | Không ghi thêm được gì |
 
-Các cảnh báo do API tính, giao diện chỉ hiển thị; cảnh báo cần hành động có nút **Lập phụ lục** khi người xem có quyền.
+Các cảnh báo do API tính, giao diện chỉ hiển thị; cảnh báo cần hành động có nút **Lập phụ lục** hoặc **Lập biên bản thanh lý** khi người xem có quyền.
 
-## 11. Kiểm thử và cách tự kiểm lại
+## 12. Kiểm thử và cách tự kiểm lại
 
 | Kiểm tra | Ở đâu |
 | --- | --- |
@@ -295,20 +356,24 @@ Các cảnh báo do API tính, giao diện chỉ hiển thị; cảnh báo cần
 | Phụ lục: quyền, niêm phong Data Pack, chờ/chấp nhận/từ chối/rút lại, engine đánh giá lại, chữ ký vẫn nguyên vẹn, nhật ký | `business-rules.test.mjs`, "amendment: …" |
 | Ma trận quyền của mọi hành động ghi (gồm 4 hành động mới) | `business-rules.test.mjs`, "who: …" |
 | Mức phạt mâu thuẫn, ngày kết thúc | `business-rules.test.mjs`, "draft: terms are validated exactly…" |
+| Thanh lý: chưa xong mốc, quyền, chờ/từ chối/rút lại/xác nhận, khoá hẳn, nhật ký | `business-rules.test.mjs`, "liquidation: …" |
+| Mẫu hợp đồng theo quy tắc bản nháp | `workflow.test.mjs`, "administrators manage persistent templates…" |
+| Văn bản của hệ thống đọc được đủ 6 điều khoản; bảo hành tương đối; mã số thuế các bên | `workflow.test.mjs` (trích xuất), `trust.test.mjs` "partial sample DOCX…" |
 | Nộp hoá đơn qua HTTP, thiếu dữ liệu bị từ chối | `scripts/smoke.mjs` |
 | Ảnh hướng dẫn của từng bước | `scripts/guide-screenshots.mjs` (`evidence-invoice`, `approval-evidence`, `upload-digitize-edit`, `amendment-form`, `amendment-review`) |
 
 Chạy: `pnpm check` (typecheck, lint, định dạng, build, test), các smoke trên stack riêng như [30 Tiếp quản](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md).
 
-## 12. Demo nhanh từng bước
+## 13. Demo nhanh từng bước
 
 1. `legal@novaan.vn`: mở hồ sơ CT0101 → đặt vị trí ký → trích xuất, nạp đề xuất, xác nhận → ở màn số hoá đọc dòng "Mốc được dựng từ quy trình mẫu…", bấm **Chỉnh sửa mốc**, đổi MS1 thành 15% và MS2 thành 45% (tổng vẫn 100%), lưu → thấy nhãn **Đã chỉnh tay** → nhập hạn bảo hành → xác nhận.
 2. `supplier@phuminh.vn`: việc **Nộp chứng từ** CT0104 mốc 2 → chọn tệp cho Hoá đơn → thử nhập tổng 479,99 để thấy bị từ chối → **Điền mẫu** → đính kèm → nộp.
 3. `owner@novaan.vn`: việc **Phê duyệt chi** → bấm **Xem** ở Hoá đơn → thấy tệp, chữ ký và **Khớp giá trị mốc** → phê duyệt.
 4. `legal@novaan.vn`: CT0103 → **Lập phụ lục**, dời hạn MS3 thêm 20 ngày kèm lý do → gửi.
 5. `supplier@phuminh.vn`: chuông có việc **Xem xét phụ lục** → tab Phụ lục → **Chấp nhận** → hạn MS3 đổi; mở **Kiểm tra chữ ký**: vẫn nguyên vẹn.
+6. Thanh lý (CT0104): `finance@novaan.vn` duyệt lệnh chi các mốc đủ điều kiện, `owner@novaan.vn` từ chối mốc còn lại (có lý do) → trang hợp đồng hiện "Mọi mốc đã được chi hoặc đã đóng" → `legal@novaan.vn` **Lập biên bản thanh lý** → `supplier@phuminh.vn` **Xác nhận thanh lý** → trạng thái **Đã thanh lý**.
 
-## 13. Giới hạn hiện tại và hướng tiếp
+## 14. Giới hạn hiện tại và hướng tiếp
 
 | Giới hạn | Hướng tiếp |
 | --- | --- |
@@ -316,10 +381,13 @@ Chạy: `pnpm check` (typecheck, lint, định dạng, build, test), các smoke 
 | Phụ lục chỉ đổi lịch (hạn mốc, ngày kết thúc) | Phụ lục đổi giá trị hoặc tỷ lệ; cần tính lại mốc chưa chi và quy định cho mốc đã chi |
 | Phụ lục được hai bên xác nhận trong hệ thống, chưa ký số văn bản phụ lục | Ký phụ lục qua dịch vụ ký (cùng luồng mục 10) |
 | Mã băm chữ ký chưa bao gồm lịch mốc đã số hoá (văn bản tải lên thì đã nằm trong băm) | Đưa lịch mốc vào băm điều khoản ở phiên bản sau; cần tái lập chữ ký demo |
-| Hoá đơn chỉ kiểm định dạng và đối chiếu nội bộ | Tra cứu hoá đơn điện tử trên hệ thống của cơ quan thuế; khớp MST người bán với hồ sơ nhà cung cấp |
+| Hoá đơn kiểm định dạng, đối chiếu nội bộ và mã số thuế với hồ sơ (khi có) | Tra cứu hoá đơn điện tử trên hệ thống của cơ quan thuế |
+| Chưa có tạm ứng, giữ lại tiền bảo hành, thanh toán từng phần | Mốc tạm ứng và khấu trừ dần; tỷ lệ giữ lại trả ở mốc bảo hành (Data Pack không có, cần mở rộng engine) |
+| Chỉ bên mua đề xuất phụ lục và lập thanh lý | Cho nhà cung cấp đề xuất gia hạn; ký số biên bản thanh lý |
+| Không có thời hạn thanh toán sau khi đủ điều kiện, không có tài khoản nhận tiền trong hợp đồng | Thêm "thanh toán trong N ngày" và cảnh báo chậm trả; thông tin tài khoản trong hồ sơ tổ chức |
 | Phê duyệt: đủ mọi vai trò của chính sách, mỗi vai trò một người | Duyệt "k trên n", ngưỡng theo số tiền, uỷ quyền khi vắng (engine cần chấp nhận quorum khác số vai trò) |
 
-## 14. Bản đồ mã nguồn
+## 15. Bản đồ mã nguồn
 
 | Phần | Tệp |
 | --- | --- |
@@ -328,6 +396,9 @@ Chạy: `pnpm check` (typecheck, lint, định dạng, build, test), các smoke 
 | Kiểm tra trường dùng chung (bản nháp, hoá đơn) | `apps/api/src/common/field-validation.ts` = `packages/contracts/src/field-validation.ts` |
 | Chứng từ, hoá đơn | `apps/api/src/domain/actions/evidence.ts`, `apps/api/src/evidence-documents.ts` |
 | Phụ lục | `apps/api/src/domain/actions/amendments.ts`; cảnh báo ở `views/contracts.ts`; việc ở `views/tasks.ts` |
+| Thanh lý | `apps/api/src/domain/actions/liquidation.ts`; giao diện `apps/web/src/features/milestones/components/LiquidationPanel.tsx` |
+| Mẫu hợp đồng | `apps/api/src/domain/contract-templates.ts` (`validateContractTemplate`) |
+| Văn bản hợp đồng | `apps/engine/sample_contract.py`, `apps/engine/templates/sample-{vi,en}.json`; dữ liệu đưa vào ở `apps/api/src/sample-documents.ts`, `mock-originals.ts` |
 | Sự kiện ký cho mọi mốc | `apps/api/src/domain/signing.ts` (`complete`) |
 | Màn số hoá và trình sửa mốc | `apps/web/src/features/signing/pages/DigitizeReviewPage.tsx`, `components/MilestoneEditor.tsx` |
 | Form hoá đơn, ngăn xem chứng từ | `apps/web/src/features/milestones/components/InvoiceFormModal.tsx`, `EvidenceViewer.tsx` |

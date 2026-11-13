@@ -87,7 +87,7 @@ Quy ước: tiền tính bằng triệu VND; phần trăm chia 100 khi tính; th
 
 ## 4. Vòng đời
 
-**Hợp đồng:** Bản nháp (`DRAFT`), Đang ký (`AWAITING_SIGNATURE`), sau khi ký xong thì tổng hợp từ các mốc, xét theo thứ tự: mọi mốc đã chuyển chi hoặc bị từ chối thì Đã đóng (`CLOSED`); còn mốc bị từ chối thì Cần xem xét (`NEEDS_REVIEW`); còn mốc chờ chứng từ, chờ phê duyệt hoặc tạm giữ thì Chờ điều kiện (`PENDING_CONDITIONS`); còn lại là Mọi mốc đủ điều kiện (`ALL_MILESTONES_ELIGIBLE`). Trạng thái hợp đồng chỉ phục vụ theo dõi, không đổi quyết định của mốc.
+**Hợp đồng:** Bản nháp (`DRAFT`), Đang ký (`AWAITING_SIGNATURE`), sau khi ký xong thì tổng hợp từ các mốc, xét theo thứ tự: đã thanh lý thì Đã thanh lý (`LIQUIDATED`, mục 6.2a); mọi mốc đã chuyển chi hoặc bị từ chối thì Đã xong các mốc (`CLOSED`, chờ thanh lý); còn mốc bị từ chối thì Cần xem xét (`NEEDS_REVIEW`); còn mốc chờ chứng từ, chờ phê duyệt hoặc tạm giữ thì Chờ điều kiện (`PENDING_CONDITIONS`); còn lại là Mọi mốc đủ điều kiện (`ALL_MILESTONES_ELIGIBLE`). Trạng thái hợp đồng chỉ phục vụ theo dõi, không đổi quyết định của mốc.
 
 **Mốc:** mỗi mốc được đánh giá độc lập (bộ luật không có điều kiện phụ thuộc mốc trước) và đánh giá lại sau mỗi event mới.
 
@@ -214,7 +214,11 @@ Mốc của hợp đồng mới **không đọc từ văn bản**: chúng đư�
 | Điều khoản phạt | Mức phạt mỗi ngày và trần phạt cùng bằng 0 (không phạt) hoặc cùng lớn hơn 0 (`PENALTY_INCONSISTENT`); ngày kết thúc phải sau ngày bắt đầu |
 | Ký | Sự kiện `CONTRACT_SIGNED` được ghi cho **mọi** mốc có điều kiện này, không chỉ mốc đầu |
 | Phụ lục (`proposeAmendment`, `decideAmendment`, `withdrawAmendment`, quyền `contracts:amend`) | Sau khi ký, lịch mốc chỉ đổi bằng phụ lục. Cán bộ hoặc chủ hợp đồng bên mua đề xuất hạn mới cho mốc chưa được quyết định chi và/hoặc ngày kết thúc mới, kèm lý do; mỗi hợp đồng một phụ lục chờ (`AMENDMENT_PENDING`). Nhà cung cấp chấp nhận, hoặc từ chối kèm lý do; bên mua rút lại được khi còn chờ. Mốc đã quyết định chi giữ hạn (`MILESTONE_CLOSED`), vì dời hạn là sửa tiền phạt sau khi đã quyết. Chấp nhận thì `due_date` của mốc đổi và engine đánh giá lại; ngày kết thúc mới ghi vào `amendedEndDate`, còn `end_date` đã ký giữ nguyên nên chữ ký vẫn kiểm được. Mỗi phụ lục có băm SHA-256 của nội dung thay đổi; mọi bước ghi vào nhật ký (`AMENDMENT`). Hợp đồng của Data Pack được niêm phong, không lập phụ lục (`DATA_PACK_LOCKED`) |
-| Cảnh báo cấp hợp đồng | `MISSING_DUE_DATE` mốc mở chưa có hạn (bị giữ tới khi có phụ lục); `SIGNED_AFTER_START` ký xong sau ngày bắt đầu; `PAST_END` quá ngày kết thúc đang hiệu lực mà còn mốc mở; `SETTLED` mọi mốc đã chi hoặc đóng |
+| Giá trị và hoá đơn | Giá trị hợp đồng **đã gồm VAT** (ô nhập, Điều 3 văn bản, form hoá đơn đều ghi rõ); hoá đơn của mốc bằng đúng số tiền mốc. Khi hồ sơ tổ chức của nhà cung cấp có mã số thuế, hoá đơn phải ghi đúng mã đó (`INVOICE_SELLER_MISMATCH`) |
+| Mẫu hợp đồng của quản trị | Theo đúng quy tắc của bản nháp: trần ≤ 8% (`PENALTY_OVER_LEGAL_CAP`), phạt và trần nhất quán (`PENALTY_INCONSISTENT`), vai trò ký bên mua không trùng (`CONTRACT_TEMPLATE_INVALID`) |
+| Văn bản hợp đồng do hệ thống sinh | Ghi mã số thuế và địa chỉ các bên (khi có), bảng mốc có số tiền, bên cung cấp từng hồ sơ, áp phạt; chính sách duyệt bằng chữ và mốc miễn duyệt; cách tính phạt; bảo hành theo thời hạn tương đối; phụ lục và thanh lý. Luôn để trích xuất đọc được đủ 6 điều khoản |
+| Thanh lý (`proposeLiquidation`, `decideLiquidation`, `withdrawLiquidation`, quyền `contracts:liquidate`) | Khi mọi mốc đã chuyển chi hoặc bị từ chối (`MILESTONES_OPEN`), bên mua lập biên bản với số liệu chốt (giá trị, đã chi, phạt, bị từ chối) và mã băm; nhà cung cấp xác nhận, hoặc từ chối kèm lý do. Số liệu phải không đổi tới lúc xác nhận (`LIQUIDATION_STALE`). Đã thanh lý thì hợp đồng ở trạng thái `LIQUIDATED`, mọi ghi nhận tiếp theo bị từ chối (`CONTRACT_CLOSED`). Hợp đồng Data Pack không thanh lý trong ứng dụng |
+| Cảnh báo cấp hợp đồng | `MISSING_DUE_DATE` mốc mở chưa có hạn (bị giữ tới khi có phụ lục); `SIGNED_AFTER_START` ký xong sau ngày bắt đầu; `PAST_END` quá ngày kết thúc đang hiệu lực mà còn mốc mở; `SETTLED` mọi mốc đã chi hoặc đóng, chờ thanh lý; `LIQUIDATED` đã thanh lý |
 
 Chưa làm: ký số cho chính văn bản phụ lục (hiện hai bên xác nhận trong hệ thống, có băm và nhật ký); phụ lục đổi giá trị hoặc tỷ lệ thanh toán; băm chữ ký hợp đồng chưa bao gồm lịch mốc đã số hoá (văn bản tải lên thì đã nằm trong băm).
 
@@ -558,7 +562,8 @@ Trạng thái là vị trí của mốc trong vòng đời (mục 4), khác vớ
 | `PENDING_CONDITIONS`      | Chờ điều kiện        | Pending conditions      |
 | `NEEDS_REVIEW`            | Cần xem xét          | Needs review            |
 | `ALL_MILESTONES_ELIGIBLE` | Mọi mốc đủ điều kiện | All milestones eligible |
-| `CLOSED`                  | Đã đóng              | Closed                  |
+| `CLOSED`                  | Đã xong các mốc      | All milestones settled  |
+| `LIQUIDATED`              | Đã thanh lý          | Liquidated              |
 
 ### 14.5. Phân loại sự kiện khi engine lọc bằng chứng
 
@@ -675,6 +680,7 @@ Màn quyết định, chi tiết hợp đồng và thẻ xem nhanh liệt kê t�
 | Mã | Từ nghiệp vụ | Ý nghĩa |
 | --- | --- | --- |
 | `REVIEW_AMENDMENT` | Xem xét phụ lục | Việc của nhà cung cấp khi có phụ lục chờ trả lời (mục 6.2a) |
+| `LIQUIDATE_CONTRACT`, `REVIEW_LIQUIDATION` | Lập biên bản thanh lý, Xác nhận thanh lý | Việc của cán bộ hợp đồng khi mọi mốc xong, và của nhà cung cấp khi biên bản chờ xác nhận |
 | `PROPOSED`, `ACCEPTED`, `REJECTED`, `WITHDRAWN` | Chờ nhà cung cấp, Đã có hiệu lực, Bị từ chối, Đã rút lại | Trạng thái phụ lục |
 | `MATCH`, `NEEDS_CONFIRMATION`, `CONFIRMED`, `EDITED` | Theo quy trình mẫu, Cần xác nhận, Đã xác nhận, Đã chỉnh tay | Nguồn của mốc trên bản số hoá |
 

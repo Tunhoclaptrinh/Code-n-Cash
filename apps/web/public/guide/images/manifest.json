@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-12T19:55:55.306Z",
+  "capturedAt": "2026-11-13T14:52:44.696Z",
   "base": "http://127.0.0.1:5174",
   "screenshots": [
     "login",
@@ -78,6 +78,7 @@
     "rules-preview",
     "amendment-form",
     "amendment-review",
+    "liquidation-review",
     "nav-auditor",
     "nav-secondary",
     "guide-drawer",

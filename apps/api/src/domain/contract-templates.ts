@@ -1,4 +1,7 @@
-import { exactDecimal } from "../common/field-validation";
+import {
+  exactDecimal,
+  LEGAL_PENALTY_CAP_PCT,
+} from "../common/field-validation";
 import { BadRequestException } from "@nestjs/common";
 import type { ContractDraft, SigningPreset, Role } from "./types";
 import type { Ctx } from "./context";
@@ -100,6 +103,12 @@ export function templatePresets(
     });
 }
 /** Cross-field constraints are shared by create/update/import; defaults are never executable code. */
+/**
+ * A template fills a draft, so it obeys the draft's own rules (draftProblems): a positive value,
+ * a penalty rate of 0–5%/day, a cap within the legal 8% (Luật Thương mại 2005, Điều 301), rate and
+ * cap both zero or both positive, and signers that a draft can actually take (1–4, both sides when
+ * there are several, each buyer role once since each role is one person).
+ */
 export function validateContractTemplate(record: Record<string, unknown>) {
   if (
     !exactDecimal(record.valueMillion, "1000000", true) ||
@@ -107,10 +116,17 @@ export function validateContractTemplate(record: Record<string, unknown>) {
     !exactDecimal(record.maxPenaltyPct, "100")
   )
     throw new BadRequestException("CONTRACT_TEMPLATE_INVALID");
+  if (!exactDecimal(record.maxPenaltyPct, LEGAL_PENALTY_CAP_PCT))
+    throw new BadRequestException("PENALTY_OVER_LEGAL_CAP");
+  const zero = (value: unknown) => /^0+(?:[.,]0+)?$/.test(String(value).trim());
+  if (zero(record.penaltyRatePct) !== zero(record.maxPenaltyPct))
+    throw new BadRequestException("PENALTY_INCONSISTENT");
   const roles = String(record.signerRoles ?? "").split(";");
+  const buyerRoles = roles.filter((role) => role !== "SUPPLIER");
   if (
     !roles.length ||
     roles.length > 4 ||
+    new Set(buyerRoles).size !== buyerRoles.length ||
     (roles.length > 1 &&
       (!roles.includes("SUPPLIER") ||
         roles.every((role) => role === "SUPPLIER")))

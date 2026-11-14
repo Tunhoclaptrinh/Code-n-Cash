@@ -49,7 +49,7 @@
     "sequence": "Thứ tự",
     "paymentPercent": "Tỷ lệ thanh toán (%)",
     "latePenalty": "Áp dụng phạt trễ",
-    "offsetDays": "Hạn (ngày sau khi bắt đầu)",
+    "offsetDays": "Hạn theo lịch chuẩn (ngày)",
     "origin": "Nguồn",
     "signerRoles": "Thứ tự vai trò ký",
     "documentBody": "Nội dung mẫu",
@@ -61,7 +61,9 @@
     "maxPenaltyPct": "Trần phạt (%)",
     "at": "Thời điểm",
     "seq": "STT chuỗi",
-    "hash": "Hash"
+    "hash": "Hash",
+    "taxCode": "Mã số thuế",
+    "address": "Địa chỉ"
   },
   "data": {
     "title": "Kết quả Data Pack",
@@ -347,7 +349,9 @@
       "contract-templates:update": "Sửa mẫu hợp đồng",
       "contract-templates:delete": "Xoá mẫu hợp đồng",
       "contract-templates:import": "Nhập mẫu hợp đồng",
-      "contract-templates:export": "Xuất mẫu hợp đồng"
+      "contract-templates:export": "Xuất mẫu hợp đồng",
+      "contracts:amend": "Lập và trả lời phụ lục hợp đồng",
+      "contracts:liquidate": "Lập và xác nhận thanh lý hợp đồng"
     },
     "scopeLabel": "Phạm vi",
     "searchPlaceholder": "Tìm theo tên quyền, mã quyền, nhóm (không cần dấu)"

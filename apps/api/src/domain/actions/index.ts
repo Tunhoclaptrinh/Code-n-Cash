@@ -1,4 +1,18 @@
 export { approvalEvent, castVote } from "./approvals";
+export {
+  decideLiquidation,
+  proposeLiquidation,
+  withdrawLiquidation,
+} from "./liquidation";
+export {
+  amendmentList,
+  decideAmendment,
+  mayDecideAmendment,
+  mayProposeAmendment,
+  openAmendment,
+  proposeAmendment,
+  withdrawAmendment,
+} from "./amendments";
 export { decideException, proposeException } from "./exceptions";
 export {
   attachEvidence,

@@ -359,6 +359,7 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
       "2026-10-16T09:20:00",
       "DN-CT0103-02",
     );
+    // The demo invoice states its own data like an app-submitted one (synthetic seller tax code).
     seedEvent(
       delivery,
       "INVOICE",
@@ -367,7 +368,13 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
       "2026-10-16T15:10:00",
       "INV-CT0103-02",
       { amount: delivery.planned_payment_vnd_mn },
-    );
+    ).invoice = {
+      symbol: "1C26TPM",
+      number: "00000128",
+      issueDate: "2026-10-16",
+      sellerTaxCode: "0109876543",
+      amountMillion: delivery.planned_payment_vnd_mn,
+    };
     seedEvent(
       delivery,
       "APPROVAL",
@@ -529,8 +536,25 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
     ) as ProfileRecord[];
 
   const now = new Date().toISOString();
+  // The two demo organisations get a synthetic legal identity (tax code, address) so their
+  // contracts and invoices carry one; the Data Pack parties have none and stay as given.
+  const identity: Record<string, { taxCode: string; address: string }> = {
+    [DEMO_BUYER]: {
+      taxCode: "0101234567",
+      address: "Số 12 Duy Tân, Cầu Giấy, Hà Nội",
+    },
+    [DEMO_SUPPLIER]: {
+      taxCode: "0109876543",
+      address: "Số 8 Phạm Hùng, Nam Từ Liêm, Hà Nội",
+    },
+  };
   const organizationRecords = organizations.map((o) =>
-    entity(o.id, { ...o, organizationId: o.id, createdAt: now }),
+    entity(o.id, {
+      ...o,
+      ...(identity[o.id] ?? {}),
+      organizationId: o.id,
+      createdAt: now,
+    }),
   );
   return {
     tables: {

@@ -1,8 +1,11 @@
 import { canonical, sha256 } from "../../common/audit-chain";
-import type { Ctx } from "../context";
+import * as actions from "../actions/amendments";
+import * as closing from "../actions/liquidation";
+import { today, type Ctx } from "../context";
 import { enginePolicy, policySha256 } from "../policy";
 import {
   type ContractRecord,
+  type MilestoneRecord,
   type PaymentRecord,
   type RuleRecord,
   TABLE,
@@ -12,6 +15,7 @@ import { sumMillion } from "../templates";
 import type {
   ContractLifecycle,
   ContractList,
+  ContractNotice,
   ContractOverview,
   LifecycleStage,
   LifecycleStageState,
@@ -22,7 +26,7 @@ import type {
   SmartContractView,
   TimelineEntry,
 } from "../types";
-import { INTERNAL_ROLES } from "../vocabulary";
+import { INTERNAL_ROLES, TERMINAL } from "../vocabulary";
 import { ruleRows } from "./milestones";
 import { historyOf } from "./shared";
 
@@ -186,17 +190,36 @@ function lifecycle(
         total: steps.length,
       },
       ...milestoneStages,
-      {
-        kind: "CLOSED",
-        state: closed ? "DONE" : "PENDING",
-        at: closed
-          ? (milestoneStages
-              .map((s) => s.at)
-              .filter((at): at is string => !!at)
-              .sort()
-              .at(-1) ?? null)
-          : null,
-      },
+      // The last step is the liquidation: done once both parties confirmed it, current while
+      // every milestone is settled and it is still to be made. The organiser's contracts are not
+      // liquidated in the app, so for them the step completes with their last milestone.
+      contract.origin === "DATA_PACK"
+        ? {
+            kind: "CLOSED" as const,
+            liquidation: false,
+            state: closed ? ("DONE" as const) : ("PENDING" as const),
+            at: closed
+              ? (milestoneStages
+                  .map((s) => s.at)
+                  .filter((at): at is string => !!at)
+                  .sort()
+                  .at(-1) ?? null)
+              : null,
+          }
+        : {
+            kind: "CLOSED" as const,
+            liquidation: true,
+            state:
+              contract.lifecycle === "CLOSED"
+                ? ("DONE" as const)
+                : closed
+                  ? ("CURRENT" as const)
+                  : ("PENDING" as const),
+            at:
+              contract.lifecycle === "CLOSED"
+                ? (closing.latestLiquidation(contract)?.decidedAt ?? null)
+                : null,
+          },
     ],
   };
 }
@@ -275,7 +298,59 @@ export function contractOverview(
             origin: signing.origin,
           }
         : null,
+    amendments: actions.amendmentList(ctx, contractId),
+    notices: contractNotices(ctx, contract, milestones),
+    canProposeAmendment:
+      actions.mayProposeAmendment(ctx, contract) &&
+      !actions.openAmendment(ctx, contractId),
+    canDecideAmendment:
+      actions.mayDecideAmendment(ctx, contract) &&
+      !!actions.openAmendment(ctx, contractId),
+    canWithdrawAmendment:
+      actions.mayProposeAmendment(ctx, contract) &&
+      !!actions.openAmendment(ctx, contractId),
+    liquidation: closing.latestLiquidation(contract),
+    canProposeLiquidation: closing.mayProposeLiquidation(ctx, contract),
+    canDecideLiquidation: closing.mayDecideLiquidation(ctx, contract),
+    canWithdrawLiquidation: closing.mayWithdrawLiquidation(ctx, contract),
   };
+}
+
+/** What needs attention on a signed contract as a whole (ContractNotice). */
+function contractNotices(
+  ctx: Ctx,
+  contract: ContractRecord,
+  milestones: MilestoneRecord[],
+): ContractNotice[] {
+  const liquidated = closing.latestLiquidation(contract);
+  if (contract.lifecycle === "CLOSED" && liquidated?.decidedAt)
+    return [{ code: "LIQUIDATED", at: liquidated.decidedAt }];
+  if (contract.lifecycle !== "ACTIVE") return [];
+  const open = milestones.filter((m) => !TERMINAL.includes(ctx.status(m)));
+  const notices: ContractNotice[] = [];
+  const undated = open.filter((m) => !m.due_date);
+  if (undated.length)
+    notices.push({
+      code: "MISSING_DUE_DATE",
+      milestones: undated.map((m) => Number(m.milestone_sequence)),
+    });
+  if (contract.signing_date && contract.signing_date > contract.start_date)
+    notices.push({
+      code: "SIGNED_AFTER_START",
+      days: Math.round(
+        (Date.parse(contract.signing_date) - Date.parse(contract.start_date)) /
+          86_400_000,
+      ),
+    });
+  const end = contract.amendedEndDate ?? contract.end_date;
+  if (open.length && end < today())
+    notices.push({ code: "PAST_END", date: end, open: open.length });
+  if (milestones.length && !open.length)
+    notices.push({
+      code: "SETTLED",
+      liquidable: contract.origin !== "DATA_PACK",
+    });
+  return notices;
 }
 
 export const draftsOf = (ctx: Ctx) =>

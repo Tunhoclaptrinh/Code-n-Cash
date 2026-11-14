@@ -49,7 +49,7 @@
     "sequence": "Sequence",
     "paymentPercent": "Payment share (%)",
     "latePenalty": "Late penalty applies",
-    "offsetDays": "Due (days after start)",
+    "offsetDays": "Reference due day",
     "origin": "Source",
     "signerRoles": "Signing role order",
     "documentBody": "Template content",
@@ -61,7 +61,9 @@
     "maxPenaltyPct": "Penalty cap (%)",
     "at": "Time",
     "seq": "Chain no.",
-    "hash": "Hash"
+    "hash": "Hash",
+    "taxCode": "Tax code",
+    "address": "Address"
   },
   "data": {
     "title": "Data Pack results",
@@ -347,7 +349,9 @@
       "contract-templates:update": "Edit contract templates",
       "contract-templates:delete": "Delete contract templates",
       "contract-templates:import": "Import contract templates",
-      "contract-templates:export": "Export contract templates"
+      "contract-templates:export": "Export contract templates",
+      "contracts:amend": "Propose and answer contract amendments",
+      "contracts:liquidate": "Make and confirm contract liquidation"
     },
     "scopeLabel": "Scope",
     "searchPlaceholder": "Search permission name, key or module"

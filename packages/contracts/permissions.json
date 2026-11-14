@@ -53,6 +53,22 @@
             "CONTRACT_OWNER": "org",
             "LEGAL_REVIEWER": "org"
           }
+        },
+        {
+          "key": "contracts:amend",
+          "grants": {
+            "CONTRACT_OWNER": "org",
+            "LEGAL_REVIEWER": "org",
+            "SUPPLIER": "own"
+          }
+        },
+        {
+          "key": "contracts:liquidate",
+          "grants": {
+            "CONTRACT_OWNER": "org",
+            "LEGAL_REVIEWER": "org",
+            "SUPPLIER": "own"
+          }
         }
       ]
     },

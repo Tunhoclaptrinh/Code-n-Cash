@@ -74,7 +74,17 @@
     "PAYMENT_DELIVERY_ACKNOWLEDGED": "Cổng thanh toán đã nhận lệnh chi ({{channel}}, lần gửi {{attempts}}, mã tham chiếu {{reference}})",
     "PAYMENT_DELIVERY_FAILED": "Gửi lệnh chi không thành công ({{channel}}, lần gửi {{attempts}}, lỗi {{error}})",
     "PAYMENT_DELIVERY_PENDING": "Lệnh chi chờ gửi ({{channel}})",
-    "EVENT_SHORT": "Ghi nhận {{event}} ({{status}})"
+    "EVENT_SHORT": "Ghi nhận {{event}} ({{status}})",
+    "AMENDMENT_PROPOSED": "Lập phụ lục PL-{{number}}",
+    "AMENDMENT_ACCEPTED": "Chấp nhận phụ lục PL-{{number}}",
+    "AMENDMENT_REJECTED": "Từ chối phụ lục PL-{{number}}",
+    "AMENDMENT_WITHDRAWN": "Rút lại phụ lục PL-{{number}}",
+    "DIGITIZATION_EDITED_one": "Chỉnh tay bản số hoá ({{count}} mốc)",
+    "DIGITIZATION_EDITED_other": "Chỉnh tay bản số hoá ({{count}} mốc)",
+    "LIQUIDATION_PROPOSED": "Lập biên bản thanh lý",
+    "LIQUIDATION_ACCEPTED": "Xác nhận thanh lý hợp đồng",
+    "LIQUIDATION_REJECTED": "Từ chối biên bản thanh lý",
+    "LIQUIDATION_WITHDRAWN": "Rút lại biên bản thanh lý"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",
@@ -100,7 +110,14 @@
     "recordPaymentDelivery": "Ghi nhận kết quả chuyển lệnh chi",
     "attachSigningTransaction": "Gửi yêu cầu ký tới dịch vụ ký",
     "failSigningRequest": "Không gửi được yêu cầu tới dịch vụ ký",
-    "applySigningResult": "Nhận kết quả ký từ dịch vụ ký"
+    "applySigningResult": "Nhận kết quả ký từ dịch vụ ký",
+    "proposeAmendment": "Lập phụ lục",
+    "decideAmendment": "Trả lời phụ lục",
+    "withdrawAmendment": "Rút lại phụ lục",
+    "editDigitizedMilestones": "Chỉnh sửa mốc số hoá",
+    "proposeLiquidation": "Lập biên bản thanh lý",
+    "decideLiquidation": "Trả lời biên bản thanh lý",
+    "withdrawLiquidation": "Rút lại biên bản thanh lý"
   },
   "detail": {
     "view": "Xem chi tiết",
@@ -252,7 +269,10 @@
     "RESET_PASSWORD": "Đặt lại mật khẩu",
     "UPDATE": "Sửa bản ghi",
     "UPLOAD": "Tải tài liệu lên",
-    "VOID": "Huỷ bản ghi"
+    "VOID": "Huỷ bản ghi",
+    "AMENDMENT": "Phụ lục hợp đồng",
+    "DIGITIZATION_EDITED": "Chỉnh tay bản số hoá",
+    "LIQUIDATION": "Thanh lý hợp đồng"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",

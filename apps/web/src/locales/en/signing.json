@@ -141,14 +141,16 @@
       "current": "Digitisation and clause review"
     },
     "source": {
-      "location": "Illustrative section {{article}}",
+      "location": "Article {{article}} of the template",
       "vnd": "{{value}} million VND",
       "clause": {
         "TOTAL_VALUE": "The total contract value is <mark>{{value}}</mark>, paid in {{milestones}} milestones.",
         "DELIVERY": "Delivery milestone: <mark>{{value}}</mark>, delivery due <mark>{{date}}</mark>. Documents: {{documents}}.",
         "LATE_PENALTY": "Late delivery is penalised at <mark>{{rate}}% of the milestone value per day</mark>, with a total penalty of no more than <mark>{{cap}}% of the milestone value</mark>.",
         "APPROVALS": "Each payment needs the approval of <mark>{{approvers}} buyer role(s)</mark>."
-      }
+      },
+      "locationPage": "Article {{article}} · page {{page}} of the file",
+      "quote": "Quoted from the file: “{{quote}}”"
     },
     "result": {
       "title_one": "Digitised terms: {{count}} payment milestone",
@@ -159,19 +161,24 @@
         "dueDate": "Due",
         "documents": "Required documents",
         "penalty": "Late penalty",
-        "source": "Source"
+        "source": "Source",
+        "approval": "Approval"
       },
       "milestoneCode": "MS{{no}}",
       "dueUnknown": "Unknown",
       "penalty": {
         "NONE": "None",
-        "RATE": "{{rate}}%/day, cap {{cap}}%"
+        "RATE": "{{rate}}%/day, cap {{cap}}%",
+        "RATE_GRACE": "{{rate}}%/day after {{grace}} grace days, capped at {{cap}}%"
       },
       "sourceStatus": {
-        "MATCH": "Matches",
+        "MATCH": "From the workflow",
         "NEEDS_CONFIRMATION": "Needs confirmation",
-        "CONFIRMED": "Confirmed"
-      }
+        "CONFIRMED": "Confirmed",
+        "EDITED": "Edited"
+      },
+      "noApproval": "Not needed",
+      "documentBy": "{{document}} ({{side}})"
     },
     "ambiguity": {
       "title": "MS{{no}}: the contract only says \"after {{months}} months of warranty\"",
@@ -194,7 +201,23 @@
       "confirm": "Confirm digitised terms and continue to signing",
       "continue": "Continue to signing"
     },
-    "goExtraction": "Go to the next step"
+    "goExtraction": "Go to the next step",
+    "edit": {
+      "open": "Edit milestones",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "reset": "Back to the workflow",
+      "saved": "The corrected milestones are saved.",
+      "percent": "Share",
+      "total": "Total share: {{total}}% (must be exactly 100%)",
+      "notice": "Correct the milestones to match the contract text: payment share, due date, required documents, late penalty and approval of each. The number and types of milestones follow the chosen workflow. Dates keep the milestone order inside the contract period; leave a date empty if the text gives none (the milestone then waits for an amendment).",
+      "origin": "The milestones are built from the workflow of the contract type, not read from the document. Compare them with the text and correct any difference.",
+      "editedBy": "{{name}} corrected the milestones by hand at {{at}}. Rows marked \"Edited\" differ from the workflow proposal.",
+      "approval": {
+        "CONTRACT": "Per policy",
+        "NONE": "No approval"
+      }
+    }
   },
   "flow": {
     "breadcrumb": {
@@ -309,7 +332,7 @@
     },
     "digitize": {
       "sourceToggle": "Workflow template terms (illustration)",
-      "ambiguityHint": "Leave empty: this milestone waits until a date is known.",
+      "ambiguityHint": "Leave empty: this milestone waits until a date is known. The suggestion follows the workflow schedule (the last milestone falls on the contract end date); the due date must follow the previous milestone.",
       "totalMatch": "Matches contract value",
       "lockNote": "Cannot be edited after confirming.",
       "locked": "Confirmed and locked.",

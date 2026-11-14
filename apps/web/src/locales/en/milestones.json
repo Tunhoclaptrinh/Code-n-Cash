@@ -41,7 +41,10 @@
       "REVIEW_EXCEPTION": "Review exception",
       "DECIDE_EXCEPTION": "Decide proposal",
       "TRANSFER_PAYMENT": "Approve payment",
-      "FOLLOW_UP": "Open milestone"
+      "FOLLOW_UP": "Open milestone",
+      "REVIEW_AMENDMENT": "Review amendment",
+      "LIQUIDATE_CONTRACT": "Make liquidation record",
+      "REVIEW_LIQUIDATION": "Confirm liquidation"
     },
     "detail": {
       "reason": "Why it is on hold",
@@ -117,7 +120,10 @@
       "signing": "Signing",
       "participants": "Participants",
       "documents": "Original documents",
-      "smart": "Smart contract"
+      "smart": "Smart contract",
+      "amendments_one": "Amendments ({{count}})",
+      "amendments_other": "Amendments ({{count}})",
+      "liquidation": "Liquidation"
     },
     "noMilestones": "No milestones yet. They are created when the digitised terms are locked.",
     "terms": {
@@ -196,7 +202,8 @@
       "CLOSED": "Closed",
       "imported": "Drafted outside the system",
       "signedCount": "Signed {{signed}}/{{total}}",
-      "paid": "Paid {{value}} million"
+      "paid": "Paid {{value}} million",
+      "COMPLETED": "Completed"
     },
     "timeline": {
       "all": "All ({{count}})",
@@ -604,5 +611,141 @@
     "disputeNone": "No open dispute",
     "paymentDone": "Paid",
     "paymentWaiting": "Awaiting approval"
+  },
+  "invoice": {
+    "form": {
+      "title": "Invoice details",
+      "submit": "Attach invoice",
+      "notice": "Enter the details printed on {{fileName}}. The total (VAT included) must equal the milestone value: {{planned}} million VND."
+    },
+    "fields": {
+      "symbol": "Invoice symbol",
+      "number": "Invoice number",
+      "issueDate": "Issue date",
+      "sellerTaxCode": "Seller tax code",
+      "amountMillion": "Total, VAT included (million VND)",
+      "reference": "Symbol · number"
+    },
+    "hints": {
+      "symbol": "Seven characters under Circular 78/2021/TT-BTC, for example {{example}}.",
+      "sellerTaxCode": "10 digits, 10 digits with a branch suffix (-001), or 12 digits.",
+      "amountMillion": "Must equal the milestone value: {{planned}}. A penalty is deducted from the payment, not from the invoice.",
+      "sellerOnRecord": "Must match the supplier's tax code on record: {{taxCode}}."
+    },
+    "summary": "Invoice {{reference}} · {{amount}} million",
+    "matches": "Matches the milestone value",
+    "mismatch": "Differs from the milestone value ({{planned}})"
+  },
+  "evidenceViewer": {
+    "open": "View",
+    "intact": "The file is intact and signed by {{name}} at {{at}}.",
+    "broken": "The file changed or is no longer stored; do not rely on this document.",
+    "event": "Event ID",
+    "documentId": "Document ID",
+    "noFile": {
+      "DATA_PACK": "From the organiser's sample data, no file attached",
+      "SEED": "From a prepared demo contract, no file attached",
+      "APP": "Recorded before files were kept, no file attached"
+    },
+    "noFileHint": "Only the document reference is known ({{fileName}}). Check the paper copy or the submitter's system before approving."
+  },
+  "notices": {
+    "MISSING_DUE_DATE": "{{milestones}} have no due date and are on hold. Add the agreed dates with an amendment.",
+    "SIGNED_AFTER_START": "The contract was fully signed {{days}} days after its start date. Check the schedule; amend it if needed.",
+    "PAST_END": "The contract ended on {{date}} with {{count}} milestones still open. Extend it with an amendment or settle the rest.",
+    "SETTLED": "Every milestone is paid or closed. Make the liquidation record to close the contract.",
+    "LIQUIDATED": "The contract was liquidated on {{date}}; no more documents, approvals, disputes or amendments.",
+    "SETTLED_FINAL": "Every milestone is paid or closed."
+  },
+  "amendments": {
+    "intro": "An amendment adjusts the schedule of a signed contract: the buyer proposes new due dates for milestones whose payment is not decided and/or a new end date, the supplier accepts or rejects. The signed terms stay as they are; only an accepted amendment takes effect, and lateness is recomputed from the new dates.",
+    "propose": "Propose amendment",
+    "empty": "No amendments yet.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "withdraw": "Withdraw",
+    "locked": "Payment decided",
+    "noDate": "No due date",
+    "digest": "Amendment digest",
+    "rejectTitle": "Reject {{code}}",
+    "rejectPlaceholder": "Reason for rejecting (required)",
+    "acceptConfirm": {
+      "title": "Accept {{code}}?",
+      "body": "Due dates and the end date change as proposed; the milestones are evaluated again, so lateness and penalties may change. This cannot be undone."
+    },
+    "state": {
+      "PROPOSED": "Awaiting supplier",
+      "ACCEPTED": "In force",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "proposed": "Proposed by {{name}} at {{at}}",
+    "decided": {
+      "ACCEPTED": "accepted by {{name}} at {{at}}",
+      "REJECTED": "rejected by {{name}} at {{at}}",
+      "WITHDRAWN": "withdrawn by {{name}} at {{at}}"
+    },
+    "change": {
+      "endDate": "End date: {{from}} → {{to}}",
+      "dueDate": "{{milestone}} {{name}}: {{from}} → {{to}}"
+    },
+    "fields": {
+      "reason": "Reason",
+      "endDate": "New end date",
+      "milestone": "Milestone",
+      "currentDue": "Current due date",
+      "newDue": "New due date"
+    },
+    "form": {
+      "title": "Propose amendment {{code}}",
+      "submit": "Send to supplier",
+      "notice": "Change only what both parties agreed. New dates keep the milestone order and stay within the contract period; a milestone whose payment is decided keeps its date.",
+      "reasonRequired": "Enter the reason.",
+      "endDateHint": "In force: {{date}}. Leave it unless the contract is extended."
+    }
+  },
+  "lifecycle": {
+    "CLOSED": "Liquidation"
+  },
+  "liquidation": {
+    "intro": "Liquidation is the last step: once every milestone is paid or rejected, the buyer makes the liquidation record with the figures the system settled, and the supplier confirms or rejects it. A liquidated contract is closed for good.",
+    "propose": "Make liquidation record",
+    "send": "Send to supplier",
+    "accept": "Confirm liquidation",
+    "reject": "Reject",
+    "withdraw": "Withdraw",
+    "title": "Liquidation record",
+    "million": "{{value}} million VND",
+    "note": "Note",
+    "state": {
+      "PROPOSED": "Awaiting supplier",
+      "ACCEPTED": "Liquidated",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "totals": {
+      "value": "Contract value (VAT included)",
+      "paid": "Paid (net of penalties)",
+      "penalty": "Penalties deducted",
+      "rejected": "Value of rejected milestones"
+    },
+    "accounted": "Paid + penalties + rejected = contract value",
+    "unaccounted": "Paid + penalties + rejected differ from the contract value: check before confirming",
+    "proposed": "Made by {{name}} at {{at}}",
+    "decided": {
+      "ACCEPTED": "confirmed by {{name}} at {{at}}",
+      "REJECTED": "rejected by {{name}} at {{at}}",
+      "WITHDRAWN": "withdrawn by {{name}} at {{at}}"
+    },
+    "digest": "Record digest",
+    "acceptConfirm": {
+      "title": "Confirm the liquidation?",
+      "body": "Once liquidated, the contract is closed for good: no more documents, approvals, disputes, amendments or payments. This cannot be undone."
+    },
+    "proposeNotice": "The settled figures (paid, penalties, rejected) are computed by the system from the milestones; the supplier checks and confirms them.",
+    "notePlaceholder": "Note for the record (optional)",
+    "rejectPlaceholder": "Reason for rejecting (required)",
+    "waitingOfficer": "Every milestone is settled; waiting for the buyer to make the liquidation record.",
+    "notYet": "Not yet: some milestones are neither paid nor rejected."
   }
 }

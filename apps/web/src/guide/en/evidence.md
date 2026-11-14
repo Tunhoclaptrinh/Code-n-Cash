@@ -14,6 +14,10 @@ Buyer contract officers and suppliers submit evidence from their assigned tasks.
 
 ![Files ready, engine preview and submit](../../../public/guide/images/evidence-ready.webp)
 
+An invoice is attached with the details printed on it (Circular 78/2021/TT-BTC): symbol, number, issue date, seller tax code and total. The total must equal the milestone value (a penalty is deducted from the payment, not from the invoice); the issue date cannot precede signing or lie in the future; one invoice backs one document only.
+
+![Invoice details: 1 — the total must equal the milestone value](../../../public/guide/images/evidence-invoice.webp)
+
 The buyer's officer submits acceptance, UAT and other buyer records. Suppliers submit delivery, invoices, go-live, activation, service completion and warranty completion. Identity and authority come from the authenticated account; a supplier cannot record buyer acceptance.
 
 ## Try CT0104 milestone 2

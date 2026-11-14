@@ -53,3 +53,21 @@ Hồ sơ mới được tạo qua **Tải hợp đồng lên**, xem [Soạn, s�
 **CT0084** đã có sự kiện ký hợp đồng, nhưng **MS0337 — Nghiệm thu** chưa có `ACCEPTANCE`. Hai phê duyệt đã đủ vẫn chưa thay được biên bản nghiệm thu, nên mốc này **HOLD**. Dòng cảnh báo nêu mốc và hành động còn thiếu; mở đúng mốc để xem chứng từ/event. Không sửa trạng thái thành hoàn tất chỉ vì màn ký ghi 3/3.
 
 **Chủ hợp đồng** là vai trò; **Giám đốc dự án** là chức danh. Một người có thể ký hợp đồng và tham gia phê duyệt theo chính sách, nhưng vẫn phải tuân thủ điều kiện và quorum riêng của từng mốc. Nhãn **Vai trò/đơn vị: Dữ liệu BTC** đi kèm **Danh tính demo** cho biết tổ chức/chức năng có trong Data Pack còn tên người/email được bổ sung cho demo.
+
+## Phụ lục hợp đồng
+
+Sau khi ký, lịch mốc chỉ đổi bằng phụ lục. Cán bộ hợp đồng hoặc chủ hợp đồng của bên mua bấm **Lập phụ lục**, nhập lý do, hạn mới cho các mốc chưa được quyết định chi và/hoặc ngày kết thúc mới. Hạn mới phải theo thứ tự mốc và nằm trong thời hạn hợp đồng.
+
+![Lập phụ lục: 1 — lý do; 2 — hạn mới của mốc](../../../public/guide/images/amendment-form.webp)
+
+Nhà cung cấp nhận việc **Xem xét phụ lục** và trả lời ở tab **Phụ lục**: chấp nhận thì hạn mới có hiệu lực và hệ thống đánh giá lại các mốc; từ chối thì phải ghi lý do. Bên mua có thể rút lại phụ lục đang chờ. Điều khoản đã ký không bị sửa nên chữ ký vẫn kiểm được; phụ lục có mã băm riêng và mọi bước đều ghi vào nhật ký. Hợp đồng của dữ liệu ban tổ chức được giữ nguyên, không lập phụ lục.
+
+![Nhà cung cấp xem phụ lục: 1 — nội dung thay đổi; 2 — chấp nhận](../../../public/guide/images/amendment-review.webp)
+
+Đầu trang chi tiết còn nhắc những gì cần chú ý: mốc chưa có hạn, ký xong sau ngày bắt đầu, đã quá ngày kết thúc mà còn mốc mở, hoặc mọi mốc đã xong.
+
+## Thanh lý hợp đồng
+
+Khi mọi mốc đã chuyển chi hoặc bị từ chối, trạng thái hợp đồng là **Đã xong các mốc** và cán bộ hợp đồng có việc **Lập biên bản thanh lý**. Ở tab **Thanh lý**, hệ thống tự tính số liệu chốt: giá trị, đã chi sau khi trừ phạt, tiền phạt, giá trị các mốc bị từ chối, và đối chiếu tổng với giá trị hợp đồng. Nhà cung cấp nhận việc **Xác nhận thanh lý**: xác nhận thì hợp đồng chuyển sang **Đã thanh lý** và khoá hẳn; từ chối phải ghi lý do, bên mua lập lại sau khi làm rõ.
+
+![Nhà cung cấp xác nhận thanh lý: 1 — số liệu chốt; 2 — xác nhận](../../../public/guide/images/liquidation-review.webp)

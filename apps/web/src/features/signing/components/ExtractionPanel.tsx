@@ -97,8 +97,14 @@ export function ExtractionPanel({
     confirmed,
     draft.data?.state,
   ]);
+  // Reset the inputs only when the proposal itself changes (a new extraction or a confirmation),
+  // not on every refetch: live updates refetch on any change and must not wipe what is typed.
+  const proposalKey = proposal.data
+    ? `${proposal.data.id}|${JSON.stringify(proposal.data.confirmedValues ?? null)}`
+    : null;
+  const draftReady = !!draft.data;
   useEffect(() => {
-    if (!proposal.data || !draft.data) return;
+    if (!proposalKey || !draftReady) return;
     setValues(
       Object.fromEntries(
         paths.map((path) => [
@@ -107,7 +113,8 @@ export function ExtractionPanel({
         ]),
       ),
     );
-  }, [proposal.data, draft.data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the proposal's identity
+  }, [proposalKey, draftReady]);
   const extract = useMutation({
     mutationFn: () => trustApi.extract(code),
     onSuccess: (data) => client.setQueryData(key, data),

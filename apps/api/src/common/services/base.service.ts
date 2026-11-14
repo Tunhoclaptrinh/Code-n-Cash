@@ -102,8 +102,11 @@ export class BaseService {
     if (def.name === "contract-templates" && !errors.length && !partial) {
       try {
         validateContractTemplate(data);
-      } catch {
-        errors.push("CONTRACT_TEMPLATE_INVALID");
+      } catch (error) {
+        // The rule's own code (for example PENALTY_OVER_LEGAL_CAP) tells the administrator why.
+        errors.push(
+          error instanceof Error ? error.message : "CONTRACT_TEMPLATE_INVALID",
+        );
       }
     }
     return { errors, data };

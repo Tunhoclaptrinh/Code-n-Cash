@@ -3,6 +3,12 @@ import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { PageContainer } from "@codecash/ui";
 import { ContractLifecycleSteps } from "../components/ContractLifecycleSteps";
 import { EvidenceDocumentLink } from "../components/EvidenceDocumentLink";
+import { LiquidationPanel } from "../components/LiquidationPanel";
+import {
+  AmendmentFormModal,
+  AmendmentsPanel,
+  ContractNotices,
+} from "../components/AmendmentsPanel";
 import { SmartContractPanel } from "../components/SmartContractPanel";
 import { WaitingOnLine } from "../components/PendingItems";
 import {
@@ -28,7 +34,7 @@ import {
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type {
   ContractOverview,
   EventRow,
@@ -73,6 +79,8 @@ type TabKey =
   | "events"
   | "history"
   | "signing"
+  | "amendments"
+  | "liquidation"
   | "participants";
 type Emphasis = "done" | "attention" | "danger" | "active";
 
@@ -129,7 +137,15 @@ export default function ContractDetailPage() {
   const { t: td } = useTranslation("domain");
   const navigate = useNavigate();
   const contractId = useParams().contractId ?? "";
-  const [tab, setTab] = useState<TabKey>("milestones");
+  // A task can open a tab directly (?tab=amendments for an amendment to review).
+  const [search] = useSearchParams();
+  const [tab, setTab] = useState<TabKey>(() => {
+    const requested = search.get("tab");
+    return requested === "amendments" || requested === "liquidation"
+      ? requested
+      : "milestones";
+  });
+  const [amending, setAmending] = useState(false);
   const overview = useQuery({
     queryKey: ["milestones", "overview", contractId],
     queryFn: () => getContractOverview(contractId),
@@ -192,6 +208,16 @@ export default function ContractDetailPage() {
                     },
                   ]
                 : []),
+              ...(data?.canProposeAmendment
+                ? [
+                    {
+                      key: "amend",
+                      label: t("amendments.propose"),
+                      onClick: () => setAmending(true),
+                      testId: "contract-amend",
+                    },
+                  ]
+                : []),
               {
                 key: "activity",
                 label: t("detail.actions.activity"),
@@ -212,6 +238,23 @@ export default function ContractDetailPage() {
       ) : null}
       {data && contract ? (
         <PageContainer>
+          <ContractNotices
+            notices={data.notices}
+            onAmend={
+              data.canProposeAmendment ? () => setAmending(true) : undefined
+            }
+            onLiquidate={
+              data.canProposeLiquidation
+                ? () => setTab("liquidation")
+                : undefined
+            }
+          />
+          <AmendmentFormModal
+            open={amending}
+            data={data}
+            onClose={() => setAmending(false)}
+            onSubmitted={() => setTab("amendments")}
+          />
           <Tabs
             className={styles.tabs}
             items={(
@@ -222,6 +265,14 @@ export default function ContractDetailPage() {
                 "events",
                 "history",
                 "signing",
+                // The organiser's contracts stay as given: no amendments, no liquidation.
+                ...(contract.signing && contract.origin !== "DATA_PACK"
+                  ? ["amendments"]
+                  : []),
+                // The organiser's contracts are not liquidated in the app.
+                ...(contract.signing && contract.origin !== "DATA_PACK"
+                  ? ["liquidation"]
+                  : []),
                 "participants",
               ] as TabKey[]
             ).map((key) => ({
@@ -232,7 +283,9 @@ export default function ContractDetailPage() {
                     ? data.events.length
                     : key === "milestones"
                       ? data.milestones.length
-                      : 0,
+                      : key === "amendments"
+                        ? data.amendments.length
+                        : 0,
               }),
             }))}
             activeKey={tab}
@@ -322,6 +375,10 @@ export default function ContractDetailPage() {
             <SmartContractPanel contractId={contract.id} />
           ) : null}
           {tab === "signing" ? <SigningPanel data={data} /> : null}
+          {tab === "liquidation" ? <LiquidationPanel data={data} /> : null}
+          {tab === "amendments" ? (
+            <AmendmentsPanel data={data} onPropose={() => setAmending(true)} />
+          ) : null}
           {tab === "participants" ? (
             <Panel className={styles.tabPanel}>
               <div className={styles.panelBody}>

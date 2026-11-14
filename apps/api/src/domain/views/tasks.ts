@@ -20,6 +20,11 @@ import type {
 import { milestoneActions } from "./milestones";
 import { pendingItems, personRef } from "./responsibility";
 import { routes } from "./shared";
+import { mayDecideAmendment, openAmendment } from "../actions/amendments";
+import {
+  mayDecideLiquidation,
+  mayProposeLiquidation,
+} from "../actions/liquidation";
 
 /** The task an action of the pending model asks for. */
 const TASK_OF: Partial<Record<PendingActionKind, TaskRow["kind"]>> = {
@@ -171,6 +176,58 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
         });
       continue;
     }
+    // An amendment of the schedule waits for the supplier's answer.
+    const amendment = openAmendment(ctx, contract.contract_id);
+    if (amendment && mayDecideAmendment(ctx, contract))
+      tasks.push({
+        ...base,
+        id: `amendment:${amendment.id}`,
+        kind: "REVIEW_AMENDMENT",
+        milestoneId: null,
+        sequence: null,
+        milestoneType: null,
+        dueDate: amendment.proposedAt.slice(0, 10),
+        overdueDays: 0,
+        eventTypes: [],
+        roles: [],
+        amountMillion: contract.contract_value_vnd_mn,
+        reasonCode: null,
+        badge: "YOUR_TURN",
+        href: `/contracts/${contract.contract_id}?tab=amendments`,
+        group: "MINE",
+        waitingFor: null,
+        waitingDays: null,
+      });
+    // The last step: the officer makes the liquidation record, the supplier confirms it.
+    const liquidationTask = (
+      kind: "LIQUIDATE_CONTRACT" | "REVIEW_LIQUIDATION",
+    ) =>
+      tasks.push({
+        ...base,
+        id: `${kind}:${contract.contract_id}`,
+        kind,
+        milestoneId: null,
+        sequence: null,
+        milestoneType: null,
+        dueDate: contract.amendedEndDate ?? contract.end_date,
+        overdueDays: 0,
+        eventTypes: [],
+        roles: [],
+        amountMillion: contract.contract_value_vnd_mn,
+        reasonCode: null,
+        badge: "YOUR_TURN",
+        href: `/contracts/${contract.contract_id}?tab=liquidation`,
+        group: "MINE",
+        waitingFor: null,
+        waitingDays: null,
+      });
+    if (
+      ctx.actor.role === "LEGAL_REVIEWER" &&
+      mayProposeLiquidation(ctx, contract)
+    )
+      liquidationTask("LIQUIDATE_CONTRACT");
+    if (mayDecideLiquidation(ctx, contract))
+      liquidationTask("REVIEW_LIQUIDATION");
     for (const m of ctx.milestonesOf(contract.contract_id)) {
       if (!ctx.hasEvaluation(m.milestone_id) || ctx.paid(m.milestone_id))
         continue;

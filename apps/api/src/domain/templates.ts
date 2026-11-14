@@ -69,6 +69,41 @@ export function addDays(isoDate: string, days: number): string {
   return date.toISOString().slice(0, 10);
 }
 
+/** Whole days from one ISO date to another. */
+export function daysBetween(from: string, to: string): number {
+  return Math.round(
+    (Date.parse(`${to.slice(0, 10)}T00:00:00Z`) -
+      Date.parse(`${from.slice(0, 10)}T00:00:00Z`)) /
+      86_400_000,
+  );
+}
+
+/**
+ * Due dates of a new contract's milestones, by stage sequence. In the Data Pack every stage sits
+ * at a fixed share of the contract period and the last one falls on the end date (100 of 100
+ * contracts), so a template's day offsets are a reference schedule, scaled to this contract's
+ * period: the stage with the largest offset is due on `endDate`. Scaling the median offsets
+ * reproduces all 405 Data Pack due dates within one day; adding them unscaled to the start date
+ * misses by up to 96 days and puts 64 of them after the contract's end.
+ */
+export function scheduleDueDates(
+  startDate: string,
+  endDate: string,
+  stages: Pick<StageTemplate, "sequence" | "offsetDays">[],
+): Record<number, string> {
+  const span = Math.max(0, daysBetween(startDate, endDate));
+  const reference = Math.max(0, ...stages.map((stage) => stage.offsetDays));
+  return Object.fromEntries(
+    stages.map((stage) => [
+      stage.sequence,
+      addDays(
+        startDate,
+        reference ? Math.round((stage.offsetDays * span) / reference) : 0,
+      ),
+    ]),
+  );
+}
+
 /** Two-decimal share of a decimal amount, computed in hundredths (no floats). */
 export function shareOf(totalMillion: string, percent: string): string {
   const cents = toCents(totalMillion);

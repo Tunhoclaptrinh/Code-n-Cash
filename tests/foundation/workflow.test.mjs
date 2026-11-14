@@ -17,6 +17,15 @@ const evaluationOf = async (milestoneId) =>
   (await repo.list("evaluations")).find((e) => e.milestoneId === milestoneId);
 
 let EVIDENCE;
+/** Share of a decimal amount in hundredths, as the API cuts it (no floats). */
+const sharesOf = (total, percent) => {
+  const cents = (v) => {
+    const [whole, fraction = ""] = v.split(".");
+    return BigInt(whole) * 100n + BigInt(fraction.padEnd(2, "0"));
+  };
+  const value = (cents(total) * cents(percent)) / 10000n;
+  return `${value / 100n}.${String(value % 100n).padStart(2, "0")}`;
+};
 before(async () => {
   dir = await mkdtemp(join(tmpdir(), "codecash-workflow-"));
   process.env.REPO_ROOT = process.cwd();
@@ -395,6 +404,9 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
     }),
     /NOT_YOUR_EVENT_TYPE/,
   );
+  const planned = (await repo.list("milestones")).find(
+    (m) => m.contract_id === "CT0104" && m.milestone_sequence === "2",
+  ).planned_payment_vnd_mn;
   for (const eventType of ["SERVICE_COMPLETED", "INVOICE"])
     await call("u-supplier", "evidence", "attachEvidenceFile", {
       contractId: "CT0104",
@@ -402,6 +414,17 @@ test("users record only the events of their own side (spec 4.2 and 17)", async (
       eventType,
       fileName: `${eventType}.pdf`,
       sha256: EVIDENCE,
+      ...(eventType === "INVOICE"
+        ? {
+            invoice: {
+              symbol: "1C26TAA",
+              number: "4521",
+              issueDate: "2026-05-01",
+              sellerTaxCode: "0109876543",
+              amountMillion: planned,
+            },
+          }
+        : {}),
     });
   const workspace = await call(
     "u-supplier",
@@ -700,6 +723,11 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
   );
   const extractor = new ExtractionService(repo, domain);
   const proposal = await extractor.extract(saved.code, actor("u-legal"));
+  // The system's own contract text states all six terms the extraction reads, each once.
+  assert.deepEqual(
+    proposal.fields.filter((field) => field.value === null).map((f) => f.path),
+    [],
+  );
   await extractor.confirm(
     saved.code,
     proposal.id,
@@ -718,9 +746,133 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
     digitized.milestones.map((m) => m.type),
     ["KICKOFF", "INTERIM_DELIVERY", "FINAL_ACCEPTANCE", "WARRANTY_CLOSE"],
   );
+  // Like the Data Pack, the stages are spread over the contract period and the last one is due
+  // on the end date; the warranty's relative term needs a date inside that order.
+  const [kickoff, interim, final] = digitized.milestones;
+  assert.ok(
+    saved.startDate < kickoff.dueDate &&
+      kickoff.dueDate < interim.dueDate &&
+      interim.dueDate < final.dueDate &&
+      final.dueDate < saved.endDate,
+  );
+  assert.equal(digitized.suggestedDueDate, saved.endDate);
+  // Each milestone says who approves it and which side records each document.
+  for (const m of digitized.milestones) {
+    assert.deepEqual(m.approvalRoles, ["CONTRACT_OWNER", "FINANCE_APPROVER"]);
+    assert.deepEqual(
+      m.documents.map((d) => d.eventType),
+      m.eventTypes,
+    );
+  }
+  assert.deepEqual(
+    digitized.milestones[1].documents.find((d) => d.eventType === "INVOICE"),
+    { eventType: "INVOICE", side: "SUPPLIER" },
+  );
+  assert.equal(digitized.milestones[1].penalty.graceDays, 9);
+  // Articles of the system's template; a page and quote only where the extraction found the value.
+  assert.deepEqual(
+    digitized.clauses.map((c) => [c.kind, c.article]),
+    [
+      ["TOTAL_VALUE", 3],
+      ["DELIVERY", 4],
+      ["APPROVALS", 6],
+      ["LATE_PENALTY", 8],
+    ],
+  );
+  const value = digitized.clauses[0];
+  assert.ok(value.page >= 1 && value.quote.length > 0, JSON.stringify(value));
+  assert.equal(digitized.clauses[1].quote, null);
+  assert.ok(digitized.milestones[3].relativeTermMonths >= 1);
+  // A person corrects the milestones to what the signed document says; the API checks them.
+  const asEdits = (rows) =>
+    rows.map((m) => ({
+      sequence: m.sequence,
+      paymentPercent: m.paymentPercent,
+      dueDate: m.dueDate,
+      eventTypes: m.eventTypes,
+      latePenalty: !!m.penalty,
+      approval: m.approvalRoles.length ? "CONTRACT" : "NONE",
+    }));
+  const editMilestones = (milestones) =>
+    call("u-legal", "drafts", "editDigitizedMilestones", saved.code, {
+      milestones,
+    });
+  const schedule = asEdits(digitized.milestones);
+  for (const [bad, code] of [
+    [schedule.slice(1), /MILESTONE_EDIT_INVALID/],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, paymentPercent: "14.99" })),
+      /PERCENT_TOTAL/,
+    ],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, paymentPercent: "0" })),
+      /PERCENT_INVALID/,
+    ],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, eventTypes: [] })),
+      /INVALID_EVENTS/,
+    ],
+    [
+      schedule.map((m, i) =>
+        i ? m : { ...m, eventTypes: ["INVOICE", "INVOICE"] },
+      ),
+      /INVALID_EVENTS/,
+    ],
+    [
+      schedule.map((m, i) => (i ? m : { ...m, eventTypes: ["APPROVAL"] })),
+      /INVALID_EVENTS/,
+    ],
+    [
+      schedule.map((m, i) =>
+        i === 1
+          ? { ...m, dueDate: kickoff.dueDate }
+          : i === 0
+            ? { ...m, dueDate: interim.dueDate }
+            : m,
+      ),
+      /DUE_DATE_OUT_OF_RANGE/,
+    ],
+    [
+      schedule.map((m, i) => (i === 2 ? { ...m, dueDate: "2999-01-01" } : m)),
+      /DUE_DATE_OUT_OF_RANGE/,
+    ],
+  ])
+    await assert.rejects(editMilestones(bad), code);
+  await assert.rejects(
+    call("u-supplier", "drafts", "editDigitizedMilestones", saved.code, {
+      milestones: schedule,
+    }),
+  );
+  const corrected = schedule.map((m, i) =>
+    i === 0
+      ? { ...m, paymentPercent: "20.00" }
+      : i === 1
+        ? {
+            ...m,
+            paymentPercent: "30.00",
+            eventTypes: [...m.eventTypes, "ACCEPTANCE"],
+          }
+        : m,
+  );
+  const edited = await editMilestones(corrected);
+  assert.deepEqual(
+    edited.milestones.map((m) => m.source),
+    ["EDITED", "EDITED", "MATCH", "NEEDS_CONFIRMATION"],
+  );
+  assert.equal(edited.edited.by, actor("u-legal").displayName);
+  assert.equal(
+    edited.milestones[1].valueMillion,
+    sharesOf(saved.valueMillion, "30.00"),
+  );
   await placeActualSignatures(saved.code);
+  // Before the final acceptance, or after the contract has ended.
+  for (const dueDate of [kickoff.dueDate, "2999-12-31"])
+    await assert.rejects(
+      call("u-legal", "drafts", "confirmDigitization", saved.code, { dueDate }),
+      /DUE_DATE_OUT_OF_RANGE/,
+    );
   await call("u-legal", "drafts", "confirmDigitization", saved.code, {
-    dueDate: "2027-12-31",
+    dueDate: saved.endDate,
   });
   const overview = await call(
     "u-owner",
@@ -758,8 +910,15 @@ test("a new contract is cut into Data Pack milestones and evaluated by the same 
   }
   assert.equal(
     created.find((m) => m.milestone_type === "WARRANTY_CLOSE").due_date,
-    "2027-12-31",
+    saved.endDate,
   );
+  // The milestones are created from the corrected terms.
+  assert.deepEqual(
+    created.map((m) => m.payment_percent),
+    ["20.00", "30.00", "40.00", "10.00"],
+  );
+  assert.equal(created[1].required_event_types, "DELIVERY;INVOICE;ACCEPTANCE");
+  assert.match(created[1].required_condition, /EVENT:ACCEPTANCE/);
   const unchanged = (await repo.list("milestones")).find(
     (m) => m.milestone_id === "MS0412",
   );
@@ -1195,6 +1354,24 @@ test("administrators manage persistent templates; drafts pin a version and survi
     ),
     /CONTRACT_TEMPLATE_INVALID/,
   );
+  // A template fills a draft, so it follows the draft's rules (otherwise every draft from it fails).
+  for (const [patch, code] of [
+    [{ maxPenaltyPct: "10.00" }, /PENALTY_OVER_LEGAL_CAP/],
+    [{ maxPenaltyPct: "0.00" }, /PENALTY_INCONSISTENT/],
+    [{ penaltyRatePct: "0", maxPenaltyPct: "5.00" }, /PENALTY_INCONSISTENT/],
+    [
+      { signerRoles: "CONTRACT_OWNER;CONTRACT_OWNER;SUPPLIER" },
+      /CONTRACT_TEMPLATE_INVALID/,
+    ],
+  ])
+    await assert.rejects(
+      base.create(
+        "contract-templates",
+        { ...template, ...patch },
+        actor("u-sysadmin"),
+      ),
+      code,
+    );
   const created = await base.create(
     "contract-templates",
     template,

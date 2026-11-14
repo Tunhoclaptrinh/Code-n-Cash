@@ -29,6 +29,9 @@ export interface OrganizationSpec {
   category: string;
   region: string;
   origin: Origin;
+  /** Legal identity printed on contracts and checked on invoices; not in the Data Pack. */
+  taxCode?: string;
+  address?: string;
 }
 
 type Party = Record<string, string>;

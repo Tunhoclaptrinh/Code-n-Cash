@@ -102,7 +102,10 @@ export type ContractStatus =
   | "PENDING_CONDITIONS"
   | "NEEDS_REVIEW"
   | "ALL_MILESTONES_ELIGIBLE"
-  | "CLOSED";
+  /** Every milestone is paid or rejected; the contract still waits for its liquidation. */
+  | "CLOSED"
+  /** Both parties confirmed the liquidation record; nothing more can happen. */
+  | "LIQUIDATED";
 
 /** Who must act next on a milestone (spec 9.5), derived from the latest evaluation. */
 export type NextStep =
@@ -212,7 +215,10 @@ export interface ContractRow {
   valueMillion: string;
   signingDate: string | null;
   startDate: string;
+  /** The end date in force: the signed one, or the one of the latest accepted amendment. */
   endDate: string;
+  /** The end date as signed, when an amendment has moved it; null otherwise. */
+  signedEndDate: string | null;
   approvalPolicy: ApprovalPolicy;
   status: ContractStatus;
   milestones: MilestoneCounts;
@@ -313,6 +319,23 @@ export interface EventRow {
   fileName: string | null;
   /** The document behind an event recorded in the app; null for imported events. */
   document: EventDocument | null;
+  /** The invoice's own data, entered with an INVOICE document; null for imported events. */
+  invoice: InvoiceData | null;
+}
+
+/**
+ * What a Vietnamese invoice states (Nghị định 123/2020/NĐ-CP, Thông tư 78/2021/TT-BTC): template
+ * symbol (`1C26TAA`: kind, with/without tax-authority code, year, type, the seller's own letters),
+ * number, issue date, the seller's tax code and the total. The total must equal the milestone's
+ * planned payment (as in all 140 Data Pack invoices); a penalty is deducted from the payment, not
+ * from the invoice.
+ */
+export interface InvoiceData {
+  symbol: string;
+  number: string;
+  issueDate: string;
+  sellerTaxCode: string;
+  amountMillion: string;
 }
 
 /** An evidence document: stored by its SHA-256 and signed by the person who submitted it. */
@@ -584,7 +607,88 @@ export interface ContractOverview {
   timeline: TimelineEntry[];
   signing: SigningSummary | null;
   lifecycle: ContractLifecycle;
+  /** Amendments (phụ lục) of the schedule, newest first. */
+  amendments: Amendment[];
+  /** What needs attention on the contract as a whole, decided by the API. */
+  notices: ContractNotice[];
+  /** The signed-in user may propose an amendment now / accept or reject the open one. */
+  canProposeAmendment: boolean;
+  canDecideAmendment: boolean;
+  canWithdrawAmendment: boolean;
+  /** The latest liquidation record, if any (biên bản thanh lý). */
+  liquidation: Liquidation | null;
+  canProposeLiquidation: boolean;
+  canDecideLiquidation: boolean;
+  canWithdrawLiquidation: boolean;
 }
+
+/**
+ * The liquidation record (biên bản thanh lý): once every milestone is paid or rejected, the buyer
+ * proposes it with the settled figures, the supplier confirms or rejects it. Confirmed, the
+ * contract is closed for good: no documents, approvals, disputes or amendments any more.
+ */
+export interface Liquidation {
+  state: AmendmentState;
+  note: string;
+  totals: {
+    valueMillion: string;
+    paidMillion: string;
+    penaltyMillion: string;
+    rejectedMillion: string;
+  };
+  proposedBy: { id: string; name: string };
+  proposedAt: string;
+  decidedBy: { id: string; name: string } | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  /** SHA-256 of the canonical record both parties confirm. */
+  digest: string;
+}
+
+export type AmendmentState = "PROPOSED" | "ACCEPTED" | "REJECTED" | "WITHDRAWN";
+
+/**
+ * An amendment (phụ lục) to a signed contract's schedule: the buyer proposes new due dates for open
+ * milestones and/or a new end date, with a reason; the supplier accepts or rejects it. The signed
+ * terms stay as they were (their digest still verifies); an accepted amendment moves the milestone
+ * due dates the engine reads and the end date in force, and its own digest is kept.
+ */
+export interface Amendment {
+  id: string;
+  contractCode: string;
+  /** PL-01, PL-02, ... within the contract. */
+  number: number;
+  state: AmendmentState;
+  reason: string;
+  endDate: { from: string; to: string } | null;
+  dueDates: {
+    sequence: number;
+    milestoneId: string;
+    /** Null when the milestone had no due date yet. */
+    from: string | null;
+    to: string;
+  }[];
+  proposedBy: { id: string; name: string };
+  proposedAt: string;
+  decidedBy: { id: string; name: string } | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  /** SHA-256 of the canonical change set the parties agreed to. */
+  digest: string;
+}
+
+/**
+ * MISSING_DUE_DATE: open milestones without a due date (they stay on hold until an amendment);
+ * SIGNED_AFTER_START: the last signature came after the start date; PAST_END: the end date has
+ * passed with milestones still open; SETTLED: every milestone is paid or closed.
+ */
+export type ContractNotice =
+  | { code: "MISSING_DUE_DATE"; milestones: number[] }
+  | { code: "SIGNED_AFTER_START"; days: number }
+  | { code: "PAST_END"; date: string; open: number }
+  /** `liquidable`: the next step is the liquidation record (not for the organiser's contracts). */
+  | { code: "SETTLED"; liquidable: boolean }
+  | { code: "LIQUIDATED"; at: string };
 
 /**
  * The contract as a state machine: drafted, signed, each payment milestone settled (paid, or closed by
@@ -621,7 +725,14 @@ export type LifecycleStage =
       /** What last changed the milestone's status. */
       trigger: Trigger["kind"] | null;
     }
-  | { kind: "CLOSED"; state: LifecycleStageState; at: string | null };
+  | {
+      kind: "CLOSED";
+      state: LifecycleStageState;
+      at: string | null;
+      /** True when the step is a liquidation both parties confirm; false for the organiser's
+       * contracts, which simply complete with their last milestone. */
+      liquidation: boolean;
+    };
 
 /**
  * A contract as a smart contract: what both parties bound themselves to, the engine that executes it and,
@@ -713,6 +824,8 @@ export interface Attachment {
   sizeMb: number;
   /** SHA-256 of the stored file; absent on attachments made before files were kept. */
   sha256?: string;
+  /** INVOICE attachments: the invoice's data, checked when attached. */
+  invoice?: InvoiceData;
   addedBy: string;
   addedAt: string;
 }
@@ -735,6 +848,8 @@ export interface EvidenceWorkspace {
   extras: Attachment[];
   overdueDays: number;
   canSubmit: boolean;
+  /** The supplier's tax code on record; an invoice must state it as the seller's. */
+  sellerTaxCode: string | null;
   /** Engine result if the attached documents were submitted now (dry run). */
   preview: Preview | null;
 }
@@ -809,6 +924,9 @@ export type TaskKind =
   | "DECIDE_EXCEPTION"
   | "COMPLETE_DRAFT"
   | "TRANSFER_PAYMENT"
+  | "REVIEW_AMENDMENT"
+  | "LIQUIDATE_CONTRACT"
+  | "REVIEW_LIQUIDATION"
   | "FOLLOW_UP";
 
 /**
@@ -1049,6 +1167,9 @@ export type ActivityAction =
     }
   | { kind: "SIGNATURE"; stepNo: number; totalSteps: number; isFinal: boolean }
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
+  | { kind: "DIGITIZATION_EDITED"; milestoneCount: number }
+  | { kind: "AMENDMENT"; state: AmendmentState; number: number }
+  | { kind: "LIQUIDATION"; state: AmendmentState }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
   | { kind: "PAYMENT"; amountMillion: string }
   | {
@@ -1424,14 +1545,36 @@ export interface UploadFormOptions {
   >;
 }
 
-export type SourceStatus = "MATCH" | "NEEDS_CONFIRMATION" | "CONFIRMED";
+export type SourceStatus =
+  "MATCH" | "NEEDS_CONFIRMATION" | "CONFIRMED" | "EDITED";
+
+/**
+ * A person's correction of one digitised milestone, so the data says what the signed document
+ * says. The stages themselves (count, order, milestone types) come from the workflow and its rule
+ * scopes; another structure is a workflow of a rule version (section 6.3).
+ */
+export interface MilestoneEdit {
+  sequence: number;
+  paymentPercent: string;
+  /** Null leaves the date to be confirmed (it is then held until an amendment). */
+  dueDate: string | null;
+  eventTypes: BusinessEventType[];
+  latePenalty: boolean;
+  /** NONE releases the milestone without the contract's approvals once its conditions hold. */
+  approval: "CONTRACT" | "NONE";
+}
 export type SourceClauseKind =
   "TOTAL_VALUE" | "DELIVERY" | "LATE_PENALTY" | "APPROVALS";
 
+/**
+ * Where a term sits in the contract text: the article of the system's contract template, and, when
+ * the reviewed extraction found the value in the uploaded file, its page and the line quoted.
+ */
 export interface SourceClause {
   kind: SourceClauseKind;
   article: number;
-  page: number;
+  page: number | null;
+  quote: string | null;
 }
 
 export interface DigitizedMilestone {
@@ -1441,7 +1584,15 @@ export interface DigitizedMilestone {
   paymentPercent: string;
   dueDate: string | null;
   eventTypes: BusinessEventType[];
-  penalty: { ratePct: string; capPct: string } | null;
+  /** Which side records each required document (spec 4.2). */
+  documents: { eventType: BusinessEventType; side: Side }[];
+  /** Roles that approve this milestone; empty when the stage needs no approval. */
+  approvalRoles: ApprovalRole[];
+  penalty: { ratePct: string; capPct: string; graceDays: number } | null;
+  /**
+   * MATCH: cut from the workflow of the contract type, as stated in the contract's schedule;
+   * NEEDS_CONFIRMATION: stated as a relative term, its date is entered; CONFIRMED: entered.
+   */
   source: SourceStatus;
   sourceClause: SourceClauseKind | null;
   relativeTermMonths: number | null;
@@ -1456,4 +1607,6 @@ export interface Digitization {
   requiredApprovals: number;
   suggestedDueDate: string | null;
   locked: boolean;
+  /** Who corrected the milestones by hand, if anyone (MilestoneEdit). */
+  edited: { by: string; at: string } | null;
 }

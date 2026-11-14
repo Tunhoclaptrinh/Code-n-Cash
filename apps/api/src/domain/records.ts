@@ -19,6 +19,10 @@ import type {
   Attachment,
   Digitization,
   EvidenceDocument,
+  InvoiceData,
+  Amendment,
+  MilestoneEdit,
+  Liquidation,
 } from "./types";
 import type { LocalProof } from "../trust/types";
 
@@ -40,6 +44,7 @@ export const TABLE = {
   notes: "notes",
   exceptions: "exceptions",
   payments: "payments",
+  amendments: "amendments",
 } as const;
 
 export type Tables = Record<string, RecordEntity[]>;
@@ -185,7 +190,11 @@ export type ContractRecord = RecordEntity &
   Columns<"contracts"> & {
     origin: Origin;
     /** DRAFT until the terms are confirmed, SIGNING until every signer signed, then ACTIVE. */
-    lifecycle: "DRAFT" | "SIGNING" | "ACTIVE";
+    lifecycle: "DRAFT" | "SIGNING" | "ACTIVE" | "CLOSED";
+    /** Liquidation records, oldest first; the contract is CLOSED once one is accepted. */
+    liquidations?: Liquidation[];
+    /** End date in force after an accepted amendment; the signed end_date never changes. */
+    amendedEndDate?: string;
   };
 
 export type MilestoneRecord = RecordEntity &
@@ -198,6 +207,7 @@ export type EventRecord = RecordEntity &
     recordedByUserId?: string | null;
     fileName?: string | null;
     document?: SignedEvidence;
+    invoice?: InvoiceData;
   };
 
 /** The evidence document behind an app event with the submitter's signature over it. */
@@ -263,6 +273,13 @@ export interface DraftRecord extends RecordEntity {
   appendixNames: string[];
   appendixDocuments?: Array<{ id: string; name: string; sha256: string }>;
   digitization: Digitization | null;
+  /** Hand corrections of the digitised milestones before they are locked. */
+  milestoneEdits?: {
+    milestones: MilestoneEdit[];
+    by: string;
+    byName: string;
+    at: string;
+  } | null;
 }
 
 export interface AttachmentRecord extends RecordEntity, Omit<Attachment, "id"> {
@@ -273,6 +290,7 @@ export interface AttachmentRecord extends RecordEntity, Omit<Attachment, "id"> {
 export type NoteRecord = RecordEntity & NoteRow;
 export type ExceptionRecord = RecordEntity & ExceptionRequest;
 export type PaymentRecord = RecordEntity & Payment;
+export type AmendmentRecord = RecordEntity & Amendment;
 
 /** Stage of a Data Pack workflow, as found in milestones.csv. */
 export interface StageTemplate {

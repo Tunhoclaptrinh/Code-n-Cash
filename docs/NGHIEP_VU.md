@@ -87,7 +87,7 @@ Quy ước: tiền tính bằng triệu VND; phần trăm chia 100 khi tính; th
 
 ## 4. Vòng đời
 
-**Hợp đồng:** Bản nháp (`DRAFT`), Đang ký (`AWAITING_SIGNATURE`), sau khi ký xong thì tổng hợp từ các mốc, xét theo thứ tự: mọi mốc đã chuyển chi hoặc bị từ chối thì Đã đóng (`CLOSED`); còn mốc bị từ chối thì Cần xem xét (`NEEDS_REVIEW`); còn mốc chờ chứng từ, chờ phê duyệt hoặc tạm giữ thì Chờ điều kiện (`PENDING_CONDITIONS`); còn lại là Mọi mốc đủ điều kiện (`ALL_MILESTONES_ELIGIBLE`). Trạng thái hợp đồng chỉ phục vụ theo dõi, không đổi quyết định của mốc.
+**Hợp đồng:** Bản nháp (`DRAFT`), Đang ký (`AWAITING_SIGNATURE`), sau khi ký xong thì tổng hợp từ các mốc, xét theo thứ tự: đã thanh lý thì Đã thanh lý (`LIQUIDATED`, mục 6.2a); mọi mốc đã chuyển chi hoặc bị từ chối thì Đã xong các mốc (`CLOSED`, chờ thanh lý); còn mốc bị từ chối thì Cần xem xét (`NEEDS_REVIEW`); còn mốc chờ chứng từ, chờ phê duyệt hoặc tạm giữ thì Chờ điều kiện (`PENDING_CONDITIONS`); còn lại là Mọi mốc đủ điều kiện (`ALL_MILESTONES_ELIGIBLE`). Trạng thái hợp đồng chỉ phục vụ theo dõi, không đổi quyết định của mốc.
 
 **Mốc:** mỗi mốc được đánh giá độc lập (bộ luật không có điều kiện phụ thuộc mốc trước) và đánh giá lại sau mỗi event mới.
 
@@ -201,6 +201,27 @@ Mỗi biến trong `apps/engine/rule_language.json` khai báo nguồn giá trị
 
 Mỗi kết quả ghi lại cách chọn luật (`selection`: `FIRST_MATCH` hoặc một trong các nhánh về ELSE ở mục 14.12); phần giải thích trong audit trace ghi kết cục của từng luật (mục 14.11) và giá trị mọi biến luật lúc quyết định. Audit trace của lượt chạy ghi mã, phiên bản và băm SHA-256 của policy pack; băm này thuộc định danh lượt chạy.
 
+### 6.2a. Số hoá, chỉnh tay và phụ lục của hợp đồng soạn trong ứng dụng
+
+Hướng dẫn từng bước, ví dụ và lưu ý: [11 Hợp đồng soạn trong ứng dụng](11_HOP_DONG_TRONG_UNG_DUNG.md).
+
+Mốc của hợp đồng mới **không đọc từ văn bản**: chúng được cắt từ quy trình của loại hợp đồng (hoặc quy trình riêng của phiên bản luật), hạn co giãn theo thời hạn hợp đồng (mục 6.3). AI chỉ đề xuất 6 điều khoản chung kèm trang và trích dẫn (mục 11). Vì vậy:
+
+| Bước | Quy tắc |
+| --- | --- |
+| Rà bản số hoá | Mỗi mốc ghi vai trò phê duyệt của chính nó (rỗng khi giai đoạn miễn duyệt), bên nộp từng chứng từ, số ngày ân hạn. Nguồn `MATCH` hiển thị là "Theo quy trình mẫu", không phải "khớp văn bản". Điều khoản ghi số điều của văn bản mẫu hệ thống (3 giá trị, 4 lịch mốc, 6 phê duyệt, 8 phạt); trang và trích dẫn chỉ có khi phần trích xuất đã rà soát tìm thấy giá trị trong tệp |
+| Chỉnh tay (`editDigitizedMilestones`, quyền `contracts:digitize`) | Cán bộ hoặc chủ hợp đồng bên mua sửa từng mốc cho khớp văn bản: tỷ lệ, hạn, chứng từ bắt buộc, áp phạt, phê duyệt theo chính sách hay miễn. Số mốc và loại mốc giữ theo quy trình (phạm vi luật gắn với loại mốc). API kiểm: đủ mọi mốc (`MILESTONE_EDIT_INVALID`), tỷ lệ dương (`PERCENT_INVALID`) cộng đúng 100,00% (`PERCENT_TOTAL`), 1–6 chứng từ khác nhau của bảng 2.1 (`INVALID_EVENTS`), hạn theo thứ tự mốc trong thời hạn (`DUE_DATE_OUT_OF_RANGE`). Dòng đã sửa mang nguồn `EDITED` kèm người sửa và thời điểm; nhật ký ghi `DIGITIZATION_EDITED`. Phiên bản bản nháp không đổi nên phần trích xuất đã rà soát vẫn có hiệu lực; đổi loại hợp đồng, quy trình hoặc thời hạn ở bước 1 bỏ chỉnh sửa. Khoá bản số hoá kiểm lại chỉnh sửa và tạo mốc theo đó |
+| Điều khoản phạt | Mức phạt mỗi ngày và trần phạt cùng bằng 0 (không phạt) hoặc cùng lớn hơn 0 (`PENALTY_INCONSISTENT`); ngày kết thúc phải sau ngày bắt đầu |
+| Ký | Sự kiện `CONTRACT_SIGNED` được ghi cho **mọi** mốc có điều kiện này, không chỉ mốc đầu |
+| Phụ lục (`proposeAmendment`, `decideAmendment`, `withdrawAmendment`, quyền `contracts:amend`) | Sau khi ký, lịch mốc chỉ đổi bằng phụ lục. Cán bộ hoặc chủ hợp đồng bên mua đề xuất hạn mới cho mốc chưa được quyết định chi và/hoặc ngày kết thúc mới, kèm lý do; mỗi hợp đồng một phụ lục chờ (`AMENDMENT_PENDING`). Nhà cung cấp chấp nhận, hoặc từ chối kèm lý do; bên mua rút lại được khi còn chờ. Mốc đã quyết định chi giữ hạn (`MILESTONE_CLOSED`), vì dời hạn là sửa tiền phạt sau khi đã quyết. Chấp nhận thì `due_date` của mốc đổi và engine đánh giá lại; ngày kết thúc mới ghi vào `amendedEndDate`, còn `end_date` đã ký giữ nguyên nên chữ ký vẫn kiểm được. Mỗi phụ lục có băm SHA-256 của nội dung thay đổi; mọi bước ghi vào nhật ký (`AMENDMENT`). Hợp đồng của Data Pack được niêm phong, không lập phụ lục (`DATA_PACK_LOCKED`) |
+| Giá trị và hoá đơn | Giá trị hợp đồng **đã gồm VAT** (ô nhập, Điều 3 văn bản, form hoá đơn đều ghi rõ); hoá đơn của mốc bằng đúng số tiền mốc. Khi hồ sơ tổ chức của nhà cung cấp có mã số thuế, hoá đơn phải ghi đúng mã đó (`INVOICE_SELLER_MISMATCH`) |
+| Mẫu hợp đồng của quản trị | Theo đúng quy tắc của bản nháp: trần ≤ 8% (`PENALTY_OVER_LEGAL_CAP`), phạt và trần nhất quán (`PENALTY_INCONSISTENT`), vai trò ký bên mua không trùng (`CONTRACT_TEMPLATE_INVALID`) |
+| Văn bản hợp đồng do hệ thống sinh | Ghi mã số thuế và địa chỉ các bên (khi có), bảng mốc có số tiền, bên cung cấp từng hồ sơ, áp phạt; chính sách duyệt bằng chữ và mốc miễn duyệt; cách tính phạt; bảo hành theo thời hạn tương đối; phụ lục và thanh lý. Luôn để trích xuất đọc được đủ 6 điều khoản |
+| Thanh lý (`proposeLiquidation`, `decideLiquidation`, `withdrawLiquidation`, quyền `contracts:liquidate`) | Khi mọi mốc đã chuyển chi hoặc bị từ chối (`MILESTONES_OPEN`), bên mua lập biên bản với số liệu chốt (giá trị, đã chi, phạt, bị từ chối) và mã băm; nhà cung cấp xác nhận, hoặc từ chối kèm lý do. Số liệu phải không đổi tới lúc xác nhận (`LIQUIDATION_STALE`). Đã thanh lý thì hợp đồng ở trạng thái `LIQUIDATED`, mọi ghi nhận tiếp theo bị từ chối (`CONTRACT_CLOSED`). Hợp đồng Data Pack không thanh lý trong ứng dụng |
+| Cảnh báo cấp hợp đồng | `MISSING_DUE_DATE` mốc mở chưa có hạn (bị giữ tới khi có phụ lục); `SIGNED_AFTER_START` ký xong sau ngày bắt đầu; `PAST_END` quá ngày kết thúc đang hiệu lực mà còn mốc mở; `SETTLED` mọi mốc đã chi hoặc đóng, chờ thanh lý; `LIQUIDATED` đã thanh lý |
+
+Chưa làm: ký số cho chính văn bản phụ lục (hiện hai bên xác nhận trong hệ thống, có băm và nhật ký); phụ lục đổi giá trị hoặc tỷ lệ thanh toán; băm chữ ký hợp đồng chưa bao gồm lịch mốc đã số hoá (văn bản tải lên thì đã nằm trong băm).
+
 ### 6.3. Quy trình riêng của phiên bản luật
 
 128 luật của BTC là 8 luật, mỗi luật lặp lại ở 16 phạm vi; 4 mẫu mốc là 4 quy trình của Data Pack. Một phiên bản luật giữ nguyên chúng như trên, và có thể mang thêm **quy trình riêng** mã `APP_…` cho hợp đồng soạn trong ứng dụng.
@@ -213,6 +234,8 @@ Mỗi kết quả ghi lại cách chọn luật (`selection`: `FIRST_MATCH` ho�
 | Thêm, xoá luật trong phạm vi của quy trình riêng; đổi ưu tiên, quyết định, mã lý do, điều kiện, công thức | tab Luật |
 | Sửa một luật của BTC rồi áp cho cả 16 bản cùng ưu tiên; cảnh báo khi các bản đã lệch nhau | tab Luật |
 | Bên soạn hợp đồng chọn quy trình riêng khi phiên bản đang công bố có quy trình cho loại hợp đồng đó | Tải hợp đồng lên, ô Quy trình mốc |
+
+Hạn mốc của hợp đồng soạn trong ứng dụng: "số ngày tới hạn" của mẫu là lịch chuẩn, được co giãn theo thời hạn hợp đồng, giai đoạn có số ngày lớn nhất rơi đúng ngày kết thúc. Đây là quy luật của Data Pack (100/100 hợp đồng có mốc cuối bằng `end_date`; co giãn trung vị tái lập cả 405 hạn mốc, lệch tối đa 1 ngày, còn cộng thẳng số ngày vào ngày bắt đầu lệch tới 96 ngày và đẩy 64 mốc ra sau ngày kết thúc). Vì vậy ngày kết thúc phải sau ngày bắt đầu; hạn bảo hành xác nhận khi số hoá phải nằm giữa hạn mốc liền trước và mốc liền sau hoặc ngày kết thúc (`DUE_DATE_OUT_OF_RANGE`). Hợp đồng demo dựng sẵn (`SEED`) giữ hạn cũ vì sự kiện của kịch bản được hẹn theo đó.
 
 Vì sao không đổi 405 mốc: mốc Data Pack luôn dùng phạm vi của BTC trong bảng luật gốc; phiên bản đã công bố được chép thêm dưới mã bộ luật có hậu tố phiên bản, và chỉ hợp đồng ghim phiên bản đó mới dùng. Phép xem trước vẫn chạy lại cả 405 mốc và phải không đổi gì.
 
@@ -344,6 +367,18 @@ Mỗi sự kiện bên nộp ghi trong ứng dụng dựa trên một tệp ch�
 | Xem, tải | Bảng sự kiện hiện tệp và nhãn "Đã ký"; nhãn đỏ khi chữ ký không còn khớp hoặc tệp không còn được lưu. `GET /evidence-documents/:eventId/download` băm lại tệp trước khi trả (`DOCUMENT_CHANGED` nếu khác), kèm header `X-Content-SHA256`                    |
 
 Bộ đánh giá vẫn đọc `document_id` của sự kiện như dữ liệu BTC; việc "chỉ tính sự kiện có chứng từ hợp lệ" được bảo đảm ở bước ghi: ứng dụng không tạo được sự kiện chứng từ khi chưa có tệp đã lưu và đã ký. Sự kiện nhập từ Data Pack không có tệp.
+
+**Hoá đơn.** Tệp `INVOICE` phải kèm dữ liệu in trên hoá đơn (Nghị định 123/2020/NĐ-CP, Thông tư 78/2021/TT-BTC): ký hiệu 7 ký tự (`1C26TAA`), số tối đa 8 chữ số, ngày lập, mã số thuế người bán (10 chữ số, 10 chữ số kèm `-XXX`, hoặc 12 chữ số), tổng tiền. API kiểm thêm những gì cần hợp đồng:
+
+| Mã lỗi | Quy tắc |
+| --- | --- |
+| `INVOICE_DATA_REQUIRED` | Đính kèm hoặc nộp hoá đơn không có dữ liệu |
+| `INVOICE_AMOUNT_MISMATCH` | Tổng tiền khác `planned_payment_vnd_mn` của mốc, so chính xác tới 0,01 (140/140 hoá đơn Data Pack bằng giá trị mốc; tiền phạt trừ vào khoản chi, không trừ trên hoá đơn) |
+| `INVOICE_YEAR_MISMATCH` | Năm trong ký hiệu khác năm lập |
+| `INVOICE_BEFORE_SIGNING`, `INVOICE_DATE_FUTURE` | Ngày lập trước ngày ký hợp đồng hoặc sau hôm nay |
+| `INVOICE_DUPLICATE` | Cùng mã số thuế, ký hiệu và số đã dùng cho một chứng từ khác, ở bất kỳ hợp đồng nào |
+
+Sự kiện `INVOICE` mang dữ liệu này (`invoice`) và `amount_vnd_mn` bằng tổng tiền. Người phê duyệt mở từng chứng từ ngay trên màn duyệt: tệp gốc (băm lại khi tải), chữ ký người nộp, và dữ liệu hoá đơn đối chiếu với giá trị mốc. Sự kiện của dữ liệu BTC và hợp đồng demo dựng sẵn chỉ có mã tài liệu, màn hình nói rõ là không kèm tệp.
 
 ### 9.5. Gói kiểm chứng quyết định
 
@@ -527,7 +562,8 @@ Trạng thái là vị trí của mốc trong vòng đời (mục 4), khác vớ
 | `PENDING_CONDITIONS`      | Chờ điều kiện        | Pending conditions      |
 | `NEEDS_REVIEW`            | Cần xem xét          | Needs review            |
 | `ALL_MILESTONES_ELIGIBLE` | Mọi mốc đủ điều kiện | All milestones eligible |
-| `CLOSED`                  | Đã đóng              | Closed                  |
+| `CLOSED`                  | Đã xong các mốc      | All milestones settled  |
+| `LIQUIDATED`              | Đã thanh lý          | Liquidated              |
 
 ### 14.5. Phân loại sự kiện khi engine lọc bằng chứng
 
@@ -640,6 +676,13 @@ Màn quyết định, chi tiết hợp đồng và thẻ xem nhanh liệt kê t�
 | `BLOCKING`    | Đang chặn    | Điều kiện của luật đang giữ mốc                                  |
 | `WAITING`     | Chờ sau      | Điều kiện của luật ưu tiên thấp hơn, cần sau khi việc chặn xong |
 | `DONE`        | Đã xong      | Đã đạt, kèm người làm và thời điểm                               |
+
+| Mã | Từ nghiệp vụ | Ý nghĩa |
+| --- | --- | --- |
+| `REVIEW_AMENDMENT` | Xem xét phụ lục | Việc của nhà cung cấp khi có phụ lục chờ trả lời (mục 6.2a) |
+| `LIQUIDATE_CONTRACT`, `REVIEW_LIQUIDATION` | Lập biên bản thanh lý, Xác nhận thanh lý | Việc của cán bộ hợp đồng khi mọi mốc xong, và của nhà cung cấp khi biên bản chờ xác nhận |
+| `PROPOSED`, `ACCEPTED`, `REJECTED`, `WITHDRAWN` | Chờ nhà cung cấp, Đã có hiệu lực, Bị từ chối, Đã rút lại | Trạng thái phụ lục |
+| `MATCH`, `NEEDS_CONFIRMATION`, `CONFIRMED`, `EDITED` | Theo quy trình mẫu, Cần xác nhận, Đã xác nhận, Đã chỉnh tay | Nguồn của mốc trên bản số hoá |
 
 Quá hạn tính từ ngày đến hạn như màn nộp chứng từ; ân hạn hiện riêng, phạt chỉ tính sau ân hạn (mục 5). Thời gian chờ chỉ hiện khi dữ liệu cho biết mốc bắt đầu chờ từ lúc nào (phê duyệt: từ khi đủ chứng từ; tranh chấp: từ lúc mở; lệnh chi: từ lần phê duyệt cuối).
 

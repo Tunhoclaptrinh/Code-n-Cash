@@ -46,7 +46,8 @@ export const contractStatusTone: Record<ContractStatus, Tone> = {
   PENDING_CONDITIONS: "warning",
   NEEDS_REVIEW: "danger",
   ALL_MILESTONES_ELIGIBLE: "success",
-  CLOSED: "neutral",
+  CLOSED: "success",
+  LIQUIDATED: "neutral",
 };
 
 export const eventClassTone: Record<EventClass, Tone> = {

@@ -53,6 +53,7 @@ export const READ_TABLES = [
   TABLE.notes,
   TABLE.exceptions,
   TABLE.payments,
+  TABLE.amendments,
   TABLE.runs,
   TABLE.requests,
   TABLE.profiles,
@@ -302,6 +303,7 @@ export class Ctx {
       recordedBy: e.recordedBy ?? null,
       fileName: e.fileName ?? null,
       document: e.document ? eventDocument(e.document) : null,
+      invoice: e.invoice ?? null,
     };
   }
 
@@ -474,6 +476,7 @@ export class Ctx {
   contractStatus(contract: ContractRecord): ContractStatus {
     if (contract.lifecycle === "DRAFT") return "DRAFT";
     if (contract.lifecycle === "SIGNING") return "AWAITING_SIGNATURE";
+    if (contract.lifecycle === "CLOSED") return "LIQUIDATED";
     const statuses = this.milestonesOf(contract.contract_id)
       .filter((m) => this.hasEvaluation(m.milestone_id))
       .map((m) => this.status(m));
@@ -490,6 +493,20 @@ export class Ctx {
     )
       return "PENDING_CONDITIONS";
     return "ALL_MILESTONES_ELIGIBLE";
+  }
+
+  /** An organisation's tax code and address, when its record has them (organizations). */
+  organizationTaxCode(organizationId: string): string | null {
+    const row = (this.t.organizations ?? []).find(
+      (org) => org.id === organizationId,
+    );
+    return typeof row?.taxCode === "string" && row.taxCode ? row.taxCode : null;
+  }
+  organizationAddress(organizationId: string): string | null {
+    const row = (this.t.organizations ?? []).find(
+      (org) => org.id === organizationId,
+    );
+    return typeof row?.address === "string" && row.address ? row.address : null;
   }
 
   contractRow(contract: ContractRecord): ContractRow {
@@ -543,7 +560,8 @@ export class Ctx {
       valueMillion: contract.contract_value_vnd_mn,
       signingDate: contract.signing_date || null,
       startDate: contract.start_date,
-      endDate: contract.end_date,
+      endDate: contract.amendedEndDate ?? contract.end_date,
+      signedEndDate: contract.amendedEndDate ? contract.end_date : null,
       approvalPolicy: contract.approval_policy as ContractRow["approvalPolicy"],
       status: this.contractStatus(contract),
       milestones: counts,

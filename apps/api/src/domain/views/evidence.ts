@@ -50,7 +50,10 @@ export async function evidenceWorkspace(
     contract.lifecycle === "ACTIVE" &&
     !TERMINAL.includes(ctx.status(m)) &&
     pending.length > 0 &&
-    pending.every((s) => s.attachment);
+    pending.every(
+      (s) =>
+        s.attachment && (s.eventType !== "INVOICE" || s.attachment.invoice),
+    );
   const hypothetical = draftEvents(ctx, m);
   const preview = hypothetical.length
     ? previewOf((await dryRun(hypothetical)).get(m.milestone_id))
@@ -65,6 +68,7 @@ export async function evidenceWorkspace(
       .map(toAttachment),
     overdueDays: ctx.lateness(m).overdueDays,
     canSubmit,
+    sellerTaxCode: ctx.organizationTaxCode(contract.supplier_id),
     preview,
   };
 }
@@ -74,6 +78,7 @@ const toAttachment = (a: AttachmentRecord) => ({
   eventType: a.eventType,
   fileName: a.fileName,
   sizeMb: a.sizeMb,
+  ...(a.invoice ? { invoice: a.invoice } : {}),
   addedBy: a.addedBy,
   addedAt: a.addedAt,
 });

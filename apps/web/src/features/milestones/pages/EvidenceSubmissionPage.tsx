@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type {
+  InvoiceData,
   Attachment,
   EvidenceSlot,
   EvidenceWorkspace,
@@ -31,9 +32,17 @@ import { KeyFigures, SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
 import { MilestoneJourney } from "../components/MilestoneJourney";
+import { InvoiceFormModal } from "../components/InvoiceFormModal";
 import styles from "./EvidenceSubmissionPage.module.css";
 
 const isZero = (amount: string) => /^0(\.0+)?$/.test(amount);
+/** Today in the user's local calendar, as an ISO date (the latest an invoice may be dated). */
+const localToday = () => {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
+};
 
 /** The types the API accepts as evidence; it checks the bytes again. */
 const EVIDENCE_ACCEPT = ".pdf,.png,.jpg,.jpeg,.docx,.xlsx";
@@ -145,12 +154,13 @@ export default function EvidenceSubmissionPage() {
           data={data}
           busy={attach.isPending || remove.isPending || submit.isPending}
           submitting={submit.isPending}
-          onAttach={(eventType, file) =>
+          onAttach={(eventType, file, invoice) =>
             attach.mutate({
               contractId: data.contract.id,
               sequence: data.milestone.sequence,
               eventType,
               file,
+              invoice,
             })
           }
           onRemove={(attachmentId) =>
@@ -176,7 +186,7 @@ interface WorkspaceProps {
   data: EvidenceWorkspace;
   busy: boolean;
   submitting: boolean;
-  onAttach: (eventType: string, file: File) => void;
+  onAttach: (eventType: string, file: File, invoice?: InvoiceData) => void;
   onRemove: (attachmentId: string) => void;
   onSubmit: () => void;
 }
@@ -209,9 +219,12 @@ function Workspace({
     for (const file of Array.from(event.dataTransfer.files))
       onAttach("OTHER", file);
   };
+  // An invoice is attached with its own data (symbol, number, date, seller, total), entered first.
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const onPick = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
     for (const file of Array.from(event.target.files ?? []))
-      onAttach(type, file);
+      if (type === "INVOICE") setInvoiceFile(file);
+      else onAttach(type, file);
     event.target.value = "";
   };
   const pending = data.slots.filter(
@@ -235,6 +248,19 @@ function Workspace({
       }
     >
       <SideCard>
+        <InvoiceFormModal
+          open={!!invoiceFile}
+          fileName={invoiceFile?.name ?? ""}
+          plannedMillion={milestone.plannedMillion}
+          sellerTaxCode={data.sellerTaxCode}
+          today={localToday()}
+          busy={busy}
+          onCancel={() => setInvoiceFile(null)}
+          onSubmit={(invoice) => {
+            if (invoiceFile) onAttach("INVOICE", invoiceFile, invoice);
+            setInvoiceFile(null);
+          }}
+        />
         <SideSection title={t("submit.required.title")}>
           {milestone.latePenalty && deadline ? (
             <div className={styles.penaltyLine}>
@@ -435,6 +461,14 @@ function SlotCard({
                 fileName: slot.attachment.fileName,
                 size: formatNumber(slot.attachment.sizeMb, 1),
               })}
+              {slot.attachment.invoice
+                ? ` · ${t("invoice.summary", {
+                    reference: `${slot.attachment.invoice.symbol} · ${slot.attachment.invoice.number}`,
+                    amount: formatDecimalString(
+                      slot.attachment.invoice.amountMillion,
+                    ),
+                  })}`
+                : null}
             </div>
           </div>
           <ToneTag tone="primary">{t("submit.file.ready")}</ToneTag>

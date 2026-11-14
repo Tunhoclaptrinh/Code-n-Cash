@@ -6,7 +6,8 @@ import { canonical } from "./common/audit-chain";
 import { repoRoot } from "./common/paths";
 import { previewPdf } from "./document-preview";
 import type { Ctx } from "./domain/context";
-import type { PdfPagePreview } from "./domain/types";
+import type { BusinessEventType, PdfPagePreview } from "./domain/types";
+import { AUTHORITY } from "./domain/vocabulary";
 import { inspectPdf } from "./pdf-layout";
 import { generateSampleDocx } from "./sample-documents";
 
@@ -91,6 +92,16 @@ export function mockInput(ctx: Ctx, code: string) {
     graceDays: contract.grace_period_days,
     penaltyRatePct: contract.penalty_rate_pct_per_day,
     maxPenaltyPct: contract.max_penalty_pct,
+    parties: {
+      BUYER: {
+        taxCode: ctx.organizationTaxCode(contract.buyer_id),
+        address: ctx.organizationAddress(contract.buyer_id),
+      },
+      SUPPLIER: {
+        taxCode: ctx.organizationTaxCode(contract.supplier_id),
+        address: ctx.organizationAddress(contract.supplier_id),
+      },
+    },
     approvalPolicy: contract.approval_policy,
     signers: (signers.length
       ? signers
@@ -101,16 +112,26 @@ export function mockInput(ctx: Ctx, code: string) {
             name: String(user!.displayName),
           }))
     ).slice(0, 4),
-    stages: ctx.milestonesOf(code).map((m) => ({
-      type: m.milestone_type,
-      name: m.milestone_name,
-      paymentPercent: m.payment_percent,
-      dueDate: m.due_date,
-      requiredEvents: String(m.required_event_types ?? "")
+    // The milestones as recorded: amount, every document with its side, penalty and approval.
+    stages: ctx.milestonesOf(code).map((m) => {
+      const events = String(m.required_event_types ?? "")
         .split(";")
-        .filter(Boolean)
-        .join(", "),
-    })),
+        .filter(Boolean) as BusinessEventType[];
+      return {
+        type: m.milestone_type,
+        name: m.milestone_name,
+        paymentPercent: m.payment_percent,
+        amountMillion: m.planned_payment_vnd_mn,
+        dueDate: m.due_date,
+        requiredEvents: events.join(", "),
+        documents: events.map((eventType) => ({
+          eventType,
+          side: AUTHORITY[eventType] ?? null,
+        })),
+        latePenalty: m.late_penalty_applicable === "TRUE",
+        approval: m.approval_required === "TRUE" ? "CONTRACT" : "NONE",
+      };
+    }),
   };
 }
 

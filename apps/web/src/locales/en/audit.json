@@ -74,7 +74,17 @@
     "PAYMENT_DELIVERY_ACKNOWLEDGED": "The payment gateway accepted the instruction ({{channel}}, attempt {{attempts}}, reference {{reference}})",
     "PAYMENT_DELIVERY_FAILED": "Sending the payment instruction failed ({{channel}}, attempt {{attempts}}, error {{error}})",
     "PAYMENT_DELIVERY_PENDING": "Payment instruction waiting to be sent ({{channel}})",
-    "EVENT_SHORT": "Recorded {{event}} ({{status}})"
+    "EVENT_SHORT": "Recorded {{event}} ({{status}})",
+    "AMENDMENT_PROPOSED": "Proposed amendment PL-{{number}}",
+    "AMENDMENT_ACCEPTED": "Accepted amendment PL-{{number}}",
+    "AMENDMENT_REJECTED": "Rejected amendment PL-{{number}}",
+    "AMENDMENT_WITHDRAWN": "Withdrew amendment PL-{{number}}",
+    "DIGITIZATION_EDITED_one": "Corrected the digitised terms ({{count}} milestone)",
+    "DIGITIZATION_EDITED_other": "Corrected the digitised terms ({{count}} milestones)",
+    "LIQUIDATION_PROPOSED": "Made the liquidation record",
+    "LIQUIDATION_ACCEPTED": "Confirmed the contract liquidation",
+    "LIQUIDATION_REJECTED": "Rejected the liquidation record",
+    "LIQUIDATION_WITHDRAWN": "Withdrew the liquidation record"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -100,7 +110,14 @@
     "recordPaymentDelivery": "Record the payment order delivery",
     "attachSigningTransaction": "Send the signing request to the signing service",
     "failSigningRequest": "Could not reach the signing service",
-    "applySigningResult": "Receive the result from the signing service"
+    "applySigningResult": "Receive the result from the signing service",
+    "proposeAmendment": "Propose amendment",
+    "decideAmendment": "Answer amendment",
+    "withdrawAmendment": "Withdraw amendment",
+    "editDigitizedMilestones": "Edit digitised milestones",
+    "proposeLiquidation": "Make liquidation record",
+    "decideLiquidation": "Answer liquidation record",
+    "withdrawLiquidation": "Withdraw liquidation record"
   },
   "detail": {
     "view": "View details",
@@ -252,7 +269,10 @@
     "RESET_PASSWORD": "Reset a password",
     "UPDATE": "Edit a record",
     "UPLOAD": "Upload a document",
-    "VOID": "Void a record"
+    "VOID": "Void a record",
+    "AMENDMENT": "Contract amendment",
+    "DIGITIZATION_EDITED": "Digitised terms corrected",
+    "LIQUIDATION": "Contract liquidation"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",

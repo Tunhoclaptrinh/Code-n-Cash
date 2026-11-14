@@ -15,7 +15,10 @@ import {
   type SignedEvidence,
   TABLE,
 } from "../records";
-import type { BusinessEventType } from "../types";
+import { invoiceProblems } from "../../common/field-validation";
+import { today } from "../context";
+import { fromCents, toCents } from "../templates";
+import type { BusinessEventType, InvoiceData } from "../types";
 import { isBusinessEvent } from "../vocabulary";
 import { type Outcome, assertOpen, newEvent, outcome, text } from "./shared";
 
@@ -29,6 +32,8 @@ export function attachEvidence(
     /** SHA-256 of a file stored through POST /evidence-documents. */
     sha256: string;
     mediaType?: string;
+    /** Required with an INVOICE document. */
+    invoice?: Partial<Record<keyof InvoiceData, unknown>>;
   },
 ): Outcome {
   const m = ctx.milestoneAt(input.contractId, Number(input.sequence));
@@ -61,6 +66,8 @@ export function attachEvidence(
     )
   )
     throw new ConflictException("EVIDENCE_ALREADY_ATTACHED");
+  const invoice =
+    type === "INVOICE" ? checkedInvoice(ctx, m, input.invoice) : undefined;
   const record = entity(
     nextId(
       "ATT-",
@@ -76,6 +83,7 @@ export function attachEvidence(
       sha256: String(input.sha256),
       sizeBytes,
       mediaType: text(input.mediaType, 120) || "application/octet-stream",
+      ...(invoice ? { invoice } : {}),
       addedBy: ctx.actor.displayName,
       addedAt: businessNow(),
       organizationId: ctx.actor.organizationId,
@@ -83,6 +91,58 @@ export function attachEvidence(
   ) as AttachmentRecord;
   attachments.push(record);
   return outcome(ctx, { id: record.id }, { milestoneId: m.milestone_id });
+}
+
+/**
+ * An invoice's data: its format (shared with the form), then what needs the contract. The total is
+ * the milestone's planned payment; it is issued after signing and not in the future; and the same
+ * invoice (seller, symbol, number) never backs two events, here or in any other contract.
+ */
+function checkedInvoice(
+  ctx: Ctx,
+  m: MilestoneRecord,
+  value: Partial<Record<keyof InvoiceData, unknown>> | undefined,
+): InvoiceData {
+  if (!value || typeof value !== "object")
+    throw new BadRequestException("INVOICE_DATA_REQUIRED");
+  const problems = invoiceProblems(value);
+  if (Object.keys(problems).length)
+    throw new BadRequestException(Object.values(problems)[0]);
+  const invoice: InvoiceData = {
+    symbol: String(value.symbol).trim(),
+    number: String(value.number).trim().padStart(8, "0"),
+    issueDate: String(value.issueDate),
+    sellerTaxCode: String(value.sellerTaxCode).trim(),
+    amountMillion: fromCents(
+      toCents(String(value.amountMillion).trim().replace(",", ".")),
+    ),
+  };
+  if (toCents(invoice.amountMillion) !== toCents(m.planned_payment_vnd_mn))
+    throw new BadRequestException("INVOICE_AMOUNT_MISMATCH");
+  // The seller is the contract's supplier: when its tax code is on record, the invoice states it.
+  const sellerTaxCode = ctx.organizationTaxCode(
+    ctx.contract(m.contract_id).supplier_id,
+  );
+  if (sellerTaxCode && sellerTaxCode !== invoice.sellerTaxCode)
+    throw new BadRequestException("INVOICE_SELLER_MISMATCH");
+  const signed = ctx.contract(m.contract_id).signing_date;
+  if (signed && invoice.issueDate < signed)
+    throw new BadRequestException("INVOICE_BEFORE_SIGNING");
+  if (invoice.issueDate > today())
+    throw new BadRequestException("INVOICE_DATE_FUTURE");
+  const same = (other?: InvoiceData) =>
+    !!other &&
+    other.sellerTaxCode === invoice.sellerTaxCode &&
+    other.symbol === invoice.symbol &&
+    other.number === invoice.number;
+  if (
+    ctx.events.some((e) => same(e.invoice)) ||
+    (ctx.t[TABLE.attachments] as AttachmentRecord[]).some((a) =>
+      same(a.invoice),
+    )
+  )
+    throw new ConflictException("INVOICE_DUPLICATE");
+  return invoice;
 }
 
 export function removeEvidence(
@@ -157,8 +217,8 @@ export function evidenceEvents(
     const attachment = attachments.find((a) => a.eventType === req.eventType);
     if (!attachment) continue;
     const event = newEvent(ctx, m, req.eventType, "CONFIRMED", actorParty, {
-      amount:
-        req.eventType === "INVOICE" ? m.planned_payment_vnd_mn : undefined,
+      amount: attachment.invoice?.amountMillion,
+      invoice: attachment.invoice,
       fileName: attachment.fileName,
       document: commit ? signedEvidence(ctx, m, attachment) : undefined,
       note:
@@ -192,6 +252,8 @@ export function submitEvidence(
   );
   if (!pending.every((r) => mine.some((a) => a.eventType === r.eventType)))
     throw new BadRequestException("EVIDENCE_INCOMPLETE");
+  if (mine.some((a) => a.eventType === "INVOICE" && !a.invoice))
+    throw new BadRequestException("INVOICE_DATA_REQUIRED");
   const events = evidenceEvents(ctx, m, true);
   for (const a of mine) attachments.splice(attachments.indexOf(a), 1);
   return outcome(

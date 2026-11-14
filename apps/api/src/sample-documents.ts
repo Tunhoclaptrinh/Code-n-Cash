@@ -18,7 +18,83 @@ import {
   uploadFormOptions,
   validateDraftSigners,
 } from "./domain/drafts";
-import { addDays } from "./domain/templates";
+import {
+  daysBetween,
+  fromCents,
+  scheduleDueDates,
+  shareOf,
+  toCents,
+} from "./domain/templates";
+import type { StageTemplate } from "./domain/records";
+import type { MilestoneEdit } from "./domain/types";
+import { AUTHORITY } from "./domain/vocabulary";
+
+/**
+ * The document's milestone table, from the same data the digitisation uses: the scheduled due
+ * dates, each milestone's amount (the last takes the remainder), every required document with the
+ * side that provides it, the penalty flag and the approval exemption, with a person's corrections
+ * when the saved draft has them. The warranty is written as a relative term, as the digitisation
+ * then asks for its date.
+ */
+const scheduled = (
+  base: StageTemplate[],
+  period: { startDate: string; endDate: string } | null,
+  valueMillion: string | null,
+  edits: MilestoneEdit[] | null,
+) => {
+  const dates = period
+    ? scheduleDueDates(period.startDate, period.endDate, base)
+    : {};
+  let allocated = 0n;
+  return base.map((original, index) => {
+    const edit = edits?.find((row) => row.sequence === original.sequence);
+    const stage = edit
+      ? {
+          ...original,
+          paymentPercent: edit.paymentPercent,
+          eventTypes: edit.eventTypes,
+          latePenalty: edit.latePenalty,
+          approval: edit.approval,
+        }
+      : original;
+    let amountMillion: string | null = null;
+    if (valueMillion) {
+      amountMillion =
+        index === base.length - 1
+          ? fromCents(toCents(valueMillion) - allocated)
+          : shareOf(valueMillion, stage.paymentPercent);
+      allocated += toCents(amountMillion);
+    }
+    const warranty = stage.type.startsWith("WARRANTY");
+    const scheduledDate = dates[stage.sequence];
+    const previousDate = index
+      ? dates[base[index - 1].sequence]
+      : period?.startDate;
+    const relativeTermMonths =
+      warranty && !edit?.dueDate && scheduledDate && previousDate
+        ? Math.max(1, Math.round(daysBetween(previousDate, scheduledDate) / 30))
+        : null;
+    return {
+      type: stage.type,
+      name: stage.name,
+      paymentPercent: stage.paymentPercent,
+      amountMillion,
+      dueDate: edit
+        ? (edit.dueDate ?? "")
+        : relativeTermMonths
+          ? ""
+          : (scheduledDate ?? SAMPLE_PLACEHOLDER),
+      relativeTermMonths,
+      requiredEvents: stage.eventTypes.join(", "),
+      documents: stage.eventTypes.map((eventType) => ({
+        eventType,
+        side: AUTHORITY[eventType],
+      })),
+      latePenalty: stage.latePenalty,
+      approval: stage.approval ?? "CONTRACT",
+    };
+  });
+};
 import type { ContractDraft } from "./domain/types";
 
 export const generateSampleDocx = (input: unknown): Promise<Buffer> =>
@@ -129,7 +205,7 @@ export class SampleDocumentsController {
       // Only complete, valid fields reach the document; the engine never sees unvalidated values.
       const shown = <K extends keyof ContractDraft>(key: K) =>
         partial && problems[key] ? SAMPLE_PLACEHOLDER : draft[key];
-      const validStart = !problems.startDate;
+      const validPeriod = !problems.startDate && !problems.endDate;
       return {
         ...(partial ? { partial } : {}),
         documentBody: draft.documentBody ?? selected?.documentBody ?? "",
@@ -140,6 +216,19 @@ export class SampleDocumentsController {
         supplier: provided(draft.supplierId)
           ? ctx.partyName(draft.supplierId)
           : SAMPLE_PLACEHOLDER,
+        // Legal identity of each party, when the organisation record has it.
+        parties: {
+          BUYER: {
+            taxCode: ctx.organizationTaxCode(ctx.actor.organizationId),
+            address: ctx.organizationAddress(ctx.actor.organizationId),
+          },
+          SUPPLIER: provided(draft.supplierId)
+            ? {
+                taxCode: ctx.organizationTaxCode(String(draft.supplierId)),
+                address: ctx.organizationAddress(String(draft.supplierId)),
+              }
+            : { taxCode: null, address: null },
+        },
         valueMillion: shown("valueMillion"),
         startDate: shown("startDate"),
         endDate: shown("endDate"),
@@ -152,24 +241,30 @@ export class SampleDocumentsController {
           name: String(ctx.user(signer.userId)!.displayName),
         })),
         stages: options.types.includes(draft.type)
-          ? stagesOf(
-              ctx,
-              draft.type,
-              // The draft's own pinned version, or the one a new draft would pin.
-              (ctx.draft(draft.code)?.ruleVersionId as string | undefined) ??
-                (ctx.t["rule-versions"] ?? []).find(
-                  (row) => row.status === "PUBLISHED",
-                )?.id,
-              draft.workflowTemplate,
-            ).map((stage) => ({
-              type: stage.type,
-              name: stage.name,
-              paymentPercent: stage.paymentPercent,
-              dueDate: validStart
-                ? addDays(draft.startDate, stage.offsetDays)
-                : SAMPLE_PLACEHOLDER,
-              requiredEvents: stage.eventTypes.join(", "),
-            }))
+          ? scheduled(
+              stagesOf(
+                ctx,
+                draft.type,
+                // The draft's own pinned version, or the one a new draft would pin.
+                (ctx.draft(draft.code)?.ruleVersionId as string | undefined) ??
+                  (ctx.t["rule-versions"] ?? []).find(
+                    (row) => row.status === "PUBLISHED",
+                  )?.id,
+                draft.workflowTemplate,
+              ),
+              validPeriod ? draft : null,
+              shown("valueMillion") === SAMPLE_PLACEHOLDER
+                ? null
+                : String(draft.valueMillion),
+              // A person's corrections apply while the type and workflow are the saved ones.
+              ctx.draft(draft.code)?.contractType === draft.type &&
+                (ctx.draft(draft.code)?.workflowTemplate ?? "") ===
+                  (draft.workflowTemplate ??
+                    ctx.draft(draft.code)?.workflowTemplate ??
+                    "")
+                ? (ctx.draft(draft.code)?.milestoneEdits?.milestones ?? null)
+                : null,
+            )
           : [],
       };
     });

@@ -341,6 +341,40 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
       actions.castVote(ctx, input(value)),
     ),
   },
+  liquidation: {
+    proposeLiquidation: write(
+      "contracts:liquidate",
+      "proposeLiquidation",
+      (ctx, [value]) => actions.proposeLiquidation(ctx, input(value)),
+    ),
+    decideLiquidation: write(
+      "contracts:liquidate",
+      "decideLiquidation",
+      (ctx, [value]) => actions.decideLiquidation(ctx, input(value)),
+    ),
+    withdrawLiquidation: write(
+      "contracts:liquidate",
+      "withdrawLiquidation",
+      (ctx, [value]) => actions.withdrawLiquidation(ctx, input(value)),
+    ),
+  },
+  amendments: {
+    proposeAmendment: write(
+      "contracts:amend",
+      "proposeAmendment",
+      (ctx, [value]) => actions.proposeAmendment(ctx, input(value)),
+    ),
+    decideAmendment: write(
+      "contracts:amend",
+      "decideAmendment",
+      (ctx, [value]) => actions.decideAmendment(ctx, input(value)),
+    ),
+    withdrawAmendment: write(
+      "contracts:amend",
+      "withdrawAmendment",
+      (ctx, [value]) => actions.withdrawAmendment(ctx, input(value)),
+    ),
+  },
   disputes: {
     getDispute: read("disputes:read", (ctx, [id, sequence], dryRun) =>
       views.disputeView(
@@ -439,6 +473,12 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     ),
     getDigitization: read("contracts:read", (ctx, [code]) =>
       drafts.digitization(ctx, str(code)),
+    ),
+    editDigitizedMilestones: write(
+      "contracts:digitize",
+      "editDigitizedMilestones",
+      (ctx, [code, value]) =>
+        drafts.editMilestones(ctx, str(code), input(value)),
     ),
     confirmDigitization: write(
       "contracts:digitize",

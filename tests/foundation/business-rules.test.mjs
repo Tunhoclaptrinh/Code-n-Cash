@@ -303,6 +303,48 @@ const WRITE_ACTIONS = [
     reaches: "MILESTONE_NOT_FOUND",
   },
   {
+    name: "proposeAmendment",
+    module: "amendments",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", reason: "x" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "decideAmendment",
+    module: "amendments",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", amendmentId: "x", choice: "ACCEPT" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "withdrawAmendment",
+    module: "amendments",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", amendmentId: "x" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "proposeLiquidation",
+    module: "liquidation",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "decideLiquidation",
+    module: "liquidation",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999", choice: "ACCEPT" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
+    name: "withdrawLiquidation",
+    module: "liquidation",
+    allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
+    args: [{ contractId: "CT9999" }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
+  {
     name: "openDispute",
     module: "disputes",
     allowed: ["CONTRACT_OWNER", "LEGAL_REVIEWER", "SUPPLIER"],
@@ -387,6 +429,13 @@ const WRITE_ACTIONS = [
     args: ["CT9999", { dueDate: null }],
     reaches: "CONTRACT_NOT_FOUND",
   },
+  {
+    name: "editDigitizedMilestones",
+    module: "drafts",
+    allowed: BUYER_EDITORS,
+    args: ["CT9999", { reset: true }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
 ];
 
 test("who: only the roles of spec 17 reach each write action; every other role is refused and nothing is stored", async () => {
@@ -399,14 +448,16 @@ test("who: only the roles of spec 17 reach each write action; every other role i
   const registered = [
     ...source.matchAll(/(?:write|sends)\(\s*"[\w:-]+",\s*"(\w+)"/g),
     // Signing writes that go through the remote signing service have their own handlers.
-    ...source.matchAll(/(\w+):\s*(?:sendThroughService|withdrawThroughService\()/g),
+    ...source.matchAll(
+      /(\w+):\s*(?:sendThroughService|withdrawThroughService\()/g,
+    ),
   ].map((match) => match[1]);
   assert.deepEqual(
     registered.filter((name) => name !== "getSigningRequest").sort(),
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 18);
+  assert.equal(WRITE_ACTIONS.length, 25);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -672,6 +723,32 @@ const file = (extra) => ({
   ...extra,
 });
 
+/** A valid invoice for a milestone: its planned total, issued on the signing date, a fresh number. */
+let invoiceNumber = 0;
+const invoiceOf = (w, ref) => invoiceIn(w.tbl, ref);
+/** The same from a domain context's tables, for the sweeps that call actions directly. */
+const ctxInvoice = (ctx, ref, type) =>
+  type === "INVOICE" ? { invoice: invoiceIn((name) => ctx.t[name], ref) } : {};
+const invoiceIn = (tbl, ref) => {
+  const m = tbl("milestones").find(
+    (row) =>
+      row.contract_id === ref.contractId &&
+      Number(row.milestone_sequence) === Number(ref.sequence),
+  );
+  const contract = tbl("contracts").find(
+    (row) => row.contract_id === ref.contractId,
+  );
+  const issueDate = contract?.signing_date || "2026-01-15";
+  invoiceNumber += 1;
+  return {
+    symbol: `1C${issueDate.slice(2, 4)}TAA`,
+    number: String(invoiceNumber),
+    issueDate,
+    sellerTaxCode: "0109876543",
+    amountMillion: m?.planned_payment_vnd_mn ?? "1.00",
+  };
+};
+
 /* ------------------------------ 3. evidence: attach / remove / submit ------------------------------ */
 
 // Spec 4.2: which side may create each required event. Written from the spec table, not from the code.
@@ -725,6 +802,7 @@ test("evidence: each of the 11 required event types can be attached only by the 
     const { id } = await ok(w, right, "evidence", "attachEvidenceFile", {
       ...ref,
       ...file({ eventType }),
+      ...(eventType === "INVOICE" ? { invoice: invoiceOf(w, ref) } : {}),
     });
     const row = w.tbl("attachments").find((a) => a.id === id);
     assert.equal(row.side, side);
@@ -801,6 +879,7 @@ test("evidence: the same document type cannot be attached twice (duplicates are 
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...ref,
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, ref),
   });
   await denied(
     w,
@@ -950,6 +1029,7 @@ test("evidence: ids, organisation, side and actor sent in the request are ignore
   const { id } = await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, w.ref("CT0104", 2)),
     id: "ATT-HACKED",
     side: "BUYER",
     organizationId: "B001",
@@ -1139,6 +1219,7 @@ test("evidence: submit needs every missing type of the actor's own side and reco
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...ref,
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, ref),
   });
   const result = await ok(w, U.SUPPLIER, "evidence", "submitEvidence", ref);
   assert.equal(result.eventIds.length, 2);
@@ -1183,6 +1264,7 @@ test("evidence: a type that is already valid is not recorded again, so a re-sent
   await ok(w, supplier, "evidence", "attachEvidenceFile", {
     ...ref,
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, ref),
   });
   const result = await ok(w, supplier, "evidence", "submitEvidence", ref);
   assert.equal(result.eventIds.length, 1);
@@ -1196,6 +1278,433 @@ test("evidence: a type that is already valid is not recorded again, so a re-sent
     before,
   );
   assert.equal(w.tbl("attachments").length, 0);
+});
+
+test("evidence: an invoice states its own data, matches the milestone and backs one event only (Thông tư 78/2021)", async () => {
+  const w = await world();
+  const ref = w.ref("CT0104", 2); // the supplier owes SERVICE_COMPLETED and INVOICE
+  const good = invoiceOf(w, ref);
+  const attach = (invoice, at = ref, user = U.SUPPLIER) =>
+    w.call(user, "evidence", "attachEvidenceFile", {
+      ...at,
+      ...file({ eventType: "INVOICE" }),
+      ...(invoice === undefined ? {} : { invoice }),
+    });
+  const refused = async (invoice, code, at, user) =>
+    assert.rejects(attach(invoice, at, user), new RegExp(code));
+  await refused(undefined, "INVOICE_DATA_REQUIRED");
+  await refused({ ...good, symbol: "XYZ" }, "INVOICE_SYMBOL_INVALID");
+  await refused({ ...good, number: "000" }, "INVOICE_NUMBER_INVALID");
+  await refused({ ...good, number: "123456789" }, "INVOICE_NUMBER_INVALID");
+  await refused({ ...good, symbol: "1C19TAA" }, "INVOICE_YEAR_MISMATCH");
+  await refused(
+    { ...good, sellerTaxCode: "12345" },
+    "INVOICE_TAX_CODE_INVALID",
+  );
+  await refused({ ...good, amountMillion: 516 }, "INVOICE_AMOUNT_INVALID");
+  // The seller is the contract's supplier, whose tax code is on record (Phú Minh: 0109876543).
+  await refused(
+    { ...good, sellerTaxCode: "0100000000" },
+    "INVOICE_SELLER_MISMATCH",
+  );
+  // The total is the milestone's planned payment, exactly (a penalty is deducted from the payment).
+  const planned = w.milestone("CT0104", 2).planned_payment_vnd_mn;
+  const centLess = (value) => {
+    const cents = BigInt(value.replace(".", "")) - 1n;
+    return `${cents / 100n}.${String(cents % 100n).padStart(2, "0")}`;
+  };
+  await refused(
+    { ...good, amountMillion: centLess(planned) },
+    "INVOICE_AMOUNT_MISMATCH",
+  );
+  const signed = w
+    .tbl("contracts")
+    .find((c) => c.contract_id === "CT0104").signing_date;
+  const dayBefore = new Date(Date.parse(signed) - 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  await refused(
+    { ...good, issueDate: dayBefore, symbol: `1C${dayBefore.slice(2, 4)}TAA` },
+    "INVOICE_BEFORE_SIGNING",
+  );
+  await refused(
+    { ...good, issueDate: "2099-01-01", symbol: "1C99TAA" },
+    "INVOICE_DATE_FUTURE",
+  );
+  await attach({ ...good, amountMillion: planned.replace(/\.00$/, "") });
+  await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
+    ...ref,
+    ...file({ eventType: "SERVICE_COMPLETED" }),
+  });
+  const result = await ok(w, U.SUPPLIER, "evidence", "submitEvidence", ref);
+  const event = w
+    .tbl("events")
+    .find(
+      (e) => result.eventIds.includes(e.event_id) && e.event_type === "INVOICE",
+    );
+  assert.deepEqual(event.invoice, {
+    ...good,
+    number: good.number.padStart(8, "0"),
+    amountMillion: planned,
+  });
+  assert.equal(event.amount_vnd_mn, planned);
+  // The same invoice (seller, symbol, number) cannot back another milestone, even another contract's.
+  const other = w.ref("CT0025", 2);
+  await refused(
+    { ...invoiceOf(w, other), symbol: good.symbol, number: good.number },
+    "INVOICE_DUPLICATE",
+    other,
+    supplierOf(w, "CT0025"),
+  );
+});
+
+test("amendment: the buyer proposes a new schedule, the supplier agrees, the engine re-evaluates and the signed terms still verify", async () => {
+  const w = await world();
+  const code = "CT0104"; // demo maintenance contract: #1 paid, #2 overdue, #3 open
+  const propose = (user, body) =>
+    w.call(user, "amendments", "proposeAmendment", {
+      contractId: code,
+      ...body,
+    });
+  const decide = (user, body) =>
+    w.call(user, "amendments", "decideAmendment", {
+      contractId: code,
+      ...body,
+    });
+  const due = (n) => w.milestone(code, n).due_date;
+  const [first, second, third] = [due(1), due(2), due(3)];
+  const end = w.tbl("contracts").find((c) => c.contract_id === code).end_date;
+  const later = (date, days) =>
+    new Date(Date.parse(date) + days * 86_400_000).toISOString().slice(0, 10);
+  const lateBefore = w.evaluation(w.milestone(code, 2).milestone_id);
+
+  // The organiser's contracts are sealed as given.
+  await expectCode(
+    w.call(ownerOf(w, "CT0001"), "amendments", "proposeAmendment", {
+      contractId: "CT0001",
+      reason: "x",
+      endDate: "2030-01-01",
+    }),
+    "DATA_PACK_LOCKED",
+  );
+  await expectCode(
+    propose(U.SUPPLIER, { reason: "x", endDate: later(end, 30) }),
+    "CANNOT_AMEND",
+  );
+  await expectCode(
+    propose(U.LEGAL, { reason: "", endDate: later(end, 30) }),
+    "NOTE_REQUIRED",
+  );
+  await expectCode(propose(U.LEGAL, { reason: "x" }), "AMENDMENT_EMPTY");
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 2, dueDate: second }],
+    }),
+    "AMENDMENT_EMPTY",
+  );
+  // A paid milestone keeps its date; dates stay in order inside the period in force.
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 1, dueDate: later(first, 1) }],
+    }),
+    "MILESTONE_CLOSED",
+  );
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 2, dueDate: later(third, 1) }],
+    }),
+    "DUE_DATE_OUT_OF_RANGE",
+  );
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      dueDates: [{ sequence: 3, dueDate: later(end, 1) }],
+    }),
+    "DUE_DATE_OUT_OF_RANGE",
+  );
+  await expectCode(
+    propose(U.LEGAL, {
+      reason: "x",
+      endDate: w.tbl("contracts").find((c) => c.contract_id === code)
+        .start_date,
+    }),
+    "INVALID_DATES",
+  );
+
+  // PL-01: service completion moves 40 days later.
+  const moved = later(second, 40) < third ? later(second, 40) : third;
+  const pl1 = await ok(w, U.LEGAL, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Hạ tầng của bên mua chậm bàn giao",
+    dueDates: [{ sequence: 2, dueDate: moved }],
+  });
+  assert.equal(pl1.state, "PROPOSED");
+  assert.deepEqual(
+    pl1.dueDates.map((d) => [d.sequence, d.from, d.to]),
+    [[2, second, moved]],
+  );
+  assert.equal(due(2), second, "nothing changes before the supplier agrees");
+  await expectCode(
+    propose(U.OWNER, { reason: "y", endDate: later(end, 5) }),
+    "AMENDMENT_PENDING",
+  );
+  await expectCode(
+    decide(U.LEGAL, { amendmentId: pl1.id, choice: "ACCEPT" }),
+    "CANNOT_DECIDE_AMENDMENT",
+  );
+  const supplierTasks = await w.call(U.SUPPLIER, "tasks", "getTaskInbox");
+  assert.ok(
+    supplierTasks.some(
+      (t) => t.kind === "REVIEW_AMENDMENT" && t.contractId === code,
+    ),
+  );
+  await expectCode(
+    decide(U.SUPPLIER, { amendmentId: pl1.id, choice: "REJECT" }),
+    "NOTE_REQUIRED",
+  );
+  const accepted = await ok(w, U.SUPPLIER, "amendments", "decideAmendment", {
+    contractId: code,
+    amendmentId: pl1.id,
+    choice: "ACCEPT",
+  });
+  assert.equal(accepted.state, "ACCEPTED");
+  assert.equal(due(2), moved);
+  assert.ok(
+    w.evaluation(w.milestone(code, 2).milestone_id).runId !== lateBefore.runId,
+    "the engine evaluated the new schedule",
+  );
+  await expectCode(
+    decide(U.SUPPLIER, { amendmentId: pl1.id, choice: "ACCEPT" }),
+    "AMENDMENT_CLOSED",
+  );
+
+  // PL-02: a later end date; the signed end date stays in the signed terms.
+  const pl2 = await ok(w, U.OWNER, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Gia hạn để nghiệm thu",
+    endDate: later(end, 60),
+    dueDates: [{ sequence: 3, dueDate: later(end, 45) }],
+  });
+  await ok(w, U.SUPPLIER, "amendments", "decideAmendment", {
+    contractId: code,
+    amendmentId: pl2.id,
+    choice: "ACCEPT",
+    note: "Đồng ý",
+  });
+  const overview = await w.call(
+    U.OWNER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  assert.equal(overview.contract.endDate, later(end, 60));
+  assert.equal(overview.contract.signedEndDate, end);
+  assert.equal(
+    w.tbl("contracts").find((c) => c.contract_id === code).end_date,
+    end,
+  );
+  assert.deepEqual(
+    overview.amendments.map((a) => [a.number, a.state]),
+    [
+      [2, "ACCEPTED"],
+      [1, "ACCEPTED"],
+    ],
+  );
+  assert.match(overview.amendments[0].digest, /^[a-f0-9]{64}$/);
+  const smart = await w.call(U.OWNER, "contracts", "getSmartContract", code);
+  assert.equal(smart.binding.intact, true, "the signatures still verify");
+
+  // PL-03 withdrawn by the buyer; a rejection needs a reason and changes nothing.
+  const pl3 = await ok(w, U.LEGAL, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Thử",
+    endDate: later(end, 90),
+  });
+  await ok(w, U.LEGAL, "amendments", "withdrawAmendment", {
+    contractId: code,
+    amendmentId: pl3.id,
+  });
+  const pl4 = await ok(w, U.LEGAL, "amendments", "proposeAmendment", {
+    contractId: code,
+    reason: "Thử lần nữa",
+    endDate: later(end, 90),
+  });
+  await ok(w, U.SUPPLIER, "amendments", "decideAmendment", {
+    contractId: code,
+    amendmentId: pl4.id,
+    choice: "REJECT",
+    note: "Không đồng ý",
+  });
+  const after = await w.call(
+    U.SUPPLIER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  assert.equal(after.contract.endDate, later(end, 60));
+  assert.deepEqual(
+    after.amendments.map((a) => a.state),
+    ["REJECTED", "WITHDRAWN", "ACCEPTED", "ACCEPTED"],
+  );
+  assert.ok(
+    w.tbl("audit").filter((e) => e.detail?.kind === "AMENDMENT").length >= 7,
+    "every step is in the audit chain",
+  );
+});
+
+test("liquidation: once every milestone is settled the buyer proposes the record, the supplier confirms and the contract is closed for good", async () => {
+  const w = await world();
+  const code = "CT0104";
+  const liquidation = (user, action, body = {}) =>
+    w.call(user, "liquidation", action, { contractId: code, ...body });
+  await expectCode(
+    liquidation(U.LEGAL, "proposeLiquidation"),
+    "MILESTONES_OPEN",
+  );
+  await expectCode(
+    w.call(ownerOf(w, "CT0001"), "liquidation", "proposeLiquidation", {
+      contractId: "CT0001",
+    }),
+    "DATA_PACK_LOCKED",
+  );
+  // Settle every milestone: payable ones are transferred, the others rejected.
+  for (let n = 1; n <= 3; n++) {
+    const status = w.evaluation(w.milestone(code, n).milestone_id).status;
+    if (["ELIGIBLE_FOR_PAYMENT", "PAID_WITH_PENALTY"].includes(status))
+      await ok(
+        w,
+        U.FINANCE,
+        "payments",
+        "transferToAccounting",
+        w.ref(code, n),
+      );
+    else if (!["COMPLETED", "REJECTED"].includes(status))
+      await ok(w, U.OWNER, "approvals", "castVote", {
+        ...w.ref(code, n),
+        choice: "REJECT",
+        note: "Không đạt yêu cầu",
+      });
+  }
+  const settled = await w.call(
+    U.OWNER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  const statuses = settled.milestones.map((m) => m.status);
+  assert.ok(
+    statuses.every((s) => ["COMPLETED", "REJECTED"].includes(s)),
+    statuses.join(),
+  );
+  assert.equal(settled.contract.status, "CLOSED");
+  assert.ok(settled.canProposeLiquidation);
+  assert.deepEqual(
+    settled.notices.find((n) => n.code === "SETTLED"),
+    { code: "SETTLED", liquidable: true },
+  );
+  assert.equal(settled.lifecycle.stages.at(-1).liquidation, true);
+  // An organiser's contract simply completes with its last milestone: no liquidation step.
+  const organiser = await w.call(
+    ownerOf(w, "CT0001"),
+    "contracts",
+    "getContractOverview",
+    "CT0001",
+  );
+  assert.equal(organiser.lifecycle.stages.at(-1).liquidation, false);
+  assert.equal(organiser.canProposeLiquidation, false);
+  const legalTasks = await w.call(U.LEGAL, "tasks", "getTaskInbox");
+  assert.ok(
+    legalTasks.some(
+      (t) => t.kind === "LIQUIDATE_CONTRACT" && t.contractId === code,
+    ),
+  );
+  await expectCode(
+    liquidation(U.SUPPLIER, "proposeLiquidation"),
+    "CANNOT_LIQUIDATE",
+  );
+  const proposed = await ok(w, U.LEGAL, "liquidation", "proposeLiquidation", {
+    contractId: code,
+    note: "Đã hoàn tất nghĩa vụ",
+  });
+  assert.equal(proposed.state, "PROPOSED");
+  assert.equal(proposed.totals.valueMillion, "960.00");
+  assert.match(proposed.digest, /^[a-f0-9]{64}$/);
+  await expectCode(
+    liquidation(U.OWNER, "proposeLiquidation"),
+    "LIQUIDATION_PENDING",
+  );
+  await expectCode(
+    liquidation(U.LEGAL, "decideLiquidation", { choice: "ACCEPT" }),
+    "CANNOT_DECIDE_LIQUIDATION",
+  );
+  const supplierTasks = await w.call(U.SUPPLIER, "tasks", "getTaskInbox");
+  assert.ok(
+    supplierTasks.some(
+      (t) => t.kind === "REVIEW_LIQUIDATION" && t.contractId === code,
+    ),
+  );
+  await expectCode(
+    liquidation(U.SUPPLIER, "decideLiquidation", { choice: "REJECT" }),
+    "NOTE_REQUIRED",
+  );
+  await ok(w, U.SUPPLIER, "liquidation", "decideLiquidation", {
+    contractId: code,
+    choice: "REJECT",
+    note: "Số liệu chưa khớp",
+  });
+  await ok(w, U.LEGAL, "liquidation", "proposeLiquidation", {
+    contractId: code,
+  });
+  await ok(w, U.LEGAL, "liquidation", "withdrawLiquidation", {
+    contractId: code,
+  });
+  await ok(w, U.LEGAL, "liquidation", "proposeLiquidation", {
+    contractId: code,
+  });
+  await ok(w, U.SUPPLIER, "liquidation", "decideLiquidation", {
+    contractId: code,
+    choice: "ACCEPT",
+  });
+  const overview = await w.call(
+    U.OWNER,
+    "contracts",
+    "getContractOverview",
+    code,
+  );
+  assert.equal(overview.contract.status, "LIQUIDATED");
+  assert.equal(overview.liquidation.state, "ACCEPTED");
+  assert.deepEqual(
+    overview.notices.map((n) => n.code),
+    ["LIQUIDATED"],
+  );
+  assert.equal(overview.lifecycle.stages.at(-1).state, "DONE");
+  assert.equal(overview.canProposeAmendment, false);
+  // Closed for good: nothing more is recorded.
+  await expectCode(
+    liquidation(U.LEGAL, "proposeLiquidation"),
+    "CONTRACT_CLOSED",
+  );
+  await expectCode(
+    w.call(U.LEGAL, "amendments", "proposeAmendment", {
+      contractId: code,
+      reason: "x",
+      endDate: "2030-01-01",
+    }),
+    "CONTRACT_CLOSED",
+  );
+  await expectCode(
+    w.call(U.SUPPLIER, "disputes", "openDispute", {
+      ...w.ref(code, 2),
+      note: "x",
+    }),
+    "CONTRACT_CLOSED",
+  );
+  assert.ok(
+    w.tbl("audit").filter((e) => e.detail?.kind === "LIQUIDATION").length >= 6,
+  );
 });
 
 test("evidence: a replacement for an unauthorised event does not lift the hold by itself (BR-07)", async () => {
@@ -3244,6 +3753,9 @@ test("draft: terms are validated exactly (no floats for money, bounded penalty, 
     // Luật Thương mại 2005, Điều 301: a commercial penalty may not exceed 8%.
     [{ maxPenaltyPct: "8.01" }, "PENALTY_OVER_LEGAL_CAP"],
     [{ maxPenaltyPct: "12.00" }, "PENALTY_OVER_LEGAL_CAP"],
+    // A rate without a cap, or a cap without a rate, is a penalty that can never apply.
+    [{ maxPenaltyPct: "0.00" }, "PENALTY_INCONSISTENT"],
+    [{ penaltyRatePct: "0" }, "PENALTY_INCONSISTENT"],
     [{ type: "LEASE" }, "INVALID_TYPE"],
     [{ approvalPolicy: "NO_APPROVAL" }, "INVALID_POLICY"],
     [{ supplierId: "B010" }, "INVALID_SUPPLIER"], // a buyer is not a supplier
@@ -3707,6 +4219,7 @@ function flagMismatches() {
               eventType: fresh[0],
               fileName: "x.pdf",
               sha256: EVIDENCE,
+              ...ctxInvoice(ctx, ref, fresh[0]),
             }),
           ) === "OK"
         : missingMine.length > 0 && offered.submit;
@@ -3850,6 +4363,7 @@ test("sweep: no action records anything on a paid or rejected milestone, an unsi
           eventType: type,
           fileName: "x.pdf",
           sha256: EVIDENCE,
+          ...ctxInvoice(ctx, ref, type),
         }),
     };
     const results = Object.fromEntries(
@@ -3937,6 +4451,7 @@ test("sweep: on every milestone each party may do exactly what the specification
             eventType: type,
             fileName: "x.pdf",
             sha256: EVIDENCE,
+            ...ctxInvoice(ctx, ref, type),
           }),
         ),
       );
@@ -4725,6 +5240,7 @@ test("audit: every successful write is sealed in the chain under the signed-in a
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, w.ref("CT0104", 2)),
     ...claims,
   });
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
@@ -5010,7 +5526,7 @@ test("document: an app-made contract needs a reviewed extraction and matching si
     U.LEGAL,
     "drafts",
     "confirmDigitization",
-    [code, { dueDate: "2027-12-31" }],
+    [code, { dueDate: saved.endDate }],
     "EXTRACTION_REVIEW_REQUIRED",
   );
   const extractor = new ExtractionService(w.repo, w.domain);
@@ -5072,7 +5588,7 @@ test("document: an app-made contract needs a reviewed extraction and matching si
     version: config.layoutVersion,
   });
   await ok(w, U.LEGAL, "drafts", "confirmDigitization", code, {
-    dueDate: "2027-12-31",
+    dueDate: saved.endDate,
   });
   // Replacing the file after a request was sent cancels the signature: the digest no longer matches.
   const path = join(w.dir, "uploads", documentId);
@@ -5200,6 +5716,7 @@ test("repetition: the same action sent twice at once (a double click) takes effe
   await ok(w, U.SUPPLIER, "evidence", "attachEvidenceFile", {
     ...w.ref("CT0104", 2),
     ...file({ eventType: "INVOICE" }),
+    invoice: invoiceOf(w, w.ref("CT0104", 2)),
   });
   await both(
     U.SUPPLIER,

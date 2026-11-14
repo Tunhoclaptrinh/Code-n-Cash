@@ -91,7 +91,8 @@ try {
   };
   async function until(expression) {
     for (let i = 0; i < 150; i++) {
-      if (await evaluate(expression)) return;
+      // A page that is still navigating has no body yet; that is "not yet", not a failure.
+      if (await evaluate(expression).catch(() => false)) return;
       await pause(100);
     }
     throw new Error(

@@ -31,7 +31,9 @@ export function ContractLifecycleSteps({
   const title = (stage: LifecycleStage) =>
     stage.kind === "MILESTONE"
       ? td("milestoneNo", { no: stage.sequence })
-      : t(`detail.lifecycle.${stage.kind}`);
+      : stage.kind === "CLOSED" && !stage.liquidation
+        ? t("detail.lifecycle.COMPLETED")
+        : t(`detail.lifecycle.${stage.kind}`);
   const detail = (stage: LifecycleStage) => {
     const at = stage.at ? formatDate(stage.at) : null;
     switch (stage.kind) {

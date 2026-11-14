@@ -38,6 +38,16 @@ export function describeAction(
       return t("actions.DIGITIZATION_CONFIRMED", {
         count: action.milestoneCount,
       });
+    case "DIGITIZATION_EDITED":
+      return t("actions.DIGITIZATION_EDITED", {
+        count: action.milestoneCount,
+      });
+    case "LIQUIDATION":
+      return t(`actions.LIQUIDATION_${action.state}`);
+    case "AMENDMENT":
+      return t(`actions.AMENDMENT_${action.state}`, {
+        number: String(action.number).padStart(2, "0"),
+      });
     case "EXCEPTION":
       return t(`actions.EXCEPTION_${action.state}`, { id: action.eventId });
     case "PAYMENT":

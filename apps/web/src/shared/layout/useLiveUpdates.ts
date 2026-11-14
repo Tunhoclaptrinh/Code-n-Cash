@@ -7,6 +7,16 @@ export type LiveStatus = "connecting" | "live" | "offline";
 /** Waits before reconnecting: 1 s, doubling to at most 30 s. */
 const backoff = (attempt: number) => Math.min(30_000, 1000 * 2 ** attempt);
 
+/** Changes arriving together (one action writes several collections) refresh the screens once. */
+const COALESCE_MS = 300;
+
+/**
+ * Screens re-read on a change, except the signing device: it hears the signing service's own
+ * stream, and re-reading its session would issue a new device token and reopen that stream.
+ */
+export const refreshedByLiveUpdates = (queryKey: readonly unknown[]) =>
+  queryKey[0] !== "signing-device";
+
 /**
  * Keeps one change stream open while the user is signed in and the tab is visible. When another
  * person's write lands, the open screens re-read their data at once (the regular polling stays as
@@ -25,6 +35,17 @@ export function useLiveUpdates(userId: string): LiveStatus {
     let attempt = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let stopped = false;
+    let pending: ReturnType<typeof setTimeout> | undefined;
+    const refreshScreens = () => {
+      if (pending) return;
+      pending = setTimeout(() => {
+        pending = undefined;
+        void cache.invalidateQueries({
+          type: "active",
+          predicate: (query) => refreshedByLiveUpdates(query.queryKey),
+        });
+      }, COALESCE_MS);
+    };
 
     const close = () => {
       controller?.abort();
@@ -47,7 +68,7 @@ export function useLiveUpdates(userId: string): LiveStatus {
               void cache.invalidateQueries({
                 queryKey: ["notification-cursor", userId],
               });
-            else void cache.invalidateQueries({ type: "active" });
+            else refreshScreens();
           },
           () => {
             attempt = 0;
@@ -73,7 +94,7 @@ export function useLiveUpdates(userId: string): LiveStatus {
       } else {
         attempt = 0;
         // Whatever changed while the tab was hidden is read once, then the stream takes over.
-        void cache.invalidateQueries({ type: "active" });
+        refreshScreens();
         void connect();
       }
     };
@@ -86,6 +107,7 @@ export function useLiveUpdates(userId: string): LiveStatus {
       stopped = true;
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", onPageHide);
+      if (pending) clearTimeout(pending);
       close();
     };
   }, [cache, userId]);

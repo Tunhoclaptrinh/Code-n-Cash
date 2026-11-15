@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "monochrome",
+  "description": "Local print-oriented profile: white fills, near-black ink; notation is carried by rings, markers and lines, not color.",
+  "source": "https://www.omg.org/spec/BPMN/2.0.2/PDF",
+  "fills": {
+    "start": "#ffffff",
+    "end": "#ffffff",
+    "intermediate": "#ffffff",
+    "gateway": "#ffffff",
+    "activity": "#ffffff",
+    "frame": "#ffffff",
+    "header": "#ffffff",
+    "body": "#ffffff"
+  },
+  "stroke": "#111111",
+  "text": "#111111",
+  "label_background": "#ffffff",
+  "min_text_contrast": 4.5,
+  "apply_ink": true
+}

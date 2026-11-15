@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "tool-convention",
+  "description": "Compatibility profile from earlier releases: same fills as bizagi-inspired without forcing ink colors; local choice, not official Bizagi colors or an OMG requirement.",
+  "source": "https://help.bizagi.com/platform/en/events.htm",
+  "fills": {
+    "start": "#bbf7d0",
+    "end": "#fecaca",
+    "intermediate": "#fde68a",
+    "gateway": "#fef08a",
+    "activity": "#dbeafe",
+    "frame": "#eff6ff",
+    "header": "#e2e8f0",
+    "body": "#ffffff"
+  },
+  "stroke": "#334155",
+  "text": "#172b42",
+  "label_background": "#ffffff",
+  "min_text_contrast": 4.5,
+  "apply_ink": false
+}

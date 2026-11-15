@@ -12,3 +12,5 @@ __pycache__/
 artifacts/
 playwright-report/
 test-results/
+.data-test/
+.data-test-trust/

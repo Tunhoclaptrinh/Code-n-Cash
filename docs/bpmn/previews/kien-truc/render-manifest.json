@@ -1,0 +1,22 @@
+{
+  "source": "D:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\bpmn\\kien-truc-he-thong.drawio",
+  "sourceSha256": "06212bcf686596ef839bc64af62e29ea8a6960266ad0b52afe51a7c6f8c0fc65",
+  "tool": {
+    "version": "1.0.0-rc.2",
+    "sha256": "65a454d20299ddccadb13b57146f1e2a5bed745d4eb672696e5ba529b319766c",
+    "files": 17
+  },
+  "drawioCommit": "17b367b91dbab91804f852645788d7ffb46dcb79",
+  "viewerSha256": "15777571ef7c042b2a4a6c6d29052f416fbaaaae5dcf868521c4a3a75f2147d8",
+  "textMode": "preserve",
+  "pages": [
+    {
+      "index": 1,
+      "id": "kien-truc",
+      "name": "Kiến trúc hệ thống (C4 container)",
+      "stem": "01-kien-truc-he-thong-c4-container",
+      "svg": "01-kien-truc-he-thong-c4-container.svg",
+      "png": "01-kien-truc-he-thong-c4-container.png"
+    }
+  ]
+}

@@ -1,0 +1,439 @@
+{
+  "sourceSha256": "06212bcf686596ef839bc64af62e29ea8a6960266ad0b52afe51a7c6f8c0fc65",
+  "cells": 23,
+  "bounds": {
+    "x": 29.5,
+    "y": 29.5,
+    "width": 1760.5,
+    "height": 901
+  },
+  "missingShapes": [],
+  "vertices": [
+    {
+      "id": "B",
+      "x": 330,
+      "y": 30,
+      "width": 1000,
+      "height": 900
+    },
+    {
+      "id": "U",
+      "x": 30,
+      "y": 40,
+      "width": 230,
+      "height": 300
+    },
+    {
+      "id": "DP",
+      "x": 30,
+      "y": 640,
+      "width": 230,
+      "height": 180
+    },
+    {
+      "id": "W",
+      "x": 380,
+      "y": 60,
+      "width": 330,
+      "height": 170
+    },
+    {
+      "id": "A",
+      "x": 380,
+      "y": 330,
+      "width": 360,
+      "height": 220
+    },
+    {
+      "id": "E",
+      "x": 960,
+      "y": 330,
+      "width": 330,
+      "height": 190
+    },
+    {
+      "id": "D",
+      "x": 380,
+      "y": 650,
+      "width": 330,
+      "height": 180
+    },
+    {
+      "id": "F",
+      "x": 960,
+      "y": 650,
+      "width": 330,
+      "height": 180
+    },
+    {
+      "id": "G",
+      "x": 1440,
+      "y": 60,
+      "width": 330,
+      "height": 170
+    },
+    {
+      "id": "S",
+      "x": 1440,
+      "y": 330,
+      "width": 330,
+      "height": 170
+    },
+    {
+      "id": "K",
+      "x": 1440,
+      "y": 590,
+      "width": 330,
+      "height": 170
+    },
+    {
+      "id": "LG",
+      "x": 1380,
+      "y": 800,
+      "width": 410,
+      "height": 130
+    }
+  ],
+  "edges": [
+    {
+      "id": "r1",
+      "points": [
+        {
+          "x": 260,
+          "y": 145
+        },
+        {
+          "x": 380,
+          "y": 145.00000000000003
+        }
+      ]
+    },
+    {
+      "id": "r2",
+      "points": [
+        {
+          "x": 545,
+          "y": 230
+        },
+        {
+          "x": 545,
+          "y": 330
+        }
+      ]
+    },
+    {
+      "id": "r3",
+      "points": [
+        {
+          "x": 740,
+          "y": 425
+        },
+        {
+          "x": 960,
+          "y": 425
+        }
+      ]
+    },
+    {
+      "id": "r4",
+      "points": [
+        {
+          "x": 545,
+          "y": 550
+        },
+        {
+          "x": 545,
+          "y": 650
+        }
+      ]
+    },
+    {
+      "id": "r5",
+      "points": [
+        {
+          "x": 720,
+          "y": 550
+        },
+        {
+          "x": 720,
+          "y": 600
+        },
+        {
+          "x": 1125,
+          "y": 600
+        },
+        {
+          "x": 1125,
+          "y": 650
+        }
+      ]
+    },
+    {
+      "id": "r6",
+      "points": [
+        {
+          "x": 734.9999999999999,
+          "y": 330
+        },
+        {
+          "x": 735,
+          "y": 145
+        },
+        {
+          "x": 1440,
+          "y": 145.00000000000003
+        }
+      ]
+    },
+    {
+      "id": "r7",
+      "points": [
+        {
+          "x": 740,
+          "y": 350
+        },
+        {
+          "x": 760,
+          "y": 350
+        },
+        {
+          "x": 760,
+          "y": 290
+        },
+        {
+          "x": 1380,
+          "y": 290
+        },
+        {
+          "x": 1380,
+          "y": 381
+        },
+        {
+          "x": 1440,
+          "y": 381
+        }
+      ]
+    },
+    {
+      "id": "r8",
+      "points": [
+        {
+          "x": 740,
+          "y": 535
+        },
+        {
+          "x": 1400,
+          "y": 535
+        },
+        {
+          "x": 1400,
+          "y": 675
+        },
+        {
+          "x": 1440,
+          "y": 675
+        }
+      ]
+    },
+    {
+      "id": "r9",
+      "points": [
+        {
+          "x": 380,
+          "y": 520
+        },
+        {
+          "x": 145,
+          "y": 520
+        },
+        {
+          "x": 145,
+          "y": 640
+        }
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": "B",
+      "text": "<b style=\"font-size:18px\">CodeCash</b>",
+      "x": 342,
+      "y": 895,
+      "width": 89,
+      "height": 22
+    },
+    {
+      "id": "U",
+      "text": "<b style=\"font-size:22px\">Người dùng</b><br><br><span style=\"font-size:16px\">Bên mua (chủ hợp đồng, cán bộ hợp đồng, người phê duyệt), nhà cung cấp, kiểm soát viên, quản trị hệ thống, kiểm toán</span>",
+      "x": 31,
+      "y": 205,
+      "width": 228,
+      "height": 118
+    },
+    {
+      "id": "DP",
+      "text": "<b style=\"font-size:22px\">Data Pack BTC</b><br><br><span style=\"font-size:16px\">Tệp CSV: 100 hợp đồng, 405 mốc, 1.134 sự kiện, 128 luật</span>",
+      "x": 43,
+      "y": 681,
+      "width": 204,
+      "height": 98
+    },
+    {
+      "id": "W",
+      "text": "<b style=\"font-size:22px\">Ứng dụng web</b><br><br><span style=\"font-size:16px\">Màn hình theo vai trò; chỉ hiển thị và gửi thao tác, không ra quyết định</span>",
+      "x": 393,
+      "y": 105.5,
+      "width": 304,
+      "height": 79
+    },
+    {
+      "id": "A",
+      "text": "<b style=\"font-size:22px\">Máy chủ nghiệp vụ (API)</b><br><br><span style=\"font-size:16px\">Xác thực, phân quyền theo tổ chức; thao tác nghiệp vụ có kiểm quyền; ký theo trình tự; đọc PDF/DOCX; nhật ký chuỗi băm, neo đầu chuỗi</span>",
+      "x": 393,
+      "y": 391,
+      "width": 334,
+      "height": 98
+    },
+    {
+      "id": "E",
+      "text": "<b style=\"font-size:22px\">Bộ máy quyết định (engine)</b><br><br><span style=\"font-size:16px\">Lọc bằng chứng; kiểm phê duyệt, tranh chấp, thời hạn; chọn luật đầu tiên khớp; tính tiền bằng Decimal</span>",
+      "x": 973,
+      "y": 376,
+      "width": 304,
+      "height": 98
+    },
+    {
+      "id": "D",
+      "text": "<b style=\"font-size:22px\">Cơ sở dữ liệu</b><br><br><span style=\"font-size:16px\">Hợp đồng, sự kiện, quyết định, phiên bản luật, nhật ký audit</span>",
+      "x": 393,
+      "y": 713,
+      "width": 304,
+      "height": 79
+    },
+    {
+      "id": "F",
+      "text": "<b style=\"font-size:22px\">Kho tệp</b><br><br><span style=\"font-size:16px\">Tệp hợp đồng, khoá ký cục bộ, biên nhận neo audit</span>",
+      "x": 973,
+      "y": 713,
+      "width": 304,
+      "height": 79
+    },
+    {
+      "id": "G",
+      "text": "<b style=\"font-size:22px\">Dịch vụ AI</b><br><br><span style=\"font-size:16px\">Tuỳ chọn. Đọc hợp đồng, gợi ý điều khoản kèm trang nguồn; người dùng xác nhận</span>",
+      "x": 1453,
+      "y": 105.5,
+      "width": 304,
+      "height": 79
+    },
+    {
+      "id": "S",
+      "text": "<b style=\"font-size:22px\">Dịch vụ ký số</b><br><br><span style=\"font-size:16px\">Tuỳ chọn. Ký mã băm tài liệu; bản demo ký cục bộ trong máy chủ</span>",
+      "x": 1453,
+      "y": 375.5,
+      "width": 304,
+      "height": 79
+    },
+    {
+      "id": "K",
+      "text": "<b style=\"font-size:22px\">Kế toán</b><br><br><span style=\"font-size:16px\">Chưa tích hợp. Nhận lệnh chi; bản demo ghi nhận chuyển chi trong CodeCash</span>",
+      "x": 1453,
+      "y": 635.5,
+      "width": 304,
+      "height": 79
+    },
+    {
+      "id": "LG",
+      "text": "<b>Chú giải:</b> hình người = người dùng · xanh = container của CodeCash · trụ = nơi lưu dữ liệu · xám = hệ thống ngoài · viền hoặc mũi tên nét đứt = chưa tích hợp · mũi tên đi từ bên gọi tới bên được gọi",
+      "x": 1382,
+      "y": 829,
+      "width": 408,
+      "height": 72
+    },
+    {
+      "id": "r1",
+      "text": "Dùng màn hình<br>theo vai trò",
+      "x": 268.5,
+      "y": 93,
+      "width": 103,
+      "height": 36
+    },
+    {
+      "id": "r2",
+      "text": "Gửi thao tác, đọc dữ liệu",
+      "x": 462.5,
+      "y": 271,
+      "width": 165,
+      "height": 18
+    },
+    {
+      "id": "r3",
+      "text": "Truyền dữ liệu và<br>bộ luật đã công bố;<br>nhận quyết định",
+      "x": 786,
+      "y": 398,
+      "width": 128,
+      "height": 54
+    },
+    {
+      "id": "r4",
+      "text": "Ghi dữ liệu và nhật ký<br>trong một giao dịch",
+      "x": 472,
+      "y": 582,
+      "width": 146,
+      "height": 36
+    },
+    {
+      "id": "r5",
+      "text": "Lưu tệp, khoá ký, biên nhận neo",
+      "x": 815.5,
+      "y": 591,
+      "width": 215,
+      "height": 18
+    },
+    {
+      "id": "r6",
+      "text": "Gửi PDF, nhận gợi ý điều khoản",
+      "x": 888,
+      "y": 136,
+      "width": 214,
+      "height": 18
+    },
+    {
+      "id": "r7",
+      "text": "Ký mã băm tài liệu",
+      "x": 1044.5,
+      "y": 281,
+      "width": 123,
+      "height": 18
+    },
+    {
+      "id": "r8",
+      "text": "Gửi lệnh chi (dự kiến cho MVP)",
+      "x": 1055,
+      "y": 526,
+      "width": 210,
+      "height": 18
+    },
+    {
+      "id": "r9",
+      "text": "Nạp dữ liệu lúc khởi tạo",
+      "x": 65.5,
+      "y": 564,
+      "width": 159,
+      "height": 18
+    }
+  ],
+  "pageIndex": 1,
+  "pageId": "kien-truc",
+  "pageName": "Kiến trúc hệ thống (C4 container)",
+  "tool": {
+    "version": "1.0.0-rc.2",
+    "sha256": "65a454d20299ddccadb13b57146f1e2a5bed745d4eb672696e5ba529b319766c",
+    "files": 17
+  },
+  "drawioCommit": "17b367b91dbab91804f852645788d7ffb46dcb79",
+  "viewerSha256": "15777571ef7c042b2a4a6c6d29052f416fbaaaae5dcf868521c4a3a75f2147d8",
+  "textMode": "preserve",
+  "flattenedLabels": [],
+  "svgSha256": "0057cfaa922f2abaa29d46cb6f05f8ea163ec0ce98dcb79159daceef430aef28"
+}

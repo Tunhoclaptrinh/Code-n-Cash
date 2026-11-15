@@ -1,0 +1,55 @@
+{
+  "source": "D:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\bpmn\\luong-tong-the-theo-vai-tro_Co_mau.drawio",
+  "sourceSha256": "7507ec3022f0bd962df8660cb664f4c77f67d8f669b304745a41a6fa24c2a579",
+  "tool": {
+    "version": "1.0.0-rc.2",
+    "sha256": "65a454d20299ddccadb13b57146f1e2a5bed745d4eb672696e5ba529b319766c",
+    "files": 17
+  },
+  "page_count": 1,
+  "pages": [
+    {
+      "name": "Luồng tổng thể theo vai trò",
+      "element_counts": {
+        "artifact": 2,
+        "participant": 1,
+        "lane": 6,
+        "startEvent": 3,
+        "userTask": 8,
+        "serviceTask": 1,
+        "subProcess": 2,
+        "exclusiveGateway": 4,
+        "businessRuleTask": 1,
+        "endEvent": 4,
+        "boundaryEvent": 1,
+        "intermediateEvent": 1,
+        "sequenceFlow": 25
+      },
+      "rendered": true,
+      "errors": [],
+      "palette_errors": [],
+      "manual_review": [
+        "DS: triggered subprocess start; verify that its parent is an event subprocess"
+      ],
+      "unsupported_elements": [],
+      "layout_issues": [],
+      "label_checks_completed": true
+    }
+  ],
+  "errors": [],
+  "palette": "bizagi-inspired",
+  "palette_errors": [],
+  "limits": [
+    "Business scenarios and requirement coverage require a human/model review",
+    "Not an exhaustive BPMN validator or execution-soundness proof",
+    "Label collisions and visual readability require inspecting every image",
+    "Palette checks enforce a selected local presentation convention, not BPMN standard colors"
+  ],
+  "only_color_differs": true,
+  "unsupported_elements": [],
+  "layout_issues": [],
+  "passed_structural_checks": true,
+  "passed_palette_checks": true,
+  "passed_all_requested_checks": true,
+  "rendered_checks_completed": true
+}

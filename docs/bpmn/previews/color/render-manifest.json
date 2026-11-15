@@ -1,0 +1,22 @@
+{
+  "source": "D:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\bpmn\\luong-tong-the-theo-vai-tro_Co_mau.drawio",
+  "sourceSha256": "7507ec3022f0bd962df8660cb664f4c77f67d8f669b304745a41a6fa24c2a579",
+  "tool": {
+    "version": "1.0.0-rc.2",
+    "sha256": "65a454d20299ddccadb13b57146f1e2a5bed745d4eb672696e5ba529b319766c",
+    "files": 17
+  },
+  "drawioCommit": "17b367b91dbab91804f852645788d7ffb46dcb79",
+  "viewerSha256": "15777571ef7c042b2a4a6c6d29052f416fbaaaae5dcf868521c4a3a75f2147d8",
+  "textMode": "plain",
+  "pages": [
+    {
+      "index": 1,
+      "id": "luong-tong-the",
+      "name": "Luồng tổng thể theo vai trò",
+      "stem": "01-luong-tong-the-theo-vai-tro",
+      "svg": "01-luong-tong-the-theo-vai-tro.svg",
+      "png": "01-luong-tong-the-theo-vai-tro.png"
+    }
+  ]
+}

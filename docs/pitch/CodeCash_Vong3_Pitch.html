@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CodeCash Pitch Vòng 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0f172a;
+    --text: #1e293b;
+    --muted: #475569;
+    --faint: #64748b;
+    --line: #e2e8f0;
+    --surface: #f5f7fb;
+    --bg: #ffffff;
+    --brand: #315bea;
+    --brand-ink: #1e3fae;
+    --brand-soft: #e8eefe;
+    --release: #047857;
+    --release-soft: #e3f4ee;
+    --hold: #b45309;
+    --hold-soft: #fdf1e2;
+    --reject: #b91c1c;
+    --reject-soft: #fbe9e9;
+    --penalty: #c2410c;
+    --penalty-soft: #fdece3;
+    --font: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #1b2233; }
+  body { font-family: var(--font); color: var(--text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  /* Every slide is drawn on a 1920x1080 canvas and scaled to fit the window. */
+  .stage { position: fixed; inset: 0; display: grid; place-items: center; }
+  .deck { position: relative; width: 1920px; height: 1080px; transform-origin: center center; }
+  .slide { position: absolute; inset: 0; background: var(--bg); padding: 84px 112px 96px; display: none; flex-direction: column; overflow: hidden; }
+  .slide.active { display: flex; }
+
+  .kicker { font-size: 22px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); margin-bottom: 18px; }
+  .kicker b { color: var(--faint); font-weight: 600; margin-right: 14px; }
+  h1 { font-size: 150px; line-height: 1; font-weight: 800; color: #fff; letter-spacing: -.025em; }
+  h2 { font-size: 56px; line-height: 1.12; font-weight: 750; color: var(--ink); letter-spacing: -.02em; max-width: 1640px; }
+  h3 { font-size: 29px; font-weight: 700; color: var(--ink); margin-bottom: 14px; }
+  p, li { font-size: 25px; line-height: 1.45; }
+  .body { flex: 1; margin-top: 46px; min-height: 0; }
+  .mono { font-family: var(--mono); font-size: .86em; }
+  .muted { color: var(--muted); }
+  .faint { color: var(--faint); }
+  .note { font-size: 19px; color: var(--faint); margin-top: 18px; line-height: 1.45; }
+  ul.clean { list-style: none; }
+  ul.clean li { position: relative; padding-left: 30px; margin-bottom: 12px; }
+  ul.clean li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 10px; height: 10px; border-radius: 2px; background: var(--brand); }
+  ul.clean.sm li { font-size: 21px; margin-bottom: 9px; padding-left: 26px; }
+  ul.clean.sm li::before { top: 12px; width: 9px; height: 9px; }
+
+  .footer { position: absolute; left: 112px; right: 112px; bottom: 34px; display: flex; justify-content: space-between; font-size: 18px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 16px; }
+  .footer .brand { font-weight: 700; color: var(--ink); }
+
+  .grid { display: grid; gap: 28px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--surface); border-radius: 18px; padding: 30px 32px; }
+  .card.line { background: var(--bg); border: 2px solid var(--line); }
+  .card.brand { background: var(--brand-soft); }
+  .card.brand h3 { color: var(--brand-ink); }
+  .card p { color: var(--muted); }
+  .num { font-size: 80px; font-weight: 800; color: var(--ink); letter-spacing: -.03em; line-height: 1; }
+  .num small { font-size: 32px; font-weight: 700; color: var(--muted); letter-spacing: 0; margin-left: 6px; }
+  .label { font-size: 21px; color: var(--muted); margin-top: 10px; line-height: 1.35; }
+
+  .chip { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+  .chip::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+  .chip.done { color: var(--release); background: var(--release-soft); }
+  .chip.proto { color: var(--hold); background: var(--hold-soft); }
+  .chip.next { color: var(--muted); background: var(--bg); border: 2px solid var(--line); }
+
+  .tag { display: inline-block; font-size: 19px; font-weight: 700; padding: 3px 12px; border-radius: 8px; white-space: nowrap; }
+  .t-release { color: var(--release); background: var(--release-soft); }
+  .t-hold { color: var(--hold); background: var(--hold-soft); }
+  .t-reject { color: var(--reject); background: var(--reject-soft); }
+  .t-penalty { color: var(--penalty); background: var(--penalty-soft); }
+
+  /* Cover and closing */
+  .dark { background: var(--ink); color: #fff; }
+  .dark .kicker { color: #9db3ff; }
+  .dark .footer { border-top-color: #2b3550; color: #8b97b3; }
+  .dark .footer .brand { color: #fff; }
+  .cover { justify-content: space-between; }
+  .cover .claim { font-size: 52px; font-weight: 700; line-height: 1.22; color: #fff; margin-top: 36px; max-width: 1660px; }
+  .cover .claim em { font-style: normal; color: #9db3ff; }
+  .cover .pipeline { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 52px; }
+  .cover .pipeline span { font-size: 24px; font-weight: 600; color: #dbe3f5; padding: 10px 20px; border: 1.5px solid #3b4866; border-radius: 10px; }
+  .cover .pipeline i { font-style: normal; color: #5f6f92; align-self: center; font-size: 26px; }
+  .cover .meta { display: flex; gap: 72px; font-size: 24px; color: #b6c2dc; }
+  .cover .meta b { display: block; color: #fff; font-size: 30px; margin-top: 6px; }
+  .closing { justify-content: center; }
+  .closing h2 { color: #fff; font-size: 76px; }
+  .closing .chain { display: flex; gap: 22px; margin-top: 60px; flex-wrap: wrap; }
+  .closing .chain div { font-size: 34px; font-weight: 700; padding: 22px 34px; border-radius: 16px; background: #1e293b; color: #fff; }
+  .closing .chain i { font-style: normal; color: #5f6f92; font-size: 38px; align-self: center; }
+  .closing .sub { font-size: 28px; color: #b6c2dc; margin-top: 56px; line-height: 1.5; max-width: 1500px; }
+
+  /* Flow */
+  .flow { display: grid; grid-template-columns: repeat(6, 1fr); }
+  .flow .step { position: relative; background: var(--surface); border-radius: 16px; padding: 24px 22px; margin-right: 34px; }
+  .flow .step:last-child { margin-right: 0; }
+  .flow .step:not(:last-child)::after { content: ""; position: absolute; right: -26px; top: 50%; width: 18px; height: 18px; border-top: 4px solid var(--brand); border-right: 4px solid var(--brand); transform: translateY(-50%) rotate(45deg); }
+  .flow .step b { display: block; font-size: 27px; color: var(--ink); margin-bottom: 8px; }
+  .flow .step span { font-size: 20px; line-height: 1.4; color: var(--muted); display: block; }
+  .flow .step.key { background: var(--brand); }
+  .flow .step.key b, .flow .step.key span { color: #fff; }
+
+  /* Architecture */
+  .arch { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr; gap: 26px; }
+  .layer { border-radius: 18px; padding: 28px 30px; border: 3px solid var(--brand); }
+  .layer h3 { font-size: 28px; margin-bottom: 6px; }
+  .layer .stack { font-size: 20px; color: var(--brand-ink); font-weight: 600; margin-bottom: 16px; }
+  .ext { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 24px; }
+  .ext .box { border: 2px dashed #cbd5e1; border-radius: 14px; padding: 18px 22px; }
+  .ext .box b { font-size: 22px; color: var(--ink); display: block; }
+  .ext .box span { font-size: 19px; color: var(--muted); line-height: 1.4; display: block; margin-top: 4px; }
+  .legend { display: flex; gap: 34px; font-size: 20px; color: var(--muted); margin-top: 22px; }
+  .legend i { display: inline-block; width: 26px; height: 16px; border-radius: 4px; vertical-align: -2px; margin-right: 10px; }
+
+  /* Engine steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 22px; }
+  .stp { display: grid; grid-template-columns: 54px 1fr; gap: 16px; background: var(--surface); border-radius: 14px; padding: 20px 22px; }
+  .stp .n { width: 54px; height: 54px; border-radius: 12px; background: var(--ink); color: #fff; font-size: 24px; font-weight: 800; display: grid; place-items: center; }
+  .stp b { display: block; font-size: 23px; color: var(--ink); }
+  .stp span { display: block; font-size: 19px; color: var(--muted); line-height: 1.4; margin-top: 4px; }
+  .stp.hi { background: var(--brand-soft); }
+  .stp.hi .n { background: var(--brand); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 17px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; padding: 0 14px 12px; border-bottom: 2px solid var(--ink); }
+  td { font-size: 20px; padding: 11px 14px; border-bottom: 1.5px solid var(--line); vertical-align: top; line-height: 1.35; }
+  td.kpi { font-weight: 700; color: var(--ink); }
+  td.res { font-weight: 800; color: var(--release); }
+  td.base { color: var(--reject); font-weight: 600; }
+  td.pr { font-weight: 800; color: var(--ink); font-family: var(--mono); }
+  tr.block td { background: #fbfcfe; }
+
+  .formula { background: var(--ink); color: #e2e8f0; border-radius: 16px; padding: 26px 30px; }
+  .formula h3 { color: #fff; }
+  .formula code { display: block; font-family: var(--mono); font-size: 21px; line-height: 1.7; color: #c7d4f7; }
+  .formula p { color: #b6c2dc; font-size: 20px; margin-top: 12px; }
+
+  /* Roles */
+  .roles td { font-size: 19px; padding: 9px 12px; }
+  .roles td:first-child { font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+  /* Features */
+  .feat { display: grid; grid-template-columns: 1.55fr 1fr; gap: 34px; }
+  .feat-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 34px; }
+  .feat-item { padding: 14px 0; border-bottom: 1.5px solid var(--line); }
+  .feat-item b { font-size: 23px; color: var(--ink); display: block; }
+  .feat-item span { font-size: 19px; color: var(--muted); line-height: 1.4; display: block; margin-top: 4px; }
+  .col-head { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+
+  /* Worked example */
+  .case-head { display: flex; gap: 22px; align-items: center; margin-top: 18px; }
+  .io { display: grid; grid-template-columns: 1fr 1.25fr 1fr 1.05fr; gap: 22px; margin-top: 34px; }
+  .io .card { padding: 26px 28px; display: flex; flex-direction: column; }
+  .io .step-no { font-size: 18px; font-weight: 800; letter-spacing: .08em; color: var(--brand); text-transform: uppercase; margin-bottom: 12px; }
+  .io h3 { font-size: 26px; margin-bottom: 14px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 21px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { color: var(--ink); font-weight: 600; text-align: right; }
+  .calc { font-size: 21px; line-height: 1.6; color: var(--text); }
+  .calc .hl { font-weight: 700; color: var(--ink); }
+  .out-big { font-size: 66px; font-weight: 800; color: var(--release); letter-spacing: -.02em; line-height: 1.05; }
+  .io .card.result { background: var(--release-soft); }
+  .next-line { margin-top: 28px; display: flex; gap: 18px; align-items: center; font-size: 23px; color: var(--muted); }
+  .next-line b { color: var(--ink); }
+
+  /* Hard cases */
+  .hard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+  .hard .card { display: flex; flex-direction: column; gap: 14px; }
+  .hard .card h3 { margin: 0; font-size: 27px; }
+  .hard .seq { display: flex; flex-direction: column; gap: 10px; }
+  .hard .seq div { font-size: 21px; line-height: 1.4; padding-left: 22px; position: relative; }
+  .hard .seq div::before { content: ""; position: absolute; left: 0; top: 12px; width: 9px; height: 9px; border-radius: 50%; background: var(--faint); }
+  .hard .why { margin-top: auto; padding-top: 16px; border-top: 1.5px solid var(--line); font-size: 20px; color: var(--muted); }
+
+  /* Bars */
+  .bars { display: flex; flex-direction: column; gap: 32px; }
+  .bar-group h3 { font-size: 25px; margin-bottom: 10px; }
+  .bar { display: grid; grid-template-columns: 300px 1fr 140px; align-items: center; gap: 18px; margin-bottom: 10px; }
+  .bar .name { font-size: 21px; color: var(--muted); }
+  .bar .track { height: 34px; background: var(--surface); border-radius: 8px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 8px; }
+  .bar .fill.good { background: var(--release); }
+  .bar .fill.bad { background: #94a3b8; }
+  .bar .fill.danger { background: var(--reject); }
+  .bar .val { font-size: 26px; font-weight: 800; color: var(--ink); text-align: right; }
+
+  /* Impact */
+  .impact { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .impact .num { font-size: 68px; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-top: 32px; }
+  .roadmap { display: flex; flex-direction: column; gap: 14px; }
+  .roadmap div { display: grid; grid-template-columns: 170px 1fr; gap: 18px; align-items: start; font-size: 21px; line-height: 1.4; }
+  .roadmap .chip { justify-self: start; }
+
+  /* Speaker notes and controls (never printed) */
+  .notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 36vh; overflow: auto; background: #0b1020; color: #e2e8f0; font-size: 15px; line-height: 1.55; padding: 16px 24px 20px; border-top: 3px solid var(--brand); display: none; z-index: 10; }
+  .notes.show { display: block; }
+  .notes h4 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #9db3ff; margin-bottom: 6px; }
+  .hud { position: fixed; right: 18px; top: 14px; font: 13px/1.4 var(--font); color: #9aa6c0; z-index: 11; }
+  .hud kbd { font-family: var(--mono); background: #2a3348; color: #e2e8f0; padding: 1px 6px; border-radius: 4px; }
+  .progress { position: fixed; left: 0; top: 0; height: 4px; background: var(--brand); z-index: 11; transition: width .2s; }
+  aside.speaker { display: none; }
+
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { background: #fff; overflow: visible; height: auto; }
+    .stage { position: static; display: block; }
+    .deck { transform: none !important; width: 1920px; height: auto; }
+    .slide { display: flex !important; position: relative; width: 1920px; height: 1080px; page-break-after: always; break-after: page; }
+    .notes, .hud, .progress { display: none !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="hud"><span id="count"></span> &nbsp; <kbd>←</kbd><kbd>→</kbd> chuyển · <kbd>N</kbd> ghi chú · <kbd>F</kbd> toàn màn hình</div>
+
+<div class="stage">
+<div class="deck" id="deck">
+
+<!-- 1. Cover -->
+<section class="slide dark cover">
+  <div>
+    <div class="kicker">Festival Chuyển đổi số 2026 · Bảng D · Case 4 Smart Contract Workflow · Vòng 3</div>
+    <h1>CodeCash</h1>
+    <p class="claim">Hợp đồng có điều kiện thanh toán, chạy từ ký đến chi.<br /><em>Chưa đủ căn cứ thì không chi.</em> Mọi quyết định đều giải thích và truy vết được.</p>
+    <div class="pipeline">
+      <span>Hợp đồng</span><i>→</i><span>Mốc thanh toán</span><i>→</i><span>Chứng từ</span><i>→</i><span>Kiểm luật</span><i>→</i><span>Quyết định &amp; tiền</span><i>→</i><span>Nhật ký chuỗi băm</span>
+    </div>
+  </div>
+  <div class="meta">
+    <div>Đội thi<b>Code &amp; Cash</b></div>
+    <div>Sản phẩm<b>Web app + API + engine Python</b></div>
+    <div>Dữ liệu<b>Data Pack BTC, snapshot 18/10/2026</b></div>
+  </div>
+  <aside class="speaker">Giới thiệu đội Code &amp; Cash và một câu định vị: CodeCash chạy hợp đồng có điều kiện thanh toán từ ký đến chi; chưa đủ căn cứ thì giữ tiền; quyết định nào cũng giải thích và truy vết được.</aside>
+</section>
+
+<!-- 2. Problem & Value -->
+<section class="slide">
+  <div class="kicker"><b>01</b>Problem &amp; Value</div>
+  <h2>Thanh toán theo mốc đang được kiểm bằng tay, nên dễ chi sai, chậm và không để lại dấu vết</h2>
+  <div class="body grid g3">
+    <div class="card">
+      <h3>Vấn đề</h3>
+      <ul class="clean">
+        <li>Chi khi chứng từ còn thiếu, do sai người lập, hoặc đang tranh chấp</li>
+        <li>Tính phạt trễ hạn thủ công: ân hạn, trần phạt, ngày hoàn thành dễ nhầm</li>
+        <li>Không trả lời được "vì sao chi khoản này, ai duyệt, dựa trên chứng từ nào"</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Người dùng</h3>
+      <ul class="clean">
+        <li><b>Bên mua:</b> chủ hợp đồng, người duyệt tài chính, người duyệt thứ hai, cán bộ hợp đồng</li>
+        <li><b>Nhà cung cấp:</b> ký, nộp chứng từ giao hàng, hoá đơn, bảo hành</li>
+        <li><b>Kiểm soát:</b> kiểm soát viên xử lý ngoại lệ, kiểm toán chỉ đọc, quản trị hệ thống</li>
+      </ul>
+    </div>
+    <div class="card brand">
+      <h3>Giá trị hướng tới</h3>
+      <ul class="clean">
+        <li><b>Không chi sai:</b> thiếu căn cứ thì tạm giữ, không bao giờ tự chi khi chưa chắc</li>
+        <li><b>Giải thích được:</b> luật nào, chứng từ nào, còn thiếu gì</li>
+        <li><b>Không ai sửa lén:</b> quyết định niêm phong, nhật ký là chuỗi băm</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top:28px">
+    <div><div class="num">100</div><div class="label">hợp đồng, 65 bên tham gia</div></div>
+    <div><div class="num">405</div><div class="label">mốc thanh toán, 13 loại mốc</div></div>
+    <div><div class="num">1.134</div><div class="label">sự kiện: giao hàng, nghiệm thu, phê duyệt, tranh chấp…</div></div>
+    <div><div class="num">128</div><div class="label">luật quyết định, 16 phạm vi luật</div></div>
+  </div>
+  <aside class="speaker">Nỗi đau bằng ví dụ: giao trễ 4 ngày, ân hạn 2 ngày thì phạt bao nhiêu? Biên bản nghiệm thu do ai lập mới hợp lệ? Đang tranh chấp có được chi không? Ba nhóm người dùng. Giá trị cốt lõi: không chi sai, giải thích được, không ai sửa lén. Hàng số liệu là quy mô Data Pack mà hệ thống chạy toàn bộ.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 3. Solution overview -->
+<section class="slide">
+  <div class="kicker"><b>02</b>Solution Overview</div>
+  <h2>Mỗi thao tác là một sự kiện; engine chấm lại mốc theo bộ luật và ra quyết định kèm lý do</h2>
+  <div class="body">
+    <div class="flow">
+      <div class="step"><b>Hợp đồng</b><span>Số hoá điều khoản, ký theo trình tự, ghim phiên bản luật</span></div>
+      <div class="step"><b>Mốc</b><span>Hạn, ân hạn, giá trị, chứng từ bắt buộc, chính sách duyệt</span></div>
+      <div class="step"><b>Sự kiện</b><span>Chứng từ, phê duyệt, từ chối, mở và đóng tranh chấp</span></div>
+      <div class="step key"><b>Kiểm luật</b><span>9 bước: trùng lặp, thẩm quyền, đủ chứng từ, tranh chấp, quorum, trễ hạn</span></div>
+      <div class="step"><b>Quyết định</b><span>Chi đủ · Tạm giữ · Từ chối · Chi sau trừ phạt, kèm số tiền</span></div>
+      <div class="step"><b>Nhật ký</b><span>Niêm phong mã băm, chuỗi băm, neo Merkle</span></div>
+    </div>
+    <div class="grid g3" style="margin-top:52px">
+      <div class="card line">
+        <h3>Luật là dữ liệu</h3>
+        <p>Đọc bảng luật của BTC theo luật khớp đầu tiên; thẩm quyền, cách đóng tranh chấp, cách đếm phê duyệt nằm trong policy pack có phiên bản. Không gắn cứng theo mã hợp đồng hay tình huống.</p>
+      </div>
+      <div class="card line">
+        <h3>Nghi ngờ thì tạm giữ</h3>
+        <p>Nhánh mặc định cuối cùng là tạm giữ. Chốt an toàn chặn mọi luật trả tiền khi còn tranh chấp, từ chối hoặc thiếu điều kiện, kể cả khi bộ luật bị viết sai.</p>
+      </div>
+      <div class="card line">
+        <h3>Không ai sửa kết quả</h3>
+        <p>Quyết định, số tiền và nhật ký không sửa được. Muốn đổi kết quả phải ghi sự kiện mới của đúng bên, hoặc ngoại lệ có hai người duyệt.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="speaker">Đi theo chuỗi Contract → Milestone → Event → Rule Check → Decision → Audit đúng như đề yêu cầu. Ba nguyên tắc thiết kế: luật là dữ liệu, nghi ngờ thì giữ, con người chỉ can thiệp qua sự kiện mới hoặc ngoại lệ hai người.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 4. Architecture -->
+<section class="slide">
+  <div class="kicker"><b>03</b>Kiến trúc · công nghệ ở đâu, để làm gì</div>
+  <h2>Trình duyệt không quyết định: API xử lý nghiệp vụ, engine Python tính quyết định và tiền</h2>
+  <div class="body">
+    <div class="arch">
+      <div class="layer">
+        <h3>Web</h3>
+        <div class="stack">React 19 · Ant Design 6 · Việt / Anh</div>
+        <ul class="clean sm">
+          <li>Mỗi vai trò chỉ thấy việc của mình</li>
+          <li>Hiển thị quyết định, lý do, luật áp dụng; không tự tính</li>
+          <li>Tổng quan nhiều hợp đồng, kết quả Data Pack, KPI</li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h3>API</h3>
+        <div class="stack">NestJS · lưu tệp hoặc MongoDB</div>
+        <ul class="clean sm">
+          <li>Danh tính và phạm vi lấy từ tài khoản đăng nhập, không tin dữ liệu trình duyệt gửi</li>
+          <li>Hành động nghiệp vụ có kiểm quyền; chạy lại engine trong cùng giao dịch sau mỗi thao tác</li>
+          <li>Nhật ký chuỗi băm, niêm phong quyết định, neo Merkle tự động</li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h3>Engine</h3>
+        <div class="stack">Python · số thập phân chính xác (Decimal)</div>
+        <ul class="clean sm">
+          <li>9 bước xử lý một mốc, mỗi bước một module có test riêng</li>
+          <li>Policy pack + 128 luật của BTC; chứng minh an toàn bộ luật trước khi công bố</li>
+          <li>Xuất 405 dòng theo mẫu BTC, trace từng dòng, KPI</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ext">
+      <div class="box"><b>Ký số</b><span>Dịch vụ ký từ xa mô phỏng; chữ ký gắn SHA-256 nội dung tệp</span></div>
+      <div class="box"><b>Cổng thanh toán</b><span>Mô phỏng; adapter HTTP có Idempotency-Key và chữ ký HMAC</span></div>
+      <div class="box"><b>AI đọc PDF (Gemini API)</b><span>Chỉ đề xuất 6 điều khoản kèm trang và trích dẫn; người xác nhận</span></div>
+      <div class="box"><b>Hạ tầng</b><span>Docker Compose: nginx + API + MongoDB; CI chạy smoke mỗi lần push</span></div>
+    </div>
+    <div class="legend"><span><i style="border:3px solid var(--brand)"></i>Đội tự xây dựng</span><span><i style="border:2px dashed #94a3b8"></i>Tích hợp, mô phỏng hoặc dịch vụ bên ngoài</span><span>AI không tham gia quyết định thanh toán.</span></div>
+  </div>
+  <aside class="speaker">Trả lời câu "công nghệ dùng ở đâu, để làm gì". Ba khối viền xanh là đội tự viết. Khối gạch đứt là mô phỏng hoặc bên ngoài: ký số dùng chứng thư mô phỏng, cổng thanh toán mô phỏng, AI là Gemini API và chỉ đề xuất. React, Ant Design, NestJS, MongoDB là thư viện nền tảng; luật, engine, phân quyền, nhật ký là của đội.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 5. Engine steps -->
+<section class="slide">
+  <div class="kicker"><b>04</b>Logic xử lý · chín bước chấm một mốc</div>
+  <h2>Engine lọc chứng từ trước, kiểm các yếu tố chặn, rồi mới chọn luật và tính tiền</h2>
+  <div class="body steps">
+    <div class="stp"><div class="n">1</div><div><b>Cấu trúc</b><span>Nạp mốc, hợp đồng, bộ luật; dữ liệu lệch hoặc thiếu thì đưa về nhánh tạm giữ</span></div></div>
+    <div class="stp"><div class="n">2</div><div><b>Sự kiện</b><span>Khử trùng lặp, giữ bản sớm nhất; áp ngoại lệ đã duyệt; đánh dấu bất thường</span></div></div>
+    <div class="stp"><div class="n">3</div><div><b>Chứng từ bắt buộc</b><span>Hợp lệ, sai thẩm quyền, sai trạng thái hay không liên quan; còn thiếu loại nào</span></div></div>
+    <div class="stp"><div class="n">4</div><div><b>Kiểm soát</b><span>Tranh chấp đang mở, từ chối hợp lệ, số <b style="display:inline;font-size:inherit">vai trò</b> đã phê duyệt (không đếm theo người)</span></div></div>
+    <div class="stp"><div class="n">5</div><div><b>Thời hạn</b><span>Ngày hoàn thành = chứng từ bắt buộc muộn nhất; trễ = hoàn thành − (hạn + ân hạn)</span></div></div>
+    <div class="stp hi"><div class="n">6</div><div><b>Chọn luật</b><span>Luật đầu tiên khớp theo ưu tiên; nhánh ELSE; chốt an toàn thanh toán</span></div></div>
+    <div class="stp hi"><div class="n">7</div><div><b>Tính tiền</b><span>Phạt và số được chi theo công thức của luật thắng; chốt an toàn số tiền</span></div></div>
+    <div class="stp"><div class="n">8</div><div><b>Độ tin cậy</b><span>Hạ điểm khi có điểm diễn giải mở, bản lặp, sát ranh giới trễ; không đổi quyết định</span></div></div>
+    <div class="stp"><div class="n">9</div><div><b>Truy vết</b><span>Chứng từ làm căn cứ, điều kiện đạt và thiếu, kết cục từng luật, trạng thái mốc</span></div></div>
+  </div>
+  <p class="note">Phê duyệt và đóng tranh chấp không đẩy ngày hoàn thành: duyệt muộn không làm nhà cung cấp bị phạt thêm. Thẩm quyền tra trong danh sách các bên, không tin loại bên ghi trên sự kiện.</p>
+  <aside class="speaker">Thứ tự là điểm mấu chốt: lọc chứng từ (trùng lặp, sai thẩm quyền) trước, sau đó các yếu tố chặn, rồi mới chọn luật. Nhấn hai chi tiết hay bị làm sai: đếm phê duyệt theo vai trò chứ không theo người, và ngày hoàn thành lấy theo chứng từ chứ không theo lúc duyệt. Đây chính là các "Lỗi 1–6" mà README của BTC cảnh báo.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 6. Rules & money -->
+<section class="slide">
+  <div class="kicker"><b>05</b>Luật quyết định và tính tiền</div>
+  <h2>Tám luật chạy theo ưu tiên, dừng ở luật đầu tiên khớp; các yếu tố chặn luôn xét trước phạt</h2>
+  <div class="body grid" style="grid-template-columns:1.45fr 1fr; gap:40px">
+    <table>
+      <thead><tr><th style="width:12%">Ưu tiên</th><th>Điều kiện</th><th style="width:26%">Quyết định</th><th style="width:20%">Được chi</th></tr></thead>
+      <tbody>
+        <tr class="block"><td class="pr">10</td><td>Có tranh chấp đang mở</td><td><span class="tag t-hold">Tạm giữ</span></td><td>0</td></tr>
+        <tr class="block"><td class="pr">20</td><td>Có phiếu từ chối hợp lệ</td><td><span class="tag t-reject">Từ chối</span></td><td>0</td></tr>
+        <tr class="block"><td class="pr">30</td><td>Chứng từ bắt buộc do bên không có thẩm quyền lập</td><td><span class="tag t-hold">Tạm giữ</span></td><td>0</td></tr>
+        <tr class="block"><td class="pr">40</td><td>Chưa đủ chứng từ bắt buộc</td><td><span class="tag t-hold">Tạm giữ</span></td><td>0</td></tr>
+        <tr class="block"><td class="pr">50</td><td>Cần phê duyệt mà chưa đủ vai trò</td><td><span class="tag t-hold">Tạm giữ</span></td><td>0</td></tr>
+        <tr><td class="pr">60</td><td>Áp phạt và hoàn thành sau hạn + ân hạn</td><td><span class="tag t-penalty">Chi sau trừ phạt</span></td><td>P − F</td></tr>
+        <tr><td class="pr">70</td><td>Đủ mọi điều kiện</td><td><span class="tag t-release">Chi đủ</span></td><td>P</td></tr>
+        <tr><td class="pr">80</td><td>Còn lại (ELSE) hoặc không đánh giá được</td><td><span class="tag t-hold">Tạm giữ</span></td><td>0</td></tr>
+      </tbody>
+    </table>
+    <div class="grid" style="gap:24px; align-content:start">
+      <div class="formula">
+        <h3>Công thức tiền</h3>
+        <code>F = min(trễ × mức phạt × P,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trần phạt × P)<br />Được chi = max(0, P − F)</code>
+        <p>P là giá trị mốc. Tính bằng Decimal, làm tròn F tới 0,01 trước rồi mới trừ, nên được chi + phạt = P.</p>
+      </div>
+      <div class="card">
+        <h3>Hai chốt an toàn</h3>
+        <ul class="clean sm">
+          <li><b>Thanh toán:</b> luật trả tiền thắng mà còn tranh chấp, từ chối hay thiếu điều kiện → về tạm giữ</li>
+          <li><b>Số tiền:</b> không âm, không vượt P, phạt không vượt trần → sai thì không chi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="speaker">Đây là bộ luật của BTC, giống nhau ở 16 phạm vi. Năm luật đầu (nền nhạt) là yếu tố chặn, luôn xét trước phạt và chi. Hai chốt an toàn không bao giờ phải can thiệp với bộ luật của BTC; chúng tồn tại để chặn một bộ luật bị viết sai thứ tự hoặc sai điều kiện trong tương lai.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 7. Authority & roles -->
+<section class="slide">
+  <div class="kicker"><b>06</b>Thẩm quyền và phân quyền</div>
+  <h2>Hai lớp quyền tách biệt: bên nào được tạo chứng từ gì, và người dùng nào được làm gì</h2>
+  <div class="body grid" style="grid-template-columns:1fr 1.15fr; gap:40px">
+    <div>
+      <h3>Thẩm quyền nghiệp vụ <span class="faint" style="font-weight:500;font-size:22px">· theo Data Pack, engine kiểm</span></h3>
+      <ul class="clean sm">
+        <li><b>Bên mua lập:</b> ký hợp đồng, khởi động, duyệt yêu cầu, UAT, nghiệm thu</li>
+        <li><b>Nhà cung cấp lập:</b> giao hàng, hoá đơn, go-live, kích hoạt và hoàn tất dịch vụ, bảo hành</li>
+        <li><b>Phê duyệt:</b> người duyệt thuộc bên mua, đúng vai trò mốc yêu cầu, đếm mỗi vai trò một lần</li>
+        <li><b>Tranh chấp:</b> mở dễ (chỉ dẫn tới tạm giữ); đóng khó (phải tham chiếu đúng lần mở, do bên mua đóng)</li>
+      </ul>
+      <div class="card brand" style="margin-top:22px">
+        <h3>Tách nhiệm vụ</h3>
+        <ul class="clean sm">
+          <li>Người ghi chứng từ của bên mua không phải người duyệt chi</li>
+          <li>Người đề xuất vô hiệu chứng từ không được tự duyệt đề xuất đó</li>
+          <li>Quản trị hệ thống không xem hợp đồng, không duyệt chi</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3>8 vai trò người dùng <span class="faint" style="font-weight:500;font-size:22px">· đội thiết kế, API kiểm</span></h3>
+      <table class="roles">
+        <tbody>
+          <tr><td>Chủ hợp đồng</td><td>Soạn, ký, bỏ phiếu duyệt, mở và đóng tranh chấp, đề xuất vô hiệu chứng từ sai thẩm quyền</td></tr>
+          <tr><td>Duyệt tài chính</td><td>Bỏ phiếu theo vai trò; duyệt lệnh chi sau khi engine ra quyết định chi</td></tr>
+          <tr><td>Duyệt thứ hai</td><td>Bỏ phiếu theo vai trò khi chính sách yêu cầu</td></tr>
+          <tr><td>Cán bộ hợp đồng</td><td>Rà điều khoản, nộp chứng từ của bên mua, mở và đóng tranh chấp</td></tr>
+          <tr><td>Nhà cung cấp</td><td>Ký, nộp chứng từ của mình, mở tranh chấp</td></tr>
+          <tr><td>Kiểm soát viên</td><td>Bên mua: duyệt ngoại lệ (người thứ hai). Nhà cung cấp: chỉ theo dõi</td></tr>
+          <tr><td>Quản trị hệ thống</td><td>Tài khoản, cấu hình, công bố phiên bản luật đã kiểm</td></tr>
+          <tr><td>Kiểm toán toàn vẹn</td><td>Chỉ kiểm chuỗi băm và bằng chứng, không đọc nội dung hợp đồng</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="speaker">Lớp trái lấy từ Data Pack và do engine kiểm: chứng từ của bên nào phải do chính bên đó lập. Lớp phải do đội thiết kế để quy trình khép kín. Vì sao cán bộ hợp đồng nộp chứng từ bên mua chứ không phải chủ hợp đồng: Data Pack yêu cầu chứng từ do chính tổ chức bên mua lập, còn chủ hợp đồng là người phê duyệt; tách ra để người lập căn cứ không đồng thời duyệt tiền.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 8. Key features -->
+<section class="slide">
+  <div class="kicker"><b>07</b>Key Features</div>
+  <h2>Phần lõi đã chạy trên toàn bộ dữ liệu; phần tích hợp bên ngoài ghi rõ là mô phỏng</h2>
+  <div class="body feat">
+    <div>
+      <div class="col-head"><span class="chip done">Đã triển khai</span></div>
+      <div class="feat-list">
+        <div class="feat-item"><b>Engine 4 quyết định + tính tiền</b><span>Chứng từ, thẩm quyền, quorum, tranh chấp, từ chối, trễ hạn, trần phạt</span></div>
+        <div class="feat-item"><b>Workflow trực tiếp</b><span>Nộp chứng từ, phê duyệt theo vai trò, tranh chấp, duyệt lệnh chi</span></div>
+        <div class="feat-item"><b>Ngoại lệ hai người duyệt</b><span>Chủ hợp đồng đề xuất vô hiệu, kiểm soát viên khác duyệt</span></div>
+        <div class="feat-item"><b>Phân quyền theo tổ chức</b><span>8 vai trò, một ma trận quyền duy nhất, kiểm ở API</span></div>
+        <div class="feat-item"><b>Chạy thử trước khi ghi</b><span>Biết quyết định và số tiền sẽ ra sao trước khi nộp hay duyệt</span></div>
+        <div class="feat-item"><b>Nhật ký chuỗi băm</b><span>Niêm phong quyết định, neo Merkle, kiểm toàn vẹn</span></div>
+        <div class="feat-item"><b>Phiên bản luật có kiểm soát</b><span>Xem tác động trên 405 mốc, chứng minh an toàn, chặn hồi quy</span></div>
+        <div class="feat-item"><b>Gói kiểm chứng độc lập</b><span>6 tệp đầu vào + mã băm, chạy lại bằng Python ngoài hệ thống</span></div>
+        <div class="feat-item"><b>Hoá đơn đúng quy định</b><span>Kiểm ký hiệu, số, mã số thuế, trùng lặp; tổng tiền khớp giá trị mốc</span></div>
+        <div class="feat-item"><b>Phụ lục và thanh lý</b><span>Dời hạn bằng phụ lục hai bên xác nhận; thanh lý chốt số liệu có mã băm</span></div>
+      </div>
+    </div>
+    <div class="grid" style="gap:24px; align-content:start">
+      <div class="card">
+        <div class="col-head"><span class="chip proto">Prototype / mô phỏng</span></div>
+        <ul class="clean sm">
+          <li>Ký số theo trình tự với chứng thư mô phỏng</li>
+          <li>Cổng thanh toán mô phỏng (đã có adapter HTTP)</li>
+          <li>AI đọc điều khoản từ PDF, chỉ đề xuất</li>
+        </ul>
+      </div>
+      <div class="card line">
+        <div class="col-head"><span class="chip next">Định hướng</span></div>
+        <ul class="clean sm">
+          <li>Ký qua tổ chức chứng thực chữ ký số được cấp phép</li>
+          <li>Kết nối cổng ngân hàng thật</li>
+          <li>Phụ lục đổi giá trị hoặc tỷ lệ thanh toán</li>
+          <li>Chốt các điểm diễn giải BTC còn mở rồi cập nhật bộ luật</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="speaker">Cột trái đều đã chạy được. Cột phải tách rõ "mô phỏng" và "định hướng" đúng yêu cầu mục 8.3 của BTC: không trình bày phần kế hoạch như thể đã triển khai.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 9. Worked example -->
+<section class="slide">
+  <div class="kicker"><b>08</b>Ví dụ xử lý · một trường hợp điển hình</div>
+  <h2>Mốc giao hàng 740 triệu, giao trễ 4 ngày: engine tự trừ phạt và chỉ ra căn cứ</h2>
+  <div class="case-head"><span class="tag t-hold" style="font-size:21px">Chưa đủ phê duyệt: Tạm giữ</span><span class="faint" style="font-size:26px">→</span><span class="tag t-penalty" style="font-size:21px">Đủ phê duyệt: Chi sau trừ phạt</span></div>
+  <div class="io">
+    <div class="card">
+      <div class="step-no">1 · Input</div>
+      <h3>Điều khoản và chứng từ</h3>
+      <dl class="kv">
+        <dt>Giá trị mốc</dt><dd>740,00 tr</dd>
+        <dt>Hạn</dt><dd>12/10/2026</dd>
+        <dt>Ân hạn</dt><dd>2 ngày</dd>
+        <dt>Giao hàng</dt><dd>16/10/2026</dd>
+        <dt>Mức phạt</dt><dd>0,15%/ngày</dd>
+        <dt>Trần phạt</dt><dd>8%</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <div class="step-no">2 · Processing</div>
+      <h3>Engine chấm mốc</h3>
+      <p class="calc">Hoàn thành = chứng từ bắt buộc muộn nhất: <span class="hl">16/10</span><br />Trễ: 4 ngày − 2 ngày ân hạn = <span class="hl">2 ngày</span><br />Phạt: 0,15% × 2 × 740 = <span class="hl">2,22 tr</span><br />Trần: 8% × 740 = 59,20 tr, chưa chạm<br />Luật khớp đầu tiên: <span class="hl">ưu tiên 60, trễ hạn</span></p>
+    </div>
+    <div class="card result">
+      <div class="step-no">3 · Output</div>
+      <h3>Quyết định</h3>
+      <div class="out-big">737,78</div>
+      <div style="font-size:25px;font-weight:600;color:var(--muted);margin-top:6px">triệu VND được chi</div>
+      <p style="margin-top:14px;font-size:21px;color:var(--text)">Phạt <b>2,22 triệu</b>. Được chi + phạt = 740,00.</p>
+    </div>
+    <div class="card">
+      <div class="step-no">4 · Explanation / Trace</div>
+      <h3>Vì sao</h3>
+      <ul class="clean sm">
+        <li>Luật 10–50 không khớp: không tranh chấp, đủ chứng từ, đủ vai trò</li>
+        <li>Chứng từ làm căn cứ, bên lập, thời điểm</li>
+        <li>Mã băm quyết định niêm phong trong nhật ký</li>
+      </ul>
+    </div>
+  </div>
+  <div class="next-line"><span class="chip done">Hệ quả</span><span>Lệnh chi tự lập kèm mã băm quyết định → người duyệt tài chính duyệt → gửi cổng thanh toán, gửi lại không chi hai lần.</span></div>
+  <aside class="speaker">Đây là hợp đồng demo CT0103, mốc 2, cũng là case trong video. Nhấn: ngày hoàn thành lấy theo chứng từ giao hàng, không theo lúc duyệt; nên dù người duyệt bấm muộn, phạt vẫn chỉ 2 ngày. Trước khi đủ phiếu duyệt thì mốc vẫn tạm giữ (luật 50), đủ phiếu mới sang luật 60.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 10. Hard cases -->
+<section class="slide">
+  <div class="kicker"><b>09</b>Tình huống khó và human-in-the-loop</div>
+  <h2>Khi dữ liệu thiếu, bất thường hoặc còn tranh chấp, hệ thống giữ tiền và chỉ rõ ai phải làm gì</h2>
+  <div class="body hard">
+    <div class="card">
+      <span class="tag t-hold" style="align-self:flex-start">Dữ liệu thiếu → Tạm giữ</span>
+      <h3>Chưa có biên bản nghiệm thu</h3>
+      <div class="seq">
+        <div>Engine liệt kê đúng loại chứng từ còn thiếu và bên phải lập</div>
+        <div>Có giao hàng, hoá đơn vẫn không chi: thiếu một điều kiện là đủ để giữ</div>
+        <div>Chứng từ mới vào, engine chấm lại ngay</div>
+      </div>
+      <div class="why">Bản lặp của chứng từ khác không thay được chứng từ còn thiếu.</div>
+    </div>
+    <div class="card">
+      <span class="tag t-hold" style="align-self:flex-start">Dữ liệu bất thường → Tạm giữ</span>
+      <h3>Chứng từ do bên không có thẩm quyền lập</h3>
+      <div class="seq">
+        <div>Engine không coi là bằng chứng, mốc bị giữ</div>
+        <div>Chủ hợp đồng đề xuất vô hiệu, ghi lý do</div>
+        <div>Một kiểm soát viên khác của bên mua duyệt hoặc trả lại</div>
+        <div>Duyệt xong engine chạy lại; nhật ký ghi ai đề xuất, ai duyệt</div>
+      </div>
+      <div class="why">Human-in-the-loop có kiểm soát: không ai sửa thẳng kết quả.</div>
+    </div>
+    <div class="card">
+      <span class="tag t-reject" style="align-self:flex-start">Rủi ro, điều kiện thay đổi</span>
+      <h3>Tranh chấp, từ chối, đổi luật</h3>
+      <div class="seq">
+        <div>Tranh chấp mở: tạm giữ tới khi bên mua đóng đúng tham chiếu</div>
+        <div>Có phiếu từ chối hợp lệ: Từ chối, không chi</div>
+        <div>Đổi luật: chạy thử trên 405 mốc trước khi công bố; hợp đồng đang chạy giữ phiên bản đã ký</div>
+      </div>
+      <div class="why">Kết quả chưa chắc chắn thì hạ độ tin cậy và ghi lý do, không đổi quyết định.</div>
+    </div>
+  </div>
+  <aside class="speaker">Ba nhóm tình huống mà BTC gợi ý ở mục 3.4: dữ liệu thiếu, dữ liệu bất thường, điều kiện thay đổi và trường hợp cần human-in-the-loop. Điểm chung: hệ thống không đoán, chỉ giữ tiền và chỉ ra ai phải làm gì tiếp.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 11. Output & traceability -->
+<section class="slide">
+  <div class="kicker"><b>10</b>Đầu ra, truy vết và kiểm chứng</div>
+  <h2>Mỗi quyết định truy được về chứng từ, luật và phiên bản engine; ai cũng chạy lại được</h2>
+  <div class="body grid g3">
+    <div class="card">
+      <h3>Đầu ra theo mẫu BTC</h3>
+      <ul class="clean sm">
+        <li>Đủ 405 dòng × 22 cột, không tự lọc tập ẩn</li>
+        <li>Quyết định, trạng thái, mã lý do, luật áp dụng</li>
+        <li>Điều kiện đạt và còn thiếu; tiền chi và phạt</li>
+        <li>Chứng từ làm căn cứ (không gồm bản lặp, sai thẩm quyền)</li>
+        <li>Độ tin cậy, thời gian xử lý, mã trace</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Trace và nhật ký</h3>
+      <ul class="clean sm">
+        <li>Mỗi dòng: dấu vân tay đầu vào, mã băm engine và policy, giá trị mọi biến luật, kết cục từng luật</li>
+        <li>Nhật ký chuỗi băm: mỗi mục chứa băm mục trước, niêm phong từng quyết định</li>
+        <li>Neo gốc Merkle tự động mỗi 15 phút; tuỳ chọn dấu thời gian độc lập RFC 3161</li>
+      </ul>
+    </div>
+    <div class="card brand">
+      <h3>Kiểm chứng độc lập</h3>
+      <ul class="clean sm">
+        <li><span class="mono">verify_decision.py</span>: chạy lại quyết định từ 6 tệp CSV gốc, so với mã băm đã niêm phong</li>
+        <li><span class="mono">verify_audit.py</span>: kiểm chuỗi nhật ký bằng Python thuần, không dùng mã của API</li>
+        <li>Bất biến kiểm trước khi xuất: mốc được chi không thiếu điều kiện; tiền không âm; phạt không vượt trần</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid g4" style="margin-top:28px">
+    <div><div class="num">355</div><div class="label">mốc độ tin cậy 1,00</div></div>
+    <div><div class="num">45</div><div class="label">mốc chịu ảnh hưởng của điểm diễn giải BTC chưa chốt (44 mốc 0,80; 1 mốc 0,60)</div></div>
+    <div><div class="num">5</div><div class="label">mốc 0,97: có bản lặp chứng từ, đã khử nhưng vẫn hạ điểm</div></div>
+    <div><div class="num">0</div><div class="label">vi phạm bất biến trên 405 mốc</div></div>
+  </div>
+  <aside class="speaker">Trả lời trước câu hỏi "truy vết từ kết quả về nguồn dữ liệu". Độ tin cậy là thang chắc chắn có giải thích, không phải xác suất đúng, và không bao giờ đổi quyết định: tranh chấp mở vẫn tạm giữ dù điểm cao.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 12. KPI -->
+<section class="slide">
+  <div class="kicker"><b>11</b>Evidence &amp; KPI</div>
+  <h2>Đo đủ 5 nhóm KPI của BTC, ghi rõ tập đo, baseline và giới hạn</h2>
+  <div class="body">
+    <table>
+      <thead><tr><th style="width:17%">KPI</th><th style="width:22%">Cách tính</th><th style="width:16%">Tập đo</th><th style="width:14%">CodeCash</th><th style="width:11%">Baseline*</th><th>Giới hạn</th></tr></thead>
+      <tbody>
+        <tr><td class="kpi">Rule Execution Accuracy</td><td>Quyết định đúng / tổng</td><td>20 mẫu có nhãn<br /><span class="faint">+ 33 kịch bản tổng hợp</span></td><td class="res">20/20<br />33/33 kịch bản</td><td class="base">8/20</td><td>Khoảng tin cậy 95% của 20/20 là 83,9–100%; engine viết khi đã đọc 20 mẫu này</td></tr>
+        <tr><td class="kpi">Scenario Accuracy / Macro-F1</td><td>Khớp cả 17 cột · trung bình F1 của 4 lớp</td><td>20 mẫu có nhãn<br /><span class="faint">+ 33 kịch bản tổng hợp</span></td><td class="res">20/20 · 1,00</td><td class="base">F1 0,14</td><td>Trong 20 mẫu, lớp từ chối và chi sau phạt chỉ có 2 mẫu mỗi lớp</td></tr>
+        <tr><td class="kpi">Unauthorized Payment Rate</td><td>Bị chi khi chưa đủ điều kiện / số mốc chưa đủ điều kiện</td><td>20 mẫu · ca tổng hợp</td><td class="res">0/10 · 0/4.044</td><td class="base">10/10</td><td>4.044 ca thuộc 33 kịch bản, không độc lập nên không tính khoảng tin cậy</td></tr>
+        <tr><td class="kpi">Payment / Penalty Amount</td><td>Khớp tới 0,01 triệu, số thập phân chính xác</td><td>20 mẫu có nhãn</td><td class="res">20/20, sai số 0,00</td><td class="base">—</td><td>Quy ước làm tròn nửa lên, nêu rõ trong đặc tả</td></tr>
+        <tr><td class="kpi">Audit Trace / Processing</td><td>Dòng có luật, căn cứ, trace · thời gian mỗi mốc</td><td>405 mốc</td><td class="res">405/405 · &lt; 1 ms</td><td class="base">—</td><td>Thời gian đo trên máy đội; cả 405 mốc dưới 1 giây</td></tr>
+      </tbody>
+    </table>
+    <p class="note">* Baseline: hệ "luôn chi đủ" trên cùng 20 mẫu, tính từ phân bố nhãn (8 RELEASE · 8 HOLD · 2 REJECT · 2 PENALTY). Cột CodeCash tái lập bằng <span class="mono">python apps/engine/cli.py --output out</span> → <span class="mono">metrics.json</span>. Đáp án ca tổng hợp do đội viết theo cách hiểu đề của đội: đo độ phủ, không phải độ chính xác. Độ chính xác thật do 250 mốc ẩn và 135 mốc holdout của BTC quyết định.</p>
+  </div>
+  <aside class="speaker">Nhấn 3 điểm: quyết định đúng 20/20, chi sai bằng 0, số tiền khớp tuyệt đối. Rồi tự nói giới hạn: 20 mẫu là quá ít, khoảng tin cậy 83,9–100%, và engine được viết khi đã đọc chính 20 mẫu này. Đội dựng thêm 33 kịch bản tổng hợp phủ cả 405 mốc, nhưng đáp án của kịch bản do đội viết, nên nó chứng minh engine làm đúng điều đội hiểu, chưa chứng minh đúng điều BTC muốn; phần đó chờ tập ẩn. BTC nói rõ nêu đúng giới hạn không bị xem là điểm yếu.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 13. Baseline & test quality -->
+<section class="slide">
+  <div class="kicker"><b>12</b>Cơ sở so sánh · bộ kiểm thử có bắt được lỗi không</div>
+  <h2>Không tự chấm cho đẹp: cài 16 lỗi thật vào engine để xem bộ kiểm thử có phát hiện</h2>
+  <div class="body grid" style="grid-template-columns:1.25fr 1fr; gap:56px">
+    <div class="bars">
+      <div class="bar-group">
+        <h3>Quyết định đúng trên 20 mẫu có nhãn</h3>
+        <div class="bar"><span class="name">Luôn chi đủ</span><div class="track"><div class="fill bad" style="width:40%"></div></div><span class="val">40%</span></div>
+        <div class="bar"><span class="name">CodeCash</span><div class="track"><div class="fill good" style="width:100%"></div></div><span class="val">100%</span></div>
+      </div>
+      <div class="bar-group">
+        <h3>Chi khi chưa đủ điều kiện <span class="faint" style="font-weight:500">(càng thấp càng tốt)</span></h3>
+        <div class="bar"><span class="name">Luôn chi đủ</span><div class="track"><div class="fill danger" style="width:100%"></div></div><span class="val">100%</span></div>
+        <div class="bar"><span class="name">CodeCash</span><div class="track"><div class="fill good" style="width:0.6%"></div></div><span class="val">0%</span></div>
+      </div>
+      <div class="bar-group">
+        <h3>Lỗi cài vào engine bị phát hiện (trên 16)</h3>
+        <div class="bar"><span class="name">Chỉ dùng 20 mẫu BTC</span><div class="track"><div class="fill bad" style="width:43.75%"></div></div><span class="val">7/16</span></div>
+        <div class="bar"><span class="name">Bộ ca tổng hợp, lần đầu</span><div class="track"><div class="fill good" style="width:68.75%"></div></div><span class="val">11/16</span></div>
+        <div class="bar"><span class="name">Sau khi thêm 5 kịch bản</span><div class="track"><div class="fill good" style="width:100%;opacity:.4"></div></div><span class="val">16/16</span></div>
+      </div>
+      <p class="note" style="margin-top:4px">16/16 đo trên chính bộ lỗi đã dùng để bổ sung kịch bản. Khả năng bắt lỗi chưa biết trước lấy theo lần chạy đầu: 11/16.</p>
+    </div>
+    <div class="grid" style="gap:24px; align-content:start">
+      <div class="card brand">
+        <h3>16 lỗi là gì</h3>
+        <p style="color:var(--text);font-size:22px">Bỏ khử trùng lặp, bỏ kiểm thẩm quyền, bỏ qua tranh chấp, đếm phê duyệt theo người thay vì vai trò, tính trễ trước ân hạn, bỏ trần phạt, đảo thứ tự luật…; phần lớn lấy từ các "Lỗi 1–6" trong README của BTC.</p>
+      </div>
+      <div class="card">
+        <h3>Bằng chứng thêm</h3>
+        <ul class="clean sm">
+          <li>Bộ ca tổng hợp: 33 kịch bản phủ cả 405 mốc; đáp án do đội viết, nên đo độ phủ chứ không thay được tập ẩn của BTC</li>
+          <li>An toàn bộ luật: 16/16 phạm vi qua chứng minh tĩnh trên 9.216 tình huống</li>
+          <li>Giả mạo nhật ký: có neo, phát hiện 5/6 kiểu thử</li>
+          <li>Đổi luật làm thay đổi bất kỳ kết quả nào trên 405 mốc thì bị chặn công bố</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="speaker">Bộ ca do đội tự dựng mà đạt 100% thì chưa nói lên gì, nếu nó không trượt khi engine sai. Nên đội cố ý cài 16 lỗi: 20 mẫu BTC chỉ bắt được 7. Bộ ca tổng hợp lần đầu bắt 11; đội xem 5 lỗi lọt rồi thêm 5 kịch bản thì bắt đủ 16. Nói thẳng: 16/16 là sau khi đã biết lỗi, con số khách quan là 11/16. Và vì đáp án của bộ ca do đội viết, nó kiểm phần cài đặt chứ không kiểm cách hiểu đề; phần đó chờ tập ẩn của BTC.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 14. Impact & next step -->
+<section class="slide">
+  <div class="kicker"><b>13</b>Impact &amp; Next Step</div>
+  <h2>Trên Data Pack, engine giữ lại 42 mốc chưa đủ điều kiện và trừ phạt 15 mốc trễ hạn</h2>
+  <div class="body">
+    <div class="impact">
+      <div class="card"><div class="num">42</div><div class="label">mốc tạm giữ hoặc từ chối: <b>56.452 triệu VND</b> không bị chi khi chưa đủ điều kiện</div></div>
+      <div class="card"><div class="num">102,13<small>tr</small></div><div class="label">tiền phạt trễ hạn trên 15 mốc, tính tự động, có công thức</div></div>
+      <div class="card"><div class="num">&lt; 1<small>giây</small></div><div class="label">để chấm lại toàn bộ 405 mốc sau mỗi thao tác</div></div>
+      <div class="card"><div class="num">405/405</div><div class="label">quyết định có luật, căn cứ và mã băm niêm phong</div></div>
+    </div>
+    <div class="split">
+      <div>
+        <h3>Khả năng triển khai và mở rộng</h3>
+        <div class="roadmap">
+          <div><span class="chip done">Đã có</span><span>Docker Compose (nginx + API + MongoDB); CI build và smoke mỗi lần push; bản demo đang chạy trên cloud</span></div>
+          <div><span class="chip done">Đã có</span><span>Thêm loại chứng từ, đổi luật, đổi chính sách bằng dữ liệu, không sửa code</span></div>
+          <div><span class="chip next">Tiếp theo</span><span>Ký qua tổ chức chứng thực được cấp phép; nối cổng ngân hàng qua adapter đã có</span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Giới hạn hiện tại và cách xử lý</h3>
+        <div class="roadmap">
+          <div><span class="chip proto">Dữ liệu</span><span>Chỉ 20 mẫu có nhãn; ca tổng hợp do đội tự gán đáp án → dùng để đo độ phủ và bắt lỗi cài đặt, độ chính xác thật chờ tập ẩn của BTC</span></div>
+          <div><span class="chip proto">Diễn giải</span><span>Điểm BTC chưa chốt (phạm vi tranh chấp, hoá đơn bắt buộc) → đo độ nhạy, hạ độ tin cậy</span></div>
+          <div><span class="chip proto">Mô phỏng</span><span>Ký số và chi tiền chưa có giá trị pháp lý, chưa thanh toán thật</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Số liệu là kết quả engine trên Data Pack của BTC; theo phạm vi đề bài, đây là mô phỏng, không phải quyết định pháp lý hay giải ngân thực tế.</p>
+  </div>
+  <aside class="speaker">Tác động đo được trên chính dữ liệu: 42 mốc với hơn 56 tỷ đồng bị giữ vì chưa đủ điều kiện, 15 mốc trừ phạt đúng công thức. Nói ngắn hướng triển khai và ba giới hạn kèm cách xử lý.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>CodeCash · Bảng D · Case 4 · Vòng 3</span></div>
+</section>
+
+<!-- 15. Closing -->
+<section class="slide dark closing">
+  <div class="kicker">CodeCash · Bảng D · Case 4</div>
+  <h2>Điểm mạnh nhất: không chi tiền khi chưa đủ căn cứ, và chứng minh được vì sao</h2>
+  <div class="chain">
+    <div>Chạy được</div><i>→</i><div>Giải thích được</div><i>→</i><div>Truy vết được</div><i>→</i><div>Kiểm chứng được</div>
+  </div>
+  <p class="sub">Mời Ban giám khảo chọn bất kỳ hợp đồng, mốc hoặc KPI nào để kiểm chứng trực tiếp trên sản phẩm.</p>
+  <aside class="speaker">Kết bằng một câu và mời BGK kiểm chứng. Giữ slide này trên màn khi vào phần Q&amp;A.</aside>
+  <div class="footer"><span class="brand">Code &amp; Cash</span><span>Cảm ơn Ban giám khảo</span></div>
+</section>
+
+</div>
+</div>
+
+<div class="notes" id="notes"><h4>Ghi chú người trình bày</h4><div id="notesBody"></div></div>
+
+<script>
+(function () {
+  var deck = document.getElementById("deck");
+  var slides = Array.prototype.slice.call(deck.querySelectorAll(".slide"));
+  var notes = document.getElementById("notes");
+  var notesBody = document.getElementById("notesBody");
+  var count = document.getElementById("count");
+  var progress = document.getElementById("progress");
+  var index = 0;
+
+  function readHash() {
+    var n = parseInt(location.hash.replace("#", ""), 10);
+    return isNaN(n) ? 0 : Math.min(Math.max(n - 1, 0), slides.length - 1);
+  }
+  function fit() {
+    var scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    deck.style.transform = "scale(" + scale + ")";
+  }
+  function show(i) {
+    index = Math.min(Math.max(i, 0), slides.length - 1);
+    slides.forEach(function (s, k) { s.classList.toggle("active", k === index); });
+    var aside = slides[index].querySelector("aside.speaker");
+    notesBody.textContent = aside ? aside.textContent : "";
+    count.textContent = (index + 1) + " / " + slides.length;
+    progress.style.width = ((index + 1) / slides.length * 100) + "%";
+    if (location.hash !== "#" + (index + 1)) history.replaceState(null, "", "#" + (index + 1));
+  }
+  document.addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "ArrowRight" || k === "PageDown" || k === " ") { e.preventDefault(); show(index + 1); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); show(index - 1); }
+    else if (k === "Home") show(0);
+    else if (k === "End") show(slides.length - 1);
+    else if (k === "n" || k === "N") notes.classList.toggle("show");
+    else if (k === "f" || k === "F") {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      else document.exitFullscreen && document.exitFullscreen();
+    }
+  });
+  deck.addEventListener("click", function (e) { show(e.clientX > window.innerWidth / 2 ? index + 1 : index - 1); });
+  window.addEventListener("resize", fit);
+  window.addEventListener("hashchange", function () { show(readHash()); });
+  fit();
+  show(readHash());
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+{
+  "source": {
+    "dataPack": "BangD-Case4/DataPack-CASE4_SmartContractWorkflow",
+    "snapshot": "2026-10-18",
+    "engineOutput": "submission_output.csv"
+  },
+  "tables": {
+    "contracts": {
+      "rows": 100,
+      "columns": 20
+    },
+    "milestones": {
+      "rows": 405,
+      "columns": 23
+    },
+    "events": {
+      "rows": 1134,
+      "columns": 16
+    },
+    "parties": {
+      "rows": 65,
+      "columns": 15
+    },
+    "payment_rules": {
+      "rows": 128,
+      "columns": 20
+    }
+  },
+  "categories": {
+    "contractTypes": {
+      "GOODS_SUPPLY": 40,
+      "SERVICES": 25,
+      "SOFTWARE_IMPLEMENTATION": 20,
+      "MAINTENANCE": 15
+    },
+    "milestoneTypes": {
+      "SIGNING": 60,
+      "WARRANTY_CLOSE": 45,
+      "DELIVERY": 40,
+      "ACCEPTANCE": 40,
+      "WARRANTY": 40,
+      "FINAL_ACCEPTANCE": 40,
+      "KICKOFF": 25,
+      "INTERIM_DELIVERY": 25,
+      "REQUIREMENTS_APPROVAL": 20,
+      "UAT_PASS": 20,
+      "GO_LIVE_ACCEPTANCE": 20,
+      "ACTIVATION": 15,
+      "SERVICE_COMPLETION": 15
+    },
+    "eventTypes": {
+      "APPROVAL": 497,
+      "INVOICE": 140,
+      "CONTRACT_SIGNED": 100,
+      "ACCEPTANCE": 97,
+      "WARRANTY_COMPLETED": 85,
+      "DELIVERY": 68,
+      "KICKOFF_CONFIRMED": 25,
+      "REQUIREMENTS_APPROVED": 20,
+      "UAT_PASSED": 20,
+      "GO_LIVE": 20,
+      "DISPUTE_OPENED": 18,
+      "SERVICE_ACTIVATED": 15,
+      "SERVICE_COMPLETED": 15,
+      "DISPUTE_RESOLVED": 8,
+      "REJECTION": 6
+    },
+    "partyTypes": {
+      "APPROVER": 30,
+      "SUPPLIER": 25,
+      "BUYER": 10
+    },
+    "ruleSets": 4,
+    "releaseRuleCodes": 16
+  },
+  "relationships": {
+    "milestonesPerContract": {
+      "min": 3,
+      "median": 4.0,
+      "max": 5
+    },
+    "eventsPerMilestone": {
+      "min": 1,
+      "median": 3,
+      "max": 6
+    },
+    "approverRolesPerBuyer": {
+      "min": 3,
+      "median": 3.0,
+      "max": 3
+    },
+    "foreignKeysResolve": {
+      "milestones.contract_id -> contracts": true,
+      "events.milestone_id -> milestones": true,
+      "events.actor_party_id -> parties": true,
+      "contracts.buyer_id/supplier_id -> parties": true,
+      "parties.parent_party_id -> parties (approvers)": true
+    }
+  },
+  "patterns": {
+    "lastMilestoneDueEqualsEndDate": {
+      "count": 100,
+      "total": 100
+    },
+    "paymentPercentSumsTo100": {
+      "count": 100,
+      "total": 100
+    },
+    "plannedAmountEqualsValueTimesPercent": {
+      "count": 405,
+      "total": 405
+    }
+  },
+  "quality": {
+    "exactDuplicateEvents": 5,
+    "eventsAfterSnapshot": 267,
+    "eventsOutsideAllowedEventTypesColumn": 145,
+    "milestonesHeldForWrongSideEvidence": 6,
+    "invoiceFlagConflictsWithRequiredEvents": 15,
+    "disputeEvents": {
+      "DISPUTE_OPENED": 18,
+      "DISPUTE_RESOLVED": 8
+    },
+    "rejectionEvents": 6
+  },
+  "labels": {
+    "sample": 20,
+    "decisions": {
+      "RELEASE": 8,
+      "HOLD": 8,
+      "PENALTY": 2,
+      "REJECT": 2
+    }
+  },
+  "engine": {
+    "decisions": {
+      "RELEASE": 348,
+      "HOLD": 36,
+      "PENALTY": 15,
+      "REJECT": 6
+    },
+    "heldReasons": {
+      "OPEN_DISPUTE": 10,
+      "MISSING_REQUIRED_EVENT": 10,
+      "APPROVAL_QUORUM_NOT_MET": 10,
+      "REJECTION_PRESENT": 6,
+      "UNAUTHORIZED_EVENT": 6
+    },
+    "heldValueMillion": "56452.00",
+    "payableMillion": "365785.87",
+    "penaltyMillion": "102.13"
+  },
+  "enrichment": {
+    "organizations": {
+      "fromParties": 35,
+      "platform": 1
+    },
+    "accounts": {
+      "approver accounts (1 per APPROVER party)": 30,
+      "buyer legal + controller (2 per BUYER)": 20,
+      "supplier + supplier controller (2 per SUPPLIER)": 50,
+      "platform sysadmin + auditor": 2
+    },
+    "accountsTotal": 102,
+    "signingRecords": 100,
+    "demoContracts": [
+      "CT0101",
+      "CT0102",
+      "CT0103",
+      "CT0104"
+    ]
+  }
+}

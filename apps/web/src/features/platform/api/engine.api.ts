@@ -20,6 +20,13 @@ export interface Kpi {
   unauthorizedPayment: Share | null;
   overHold: Share | null;
   amountAccuracy: (Share & { maxAbsError: string }) | null;
+  /** The naive 'always release in full' floor on the same labels; absent on runs recorded before it was measured. */
+  baseline?: {
+    name: 'ALWAYS_RELEASE';
+    decisionAccuracy: Share;
+    macroF1: string | null;
+    unauthorizedPayment: Share;
+  } | null;
   coverage: Share;
   traceability: Share;
   processing: {

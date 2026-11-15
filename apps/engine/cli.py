@@ -47,17 +47,39 @@ def share(count, total):
     return {'count': count, 'total': total}
 
 
+def macro_f1(pairs):
+    """Mean F1 over the decision classes that occur as expected or predicted; `pairs` is (expected, predicted)."""
+    scores = []
+    for decision in sorted(spec.DECISIONS):
+        tp = sum(e == decision and p == decision for e, p in pairs)
+        fp = sum(e != decision and p == decision for e, p in pairs)
+        fn = sum(e == decision and p != decision for e, p in pairs)
+        if tp + fp + fn:
+            scores.append(Fraction(2 * tp, 2 * tp + fp + fn))
+    if not scores:
+        return None
+    macro = sum(scores) / len(scores)
+    return str((Decimal(macro.numerator) / macro.denominator).quantize(Decimal('0.0001'), ROUND_HALF_UP))
+
+
+def baseline_kpi(labelled):
+    """The naive 'always release in full' system: every milestone RELEASE at its planned amount, no checks.
+
+    It is the floor the labelled KPIs are compared against, so the comparison is reproducible from metrics.json.
+    """
+    expected = [d['expected_decision'] for d, _ in labelled]
+    return {
+        'name': 'ALWAYS_RELEASE',
+        'decisionAccuracy': share(sum(e == 'RELEASE' for e in expected), len(expected)),
+        'macroF1': macro_f1([(e, 'RELEASE') for e in expected]),
+        'unauthorizedPayment': share(sum(e not in PAID for e in expected), sum(e not in PAID for e in expected)),
+    }
+
+
 def kpi(pack, results, rows, traces, timings, matched, started):
     """Spec section 10. Labelled metrics use decision_sample.csv only; coverage, trace and time cover every output row."""
     labelled = [(d, results[d['milestone_id']]) for d in pack.decisions] if matched is not None else []
-    scores = []
-    for decision in sorted(spec.DECISIONS):
-        tp = sum(d['expected_decision'] == decision and r['decision'] == decision for d, r in labelled)
-        fp = sum(d['expected_decision'] != decision and r['decision'] == decision for d, r in labelled)
-        fn = sum(d['expected_decision'] == decision and r['decision'] != decision for d, r in labelled)
-        if tp + fp + fn:
-            scores.append(Fraction(2 * tp, 2 * tp + fp + fn))
-    macro = sum(scores) / len(scores) if scores else None
+    macro = macro_f1([(d['expected_decision'], r['decision']) for d, r in labelled])
     held = [r for d, r in labelled if d['expected_decision'] not in PAID]
     paid = [r for d, r in labelled if d['expected_decision'] in PAID]
     errors = [abs(Decimal(d[column]) - r[key]) for d, r in labelled
@@ -74,11 +96,12 @@ def kpi(pack, results, rows, traces, timings, matched, started):
         'labelled': len(labelled),
         'decisionAccuracy': share(sum(d['expected_decision'] == r['decision'] for d, r in labelled), len(labelled)) if labelled else None,
         'scenarioAccuracy': share(matched, len(labelled)) if labelled else None,
-        'macroF1': str((Decimal(macro.numerator) / macro.denominator).quantize(Decimal('0.0001'), ROUND_HALF_UP)) if macro is not None else None,
+        'macroF1': macro,
         'unauthorizedPayment': share(sum(r['decision'] in PAID for r in held), len(held)) if labelled else None,
         'overHold': share(sum(r['decision'] not in PAID for r in paid), len(paid)) if labelled else None,
         'amountAccuracy': dict(share(sum(Decimal(d['payable_amount_vnd_mn']) == r['payable'] and Decimal(d['penalty_amount_vnd_mn']) == r['penalty']
                                          for d, r in labelled), len(labelled)), maxAbsError=str(max(errors))) if labelled else None,
+        'baseline': baseline_kpi(labelled) if labelled else None,
         'coverage': share(once, len(expected)),
         'traceability': share(traced, len(rows)),
         'processing': {'totalMs': f'{(perf_counter() - started) * 1000:.1f}',

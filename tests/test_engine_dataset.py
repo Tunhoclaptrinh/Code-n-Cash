@@ -130,6 +130,9 @@ class UploadedDatasetTests(unittest.TestCase):
         self.assertEqual(kpi['macroF1'], '1.0000')
         self.assertEqual(kpi['unauthorizedPayment'], {'count': 0, 'total': 10})
         self.assertEqual(kpi['overHold'], {'count': 0, 'total': 10})
+        # The 'always release in full' floor: right only on the 8 RELEASE labels, pays all 10 held ones.
+        self.assertEqual(kpi['baseline'], {'name': 'ALWAYS_RELEASE', 'decisionAccuracy': {'count': 8, 'total': 20},
+                                           'macroF1': '0.1429', 'unauthorizedPayment': {'count': 10, 'total': 10}})
         self.assertEqual((kpi['amountAccuracy']['count'], kpi['amountAccuracy']['maxAbsError']), (20, '0.00'))
         self.assertEqual(kpi['coverage'], {'count': 405, 'total': 405})
         self.assertEqual(kpi['traceability'], {'count': 405, 'total': 405})

@@ -13,6 +13,10 @@ Codes:
   ``DUPLICATE_WINDOW``; exact copies are already removed by BR-03;
 - RESOLVED_BY_PAYEE: a dispute closed by the contract's supplier, the party the payment goes to. The
   submission profile does not check the resolver (reading A06, section 12); the workflow profile refuses it.
+
+APPROVAL_OVER_LIMIT is not checked here: ``controls.count_approvals`` (BR-10) drops an approval above the
+approver's limit from the quorum, and the pipeline adds its warning to the same list, so it also lowers the
+confidence score through the sequence factor.
 """
 from datetime import datetime, timedelta
 

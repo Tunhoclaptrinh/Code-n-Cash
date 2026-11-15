@@ -1482,7 +1482,8 @@ test("anchors are countersigned by the configured time-stamp authority", async (
   await writeFile(join(tsaDir, "serial"), "01\n");
   await writeFile(
     join(tsaDir, "tsa.cnf"),
-    `[ tsa ]\ndefault_tsa = t\n[ t ]\ndir = ${tsaDir}\nserial = $dir/serial\ncrypto_device = builtin\n` +
+    // OpenSSL configs treat a backslash as an escape, so Windows paths use forward slashes.
+    `[ tsa ]\ndefault_tsa = t\n[ t ]\ndir = ${tsaDir.replaceAll("\\", "/")}\nserial = $dir/serial\ncrypto_device = builtin\n` +
       "signer_cert = $dir/tsa.crt\ncerts = $dir/ca.crt\nsigner_key = $dir/tsa.key\nsigner_digest = sha256\n" +
       "default_policy = 1.2.3.4.1\nother_policies = 1.2.3.4.2\ndigests = sha256\naccuracy = secs:1\nordering = no\n" +
       "tsa_name = no\ness_cert_id_chain = no\ness_cert_id_alg = sha256\n",

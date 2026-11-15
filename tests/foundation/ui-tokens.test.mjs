@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 /**
  * Shared components take their colours from the design tokens, so the dark theme and a later
@@ -32,7 +32,7 @@ async function files(dir) {
 test("shared components use colour tokens, not raw hex values", async () => {
   const offenders = [];
   for (const file of await files("packages/ui/src/components")) {
-    const name = file.split("/").pop();
+    const name = basename(file);
     const lines = (await readFile(file, "utf8")).split("\n");
     lines.forEach((line, index) => {
       const bare = line.replace(

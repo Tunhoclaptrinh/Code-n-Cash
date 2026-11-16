@@ -28,6 +28,6 @@ New actions change the current head. Compare the saved hash at its original sequ
 
 Record environment, time, failed section, sequence and event IDs. Export related activity and compare with independent anchors or backups. Preserve the evidence before recovery; do not edit records just to make the page green.
 
-> A party able to replace the entire database and recompute the chain can make it internally consistent. Without an independently saved anchor, the check cannot prove history was never rewritten. The demo does not publish hashes to a blockchain or timestamp authority.
+> A party able to replace the entire database and recompute the chain can make it internally consistent. Without an independently saved anchor, the check cannot prove history was never rewritten. By default the demo's witness runs on the same server; when an administrator sets `TSA_URL`, every anchor also gets an RFC 3161 timestamp from an independent authority. Anchoring to a blockchain is planned, not built.
 
 Integrity also does not prove a business document describes a real-world event. Authority and business evidence still need review. See [Activity](/guide/activity), [Exceptions](/guide/exceptions) and [Signature limitations](/guide/signing).

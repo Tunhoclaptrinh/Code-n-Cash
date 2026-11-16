@@ -55,7 +55,7 @@ Một luồng dữ liệu duy nhất:
 
 Generic CRUD không sửa được bản ghi của Data Pack và của luồng nghiệp vụ: resource khai báo `managedOrigins` trong `resources.json`, API trả `MANAGED_RECORD`.
 
-Toàn vẹn: `Repository.transact` nối mọi bản ghi nhật ký vào hash chain (`common/audit-chain.ts`: `seq`, `prevHash`, `hash` = SHA-256 của JSON chuẩn hoá) và từ chối sửa, xoá bản ghi cũ (`APPEND_ONLY_RESOURCE`). Bản ghi đầu niêm phong mã băm từng bảng dữ liệu BTC lúc nhập; bản ghi của mỗi thao tác niêm phong mã băm các sự kiện nó tạo. Hành động `integrity.verifyIntegrity` kiểm lại chuỗi, các niêm phong và chạy lại engine để đối soát mọi quyết định đã lưu; `contracts.getMilestoneTimeline` phát lại một mốc theo từng sự kiện (`cli.py --timeline`, chế độ as-of BR-16). Ký số vẫn là mô phỏng, không gọi là CA thật. Vai trò ở [đặc tả nghiệp vụ](NGHIEP_VU.md) mục 2, kịch bản demo ở [Kịch bản demo](KICH_BAN_DEMO.md).
+Toàn vẹn: `Repository.transact` nối mọi bản ghi nhật ký vào hash chain (`common/audit-chain.ts`: `seq`, `prevHash`, `hash` = SHA-256 của JSON chuẩn hoá) và từ chối sửa, xoá bản ghi cũ (`APPEND_ONLY_RESOURCE`). Bản ghi đầu niêm phong mã băm từng bảng dữ liệu BTC lúc nhập; bản ghi của mỗi thao tác niêm phong mã băm các sự kiện nó tạo. Hành động `integrity.verifyIntegrity` kiểm lại chuỗi, các niêm phong và chạy lại engine để đối soát mọi quyết định đã lưu; `contracts.getMilestoneTimeline` phát lại một mốc theo từng sự kiện (`cli.py --timeline`, chế độ as-of BR-16). Ký số vẫn là mô phỏng, không gọi là CA thật. Vai trò ở [đặc tả nghiệp vụ](NGHIEP_VU.md) mục 2.
 
 ## 6. Cách thêm tính năng
 

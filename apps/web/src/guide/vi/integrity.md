@@ -28,6 +28,6 @@ Lưu **số thứ tự** và **mã băm đầu chuỗi** ở một nơi độc l
 
 Ghi nhận môi trường, thời điểm, khối lỗi, số thứ tự hoặc mã sự kiện; xuất nhật ký để điều tra. Đối chiếu bản sao lưu hoặc mốc niêm phong độc lập trước khi phục hồi. Không sửa bản ghi trực tiếp để biến kết quả thành xanh vì sẽ làm mất dấu vết.
 
-> **Giới hạn:** người có quyền thay toàn bộ cơ sở dữ liệu và tính lại cả chuỗi có thể tạo ra chuỗi tự nhất quán. Không có dấu băm được lưu độc lập thì kiểm tra nội bộ không chứng minh được lịch sử chưa từng bị viết lại. Bản demo chưa gửi dấu lên blockchain hay dịch vụ dấu thời gian.
+> **Giới hạn:** người có quyền thay toàn bộ cơ sở dữ liệu và tính lại cả chuỗi có thể tạo ra chuỗi tự nhất quán. Không có dấu băm được lưu độc lập thì kiểm tra nội bộ không chứng minh được lịch sử chưa từng bị viết lại. Mặc định bản demo chỉ có bên làm chứng trên cùng máy chủ; khi quản trị đặt `TSA_URL`, mỗi lần neo có thêm dấu thời gian RFC 3161 của đơn vị độc lập. Neo lên blockchain là định hướng, chưa triển khai.
 
 Kết quả toàn vẹn cũng không chứng minh một chứng từ phản ánh sự kiện có thật; thẩm quyền và nội dung nghiệp vụ vẫn phải được kiểm tra. Xem [Nhật ký](/guide/activity), [Ngoại lệ](/guide/exceptions) và [Kiểm tra chữ ký](/guide/signing).

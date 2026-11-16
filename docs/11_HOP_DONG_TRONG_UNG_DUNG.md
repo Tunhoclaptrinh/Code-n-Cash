@@ -29,7 +29,7 @@ flowchart LR
 | Phê duyệt tài chính (`FINANCE_APPROVER`) | `finance@novaan.vn` | Phê duyệt chi khi chính sách yêu cầu, duyệt lệnh chi |
 | Nhà cung cấp (`SUPPLIER`) | `supplier@phuminh.vn` | Ký, nộp chứng từ phía mình và hoá đơn, trả lời phụ lục |
 
-Mật khẩu demo xem [Kịch bản demo](KICH_BAN_DEMO.md). Danh tính và quyền luôn lấy từ người đăng nhập; API bỏ qua vai trò, mã người hay tổ chức do trình duyệt gửi lên.
+Mật khẩu demo xem [README](../README.md) mục "Tài khoản demo". Danh tính và quyền luôn lấy từ người đăng nhập; API bỏ qua vai trò, mã người hay tổ chức do trình duyệt gửi lên.
 
 ## 2. Bước 1: soạn bản nháp
 
@@ -366,7 +366,7 @@ Các cảnh báo do API tính, giao diện chỉ hiển thị; cảnh báo cần
 | Nộp hoá đơn qua HTTP, thiếu dữ liệu bị từ chối | `scripts/smoke.mjs` |
 | Ảnh hướng dẫn của từng bước | `scripts/guide-screenshots.mjs` (`evidence-invoice`, `approval-evidence`, `upload-digitize-edit`, `amendment-form`, `amendment-review`) |
 
-Chạy: `pnpm check` (typecheck, lint, định dạng, build, test), các smoke trên stack riêng như [30 Tiếp quản](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md).
+Chạy: `pnpm check` (typecheck, lint, định dạng, build, test), các smoke trên stack riêng như [README](../README.md) mục Kiểm thử.
 
 ## 13. Demo nhanh từng bước
 

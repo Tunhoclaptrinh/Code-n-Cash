@@ -16768,7 +16768,7 @@
  },
  "rows": [
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0001",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0001",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0001",
@@ -16790,7 +16790,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0002",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0002",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0001",
@@ -16812,7 +16812,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0003",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0003",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0001",
@@ -16834,7 +16834,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0004",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0004",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0001",
@@ -16856,7 +16856,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0005",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0005",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0002",
@@ -16878,7 +16878,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0006",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0006",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0002",
@@ -16900,7 +16900,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0007",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0007",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0002",
@@ -16922,7 +16922,7 @@
    "rule_id_applied": "PR0002"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0008",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0008",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0002",
@@ -16944,9 +16944,9 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0009",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0009",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0003",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -16956,7 +16956,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "318.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "318.00",
@@ -16966,9 +16966,9 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0010",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0010",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0003",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -16978,7 +16978,7 @@
    "milestone_sequence": "2",
    "milestone_type": "DELIVERY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "636.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "636.00",
@@ -16988,7 +16988,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0011",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0011",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1",
    "confidence_score": "1.00",
    "contract_id": "CT0003",
@@ -17010,9 +17010,9 @@
    "rule_id_applied": "PR0001"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0012",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0012",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0003",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17022,7 +17022,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "159.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "159.00",
@@ -17032,9 +17032,9 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0013",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0013",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0004",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17044,7 +17044,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1335.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1335.00",
@@ -17054,9 +17054,9 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0014",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0014",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0004",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17066,7 +17066,7 @@
    "milestone_sequence": "2",
    "milestone_type": "REQUIREMENTS_APPROVAL",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "2002.50",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "2002.50",
@@ -17076,7 +17076,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0015",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0015",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE",
    "confidence_score": "1.00",
    "contract_id": "CT0004",
@@ -17098,9 +17098,9 @@
    "rule_id_applied": "PR0113"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0016",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0016",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0004",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17110,7 +17110,7 @@
    "milestone_sequence": "4",
    "milestone_type": "GO_LIVE_ACCEPTANCE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "5340.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "5340.00",
@@ -17120,9 +17120,9 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0017",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0017",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0004",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17132,7 +17132,7 @@
    "milestone_sequence": "5",
    "milestone_type": "WARRANTY_CLOSE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1335.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1335.00",
@@ -17142,7 +17142,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0018",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0018",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0005",
@@ -17164,7 +17164,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0019",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0019",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0005",
@@ -17186,7 +17186,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0020",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0020",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0005",
@@ -17208,7 +17208,7 @@
    "rule_id_applied": "PR0062"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0021",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0021",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0005",
@@ -17230,7 +17230,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0022",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0022",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0006",
@@ -17252,7 +17252,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0023",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0023",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0006",
@@ -17274,7 +17274,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0024",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0024",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0006",
@@ -17296,7 +17296,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0025",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0025",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0006",
@@ -17318,9 +17318,9 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0026",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0026",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0007",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17330,7 +17330,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1055.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1055.00",
@@ -17340,9 +17340,9 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0027",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0027",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0007",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17352,7 +17352,7 @@
    "milestone_sequence": "2",
    "milestone_type": "REQUIREMENTS_APPROVAL",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1582.50",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1582.50",
@@ -17362,7 +17362,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0028",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0028",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:2",
    "confidence_score": "1.00",
    "contract_id": "CT0007",
@@ -17384,9 +17384,9 @@
    "rule_id_applied": "PR0113"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0029",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0029",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0007",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17396,7 +17396,7 @@
    "milestone_sequence": "4",
    "milestone_type": "GO_LIVE_ACCEPTANCE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "4220.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "4220.00",
@@ -17406,9 +17406,9 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0030",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0030",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0007",
    "contract_type": "SOFTWARE_IMPLEMENTATION",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17418,7 +17418,7 @@
    "milestone_sequence": "5",
    "milestone_type": "WARRANTY_CLOSE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1055.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1055.00",
@@ -17428,7 +17428,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0031",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0031",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0008",
@@ -17450,7 +17450,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0032",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0032",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0008",
@@ -17472,7 +17472,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0033",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0033",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0008",
@@ -17494,7 +17494,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0034",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0034",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0008",
@@ -17516,7 +17516,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0035",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0035",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0009",
@@ -17538,7 +17538,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0036",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0036",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0009",
@@ -17560,7 +17560,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0037",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0037",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0009",
@@ -17582,7 +17582,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0038",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0038",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0009",
@@ -17604,7 +17604,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0039",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0039",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0010",
@@ -17626,7 +17626,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0040",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0040",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0010",
@@ -17648,7 +17648,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0041",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0041",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0010",
@@ -17670,7 +17670,7 @@
    "rule_id_applied": "PR0062"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0042",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0042",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0010",
@@ -17692,7 +17692,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0043",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0043",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0011",
@@ -17714,7 +17714,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0044",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0044",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0011",
@@ -17736,7 +17736,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0045",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0045",
    "conditions_met": "APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0011",
@@ -17758,7 +17758,7 @@
    "rule_id_applied": "PR0004"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0046",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0046",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0011",
@@ -17780,7 +17780,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0047",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0047",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0012",
@@ -17802,7 +17802,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0048",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0048",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0012",
@@ -17824,7 +17824,7 @@
    "rule_id_applied": "PR0053"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0049",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0049",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0012",
@@ -17846,7 +17846,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0050",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0050",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0013",
@@ -17868,7 +17868,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0051",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0051",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0013",
@@ -17890,7 +17890,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0052",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0052",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0013",
@@ -17912,7 +17912,7 @@
    "rule_id_applied": "PR0062"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0053",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0053",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0013",
@@ -17934,9 +17934,9 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0054",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0054",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.60",
+   "confidence_score": "0.80",
    "contract_id": "CT0014",
    "contract_type": "MAINTENANCE",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17946,7 +17946,7 @@
    "milestone_sequence": "1",
    "milestone_type": "ACTIVATION",
    "missing_conditions": "",
-   "notes": "assumptions:A05,A08;confidence:A05,A08;offline_full_history",
+   "notes": "assumptions:A08;confidence:A08;offline_full_history",
    "payable_amount_vnd_mn": "855.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "855.00",
@@ -17956,7 +17956,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0055",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0055",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:1",
    "confidence_score": "1.00",
    "contract_id": "CT0014",
@@ -17978,9 +17978,9 @@
    "rule_id_applied": "PR0049"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0056",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0056",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0014",
    "contract_type": "MAINTENANCE",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -17990,7 +17990,7 @@
    "milestone_sequence": "3",
    "milestone_type": "FINAL_ACCEPTANCE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "570.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "570.00",
@@ -18000,7 +18000,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0057",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0057",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0015",
@@ -18022,7 +18022,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0058",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0058",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0015",
@@ -18044,7 +18044,7 @@
    "rule_id_applied": "PR0053"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0059",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0059",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0015",
@@ -18066,7 +18066,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0060",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0060",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0016",
@@ -18088,7 +18088,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0061",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0061",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0016",
@@ -18110,7 +18110,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0062",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0062",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0016",
@@ -18132,7 +18132,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0063",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0063",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0016",
@@ -18154,7 +18154,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0064",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0064",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0016",
@@ -18176,7 +18176,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0065",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0065",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0017",
@@ -18198,7 +18198,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0066",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0066",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0017",
@@ -18220,7 +18220,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0067",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0067",
    "conditions_met": "EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0017",
@@ -18242,7 +18242,7 @@
    "rule_id_applied": "PR0115"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0068",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0068",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0017",
@@ -18264,7 +18264,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0069",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0069",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0017",
@@ -18286,7 +18286,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0070",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0070",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0018",
@@ -18308,7 +18308,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0071",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0071",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0018",
@@ -18330,7 +18330,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0072",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0072",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0018",
@@ -18352,7 +18352,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0073",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0073",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0018",
@@ -18374,9 +18374,9 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0074",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0074",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0019",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -18386,7 +18386,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "394.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "394.00",
@@ -18396,9 +18396,9 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0075",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0075",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0019",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -18408,7 +18408,7 @@
    "milestone_sequence": "2",
    "milestone_type": "DELIVERY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "788.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "788.00",
@@ -18418,7 +18418,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0076",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0076",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2",
    "confidence_score": "1.00",
    "contract_id": "CT0019",
@@ -18440,9 +18440,9 @@
    "rule_id_applied": "PR0001"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0077",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0077",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0019",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -18452,7 +18452,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "197.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "197.00",
@@ -18462,7 +18462,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0078",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0078",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0020",
@@ -18484,7 +18484,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0079",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0079",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0020",
@@ -18506,7 +18506,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0080",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0080",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0020",
@@ -18528,7 +18528,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0081",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0081",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0021",
@@ -18550,7 +18550,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0082",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0082",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0021",
@@ -18572,7 +18572,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0083",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0083",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0021",
@@ -18594,7 +18594,7 @@
    "rule_id_applied": "PR0062"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0084",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0084",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0021",
@@ -18616,7 +18616,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0085",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0085",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0022",
@@ -18638,7 +18638,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0086",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0086",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0022",
@@ -18660,7 +18660,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0087",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0087",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0022",
@@ -18682,7 +18682,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0088",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0088",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0022",
@@ -18704,7 +18704,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0089",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0089",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0023",
@@ -18726,7 +18726,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0090",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0090",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0023",
@@ -18748,7 +18748,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0091",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0091",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0023",
@@ -18770,7 +18770,7 @@
    "rule_id_applied": "PR0061"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0092",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0092",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0023",
@@ -18792,7 +18792,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0093",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0093",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0024",
@@ -18814,7 +18814,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0094",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0094",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0024",
@@ -18836,7 +18836,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0095",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0095",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0024",
@@ -18858,7 +18858,7 @@
    "rule_id_applied": "PR0005"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0096",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0096",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0024",
@@ -18880,7 +18880,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0097",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0097",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0025",
@@ -18902,7 +18902,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0098",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0098",
    "conditions_met": "EVENT:SERVICE_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0025",
@@ -18924,7 +18924,7 @@
    "rule_id_applied": "PR0052"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0099",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0099",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0025",
@@ -18946,7 +18946,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0100",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0100",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0026",
@@ -18968,7 +18968,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0101",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0101",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0026",
@@ -18990,7 +18990,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0102",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0102",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0026",
@@ -19012,7 +19012,7 @@
    "rule_id_applied": "PR0117"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0103",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0103",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0026",
@@ -19034,7 +19034,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0104",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0104",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0026",
@@ -19056,7 +19056,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0105",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0105",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0027",
@@ -19078,7 +19078,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0106",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0106",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0027",
@@ -19100,7 +19100,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0107",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0107",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0027",
@@ -19122,7 +19122,7 @@
    "rule_id_applied": "PR0117"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0108",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0108",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0027",
@@ -19144,7 +19144,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0109",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0109",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0027",
@@ -19166,7 +19166,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0110",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0110",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0028",
@@ -19188,7 +19188,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0111",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0111",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0028",
@@ -19210,7 +19210,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0112",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0112",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0028",
@@ -19232,7 +19232,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0113",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0113",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0028",
@@ -19254,7 +19254,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0114",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0114",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0028",
@@ -19276,7 +19276,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0115",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0115",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0029",
@@ -19298,7 +19298,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0116",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0116",
    "conditions_met": "EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0029",
@@ -19320,7 +19320,7 @@
    "rule_id_applied": "PR0067"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0117",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0117",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0029",
@@ -19342,7 +19342,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0118",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0118",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0029",
@@ -19364,7 +19364,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0119",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0119",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0030",
@@ -19386,7 +19386,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0120",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0120",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0030",
@@ -19408,7 +19408,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0121",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0121",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0030",
@@ -19430,7 +19430,7 @@
    "rule_id_applied": "PR0118"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0122",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0122",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0030",
@@ -19452,7 +19452,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0123",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0123",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0030",
@@ -19474,7 +19474,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0124",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0124",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0031",
@@ -19496,7 +19496,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0125",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0125",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0031",
@@ -19518,7 +19518,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0126",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0126",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0031",
@@ -19540,7 +19540,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0127",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0127",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0031",
@@ -19562,9 +19562,9 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0128",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0128",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0032",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -19574,7 +19574,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "844.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "844.00",
@@ -19584,9 +19584,9 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0129",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0129",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0032",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -19596,7 +19596,7 @@
    "milestone_sequence": "2",
    "milestone_type": "DELIVERY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1688.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1688.00",
@@ -19606,7 +19606,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0130",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0130",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1",
    "confidence_score": "1.00",
    "contract_id": "CT0032",
@@ -19628,9 +19628,9 @@
    "rule_id_applied": "PR0001"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0131",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0131",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0032",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -19640,7 +19640,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "422.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "422.00",
@@ -19650,7 +19650,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0132",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0132",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0033",
@@ -19672,7 +19672,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0133",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0133",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0033",
@@ -19694,7 +19694,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0134",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0134",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0033",
@@ -19716,7 +19716,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0135",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0135",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0033",
@@ -19738,7 +19738,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0136",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0136",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0034",
@@ -19760,7 +19760,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0137",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0137",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0034",
@@ -19782,7 +19782,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0138",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0138",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0034",
@@ -19804,7 +19804,7 @@
    "rule_id_applied": "PR0046"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0139",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0139",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0035",
@@ -19826,7 +19826,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0140",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0140",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0035",
@@ -19848,7 +19848,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0141",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0141",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0035",
@@ -19870,7 +19870,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0142",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0142",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0036",
@@ -19892,7 +19892,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0143",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0143",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0036",
@@ -19914,7 +19914,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0144",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0144",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0036",
@@ -19936,7 +19936,7 @@
    "rule_id_applied": "PR0061"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0145",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0145",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0036",
@@ -19958,7 +19958,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0146",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0146",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0037",
@@ -19980,7 +19980,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0147",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0147",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0037",
@@ -20002,7 +20002,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0148",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0148",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0037",
@@ -20024,7 +20024,7 @@
    "rule_id_applied": "PR0002"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0149",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0149",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0037",
@@ -20046,7 +20046,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0150",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0150",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0038",
@@ -20068,7 +20068,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0151",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0151",
    "conditions_met": "EVENT:DELIVERY;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0038",
@@ -20090,7 +20090,7 @@
    "rule_id_applied": "PR0068"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0152",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0152",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0038",
@@ -20112,7 +20112,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0153",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0153",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0038",
@@ -20134,7 +20134,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0154",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0154",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0039",
@@ -20156,7 +20156,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0155",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0155",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0039",
@@ -20178,7 +20178,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0156",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0156",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0039",
@@ -20200,7 +20200,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0157",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0157",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0039",
@@ -20222,7 +20222,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0158",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0158",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0040",
@@ -20244,7 +20244,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0159",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0159",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0040",
@@ -20266,7 +20266,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0160",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0160",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0040",
@@ -20288,7 +20288,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0161",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0161",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0040",
@@ -20310,7 +20310,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0162",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0162",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0041",
@@ -20332,7 +20332,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0163",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0163",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0041",
@@ -20354,7 +20354,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0164",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0164",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0041",
@@ -20376,7 +20376,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0165",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0165",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0041",
@@ -20398,7 +20398,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0166",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0166",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0042",
@@ -20420,7 +20420,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0167",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0167",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0042",
@@ -20442,7 +20442,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0168",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0168",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0042",
@@ -20464,7 +20464,7 @@
    "rule_id_applied": "PR0114"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0169",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0169",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0042",
@@ -20486,7 +20486,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0170",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0170",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0042",
@@ -20508,7 +20508,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0171",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0171",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0043",
@@ -20530,7 +20530,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0172",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0172",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.97",
    "contract_id": "CT0043",
@@ -20552,7 +20552,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0173",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0173",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0043",
@@ -20574,7 +20574,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0174",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0174",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0043",
@@ -20596,7 +20596,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0175",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0175",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0044",
@@ -20618,7 +20618,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0176",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0176",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0044",
@@ -20640,7 +20640,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0177",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0177",
    "conditions_met": "EVENT:UAT_PASSED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0044",
@@ -20662,7 +20662,7 @@
    "rule_id_applied": "PR0116"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0178",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0178",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0044",
@@ -20684,7 +20684,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0179",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0179",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0044",
@@ -20706,7 +20706,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0180",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0180",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0045",
@@ -20728,7 +20728,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0181",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0181",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0045",
@@ -20750,7 +20750,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0182",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0182",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0045",
@@ -20772,7 +20772,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0183",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0183",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0046",
@@ -20794,7 +20794,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0184",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0184",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0046",
@@ -20816,7 +20816,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0185",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0185",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0046",
@@ -20838,7 +20838,7 @@
    "rule_id_applied": "PR0002"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0186",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0186",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0046",
@@ -20860,7 +20860,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0187",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0187",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0047",
@@ -20882,7 +20882,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0188",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0188",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0047",
@@ -20904,7 +20904,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0189",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0189",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0047",
@@ -20926,7 +20926,7 @@
    "rule_id_applied": "PR0114"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0190",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0190",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0047",
@@ -20948,7 +20948,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0191",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0191",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0047",
@@ -20970,7 +20970,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0192",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0192",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0048",
@@ -20992,7 +20992,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0193",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0193",
    "conditions_met": "EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0048",
@@ -21014,7 +21014,7 @@
    "rule_id_applied": "PR0067"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0194",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0194",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0048",
@@ -21036,7 +21036,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0195",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0195",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0048",
@@ -21058,7 +21058,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0196",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0196",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0049",
@@ -21080,7 +21080,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0197",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0197",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0049",
@@ -21102,7 +21102,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0198",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0198",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0049",
@@ -21124,7 +21124,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0199",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0199",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0049",
@@ -21146,7 +21146,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0200",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0200",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0049",
@@ -21168,7 +21168,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0201",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0201",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0050",
@@ -21190,7 +21190,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0202",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0202",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0050",
@@ -21212,7 +21212,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0203",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0203",
    "conditions_met": "APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0050",
@@ -21234,7 +21234,7 @@
    "rule_id_applied": "PR0004"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0204",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0204",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0050",
@@ -21256,7 +21256,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0205",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0205",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0051",
@@ -21278,7 +21278,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0206",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0206",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0051",
@@ -21300,7 +21300,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0207",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0207",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0051",
@@ -21322,7 +21322,7 @@
    "rule_id_applied": "PR0006"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0208",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0208",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0051",
@@ -21344,7 +21344,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0209",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0209",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0052",
@@ -21366,7 +21366,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0210",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0210",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.97",
    "contract_id": "CT0052",
@@ -21388,7 +21388,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0211",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0211",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0052",
@@ -21410,7 +21410,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0212",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0212",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0052",
@@ -21432,7 +21432,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0213",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0213",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0053",
@@ -21454,7 +21454,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0214",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0214",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "0.97",
    "contract_id": "CT0053",
@@ -21476,7 +21476,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0215",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0215",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0053",
@@ -21498,7 +21498,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0216",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0216",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0053",
@@ -21520,7 +21520,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0217",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0217",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0054",
@@ -21542,7 +21542,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0218",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0218",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0054",
@@ -21564,7 +21564,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0219",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0219",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0054",
@@ -21586,7 +21586,7 @@
    "rule_id_applied": "PR0118"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0220",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0220",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0054",
@@ -21608,7 +21608,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0221",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0221",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0054",
@@ -21630,7 +21630,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0222",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0222",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0055",
@@ -21652,7 +21652,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0223",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0223",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0055",
@@ -21674,7 +21674,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0224",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0224",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0055",
@@ -21696,7 +21696,7 @@
    "rule_id_applied": "PR0006"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0225",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0225",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0055",
@@ -21718,7 +21718,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0226",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0226",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0056",
@@ -21740,7 +21740,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0227",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0227",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0056",
@@ -21762,7 +21762,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0228",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0228",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0056",
@@ -21784,7 +21784,7 @@
    "rule_id_applied": "PR0006"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0229",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0229",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0056",
@@ -21806,7 +21806,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0230",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0230",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0057",
@@ -21828,7 +21828,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0231",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0231",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0057",
@@ -21850,7 +21850,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0232",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0232",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0057",
@@ -21872,7 +21872,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0233",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0233",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0057",
@@ -21894,7 +21894,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0234",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0234",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0057",
@@ -21916,7 +21916,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0235",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0235",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0058",
@@ -21938,7 +21938,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0236",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0236",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0058",
@@ -21960,7 +21960,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0237",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0237",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0058",
@@ -21982,7 +21982,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0238",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0238",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0058",
@@ -22004,9 +22004,9 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0239",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0239",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0059",
    "contract_type": "SERVICES",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -22016,7 +22016,7 @@
    "milestone_sequence": "1",
    "milestone_type": "KICKOFF",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "159.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "159.00",
@@ -22026,7 +22026,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0240",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0240",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2",
    "confidence_score": "1.00",
    "contract_id": "CT0059",
@@ -22048,9 +22048,9 @@
    "rule_id_applied": "PR0065"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0241",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0241",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0059",
    "contract_type": "SERVICES",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -22060,7 +22060,7 @@
    "milestone_sequence": "3",
    "milestone_type": "FINAL_ACCEPTANCE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "424.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "424.00",
@@ -22070,9 +22070,9 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0242",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0242",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0059",
    "contract_type": "SERVICES",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -22082,7 +22082,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY_CLOSE",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "106.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "106.00",
@@ -22092,7 +22092,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0243",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0243",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0060",
@@ -22114,7 +22114,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0244",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0244",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0060",
@@ -22136,7 +22136,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0245",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0245",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0060",
@@ -22158,7 +22158,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0246",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0246",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0061",
@@ -22180,7 +22180,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0247",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0247",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0061",
@@ -22202,7 +22202,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0248",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0248",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0061",
@@ -22224,7 +22224,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0249",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0249",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0061",
@@ -22246,7 +22246,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0250",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0250",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0062",
@@ -22268,7 +22268,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0251",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0251",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0062",
@@ -22290,7 +22290,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0252",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0252",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0062",
@@ -22312,7 +22312,7 @@
    "rule_id_applied": "PR0062"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0253",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0253",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0062",
@@ -22334,7 +22334,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0254",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0254",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0063",
@@ -22356,7 +22356,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0255",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0255",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0063",
@@ -22378,7 +22378,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0256",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0256",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0063",
@@ -22400,7 +22400,7 @@
    "rule_id_applied": "PR0005"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0257",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0257",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0063",
@@ -22422,7 +22422,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0258",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0258",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0064",
@@ -22444,7 +22444,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0259",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0259",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0064",
@@ -22466,7 +22466,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0260",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0260",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0064",
@@ -22488,7 +22488,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0261",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0261",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0064",
@@ -22510,7 +22510,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0262",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0262",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0065",
@@ -22532,7 +22532,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0263",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0263",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0065",
@@ -22554,7 +22554,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0264",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0264",
    "conditions_met": "APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0065",
@@ -22576,7 +22576,7 @@
    "rule_id_applied": "PR0004"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0265",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0265",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0065",
@@ -22598,7 +22598,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0266",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0266",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0066",
@@ -22620,7 +22620,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0267",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0267",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0066",
@@ -22642,7 +22642,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0268",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0268",
    "conditions_met": "APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0066",
@@ -22664,7 +22664,7 @@
    "rule_id_applied": "PR0004"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0269",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0269",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0066",
@@ -22686,7 +22686,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0270",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0270",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0067",
@@ -22708,7 +22708,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0271",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0271",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0067",
@@ -22730,7 +22730,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0272",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0272",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0067",
@@ -22752,7 +22752,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0273",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0273",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0067",
@@ -22774,7 +22774,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0274",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0274",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0068",
@@ -22796,7 +22796,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0275",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0275",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0068",
@@ -22818,7 +22818,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0276",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0276",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0068",
@@ -22840,7 +22840,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0277",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0277",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0068",
@@ -22862,7 +22862,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0278",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0278",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0069",
@@ -22884,7 +22884,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0279",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0279",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0069",
@@ -22906,7 +22906,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0280",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0280",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0069",
@@ -22928,7 +22928,7 @@
    "rule_id_applied": "PR0006"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0281",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0281",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0069",
@@ -22950,7 +22950,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0282",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0282",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0070",
@@ -22972,7 +22972,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0283",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0283",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0070",
@@ -22994,7 +22994,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0284",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0284",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0070",
@@ -23016,7 +23016,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0285",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0285",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0071",
@@ -23038,7 +23038,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0286",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0286",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0071",
@@ -23060,7 +23060,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0287",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0287",
    "conditions_met": "APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0071",
@@ -23082,7 +23082,7 @@
    "rule_id_applied": "PR0003"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0288",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0288",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0071",
@@ -23104,7 +23104,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0289",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0289",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0072",
@@ -23126,7 +23126,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0290",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0290",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0072",
@@ -23148,7 +23148,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0291",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0291",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0072",
@@ -23170,7 +23170,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0292",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0292",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0072",
@@ -23192,7 +23192,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0293",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0293",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0073",
@@ -23214,7 +23214,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0294",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0294",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0073",
@@ -23236,7 +23236,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0295",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0295",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0073",
@@ -23258,7 +23258,7 @@
    "rule_id_applied": "PR0002"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0296",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0296",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0073",
@@ -23280,7 +23280,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0297",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0297",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0074",
@@ -23302,7 +23302,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0298",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0298",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0074",
@@ -23324,7 +23324,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0299",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0299",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0074",
@@ -23346,7 +23346,7 @@
    "rule_id_applied": "PR0046"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0300",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0300",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0075",
@@ -23368,7 +23368,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0301",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0301",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0075",
@@ -23390,7 +23390,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0302",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0302",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0075",
@@ -23412,7 +23412,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0303",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0303",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0076",
@@ -23434,7 +23434,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0304",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0304",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0076",
@@ -23456,7 +23456,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0305",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0305",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0076",
@@ -23478,7 +23478,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0306",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0306",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0076",
@@ -23500,7 +23500,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0307",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0307",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0076",
@@ -23522,7 +23522,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0308",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0308",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0077",
@@ -23544,7 +23544,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0309",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0309",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0077",
@@ -23566,7 +23566,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0310",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0310",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0077",
@@ -23588,7 +23588,7 @@
    "rule_id_applied": "PR0005"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0311",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0311",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0077",
@@ -23610,7 +23610,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0312",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0312",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0078",
@@ -23632,7 +23632,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0313",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0313",
    "conditions_met": "EVENT:SERVICE_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0078",
@@ -23654,7 +23654,7 @@
    "rule_id_applied": "PR0052"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0314",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0314",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0078",
@@ -23676,7 +23676,7 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0315",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0315",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0079",
@@ -23698,7 +23698,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0316",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0316",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0079",
@@ -23720,7 +23720,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0317",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0317",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0079",
@@ -23742,7 +23742,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0318",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0318",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0079",
@@ -23764,7 +23764,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0319",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0319",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0079",
@@ -23786,9 +23786,9 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0320",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0320",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0080",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -23798,7 +23798,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "902.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "902.00",
@@ -23808,9 +23808,9 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0321",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0321",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0080",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -23820,7 +23820,7 @@
    "milestone_sequence": "2",
    "milestone_type": "DELIVERY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1804.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1804.00",
@@ -23830,7 +23830,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0322",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0322",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1",
    "confidence_score": "1.00",
    "contract_id": "CT0080",
@@ -23852,9 +23852,9 @@
    "rule_id_applied": "PR0001"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0323",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0323",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0080",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -23864,7 +23864,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "451.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "451.00",
@@ -23874,7 +23874,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0324",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0324",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0081",
@@ -23896,7 +23896,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0325",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0325",
    "conditions_met": "EVENT:SERVICE_COMPLETED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0081",
@@ -23918,7 +23918,7 @@
    "rule_id_applied": "PR0055"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0326",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0326",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0081",
@@ -23940,7 +23940,7 @@
    "rule_id_applied": "PR0046"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0327",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0327",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0082",
@@ -23962,7 +23962,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0328",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0328",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0082",
@@ -23984,7 +23984,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0329",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0329",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0082",
@@ -24006,7 +24006,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0330",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0330",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0082",
@@ -24028,7 +24028,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0331",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0331",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0083",
@@ -24050,7 +24050,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0332",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0332",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0083",
@@ -24072,7 +24072,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0333",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0333",
    "conditions_met": "EVENT:ACCEPTANCE;NO_OPEN_DISPUTE",
    "confidence_score": "0.97",
    "contract_id": "CT0083",
@@ -24094,7 +24094,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0334",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0334",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0083",
@@ -24116,7 +24116,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0335",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0335",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0084",
@@ -24138,7 +24138,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0336",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0336",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0084",
@@ -24160,7 +24160,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0337",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0337",
    "conditions_met": "APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0084",
@@ -24182,7 +24182,7 @@
    "rule_id_applied": "PR0004"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0338",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0338",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0084",
@@ -24204,7 +24204,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0339",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0339",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0085",
@@ -24226,7 +24226,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0340",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0340",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0085",
@@ -24248,7 +24248,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0341",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0341",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0085",
@@ -24270,7 +24270,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0342",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0342",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0085",
@@ -24292,7 +24292,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0343",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0343",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0085",
@@ -24314,7 +24314,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0344",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0344",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:SERVICE_ACTIVATED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.80",
    "contract_id": "CT0086",
@@ -24336,7 +24336,7 @@
    "rule_id_applied": "PR0039"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0345",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0345",
    "conditions_met": "EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0086",
@@ -24358,7 +24358,7 @@
    "rule_id_applied": "PR0051"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0346",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0346",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0086",
@@ -24380,9 +24380,9 @@
    "rule_id_applied": "PR0047"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0347",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0347",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0087",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -24392,7 +24392,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "764.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "764.00",
@@ -24402,9 +24402,9 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0348",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0348",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0087",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -24414,7 +24414,7 @@
    "milestone_sequence": "2",
    "milestone_type": "DELIVERY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1528.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1528.00",
@@ -24424,7 +24424,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0349",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0349",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1",
    "confidence_score": "1.00",
    "contract_id": "CT0087",
@@ -24446,9 +24446,9 @@
    "rule_id_applied": "PR0001"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0350",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0350",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0087",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -24458,7 +24458,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "382.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "382.00",
@@ -24468,7 +24468,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0351",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0351",
    "conditions_met": "EVENT:CONTRACT_SIGNED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0088",
@@ -24490,7 +24490,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0352",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0352",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0088",
@@ -24512,7 +24512,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0353",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0353",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0088",
@@ -24534,7 +24534,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0354",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0354",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0088",
@@ -24556,7 +24556,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0355",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0355",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0088",
@@ -24578,7 +24578,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0356",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0356",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0089",
@@ -24600,7 +24600,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0357",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0357",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0089",
@@ -24622,7 +24622,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0358",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0358",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0089",
@@ -24644,7 +24644,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0359",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0359",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0089",
@@ -24666,7 +24666,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0360",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0360",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0090",
@@ -24688,7 +24688,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0361",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0361",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0090",
@@ -24710,7 +24710,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0362",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0362",
    "conditions_met": "APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0090",
@@ -24732,7 +24732,7 @@
    "rule_id_applied": "PR0003"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0363",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0363",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0090",
@@ -24754,7 +24754,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0364",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0364",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0091",
@@ -24776,7 +24776,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0365",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0365",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0091",
@@ -24798,7 +24798,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0366",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0366",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0091",
@@ -24820,7 +24820,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0367",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0367",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0091",
@@ -24842,7 +24842,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0368",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0368",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0091",
@@ -24864,7 +24864,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0369",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0369",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0092",
@@ -24886,7 +24886,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0370",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0370",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0092",
@@ -24908,7 +24908,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0371",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0371",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0092",
@@ -24930,7 +24930,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0372",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0372",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0092",
@@ -24952,7 +24952,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0373",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0373",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0093",
@@ -24974,7 +24974,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0374",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0374",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0093",
@@ -24996,7 +24996,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0375",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0375",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0093",
@@ -25018,7 +25018,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0376",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0376",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0093",
@@ -25040,9 +25040,9 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0377",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0377",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0094",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -25052,7 +25052,7 @@
    "milestone_sequence": "1",
    "milestone_type": "SIGNING",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "1330.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "1330.00",
@@ -25062,9 +25062,9 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0378",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0378",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0094",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -25074,7 +25074,7 @@
    "milestone_sequence": "2",
    "milestone_type": "DELIVERY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "2660.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "2660.00",
@@ -25084,7 +25084,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0379",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0379",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1",
    "confidence_score": "1.00",
    "contract_id": "CT0094",
@@ -25106,9 +25106,9 @@
    "rule_id_applied": "PR0001"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0380",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0380",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
-   "confidence_score": "0.80",
+   "confidence_score": "1.00",
    "contract_id": "CT0094",
    "contract_type": "GOODS_SUPPLY",
    "decision_reason": "ALL_CONDITIONS_MET",
@@ -25118,7 +25118,7 @@
    "milestone_sequence": "4",
    "milestone_type": "WARRANTY",
    "missing_conditions": "",
-   "notes": "assumptions:A05;confidence:A05;offline_full_history",
+   "notes": "offline_full_history",
    "payable_amount_vnd_mn": "665.00",
    "penalty_amount_vnd_mn": "0.00",
    "planned_payment_vnd_mn": "665.00",
@@ -25128,7 +25128,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0381",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0381",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0095",
@@ -25150,7 +25150,7 @@
    "rule_id_applied": "PR0111"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0382",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0382",
    "conditions_met": "EVENT:REQUIREMENTS_APPROVED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0095",
@@ -25172,7 +25172,7 @@
    "rule_id_applied": "PR0103"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0383",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0383",
    "conditions_met": "EVENT:UAT_PASSED;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0095",
@@ -25194,7 +25194,7 @@
    "rule_id_applied": "PR0119"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0384",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0384",
    "conditions_met": "EVENT:GO_LIVE;EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0095",
@@ -25216,7 +25216,7 @@
    "rule_id_applied": "PR0095"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0385",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0385",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0095",
@@ -25238,7 +25238,7 @@
    "rule_id_applied": "PR0127"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0386",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0386",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0096",
@@ -25260,7 +25260,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0387",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0387",
    "conditions_met": "EVENT:DELIVERY;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0096",
@@ -25282,7 +25282,7 @@
    "rule_id_applied": "PR0068"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0388",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0388",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0096",
@@ -25304,7 +25304,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0389",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0389",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0096",
@@ -25326,7 +25326,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0390",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0390",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0097",
@@ -25348,7 +25348,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0391",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0391",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0097",
@@ -25370,7 +25370,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0392",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0392",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0097",
@@ -25392,7 +25392,7 @@
    "rule_id_applied": "PR0061"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0393",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0393",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0097",
@@ -25414,7 +25414,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0394",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0394",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0098",
@@ -25436,7 +25436,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0395",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0395",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0098",
@@ -25458,7 +25458,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0396",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0396",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0098",
@@ -25480,7 +25480,7 @@
    "rule_id_applied": "PR0006"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0397",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0397",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:1;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0098",
@@ -25502,7 +25502,7 @@
    "rule_id_applied": "PR0031"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0398",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0398",
    "conditions_met": "EVENT:CONTRACT_SIGNED;EVENT:KICKOFF_CONFIRMED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0099",
@@ -25524,7 +25524,7 @@
    "rule_id_applied": "PR0079"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0399",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0399",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0099",
@@ -25546,7 +25546,7 @@
    "rule_id_applied": "PR0071"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0400",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0400",
    "conditions_met": "EVENT:ACCEPTANCE;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0099",
@@ -25568,7 +25568,7 @@
    "rule_id_applied": "PR0063"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0401",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0401",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0099",
@@ -25590,7 +25590,7 @@
    "rule_id_applied": "PR0087"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0402",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0402",
    "conditions_met": "EVENT:CONTRACT_SIGNED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0100",
@@ -25612,7 +25612,7 @@
    "rule_id_applied": "PR0023"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0403",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0403",
    "conditions_met": "EVENT:DELIVERY;EVENT:INVOICE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0100",
@@ -25634,7 +25634,7 @@
    "rule_id_applied": "PR0015"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0404",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0404",
    "conditions_met": "EVENT:ACCEPTANCE;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "0.97",
    "contract_id": "CT0100",
@@ -25656,7 +25656,7 @@
    "rule_id_applied": "PR0007"
   },
   {
-   "audit_trace_id": "run-ebd658f421bab1da:MS0405",
+   "audit_trace_id": "run-af791f2d50c7156f:MS0405",
    "conditions_met": "EVENT:WARRANTY_COMPLETED;APPROVAL_QUORUM:2;NO_OPEN_DISPUTE",
    "confidence_score": "1.00",
    "contract_id": "CT0100",

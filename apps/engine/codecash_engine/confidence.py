@@ -2,7 +2,7 @@
 
 Input: the evaluated results of a Data Pack, the Pack, the evaluate function and the run profile.
 Output: per milestone the Open readings (spec section 12) that change its outcome, the assumption flags
-(readings marked ``flag`` that change a paid milestone: A05, A08 in the Case 4 policy) and a confidence score in [0, 1] with the factors
+(readings marked ``flag`` that change a paid milestone: A08 in the Case 4 policy) and a confidence score in [0, 1] with the factors
 that lowered it.
 Business rule: spec section 8 and the organiser's answer on confidence: the score is the team's own
 measure of how certain a decision is, it never changes the decision.
@@ -66,7 +66,7 @@ def reading_changes(pack, results, evaluate, **profile):
 
 
 def assumption_flags(pack, results, evaluate=None, changes=None, **profile):
-    """Paid milestones whose outcome changes under a flagged Open reading (A05, A08 in the Case 4 policy)."""
+    """Paid milestones whose outcome changes under a flagged Open reading (A08 in the Case 4 policy)."""
     policy = resolve_policy(**{k: v for k, v in profile.items() if k in POLICY_ARGS})
     if changes is None:
         from .pipeline import evaluate as default_evaluate

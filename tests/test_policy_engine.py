@@ -48,7 +48,7 @@ def replace(scope, at, **changes):
 class PolicyDocumentTests(unittest.TestCase):
     def test_the_official_policy_compiles_and_describes_its_vocabulary(self):
         described = POLICY.describe()
-        self.assertEqual((described['policyId'], described['version']), ('CASE4_BTC', '2.0.0'))
+        self.assertEqual((described['policyId'], described['version']), ('CASE4_BTC', '2.1.0'))
         self.assertEqual(described['eventTypes']['DELIVERY'], {'name': 'DELIVERY', 'category': 'EVIDENCE',
                                                                'side': 'SUPPLIER', 'valid_status': 'CONFIRMED'})
         self.assertEqual(described['reasons']['APPROVAL_QUORUM_NOT_MET'], 'WAITING_APPROVAL')
@@ -61,7 +61,7 @@ class PolicyDocumentTests(unittest.TestCase):
             d['event_types']['ACCEPTANCE']['side'] = 'BANK'
             d['categories']['APPROVAL']['authority'] = "actor.favourite_colour == 'BLUE'"
             d['reasons']['OPEN_DISPUTE']['status'] = 'FROZEN'
-            d['readings']['A05']['switch'] = 'nowhere'
+            d['readings']['A08']['switch'] = 'nowhere'
             d['guards']['payment'].append('no_such_variable == TRUE')
             d['disputes']['scope'] = 'PORTFOLIO'
         with self.assertRaises(PolicyError) as caught:
@@ -69,7 +69,7 @@ class PolicyDocumentTests(unittest.TestCase):
         problems = '\n'.join(caught.exception.problems)
         for expected in ('event_types.DELIVERY.category', 'event_types.ACCEPTANCE.side',
                          'POLICY_UNKNOWN_ATTRIBUTE: actor.favourite_colour', 'reasons.OPEN_DISPUTE.status',
-                         'readings.A05.switch', 'biến không có: no_such_variable', 'disputes.scope'):
+                         'readings.A08.switch', 'biến không có: no_such_variable', 'disputes.scope'):
             self.assertIn(expected, problems)
 
     def test_a_definition_cycle_is_rejected(self):

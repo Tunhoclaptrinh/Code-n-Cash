@@ -1,7 +1,7 @@
 {
   "format": "CODECASH_POLICY_V1",
   "policy_id": "CASE4_BTC",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": {
     "vi": "Chính sách nghiệp vụ Case 4 theo đề thi, README Data Pack và câu trả lời BTC (docs/NGHIEP_VU.md).",
     "en": "Case 4 business policy from the brief, the Data Pack README and the organiser answers (docs/NGHIEP_VU.md)."
@@ -328,14 +328,6 @@
     "WORKFLOW": ["strict_resolution"]
   },
   "readings": {
-    "A05": {
-      "switch": "contract_scope_dispute",
-      "weight": "0.20",
-      "flag": true,
-      "candidates": {
-        "contract_has_event_types": ["DISPUTE_OPENED"]
-      }
-    },
     "A06": {
       "switch": "strict_resolution",
       "weight": "0.10",

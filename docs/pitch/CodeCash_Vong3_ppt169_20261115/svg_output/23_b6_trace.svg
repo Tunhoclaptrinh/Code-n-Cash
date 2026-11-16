@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#3D68E4"/>
+    </marker>
+    <marker id="arrowInk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#1B2437"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục B6 · Dữ liệu</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Truy từ một quyết định về tận dòng dữ liệu gốc</text>
+  </g>
+  <g id="trace-chain" data-pptx-bounds="56 132 1168 176">
+    <text x="64" y="152" font-size="13" font-weight="bold" fill="#6B7691">CHUỖI TRUY VẾT · VÍ DỤ CT0103 MỐC 2</text>
+    <rect x="64" y="168" width="208" height="132" rx="12" fill="#1B2437"/>
+    <text font-size="16" font-weight="bold" fill="#FFFFFF"><tspan x="80" y="196">Dòng kết quả</tspan><tspan x="80" dy="24" font-size="13" font-weight="normal" fill="#C9D6FA">Chi sau trừ phạt 737,78</tspan><tspan x="80" dy="18" font-size="13" font-weight="normal" fill="#C9D6FA">LATE_COMPLETION</tspan><tspan x="80" dy="18" font-size="13" font-weight="normal" fill="#C9D6FA">mã trace = lượt chạy:mốc</tspan></text>
+    <line x1="272" y1="234" x2="296" y2="234" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="300" y="168" width="208" height="132" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="316" y="196">Luật áp dụng</tspan><tspan x="316" dy="24" font-size="13" font-weight="normal" fill="#4A5570">PR0014 · ưu tiên 60</tspan><tspan x="316" dy="18" font-size="13" font-weight="normal" fill="#4A5570">giá trị từng biến luật,</tspan><tspan x="316" dy="18" font-size="13" font-weight="normal" fill="#4A5570">kết cục của cả 8 luật</tspan></text>
+    <line x1="508" y1="234" x2="532" y2="234" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="536" y="168" width="208" height="132" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="552" y="196">Chứng từ căn cứ</tspan><tspan x="552" dy="24" font-size="13" font-weight="normal" fill="#4A5570">DN-CT0103-02</tspan><tspan x="552" dy="18" font-size="13" font-weight="normal" fill="#4A5570">INV-CT0103-02</tspan><tspan x="552" dy="18" font-size="13" font-weight="normal" fill="#4A5570">bỏ bản lặp, sai bên lập</tspan></text>
+    <line x1="744" y1="234" x2="768" y2="234" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="772" y="168" width="208" height="132" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="788" y="196">Hợp đồng và mốc</tspan><tspan x="788" dy="24" font-size="13" font-weight="normal" fill="#4A5570">P = 740, hạn 12/10,</tspan><tspan x="788" dy="18" font-size="13" font-weight="normal" fill="#4A5570">ân hạn 2 ngày,</tspan><tspan x="788" dy="18" font-size="13" font-weight="normal" fill="#4A5570">phạt 0,15%, trần 8%</tspan></text>
+    <line x1="980" y1="234" x2="1004" y2="234" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="1008" y="168" width="208" height="132" rx="12" fill="#EAF0FF" stroke="#C9D6FA"/>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="1024" y="196">Dữ liệu đầu vào</tspan><tspan x="1024" dy="24" font-size="13" font-weight="normal" fill="#4A5570">dòng CSV có nhãn nguồn</tspan><tspan x="1024" dy="18" font-size="13" font-weight="normal" fill="#4A5570">dấu vân tay SHA-256</tspan><tspan x="1024" dy="18" font-size="13" font-weight="normal" fill="#4A5570">của bộ dữ liệu trong trace</tspan></text>
+  </g>
+  <g id="hash-chain" data-pptx-bounds="56 320 720 344">
+    <rect x="64" y="324" width="704" height="336" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="354" font-size="13" font-weight="bold" fill="#6B7691">NHẬT KÝ CHUỖI BĂM · CHỈ GHI THÊM</text>
+    <rect x="88" y="374" width="196" height="108" rx="10" fill="#F8FAFD" stroke="#E3E8F2"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="104" y="402">Mục n − 1</tspan><tspan x="104" dy="22" font-size="13" font-weight="normal" fill="#4A5570">phê duyệt tài chính</tspan><tspan x="104" dy="24" font-family="Consolas" font-size="12" font-weight="normal" fill="#2F52B8">hash: 9c41…</tspan></text>
+    <line x1="284" y1="428" x2="314" y2="428" stroke="#1B2437" stroke-width="2" marker-end="url(#arrowInk)"/>
+    <rect x="318" y="374" width="196" height="108" rx="10" fill="#F8FAFD" stroke="#E3E8F2"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="334" y="402">Mục n</tspan><tspan x="334" dy="22" font-size="13" font-weight="normal" fill="#4A5570">quyết định engine</tspan><tspan x="334" dy="24" font-family="Consolas" font-size="12" font-weight="normal" fill="#2F52B8">prev: 9c41… → e7b0…</tspan></text>
+    <line x1="514" y1="428" x2="544" y2="428" stroke="#1B2437" stroke-width="2" marker-end="url(#arrowInk)"/>
+    <rect x="548" y="374" width="196" height="108" rx="10" fill="#F8FAFD" stroke="#E3E8F2"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="564" y="402">Mục n + 1</tspan><tspan x="564" dy="22" font-size="13" font-weight="normal" fill="#4A5570">lệnh chi</tspan><tspan x="564" dy="24" font-family="Consolas" font-size="12" font-weight="normal" fill="#2F52B8">prev: e7b0… → 31d8…</tspan></text>
+    <text font-size="15" fill="#4A5570"><tspan x="88" y="518">Mỗi mục chứa mã băm của mục trước, niêm phong trong cùng</tspan><tspan x="88" dy="22">giao dịch với thay đổi nghiệp vụ (Repository.transact).</tspan><tspan x="88" dy="30">Mỗi 15 phút, gốc Merkle của chuỗi được neo; bật TSA_URL thì</tspan><tspan x="88" dy="22">có thêm dấu thời gian RFC 3161 của đơn vị bên ngoài.</tspan></text>
+    <text x="88" y="636" font-size="12" fill="#9AA6C0">Mã băm minh hoạ dạng rút gọn; giá trị thật xem ở trang Kiểm tra toàn vẹn</text>
+  </g>
+  <g id="verify-tools" data-pptx-bounds="776 320 448 344">
+    <rect x="784" y="324" width="432" height="336" rx="14" fill="#1B2437"/>
+    <text x="808" y="354" font-size="13" font-weight="bold" fill="#9AA6C0">KIỂM LẠI MÀ KHÔNG CẦN TIN HỆ THỐNG</text>
+    <text font-size="15" font-weight="bold" fill="#FFFFFF"><tspan x="808" y="392" font-family="Consolas" font-size="14">tools/verify_audit.py</tspan><tspan x="808" dy="22" font-size="13" font-weight="normal" fill="#C9D6FA">kiểm chuỗi băm và gốc Merkle bằng Python</tspan><tspan x="808" dy="18" font-size="13" font-weight="normal" fill="#C9D6FA">viết riêng, không dùng mã của API</tspan></text>
+    <text font-size="15" font-weight="bold" fill="#FFFFFF"><tspan x="808" y="476" font-family="Consolas" font-size="14">tools/verify_decision.py</tspan><tspan x="808" dy="22" font-size="13" font-weight="normal" fill="#C9D6FA">chạy lại quyết định từ gói kiểm chứng,</tspan><tspan x="808" dy="18" font-size="13" font-weight="normal" fill="#C9D6FA">báo seal: MATCH, rerun: MATCH</tspan></text>
+    <rect x="808" y="560" width="384" height="76" rx="10" fill="#26324A"/>
+    <text font-size="13" fill="#FFFFFF"><tspan x="824" y="588" font-weight="bold">Có neo: phát hiện 5/6 kiểu giả mạo đã thử</tspan><tspan x="824" dy="20" fill="#C9D6FA">mặc định bên làm chứng ở cùng máy chủ</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">23</text>
+  </g>
+</svg>

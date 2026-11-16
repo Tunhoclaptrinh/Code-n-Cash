@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục A1 · Engine</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Tám luật chạy theo ưu tiên, dừng ở luật đầu tiên khớp</text>
+  </g>
+  <g id="rule-table" data-pptx-bounds="56 128 1168 448">
+    <rect x="64" y="132" width="1152" height="440" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="13" font-weight="bold" fill="#6B7691">
+      <text x="88" y="164">ƯU TIÊN</text>
+      <text x="168" y="164">QUYẾT ĐỊNH</text>
+      <text x="320" y="164">MÃ LÝ DO</text>
+      <text x="580" y="164">ĐIỀU KIỆN (BIỂU THỨC TRONG payment_rules.csv, MỐC GIAO HÀNG)</text>
+    </g>
+    <line x1="88" y1="178" x2="1192" y2="178" stroke="#E3E8F2"/>
+    <g font-size="18" font-weight="bold" fill="#1B2437">
+      <text x="88" y="210">10</text><text x="88" y="258">20</text><text x="88" y="306">30</text><text x="88" y="354">40</text>
+      <text x="88" y="402">50</text><text x="88" y="456">60</text><text x="88" y="510">70</text><text x="88" y="552">80</text>
+    </g>
+    <g font-size="13" font-weight="bold" text-anchor="middle">
+      <rect x="168" y="192" width="84" height="24" rx="12" fill="#FFF6D6"/><text x="210" y="209" fill="#7A5A00">Tạm giữ</text>
+      <rect x="168" y="240" width="84" height="24" rx="12" fill="#FDECEC"/><text x="210" y="257" fill="#B42318">Từ chối</text>
+      <rect x="168" y="288" width="84" height="24" rx="12" fill="#FFF6D6"/><text x="210" y="305" fill="#7A5A00">Tạm giữ</text>
+      <rect x="168" y="336" width="84" height="24" rx="12" fill="#FFF6D6"/><text x="210" y="353" fill="#7A5A00">Tạm giữ</text>
+      <rect x="168" y="384" width="84" height="24" rx="12" fill="#FFF6D6"/><text x="210" y="401" fill="#7A5A00">Tạm giữ</text>
+      <rect x="168" y="438" width="132" height="24" rx="12" fill="#FFF1DC"/><text x="234" y="455" fill="#8F4A06">Chi sau trừ phạt</text>
+      <rect x="168" y="492" width="84" height="24" rx="12" fill="#E4F6EC"/><text x="210" y="509" fill="#0F6A3C">Chi đủ</text>
+      <rect x="168" y="534" width="84" height="24" rx="12" fill="#FFF6D6"/><text x="210" y="551" fill="#7A5A00">Tạm giữ</text>
+    </g>
+    <g font-family="Consolas" font-size="13" fill="#2F52B8">
+      <text x="320" y="209">OPEN_DISPUTE</text>
+      <text x="320" y="257">REJECTION_PRESENT</text>
+      <text x="320" y="305">UNAUTHORIZED_EVENT</text>
+      <text x="320" y="353">MISSING_REQUIRED_EVENT</text>
+      <text x="320" y="401">APPROVAL_QUORUM_NOT_MET</text>
+      <text x="320" y="455">LATE_COMPLETION</text>
+      <text x="320" y="509">ALL_CONDITIONS_MET</text>
+      <text x="320" y="551">UNRESOLVED_CONDITION</text>
+    </g>
+    <g font-family="Consolas" font-size="13" fill="#1B2437">
+      <text x="580" y="209">open_dispute == TRUE</text>
+      <text x="580" y="257">valid_rejection_event_count &gt; 0</text>
+      <text x="580" y="305">unauthorized_required_event_count &gt; 0</text>
+      <text x="580" y="353">required_event_completion_rate &lt; 1.0</text>
+      <text><tspan x="580" y="394">approval_required == TRUE AND</tspan><tspan x="580" dy="17">valid_approval_count &lt; required_approval_quorum</tspan></text>
+      <text><tspan x="580" y="448">late_penalty_applicable == TRUE AND</tspan><tspan x="580" dy="17">actual_completion_date &gt; due_date + grace_period_days</tspan></text>
+      <text><tspan x="580" y="502">all_required_conditions_met == TRUE AND open_dispute == FALSE</tspan><tspan x="580" dy="17">AND valid_rejection_event_count == 0</tspan></text>
+      <text x="580" y="551">ELSE</text>
+    </g>
+    <g stroke="#F0F2F6">
+      <line x1="88" y1="226" x2="1192" y2="226"/><line x1="88" y1="274" x2="1192" y2="274"/><line x1="88" y1="322" x2="1192" y2="322"/>
+      <line x1="88" y1="370" x2="1192" y2="370"/><line x1="88" y1="424" x2="1192" y2="424"/><line x1="88" y1="478" x2="1192" y2="478"/>
+      <line x1="88" y1="526" x2="1192" y2="526"/>
+    </g>
+  </g>
+  <g id="notes" data-pptx-bounds="56 584 1168 84">
+    <rect x="64" y="588" width="564" height="76" rx="12" fill="#EAF0FF"/>
+    <text font-size="15" fill="#1B2437"><tspan x="84" y="616" font-weight="bold">Luật là dữ liệu</tspan><tspan x="84" dy="22" font-size="13" fill="#4A5570">128 dòng · 4 bộ luật · 16 mã luật. Bộ luật chỉ hợp lệ khi ưu tiên</tspan><tspan x="84" dy="18" font-size="13" fill="#4A5570">không trùng, ELSE ở cuối; đổi luật phải chạy thử trên 405 mốc.</tspan></text>
+    <rect x="652" y="588" width="564" height="76" rx="12" fill="#1B2437"/>
+    <text font-size="15" fill="#FFFFFF"><tspan x="672" y="616" font-weight="bold">Chốt an toàn độc lập với bảng luật</tspan><tspan x="672" dy="22" font-size="13" fill="#C9D6FA">Còn tranh chấp mở, có từ chối hợp lệ hoặc thiếu điều kiện thì</tspan><tspan x="672" dy="18" font-size="13" fill="#C9D6FA">mọi luật trả tiền bị đưa về ELSE (tạm giữ), dù bảng luật sai.</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">15</text>
+  </g>
+</svg>

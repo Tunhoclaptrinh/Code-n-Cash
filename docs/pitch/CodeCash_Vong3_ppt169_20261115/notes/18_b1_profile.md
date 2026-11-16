@@ -1,0 +1,1 @@
+Hồ sơ Data Pack: phê duyệt chiếm gần một nửa số sự kiện, vì vậy engine đếm phê duyệt theo vai trò chứ không theo số phiếu. Sự kiện tranh chấp và từ chối ít nhưng quyết định việc tạm giữ hay từ chối. Hợp đồng gồm bốn loại, nhiều nhất là cung cấp hàng hoá. Bảng bên phải tóm tắt khoá và vai trò của từng bảng.

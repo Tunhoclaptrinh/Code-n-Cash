@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="190" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Tác động và bước tiếp</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Trên 405 mốc: giữ lại 42 mốc chưa đủ điều kiện, trừ phạt 15 mốc</text>
+  </g>
+  <g id="decision-split" data-pptx-bounds="56 132 1168 128">
+    <rect x="64" y="136" width="1152" height="120" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="164" font-size="13" font-weight="bold" fill="#6B7691">PHÂN BỐ QUYẾT ĐỊNH · DATA PACK CHÍNH THỨC</text>
+    <g id="decision-split-chartArea">
+      <!-- chart-plot-area: object=decision-split | 88,178,1192,210 -->
+      <rect x="88" y="178" width="948.6" height="32" fill="#2E9D66"/>
+      <rect x="1036.6" y="178" width="98.1" height="32" fill="#E0A93B"/>
+      <rect x="1134.7" y="178" width="40.9" height="32" fill="#D9822B"/>
+      <rect x="1175.6" y="178" width="16.4" height="32" fill="#D9534F"/>
+      <text x="104" y="200" font-size="15" font-weight="bold" fill="#FFFFFF">348 chi đủ</text>
+    </g>
+    <g font-size="15" fill="#4A5570">
+      <rect x="88" y="226" width="14" height="14" rx="3" fill="#2E9D66"/>
+      <text x="110" y="238"><tspan font-weight="bold" fill="#1B2437">348</tspan> Chi đủ</text>
+      <rect x="210" y="226" width="14" height="14" rx="3" fill="#E0A93B"/>
+      <text x="232" y="238"><tspan font-weight="bold" fill="#1B2437">36</tspan> Tạm giữ</text>
+      <rect x="334" y="226" width="14" height="14" rx="3" fill="#D9822B"/>
+      <text x="356" y="238"><tspan font-weight="bold" fill="#1B2437">15</tspan> Chi sau trừ phạt</text>
+      <rect x="520" y="226" width="14" height="14" rx="3" fill="#D9534F"/>
+      <text x="542" y="238"><tspan font-weight="bold" fill="#1B2437">6</tspan> Từ chối</text>
+      <text x="1192" y="238" font-size="13" text-anchor="end">Tạm giữ = 10 tranh chấp · 10 thiếu chứng từ · 10 thiếu duyệt · 6 sai bên lập</text>
+    </g>
+  </g>
+  <g id="money-tiles" data-pptx-bounds="56 268 1168 96">
+    <rect x="64" y="272" width="276" height="88" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="84" y="298" font-size="13" fill="#4A5570">Tổng được chi (triệu)</text>
+    <text x="84" y="338" font-size="28" font-weight="bold" fill="#1B2437">365.785,87</text>
+    <rect x="356" y="272" width="276" height="88" rx="12" fill="#FFF1DC"/>
+    <text x="376" y="298" font-size="13" fill="#8F4A06">Tổng tiền phạt · 15 mốc (triệu)</text>
+    <text x="376" y="338" font-size="28" font-weight="bold" fill="#8F4A06">102,13</text>
+    <rect x="648" y="272" width="276" height="88" rx="12" fill="#FFF6D6"/>
+    <text x="668" y="298" font-size="13" fill="#7A5A00">Không chi khi chưa đủ căn cứ (triệu)</text>
+    <text x="668" y="338" font-size="28" font-weight="bold" fill="#7A5A00">56.452,00</text>
+    <rect x="940" y="272" width="276" height="88" rx="12" fill="#E4F6EC"/>
+    <text x="960" y="298" font-size="13" fill="#0F6A3C">Bất biến tiền và luật</text>
+    <text x="960" y="338" font-size="28" font-weight="bold" fill="#0F6A3C">0 vi phạm</text>
+  </g>
+  <g id="status-done" data-pptx-bounds="56 376 384 286">
+    <rect x="64" y="380" width="368" height="278" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <rect x="84" y="398" width="116" height="26" rx="13" fill="#E4F6EC"/>
+    <text x="142" y="416" font-size="13" font-weight="bold" fill="#0F6A3C" text-anchor="middle">Đã triển khai</text>
+    <text font-size="14" fill="#1B2437"><tspan x="84" y="454">• Engine 4 quyết định trên 405 mốc</tspan><tspan x="84" dy="26">• Ký theo trình tự, chứng từ, duyệt, tranh chấp</tspan><tspan x="84" dy="26">• Chạy thử trước khi ghi; lệnh chi chống trùng</tspan><tspan x="84" dy="26">• Ngoại lệ hai người; 8 vai trò kiểm ở API</tspan><tspan x="84" dy="26">• Nhật ký chuỗi băm, neo Merkle 15 phút</tspan><tspan x="84" dy="26">• Phiên bản luật: chạy thử trên 405 mốc</tspan><tspan x="84" dy="26">• Gói kiểm chứng độc lập; Docker, CI</tspan></text>
+  </g>
+  <g id="status-sim" data-pptx-bounds="440 376 384 286">
+    <rect x="448" y="380" width="368" height="278" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <rect x="468" y="398" width="96" height="26" rx="13" fill="#FFF1DC"/>
+    <text x="516" y="416" font-size="13" font-weight="bold" fill="#8F4A06" text-anchor="middle">Mô phỏng</text>
+    <text font-size="14" fill="#1B2437"><tspan x="468" y="454">• Ký số với chứng thư mô phỏng</tspan><tspan x="468" dy="30">• Cổng thanh toán mô phỏng: adapter</tspan><tspan x="484" dy="20">HTTP, khoá chống trùng, chữ ký HMAC</tspan><tspan x="468" dy="30">• AI đọc PDF (Gemini): chỉ đề xuất 6 điều</tspan><tspan x="484" dy="20">khoản kèm trang, người xác nhận;</tspan><tspan x="484" dy="20">không tham gia quyết định thanh toán</tspan></text>
+  </g>
+  <g id="status-next" data-pptx-bounds="824 376 400 286">
+    <rect x="832" y="380" width="384" height="278" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <rect x="852" y="398" width="104" height="26" rx="13" fill="#F0F2F6"/>
+    <text x="904" y="416" font-size="13" font-weight="bold" fill="#4A5570" text-anchor="middle">Định hướng</text>
+    <text font-size="14" fill="#1B2437"><tspan x="852" y="454">• Ký qua tổ chức chứng thực được cấp phép</tspan><tspan x="852" dy="30">• Nối cổng ngân hàng qua adapter sẵn có</tspan><tspan x="852" dy="30">• Chốt các điểm BTC còn mở, cập nhật luật</tspan><tspan x="852" dy="30">• Phụ lục đổi giá trị hoặc tỷ lệ thanh toán</tspan><tspan x="852" dy="30">• Bằng chứng độc lập: bộ lỗi giữ lại,</tspan><tspan x="868" dy="20">đáp án do người không viết engine gán</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">11</text>
+  </g>
+</svg>

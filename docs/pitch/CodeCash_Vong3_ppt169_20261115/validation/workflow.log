@@ -1,0 +1,147 @@
+
+=== 2026-11-15T16:15:47.106Z NOTE id=25712cb387ba ===
+Project initialized: profile=quick; canvas=ppt169; path=d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115
+
+=== 2026-11-15T16:17:07.658Z PYTHON run=f989c5e2abd2 ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/text_measure.py", "calibrate", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115", "--role", "title:Plus Jakarta Sans:32", "--role", "cover:Plus Jakarta Sans:60", "--role", "lead:Plus Jakarta Sans:20", "--role", "h:Plus Jakarta Sans:20", "--role", "body:Plus Jakarta Sans:18", "--role", "small:Plus Jakarta Sans:15", "--role", "note:Plus Jakarta Sans:13", "--role", "hero:Plus Jakarta Sans:56", "--sample", "Thanh toán theo mốc đang kiểm bằng tay: dễ chi sai, khó truy vết"]
+=== 2026-11-15T16:17:08.448Z END run=f989c5e2abd2 elapsed_ms=789 output_lines=16 retained=0 omitted=16 ===
+
+=== 2026-11-15T16:28:11.175Z PYTHON run=1a3e389cd7ce ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_quality_checker.py", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115", "--quick-generate", "--canonical-authoring", "--stage", "early"]
+stdout:
+  [ERROR] 01_cover.svg - Failed
+     viewBox: 0 0 1280 720
+     [ERROR] <text> (text='Không chi tiền khi c…') exceeds <g id="hook"> data-pptx-bounds on the horizontal axis: content (64.0, 259.4)-(714.5, 350.6), container (56.0, 250.0)-(676.0, 370.0), overflow horizontal 6.2%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈24.1 px per mixed char at 36px incl. headroom; ≈25 chars fit in 620 px
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+     [WARN] <text> (text='Cổng kiểm soát điều …') exceeds <g id="lead"> data-pptx-bounds on the horizontal axis: content (64.0, 393.0)-(687.0, 477.0), container (56.0, 382.0)-(676.0, 482.0), overflow horizontal 1.8%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈13.0 px per mixed char at 20px incl. headroom; ≈47 chars fit in 620 px
+  [WARN] 02_problem.svg - Passed (with warnings)
+     viewBox: 0 0 1280 720
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+  [WARN] 03_solution.svg - Passed (with warnings)
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+  [WARN] 04_datapack.svg - Passed (with warnings)
+  [SUMMARY] Check Summary
+  Total files: 13
+    [OK] Fully passed: 0 (0%)
+    [WARN] With warnings: 12 (92%)
+    [ERROR] With errors: 1 (7%)
+  Provenance categories:
+    blocking: 1          hard findings; gate also requires exit 0
+    introduced: 16       advisory; new or changed
+    inherited: 0         informational; prototype-identical
+    source-import: 0     informational; source-conversion loss
+  [CARRIERS] Actual-use receipt (informational; not a quota)
+    Pages: 13 | text: 338 | images: 7 | icons: 0
+    Geometry: SVG elements 194 | native presets 0 | page-frame elements 13 | marker uses 7
+=== 2026-11-15T16:28:19.182Z END run=1a3e389cd7ce elapsed_ms=8007 output_lines=72 retained=24 omitted=48 ===
+
+=== 2026-11-15T16:28:42.381Z PYTHON run=364f461c1bc0 ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_quality_checker.py", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115", "--quick-generate", "--canonical-authoring", "--stage", "early"]
+stdout:
+  [ERROR] 01_cover.svg - Failed
+     viewBox: 0 0 1280 720
+     [ERROR] <text> (text='Không chi tiền khi c…') exceeds <g id="hook"> data-pptx-bounds on the horizontal axis: content (64.0, 259.4)-(714.5, 350.6), container (56.0, 250.0)-(676.0, 370.0), overflow horizontal 6.2%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈24.1 px per mixed char at 36px incl. headroom; ≈25 chars fit in 620 px
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+     [WARN] <text> (text='Cổng kiểm soát điều …') exceeds <g id="lead"> data-pptx-bounds on the horizontal axis: content (64.0, 393.0)-(687.0, 477.0), container (56.0, 382.0)-(676.0, 482.0), overflow horizontal 1.8%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈13.0 px per mixed char at 20px incl. headroom; ≈47 chars fit in 620 px
+  [WARN] 02_problem.svg - Passed (with warnings)
+     viewBox: 0 0 1280 720
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+  [WARN] 03_solution.svg - Passed (with warnings)
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+  [WARN] 04_datapack.svg - Passed (with warnings)
+  [SUMMARY] Check Summary
+  Total files: 13
+    [OK] Fully passed: 0 (0%)
+    [WARN] With warnings: 12 (92%)
+    [ERROR] With errors: 1 (7%)
+  Provenance categories:
+    blocking: 1          hard findings; gate also requires exit 0
+    introduced: 16       advisory; new or changed
+    inherited: 0         informational; prototype-identical
+    source-import: 0     informational; source-conversion loss
+  [CARRIERS] Actual-use receipt (informational; not a quota)
+    Pages: 13 | text: 338 | images: 7 | icons: 0
+    Geometry: SVG elements 194 | native presets 0 | page-frame elements 13 | marker uses 7
+=== 2026-11-15T16:28:45.884Z END run=364f461c1bc0 elapsed_ms=3502 output_lines=72 retained=24 omitted=48 ===
+
+=== 2026-11-15T16:43:16.540Z PYTHON run=93eb46d035c8 ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_quality_checker.py", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115", "--quick-generate", "--canonical-authoring", "--stage", "final", "--json"]
+stdout:
+  [WARN] 01_cover.svg - Passed (with warnings)
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+     [WARN] <text> (text='Không chi tiền khi c…') exceeds <g id="hook"> data-pptx-bounds on the horizontal axis: content (64.0, 259.4)-(714.5, 350.6), container (56.0, 250.0)-(708.0, 370.0), overflow horizontal 1.0%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈24.1 px per mixed char at 36px incl. headroom; ≈27 chars fit in 652 px
+  [WARN] 02_problem.svg - Passed (with warnings)
+  [SUMMARY] Check Summary
+  Total files: 30
+    [OK] Fully passed: 0 (0%)
+    [WARN] With warnings: 30 (100%)
+    [ERROR] With errors: 0 (0%)
+  Provenance categories:
+    blocking: 0          hard findings; gate also requires exit 0
+    introduced: 35       advisory; new or changed
+    inherited: 0         informational; prototype-identical
+    source-import: 0     informational; source-conversion loss
+  [CARRIERS] Actual-use receipt (informational; not a quota)
+    Pages: 30 | text: 922 | images: 7 | icons: 0
+    Geometry: SVG elements 494 | native presets 10 | page-frame elements 30 | marker uses 45
+  [REPORT] JSON quality report exported: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\validation\svg_quality_report.json
+=== 2026-11-15T16:43:24.256Z END run=93eb46d035c8 elapsed_ms=7715 output_lines=123 retained=18 omitted=105 ===
+
+=== 2026-11-15T16:44:50.693Z PYTHON run=2b12517f441a ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\svg_output
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_position_calculator.py", "calc", "bar", "--horizontal", "--data", "APPROVAL:497,INVOICE:140,CONTRACT_SIGNED:100,ACCEPTANCE:97,WARRANTY:85,DELIVERY:68,KICKOFF:25,REQ:20,UAT:20,GO_LIVE:20,DISPUTE_OPENED:18,SERVICE_ACT:15,SERVICE_COMP:15,DISPUTE_RES:8,REJECTION:6", "--area", "276,176,536,566", "--bar-width", "16", "--value-range=0,497"]
+=== 2026-11-15T16:44:51.154Z END run=2b12517f441a elapsed_ms=460 output_lines=21 retained=0 omitted=21 ===
+
+=== 2026-11-15T16:44:51.607Z PYTHON run=14b764e0b7e1 ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\svg_output
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_position_calculator.py", "calc", "bar", "--horizontal", "--data", "GOODS:40,SERVICES:25,SOFTWARE:20,MAINT:15", "--area", "840,180,1140,340", "--bar-width", "22", "--value-range=0,40"]
+=== 2026-11-15T16:44:52.034Z END run=14b764e0b7e1 elapsed_ms=426 output_lines=10 retained=0 omitted=10 ===
+
+=== 2026-11-15T16:45:08.764Z PYTHON run=ac92e90f9b65 ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\svg_output
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_quality_checker.py", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115", "--quick-generate", "--canonical-authoring", "--stage", "final", "--json"]
+stdout:
+  [WARN] 01_cover.svg - Passed (with warnings)
+     [WARN] Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans
+     [WARN] <text> (text='Không chi tiền khi c…') exceeds <g id="hook"> data-pptx-bounds on the horizontal axis: content (64.0, 259.4)-(714.5, 350.6), container (56.0, 250.0)-(708.0, 370.0), overflow horizontal 1.0%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈24.1 px per mixed char at 36px incl. headroom; ≈27 chars fit in 652 px
+  [WARN] 02_problem.svg - Passed (with warnings)
+  [SUMMARY] Check Summary
+  Total files: 30
+    [OK] Fully passed: 0 (0%)
+    [WARN] With warnings: 30 (100%)
+    [ERROR] With errors: 0 (0%)
+  Provenance categories:
+    blocking: 0          hard findings; gate also requires exit 0
+    introduced: 35       advisory; new or changed
+    inherited: 0         informational; prototype-identical
+    source-import: 0     informational; source-conversion loss
+  [CARRIERS] Actual-use receipt (informational; not a quota)
+    Pages: 30 | text: 922 | images: 7 | icons: 0
+    Geometry: SVG elements 494 | native presets 10 | page-frame elements 30 | marker uses 45
+  [REPORT] JSON quality report exported: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\validation\svg_quality_report.json
+=== 2026-11-15T16:45:16.659Z END run=ac92e90f9b65 elapsed_ms=7895 output_lines=123 retained=18 omitted=105 ===
+
+=== 2026-11-15T16:46:32.668Z PYTHON run=8d6acba2399b ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\svg_output
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/total_md_split.py", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115"]
+stdout:
+  [OK] SVG files and notes have one-to-one correspondence
+  [Done] Successfully generated 30/30 file(s)
+  [Done] Notes splitting complete
+=== 2026-11-15T16:46:32.719Z END run=8d6acba2399b elapsed_ms=51 output_lines=39 retained=3 omitted=36 ===
+
+=== 2026-11-15T16:46:33.401Z PYTHON run=6f2c9b6825b4 ===
+cwd: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\svg_output
+argv: ["C:\\Users\\minhhoang\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe", "d:/Festival_AOF/git-hup/Code-n-Cash/.claude/skills/ppt-master/scripts/svg_to_pptx.py", "d:/Festival_AOF/git-hup/Code-n-Cash/docs/pitch/CodeCash_Vong3_ppt169_20261115", "--quick-generate", "--with-notes"]
+stdout:
+  [Done] Saved: d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\exports\CodeCash_Vong3_20261115_234637.pptx
+    [POSTFLIGHT] status=passed-with-warnings quality_gate=passed slides=30 warning_categories=2
+    [POSTFLIGHT][WARNING] quality_introduced_warnings=35
+    [POSTFLIGHT][WARNING] unsafe_exported_font_faces=1
+    [PPTX] d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\exports\CodeCash_Vong3_20261115_234637.pptx
+    [REPORT] d:\Festival_AOF\git-hup\Code-n-Cash\docs\pitch\CodeCash_Vong3_ppt169_20261115\validation\CodeCash_Vong3_20261115_234637.report.json
+=== 2026-11-15T16:46:44.526Z END run=6f2c9b6825b4 elapsed_ms=11125 output_lines=113 retained=6 omitted=107 ===

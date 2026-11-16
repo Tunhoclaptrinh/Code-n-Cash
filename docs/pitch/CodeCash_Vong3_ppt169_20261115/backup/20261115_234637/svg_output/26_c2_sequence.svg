@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <marker id="arrowInk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#1B2437"/>
+    </marker>
+    <marker id="arrowOpen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="#6B7691"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 380 40">
+    <rect x="64" y="38" width="262" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục C2 · Quy trình, phân quyền</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">UML tuần tự: một lần phê duyệt, từ chạy thử tới niêm phong</text>
+  </g>
+  <g id="sequence" data-pptx-bounds="56 132 1168 520">
+    <rect x="64" y="136" width="1152" height="512" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="13" font-weight="bold" text-anchor="middle">
+      <rect x="84" y="152" width="152" height="36" rx="8" fill="#EAF0FF"/><text x="160" y="175" fill="#2F52B8">Duyệt tài chính</text>
+      <rect x="320" y="152" width="120" height="36" rx="8" fill="#F8FAFD" stroke="#C9D6FA"/><text x="380" y="175" fill="#1B2437">Web</text>
+      <rect x="530" y="152" width="140" height="36" rx="8" fill="#F8FAFD" stroke="#C9D6FA"/><text x="600" y="175" fill="#1B2437">API</text>
+      <rect x="770" y="152" width="140" height="36" rx="8" fill="#1B2437"/><text x="840" y="175" fill="#FFFFFF">Engine</text>
+      <rect x="1000" y="152" width="180" height="36" rx="8" fill="#F8FAFD" stroke="#C9D6FA"/><text x="1090" y="175" fill="#1B2437">Kho + nhật ký</text>
+    </g>
+    <g stroke="#9AA6C0" stroke-dasharray="5,4">
+      <line x1="160" y1="188" x2="160" y2="632"/><line x1="380" y1="188" x2="380" y2="632"/><line x1="600" y1="188" x2="600" y2="632"/>
+      <line x1="840" y1="188" x2="840" y2="632"/><line x1="1090" y1="188" x2="1090" y2="632"/>
+    </g>
+    <rect x="576" y="436" width="626" height="176" rx="8" fill="#EAF0FF" fill-opacity="0.45" stroke="#3D68E4" stroke-dasharray="6,3"/>
+    <rect x="576" y="436" width="148" height="22" fill="#3D68E4"/>
+    <text x="586" y="452" font-size="12" font-weight="bold" fill="#FFFFFF">một giao dịch</text>
+    <g stroke="#1B2437" stroke-width="1.5">
+      <line x1="160" y1="222" x2="376" y2="222" marker-end="url(#arrowInk)"/>
+      <line x1="380" y1="256" x2="596" y2="256" marker-end="url(#arrowInk)"/>
+      <line x1="600" y1="290" x2="836" y2="290" marker-end="url(#arrowInk)"/>
+      <line x1="160" y1="392" x2="376" y2="392" marker-end="url(#arrowInk)"/>
+      <line x1="380" y1="416" x2="596" y2="416" marker-end="url(#arrowInk)"/>
+      <line x1="600" y1="484" x2="1086" y2="484" marker-end="url(#arrowInk)"/>
+      <line x1="600" y1="518" x2="836" y2="518" marker-end="url(#arrowInk)"/>
+      <line x1="600" y1="586" x2="1086" y2="586" marker-end="url(#arrowInk)"/>
+    </g>
+    <g stroke="#6B7691" stroke-width="1.5" stroke-dasharray="6,4">
+      <line x1="840" y1="324" x2="604" y2="324" marker-end="url(#arrowOpen)"/>
+      <line x1="600" y1="356" x2="384" y2="356" marker-end="url(#arrowOpen)"/>
+      <line x1="840" y1="552" x2="604" y2="552" marker-end="url(#arrowOpen)"/>
+      <line x1="600" y1="630" x2="384" y2="630" marker-end="url(#arrowOpen)"/>
+    </g>
+    <g font-size="13" fill="#1B2437">
+      <text x="172" y="214">1 · mở việc “Phê duyệt chi” CT0103 mốc 2</text>
+      <text x="392" y="248">2 · xem trước (chưa ghi)</text>
+      <text x="612" y="282">3 · đánh giá giả định: thêm phiếu duyệt</text>
+      <text x="612" y="316" fill="#4A5570">4 · Chi sau trừ phạt, phạt 2,22</text>
+      <text x="392" y="348" fill="#4A5570">5 · “kết quả nếu bạn duyệt”</text>
+      <text x="172" y="384">6 · bấm Phê duyệt</text>
+      <text x="392" y="408">7 · POST phê duyệt + token</text>
+      <text x="612" y="476">8 · ghi phiếu duyệt</text>
+      <text x="612" y="510">9 · chạy lại engine trên dữ liệu mới</text>
+      <text x="612" y="544" fill="#4A5570">10 · quyết định, tiền, luật, căn cứ</text>
+      <text x="612" y="578">11 · lưu quyết định niêm phong, lệnh chi, mục nhật ký</text>
+      <text x="392" y="622" fill="#4A5570">12 · quyết định + mã băm</text>
+    </g>
+  </g>
+  <g id="notes" data-pptx-bounds="56 652 1090 40">
+    <text font-size="13" fill="#6B7691"><tspan x="64" y="668">Bước 7: danh tính, vai trò, phạm vi lấy từ token, không tin trình duyệt · bước 9: engine đếm duyệt theo vai trò, kiểm hạn mức</tspan><tspan x="64" dy="17">Vi phạm bất biến thì huỷ cả giao dịch, không ghi gì</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">26</text>
+  </g>
+</svg>

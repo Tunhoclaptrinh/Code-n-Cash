@@ -1,0 +1,1 @@
+Mười ba kịch bản kiểm chứng, mỗi kịch bản là một bản sao Data Pack sửa đúng một dữ kiện: xoá, thêm, đổi điều kiện, đổi tham số hoặc có người quyết định. Ở mọi kịch bản, không mốc nào khác bị đổi kết quả. Mỗi lệnh chạy dưới hai giây.

@@ -1,0 +1,1 @@
+Sơ đồ BPMN rút gọn cho một mốc: bên mua soạn và ký trước, nhà cung cấp ký rồi nộp chứng từ, engine chấm lại sau mỗi sự kiện. Cổng quyết định dẫn về phê duyệt nếu thiếu duyệt, về nộp chứng từ nếu thiếu hoặc có tranh chấp, hoặc tới chi đủ hay chi sau trừ phạt. Sau đó duyệt tài chính duyệt lệnh chi và gửi sang cổng thanh toán mô phỏng. Mọi bước đều ghi nhật ký.

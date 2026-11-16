@@ -1,0 +1,1 @@
+Sơ đồ tuần tự cho một lần phê duyệt. Trước khi ghi, API gọi engine đánh giá giả định để người duyệt thấy kết quả. Khi bấm phê duyệt, trong một giao dịch, API ghi phiếu duyệt, chạy lại engine, lưu quyết định niêm phong, lệnh chi và mục nhật ký. Vi phạm bất biến thì huỷ cả giao dịch.

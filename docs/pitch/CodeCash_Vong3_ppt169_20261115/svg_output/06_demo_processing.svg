@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <clipPath id="clipShot"><rect x="617" y="170" width="599" height="488" rx="12"/></clipPath>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="196" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Mô phỏng demo · ca điển hình</text>
+  </g>
+  <g id="ipo-steps" data-pptx-bounds="832 30 392 40">
+    <rect x="840" y="38" width="84" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="882" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Đầu vào</text>
+    <text x="934" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="944" y="38" width="70" height="26" rx="13" fill="#3D68E4"/>
+    <text x="979" y="56" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Xử lý</text>
+    <text x="1024" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="1034" y="38" width="74" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="1071" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Đầu ra</text>
+    <text x="1118" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="1128" y="38" width="84" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="1170" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Truy vết</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Engine tính phạt từ ngày giao hàng, không từ ngày duyệt</text>
+  </g>
+  <g id="calc-card" data-pptx-bounds="56 132 545 530">
+    <rect x="64" y="136" width="529" height="522" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="166" font-size="13" font-weight="bold" fill="#6B7691">XỬ LÝ · ENGINE PYTHON, TÍNH BẰNG DECIMAL</text>
+    <g font-size="15" font-weight="bold" fill="#2F52B8" text-anchor="middle">
+      <circle cx="104" cy="200" r="14" fill="#EAF0FF"/>
+      <text x="104" y="205">1</text>
+      <circle cx="104" cy="272" r="14" fill="#EAF0FF"/>
+      <text x="104" y="277">2</text>
+      <circle cx="104" cy="344" r="14" fill="#EAF0FF"/>
+      <text x="104" y="349">3</text>
+      <circle cx="104" cy="416" r="14" fill="#FFF1DC"/>
+      <text x="104" y="421" fill="#8F4A06">4</text>
+    </g>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="132" y="206">Hoàn thành = chứng từ bắt buộc muộn nhất</tspan><tspan x="132" dy="23" font-size="15" font-weight="normal" fill="#4A5570">= 16/10. Phê duyệt không đẩy ngày hoàn thành</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="132" y="278">Trễ = 16/10 − 14/10 = 2 ngày</tspan><tspan x="132" dy="23" font-size="15" font-weight="normal" fill="#4A5570">hạn 12/10 cộng 2 ngày ân hạn</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="132" y="350">Phạt = 0,15% × 2 × 740 = 2,22 triệu</tspan><tspan x="132" dy="23" font-size="15" font-weight="normal" fill="#4A5570">trần 8% × 740 = 59,20 · chưa chạm trần</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="132" y="422">Luật khớp đầu tiên: ưu tiên 60 · trễ hạn</tspan><tspan x="132" dy="23" font-size="15" font-weight="normal" fill="#4A5570">Luật 10–50 đều không khớp (đủ chứng từ, đủ duyệt)</tspan></text>
+    <text x="88" y="486" font-size="13" font-weight="bold" fill="#6B7691">THANG 8 LUẬT · DỪNG Ở LUẬT ĐẦU TIÊN KHỚP</text>
+    <g font-size="15" font-weight="bold" text-anchor="middle">
+      <rect x="88" y="498" width="52" height="30" rx="8" fill="#F0F2F6"/>
+      <text x="114" y="518" fill="#9AA6C0">10</text>
+      <rect x="148" y="498" width="52" height="30" rx="8" fill="#F0F2F6"/>
+      <text x="174" y="518" fill="#9AA6C0">20</text>
+      <rect x="208" y="498" width="52" height="30" rx="8" fill="#F0F2F6"/>
+      <text x="234" y="518" fill="#9AA6C0">30</text>
+      <rect x="268" y="498" width="52" height="30" rx="8" fill="#F0F2F6"/>
+      <text x="294" y="518" fill="#9AA6C0">40</text>
+      <rect x="328" y="498" width="52" height="30" rx="8" fill="#F0F2F6"/>
+      <text x="354" y="518" fill="#9AA6C0">50</text>
+      <rect x="388" y="498" width="52" height="30" rx="8" fill="#8F4A06"/>
+      <text x="414" y="518" fill="#FFFFFF">60</text>
+      <rect x="448" y="498" width="52" height="30" rx="8" fill="#FFFFFF" stroke="#E3E8F2"/>
+      <text x="474" y="518" fill="#6B7691">70</text>
+      <rect x="508" y="498" width="52" height="30" rx="8" fill="#FFFFFF" stroke="#E3E8F2"/>
+      <text x="534" y="518" fill="#6B7691">80</text>
+    </g>
+    <text font-size="13" fill="#6B7691"><tspan x="88" y="552">10 tranh chấp · 20 từ chối · 30 sai thẩm quyền · 40 thiếu chứng từ</tspan><tspan x="88" dy="18">50 thiếu duyệt · 60 trễ hạn · 70 đủ điều kiện · 80 còn lại → tạm giữ</tspan></text>
+    <rect x="88" y="592" width="481" height="46" rx="10" fill="#FFF1DC"/>
+    <text x="104" y="621" font-size="16" fill="#8F4A06"><tspan font-weight="bold">Chi sau trừ phạt</tspan> · được chi 737,78 = 740,00 − 2,22</text>
+  </g>
+  <g id="screenshot" data-pptx-bounds="609 132 615 530">
+    <rect x="1000" y="136" width="216" height="26" rx="13" fill="#1B2437"/>
+    <text x="1108" y="154" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Màn hình: căn cứ quyết định</text>
+    <rect x="617" y="170" width="599" height="488" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <image href="../images/shot_basis.png" x="617" y="170" width="599" height="488" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipShot)"/>
+    <rect x="634" y="330" width="560" height="150" rx="10" fill="none" stroke="#3D68E4" stroke-width="2.5"/>
+    <rect x="634" y="540" width="560" height="60" rx="10" fill="none" stroke="#8F4A06" stroke-width="2.5"/>
+  </g>
+  <g id="takeaway" data-pptx-bounds="56 670 1060 30">
+    <text x="64" y="690" font-size="15" fill="#4A5570">Duyệt vào ngày nào thì phạt vẫn chỉ tính tới ngày giao 16/10:<tspan font-weight="bold" fill="#1B2437">duyệt muộn không làm nhà cung cấp bị phạt thêm</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">06</text>
+  </g>
+</svg>

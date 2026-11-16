@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục B3 · Dữ liệu</text>
+  </g>
+  <g id="legend" data-pptx-bounds="700 30 524 40">
+    <rect x="708" y="38" width="112" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="764" y="56" font-size="13" font-weight="bold" fill="#2F52B8" text-anchor="middle">DATA_PACK</text>
+    <rect x="828" y="38" width="76" height="26" rx="13" fill="#FFF1DC"/>
+    <text x="866" y="56" font-size="13" font-weight="bold" fill="#8F4A06" text-anchor="middle">SEED</text>
+    <rect x="912" y="38" width="68" height="26" rx="13" fill="#E4F6EC"/>
+    <text x="946" y="56" font-size="13" font-weight="bold" fill="#0F6A3C" text-anchor="middle">APP</text>
+    <text x="992" y="56" font-size="13" fill="#6B7691">nhãn nguồn trên mỗi bản ghi</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Cơ sở dữ liệu sau làm giàu: 5 bảng BTC ở giữa, đội thêm quanh</text>
+  </g>
+  <g id="core" data-pptx-bounds="440 136 400 232">
+    <rect x="448" y="140" width="384" height="224" rx="14" fill="#1B2437"/>
+    <text x="472" y="170" font-size="13" font-weight="bold" fill="#9AA6C0">5 BẢNG CỦA BTC · NHẬP NGUYÊN CỘT</text>
+    <g font-family="Consolas" font-size="15" fill="#FFFFFF">
+      <text x="472" y="204">parties</text><text x="660" y="204">contracts</text>
+      <text x="472" y="232">milestones</text><text x="660" y="232">events</text>
+      <text x="472" y="260">payment_rules</text>
+    </g>
+    <text font-size="13" fill="#C9D6FA"><tspan x="472" y="296">Dòng BTC gắn DATA_PACK, niêm phong mã băm khi</tspan><tspan x="472" dy="18">nhập; dòng SEED và APP thêm vào cùng bảng.</tspan><tspan x="472" dy="18">Hợp đồng BTC bị khoá phụ lục (DATA_PACK_LOCKED).</tspan></text>
+  </g>
+  <g id="identity" data-pptx-bounds="56 136 376 176">
+    <rect x="64" y="140" width="360" height="168" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="170" font-size="16" font-weight="bold" fill="#1B2437">Danh tính và phạm vi</text>
+    <rect x="320" y="154" width="84" height="22" rx="11" fill="#FFF1DC"/>
+    <text x="362" y="170" font-size="12" font-weight="bold" fill="#8F4A06" text-anchor="middle">từ parties</text>
+    <text x="88" y="202" font-family="Consolas" font-size="13" fill="#2F52B8">organizations · users</text>
+    <text font-size="13" fill="#4A5570"><tspan x="88" y="230">36 tổ chức (35 bên mua, nhà cung cấp + nền tảng)</tspan><tspan x="88" dy="18">102 tài khoản theo 8 vai trò; mọi bản ghi mang</tspan><tspan x="88" dy="18">organizationId để lọc phạm vi ở API</tspan></text>
+  </g>
+  <g id="signing" data-pptx-bounds="56 324 376 212">
+    <rect x="64" y="328" width="360" height="204" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="358" font-size="16" font-weight="bold" fill="#1B2437">Hợp đồng và ký số</text>
+    <rect x="352" y="342" width="52" height="22" rx="11" fill="#E4F6EC"/>
+    <text x="378" y="358" font-size="12" font-weight="bold" fill="#0F6A3C" text-anchor="middle">APP</text>
+    <text font-family="Consolas" font-size="13" fill="#2F52B8"><tspan x="88" y="390">contract-drafts · contract-templates</tspan><tspan x="88" dy="20">signing · signing-requests</tspan><tspan x="88" dy="20">signing-profiles · documents</tspan><tspan x="88" dy="20">attachments · extraction-proposals</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="88" y="490">Bản ký của 100 hợp đồng BTC là SEED;</tspan><tspan x="88" dy="18">chữ ký gắn mã băm SHA-256 của văn bản</tspan></text>
+  </g>
+  <g id="engine" data-pptx-bounds="848 136 376 176">
+    <rect x="856" y="140" width="360" height="168" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="880" y="170" font-size="16" font-weight="bold" fill="#1B2437">Engine và luật</text>
+    <rect x="1144" y="154" width="52" height="22" rx="11" fill="#E4F6EC"/>
+    <text x="1170" y="170" font-size="12" font-weight="bold" fill="#0F6A3C" text-anchor="middle">APP</text>
+    <text font-family="Consolas" font-size="13" fill="#2F52B8"><tspan x="880" y="202">engine-runs · evaluations</tspan><tspan x="880" dy="20">status-history · rule-versions</tspan><tspan x="880" dy="20">milestone-templates · datasets</tspan></text>
+    <text x="880" y="284" font-size="13" fill="#4A5570">evaluations.ruleId → payment_rules</text>
+  </g>
+  <g id="control" data-pptx-bounds="848 324 376 212">
+    <rect x="856" y="328" width="360" height="204" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="880" y="358" font-size="16" font-weight="bold" fill="#1B2437">Kiểm soát và tiền</text>
+    <rect x="1144" y="342" width="52" height="22" rx="11" fill="#E4F6EC"/>
+    <text x="1170" y="358" font-size="12" font-weight="bold" fill="#0F6A3C" text-anchor="middle">APP</text>
+    <text font-family="Consolas" font-size="13" fill="#2F52B8"><tspan x="880" y="390">exceptions · payments</tspan><tspan x="880" dy="20">amendments · notes</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="880" y="450">Ngoại lệ hai người, lệnh chi có khoá</tspan><tspan x="880" dy="18">chống trùng, phụ lục dời hạn chỉ cho</tspan><tspan x="880" dy="18">hợp đồng soạn trong ứng dụng</tspan></text>
+  </g>
+  <g id="audit" data-pptx-bounds="440 380 400 156">
+    <rect x="448" y="384" width="384" height="148" rx="14" fill="#EAF0FF" stroke="#C9D6FA"/>
+    <text x="472" y="414" font-size="16" font-weight="bold" fill="#1B2437">Bất biến · chỉ ghi thêm</text>
+    <text x="472" y="442" font-family="Consolas" font-size="13" fill="#2F52B8">audit · anchor-jobs</text>
+    <text font-size="13" fill="#4A5570"><tspan x="472" y="470">Chuỗi băm niêm phong trong Repository.transact;</tspan><tspan x="472" dy="18">audit.recordId trỏ tới bản ghi của mọi bảng;</tspan><tspan x="472" dy="18">neo gốc Merkle mỗi 15 phút</tspan></text>
+  </g>
+  <g id="rules-band" data-pptx-bounds="56 548 1168 116">
+    <rect x="64" y="552" width="1152" height="108" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="582" font-size="13" font-weight="bold" fill="#6B7691">QUY ƯỚC CHUNG</text>
+    <text font-size="15" fill="#4A5570"><tspan x="88" y="612">• Mọi bản ghi có id, version (khoá lạc quan), createdAt, updatedAt, organizationId</tspan><tspan x="88" dy="24">• Không khoá ngoại vật lý: quan hệ là tham chiếu theo giá trị, kiểm trong handler của API · lưu MongoDB hoặc tệp</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">20</text>
+  </g>
+</svg>

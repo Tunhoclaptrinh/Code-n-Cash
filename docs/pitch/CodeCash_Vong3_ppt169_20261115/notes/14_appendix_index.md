@@ -1,0 +1,1 @@
+Phụ lục dùng khi hỏi đáp, chia bốn nhóm: engine, dữ liệu, quy trình và phân quyền, kiểm chứng. Khi được hỏi, mở đúng trang theo số ghi trên mục lục.

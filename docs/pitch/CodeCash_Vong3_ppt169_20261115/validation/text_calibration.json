@@ -1,0 +1,106 @@
+{
+  "roles": {
+    "body": {
+      "family": "Plus Jakarta Sans",
+      "size": 18.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 5.2,
+      "latin_chars_per_100px": 10.8,
+      "caps_chars_per_100px": 10.0,
+      "digits_chars_per_100px": 9.5,
+      "citation_chars_per_100px": 10.0,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "title": {
+      "family": "Plus Jakarta Sans",
+      "size": 32.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 2.9,
+      "latin_chars_per_100px": 6.1,
+      "caps_chars_per_100px": 5.6,
+      "digits_chars_per_100px": 5.4,
+      "citation_chars_per_100px": 5.6,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "cover": {
+      "family": "Plus Jakarta Sans",
+      "size": 60.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 1.6,
+      "latin_chars_per_100px": 3.2,
+      "caps_chars_per_100px": 3.0,
+      "digits_chars_per_100px": 2.9,
+      "citation_chars_per_100px": 3.0,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "h": {
+      "family": "Plus Jakarta Sans",
+      "size": 20.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 4.7,
+      "latin_chars_per_100px": 9.7,
+      "caps_chars_per_100px": 9.0,
+      "digits_chars_per_100px": 8.6,
+      "citation_chars_per_100px": 9.0,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "hero": {
+      "family": "Plus Jakarta Sans",
+      "size": 56.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 1.7,
+      "latin_chars_per_100px": 3.5,
+      "caps_chars_per_100px": 3.2,
+      "digits_chars_per_100px": 3.1,
+      "citation_chars_per_100px": 3.2,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "lead": {
+      "family": "Plus Jakarta Sans",
+      "size": 20.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 4.7,
+      "latin_chars_per_100px": 9.7,
+      "caps_chars_per_100px": 9.0,
+      "digits_chars_per_100px": 8.6,
+      "citation_chars_per_100px": 9.0,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "note": {
+      "family": "Plus Jakarta Sans",
+      "size": 13.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 7.2,
+      "latin_chars_per_100px": 14.9,
+      "caps_chars_per_100px": 13.7,
+      "digits_chars_per_100px": 13.1,
+      "citation_chars_per_100px": 13.8,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    },
+    "small": {
+      "family": "Plus Jakarta Sans",
+      "size": 15.0,
+      "weight": "normal",
+      "cjk_chars_per_100px": 6.3,
+      "latin_chars_per_100px": 13.0,
+      "caps_chars_per_100px": 12.0,
+      "digits_chars_per_100px": 11.5,
+      "citation_chars_per_100px": 12.1,
+      "script_clusters_per_100px": {},
+      "longest_planned_line": null
+    }
+  },
+  "script_samples": {},
+  "source": "--role",
+  "generated_at": "2026-11-15T16:17:08Z",
+  "notes": [
+    "every role is measured at normal weight; recalibrate a role realized as bold deck-wide with --role NAME:FAMILY:SIZE:bold: bold widens Latin and digits about 7%, while the bundled advance table gives CJK one width for both weights"
+  ]
+}

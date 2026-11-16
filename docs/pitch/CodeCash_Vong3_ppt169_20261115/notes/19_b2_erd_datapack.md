@@ -1,0 +1,1 @@
+Đây là ERD của dữ liệu gốc. CSV không có khoá ngoại vật lý, nên đội tự kiểm và thấy cả năm quan hệ đều khớp, cộng thêm quan hệ người duyệt thuộc bên mua. Hợp đồng nối với bên mua và nhà cung cấp; mốc thuộc hợp đồng; sự kiện thuộc mốc và do một bên thực hiện; mốc trỏ tới bộ luật qua release_rule_code.

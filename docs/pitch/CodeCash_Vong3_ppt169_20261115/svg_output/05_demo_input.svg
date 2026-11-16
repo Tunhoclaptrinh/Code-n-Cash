@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <clipPath id="clipShot"><rect x="522" y="170" width="694" height="488" rx="12"/></clipPath>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="196" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Mô phỏng demo · ca điển hình</text>
+  </g>
+  <g id="ipo-steps" data-pptx-bounds="832 30 392 40">
+    <rect x="840" y="38" width="84" height="26" rx="13" fill="#3D68E4"/>
+    <text x="882" y="56" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Đầu vào</text>
+    <text x="934" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="944" y="38" width="70" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="979" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Xử lý</text>
+    <text x="1024" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="1034" y="38" width="74" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="1071" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Đầu ra</text>
+    <text x="1118" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="1128" y="38" width="84" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="1170" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Truy vết</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">CT0103 · mốc 2: người duyệt thấy trước hệ quả tiền</text>
+  </g>
+  <g id="input-card" data-pptx-bounds="56 132 450 530">
+    <rect x="64" y="136" width="434" height="522" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="166" font-size="13" font-weight="bold" fill="#6B7691">ĐẦU VÀO · TỪ HỢP ĐỒNG VÀ CHỨNG TỪ</text>
+    <g font-size="13" fill="#6B7691">
+      <text x="88" y="196">Hợp đồng</text>
+      <text x="88" y="258">Giá trị mốc (P)</text>
+      <text x="88" y="320">Hạn và ân hạn</text>
+      <text x="88" y="382">Mức phạt</text>
+      <text x="88" y="444">Chứng từ bắt buộc (nhà cung cấp lập)</text>
+      <text x="88" y="530">Phê duyệt cần</text>
+    </g>
+    <g font-size="16" font-weight="bold" fill="#1B2437">
+      <text x="88" y="219">CT0103 · Nova An → Phú Minh</text>
+      <text x="88" y="281">740,00 triệu · 40% của 1.850</text>
+      <text x="88" y="343">12/10 + 2 ngày → hạn cuối 14/10</text>
+      <text x="88" y="405">0,15% mỗi ngày · trần 8%</text>
+      <text><tspan x="88" y="467">Biên bản giao hàng · 16/10 09:20</tspan><tspan x="88" dy="24">Hoá đơn · 16/10 15:10</tspan></text>
+      <text x="88" y="553">Chủ hợp đồng ✓ 19/10 · Tài chính: chờ</text>
+    </g>
+    <rect x="88" y="578" width="386" height="56" rx="10" fill="#FFF6D6"/>
+    <text font-size="15" fill="#7A5A00"><tspan x="104" y="601" font-weight="bold">Hiện tại: Tạm giữ</tspan><tspan x="104" dy="20">chưa đủ phê duyệt · luật ưu tiên 50</tspan></text>
+  </g>
+  <g id="screenshot" data-pptx-bounds="514 132 710 530">
+    <rect x="1018" y="136" width="198" height="26" rx="13" fill="#1B2437"/>
+    <text x="1117" y="154" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Chạy thử trước khi ghi</text>
+    <rect x="522" y="170" width="694" height="488" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <image href="../images/shot_approval.png" x="522" y="170" width="694" height="488" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipShot)"/>
+    <rect x="544" y="230" width="660" height="74" rx="10" fill="none" stroke="#3D68E4" stroke-width="2.5"/>
+  </g>
+  <g id="takeaway" data-pptx-bounds="56 670 1060 30">
+    <text x="64" y="690" font-size="15" fill="#4A5570">Màn <tspan font-weight="bold" fill="#1B2437">Phê duyệt chi</tspan> của <tspan font-weight="bold" fill="#1B2437">finance@novaan.vn</tspan>: nếu duyệt, engine ra <tspan font-weight="bold" fill="#8F4A06">Chi sau trừ phạt</tspan>, phạt 2,22, được chi 737,78 triệu</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">05</text>
+  </g>
+</svg>

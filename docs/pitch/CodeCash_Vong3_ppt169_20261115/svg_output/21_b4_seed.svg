@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục B4 · Dữ liệu</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Làm giàu dữ liệu: chỉ bổ sung thứ Data Pack không có</text>
+  </g>
+  <g id="gap-table" data-pptx-bounds="56 128 680 432">
+    <rect x="64" y="132" width="664" height="424" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="13" font-weight="bold" fill="#6B7691">
+      <text x="88" y="162">DATA PACK THIẾU</text><text x="360" y="162">ĐỘI BỔ SUNG (NHÃN SEED)</text>
+    </g>
+    <line x1="88" y1="176" x2="704" y2="176" stroke="#E3E8F2"/>
+    <g font-size="15" font-weight="bold" fill="#1B2437">
+      <text x="88" y="206">Người dùng</text>
+      <text x="88" y="282">Pháp lý tổ chức</text>
+      <text x="88" y="358">Chi tiết ký số</text>
+      <text x="88" y="434">Bước đã qua</text>
+      <text x="88" y="510">Cấu hình chạy</text>
+    </g>
+    <g font-size="13" fill="#4A5570">
+      <text x="88" y="226">tên, email, chức danh</text>
+      <text x="88" y="302">mã số thuế, địa chỉ</text>
+      <text x="88" y="378">thứ tự ký, phương thức</text>
+      <text x="88" y="454">tải lên, ký, duyệt trực tiếp</text>
+      <text x="88" y="530">chế độ đánh giá, bên demo</text>
+    </g>
+    <g font-size="15" fill="#1B2437">
+      <text><tspan x="360" y="206">102 tài khoản, mỗi tài khoản gắn đúng một bên</tspan><tspan x="360" dy="20" font-size="13" fill="#4A5570">trong parties.csv (cách ánh xạ ở trang 22)</tspan></text>
+      <text><tspan x="360" y="282">In trên hợp đồng, kiểm ký hiệu, số, mã số thuế</tspan><tspan x="360" dy="20" font-size="13" fill="#4A5570">và tổng tiền khi nộp hoá đơn</tspan></text>
+      <text><tspan x="360" y="358">100 bản ký: thứ tự theo approval_policy, bên mua</tspan><tspan x="360" dy="20" font-size="13" fill="#4A5570">ký cuối, đúng thời điểm sự kiện CONTRACT_SIGNED</tspan></text>
+      <text><tspan x="360" y="434">4 hợp đồng demo Nova An ↔ Phú Minh</tspan><tspan x="360" dy="20" font-size="13" fill="#4A5570">cắt mốc bằng đúng quy trình của Data Pack</tspan></text>
+      <text><tspan x="360" y="510">EVALUATION_MODE = offline_full_history</tspan><tspan x="360" dy="20" font-size="13" fill="#4A5570">DEMO_BUYER = B010 · DEMO_SUPPLIER = S015</tspan></text>
+    </g>
+    <g stroke="#F0F2F6"><line x1="88" y1="248" x2="704" y2="248"/><line x1="88" y1="324" x2="704" y2="324"/><line x1="88" y1="400" x2="704" y2="400"/><line x1="88" y1="476" x2="704" y2="476"/></g>
+  </g>
+  <g id="demo-contracts" data-pptx-bounds="744 128 480 432">
+    <rect x="752" y="132" width="464" height="424" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="776" y="162" font-size="13" font-weight="bold" fill="#6B7691">4 HỢP ĐỒNG DEMO · MỖI CÁI MỘT BƯỚC CỦA LUỒNG</text>
+    <g font-size="13" font-weight="bold" fill="#8F4A06">
+      <rect x="776" y="182" width="72" height="24" rx="12" fill="#FFF1DC"/><text x="812" y="199" text-anchor="middle">CT0101</text>
+      <rect x="776" y="272" width="72" height="24" rx="12" fill="#FFF1DC"/><text x="812" y="289" text-anchor="middle">CT0102</text>
+      <rect x="776" y="362" width="72" height="24" rx="12" fill="#FFF1DC"/><text x="812" y="379" text-anchor="middle">CT0103</text>
+      <rect x="776" y="452" width="72" height="24" rx="12" fill="#FFF1DC"/><text x="812" y="469" text-anchor="middle">CT0104</text>
+    </g>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="864" y="200">Đã tải lên, chưa số hoá</tspan><tspan x="864" dy="22" font-size="13" font-weight="normal" fill="#4A5570">điểm bắt đầu của luồng tải lên và số hoá</tspan><tspan x="864" dy="18" font-size="13" font-weight="normal" fill="#4A5570">điều khoản</tspan></text>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="864" y="290">Ký theo trình tự 3 bước</tspan><tspan x="864" dy="22" font-size="13" font-weight="normal" fill="#4A5570">chủ hợp đồng đã ký; nhà cung cấp ký tiếp,</tspan><tspan x="864" dy="18" font-size="13" font-weight="normal" fill="#4A5570">duyệt cấp 2 ký cuối</tspan></text>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="864" y="380">Ca điển hình của demo</tspan><tspan x="864" dy="22" font-size="13" font-weight="normal" fill="#4A5570">giao hàng sau hạn cuối 2 ngày, chờ duyệt</tspan><tspan x="864" dy="18" font-size="13" font-weight="normal" fill="#4A5570">tài chính</tspan></text>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="864" y="470">Bảo trì quá hạn</tspan><tspan x="864" dy="22" font-size="13" font-weight="normal" fill="#4A5570">kích hoạt đã chi; hoàn thành dịch vụ quá</tspan><tspan x="864" dy="18" font-size="13" font-weight="normal" fill="#4A5570">hạn mà chưa nộp chứng từ</tspan></text>
+  </g>
+  <g id="guarantees" data-pptx-bounds="56 568 1168 96">
+    <rect x="64" y="572" width="1152" height="88" rx="14" fill="#1B2437"/>
+    <text font-size="15" fill="#FFFFFF"><tspan x="88" y="604" font-weight="bold">Mọi dòng bổ sung mang nhãn SEED</tspan><tspan x="88" dy="24" font-size="13" fill="#C9D6FA">tách bạch với dữ liệu BTC trên mọi màn hình</tspan></text>
+    <text font-size="15" fill="#FFFFFF"><tspan x="476" y="604" font-weight="bold">Không đổi kết quả 405 mốc gốc</tspan><tspan x="476" dy="24" font-size="13" fill="#C9D6FA">golden snapshot kiểm mọi thay đổi engine</tspan></text>
+    <text font-size="15" fill="#FFFFFF"><tspan x="864" y="604" font-weight="bold">Khôi phục dữ liệu demo an toàn</tspan><tspan x="864" dy="24" font-size="13" fill="#C9D6FA">bản cũ và nhật ký được lưu trữ, không xoá</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">21</text>
+  </g>
+</svg>

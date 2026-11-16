@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục A3 · Engine</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Độ tin cậy báo mốc nào cần xem kỹ, không đổi quyết định</text>
+  </g>
+  <g id="factors" data-pptx-bounds="56 128 584 540">
+    <rect x="64" y="132" width="568" height="532" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="162" font-size="13" font-weight="bold" fill="#6B7691">BẮT ĐẦU Ở 1,00 RỒI HẠ THEO HAI NHÓM</text>
+    <text x="88" y="196" font-size="16" font-weight="bold" fill="#1B2437">Nhóm 1 · điểm BTC chưa chốt (trừ thẳng)</text>
+    <text font-size="13" fill="#4A5570"><tspan x="88" y="220">Engine chạy lại mốc theo cách hiểu ngược lại; quyết định, lý do</tspan><tspan x="88" dy="18">hoặc số tiền đổi thì trừ trọng số.</tspan></text>
+    <rect x="88" y="252" width="520" height="34" rx="8" fill="#FFF6D6"/>
+    <text x="104" y="274" font-size="15" fill="#7A5A00"><tspan font-weight="bold">A08 · −0,20 </tspan>hoá đơn có bắt buộc khi invoice_required?</text>
+    <rect x="88" y="294" width="520" height="34" rx="8" fill="#F8FAFD"/>
+    <text x="104" y="316" font-size="15" fill="#4A5570"><tspan font-weight="bold" fill="#1B2437">A06 · −0,10 </tspan>ai được đóng tranh chấp?</text>
+    <text x="88" y="368" font-size="16" font-weight="bold" fill="#1B2437">Nhóm 2 · chất lượng dữ liệu (nhân giảm)</text>
+    <g font-size="15" fill="#4A5570">
+      <text x="88" y="400">Mỗi bản lặp chứng từ (tối đa 3)</text><text x="608" y="400" text-anchor="end" font-weight="bold" fill="#1B2437">× 0,97</text>
+      <text x="88" y="430">Có sự kiện không liên quan tới mốc</text><text x="608" y="430" text-anchor="end" font-weight="bold" fill="#1B2437">× 0,97</text>
+      <text x="88" y="460">Cảnh báo thứ tự sự kiện</text><text x="608" y="460" text-anchor="end" font-weight="bold" fill="#1B2437">× 0,90</text>
+      <text x="88" y="490">Hoàn thành trong ±1 ngày quanh hạn cuối</text><text x="608" y="490" text-anchor="end" font-weight="bold" fill="#1B2437">× 0,95</text>
+      <text x="88" y="520">Có lỗi dữ liệu</text><text x="608" y="520" text-anchor="end" font-weight="bold" fill="#B42318">trần 0,50</text>
+    </g>
+    <line x1="88" y1="544" x2="608" y2="544" stroke="#E3E8F2"/>
+    <text font-size="13" fill="#6B7691"><tspan x="88" y="572">Trọng số và hệ số nằm trong policy pack case4_btc.json (2.1.0).</tspan><tspan x="88" dy="18">Phạm vi tranh chấp đã chốt theo mốc, không còn hạ điểm.</tspan><tspan x="88" dy="18">BTC chỉ yêu cầu cột confidence_score trong [0, 1].</tspan></text>
+  </g>
+  <g id="examples" data-pptx-bounds="640 128 584 540">
+    <rect x="648" y="132" width="568" height="532" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="672" y="162" font-size="13" font-weight="bold" fill="#6B7691">VÍ DỤ CHẠY THẬT · KHÔNG TÍNH TAY</text>
+    <text x="672" y="206" font-size="28" font-weight="bold" fill="#7A5A00">0,80</text>
+    <text font-size="15" fill="#1B2437"><tspan x="760" y="194" font-weight="bold">MS0047 · CT0012 · 921 triệu</tspan><tspan x="760" dy="22" font-size="13" fill="#4A5570">Kích hoạt bảo trì: invoice_required = TRUE nhưng</tspan><tspan x="760" dy="18" font-size="13" fill="#4A5570">INVOICE không trong danh sách bắt buộc. Đội chi đủ;</tspan><tspan x="760" dy="18" font-size="13" fill="#4A5570">bắt buộc hoá đơn thì thành Tạm giữ. 15 mốc như vậy.</tspan></text>
+    <line x1="672" y1="280" x2="1192" y2="280" stroke="#F0F2F6"/>
+    <text x="672" y="324" font-size="28" font-weight="bold" fill="#3F4E99">0,97</text>
+    <text font-size="15" fill="#1B2437"><tspan x="760" y="312" font-weight="bold">MS0172 · CT0043 · 752,5 triệu</tspan><tspan x="760" dy="22" font-size="13" fill="#4A5570">EV00482 và EV00484 cùng số DN-CT0043-02, cách</tspan><tspan x="760" dy="18" font-size="13" fill="#4A5570">2 phút. Giữ bản sớm nhất, vẫn chi đủ; hạ điểm để</tspan><tspan x="760" dy="18" font-size="13" fill="#4A5570">người duyệt biết có bản gửi lại.</tspan></text>
+    <line x1="672" y1="398" x2="1192" y2="398" stroke="#F0F2F6"/>
+    <text x="672" y="442" font-size="28" font-weight="bold" fill="#2F52B8">0,81</text>
+    <text font-size="15" fill="#1B2437"><tspan x="760" y="430" font-weight="bold">Ca dựng riêng · A06</tspan><tspan x="760" dy="22" font-size="13" fill="#4A5570">Nhà cung cấp tự đóng tranh chấp: (1 − 0,10) × 0,90.</tspan><tspan x="760" dy="18" font-size="13" fill="#4A5570">Các yếu tố cộng dồn được; quyết định vẫn Chi đủ.</tspan></text>
+    <rect x="672" y="520" width="520" height="124" rx="12" fill="#1B2437"/>
+    <text font-size="15" fill="#FFFFFF"><tspan x="692" y="552" font-weight="bold">Trên 405 mốc: 385 × 1,00 · 15 × 0,80 · 5 × 0,97</tspan><tspan x="692" dy="24" font-size="13" fill="#C9D6FA">Cả 20 mốc dưới 1,00 đều là mốc được chi, tức đúng những</tspan><tspan x="692" dy="18" font-size="13" fill="#C9D6FA">mốc có thể đổi nếu BTC trả lời khác. Điểm không phải xác</tspan><tspan x="692" dy="18" font-size="13" fill="#C9D6FA">suất đúng và không bao giờ làm đổi quyết định.</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">17</text>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <clipPath id="clipVideo"><rect x="208" y="132" width="864" height="486" rx="16"/></clipPath>
+    <filter id="softShadow" x="-15%" y="-20%" width="130%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#1B2437" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 380 40">
+    <rect x="64" y="38" width="236" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Video giới thiệu · 1 phút 26 giây</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Toàn cảnh CodeCash trong một phút rưỡi</text>
+  </g>
+  <g id="video-frame" data-pptx-bounds="200 124 880 502">
+    <rect x="208" y="132" width="864" height="486" rx="16" fill="#FFFFFF" filter="url(#softShadow)"/>
+    <image href="../images/video_poster.png" x="208" y="132" width="864" height="486" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipVideo)"/>
+  </g>
+  <g id="caption" data-pptx-bounds="200 634 880 40">
+    <text x="640" y="656" font-size="15" fill="#6B7691" text-anchor="middle">Soạn hợp đồng → hai bên ký số → engine đánh giá theo mốc → kiểm toán → lệnh chi</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">12</text>
+  </g>
+</svg>

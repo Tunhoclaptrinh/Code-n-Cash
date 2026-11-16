@@ -1,0 +1,1 @@
+Phần đội tự xây dựng gồm engine và bộ luật, nghiệp vụ và phân quyền, nhật ký và công cụ kiểm chứng, giao diện và dữ liệu. Phần bên ngoài gồm thư viện nền tảng, hạ tầng, Gemini tuỳ chọn chỉ để đề xuất điều khoản, và dấu thời gian RFC 3161 tuỳ chọn. Gói nộp theo đúng cấu trúc Ban tổ chức gợi ý và không chứa thông tin mật.

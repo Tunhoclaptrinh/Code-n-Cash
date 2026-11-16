@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Bằng chứng và KPI</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Đo đủ 5 nhóm KPI của BTC, có baseline và giới hạn</text>
+  </g>
+  <g id="baseline-chart" data-pptx-bounds="56 132 380 526">
+    <rect x="64" y="136" width="364" height="518" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="166" font-size="13" font-weight="bold" fill="#6B7691">SO VỚI HỆ “LUÔN CHI ĐỦ” · 20 MẪU</text>
+    <g id="baseline-chart-chartArea">
+      <line x1="88" y1="420" x2="404" y2="420" stroke="#9AA6C0"/>
+      <!-- chart-plot-area: object=baseline-chart | 88,200,404,420 -->
+      <rect x="104" y="332" width="56" height="88" rx="4" fill="#C9D6FA"/>
+      <rect x="168" y="200" width="56" height="220" rx="4" fill="#3D68E4"/>
+      <rect x="268" y="200" width="56" height="220" rx="4" fill="#E9A3A0"/>
+      <rect x="332" y="419" width="56" height="1" fill="#0F6A3C"/>
+      <g font-size="15" font-weight="bold" text-anchor="middle">
+        <text x="132" y="322" fill="#4A5570">40%</text>
+        <text x="196" y="190" fill="#2F52B8">100%</text>
+        <text x="296" y="190" fill="#B42318">100%</text>
+        <text x="360" y="410" fill="#0F6A3C">0%</text>
+      </g>
+      <g font-size="13" fill="#4A5570" text-anchor="middle">
+        <text x="164" y="444">Đúng quyết định</text>
+        <text x="328" y="444">Chi sai</text>
+      </g>
+    </g>
+    <g font-size="13" fill="#4A5570">
+      <rect x="88" y="470" width="14" height="14" rx="3" fill="#C9D6FA"/>
+      <text x="110" y="482">Luôn chi đủ: 8/20 đúng · chi sai 10/10</text>
+      <rect x="88" y="494" width="14" height="14" rx="3" fill="#3D68E4"/>
+      <text x="110" y="506">CodeCash: 20/20 đúng · chi sai 0/10</text>
+    </g>
+    <text font-size="13" fill="#6B7691"><tspan x="88" y="548">Macro-F1: 0,14 → 1,00</tspan><tspan x="88" dy="20">Baseline tính từ phân bố nhãn 20 mẫu</tspan><tspan x="88" dy="20">(8 chi đủ · 8 tạm giữ · 2 từ chối · 2 phạt),</tspan><tspan x="88" dy="20">nay có trong metrics.json để tái lập</tspan></text>
+  </g>
+  <g id="kpi-table" data-pptx-bounds="444 132 780 526">
+    <rect x="452" y="136" width="764" height="518" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="13" font-weight="bold" fill="#6B7691">
+      <text x="472" y="166">KPI · CÁCH TÍNH</text>
+      <text x="762" y="166">TẬP ĐO</text>
+      <text x="904" y="166">CODECASH</text>
+      <text x="1050" y="166">GIỚI HẠN</text>
+    </g>
+    <line x1="472" y1="180" x2="1196" y2="180" stroke="#E3E8F2"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="472" y="208">Rule Execution Accuracy</tspan><tspan x="472" dy="20" font-size="13" font-weight="normal" fill="#4A5570">quyết định đúng / tổng</tspan></text>
+    <text x="762" y="208" font-size="13" fill="#4A5570">20 mẫu có nhãn</text>
+    <text x="904" y="210" font-size="20" font-weight="bold" fill="#0F6A3C">20/20</text>
+    <text font-size="13" fill="#4A5570"><tspan x="1050" y="208">CI 95%: 83,9–100%</tspan><tspan x="1050" dy="18">viết khi đã đọc mẫu</tspan></text>
+    <line x1="472" y1="250" x2="1196" y2="250" stroke="#F0F2F6"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="472" y="278">Scenario Accuracy · Macro-F1</tspan><tspan x="472" dy="20" font-size="13" font-weight="normal" fill="#4A5570">khớp đủ 17 cột · F1 trung bình 4 lớp</tspan></text>
+    <text x="762" y="278" font-size="13" fill="#4A5570">20 mẫu có nhãn</text>
+    <text x="904" y="280" font-size="20" font-weight="bold" fill="#0F6A3C">20/20 · 1,00</text>
+    <text font-size="13" fill="#4A5570"><tspan x="1050" y="278">tập đã thấy,</tspan><tspan x="1050" dy="18">chờ tập ẩn của BTC</tspan></text>
+    <line x1="472" y1="320" x2="1196" y2="320" stroke="#F0F2F6"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="472" y="348">Unauthorized Payment Rate</tspan><tspan x="472" dy="20" font-size="13" font-weight="normal" fill="#4A5570">mốc bị chi khi chưa đủ điều kiện</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="762" y="348">20 mẫu ·</tspan><tspan x="762" dy="18">33 kịch bản</tspan></text>
+    <text font-size="20" font-weight="bold" fill="#0F6A3C"><tspan x="904" y="350">0/10</tspan><tspan x="904" dy="22" font-size="13" font-weight="normal" fill="#4A5570">0/4.044 ca tổng hợp</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="1050" y="348">ca tổng hợp không</tspan><tspan x="1050" dy="18">độc lập, đo độ phủ</tspan></text>
+    <line x1="472" y1="394" x2="1196" y2="394" stroke="#F0F2F6"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="472" y="422">Payment / Penalty Amount</tspan><tspan x="472" dy="20" font-size="13" font-weight="normal" fill="#4A5570">khớp tới 0,01 triệu, Decimal</tspan></text>
+    <text x="762" y="422" font-size="13" fill="#4A5570">20 mẫu có nhãn</text>
+    <text font-size="20" font-weight="bold" fill="#0F6A3C"><tspan x="904" y="424">20/20</tspan><tspan x="904" dy="22" font-size="13" font-weight="normal" fill="#4A5570">sai số lớn nhất 0,00</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="1050" y="422">baseline không</tspan><tspan x="1050" dy="18">có khái niệm phạt</tspan></text>
+    <line x1="472" y1="468" x2="1196" y2="468" stroke="#F0F2F6"/>
+    <text font-size="15" font-weight="bold" fill="#1B2437"><tspan x="472" y="496">Audit Trace · Processing</tspan><tspan x="472" dy="20" font-size="13" font-weight="normal" fill="#4A5570">dòng có luật, căn cứ, mã trace · thời gian/mốc</tspan></text>
+    <text x="762" y="496" font-size="13" fill="#4A5570">405 mốc</text>
+    <text font-size="20" font-weight="bold" fill="#0F6A3C"><tspan x="904" y="498">405/405</tspan><tspan x="904" dy="22" font-size="13" font-weight="normal" fill="#4A5570">p95 dưới 1 ms mỗi mốc</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="1050" y="496">đo trên máy</tspan><tspan x="1050" dy="18">phát triển</tspan></text>
+    <rect x="472" y="560" width="724" height="74" rx="10" fill="#F8FAFD"/>
+    <text font-size="13" fill="#4A5570"><tspan x="488" y="586" font-weight="bold" fill="#1B2437">Tái lập: python apps/engine/cli.py --output out → out/metrics.json</tspan><tspan x="488" dy="20">Cột CodeCash và baseline cùng ở trong metrics.json · 33 kịch bản do đội gán đáp án:</tspan><tspan x="488" dy="18">chứng minh “làm đúng điều đội hiểu”, độ chính xác thật chờ 250 mốc ẩn và 135 mốc holdout</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">09</text>
+  </g>
+</svg>

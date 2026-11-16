@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục A2 · Engine</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Lọc chứng từ, kiểm yếu tố chặn, rồi mới chọn luật và tính tiền</text>
+  </g>
+  <g id="stage-labels" data-pptx-bounds="56 132 1168 36">
+    <text x="64" y="160" font-size="13" font-weight="bold" fill="#2F52B8">LỌC DỮ KIỆN · BƯỚC 1–5</text>
+    <text x="674" y="160" font-size="13" font-weight="bold" fill="#1B2437">QUYẾT ĐỊNH · 6–7</text>
+    <text x="918" y="160" font-size="13" font-weight="bold" fill="#6B7691">GIẢI THÍCH · 8–9</text>
+  </g>
+<g id="p16-step-1" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="64 176 150 64" fill="#3D68E4" stroke="none">
+<path d="M 64 176 L 182 176 L 214 208 L 182 240 L 64 240 L 96 208 Z"/>
+</g>
+<g id="p16-step-2" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="186 176 150 64" fill="#3D68E4" stroke="none">
+<path d="M 186 176 L 304 176 L 336 208 L 304 240 L 186 240 L 218 208 Z"/>
+</g>
+<g id="p16-step-3" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="308 176 150 64" fill="#3D68E4" stroke="none">
+<path d="M 308 176 L 426 176 L 458 208 L 426 240 L 308 240 L 340 208 Z"/>
+</g>
+<g id="p16-step-4" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="430 176 150 64" fill="#3D68E4" stroke="none">
+<path d="M 430 176 L 548 176 L 580 208 L 548 240 L 430 240 L 462 208 Z"/>
+</g>
+<g id="p16-step-5" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="552 176 150 64" fill="#3D68E4" stroke="none">
+<path d="M 552 176 L 670 176 L 702 208 L 670 240 L 552 240 L 584 208 Z"/>
+</g>
+<g id="p16-step-6" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="674 176 150 64" fill="#1B2437" stroke="none">
+<path d="M 674 176 L 792 176 L 824 208 L 792 240 L 674 240 L 706 208 Z"/>
+</g>
+<g id="p16-step-7" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="796 176 150 64" fill="#1B2437" stroke="none">
+<path d="M 796 176 L 914 176 L 946 208 L 914 240 L 796 240 L 828 208 Z"/>
+</g>
+<g id="p16-step-8" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="918 176 150 64" fill="#8590D8" stroke="none">
+<path d="M 918 176 L 1036 176 L 1068 208 L 1036 240 L 918 240 L 950 208 Z"/>
+</g>
+<g id="p16-step-9" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="1040 176 150 64" fill="#8590D8" stroke="none">
+<path d="M 1040 176 L 1158 176 L 1190 208 L 1158 240 L 1040 240 L 1072 208 Z"/>
+</g>
+  <g id="step-numbers" data-pptx-bounds="56 176 1168 64">
+    <g font-size="20" font-weight="bold" fill="#FFFFFF" text-anchor="middle">
+      <text x="146" y="215">1</text><text x="268" y="215">2</text><text x="390" y="215">3</text>
+      <text x="512" y="215">4</text><text x="634" y="215">5</text><text x="756" y="215">6</text>
+      <text x="878" y="215">7</text><text x="1000" y="215">8</text><text x="1122" y="215">9</text>
+    </g>
+  </g>
+  <g id="step-labels" data-pptx-bounds="56 248 1168 64">
+    <g font-size="13" fill="#4A5570" text-anchor="middle">
+      <text><tspan x="146" y="270" font-weight="bold" fill="#1B2437">Cấu trúc</tspan><tspan x="146" dy="18">dữ liệu mốc</tspan></text>
+      <text><tspan x="268" y="270" font-weight="bold" fill="#1B2437">Sự kiện</tspan><tspan x="268" dy="18">khử bản lặp</tspan></text>
+      <text><tspan x="390" y="270" font-weight="bold" fill="#1B2437">Chứng từ</tspan><tspan x="390" dy="18">và thẩm quyền</tspan></text>
+      <text><tspan x="512" y="270" font-weight="bold" fill="#1B2437">Tranh chấp,</tspan><tspan x="512" dy="18">từ chối, quorum</tspan></text>
+      <text><tspan x="634" y="270" font-weight="bold" fill="#1B2437">Thời hạn</tspan><tspan x="634" dy="18">ngày hoàn thành</tspan></text>
+      <text><tspan x="756" y="270" font-weight="bold" fill="#1B2437">Chọn luật</tspan><tspan x="756" dy="18">khớp đầu tiên</tspan></text>
+      <text><tspan x="878" y="270" font-weight="bold" fill="#1B2437">Tính tiền</tspan><tspan x="878" dy="18">Decimal</tspan></text>
+      <text><tspan x="1000" y="270" font-weight="bold" fill="#1B2437">Độ tin cậy</tspan><tspan x="1000" dy="18">độ nhạy giả định</tspan></text>
+      <text><tspan x="1122" y="270" font-weight="bold" fill="#1B2437">Truy vết</tspan><tspan x="1122" dy="18">trace, mã băm</tspan></text>
+    </g>
+  </g>
+  <g id="formula" data-pptx-bounds="56 332 584 334">
+    <rect x="64" y="336" width="568" height="326" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="366" font-size="13" font-weight="bold" fill="#6B7691">CÔNG THỨC TIỀN · DECIMAL, KHÔNG DÙNG SỐ THỰC</text>
+    <text font-size="20" font-weight="bold" fill="#1B2437"><tspan x="88" y="406">F = min(trễ × mức phạt × P, trần × P)</tspan><tspan x="88" dy="34">Được chi = max(0, P − F)</tspan></text>
+    <text font-size="15" fill="#4A5570"><tspan x="88" y="476">P: giá trị mốc · trễ: số ngày sau hạn cộng ân hạn</tspan><tspan x="88" dy="22">F làm tròn tới 0,01 triệu (ROUND_HALF_UP) rồi mới trừ</tspan></text>
+    <rect x="88" y="512" width="520" height="130" rx="10" fill="#F8FAFD" stroke="#E3E8F2"/>
+    <text font-size="15" fill="#1B2437"><tspan x="104" y="540" font-weight="bold">CT0103 · mốc 2</tspan><tspan x="104" dy="22" fill="#4A5570">min(2 × 0,15% × 740; 8% × 740) = 2,22 → chi 737,78</tspan><tspan x="104" dy="30" font-weight="bold">K10 · mức phạt tăng lên 2%/ngày</tspan><tspan x="104" dy="22" fill="#4A5570">chạm trần 8% × 900 = 72,00 → chi 828,00</tspan></text>
+  </g>
+  <g id="completion" data-pptx-bounds="640 332 584 334">
+    <rect x="648" y="336" width="568" height="326" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="672" y="366" font-size="13" font-weight="bold" fill="#6B7691">NGÀY HOÀN THÀNH · NGUỒN GỐC CỦA TIỀN PHẠT</text>
+    <text font-size="18" font-weight="bold" fill="#1B2437"><tspan x="672" y="402">= chứng từ bắt buộc hợp lệ muộn nhất</tspan></text>
+    <text font-size="15" fill="#4A5570"><tspan x="672" y="440">• Không tính phê duyệt: K11 duyệt muộn 17 ngày,</tspan><tspan x="688" dy="22">phạt vẫn 8,10 như cũ</tspan><tspan x="672" dy="30">• Không tính lần đóng tranh chấp</tspan><tspan x="672" dy="30">• Bản lặp cùng số chứng từ: giữ bản sớm nhất</tspan><tspan x="672" dy="30">• Chứng từ do sai bên lập không được tính</tspan></text>
+    <rect x="672" y="590" width="520" height="52" rx="10" fill="#FFF6D6"/>
+    <text font-size="13" fill="#7A5A00"><tspan x="688" y="612" font-weight="bold">Dữ liệu lỗi → ELSE, tạm giữ, độ tin cậy tối đa 0,50</tspan><tspan x="688" dy="18">ví dụ quorum “?”, thiếu danh sách chứng từ bắt buộc</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">16</text>
+  </g>
+</svg>

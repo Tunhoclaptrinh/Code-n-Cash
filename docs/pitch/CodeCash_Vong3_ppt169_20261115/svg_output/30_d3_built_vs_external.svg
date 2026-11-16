@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="170" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục D3 · Kiểm chứng</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Phần đội tự xây dựng và phần dùng từ bên ngoài</text>
+  </g>
+  <g id="built" data-pptx-bounds="56 128 600 412">
+    <rect x="64" y="132" width="584" height="404" rx="14" fill="#FFFFFF" stroke="#3D68E4" stroke-width="1.5"/>
+    <rect x="88" y="152" width="136" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="156" y="170" font-size="13" font-weight="bold" fill="#2F52B8" text-anchor="middle">Đội tự xây dựng</text>
+    <g font-size="15" fill="#1B2437">
+      <text><tspan x="88" y="214" font-weight="bold">Engine và bộ luật</tspan><tspan x="88" dy="20" font-size="13" fill="#4A5570">codecash_engine (9 bước), policy pack, bộ biên dịch biểu thức</tspan><tspan x="88" dy="18" font-size="13" fill="#4A5570">danh sách trắng, chứng minh an toàn bộ luật</tspan></text>
+      <text><tspan x="88" y="288" font-weight="bold">Nghiệp vụ và phân quyền</tspan><tspan x="88" dy="20" font-size="13" fill="#4A5570">workflow ký, chứng từ, duyệt, tranh chấp, ngoại lệ, lệnh chi;</tspan><tspan x="88" dy="18" font-size="13" fill="#4A5570">ma trận quyền 8 vai trò kiểm ở API</tspan></text>
+      <text><tspan x="88" y="362" font-weight="bold">Tin cậy và kiểm chứng</tspan><tspan x="88" dy="20" font-size="13" fill="#4A5570">nhật ký chuỗi băm, neo Merkle, gói kiểm chứng,</tspan><tspan x="88" dy="18" font-size="13" fill="#4A5570">verify_audit.py, verify_decision.py, mutation_check.py</tspan></text>
+      <text><tspan x="88" y="436" font-weight="bold">Giao diện và dữ liệu</tspan><tspan x="88" dy="20" font-size="13" fill="#4A5570">màn hình theo vai trò (tiếng Việt, tiếng Anh), nhập Data Pack,</tspan><tspan x="88" dy="18" font-size="13" fill="#4A5570">seed có nhãn nguồn, 205 test Python cùng test API và web</tspan></text>
+    </g>
+    <text x="88" y="514" font-size="13" fill="#6B7691">Engine dùng thư viện chuẩn Python và Decimal, không học từ dữ liệu</text>
+  </g>
+  <g id="external" data-pptx-bounds="664 128 560 412">
+    <rect x="672" y="132" width="544" height="404" rx="14" fill="#FFFFFF" stroke="#9AA6C0" stroke-dasharray="6,4"/>
+    <rect x="696" y="152" width="96" height="26" rx="13" fill="#F0F2F6"/>
+    <text x="744" y="170" font-size="13" font-weight="bold" fill="#4A5570" text-anchor="middle">Bên ngoài</text>
+    <g font-size="15" fill="#1B2437">
+      <text><tspan x="696" y="214" font-weight="bold">Thư viện nền tảng</tspan><tspan x="696" dy="20" font-size="13" fill="#4A5570">React 19, Ant Design 6, TanStack Query, i18next,</tspan><tspan x="696" dy="18" font-size="13" fill="#4A5570">NestJS, MongoDB; LibreOffice, Poppler để xem tài liệu</tspan></text>
+      <text><tspan x="696" y="288" font-weight="bold">Hạ tầng</tspan><tspan x="696" dy="20" font-size="13" fill="#4A5570">Docker Compose (nginx, API, MongoDB), GitHub Actions;</tspan><tspan x="696" dy="18" font-size="13" fill="#4A5570">cloud chạy bản demo</tspan></text>
+      <text><tspan x="696" y="362" font-weight="bold">Google Gemini API · tuỳ chọn</tspan><tspan x="696" dy="20" font-size="13" fill="#4A5570">chỉ đề xuất 6 điều khoản kèm trang và trích dẫn từ PDF;</tspan><tspan x="696" dy="18" font-size="13" fill="#4A5570">người xác nhận; không tham gia quyết định thanh toán</tspan></text>
+      <text><tspan x="696" y="436" font-weight="bold">Dấu thời gian RFC 3161 · tuỳ chọn</tspan><tspan x="696" dy="20" font-size="13" fill="#4A5570">bật bằng TSA_URL để có bên làm chứng ngoài máy chủ</tspan></text>
+    </g>
+    <text x="696" y="514" font-size="13" fill="#6B7691">Không cần Internet khi demo; chỉ tính năng AI đọc PDF cần mạng</text>
+  </g>
+  <g id="package" data-pptx-bounds="56 548 1168 116">
+    <rect x="64" y="552" width="1152" height="108" rx="14" fill="#1B2437"/>
+    <text x="88" y="582" font-size="13" font-weight="bold" fill="#9AA6C0">GÓI NỘP VÒNG 3 · BTC TÁI LẬP ĐƯỢC KHÔNG CẦN HỎI LẠI ĐỘI</text>
+    <g font-family="Consolas" font-size="14" fill="#FFFFFF">
+      <text x="88" y="614">01_SourceCode</text><text x="270" y="614">02_Data</text><text x="420" y="614">03_Output</text>
+      <text x="588" y="614">04_Document</text><text x="760" y="614">05_Test</text><text x="900" y="614">06_Demo</text><text x="1050" y="614">README.md</text>
+    </g>
+    <text x="88" y="642" font-size="13" fill="#C9D6FA">Không chứa mật khẩu, khoá, token hay tệp .env; tài khoản demo dùng dữ liệu mẫu</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">30</text>
+  </g>
+</svg>

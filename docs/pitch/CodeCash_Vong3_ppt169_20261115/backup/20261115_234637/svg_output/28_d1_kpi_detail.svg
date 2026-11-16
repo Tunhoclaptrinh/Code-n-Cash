@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="170" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục D1 · Kiểm chứng</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Mỗi KPI đủ 6 ý BTC yêu cầu</text>
+  </g>
+  <g id="kpi-grid" data-pptx-bounds="56 128 1168 516">
+    <rect x="64" y="132" width="1152" height="508" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="12" font-weight="bold" fill="#6B7691">
+      <text x="88" y="162">KPI</text><text x="250" y="162">ĐO GÌ · CÁCH TÍNH</text><text x="520" y="162">TẬP ĐO</text>
+      <text x="668" y="162">KẾT QUẢ</text><text x="808" y="162">BASELINE</text><text x="940" y="162">GIỚI HẠN</text>
+    </g>
+    <line x1="88" y1="174" x2="1192" y2="174" stroke="#E3E8F2"/>
+    <g font-size="14" font-weight="bold" fill="#1B2437">
+      <text><tspan x="88" y="202">Rule Execution</tspan><tspan x="88" dy="18">Accuracy</tspan></text>
+      <text><tspan x="88" y="294">Scenario Accuracy</tspan><tspan x="88" dy="18">· Macro-F1</tspan></text>
+      <text><tspan x="88" y="386">Unauthorized</tspan><tspan x="88" dy="18">Payment Rate</tspan></text>
+      <text><tspan x="88" y="478">Payment / Penalty</tspan><tspan x="88" dy="18">Amount</tspan></text>
+      <text><tspan x="88" y="570">Audit Trace</tspan><tspan x="88" dy="18">· Processing</tspan></text>
+    </g>
+    <g font-size="12" fill="#4A5570">
+      <text><tspan x="250" y="202">Quyết định engine khớp nhãn BTC</tspan><tspan x="250" dy="17">= số mẫu đúng / tổng số mẫu</tspan></text>
+      <text><tspan x="250" y="294">Khớp đủ 17 cột của dòng đầu ra;</tspan><tspan x="250" dy="17">F1 từng lớp rồi lấy trung bình 4 lớp</tspan></text>
+      <text><tspan x="250" y="386">Mốc bị chi (chi đủ hoặc trừ phạt) khi</tspan><tspan x="250" dy="17">nhãn là tạm giữ hoặc từ chối / số mốc đó</tspan></text>
+      <text><tspan x="250" y="478">Tiền được chi và tiền phạt khớp nhãn</tspan><tspan x="250" dy="17">tới 0,01 triệu; tính bằng Decimal</tspan></text>
+      <text><tspan x="250" y="570">Dòng có đủ ô, luật, căn cứ, mã trace;</tspan><tspan x="250" dy="17">thời gian xử lý mỗi mốc (trung vị, p95)</tspan></text>
+      <text><tspan x="520" y="202">20 mẫu có nhãn</tspan><tspan x="520" dy="17">decision_sample.csv</tspan></text>
+      <text><tspan x="520" y="294">20 mẫu có nhãn</tspan></text>
+      <text><tspan x="520" y="386">20 mẫu; 4.044 ca</tspan><tspan x="520" dy="17">của 33 kịch bản</tspan></text>
+      <text><tspan x="520" y="478">20 mẫu có nhãn</tspan></text>
+      <text><tspan x="520" y="570">405 mốc đầu ra</tspan></text>
+    </g>
+    <g font-size="15" font-weight="bold" fill="#0F6A3C">
+      <text x="668" y="204">20/20</text>
+      <text x="668" y="296">20/20 · 1,00</text>
+      <text><tspan x="668" y="388">0/10</tspan><tspan x="668" dy="18" font-size="12" font-weight="normal" fill="#4A5570">0/4.044</tspan></text>
+      <text><tspan x="668" y="480">20/20</tspan><tspan x="668" dy="18" font-size="12" font-weight="normal" fill="#4A5570">sai số 0,00</tspan></text>
+      <text><tspan x="668" y="572">405/405</tspan><tspan x="668" dy="18" font-size="12" font-weight="normal" fill="#4A5570">p95 dưới 1 ms</tspan></text>
+    </g>
+    <g font-size="14" font-weight="bold" fill="#B42318">
+      <text x="808" y="204">8/20</text>
+      <text x="808" y="296">F1 0,14</text>
+      <text x="808" y="388">10/10</text>
+      <text x="808" y="480" fill="#9AA6C0">—</text>
+      <text x="808" y="572" fill="#9AA6C0">—</text>
+    </g>
+    <g font-size="12" fill="#4A5570">
+      <text><tspan x="940" y="202">CI 95%: 83,9–100%; engine viết</tspan><tspan x="940" dy="17">khi đã đọc 20 mẫu này</tspan></text>
+      <text><tspan x="940" y="294">Tập đã thấy; độ chính xác thật</tspan><tspan x="940" dy="17">chờ 250 mốc ẩn, 135 holdout</tspan></text>
+      <text><tspan x="940" y="386">Ca tổng hợp không độc lập, đáp</tspan><tspan x="940" dy="17">án do đội viết: đo độ phủ</tspan></text>
+      <text><tspan x="940" y="478">Baseline luôn chi đủ không có</tspan><tspan x="940" dy="17">khái niệm phạt để so</tspan></text>
+      <text><tspan x="940" y="570">Đo trên máy phát triển;</tspan><tspan x="940" dy="17">không có baseline tương ứng</tspan></text>
+    </g>
+    <g stroke="#F0F2F6"><line x1="88" y1="248" x2="1192" y2="248"/><line x1="88" y1="340" x2="1192" y2="340"/><line x1="88" y1="432" x2="1192" y2="432"/><line x1="88" y1="524" x2="1192" y2="524"/></g>
+  </g>
+  <g id="reproduce" data-pptx-bounds="56 650 1090 36">
+    <text x="64" y="672" font-size="13" fill="#6B7691"><tspan font-weight="bold" fill="#1B2437">Tái lập: </tspan>python apps/engine/cli.py --output out → out/metrics.json (khối kpi và kpi.baseline) · đối chiếu 20 mẫu: doi_chieu_20_mau.csv</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">28</text>
+  </g>
+</svg>

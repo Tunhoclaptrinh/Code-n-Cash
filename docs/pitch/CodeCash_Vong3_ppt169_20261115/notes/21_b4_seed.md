@@ -1,0 +1,1 @@
+Đội chỉ bổ sung thứ Data Pack không có: người dùng, thông tin pháp lý của tổ chức, chi tiết ký số, các bước đã qua trong lịch sử và cấu hình chạy. Bốn hợp đồng demo, mỗi cái minh hoạ một bước của luồng. Mọi dòng bổ sung mang nhãn SEED, không làm đổi kết quả 405 mốc gốc, và khôi phục dữ liệu demo không xoá nhật ký cũ.

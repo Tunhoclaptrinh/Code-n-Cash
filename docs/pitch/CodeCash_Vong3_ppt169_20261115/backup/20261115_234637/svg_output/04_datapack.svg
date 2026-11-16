@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="header" data-pptx-bounds="56 30 1170 92">
+    <rect x="64" y="38" width="190" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Đọc hiểu dữ liệu của BTC</text>
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Đọc kỹ Data Pack trước khi thiết kế cơ sở dữ liệu</text>
+  </g>
+  <g id="table-rows" data-pptx-bounds="56 128 470 436">
+    <rect x="64" y="132" width="456" height="428" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="162" font-size="13" font-weight="bold" fill="#6B7691">5 BẢNG CSV · SỐ DÒNG</text>
+    <g id="table-rows-chartArea">
+      <line x1="208" y1="180" x2="208" y2="372" stroke="#E3E8F2"/>
+      <!-- chart-plot-area: object=table-rows | 208,180,444,372 -->
+      <g font-family="Consolas" font-size="13" fill="#4A5570" text-anchor="end">
+        <text x="198" y="211">events</text>
+        <text x="198" y="251">milestones</text>
+        <text x="198" y="291">payment_rules</text>
+        <text x="198" y="331">contracts</text>
+        <text x="198" y="371">parties</text>
+      </g>
+      <rect x="208" y="194" width="236" height="24" rx="4" fill="#3D68E4"/>
+      <rect x="208" y="234" width="84.3" height="24" rx="4" fill="#3D68E4"/>
+      <rect x="208" y="274" width="26.6" height="24" rx="4" fill="#8590D8"/>
+      <rect x="208" y="314" width="20.8" height="24" rx="4" fill="#8590D8"/>
+      <rect x="208" y="354" width="13.5" height="24" rx="4" fill="#8590D8"/>
+      <g font-size="15" font-weight="bold" fill="#1B2437">
+        <text x="452" y="212">1.134</text>
+        <text x="300" y="252">405</text>
+        <text x="242" y="292">128</text>
+        <text x="237" y="332">100</text>
+        <text x="230" y="372">65</text>
+      </g>
+    </g>
+    <line x1="88" y1="400" x2="496" y2="400" stroke="#E3E8F2"/>
+    <text x="88" y="428" font-size="13" font-weight="bold" fill="#6B7691">QUAN HỆ ĐỌC RA TỪ DỮ LIỆU</text>
+    <text font-size="15" fill="#1B2437"><tspan x="88" y="456">1 hợp đồng → 3–5 mốc (trung vị 4)</tspan><tspan x="88" dy="24">1 mốc → 1–6 sự kiện (trung vị 3)</tspan><tspan x="88" dy="24">10 bên mua × 3 vai trò duyệt = 30 người duyệt</tspan><tspan x="88" dy="24"><tspan font-weight="bold" fill="#0F6A3C">5/5</tspan> khoá ngoại đều khớp</tspan></text>
+  </g>
+  <g id="patterns" data-pptx-bounds="532 128 348 436">
+    <rect x="536" y="132" width="340" height="428" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="560" y="162" font-size="13" font-weight="bold" fill="#6B7691">QUY LUẬT ĐỘI RÚT RA</text>
+    <text x="560" y="206" font-size="28" font-weight="bold" fill="#2F52B8">100/100</text>
+    <text x="560" y="230" font-size="15" fill="#4A5570">hợp đồng: mốc cuối trùng ngày kết thúc</text>
+    <text x="560" y="280" font-size="28" font-weight="bold" fill="#2F52B8">100/100</text>
+    <text x="560" y="304" font-size="15" fill="#4A5570">hợp đồng: tổng tỷ lệ thanh toán = 100%</text>
+    <text x="560" y="354" font-size="28" font-weight="bold" fill="#2F52B8">405/405</text>
+    <text x="560" y="378" font-size="15" fill="#4A5570">mốc: tiền mốc = giá trị × tỷ lệ</text>
+    <rect x="556" y="400" width="300" height="140" rx="10" fill="#F8FAFD" stroke="#E3E8F2"/>
+    <text font-size="15" fill="#1B2437"><tspan x="572" y="428">Hạn mốc co giãn theo thời hạn</tspan><tspan x="572" dy="22">hợp đồng: lệch tối đa 1 ngày.</tspan><tspan x="572" dy="22" fill="#4A5570">Cộng thẳng số ngày thì lệch tới</tspan><tspan x="572" dy="22" fill="#4A5570">96 ngày → dùng quy luật co giãn</tspan><tspan x="572" dy="22" fill="#4A5570">cho hợp đồng soạn trong app.</tspan></text>
+  </g>
+  <g id="anomalies" data-pptx-bounds="888 128 336 436">
+    <rect x="892" y="132" width="324" height="428" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="916" y="162" font-size="13" font-weight="bold" fill="#6B7691">BẤT THƯỜNG → CÁCH XỬ LÝ</text>
+    <text x="916" y="210" font-size="28" font-weight="bold" fill="#8F4A06">5</text>
+    <text font-size="13" fill="#4A5570"><tspan x="976" y="194" font-weight="bold" fill="#1B2437">chứng từ gửi lặp</tspan><tspan x="976" dy="18">giữ bản sớm nhất, độ tin cậy 0,97</tspan></text>
+    <text x="916" y="306" font-size="28" font-weight="bold" fill="#8F4A06">267</text>
+    <text font-size="13" fill="#4A5570"><tspan x="976" y="290" font-weight="bold" fill="#1B2437">sự kiện sau snapshot 18/10</tspan><tspan x="976" dy="18">dùng đủ lịch sử, ghi rõ chế độ</tspan><tspan x="976" dy="18">offline_full_history</tspan></text>
+    <text x="916" y="402" font-size="28" font-weight="bold" fill="#8F4A06">145</text>
+    <text font-size="13" fill="#4A5570"><tspan x="976" y="380" font-weight="bold" fill="#1B2437">sự kiện lệch cột thẩm quyền</tspan><tspan x="976" dy="18">cột allowed_event_types thiếu</tspan><tspan x="976" dy="18">loại → dựng ma trận theo bên</tspan><tspan x="976" dy="18">6 mốc sai bên lập bị giữ</tspan></text>
+    <text x="916" y="498" font-size="28" font-weight="bold" fill="#8F4A06">15</text>
+    <text font-size="13" fill="#4A5570"><tspan x="976" y="482" font-weight="bold" fill="#1B2437">mốc cờ hoá đơn mâu thuẫn</tspan><tspan x="976" dy="18">theo danh sách chứng từ bắt buộc,</tspan><tspan x="976" dy="18">độ tin cậy 0,80 (BTC chưa chốt)</tspan></text>
+  </g>
+  <g id="design-result" data-pptx-bounds="56 572 1168 86">
+    <rect x="64" y="576" width="1152" height="78" rx="14" fill="#1B2437"/>
+    <text font-size="15" fill="#C9D6FA"><tspan x="88" y="608" font-weight="bold" fill="#FFFFFF">Kết quả thiết kế: 5 bảng BTC nhập nguyên cột, mỗi dòng gắn nhãn nguồn DATA_PACK · SEED · APP.</tspan><tspan x="88" dy="24">Dữ liệu bổ sung (tài khoản, thông tin ký, hợp đồng demo) không làm đổi kết quả của 405 mốc gốc · chi tiết ở phụ lục B</tspan></text>
+  </g>
+  <g id="source-note" data-pptx-bounds="56 664 1000 26">
+    <text x="64" y="682" font-size="13" fill="#6B7691">Nguồn: tools/pitch/datapack_profile.py chạy trên Data Pack chính thức và đầu ra engine, 15/11/2026</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">04</text>
+  </g>
+</svg>

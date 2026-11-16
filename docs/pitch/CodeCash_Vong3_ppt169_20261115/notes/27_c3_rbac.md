@@ -1,0 +1,1 @@
+Phân quyền có hai lớp. Lớp một do engine kiểm: bên nào được lập loại chứng từ nào. Lớp hai do API kiểm: vai trò nào được làm thao tác nào, theo một ma trận quyền duy nhất. Tách nhiệm vụ: người đề xuất không tự duyệt, quản trị không đọc nội dung hợp đồng, kiểm toán chỉ thấy mã băm.

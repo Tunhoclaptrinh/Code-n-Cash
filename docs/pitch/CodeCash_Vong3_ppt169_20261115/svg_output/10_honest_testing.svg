@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="180" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Kiểm thử và giới hạn</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Không tự chấm cho đẹp: cài lỗi thật, nói rõ giới hạn</text>
+  </g>
+  <g id="mutation" data-pptx-bounds="56 132 584 272">
+    <rect x="64" y="136" width="568" height="264" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="166" font-size="13" font-weight="bold" fill="#6B7691">CÀI 16 LỖI VÀO ENGINE · BỘ KIỂM THỬ BẮT ĐƯỢC BAO NHIÊU</text>
+    <g id="mutation-chartArea">
+      <line x1="96" y1="360" x2="380" y2="360" stroke="#9AA6C0"/>
+      <!-- chart-plot-area: object=mutation | 96,200,380,360 -->
+      <rect x="112" y="290" width="64" height="70" rx="4" fill="#C9D6FA"/>
+      <rect x="204" y="250" width="64" height="110" rx="4" fill="#3D68E4"/>
+      <rect x="296" y="200" width="64" height="160" rx="4" fill="#F0F2F6" stroke="#9AA6C0" stroke-dasharray="4,3"/>
+      <g font-size="15" font-weight="bold" text-anchor="middle">
+        <text x="144" y="280" fill="#4A5570">7/16</text>
+        <text x="236" y="240" fill="#2F52B8">11/16</text>
+        <text x="328" y="190" fill="#9AA6C0">16/16</text>
+      </g>
+      <g font-size="13" fill="#4A5570" text-anchor="middle">
+        <text x="144" y="380">20 mẫu BTC</text>
+        <text x="236" y="380">Bộ ca lần đầu</text>
+        <text x="328" y="380">Sau bổ sung</text>
+      </g>
+    </g>
+    <text x="408" y="226" font-size="13" font-weight="bold" fill="#6B7691">CON SỐ KHÁCH QUAN</text>
+    <text x="408" y="270" font-size="36" font-weight="bold" fill="#2F52B8">11/16</text>
+    <text font-size="13" fill="#4A5570"><tspan x="408" y="298">16/16 đo trên chính bộ lỗi</tspan><tspan x="408" dy="18">đã dùng để thêm 5 kịch bản,</tspan><tspan x="408" dy="18">nên không dùng làm bằng</tspan><tspan x="408" dy="18">chứng chính.</tspan></text>
+  </g>
+  <g id="confidence" data-pptx-bounds="640 132 584 272">
+    <rect x="648" y="136" width="568" height="264" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="672" y="166" font-size="13" font-weight="bold" fill="#6B7691">ĐỘ TIN CẬY · 405 MỐC · KHÔNG BAO GIỜ ĐỔI QUYẾT ĐỊNH</text>
+    <g id="confidence-chartArea">
+      <!-- chart-plot-area: object=confidence | 672,190,1192,226 -->
+      <rect x="672" y="190" width="494.3" height="36" fill="#3D68E4"/>
+      <rect x="1166.3" y="190" width="6.4" height="36" fill="#8590D8"/>
+      <rect x="1172.7" y="190" width="19.3" height="36" fill="#E0A93B"/>
+    </g>
+    <g font-size="15" fill="#4A5570">
+      <rect x="672" y="254" width="14" height="14" rx="3" fill="#3D68E4"/>
+      <text x="696" y="266"><tspan font-weight="bold" fill="#1B2437">385 mốc · 1,00 </tspan>dữ liệu sạch, không phụ thuộc giả định</text>
+      <rect x="672" y="286" width="14" height="14" rx="3" fill="#E0A93B"/>
+      <text x="696" y="298"><tspan font-weight="bold" fill="#1B2437">15 mốc · 0,80 </tspan>phụ thuộc điểm BTC chưa chốt (A08)</text>
+      <rect x="672" y="318" width="14" height="14" rx="3" fill="#8590D8"/>
+      <text x="696" y="330"><tspan font-weight="bold" fill="#1B2437">5 mốc · 0,97 </tspan>có bản lặp chứng từ, đã khử</text>
+    </g>
+    <rect x="672" y="350" width="520" height="34" rx="8" fill="#E4F6EC"/>
+    <text x="688" y="372" font-size="15" fill="#0F6A3C"><tspan font-weight="bold">0 vi phạm bất biến</tspan> · cả 20 mốc dưới 1,00 đều là mốc được chi</text>
+  </g>
+  <g id="limits" data-pptx-bounds="56 412 1168 250">
+    <rect x="64" y="416" width="1152" height="242" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="446" font-size="13" font-weight="bold" fill="#6B7691">GIỚI HẠN HIỆN TẠI → CÁCH XỬ LÝ</text>
+    <text font-size="13" fill="#4A5570"><tspan x="88" y="480" font-size="16" font-weight="bold" fill="#1B2437">Ít nhãn để đo</tspan><tspan x="88" dy="24">20 mẫu, engine viết khi đã đọc;</tspan><tspan x="88" dy="18">CI 95% là 83,9–100%.</tspan><tspan x="88" dy="26" fill="#2F52B8">→ Chờ tập ẩn; nhờ người không viết</tspan><tspan x="88" dy="18" fill="#2F52B8">engine gán nhãn độc lập khoảng 30 ca</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="370" y="480" font-size="16" font-weight="bold" fill="#1B2437">2 điểm BTC chưa chốt</tspan><tspan x="370" dy="24">Hoá đơn khi invoice_required; ai</tspan><tspan x="370" dy="18">được đóng tranh chấp.</tspan><tspan x="370" dy="26" fill="#2F52B8">→ Đo độ nhạy, hạ độ tin cậy;</tspan><tspan x="370" dy="18" fill="#2F52B8">không đổi quyết định</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="652" y="480" font-size="16" font-weight="bold" fill="#1B2437">Ký số, thanh toán mô phỏng</tspan><tspan x="652" dy="24">Chưa có giá trị pháp lý,</tspan><tspan x="652" dy="18">chưa chi tiền thật.</tspan><tspan x="652" dy="26" fill="#2F52B8">→ Adapter HTTP đã có (khoá chống</tspan><tspan x="652" dy="18" fill="#2F52B8">trùng, HMAC); nối CA và ngân hàng</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="934" y="480" font-size="16" font-weight="bold" fill="#1B2437">Làm chứng cùng máy chủ</tspan><tspan x="934" dy="24">Neo nội bộ mỗi 15 phút; phát</tspan><tspan x="934" dy="18">hiện 5/6 kiểu giả mạo đã thử.</tspan><tspan x="934" dy="26" fill="#2F52B8">→ Bật dấu thời gian RFC 3161</tspan><tspan x="934" dy="18" fill="#2F52B8">của đơn vị bên ngoài</tspan></text>
+    <text x="88" y="628" font-size="13" fill="#6B7691">An toàn bộ luật: 16/16 phạm vi luật qua chứng minh tĩnh trên 9.216 tình huống · 33 kịch bản tổng hợp, đáp án do đội viết</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">10</text>
+  </g>
+</svg>

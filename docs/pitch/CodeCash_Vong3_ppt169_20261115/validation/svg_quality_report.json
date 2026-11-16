@@ -1,0 +1,2200 @@
+{
+  "schema": "ppt-master.svg-quality-report.v1",
+  "stage": "final",
+  "target": "D:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115",
+  "source_fingerprint": {
+    "algorithm": "sha256",
+    "digest": "c5d75a2524fbeb2d456443c1190bbf201a122cb767a2dbaaded841458348210f",
+    "file_count": 30,
+    "files": [
+      {
+        "file": "01_cover.svg",
+        "sha256": "5aa0c71a071d311f7d27f54e21637d6d29ec8c37b86aba3469fe6cf1b716ed5e"
+      },
+      {
+        "file": "02_problem.svg",
+        "sha256": "f3594feb7d1aef9c0ed142a125d7cbcda4d6c8ccd8dcea7e333b033606c72793"
+      },
+      {
+        "file": "03_solution.svg",
+        "sha256": "ac0c646d5b8b93416b2a08730ac5300ec233b4eded653526029ff16bbb139258"
+      },
+      {
+        "file": "04_datapack.svg",
+        "sha256": "7cc915bed56afa8e482032b2869027f9a48444a0d77d6670b755e70a5933decf"
+      },
+      {
+        "file": "05_demo_input.svg",
+        "sha256": "773ec1da3b86ffa16734e82abba401396f5392638557ec0b4600b901db536cb7"
+      },
+      {
+        "file": "06_demo_processing.svg",
+        "sha256": "1f8358546881955b5c4b63b5c8168191a1ddd485734e5bd7978fbfc168bbc1d4"
+      },
+      {
+        "file": "07_demo_output_trace.svg",
+        "sha256": "d4111cff379b4e6b007a34fa4409df401e47dd859aa28c3ed948a8a1540c45c7"
+      },
+      {
+        "file": "08_hard_case.svg",
+        "sha256": "6d8390dfd46008f8eb91093ea0aa4ff0d9cf9c693f610997a53b77790aa59bba"
+      },
+      {
+        "file": "09_kpi.svg",
+        "sha256": "994ffd39b10b3c31589679dc346cb350092feba5d74eea9f5e6470d95953de73"
+      },
+      {
+        "file": "10_honest_testing.svg",
+        "sha256": "1b4ef172653b3cdb3a236dda9995b6f66b0eb8014ba7e2a06ac0a1fad803e2c6"
+      },
+      {
+        "file": "11_impact.svg",
+        "sha256": "6a3561e1904279dceae25402c38b3bc4b06af848504d10fc8744a3ab1f45665f"
+      },
+      {
+        "file": "12_video.svg",
+        "sha256": "b5e50741f49a19b4b3f8825f7d73c7ffb23ab470028b515373c0607898993aa4"
+      },
+      {
+        "file": "13_closing.svg",
+        "sha256": "917204405c39210b98367b910e69994408b49c0c1a424d258a42fd0f155a8137"
+      },
+      {
+        "file": "14_appendix_index.svg",
+        "sha256": "4832d7406bd99918c5ca010eab851a05328b433c4ba7370e03505630afc15a60"
+      },
+      {
+        "file": "15_a1_rules.svg",
+        "sha256": "113a94d236708695eee26832fcfddac109eebf3b10ff36ba2e557043005981ea"
+      },
+      {
+        "file": "16_a2_pipeline.svg",
+        "sha256": "3865d942da1a917467cf53281915afd1d90e7369647033f8e88dd2b41e098673"
+      },
+      {
+        "file": "17_a3_confidence.svg",
+        "sha256": "ea57cfdafb7304d1f69e9f66baad9770efd35cdd4bb52db54a7c211ec8457d5c"
+      },
+      {
+        "file": "18_b1_profile.svg",
+        "sha256": "59926818b8df8a10233aec7ec24f54f8df75f13a34f0c0b90a74014feef789bd"
+      },
+      {
+        "file": "19_b2_erd_datapack.svg",
+        "sha256": "59575e5a65ac71bf9850ecc55ffffb34ade1e307db5631bd3786573d71de48ef"
+      },
+      {
+        "file": "20_b3_enriched_db.svg",
+        "sha256": "4afbb838bf2781e671aa75f9c1a77019accb01357ec8c9bd2393213d3809a2e4"
+      },
+      {
+        "file": "21_b4_seed.svg",
+        "sha256": "cd6f24a99b18bcb803145cce9a651702b8c9896c9584fd5723e735b452f4ae58"
+      },
+      {
+        "file": "22_b5_mapping.svg",
+        "sha256": "d16981ce00b4f24d30b429ee93e976fca3486f17ef4e33961acc135942d217eb"
+      },
+      {
+        "file": "23_b6_trace.svg",
+        "sha256": "dfdd01ed73a10fec0c75165bd11f6b36f5f4f9c6ebeb946d8c54118083e5162e"
+      },
+      {
+        "file": "24_b7_quality.svg",
+        "sha256": "33282f657fae965cc299108f4e04631d6f24adb0296d8f1f213c2b71145c2406"
+      },
+      {
+        "file": "25_c1_bpmn.svg",
+        "sha256": "339a439e856c6c19c281036e06cc6d72206f64d555b75dd88bbbbf1c359dd457"
+      },
+      {
+        "file": "26_c2_sequence.svg",
+        "sha256": "8214121a1764eb425c069e0ab89e5e3f8e2e266f86945f4ef05a5a3ebd8bb78c"
+      },
+      {
+        "file": "27_c3_rbac.svg",
+        "sha256": "5396419e3ba1a1f1a5ce784dc999fab18c2341fa55714c043b648f95a81ffbb1"
+      },
+      {
+        "file": "28_d1_kpi_detail.svg",
+        "sha256": "f71c9468aafc7227693316d7fca308e1dac18db8ee847ecc7591fc99fbad7816"
+      },
+      {
+        "file": "29_d2_scenarios.svg",
+        "sha256": "d89defa6a9e201d31dfd717734af9a8d34294b9860fa37ff31bb19b866047c90"
+      },
+      {
+        "file": "30_d3_built_vs_external.svg",
+        "sha256": "d9d02fc8869e28f496e2dad4ba54c3d4c4b7bd923c22827e849bbdee0cb186a1"
+      }
+    ]
+  },
+  "summary": {
+    "total": 30,
+    "passed": 0,
+    "warnings": 30,
+    "errors": 0
+  },
+  "issue_types": {},
+  "categories": {
+    "blocking": {
+      "count": 0,
+      "issues": []
+    },
+    "introduced": {
+      "count": 35,
+      "issues": [
+        {
+          "file": "01_cover.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "01_cover.svg",
+          "message": "<text> (text='Không chi tiền khi c…') exceeds <g id=\"hook\"> data-pptx-bounds on the horizontal axis: content (64.0, 259.4)-(714.5, 350.6), container (56.0, 250.0)-(708.0, 370.0), overflow horizontal 1.0%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈24.1 px per mixed char at 36px incl. headroom; ≈27 chars fit in 652 px"
+        },
+        {
+          "file": "02_problem.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "03_solution.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "04_datapack.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "05_demo_input.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "06_demo_processing.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "07_demo_output_trace.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "07_demo_output_trace.svg",
+          "message": "<text> (text='Nhật ký hoạt động · …') exceeds <g id=\"shot-activity\"> data-pptx-bounds on the vertical axis: content (580.0, 362.4)-(1119.3, 400.6), container (532.0, 132.0)-(1224.0, 398.0), overflow horizontal 0.0%, vertical 1.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text"
+        },
+        {
+          "file": "08_hard_case.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "09_kpi.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "10_honest_testing.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "11_impact.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "12_video.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "13_closing.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "14_appendix_index.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "15_a1_rules.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "16_a2_pipeline.svg",
+          "message": "Noncanonical compact authoring: Authoring SVG contains noncanonical or redundant inherited style declarations (8 change(s)); examples (group:attr None -> value hoists the shared value onto that group; child:attr value -> None drops the copy the child now inherits): stage-labels:font-size None -> '13'; stage-labels:font-weight None -> 'bold'; text[9]:font-size '13' -> None (advisory; normalize with `python3 scripts/compact_svg_styles.py <svg_output> --inplace`, re-stamp pages that carry Chart/Table fallbacks, and rerun the final gate, or leave the explicit form)"
+        },
+        {
+          "file": "16_a2_pipeline.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "17_a3_confidence.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "18_b1_profile.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "19_b2_erd_datapack.svg",
+          "message": "Noncanonical compact authoring: Authoring SVG contains noncanonical or redundant inherited style declarations (1 change(s)); examples (group:attr None -> value hoists the shared value onto that group; child:attr value -> None drops the copy the child now inherits): text[17]:font-size '12' -> None (advisory; normalize with `python3 scripts/compact_svg_styles.py <svg_output> --inplace`, re-stamp pages that carry Chart/Table fallbacks, and rerun the final gate, or leave the explicit form)"
+        },
+        {
+          "file": "19_b2_erd_datapack.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "20_b3_enriched_db.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "21_b4_seed.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "21_b4_seed.svg",
+          "message": "<text> (text='100 bản ký: thứ tự t…') exceeds <g id=\"gap-table\"> data-pptx-bounds on the horizontal axis: content (360.0, 345.2)-(737.5, 382.6), container (56.0, 128.0)-(736.0, 560.0), overflow horizontal 0.2%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈9.4 px per mixed char at 15px incl. headroom; ≈72 chars fit in 680 px"
+        },
+        {
+          "file": "22_b5_mapping.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "23_b6_trace.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "24_b7_quality.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "25_c1_bpmn.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "26_c2_sequence.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "27_c3_rbac.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "28_d1_kpi_detail.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "29_d2_scenarios.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        },
+        {
+          "file": "30_d3_built_vs_external.svg",
+          "message": "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+        }
+      ]
+    },
+    "inherited": {
+      "count": 0,
+      "issues": []
+    },
+    "source-import": {
+      "count": 0,
+      "summary": {
+        "warning_count": 0,
+        "by_code": {}
+      }
+    }
+  },
+  "drift": {
+    "colors": {},
+    "fonts": {},
+    "sizes": {}
+  },
+  "carrier_receipt": {
+    "scope": "informational-not-a-quota",
+    "pages": 30,
+    "totals": {
+      "text_elements": 922,
+      "image_placements": 7,
+      "icons": 0,
+      "svg_geometry_elements": 494,
+      "preset_shapes": 10,
+      "page_frame_elements": 30,
+      "marker_uses": 45,
+      "inline_emphasis_runs": 36,
+      "gradient_uses": 0,
+      "filter_uses": 2,
+      "text_effects": 0
+    },
+    "pages_with": {
+      "images": 5,
+      "icons": 0,
+      "presets": 2,
+      "charts": 0,
+      "tables": 0,
+      "formulas": 0,
+      "inline_emphasis_runs": 14,
+      "gradient_uses": 0,
+      "filter_uses": 2,
+      "text_effects": 0
+    },
+    "relationship_pages": null,
+    "geometry_elements": {
+      "circle": 48,
+      "ellipse": 0,
+      "line": 128,
+      "path": 5,
+      "polygon": 0,
+      "polyline": 0,
+      "rect": 313
+    },
+    "preset_names": {
+      "chevron": 9,
+      "diamond": 1
+    },
+    "native_objects": {
+      "chart": 0,
+      "formula_block": 0,
+      "formula_inline": 0,
+      "other": 0,
+      "table": 0
+    },
+    "image_page_max_frame_share_range": [
+      0.1805,
+      0.4556
+    ]
+  },
+  "project_issues": {
+    "template": [],
+    "animation": [],
+    "illustration": [],
+    "communication_trace": [],
+    "pptx_structure": []
+  },
+  "files": [
+    {
+      "file": "01_cover.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\01_cover.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans",
+        "<text> (text='Không chi tiền khi c…') exceeds <g id=\"hook\"> data-pptx-bounds on the horizontal axis: content (64.0, 259.4)-(714.5, 350.6), container (56.0, 250.0)-(708.0, 370.0), overflow horizontal 1.0%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈24.1 px per mixed char at 36px incl. headroom; ≈27 chars fit in 652 px"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 29,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 2,
+            "gradient_uses": 0,
+            "filter_uses": 1,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 13,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 29,
+        "tspan_elements": 9
+      },
+      "passed": true,
+      "source_sha256": "5aa0c71a071d311f7d27f54e21637d6d29ec8c37b86aba3469fe6cf1b716ed5e"
+    },
+    {
+      "file": "02_problem.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\02_problem.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 28,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 7,
+              "circle": 6,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 28,
+        "tspan_elements": 18
+      },
+      "passed": true,
+      "source_sha256": "f3594feb7d1aef9c0ed142a125d7cbcda4d6c8ccd8dcea7e333b033606c72793"
+    },
+    {
+      "file": "03_solution.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\03_solution.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 41,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 20,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 7,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 7
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 41,
+        "tspan_elements": 16
+      },
+      "passed": true,
+      "source_sha256": "ac0c646d5b8b93416b2a08730ac5300ec233b4eded653526029ff16bbb139258"
+    },
+    {
+      "file": "04_datapack.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\04_datapack.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 35,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 12,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 2,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 35,
+        "tspan_elements": 24
+      },
+      "passed": true,
+      "source_sha256": "7cc915bed56afa8e482032b2869027f9a48444a0d77d6670b755e70a5933decf"
+    },
+    {
+      "file": "05_demo_input.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\05_demo_input.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 26,
+          "images": {
+            "placements": 1,
+            "files": [
+              "shot_approval.png"
+            ],
+            "max_frame_share": 0.3675
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 3,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 11,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 26,
+        "tspan_elements": 7
+      },
+      "passed": true,
+      "source_sha256": "773ec1da3b86ffa16734e82abba401396f5392638557ec0b4600b901db536cb7"
+    },
+    {
+      "file": "06_demo_processing.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\06_demo_processing.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 32,
+          "images": {
+            "placements": 1,
+            "files": [
+              "shot_basis.png"
+            ],
+            "max_frame_share": 0.3172
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 2,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 20,
+              "circle": 4,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 32,
+        "tspan_elements": 12
+      },
+      "passed": true,
+      "source_sha256": "1f8358546881955b5c4b63b5c8168191a1ddd485734e5bd7978fbfc168bbc1d4"
+    },
+    {
+      "file": "07_demo_output_trace.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\07_demo_output_trace.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans",
+        "<text> (text='Nhật ký hoạt động · …') exceeds <g id=\"shot-activity\"> data-pptx-bounds on the vertical axis: content (580.0, 362.4)-(1119.3, 400.6), container (532.0, 132.0)-(1224.0, 398.0), overflow horizontal 0.0%, vertical 1.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 17,
+          "images": {
+            "placements": 3,
+            "files": [
+              "shot_activity.png",
+              "shot_decided.png",
+              "shot_integrity.png"
+            ],
+            "max_frame_share": 0.1805
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 9,
+              "circle": 3,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 17,
+        "tspan_elements": 8
+      },
+      "passed": true,
+      "source_sha256": "d4111cff379b4e6b007a34fa4409df401e47dd859aa28c3ed948a8a1540c45c7"
+    },
+    {
+      "file": "08_hard_case.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\08_hard_case.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 18,
+          "images": {
+            "placements": 1,
+            "files": [
+              "shot_ct0090.png"
+            ],
+            "max_frame_share": 0.225
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 2,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 5,
+              "circle": 4,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 18,
+        "tspan_elements": 10
+      },
+      "passed": true,
+      "source_sha256": "6d8390dfd46008f8eb91093ea0aa4ff0d9cf9c693f610997a53b77790aa59bba"
+    },
+    {
+      "file": "09_kpi.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\09_kpi.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 38,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 11,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 38,
+        "tspan_elements": 35
+      },
+      "passed": true,
+      "source_sha256": "994ffd39b10b3c31589679dc346cb350092feba5d74eea9f5e6470d95953de73"
+    },
+    {
+      "file": "10_honest_testing.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\10_honest_testing.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 24,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 4,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 15,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 24,
+        "tspan_elements": 28
+      },
+      "passed": true,
+      "source_sha256": "1b4ef172653b3cdb3a236dda9995b6f66b0eb8014ba7e2a06ac0a1fad803e2c6"
+    },
+    {
+      "file": "11_impact.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\11_impact.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 24,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 4,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 21,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 24,
+        "tspan_elements": 23
+      },
+      "passed": true,
+      "source_sha256": "6a3561e1904279dceae25402c38b3bc4b06af848504d10fc8744a3ab1f45665f"
+    },
+    {
+      "file": "12_video.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\12_video.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 4,
+          "images": {
+            "placements": 1,
+            "files": [
+              "video_poster.png"
+            ],
+            "max_frame_share": 0.4556
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 1,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 3,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 4,
+        "tspan_elements": 0
+      },
+      "passed": true,
+      "source_sha256": "b5e50741f49a19b4b3f8825f7d73c7ffb23ab470028b515373c0607898993aa4"
+    },
+    {
+      "file": "13_closing.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\13_closing.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 22,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 4,
+              "circle": 6,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 22,
+        "tspan_elements": 18
+      },
+      "passed": true,
+      "source_sha256": "917204405c39210b98367b910e69994408b49c0c1a424d258a42fd0f155a8137"
+    },
+    {
+      "file": "14_appendix_index.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\14_appendix_index.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 16,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 6,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 16,
+        "tspan_elements": 16
+      },
+      "passed": true,
+      "source_sha256": "4832d7406bd99918c5ca010eab851a05328b433c4ba7370e03505630afc15a60"
+    },
+    {
+      "file": "15_a1_rules.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\15_a1_rules.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 41,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 13,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 8,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 41,
+        "tspan_elements": 12
+      },
+      "passed": true,
+      "source_sha256": "113a94d236708695eee26832fcfddac109eebf3b10ff36ba2e557043005981ea"
+    },
+    {
+      "file": "16_a2_pipeline.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\16_a2_pipeline.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Noncanonical compact authoring: Authoring SVG contains noncanonical or redundant inherited style declarations (8 change(s)); examples (group:attr None -> value hoists the shared value onto that group; child:attr value -> None drops the copy the child now inherits): stage-labels:font-size None -> '13'; stage-labels:font-weight None -> 'bold'; text[9]:font-size '13' -> None (advisory; normalize with `python3 scripts/compact_svg_styles.py <svg_output> --inplace`, re-stamp pages that carry Chart/Table fallbacks, and rerun the final gate, or leave the explicit form)",
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 32,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 6,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 9,
+            "preset_names": {
+              "chevron": 9
+            },
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 32,
+        "tspan_elements": 34
+      },
+      "passed": true,
+      "source_sha256": "3865d942da1a917467cf53281915afd1d90e7369647033f8e88dd2b41e098673"
+    },
+    {
+      "file": "17_a3_confidence.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\17_a3_confidence.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 28,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 2,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 7,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 3,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 28,
+        "tspan_elements": 22
+      },
+      "passed": true,
+      "source_sha256": "ea57cfdafb7304d1f69e9f66baad9770efd35cdd4bb52db54a7c211ec8457d5c"
+    },
+    {
+      "file": "18_b1_profile.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\18_b1_profile.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 62,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 24,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 3,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 62,
+        "tspan_elements": 13
+      },
+      "passed": true,
+      "source_sha256": "59926818b8df8a10233aec7ec24f54f8df75f13a34f0c0b90a74014feef789bd"
+    },
+    {
+      "file": "19_b2_erd_datapack.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\19_b2_erd_datapack.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Noncanonical compact authoring: Authoring SVG contains noncanonical or redundant inherited style declarations (1 change(s)); examples (group:attr None -> value hoists the shared value onto that group; child:attr value -> None drops the copy the child now inherits): text[17]:font-size '12' -> None (advisory; normalize with `python3 scripts/compact_svg_styles.py <svg_output> --inplace`, re-stamp pages that carry Chart/Table fallbacks, and rerun the final gate, or leave the explicit form)",
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 58,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 11,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 8,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 5,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 5
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 58,
+        "tspan_elements": 18
+      },
+      "passed": true,
+      "source_sha256": "59575e5a65ac71bf9850ecc55ffffb34ade1e307db5631bd3786573d71de48ef"
+    },
+    {
+      "file": "20_b3_enriched_db.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\20_b3_enriched_db.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 35,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 16,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 35,
+        "tspan_elements": 25
+      },
+      "passed": true,
+      "source_sha256": "4afbb838bf2781e671aa75f9c1a77019accb01357ec8c9bd2393213d3809a2e4"
+    },
+    {
+      "file": "21_b4_seed.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\21_b4_seed.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans",
+        "<text> (text='100 bản ký: thứ tự t…') exceeds <g id=\"gap-table\"> data-pptx-bounds on the horizontal axis: content (360.0, 345.2)-(737.5, 382.6), container (56.0, 128.0)-(736.0, 560.0), overflow horizontal 0.2%, vertical 0.0% (error above 5%); expand the root module bounds into available non-overlapping space; otherwise reflow the text; ≈9.4 px per mixed char at 15px incl. headroom; ≈72 chars fit in 680 px"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 32,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 9,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 5,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 32,
+        "tspan_elements": 28
+      },
+      "passed": true,
+      "source_sha256": "cd6f24a99b18bcb803145cce9a651702b8c9896c9584fd5723e735b452f4ae58"
+    },
+    {
+      "file": "22_b5_mapping.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\22_b5_mapping.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 29,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 14,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 8,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 8
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 29,
+        "tspan_elements": 32
+      },
+      "passed": true,
+      "source_sha256": "d16981ce00b4f24d30b429ee93e976fca3486f17ef4e33961acc135942d217eb"
+    },
+    {
+      "file": "23_b6_trace.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\23_b6_trace.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 19,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 13,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 6
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 19,
+        "tspan_elements": 41
+      },
+      "passed": true,
+      "source_sha256": "dfdd01ed73a10fec0c75165bd11f6b36f5f4f9c6ebeb946d8c54118083e5162e"
+    },
+    {
+      "file": "24_b7_quality.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\24_b7_quality.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 32,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 3,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 32,
+        "tspan_elements": 36
+      },
+      "passed": true,
+      "source_sha256": "33282f657fae965cc299108f4e04631d6f24adb0296d8f1f213c2b71145c2406"
+    },
+    {
+      "file": "25_c1_bpmn.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\25_c1_bpmn.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 24,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 12,
+              "circle": 2,
+              "ellipse": 0,
+              "line": 23,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 1,
+            "preset_names": {
+              "diamond": 1
+            },
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 12
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 24,
+        "tspan_elements": 17
+      },
+      "passed": true,
+      "source_sha256": "339a439e856c6c19c281036e06cc6d72206f64d555b75dd88bbbbf1c359dd457"
+    },
+    {
+      "file": "26_c2_sequence.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\26_c2_sequence.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 22,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 10,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 17,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 12
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 22,
+        "tspan_elements": 2
+      },
+      "passed": true,
+      "source_sha256": "8214121a1764eb425c069e0ab89e5e3f8e2e266f86945f4ef05a5a3ebd8bb78c"
+    },
+    {
+      "file": "27_c3_rbac.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\27_c3_rbac.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 30,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 8,
+              "circle": 23,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 30,
+        "tspan_elements": 17
+      },
+      "passed": true,
+      "source_sha256": "5396419e3ba1a1f1a5ce784dc999fab18c2341fa55714c043b648f95a81ffbb1"
+    },
+    {
+      "file": "28_d1_kpi_detail.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\28_d1_kpi_detail.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 40,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 3,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 5,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 40,
+        "tspan_elements": 44
+      },
+      "passed": true,
+      "source_sha256": "f71c9468aafc7227693316d7fca308e1dac18db8ee847ecc7591fc99fbad7816"
+    },
+    {
+      "file": "29_d2_scenarios.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\29_d2_scenarios.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 60,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 3,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 13,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 60,
+        "tspan_elements": 1
+      },
+      "passed": true,
+      "source_sha256": "d89defa6a9e201d31dfd717734af9a8d34294b9860fa37ff31bb19b866047c90"
+    },
+    {
+      "file": "30_d3_built_vs_external.svg",
+      "path": "d:\\Festival_AOF\\git-hup\\Code-n-Cash\\docs\\pitch\\CodeCash_Vong3_ppt169_20261115\\svg_output\\30_d3_built_vs_external.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [
+        "Font stack exports non-PPT-safe typeface(s) to PPTX (latin=Plus Jakarta Sans): Plus Jakarta Sans"
+      ],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 24,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 7,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Consolas",
+          "Plus Jakarta Sans"
+        ],
+        "text_elements": 24,
+        "tspan_elements": 23
+      },
+      "passed": true,
+      "source_sha256": "d9d02fc8869e28f496e2dad4ba54c3d4c4b7bd923c22827e849bbdee0cb186a1"
+    }
+  ]
+}

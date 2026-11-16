@@ -1,0 +1,1 @@
+Mỗi KPI có đủ sáu ý: đo gì, cách tính, tập đo, kết quả, baseline và giới hạn. Lệnh tái lập ra đủ cả cột CodeCash và cột baseline trong metrics.json.

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục B7 · Dữ liệu</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Sáu điểm bất thường trong dữ liệu và cách đội xử lý</text>
+  </g>
+  <g id="quality-table" data-pptx-bounds="56 128 1168 540">
+    <rect x="64" y="132" width="1152" height="532" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="13" font-weight="bold" fill="#6B7691">
+      <text x="88" y="162">PHÁT HIỆN</text><text x="300" y="162">BẰNG CHỨNG TRONG DATA PACK</text>
+      <text x="660" y="162">CÁCH XỬ LÝ</text><text x="940" y="162">TÁC ĐỘNG, KIỂM CHỨNG</text>
+    </g>
+    <line x1="88" y1="176" x2="1192" y2="176" stroke="#E3E8F2"/>
+    <g font-size="15" font-weight="bold" fill="#1B2437">
+      <text x="88" y="206">Chứng từ gửi lặp</text>
+      <text x="88" y="286">Sự kiện sau snapshot</text>
+      <text x="88" y="366">Cột thẩm quyền thiếu</text>
+      <text x="88" y="446">Cờ hoá đơn mâu thuẫn</text>
+      <text x="88" y="526">Hạn mốc hợp đồng mới</text>
+      <text x="88" y="606">Ai đóng tranh chấp</text>
+    </g>
+    <g font-size="13" fill="#4A5570">
+      <text><tspan x="300" y="206">5 bản cùng số chứng từ, ví dụ EV00482 và</tspan><tspan x="300" dy="18">EV00484 (DN-CT0043-02), cách nhau 2 phút</tspan></text>
+      <text><tspan x="300" y="286">267 sự kiện tới 27/05/2027, trong khi</tspan><tspan x="300" dy="18">snapshot là 18/10/2026</tspan></text>
+      <text><tspan x="300" y="366">145 sự kiện ngoài cột allowed_event_types,</tspan><tspan x="300" dy="18">ví dụ thiếu KICKOFF_CONFIRMED, GO_LIVE</tspan></text>
+      <text><tspan x="300" y="446">15 mốc kích hoạt bảo trì có invoice_required</tspan><tspan x="300" dy="18">= TRUE nhưng INVOICE không bắt buộc</tspan></text>
+      <text><tspan x="300" y="526">100/100 mốc cuối trùng end_date; cộng thẳng số</tspan><tspan x="300" dy="18">ngày: lệch tới 96 ngày, 64 mốc quá end_date</tspan></text>
+      <text><tspan x="300" y="606">8 bản đóng tranh chấp, cả 8 đều do bên mua,</tspan><tspan x="300" dy="18">có tham chiếu tới lần mở</tspan></text>
+    </g>
+    <g font-size="13" fill="#1B2437">
+      <text><tspan x="660" y="206">Giữ bản sớm nhất, loại bản sau</tspan><tspan x="660" dy="18">khỏi căn cứ</tspan></text>
+      <text><tspan x="660" y="286">Dùng toàn bộ lịch sử, ghi chế độ</tspan><tspan x="660" dy="18">offline_full_history trong notes</tspan></text>
+      <text><tspan x="660" y="366">Ma trận thẩm quyền theo bên</tspan><tspan x="660" dy="18">trong policy pack có phiên bản</tspan></text>
+      <text><tspan x="660" y="446">Đi theo required_event_types;</tspan><tspan x="660" dy="18">ghi confidence:A08</tspan></text>
+      <text><tspan x="660" y="526">Co giãn hạn theo thời hạn hợp</tspan><tspan x="660" dy="18">đồng, lệch tối đa 1 ngày</tspan></text>
+      <text><tspan x="660" y="606">Bài nộp kiểm tham chiếu; web chỉ</tspan><tspan x="660" dy="18">cho bên mua đóng</tspan></text>
+    </g>
+    <g font-size="13" fill="#4A5570">
+      <text><tspan x="940" y="206">Quyết định không đổi;</tspan><tspan x="940" dy="18">độ tin cậy 0,97 (kịch bản K08)</tspan></text>
+      <text><tspan x="940" y="286">Cắt theo snapshot: 92 mốc đổi,</tspan><tspan x="940" dy="18">sai 3 mẫu SC003–SC005 → bác bỏ</tspan></text>
+      <text><tspan x="940" y="366">Đọc nguyên văn cột bị mẫu bác bỏ;</tspan><tspan x="940" dy="18">6 mốc sai bên lập → tạm giữ</tspan></text>
+      <text><tspan x="940" y="446">15 mốc độ tin cậy 0,80;</tspan><tspan x="940" dy="18">chờ BTC chốt</tspan></text>
+      <text><tspan x="940" y="526">Chỉ áp cho hợp đồng soạn trong</tspan><tspan x="940" dy="18">app; demo SEED giữ hạn cũ</tspan></text>
+      <text><tspan x="940" y="606">0 mốc đổi theo cách hiểu khác</tspan><tspan x="940" dy="18">(A06), vẫn đo độ nhạy</tspan></text>
+    </g>
+    <g stroke="#F0F2F6">
+      <line x1="88" y1="240" x2="1192" y2="240"/><line x1="88" y1="320" x2="1192" y2="320"/><line x1="88" y1="400" x2="1192" y2="400"/>
+      <line x1="88" y1="480" x2="1192" y2="480"/><line x1="88" y1="560" x2="1192" y2="560"/>
+    </g>
+  </g>
+  <g id="footnote" data-pptx-bounds="56 672 1060 24">
+    <text x="64" y="688" font-size="13" fill="#6B7691">Số liệu: tools/pitch/datapack_profile.py và docs/NGHIEP_VU.md mục 12 (các điểm diễn giải A01–A08)</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">24</text>
+  </g>
+</svg>

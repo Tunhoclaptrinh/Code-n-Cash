@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục B2 · Dữ liệu</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">ERD Data Pack gốc: đội đọc ra 6 quan hệ, kiểm cả 5 khoá ngoại</text>
+  </g>
+  <g id="erd" data-pptx-bounds="56 136 1168 490">
+    <g id="rel-lines" stroke="#3D68E4" stroke-width="1.5">
+      <line x1="364" y1="236" x2="490" y2="236"/>
+      <line x1="640" y1="340" x2="640" y2="420"/>
+      <line x1="490" y1="516" x2="364" y2="516"/>
+      <line x1="214" y1="320" x2="214" y2="420"/>
+      <line x1="790" y1="516" x2="916" y2="440"/>
+    </g>
+    <g font-size="12" font-weight="bold" fill="#2F52B8">
+      <text x="372" y="226">1 — n</text><text font-weight="normal" font-size="12" fill="#4A5570"><tspan x="372" y="256">buyer_id,</tspan><tspan x="372" dy="16">supplier_id</tspan></text>
+      <text x="650" y="376">1 — n</text><text x="650" y="394" font-weight="normal" fill="#4A5570">contract_id</text>
+      <text x="372" y="506">1 — n</text><text x="372" y="536" font-weight="normal" fill="#4A5570">milestone_id</text>
+      <text x="224" y="366">1 — n</text><text x="224" y="384" font-weight="normal" fill="#4A5570">actor_party_id</text>
+      <text x="820" y="466">n — 1</text><text x="806" y="530" font-weight="normal" fill="#4A5570">release_rule_code</text>
+    </g>
+    <g id="ent-parties">
+      <rect x="64" y="150" width="300" height="170" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+      <path d="M 76 150 H 352 A 12 12 0 0 1 364 162 V 184 H 64 V 162 A 12 12 0 0 1 76 150 Z" fill="#1B2437"/>
+      <text x="80" y="173" font-family="Consolas" font-size="15" font-weight="bold" fill="#FFFFFF">parties</text>
+      <text x="348" y="173" font-size="12" fill="#C9D6FA" text-anchor="end">65 dòng</text>
+      <g font-family="Consolas" font-size="12" fill="#1B2437">
+        <text x="80" y="206"><tspan fill="#0F6A3C" font-weight="bold">PK </tspan>party_id</text>
+        <text x="80" y="226">party_type: BUYER · SUPPLIER · APPROVER</text>
+        <text x="80" y="246"><tspan fill="#8F4A06" font-weight="bold">FK </tspan>parent_party_id → parties</text>
+        <text x="80" y="266">approval_role · approval_limit_vnd_mn</text>
+        <text x="80" y="286">allowed_event_types</text>
+        <text x="80" y="306">can_approve_payment · can_raise_dispute</text>
+      </g>
+    </g>
+    <g id="ent-contracts">
+      <rect x="490" y="150" width="300" height="190" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+      <path d="M 502 150 H 778 A 12 12 0 0 1 790 162 V 184 H 490 V 162 A 12 12 0 0 1 502 150 Z" fill="#1B2437"/>
+      <text x="506" y="173" font-family="Consolas" font-size="15" font-weight="bold" fill="#FFFFFF">contracts</text>
+      <text x="774" y="173" font-size="12" fill="#C9D6FA" text-anchor="end">100 dòng</text>
+      <g font-family="Consolas" font-size="12" fill="#1B2437">
+        <text x="506" y="206"><tspan fill="#0F6A3C" font-weight="bold">PK </tspan>contract_id</text>
+        <text x="506" y="226"><tspan fill="#8F4A06" font-weight="bold">FK </tspan>buyer_id, supplier_id → parties</text>
+        <text x="506" y="246">contract_type · contract_value_vnd_mn</text>
+        <text x="506" y="266">approval_policy · approval_quorum</text>
+        <text x="506" y="286">grace · penalty_rate · max_penalty</text>
+        <text x="506" y="306">workflow_template · rule_set_id</text>
+        <text x="506" y="326">signing_date · start_date · end_date</text>
+      </g>
+    </g>
+    <g id="ent-milestones">
+      <rect x="490" y="420" width="300" height="190" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+      <path d="M 502 420 H 778 A 12 12 0 0 1 790 432 V 454 H 490 V 432 A 12 12 0 0 1 502 420 Z" fill="#1B2437"/>
+      <text x="506" y="443" font-family="Consolas" font-size="15" font-weight="bold" fill="#FFFFFF">milestones</text>
+      <text x="774" y="443" font-size="12" fill="#C9D6FA" text-anchor="end">405 dòng</text>
+      <g font-family="Consolas" font-size="12" fill="#1B2437">
+        <text x="506" y="476"><tspan fill="#0F6A3C" font-weight="bold">PK </tspan>milestone_id</text>
+        <text x="506" y="496"><tspan fill="#8F4A06" font-weight="bold">FK </tspan>contract_id → contracts</text>
+        <text x="506" y="516">milestone_type · due_date</text>
+        <text x="506" y="536">planned_payment_vnd_mn · payment_%</text>
+        <text x="506" y="556">required_event_types · invoice_required</text>
+        <text x="506" y="576">required_approval_roles · quorum</text>
+        <text x="506" y="596"><tspan fill="#8F4A06" font-weight="bold">FK </tspan>release_rule_code</text>
+      </g>
+    </g>
+    <g id="ent-events">
+      <rect x="64" y="420" width="300" height="190" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+      <path d="M 76 420 H 352 A 12 12 0 0 1 364 432 V 454 H 64 V 432 A 12 12 0 0 1 76 420 Z" fill="#1B2437"/>
+      <text x="80" y="443" font-family="Consolas" font-size="15" font-weight="bold" fill="#FFFFFF">events</text>
+      <text x="348" y="443" font-size="12" fill="#C9D6FA" text-anchor="end">1.134 dòng</text>
+      <g font-family="Consolas" font-size="12" fill="#1B2437">
+        <text x="80" y="476"><tspan fill="#0F6A3C" font-weight="bold">PK </tspan>event_id</text>
+        <text x="80" y="496"><tspan fill="#8F4A06" font-weight="bold">FK </tspan>milestone_id → milestones</text>
+        <text x="80" y="516"><tspan fill="#8F4A06" font-weight="bold">FK </tspan>actor_party_id → parties</text>
+        <text x="80" y="536">event_type · event_status</text>
+        <text x="80" y="556">event_timestamp · document_id</text>
+        <text x="80" y="576">reference_event_id (đóng tranh chấp)</text>
+        <text x="80" y="596">actor_role · amount_vnd_mn</text>
+      </g>
+    </g>
+    <g id="ent-rules">
+      <rect x="916" y="300" width="300" height="170" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+      <path d="M 928 300 H 1204 A 12 12 0 0 1 1216 312 V 334 H 916 V 312 A 12 12 0 0 1 928 300 Z" fill="#1B2437"/>
+      <text x="932" y="323" font-family="Consolas" font-size="15" font-weight="bold" fill="#FFFFFF">payment_rules</text>
+      <text x="1200" y="323" font-size="12" fill="#C9D6FA" text-anchor="end">128 dòng</text>
+      <g font-family="Consolas" font-size="12" fill="#1B2437">
+        <text x="932" y="356"><tspan fill="#0F6A3C" font-weight="bold">PK </tspan>rule_id</text>
+        <text x="932" y="376">release_rule_code · rule_set_id</text>
+        <text x="932" y="396">priority · evaluation_order</text>
+        <text x="932" y="416">condition_expression</text>
+        <text x="932" y="436">decision · reason_code</text>
+        <text x="932" y="456">payable / penalty formula</text>
+      </g>
+    </g>
+    <g id="reading">
+    <rect x="916" y="150" width="300" height="136" rx="12" fill="#EAF0FF"/>
+    <text font-size="13" fill="#1B2437"><tspan x="932" y="176" font-weight="bold">Đọc ra từ dữ liệu</tspan><tspan x="932" dy="20">CSV không có khoá ngoại vật lý;</tspan><tspan x="932" dy="18">đội kiểm 5/5 quan hệ đều khớp.</tspan><tspan x="932" dy="18">Mỗi bên mua có đúng 3 người duyệt:</tspan><tspan x="932" dy="18">chủ HĐ, tài chính, duyệt thứ hai.</tspan></text>
+    </g>
+  </g>
+  <g id="footnote" data-pptx-bounds="56 640 1168 40">
+    <text x="64" y="662" font-size="13" fill="#6B7691">Quan hệ thứ 6: parties.parent_party_id → parties (người duyệt thuộc bên mua). Sơ đồ đầy đủ: docs/diagrams/erd-datapack-01_data.md</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">19</text>
+  </g>
+</svg>

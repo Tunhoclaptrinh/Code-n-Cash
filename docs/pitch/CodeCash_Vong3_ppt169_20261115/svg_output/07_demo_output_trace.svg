@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <clipPath id="clipDecided"><rect x="64" y="170" width="452" height="368" rx="12"/></clipPath>
+    <clipPath id="clipActivity"><rect x="540" y="170" width="676" height="172" rx="12"/></clipPath>
+    <clipPath id="clipIntegrity"><rect x="540" y="404" width="676" height="211" rx="12"/></clipPath>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="196" height="26" rx="13" fill="#EAF0FF"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#2F52B8">Mô phỏng demo · ca điển hình</text>
+  </g>
+  <g id="ipo-steps" data-pptx-bounds="832 30 392 40">
+    <rect x="840" y="38" width="84" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="882" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Đầu vào</text>
+    <text x="934" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="944" y="38" width="70" height="26" rx="13" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="979" y="56" font-size="13" fill="#6B7691" text-anchor="middle">Xử lý</text>
+    <text x="1024" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="1034" y="38" width="74" height="26" rx="13" fill="#3D68E4"/>
+    <text x="1071" y="56" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Đầu ra</text>
+    <text x="1118" y="56" font-size="13" fill="#9AA6C0" text-anchor="middle">›</text>
+    <rect x="1128" y="38" width="84" height="26" rx="13" fill="#3D68E4"/>
+    <text x="1170" y="56" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Truy vết</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Duyệt xong: quyết định niêm phong, lệnh chi và nhật ký</text>
+  </g>
+  <g id="shot-decided" data-pptx-bounds="56 132 468 528">
+    <rect x="64" y="170" width="452" height="368" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <image href="../images/shot_decided.png" x="64" y="170" width="452" height="368" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipDecided)"/>
+    <circle cx="80" cy="572" r="14" fill="#3D68E4"/>
+    <text x="80" y="577" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">1</text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="104" y="578">Quyết định + lệnh chi 737,78 triệu</tspan><tspan x="104" dy="22" font-size="13" font-weight="normal" fill="#4A5570">Engine chạy lại trong cùng giao dịch; không ai sửa tay.</tspan><tspan x="104" dy="18" font-size="13" font-weight="normal" fill="#4A5570">Lệnh chi mang mã băm quyết định, bấm lại không chi hai lần.</tspan></text>
+  </g>
+  <g id="shot-activity" data-pptx-bounds="532 132 692 266">
+    <rect x="540" y="170" width="676" height="172" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <image href="../images/shot_activity.png" x="540" y="170" width="676" height="172" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipActivity)"/>
+    <circle cx="556" cy="370" r="14" fill="#3D68E4"/>
+    <text x="556" y="375" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">2</text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="580" y="376">Nhật ký hoạt động · kiểm soát viên</tspan><tspan x="580" dy="20" font-size="13" font-weight="normal" fill="#4A5570">Phê duyệt, quyết định, lệnh chi: ai làm, lúc nào; mỗi mục chứa mã băm mục trước</tspan></text>
+  </g>
+  <g id="shot-integrity" data-pptx-bounds="532 400 692 268">
+    <rect x="540" y="404" width="676" height="211" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <image href="../images/shot_integrity.png" x="540" y="404" width="676" height="211" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipIntegrity)"/>
+    <circle cx="556" cy="638" r="14" fill="#3D68E4"/>
+    <text x="556" y="643" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">3</text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="580" y="644">Kiểm tra toàn vẹn · kiểm toán chỉ đọc</tspan><tspan x="580" dy="18" font-size="13" font-weight="normal" fill="#4A5570">Chuỗi băm hợp lệ, 5 bảng BTC giữ nguyên; chỉ thấy mã băm, không đọc hợp đồng</tspan></text>
+  </g>
+  <g id="takeaway" data-pptx-bounds="56 670 1060 30">
+    <text x="64" y="690" font-size="15" fill="#4A5570">Từ một ca tới toàn bộ: <tspan font-weight="bold" fill="#1B2437">cùng engine chạy trên 405 mốc của BTC</tspan>, mỗi dòng có luật, căn cứ và mã truy vết</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">07</text>
+  </g>
+</svg>

@@ -1,0 +1,1 @@
+Từ một dòng kết quả, đi ngược được tới luật áp dụng, chứng từ làm căn cứ, hợp đồng và mốc, rồi tới dòng dữ liệu gốc có dấu vân tay SHA-256. Nhật ký chuỗi băm chỉ ghi thêm, mỗi mục chứa mã băm của mục trước và được neo gốc Merkle mỗi 15 phút. Ai cũng kiểm lại được bằng hai công cụ Python viết riêng, không dùng mã của API.

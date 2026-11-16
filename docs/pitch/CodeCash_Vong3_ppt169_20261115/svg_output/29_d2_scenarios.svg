@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="170" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục D2 · Kiểm chứng</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">13 kịch bản kiểm chứng: sửa đúng một dữ kiện, xem kết quả đổi</text>
+  </g>
+  <g id="scenario-table" data-pptx-bounds="56 128 1168 516">
+    <rect x="64" y="132" width="1152" height="508" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <g font-size="12" font-weight="bold" fill="#6B7691">
+      <text x="88" y="160">MÃ</text><text x="160" y="160">BGK YÊU CẦU</text><text x="340" y="160">THAY ĐỔI TRONG BẢN SAO DATA PACK</text><text x="800" y="160">KẾT QUẢ ENGINE</text>
+    </g>
+    <line x1="88" y1="170" x2="1192" y2="170" stroke="#E3E8F2"/>
+    <g font-family="Consolas" font-size="13" font-weight="bold" fill="#2F52B8">
+      <text x="88" y="194">K01</text><text x="88" y="228">K02</text><text x="88" y="262">K03</text><text x="88" y="296">K04</text>
+      <text x="88" y="330">K05</text><text x="88" y="364">K06</text><text x="88" y="398">K07</text><text x="88" y="432">K08</text>
+      <text x="88" y="466">K09</text><text x="88" y="500">K10</text><text x="88" y="534">K11</text><text x="88" y="568">K12</text>
+      <text x="88" y="602">K13</text>
+    </g>
+    <g font-size="12" fill="#6B7691">
+      <text x="160" y="194">Xoá dữ kiện</text><text x="160" y="228">Xoá dữ kiện</text><text x="160" y="262">Đổi điều kiện</text><text x="160" y="296">Thêm dữ kiện</text>
+      <text x="160" y="330">Thêm dữ kiện</text><text x="160" y="364">Đổi điều kiện</text><text x="160" y="398">Thêm dữ kiện</text><text x="160" y="432">Dữ liệu bất thường</text>
+      <text x="160" y="466">Đổi tham số</text><text x="160" y="500">Đổi tham số</text><text x="160" y="534">Đổi điều kiện</text><text x="160" y="568">Người quyết định</text>
+      <text x="160" y="602">Người quyết định</text>
+    </g>
+    <g font-size="13" fill="#1B2437">
+      <text x="340" y="194">Xoá biên bản nghiệm thu EV00065</text>
+      <text x="340" y="228">Xoá phê duyệt của người duyệt cấp 2 (EV00068)</text>
+      <text x="340" y="262">Phiếu thứ hai cũng là CONTRACT_OWNER</text>
+      <text x="340" y="296">Nhà cung cấp mở tranh chấp ở mốc này</text>
+      <text x="340" y="330">Mở tranh chấp, rồi bên mua đóng có tham chiếu đúng</text>
+      <text x="340" y="364">Hoá đơn EV00066 ghi là do bên mua B009 lập</text>
+      <text x="340" y="398">Chủ hợp đồng gửi phiếu từ chối</text>
+      <text x="340" y="432">Hoá đơn gửi lặp: cùng số chứng từ, 2 phút sau</text>
+      <text x="340" y="466">Ân hạn của MS0020: 5 → 11 ngày</text>
+      <text x="340" y="500">Mức phạt của MS0020: 0,15% → 2% mỗi ngày</text>
+      <text x="340" y="534">Chủ hợp đồng phê duyệt muộn 17 ngày (30/11)</text>
+      <text x="340" y="568">Vô hiệu nghiệm thu EV01006 do nhà cung cấp lập</text>
+      <text x="340" y="602">Vô hiệu EV01006, rồi bên mua B003 lập nghiệm thu</text>
+    </g>
+    <g font-size="13" font-weight="bold">
+      <text x="800" y="194" fill="#7A5A00">Tạm giữ · thiếu nghiệm thu</text>
+      <text x="800" y="228" fill="#7A5A00">Tạm giữ · chưa đủ phê duyệt</text>
+      <text x="800" y="262" fill="#7A5A00">Tạm giữ · chưa đủ phê duyệt</text>
+      <text x="800" y="296" fill="#7A5A00">Tạm giữ · tranh chấp đang mở</text>
+      <text x="800" y="330" fill="#0F6A3C">Chi đủ 4.220 như ban đầu</text>
+      <text x="800" y="364" fill="#7A5A00">Tạm giữ · sai thẩm quyền</text>
+      <text x="800" y="398" fill="#B42318">Từ chối · không chi</text>
+      <text x="800" y="432" fill="#0F6A3C">Chi đủ 4.220 · độ tin cậy 0,97</text>
+      <text x="800" y="466" fill="#0F6A3C">Chi đủ 900, không phạt</text>
+      <text x="800" y="500" fill="#8F4A06">Phạt chạm trần 72,00 · chi 828,00</text>
+      <text x="800" y="534" fill="#8F4A06">Phạt 8,10 như cũ</text>
+      <text x="800" y="568" fill="#7A5A00">Vẫn tạm giữ · lý do thành thiếu nghiệm thu</text>
+      <text x="800" y="602" fill="#0F6A3C">Chi đủ 255,00</text>
+    </g>
+    <g stroke="#F0F2F6">
+      <line x1="88" y1="207" x2="1192" y2="207"/><line x1="88" y1="241" x2="1192" y2="241"/><line x1="88" y1="275" x2="1192" y2="275"/>
+      <line x1="88" y1="309" x2="1192" y2="309"/><line x1="88" y1="343" x2="1192" y2="343"/><line x1="88" y1="377" x2="1192" y2="377"/>
+      <line x1="88" y1="411" x2="1192" y2="411"/><line x1="88" y1="445" x2="1192" y2="445"/><line x1="88" y1="479" x2="1192" y2="479"/>
+      <line x1="88" y1="513" x2="1192" y2="513"/><line x1="88" y1="547" x2="1192" y2="547"/><line x1="88" y1="581" x2="1192" y2="581"/>
+    </g>
+  </g>
+  <g id="run" data-pptx-bounds="56 650 1090 36">
+    <text x="64" y="672" font-size="13" fill="#6B7691"><tspan font-weight="bold" fill="#1B2437">Mọi kịch bản: số mốc khác bị đổi = 0. </tspan>Chạy: python apps/engine/cli.py --data 06_Demo/kich_ban_kiem_chung/Kxx/du_lieu --output out-kxx</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">29</text>
+  </g>
+</svg>

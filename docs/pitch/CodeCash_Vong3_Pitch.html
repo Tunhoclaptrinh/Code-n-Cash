@@ -633,8 +633,8 @@
     </div>
   </div>
   <div class="grid g4" style="margin-top:28px">
-    <div><div class="num">355</div><div class="label">mốc độ tin cậy 1,00</div></div>
-    <div><div class="num">45</div><div class="label">mốc chịu ảnh hưởng của điểm diễn giải BTC chưa chốt (44 mốc 0,80; 1 mốc 0,60)</div></div>
+    <div><div class="num">385</div><div class="label">mốc độ tin cậy 1,00</div></div>
+    <div><div class="num">15</div><div class="label">mốc 0,80: phụ thuộc điểm BTC chưa chốt về hoá đơn bắt buộc</div></div>
     <div><div class="num">5</div><div class="label">mốc 0,97: có bản lặp chứng từ, đã khử nhưng vẫn hạ điểm</div></div>
     <div><div class="num">0</div><div class="label">vi phạm bất biến trên 405 mốc</div></div>
   </div>
@@ -654,7 +654,7 @@
         <tr><td class="kpi">Scenario Accuracy / Macro-F1</td><td>Khớp cả 17 cột · trung bình F1 của 4 lớp</td><td>20 mẫu có nhãn<br /><span class="faint">+ 33 kịch bản tổng hợp</span></td><td class="res">20/20 · 1,00</td><td class="base">F1 0,14</td><td>Trong 20 mẫu, lớp từ chối và chi sau phạt chỉ có 2 mẫu mỗi lớp</td></tr>
         <tr><td class="kpi">Unauthorized Payment Rate</td><td>Bị chi khi chưa đủ điều kiện / số mốc chưa đủ điều kiện</td><td>20 mẫu · ca tổng hợp</td><td class="res">0/10 · 0/4.044</td><td class="base">10/10</td><td>4.044 ca thuộc 33 kịch bản, không độc lập nên không tính khoảng tin cậy</td></tr>
         <tr><td class="kpi">Payment / Penalty Amount</td><td>Khớp tới 0,01 triệu, số thập phân chính xác</td><td>20 mẫu có nhãn</td><td class="res">20/20, sai số 0,00</td><td class="base">—</td><td>Quy ước làm tròn nửa lên, nêu rõ trong đặc tả</td></tr>
-        <tr><td class="kpi">Audit Trace / Processing</td><td>Dòng có luật, căn cứ, trace · thời gian mỗi mốc</td><td>405 mốc</td><td class="res">405/405 · &lt; 1 ms</td><td class="base">—</td><td>Thời gian đo trên máy đội; cả 405 mốc dưới 1 giây</td></tr>
+        <tr><td class="kpi">Audit Trace / Processing</td><td>Dòng có luật, căn cứ, trace · thời gian mỗi mốc</td><td>405 mốc</td><td class="res">405/405 · trung vị &lt; 1 ms/mốc</td><td class="base">—</td><td>Thời gian đo trên máy đội, thay đổi theo tải máy; cả 405 mốc dưới 1 giây</td></tr>
       </tbody>
     </table>
     <p class="note">* Baseline: hệ "luôn chi đủ" trên cùng 20 mẫu, tính từ phân bố nhãn (8 RELEASE · 8 HOLD · 2 REJECT · 2 PENALTY). Cột CodeCash tái lập bằng <span class="mono">python apps/engine/cli.py --output out</span> → <span class="mono">metrics.json</span>. Đáp án ca tổng hợp do đội viết theo cách hiểu đề của đội: đo độ phủ, không phải độ chính xác. Độ chính xác thật do 250 mốc ẩn và 135 mốc holdout của BTC quyết định.</p>
@@ -725,13 +725,14 @@
           <div><span class="chip done">Đã có</span><span>Docker Compose (nginx + API + MongoDB); CI build và smoke mỗi lần push; bản demo đang chạy trên cloud</span></div>
           <div><span class="chip done">Đã có</span><span>Thêm loại chứng từ, đổi luật, đổi chính sách bằng dữ liệu, không sửa code</span></div>
           <div><span class="chip next">Tiếp theo</span><span>Ký qua tổ chức chứng thực được cấp phép; nối cổng ngân hàng qua adapter đã có</span></div>
+          <div><span class="chip next">Định hướng</span><span>Blockchain: neo nhật ký, niêm phong quyết định lên sổ cái dùng chung; engine vẫn ngoài chuỗi</span></div>
         </div>
       </div>
       <div>
         <h3>Giới hạn hiện tại và cách xử lý</h3>
         <div class="roadmap">
           <div><span class="chip proto">Dữ liệu</span><span>Chỉ 20 mẫu có nhãn; ca tổng hợp do đội tự gán đáp án → dùng để đo độ phủ và bắt lỗi cài đặt, độ chính xác thật chờ tập ẩn của BTC</span></div>
-          <div><span class="chip proto">Diễn giải</span><span>Điểm BTC chưa chốt (phạm vi tranh chấp, hoá đơn bắt buộc) → đo độ nhạy, hạ độ tin cậy</span></div>
+          <div><span class="chip proto">Diễn giải</span><span>Điểm BTC chưa chốt (hoá đơn bắt buộc, ai được đóng tranh chấp) → đo độ nhạy, hạ độ tin cậy; tranh chấp đội chốt tính theo mốc</span></div>
           <div><span class="chip proto">Mô phỏng</span><span>Ký số và chi tiền chưa có giá trị pháp lý, chưa thanh toán thật</span></div>
         </div>
       </div>

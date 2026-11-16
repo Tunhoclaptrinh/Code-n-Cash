@@ -1,0 +1,1 @@
+Sau khi làm giàu, năm bảng của Ban tổ chức ở giữa, giữ nguyên cột và niêm phong mã băm. Đội thêm quanh đó các nhóm: danh tính và phạm vi, hợp đồng và ký số, engine và luật, kiểm soát và tiền, và nhật ký bất biến. Mọi bản ghi mang nhãn nguồn DATA_PACK, SEED hoặc APP, có phiên bản để khoá lạc quan và mã tổ chức để lọc phạm vi.

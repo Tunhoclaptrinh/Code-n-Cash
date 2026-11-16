@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="ending" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="takeaway" data-pptx-bounds="56 60 560 420">
+    <rect x="64" y="70" width="190" height="28" rx="14" fill="#EAF0FF"/>
+    <text x="80" y="89" font-size="13" font-weight="bold" fill="#2F52B8">Điểm mạnh nhất của đội</text>
+    <text font-size="36" font-weight="bold" fill="#1B2437"><tspan x="64" y="168">Không chi tiền khi</tspan><tspan x="64" dy="50">chưa đủ căn cứ,</tspan><tspan x="64" dy="50" fill="#3D68E4">và chứng minh được</tspan><tspan x="64" dy="50" fill="#3D68E4">vì sao.</tspan></text>
+    <text font-size="18" fill="#4A5570"><tspan x="64" y="396">Chạy được, giải thích được, truy vết được,</tspan><tspan x="64" dy="28">kiểm chứng được: trên đúng dữ liệu của BTC.</tspan></text>
+  </g>
+  <g id="verify-menu" data-pptx-bounds="640 52 584 600">
+    <rect x="648" y="60" width="568" height="588" rx="16" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="676" y="98" font-size="20" font-weight="bold" fill="#1B2437">Mời BGK kiểm chứng ngay trên sản phẩm</text>
+    <text x="676" y="124" font-size="13" fill="#6B7691">Mỗi yêu cầu có sẵn thao tác thật hoặc kịch bản K01–K13</text>
+    <g font-size="15" font-weight="bold" fill="#2F52B8" text-anchor="middle">
+      <circle cx="692" cy="168" r="16" fill="#EAF0FF"/><text x="692" y="173">1</text>
+      <circle cx="692" cy="248" r="16" fill="#EAF0FF"/><text x="692" y="253">2</text>
+      <circle cx="692" cy="328" r="16" fill="#EAF0FF"/><text x="692" y="333">3</text>
+      <circle cx="692" cy="408" r="16" fill="#EAF0FF"/><text x="692" y="413">4</text>
+      <circle cx="692" cy="488" r="16" fill="#EAF0FF"/><text x="692" y="493">5</text>
+      <circle cx="692" cy="568" r="16" fill="#EAF0FF"/><text x="692" y="573">6</text>
+    </g>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="722" y="166">Mở một bản ghi bất kỳ</tspan><tspan x="722" dy="22" font-size="13" font-weight="normal" fill="#4A5570">Kết quả Data Pack → tìm mã mốc → luật, căn cứ, độ tin cậy</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="722" y="246">Truy vết về nguồn dữ liệu</tspan><tspan x="722" dy="22" font-size="13" font-weight="normal" fill="#4A5570">mã chứng từ → hợp đồng → dòng CSV gốc, niêm phong SHA-256</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="722" y="326">Đổi một tham số</tspan><tspan x="722" dy="22" font-size="13" font-weight="normal" fill="#4A5570">K09 ân hạn 5 → 11 ngày: Chi đủ · K10 phạt 2%: chạm trần 72,00</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="722" y="406">Thêm hoặc xoá một dữ kiện</tspan><tspan x="722" dy="22" font-size="13" font-weight="normal" fill="#4A5570">K01 xoá nghiệm thu · K04 mở tranh chấp · K07 phiếu từ chối</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="722" y="486">Chạy lại và kiểm KPI</tspan><tspan x="722" dy="22" font-size="13" font-weight="normal" fill="#4A5570">cli.py → metrics.json: cột CodeCash và baseline, dưới 2 giây</tspan></text>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="722" y="566">Kiểm chứng độc lập, không tin hệ thống</tspan><tspan x="722" dy="22" font-size="13" font-weight="normal" fill="#4A5570">tools/verify_decision.py: seal MATCH · rerun MATCH</tspan></text>
+    <line x1="676" y1="604" x2="1188" y2="604" stroke="#E3E8F2"/>
+    <text x="676" y="630" font-size="13" fill="#6B7691">Phân biệt phần đội làm và phần bên ngoài: phụ lục D</text>
+  </g>
+  <g id="next" data-pptx-bounds="56 536 560 120">
+    <rect x="64" y="544" width="544" height="104" rx="14" fill="#1B2437"/>
+    <text x="88" y="580" font-size="13" font-weight="bold" fill="#9AA6C0">TIẾP THEO</text>
+    <text x="88" y="614" font-size="22" font-weight="bold" fill="#FFFFFF">Demo trực tiếp và hỏi đáp</text>
+    <text x="88" y="636" font-size="13" fill="#C9D6FA">Phụ lục A–D dùng khi trả lời câu hỏi</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">13</text>
+  </g>
+</svg>

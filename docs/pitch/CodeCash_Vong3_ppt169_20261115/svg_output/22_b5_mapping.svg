@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#3D68E4"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 320 40">
+    <rect x="64" y="38" width="150" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục B5 · Dữ liệu</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">65 bên trong parties.csv → 36 tổ chức → 102 tài khoản</text>
+  </g>
+  <g id="column-heads" data-pptx-bounds="56 128 1168 30">
+    <g font-size="13" font-weight="bold" fill="#6B7691">
+      <text x="64" y="148">PARTIES.CSV (DATA PACK)</text>
+      <text x="408" y="148">TỔ CHỨC (organizations)</text>
+      <text x="748" y="148">TÀI KHOẢN SEED · VAI TRÒ</text>
+    </g>
+  </g>
+  <g id="row-buyer" data-pptx-bounds="56 160 1168 112">
+    <rect x="64" y="164" width="276" height="104" rx="12" fill="#EAF0FF" stroke="#C9D6FA"/>
+    <text x="84" y="196" font-family="Consolas" font-size="15" font-weight="bold" fill="#2F52B8">BUYER × 10</text>
+    <text font-size="13" fill="#4A5570"><tspan x="84" y="222">bên mua, ví dụ B010</tspan><tspan x="84" dy="18">Nova An Business JSC</tspan></text>
+    <line x1="340" y1="216" x2="404" y2="216" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="408" y="164" width="276" height="104" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="428" y="196" font-size="16" font-weight="bold" fill="#1B2437">10 tổ chức bên mua</text>
+    <text font-size="13" fill="#4A5570"><tspan x="428" y="222">tên miền lấy từ tên công ty:</tspan><tspan x="428" dy="18">Nova An → novaan.vn</tspan></text>
+    <line x1="684" y1="216" x2="744" y2="216" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="748" y="164" width="468" height="104" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text font-size="13" fill="#1B2437"><tspan x="768" y="194" font-family="Consolas" fill="#2F52B8">legal@novaan.vn</tspan><tspan x="768" dy="18">Cán bộ hợp đồng · LEGAL_REVIEWER</tspan><tspan x="768" dy="26" font-family="Consolas" fill="#2F52B8">controller@novaan.vn</tspan><tspan x="768" dy="18">Kiểm soát viên bên mua · ADMIN_AUDITOR</tspan></text>
+    <text x="1196" y="226" font-size="28" font-weight="bold" fill="#1B2437" text-anchor="end">20</text>
+  </g>
+  <g id="row-approver" data-pptx-bounds="56 280 1168 112">
+    <rect x="64" y="284" width="276" height="104" rx="12" fill="#EAF0FF" stroke="#C9D6FA"/>
+    <text x="84" y="316" font-family="Consolas" font-size="15" font-weight="bold" fill="#2F52B8">APPROVER × 30</text>
+    <text font-size="13" fill="#4A5570"><tspan x="84" y="342">parent_party_id → bên mua,</tspan><tspan x="84" dy="18">3 vai trò mỗi bên, có hạn mức</tspan></text>
+    <line x1="340" y1="336" x2="404" y2="336" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="408" y="284" width="276" height="104" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="428" y="316" font-size="16" font-weight="bold" fill="#1B2437">Thuộc tổ chức bên mua</text>
+    <text font-size="13" fill="#4A5570"><tspan x="428" y="342">không tạo tổ chức riêng;</tspan><tspan x="428" dy="18">dùng tên miền của bên mua</tspan></text>
+    <line x1="684" y1="336" x2="744" y2="336" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="748" y="284" width="468" height="104" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text font-size="13" fill="#1B2437"><tspan x="768" y="314" font-family="Consolas" fill="#2F52B8">owner@ · finance@ · secondary@novaan.vn</tspan><tspan x="768" dy="18">Chủ hợp đồng · CONTRACT_OWNER</tspan><tspan x="768" dy="18">Duyệt tài chính · FINANCE_APPROVER</tspan><tspan x="768" dy="18">Duyệt thứ hai · SECONDARY_APPROVER</tspan></text>
+    <text x="1196" y="346" font-size="28" font-weight="bold" fill="#1B2437" text-anchor="end">30</text>
+  </g>
+  <g id="row-supplier" data-pptx-bounds="56 400 1168 112">
+    <rect x="64" y="404" width="276" height="104" rx="12" fill="#EAF0FF" stroke="#C9D6FA"/>
+    <text x="84" y="436" font-family="Consolas" font-size="15" font-weight="bold" fill="#2F52B8">SUPPLIER × 25</text>
+    <text font-size="13" fill="#4A5570"><tspan x="84" y="462">nhà cung cấp, ví dụ S015</tspan><tspan x="84" dy="18">Phú Minh Technology JSC</tspan></text>
+    <line x1="340" y1="456" x2="404" y2="456" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="408" y="404" width="276" height="104" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="428" y="436" font-size="16" font-weight="bold" fill="#1B2437">25 tổ chức nhà cung cấp</text>
+    <text font-size="13" fill="#4A5570"><tspan x="428" y="462">bỏ dấu và từ chung (JSC,</tspan><tspan x="428" dy="18">Technology): phuminh.vn</tspan></text>
+    <line x1="684" y1="456" x2="744" y2="456" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="748" y="404" width="468" height="104" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text font-size="13" fill="#1B2437"><tspan x="768" y="434" font-family="Consolas" fill="#2F52B8">supplier@phuminh.vn</tspan><tspan x="768" dy="18">Đại diện nhà cung cấp · SUPPLIER</tspan><tspan x="768" dy="26" font-family="Consolas" fill="#2F52B8">controller@phuminh.vn</tspan><tspan x="768" dy="18">Kiểm soát viên nhà cung cấp · ADMIN_AUDITOR</tspan></text>
+    <text x="1196" y="466" font-size="28" font-weight="bold" fill="#1B2437" text-anchor="end">50</text>
+  </g>
+  <g id="row-platform" data-pptx-bounds="56 520 1168 92">
+    <rect x="64" y="524" width="276" height="84" rx="12" fill="none" stroke="#9AA6C0" stroke-dasharray="6,4"/>
+    <text font-size="13" fill="#6B7691"><tspan x="84" y="556" font-weight="bold">Không có trong Data Pack</tspan><tspan x="84" dy="20">đơn vị vận hành CodeCash</tspan></text>
+    <line x1="340" y1="566" x2="404" y2="566" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="408" y="524" width="276" height="84" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text font-size="16" font-weight="bold" fill="#1B2437"><tspan x="428" y="556">1 tổ chức nền tảng (OPS)</tspan><tspan x="428" dy="22" font-size="13" font-weight="normal" fill="#4A5570">không là bên của hợp đồng nào</tspan></text>
+    <line x1="684" y1="566" x2="744" y2="566" stroke="#3D68E4" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <rect x="748" y="524" width="468" height="84" rx="12" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text font-size="13" fill="#1B2437"><tspan x="768" y="554" font-family="Consolas" fill="#2F52B8">sysadmin@codecash.vn · auditor@codecash.vn</tspan><tspan x="768" dy="20">Quản trị hệ thống · Kiểm tra toàn vẹn (chỉ đọc)</tspan></text>
+    <text x="1196" y="576" font-size="28" font-weight="bold" fill="#1B2437" text-anchor="end">2</text>
+  </g>
+  <g id="footnote" data-pptx-bounds="56 624 1168 50">
+    <text font-size="13" fill="#6B7691"><tspan x="64" y="644">Danh tính và phạm vi luôn lấy từ tài khoản đăng nhập (partyId, organizationId), không tin vai trò hay mã bên do trình duyệt gửi.</tspan><tspan x="64" dy="18">Mã nguồn: apps/api/src/domain/accounts.ts · buildDirectory()</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">22</text>
+  </g>
+</svg>

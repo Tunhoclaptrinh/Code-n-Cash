@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 380 40">
+    <rect x="64" y="38" width="262" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục C3 · Quy trình, phân quyền</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">Hai lớp quyền: bên nào lập chứng từ gì, ai được làm gì</text>
+  </g>
+  <g id="layer-event" data-pptx-bounds="56 128 384 476">
+    <rect x="64" y="132" width="368" height="468" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="162" font-size="13" font-weight="bold" fill="#6B7691">LỚP 1 · THẨM QUYỀN CHỨNG TỪ (ENGINE)</text>
+    <rect x="88" y="178" width="320" height="104" rx="10" fill="#FFF1DC"/>
+    <text font-size="15" font-weight="bold" fill="#8F4A06"><tspan x="104" y="204">Nhà cung cấp lập</tspan><tspan x="104" dy="22" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">DELIVERY · INVOICE · GO_LIVE</tspan><tspan x="104" dy="18" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">SERVICE_ACTIVATED · SERVICE_COMPLETED</tspan><tspan x="104" dy="18" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">WARRANTY_COMPLETED</tspan></text>
+    <rect x="88" y="292" width="320" height="104" rx="10" fill="#EAF0FF"/>
+    <text font-size="15" font-weight="bold" fill="#2F52B8"><tspan x="104" y="318">Bên mua lập</tspan><tspan x="104" dy="22" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">CONTRACT_SIGNED · ACCEPTANCE</tspan><tspan x="104" dy="18" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">KICKOFF_CONFIRMED · UAT_PASSED</tspan><tspan x="104" dy="18" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">REQUIREMENTS_APPROVED</tspan></text>
+    <rect x="88" y="406" width="320" height="86" rx="10" fill="#EEF0FB"/>
+    <text font-size="15" font-weight="bold" fill="#3F4E99"><tspan x="104" y="432">Người duyệt của bên mua</tspan><tspan x="104" dy="22" font-family="Consolas" font-size="12" font-weight="normal" fill="#1B2437">APPROVAL · REJECTION</tspan><tspan x="104" dy="18" font-size="12" font-weight="normal" fill="#4A5570">đếm theo vai trò, có hạn mức</tspan></text>
+    <text font-size="13" fill="#4A5570"><tspan x="88" y="522">Tranh chấp: bên nào cũng mở được; đóng phải</tspan><tspan x="88" dy="18">tham chiếu đúng lần mở. Sai bên lập thì chứng</tspan><tspan x="88" dy="18">từ không là căn cứ, mốc bị tạm giữ (luật 30).</tspan></text>
+  </g>
+  <g id="layer-role" data-pptx-bounds="440 128 784 476">
+    <rect x="448" y="132" width="768" height="468" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="472" y="162" font-size="13" font-weight="bold" fill="#6B7691">LỚP 2 · VAI TRÒ NGƯỜI DÙNG (API, MỘT MA TRẬN QUYỀN)</text>
+    <g font-size="12" font-weight="bold" fill="#2F52B8" text-anchor="middle">
+      <text x="770" y="190">CO</text><text x="828" y="190">FA</text><text x="886" y="190">SA</text><text x="944" y="190">LR</text>
+      <text x="1002" y="190" fill="#8F4A06">SUP</text><text x="1060" y="190" fill="#3F4E99">AA</text><text x="1118" y="190" fill="#4A5570">SYS</text><text x="1176" y="190" fill="#4A5570">AUD</text>
+    </g>
+    <line x1="472" y1="200" x2="1196" y2="200" stroke="#E3E8F2"/>
+    <g font-size="13" fill="#1B2437">
+      <text x="472" y="226">Soạn, số hoá, gửi ký hợp đồng</text>
+      <text x="472" y="258">Ký hợp đồng (đúng bước của mình)</text>
+      <text x="472" y="290">Nộp chứng từ</text>
+      <text x="472" y="322">Phê duyệt hoặc từ chối mốc</text>
+      <text x="472" y="354">Mở tranh chấp</text>
+      <text x="472" y="386">Giải quyết tranh chấp</text>
+      <text x="472" y="418">Duyệt lệnh chi</text>
+      <text x="472" y="450">Đề xuất vô hiệu chứng từ</text>
+      <text x="472" y="482">Duyệt ngoại lệ (người thứ hai)</text>
+      <text x="472" y="514">Tài khoản, cấu hình, phiên bản luật</text>
+      <text x="472" y="546">Đọc, xuất nhật ký kiểm toán</text>
+    </g>
+    <g fill="#3D68E4">
+      <circle cx="770" cy="222" r="7"/><circle cx="944" cy="222" r="7"/>
+      <circle cx="770" cy="254" r="7"/><circle cx="828" cy="254" r="7"/><circle cx="886" cy="254" r="7"/><circle cx="944" cy="254" r="7"/><circle cx="1002" cy="254" r="7" fill="#D9822B"/>
+      <circle cx="944" cy="286" r="7"/><circle cx="1002" cy="286" r="7" fill="#D9822B"/>
+      <circle cx="770" cy="318" r="7"/><circle cx="828" cy="318" r="7"/><circle cx="886" cy="318" r="7"/>
+      <circle cx="770" cy="350" r="7"/><circle cx="944" cy="350" r="7"/><circle cx="1002" cy="350" r="7" fill="#D9822B"/>
+      <circle cx="770" cy="382" r="7"/><circle cx="944" cy="382" r="7"/>
+      <circle cx="828" cy="414" r="7"/>
+      <circle cx="770" cy="446" r="7"/>
+      <circle cx="1060" cy="478" r="7" fill="#3F4E99"/>
+      <circle cx="1118" cy="510" r="7" fill="#4A5570"/>
+      <circle cx="1118" cy="542" r="7" fill="#4A5570"/><circle cx="1176" cy="542" r="7" fill="#4A5570"/>
+    </g>
+    <g stroke="#F0F2F6"><line x1="472" y1="238" x2="1196" y2="238"/><line x1="472" y1="302" x2="1196" y2="302"/><line x1="472" y1="366" x2="1196" y2="366"/><line x1="472" y1="430" x2="1196" y2="430"/><line x1="472" y1="494" x2="1196" y2="494"/></g>
+    <text font-size="12" fill="#6B7691"><tspan x="472" y="574">CO chủ hợp đồng · FA duyệt tài chính · SA duyệt thứ hai · LR cán bộ hợp đồng · SUP nhà cung cấp</tspan><tspan x="472" dy="16">AA kiểm soát viên của từng bên · SYS quản trị hệ thống · AUD kiểm tra toàn vẹn</tspan></text>
+  </g>
+  <g id="sod" data-pptx-bounds="56 612 1168 56">
+    <rect x="64" y="616" width="1152" height="48" rx="12" fill="#1B2437"/>
+    <text x="88" y="646" font-size="15" fill="#C9D6FA"><tspan font-weight="bold" fill="#FFFFFF">Tách nhiệm vụ: </tspan>người đề xuất không tự duyệt · quản trị không đọc nội dung hợp đồng · kiểm toán chỉ thấy mã băm</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">27</text>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="toc" font-family="Plus Jakarta Sans">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="heading" data-pptx-bounds="56 60 1170 150">
+    <rect x="64" y="70" width="168" height="28" rx="14" fill="#1B2437"/>
+    <text x="80" y="89" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục · hỏi đáp</text>
+    <text x="64" y="160" font-size="48" font-weight="bold" fill="#1B2437">Phụ lục kỹ thuật</text>
+    <text x="64" y="196" font-size="20" fill="#4A5570">Mở khi BGK hỏi sâu: mỗi trang trả lời một câu hỏi kiểm chứng cụ thể</text>
+  </g>
+  <g id="group-a" data-pptx-bounds="56 236 284 412">
+    <rect x="64" y="240" width="268" height="404" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="88" y="300" font-size="56" font-weight="bold" fill="#3D68E4">A</text>
+    <text x="88" y="340" font-size="20" font-weight="bold" fill="#1B2437">Engine</text>
+    <text font-size="15" fill="#4A5570"><tspan x="88" y="384">15 · Thang 8 luật ưu tiên</tspan><tspan x="88" dy="26">16 · 9 bước và công thức tiền</tspan><tspan x="88" dy="26">17 · Độ tin cậy</tspan></text>
+  </g>
+  <g id="group-b" data-pptx-bounds="348 236 284 412">
+    <rect x="356" y="240" width="268" height="404" rx="14" fill="#EAF0FF" stroke="#C9D6FA"/>
+    <text x="380" y="300" font-size="56" font-weight="bold" fill="#3D68E4">B</text>
+    <text x="380" y="340" font-size="20" font-weight="bold" fill="#1B2437">Dữ liệu</text>
+    <text font-size="15" fill="#4A5570"><tspan x="380" y="384">18 · Hồ sơ Data Pack</tspan><tspan x="380" dy="26">19 · ERD Data Pack gốc</tspan><tspan x="380" dy="26">20 · CSDL sau làm giàu</tspan><tspan x="380" dy="26">21 · Seed: bổ sung gì, vì sao</tspan><tspan x="380" dy="26">22 · Bên → tổ chức → tài khoản</tspan><tspan x="380" dy="26">23 · Chuỗi truy vết, chuỗi băm</tspan><tspan x="380" dy="26">24 · Chất lượng dữ liệu</tspan></text>
+  </g>
+  <g id="group-c" data-pptx-bounds="640 236 284 412">
+    <rect x="648" y="240" width="268" height="404" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="672" y="300" font-size="56" font-weight="bold" fill="#3D68E4">C</text>
+    <text x="672" y="340" font-size="20" font-weight="bold" fill="#1B2437">Quy trình, phân quyền</text>
+    <text font-size="15" fill="#4A5570"><tspan x="672" y="384">25 · BPMN theo vai trò</tspan><tspan x="672" dy="26">26 · UML tuần tự: phê duyệt</tspan><tspan x="672" dy="26">27 · Phân quyền 2 lớp, SoD</tspan></text>
+  </g>
+  <g id="group-d" data-pptx-bounds="932 236 292 412">
+    <rect x="940" y="240" width="276" height="404" rx="14" fill="#FFFFFF" stroke="#E3E8F2"/>
+    <text x="964" y="300" font-size="56" font-weight="bold" fill="#3D68E4">D</text>
+    <text x="964" y="340" font-size="20" font-weight="bold" fill="#1B2437">Kiểm chứng</text>
+    <text font-size="15" fill="#4A5570"><tspan x="964" y="384">28 · KPI đủ 6 ý</tspan><tspan x="964" dy="26">29 · Kịch bản K01–K13</tspan><tspan x="964" dy="26">30 · Đội làm và bên ngoài</tspan></text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">14</text>
+  </g>
+</svg>

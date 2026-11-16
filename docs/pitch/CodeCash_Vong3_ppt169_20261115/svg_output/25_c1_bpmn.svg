@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" lang="vi-VN" data-pptx-page-role="content" font-family="Plus Jakarta Sans">
+  <defs>
+    <marker id="arrowInk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#1B2437"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#F5F7FB"/>
+  <g id="kicker" data-pptx-bounds="56 30 380 40">
+    <rect x="64" y="38" width="262" height="26" rx="13" fill="#1B2437"/>
+    <text x="78" y="56" font-size="13" font-weight="bold" fill="#FFFFFF">Phụ lục C1 · Quy trình, phân quyền</text>
+  </g>
+  <g id="title" data-pptx-bounds="56 72 1170 52">
+    <text x="64" y="106" font-size="32" font-weight="bold" fill="#1B2437">BPMN rút gọn: một mốc đi từ ký hợp đồng tới lệnh chi</text>
+  </g>
+  <g id="lanes" data-pptx-bounds="56 136 1168 508">
+    <rect x="64" y="140" width="1152" height="500" rx="12" fill="#FFFFFF" stroke="#C9D6FA"/>
+    <g stroke="#C9D6FA"><line x1="64" y1="250" x2="1216" y2="250"/><line x1="64" y1="380" x2="1216" y2="380"/><line x1="64" y1="520" x2="1216" y2="520"/><line x1="176" y1="140" x2="176" y2="640"/></g>
+    <g font-size="13" font-weight="bold" fill="#2F52B8">
+      <text x="80" y="192">Nhà cung</text><text x="80" y="210">cấp</text>
+      <text x="80" y="312">Bên mua</text><text x="80" y="330" font-weight="normal" font-size="12" fill="#4A5570">chủ HĐ, duyệt</text>
+      <text x="80" y="446">Engine</text><text x="80" y="464" font-weight="normal" font-size="12" fill="#4A5570">hệ thống</text>
+      <text x="80" y="576">Kế toán,</text><text x="80" y="594">kiểm soát</text>
+    </g>
+    <g id="flow-lines" stroke="#1B2437" stroke-width="1.6" fill="none">
+      <line x1="234" y1="315" x2="246" y2="315" marker-end="url(#arrowInk)"/>
+      <line x1="315" y1="287" x2="315" y2="195"/>
+      <line x1="315" y1="195" x2="406" y2="195" marker-end="url(#arrowInk)"/>
+      <line x1="540" y1="195" x2="566" y2="195" marker-end="url(#arrowInk)"/>
+      <line x1="635" y1="223" x2="635" y2="450"/>
+      <line x1="635" y1="450" x2="726" y2="450" marker-end="url(#arrowInk)"/>
+      <line x1="860" y1="450" x2="896" y2="450" marker-end="url(#arrowInk)"/>
+      <line x1="928" y1="424" x2="928" y2="315"/>
+      <line x1="928" y1="315" x2="864" y2="315" marker-end="url(#arrowInk)"/>
+      <line x1="795" y1="343" x2="795" y2="418" marker-end="url(#arrowInk)"/>
+      <line x1="928" y1="476" x2="928" y2="505"/>
+      <line x1="928" y1="505" x2="665" y2="505"/>
+      <line x1="665" y1="505" x2="665" y2="227" marker-end="url(#arrowInk)"/>
+      <line x1="956" y1="450" x2="986" y2="450" marker-end="url(#arrowInk)"/>
+      <line x1="1055" y1="422" x2="1055" y2="347" marker-end="url(#arrowInk)"/>
+      <line x1="1120" y1="315" x2="1168" y2="315"/>
+      <line x1="1168" y1="315" x2="1168" y2="580"/>
+      <line x1="1168" y1="580" x2="1124" y2="580" marker-end="url(#arrowInk)"/>
+      <line x1="990" y1="580" x2="968" y2="580" marker-end="url(#arrowInk)"/>
+    </g>
+    <circle cx="220" cy="315" r="14" fill="#E4F6EC" stroke="#0F6A3C" stroke-width="2"/>
+    <circle cx="954" cy="580" r="14" fill="#FDECEC" stroke="#B42318" stroke-width="3.5"/>
+    <g id="tasks" font-size="13" text-anchor="middle">
+      <rect x="250" y="287" width="130" height="56" rx="10" fill="#FFFFFF" stroke="#3D68E4" stroke-width="1.5"/>
+      <text font-weight="bold" fill="#1B2437"><tspan x="315" y="311">Soạn, số hoá,</tspan><tspan x="315" dy="17">ký trước</tspan></text>
+      <rect x="410" y="167" width="130" height="56" rx="10" fill="#FFFFFF" stroke="#3D68E4" stroke-width="1.5"/>
+      <text font-weight="bold" fill="#1B2437"><tspan x="475" y="200">Ký hợp đồng</tspan></text>
+      <rect x="570" y="167" width="130" height="56" rx="10" fill="#FFFFFF" stroke="#3D68E4" stroke-width="1.5"/>
+      <text font-weight="bold" fill="#1B2437"><tspan x="635" y="191">Nộp giao hàng,</tspan><tspan x="635" dy="17">hoá đơn</tspan></text>
+      <rect x="730" y="422" width="130" height="56" rx="10" fill="#1B2437"/>
+      <text font-weight="bold" fill="#FFFFFF"><tspan x="795" y="446">Chấm lại mốc</tspan><tspan x="795" dy="17" font-weight="normal" fill="#C9D6FA">sau mỗi sự kiện</tspan></text>
+      <rect x="730" y="287" width="130" height="56" rx="10" fill="#FFFFFF" stroke="#3D68E4" stroke-width="1.5"/>
+      <text font-weight="bold" fill="#1B2437"><tspan x="795" y="311">Phê duyệt</tspan><tspan x="795" dy="17">theo vai trò</tspan></text>
+      <rect x="990" y="422" width="130" height="56" rx="10" fill="#E4F6EC" stroke="#0F6A3C"/>
+      <text font-weight="bold" fill="#0F6A3C"><tspan x="1055" y="446">Chi đủ hoặc</tspan><tspan x="1055" dy="17">chi sau trừ phạt</tspan></text>
+      <rect x="990" y="287" width="130" height="56" rx="10" fill="#FFFFFF" stroke="#3D68E4" stroke-width="1.5"/>
+      <text font-weight="bold" fill="#1B2437"><tspan x="1055" y="311">Duyệt lệnh chi</tspan><tspan x="1055" dy="17" font-weight="normal" fill="#4A5570">duyệt tài chính</tspan></text>
+      <rect x="990" y="552" width="130" height="56" rx="10" fill="#FFFFFF" stroke="#9AA6C0" stroke-dasharray="5,3"/>
+      <text font-weight="bold" fill="#1B2437"><tspan x="1055" y="576">Cổng thanh toán</tspan><tspan x="1055" dy="17" font-weight="normal" fill="#6B7691">mô phỏng</tspan></text>
+      <rect x="250" y="552" width="290" height="56" rx="10" fill="#EAF0FF"/>
+      <text fill="#2F52B8"><tspan x="395" y="576" font-weight="bold">Mọi bước ghi nhật ký chuỗi băm</tspan><tspan x="395" dy="17">kiểm toán xem, không tạo sự kiện</tspan></text>
+    </g>
+    <g font-size="12" fill="#4A5570">
+      <text x="938" y="374">thiếu duyệt</text>
+      <text x="960" y="440">đủ</text>
+      <text x="676" y="498">thiếu chứng từ · tranh chấp → tạm giữ</text>
+    </g>
+  </g>
+<g id="p25-gateway" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="diamond" data-pptx-frame="900 424 56 52" fill="#FFF6D6" stroke="#E0A93B" stroke-width="1.5">
+<path d="M 900 450 L 928 424 L 956 450 L 928 476 Z"/>
+</g>
+  <g id="legend" data-pptx-bounds="56 650 1090 34">
+    <text x="64" y="672" font-size="13" fill="#6B7691">Tròn xanh: bắt đầu · tròn đỏ viền dày: kết thúc · thoi: cổng quyết định (luật khớp đầu tiên) · nét đứt: hệ thống bên ngoài · bản đầy đủ: docs/bpmn</text>
+  </g>
+  <g id="page-number" data-pptx-role="page-number" data-pptx-bounds="1150 690 70 22">
+    <text x="1216" y="706" font-size="13" fill="#9AA6C0" text-anchor="end">25</text>
+  </g>
+</svg>

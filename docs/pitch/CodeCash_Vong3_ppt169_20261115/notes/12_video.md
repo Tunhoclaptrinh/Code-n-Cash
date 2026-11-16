@@ -1,0 +1,1 @@
+Để thấy toàn cảnh, mời Ban giám khảo xem video giới thiệu một phút rưỡi: từ soạn hợp đồng, hai bên ký số, engine đánh giá theo mốc, kiểm toán, tới lệnh chi.

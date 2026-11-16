@@ -1,8 +1,8 @@
 # Giải thích số liệu trên slide pitch Vòng 3
 
-Tài liệu cho người thuyết trình: ba cụm số trong [CodeCash_Vong3_Pitch.html](CodeCash_Vong3_Pitch.html) dễ bị hỏi vặn (độ tin cậy, baseline, độ tin được của bộ kiểm thử). Mỗi mục ghi số lấy từ đâu, chỗ nào trên slide từng sai và đã sửa thế nào.
+Tài liệu cho người thuyết trình: ba cụm số trong [CodeCash_Vong3_Pitch.html](CodeCash_Vong3_Pitch.html) dễ bị hỏi vặn (độ tin cậy, baseline, độ tin được của bộ kiểm thử). Mỗi mục ghi số lấy từ đâu, chỗ nào trên slide từng sai và đã sửa thế nào. Số slide tính theo trang của bộ slide (trang bìa là slide 1; số nhỏ ở góc trên mỗi slide là số mục, nhỏ hơn số trang 1 đơn vị).
 
-Mọi số dưới đây đã chạy lại ngày 15/11/2026 trên Data Pack chính thức, profile `BTC_SUBMISSION`, policy `CASE4_BTC` 2.0.0:
+Mọi số dưới đây đã chạy lại ngày 15/11/2026 trên Data Pack chính thức, profile `BTC_SUBMISSION`, policy `CASE4_BTC` 2.1.0:
 
 ```
 python apps/engine/cli.py --output out
@@ -12,13 +12,13 @@ Lệnh này sinh ra `out/submission_output.csv`, `out/metrics.json` và `out/aud
 
 ---
 
-## 1. Độ tin cậy (slide "Truy vết", ô 355 / 44 / 6 / 0)
+## 1. Độ tin cậy (slide 11 "Truy vết", ô 385 / 15 / 5 / 0)
 
 ### Độ tin cậy là gì
 
 `confidence_score` là thang đo mức chắc chắn của đội cho từng mốc. Nó **không phải xác suất đúng** và **không bao giờ làm đổi quyết định**: tranh chấp đang mở thì vẫn tạm giữ, dù điểm cao.
 
-Code: [confidence.py:94-118](../../apps/engine/codecash_engine/confidence.py). Trọng số: [case4_btc.json:330-364](../../apps/engine/policy/case4_btc.json).
+Code: [confidence.py:94-118](../../apps/engine/codecash_engine/confidence.py). Trọng số: [case4_btc.json](../../apps/engine/policy/case4_btc.json) (`readings`, `confidence`).
 
 ### Cách tính
 
@@ -28,11 +28,12 @@ Mỗi mốc bắt đầu ở **1,00**, rồi bị hạ điểm theo hai nhóm.
 
 | Mã | Câu hỏi chưa chốt | Đội đang hiểu | Trọng số |
 |---|---|---|---|
-| A05 | Tranh chấp tính theo mốc hay theo cả hợp đồng? | Theo mốc (câu giải thích mẫu ghi "tại milestone") | −0,20 |
 | A08 | Mốc có `invoice_required = TRUE` nhưng INVOICE không nằm trong danh sách chứng từ bắt buộc: có bắt buộc hoá đơn không? | Không, chỉ theo `required_event_types` | −0,20 |
 | A06 | Ai được đóng tranh chấp? | Bài nộp BTC chỉ kiểm tham chiếu tới tranh chấp; không bắt buộc bên mua đóng (Data Pack: 0 mốc đổi, vì 8 bản đóng đều do bên mua) | −0,10 |
 
-Nguồn: BTC chỉ yêu cầu cột `confidence_score` ([README Data Pack](../../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/README.md)), và trả lời là điểm "trong [0, 1], không thay quyết định, đội tự giải thích". Công thức và trọng số do đội đặt, ghi ở [NGHIEP_VU.md mục 8](../NGHIEP_VU.md) (bảng thành phần) và mục 12 (định nghĩa A05, A06, A08). Engine đọc giá trị từ [case4_btc.json](../../apps/engine/policy/case4_btc.json) (`readings`, `confidence`).
+**Phạm vi tranh chấp không còn là điểm chưa chốt.** Đội chốt tranh chấp tính **theo mốc** (BR-08): tranh chấp ở một mốc không giữ các mốc khác của cùng hợp đồng. Cách hiểu "tranh chấp lan cả hợp đồng" (mã cũ A05) đã bỏ khỏi phần tính điểm từ policy 2.1.0, nên không còn hạ điểm mốc nào. Công cụ đo độ nhạy vẫn chạy được cách hiểu đó để tham khảo (31 mốc sẽ đổi sang HOLD), nhưng nó không ảnh hưởng đầu ra.
+
+Nguồn: BTC chỉ yêu cầu cột `confidence_score` ([README Data Pack](../../BangD-Case4/DataPack-CASE4_SmartContractWorkflow/README.md)), và trả lời là điểm "trong [0, 1], không thay quyết định, đội tự giải thích". Công thức và trọng số do đội đặt, ghi ở [NGHIEP_VU.md mục 8](../NGHIEP_VU.md) (bảng thành phần) và mục 12 (định nghĩa A06, A08). Engine đọc giá trị từ [case4_btc.json](../../apps/engine/policy/case4_btc.json) (`readings`, `confidence`).
 
 **Nhóm 2: chất lượng dữ liệu (nhân giảm).**
 
@@ -48,13 +49,11 @@ Nguồn: BTC chỉ yêu cầu cột `confidence_score` ([README Data Pack](../..
 
 | Điểm | Số mốc | Lý do (cột `notes`) |
 |---|---|---|
-| 1,00 | 355 | Không phụ thuộc giả định nào, dữ liệu sạch |
-| 0,80 | 30 | A05 |
-| 0,80 | 14 | A08 |
+| 1,00 | 385 | Không phụ thuộc giả định nào, dữ liệu sạch |
+| 0,80 | 15 | A08 |
 | 0,97 | 5 | Có 1 bản lặp chứng từ (đã khử, giữ bản sớm nhất) |
-| 0,60 | 1 | Cả A05 lẫn A08 (1 − 0,20 − 0,20) |
 
-Cả 50 mốc dưới 1,00 đều có quyết định RELEASE. Điều này hợp lý, vì đây là những mốc *được chi* mà kết quả có thể đổi nếu BTC trả lời khác.
+Cả 20 mốc dưới 1,00 đều có quyết định RELEASE. Điều này hợp lý, vì đây là những mốc *được chi* mà kết quả có thể đổi nếu BTC trả lời khác.
 
 ### Ví dụ cụ thể cho từng mã hạ điểm
 
@@ -62,20 +61,10 @@ Mã hạ điểm được ghi trong cột `notes` dưới dạng `confidence:<m�
 
 #### Ví dụ thật trên Data Pack
 
-**A05: tranh chấp ở mốc khác cùng hợp đồng (0,80).** Mốc **MS0009** (CT0003, ký hợp đồng, 318 triệu):
-- `EV00012` CONTRACT_SIGNED do bên mua B007 gửi ngày 11/08; `EV00013` APPROVAL của A019. Mốc đủ điều kiện.
-- Ngày 12/10, B007 mở tranh chấp `EV00018` (DSP-CT0003-03), nhưng ở **mốc khác** là MS0011.
-- Đội hiểu tranh chấp chỉ chặn mốc của nó, nên MS0009 được **RELEASE 318 triệu**. Nếu BTC hiểu tranh chấp chặn cả hợp đồng thì MS0009 thành **HOLD OPEN_DISPUTE**, chi 0. Kết quả đổi, nên điểm là 1 − 0,20 = **0,80**.
-
 **A08: cờ hoá đơn mâu thuẫn với danh sách chứng từ (0,80).** Mốc **MS0047** (CT0012, kích hoạt dịch vụ bảo trì, 921 triệu):
 - Chứng từ bắt buộc: `CONTRACT_SIGNED;SERVICE_ACTIVATED`. Nhưng `invoice_required = TRUE`, và không có event INVOICE nào.
 - Đội đi theo `required_event_types`, nên mốc được **RELEASE 921 triệu**. Nếu bắt buộc hoá đơn theo cờ thì thành **HOLD MISSING_REQUIRED_EVENT**. Điểm **0,80**.
 - Cả 15 mốc kích hoạt bảo trì đều gặp đúng mâu thuẫn này.
-
-**A05 + A08 cùng lúc (0,60).** Mốc **MS0054** (CT0014, kích hoạt bảo trì, 855 triệu) dính cả hai:
-- `invoice_required = TRUE` nhưng không có INVOICE (A08);
-- nhà cung cấp S024 mở tranh chấp `EV00137` ngày 20/08 ở mốc MS0055 cùng hợp đồng (A05).
-- Mỗi cách hiểu khác, nếu xét riêng, đều làm mốc chuyển sang HOLD. Điểm là 1 − 0,20 − 0,20 = **0,60**. Đây là mốc rủi ro nhất trong các mốc được chi.
 
 **DUPLICATE: chứng từ gửi lặp nguyên bản (0,97).** Mốc **MS0172** (CT0043, giao hàng đợt giữa, 752,5 triệu):
 - `EV00482` DELIVERY lúc 09:40 và `EV00484` DELIVERY lúc 09:42, cùng người gửi S012, **cùng số chứng từ** DN-CT0043-02.
@@ -103,26 +92,24 @@ Ba điều rút ra từ các ví dụ:
 - **DUPLICATE và POSSIBLE_DUPLICATE khác nhau.** Cùng số chứng từ thì engine khử và hạ nhẹ (×0,97). Khác số chứng từ thì engine không khử được, chỉ cảnh báo và hạ mạnh hơn (×0,90).
 - **Các yếu tố cộng dồn được.** Ca A06 bị cả trừ trọng số (−0,10) lẫn nhân hệ số cảnh báo (×0,90).
 
-### Chỗ sai trên slide (đã sửa 15/11)
-
-- Ô **"44 · mốc 0,80: chịu ảnh hưởng của điểm diễn giải BTC chưa chốt"**: đúng, nhưng bỏ sót mốc 0,60.
-- Ô **"6 · mốc 0,60–0,97: bản lặp, sát ranh giới trễ, bất thường"**: **sai nhãn**.
-  - 5 mốc 0,97 đúng là do bản lặp.
-  - Mốc 0,60 **không** do dữ liệu bất thường. Nó bị cả A05 và A08 kéo xuống, tức vẫn thuộc nhóm "điểm diễn giải chưa chốt".
-  - Không có mốc nào bị hạ điểm vì sát ranh giới trễ hay sự kiện bất thường. Engine *có kiểm tra* hai yếu tố này (bước 8 trên slide pipeline), nhưng trên Data Pack hiện tại không mốc nào dính.
-
-Hai ô đã đổi thành:
+### Các ô trên slide
 
 | Số | Nhãn |
 |---|---|
-| 45 | mốc chịu ảnh hưởng của điểm diễn giải BTC chưa chốt (44 mốc 0,80 do A05 hoặc A08; 1 mốc 0,60 do cả hai) |
+| 385 | mốc độ tin cậy 1,00 |
+| 15 | mốc 0,80: phụ thuộc điểm BTC chưa chốt về hoá đơn bắt buộc (A08) |
 | 5 | mốc 0,97: có bản lặp chứng từ, đã khử nhưng vẫn hạ điểm để người duyệt xem lại |
+| 0 | vi phạm bất biến trên 405 mốc |
+
+Trước policy 2.1.0, slide ghi 355 / 45: 30 mốc 0,80 do A05, 14 mốc 0,80 do A08 và mốc MS0054 0,60 do cả hai. Khi đội chốt tranh chấp theo mốc, 30 mốc A05 lên 1,00 và MS0054 lên 0,80 (chỉ còn A08). Không quyết định hay số tiền nào đổi.
+
+Không có mốc nào bị hạ điểm vì sát ranh giới trễ hay sự kiện bất thường. Engine *có kiểm tra* hai yếu tố này (bước 8 trên slide pipeline), nhưng trên Data Pack hiện tại không mốc nào dính.
 
 Nếu bị hỏi "mốc nào sát ranh giới trễ?", câu trả lời đúng là: *engine có kiểm tra, nhưng dữ liệu này không có mốc nào*. Đừng để slide ngầm nói là có.
 
 ---
 
-## 2. Baseline (slide 11 "Evidence & KPI" và slide 12 "Cơ sở so sánh")
+## 2. Baseline (slide 12 "Evidence & KPI" và slide 13 "Cơ sở so sánh")
 
 ### Baseline là gì
 
@@ -151,11 +138,11 @@ Hệ "luôn chi đủ" luôn đoán RELEASE, nên:
 | Payment / Penalty Amount | — | Không tính: hệ luôn chi đủ thì không có khái niệm phạt để so |
 | Audit Trace / Processing | — | Không áp dụng |
 
-Slide 12 vẽ lại đúng các số này dưới dạng thanh: "Luôn chi đủ" đúng 40%, chi sai 100%; CodeCash đúng 100%, chi sai 0%.
+Slide 13 vẽ lại đúng các số này dưới dạng thanh: "Luôn chi đủ" đúng 40%, chi sai 100%; CodeCash đúng 100%, chi sai 0%.
 
 ### Chỗ cần lưu ý
 
-1. **Chú thích cũ "Tái lập: `cli.py --output out` → `metrics.json`" chỉ đúng cho cột CodeCash.** `metrics.json` có `decisionAccuracy`, `macroF1`, `unauthorizedPayment`… của CodeCash, nhưng **không có trường baseline nào**, và trong repo cũng không có code tính baseline. Giám khảo chạy lệnh để kiểm sẽ không thấy 8/20 hay 0,14. **Đã sửa (15/11):** chú thích giờ ghi baseline tính từ phân bố nhãn (8 RELEASE · 8 HOLD · 2 REJECT · 2 PENALTY), còn lệnh tái lập chỉ áp dụng cho cột CodeCash. Nếu muốn lệnh tái lập ra đủ cả hai cột thì thêm khối `baseline` vào `metrics.json`; việc này chưa làm.
+1. **Chú thích cũ "Tái lập: `cli.py --output out` → `metrics.json`" chỉ đúng cho cột CodeCash.** `metrics.json` có `decisionAccuracy`, `macroF1`, `unauthorizedPayment`… của CodeCash, nhưng **không có trường baseline nào**, và trong repo cũng không có code tính baseline. Giám khảo chạy lệnh để kiểm sẽ không thấy 8/20 hay 0,14. **Đã sửa (15/11):** chú thích giờ ghi baseline tính từ phân bố nhãn (8 RELEASE · 8 HOLD · 2 REJECT · 2 PENALTY), còn lệnh tái lập chỉ áp dụng cho cột CodeCash. **Đã làm thêm (15/11):** `metrics.json` giờ có khối `kpi.baseline` (`ALWAYS_RELEASE`: 8/20, macro-F1 0,1429, chi sai 10/10), nên cùng một lệnh tái lập ra đủ cả hai cột; test `tests/test_engine_dataset.py` khoá các số này.
 2. **Baseline chỉ đo trên 20 mẫu**, không đo trên 6.237 ca tổng hợp. Nếu bị hỏi, nói rõ như vậy.
 3. **Baseline yếu là có chủ đích.** Nó là mức sàn để so sánh, không phải đối thủ thật. Nếu bị hỏi "sao không so với hệ khác?", trả lời: chưa có hệ tham chiếu công khai cho Case 4, nên đội chọn mức sàn đơn giản nhất mà ai cũng kiểm lại được, rồi bổ sung bằng kiểm thử cài lỗi (xem mục 3 về cách đọc đúng kết quả cài lỗi).
 
@@ -184,7 +171,7 @@ print(acc, "/20 · macro-F1", round(sum(f1) / 4, 2), "· chi sai", unauth, "/", 
 
 ---
 
-## 3. Bộ kiểm thử có bị rò rỉ dữ liệu / overfitting không (slide 11, 12, 13)
+## 3. Bộ kiểm thử có bị rò rỉ dữ liệu / overfitting không (slide 12, 13, 14)
 
 ### Kết luận ngắn
 
@@ -210,7 +197,7 @@ Trong [benchmark.py:79-114](../../apps/engine/benchmark.py), đáp án đúng đ
 
 - **Điểm tốt:** hàm này tách khỏi phần xử lý sự kiện của engine (khử trùng lặp, kiểm thẩm quyền, đếm phê duyệt, tính ngày hoàn thành). Nên nó vẫn bắt được lỗi *cài đặt*, như 11 lỗi ở lần chạy đầu cho thấy.
 - **Điểm yếu:** nó dùng **cùng cách hiểu đề** với engine:
-  - tranh chấp tính theo mốc (A05), không bắt buộc hoá đơn (A08);
+  - tranh chấp tính theo mốc (đội đã chốt), không bắt buộc hoá đơn (A08);
   - bên cung cấp gửi REJECTION thì tạm giữ, người thực hiện không xác định thì tạm giữ, dữ liệu lỗi thì tạm giữ. Đây là nguyên tắc đội tự đặt, BTC chưa xác nhận.
 
 Nếu đội hiểu sai một điều khoản, engine và đáp án sẽ sai giống nhau, và kết quả vẫn là 100%. Tương tự với 20 mẫu: docstring của `benchmark.py` thừa nhận engine được viết trong lúc đọc chúng. 20/20 là độ chính xác trên tập đã nhìn thấy, không phải tập kiểm tra.
@@ -232,19 +219,19 @@ Chạy lại `python apps/engine/benchmark.py` ngày 15/11:
 
 | Slide | Trước | Sau |
 |---|---|---|
-| 11 · Rule Execution Accuracy | Tập đo "+ 6.237 ca tổng hợp"; kết quả "6.237/6.237" | "+ 33 kịch bản tổng hợp"; "33/33 kịch bản"; giới hạn thêm "engine viết khi đã đọc 20 mẫu này" |
-| 11 · Macro-F1 | "+ 6.237 ca tổng hợp" | "+ 33 kịch bản tổng hợp" |
-| 11 · Unauthorized Payment | Giới hạn "Cận trên 95%: 0,09%" | "4.044 ca thuộc 33 kịch bản, không độc lập nên không tính khoảng tin cậy" |
-| 11 · chú thích | Baseline "tái lập qua metrics.json" | Baseline tính từ phân bố nhãn; ca tổng hợp đo độ phủ, không phải độ chính xác |
-| 11 · lời nói | "nên đội dựng thêm ca tổng hợp" | Thêm: đáp án kịch bản do đội viết, chứng minh "đúng điều đội hiểu", phần còn lại chờ tập ẩn |
-| 12 · biểu đồ lỗi cài | 7/16 · 16/16 | 7/16 · **11/16 (lần đầu)** · 16/16 làm mờ, kèm chú thích "đo trên chính bộ lỗi đã dùng để bổ sung kịch bản" |
-| 12 · thẻ "Bằng chứng thêm" | "tách theo hợp đồng thành nửa phát triển và nửa kiểm tra" | "đáp án do đội viết, nên đo độ phủ chứ không thay được tập ẩn của BTC" |
-| 12 · lời nói | "Đó là lý do tin vào con số 6.237/6.237" | Kể đúng diễn biến 11 → 16, nói thẳng con số khách quan là 11/16 |
-| 13 · giới hạn "Dữ liệu" | "đo thêm trên ca tổng hợp và kiểm thử đột biến" | "ca tổng hợp do đội tự gán đáp án → đo độ phủ và bắt lỗi cài đặt, độ chính xác thật chờ tập ẩn" |
+| 12 · Rule Execution Accuracy | Tập đo "+ 6.237 ca tổng hợp"; kết quả "6.237/6.237" | "+ 33 kịch bản tổng hợp"; "33/33 kịch bản"; giới hạn thêm "engine viết khi đã đọc 20 mẫu này" |
+| 12 · Macro-F1 | "+ 6.237 ca tổng hợp" | "+ 33 kịch bản tổng hợp" |
+| 12 · Unauthorized Payment | Giới hạn "Cận trên 95%: 0,09%" | "4.044 ca thuộc 33 kịch bản, không độc lập nên không tính khoảng tin cậy" |
+| 12 · chú thích | Baseline "tái lập qua metrics.json" | Baseline tính từ phân bố nhãn; ca tổng hợp đo độ phủ, không phải độ chính xác |
+| 12 · lời nói | "nên đội dựng thêm ca tổng hợp" | Thêm: đáp án kịch bản do đội viết, chứng minh "đúng điều đội hiểu", phần còn lại chờ tập ẩn |
+| 13 · biểu đồ lỗi cài | 7/16 · 16/16 | 7/16 · **11/16 (lần đầu)** · 16/16 làm mờ, kèm chú thích "đo trên chính bộ lỗi đã dùng để bổ sung kịch bản" |
+| 13 · thẻ "Bằng chứng thêm" | "tách theo hợp đồng thành nửa phát triển và nửa kiểm tra" | "đáp án do đội viết, nên đo độ phủ chứ không thay được tập ẩn của BTC" |
+| 13 · lời nói | "Đó là lý do tin vào con số 6.237/6.237" | Kể đúng diễn biến 11 → 16, nói thẳng con số khách quan là 11/16 |
+| 14 · giới hạn "Dữ liệu" | "đo thêm trên ca tổng hợp và kiểm thử đột biến" | "ca tổng hợp do đội tự gán đáp án → đo độ phủ và bắt lỗi cài đặt, độ chính xác thật chờ tập ẩn" |
 
 ### Nếu giám khảo hỏi
 
-- *"100% có phải overfitting không?"* Engine không học từ dữ liệu mà chạy bảng luật của BTC. Rủi ro thật là đội hiểu sai đề. Đội đã khoanh vùng rủi ro đó: 45 mốc phụ thuộc A05/A08 được hạ độ tin cậy (mục 1). Phần còn lại chờ 250 mốc ẩn và 135 mốc holdout.
+- *"100% có phải overfitting không?"* Engine không học từ dữ liệu mà chạy bảng luật của BTC. Rủi ro thật là đội hiểu sai đề. Đội đã khoanh vùng rủi ro đó: 15 mốc phụ thuộc A08 được hạ độ tin cậy, còn phạm vi tranh chấp thì đội đã chốt theo mốc (mục 1). Phần còn lại chờ 250 mốc ẩn và 135 mốc holdout.
 - *"Bộ ca được dựng trước hay sau khi biết danh sách lỗi?"* Trước, rồi bổ sung 5 kịch bản sau khi thấy 5 lỗi lọt. Con số khách quan là 11/16.
 - *"6.237 ca có độc lập không?"* Không. Đó là 33 kịch bản áp lên mọi mốc, dùng để chứng minh độ phủ.
 
@@ -252,7 +239,7 @@ Chạy lại `python apps/engine/benchmark.py` ngày 15/11:
 
 1. **Bộ lỗi giữ lại:** nhờ một người chưa đọc `benchmark.py` viết 8–10 lỗi mới, chạy đúng một lần và báo kết quả nguyên trạng, không sửa bộ ca theo kết quả đó. Đây là cách duy nhất để có con số mới thay cho 11/16.
 2. **Đáp án độc lập:** một thành viên không viết engine tự gán nhãn khoảng 30 ca chỉ dựa vào đề và README, rồi so với engine. Ca nào lệch chính là chỗ đội đang hiểu đề khác nhau, nên đưa vào danh sách câu hỏi gửi BTC.
-3. **Baseline trong `metrics.json`:** thêm khối `baseline` để lệnh tái lập ra đủ cả hai cột của slide 11.
+3. ~~**Baseline trong `metrics.json`**~~: đã làm ngày 15/11 (khối `kpi.baseline`).
 
 ---
 
@@ -260,7 +247,7 @@ Chạy lại `python apps/engine/benchmark.py` ngày 15/11:
 
 | Vị trí | Việc | Trạng thái |
 |---|---|---|
-| Slide "Truy vết", ô "44" và "6" | Đổi thành 45 (điểm diễn giải) và 5 (bản lặp), mục 1 | Đã sửa |
-| Slide 11, chú thích baseline | Ghi rõ baseline tính từ phân bố nhãn, mục 2 | Đã sửa |
-| Slide 11, 12, 13: số liệu ca tổng hợp và lỗi cài | Trình bày đúng 33 kịch bản, 11/16, bỏ khoảng tin cậy 0,09%, mục 3 | Đã sửa |
-| `metrics.json` | Thêm khối baseline | Chưa làm |
+| Slide 11 "Truy vết", bốn ô độ tin cậy | Theo policy 2.1.0 (bỏ A05): 385 / 15 / 5 / 0, mục 1 | Đã sửa |
+| Slide 12, chú thích baseline | Ghi rõ baseline tính từ phân bố nhãn, mục 2 | Đã sửa |
+| Slide 12, 13, 14: số liệu ca tổng hợp và lỗi cài | Trình bày đúng 33 kịch bản, 11/16, bỏ khoảng tin cậy 0,09%, mục 3 | Đã sửa |
+| `metrics.json` | Thêm khối baseline | Đã làm (15/11) |

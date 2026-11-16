@@ -1,0 +1,103 @@
+﻿email,ho_ten,vai_tro,vai_tro_vi,chuc_danh,to_chuc,ma_to_chuc,ma_ben_data_pack
+legal@anviet.vn,Trần Quốc Hạnh,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,An Việt Digital Services JSC,B001,B001
+controller@anviet.vn,Lê Ngọc Mai,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,An Việt Digital Services JSC,B001,B001
+legal@bacha.vn,Phạm Gia Quỳnh,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Bắc Hà Education Technology JSC,B002,B002
+controller@bacha.vn,Hoàng Minh Vy,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Bắc Hà Education Technology JSC,B002,B002
+legal@cuulong.vn,Huỳnh Hữu Hà,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Cửu Long Business Solutions JSC,B003,B003
+controller@cuulong.vn,Phan Đức Linh,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Cửu Long Business Solutions JSC,B003,B003
+legal@daiminh.vn,Vũ Thị Phúc,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Đại Minh Commerce JSC,B004,B004
+controller@daiminh.vn,Võ Thanh Trung,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Đại Minh Commerce JSC,B004,B004
+legal@everlink.vn,Đặng Thu Dũng,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,EverLink Vietnam JSC,B005,B005
+controller@everlink.vn,Bùi Văn Khánh,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,EverLink Vietnam JSC,B005,B005
+legal@giaphuc.vn,Đỗ Quốc Nhung,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Gia Phúc Operations JSC,B006,B006
+controller@giaphuc.vn,Hồ Ngọc Thảo,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Gia Phúc Operations JSC,B006,B006
+legal@hoanam.vn,Ngô Gia Bình,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Hòa Nam Services JSC,B007,B007
+controller@hoanam.vn,Dương Minh Hiếu,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Hòa Nam Services JSC,B007,B007
+legal@lotus.vn,Lý Hữu Nam,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Lotus Enterprise Solutions JSC,B008,B008
+controller@lotus.vn,Nguyễn Đức Sơn,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Lotus Enterprise Solutions JSC,B008,B008
+legal@minhthanh.vn,Trần Thị Yến,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Minh Thành Digital JSC,B009,B009
+controller@minhthanh.vn,Lê Thanh Hải,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Minh Thành Digital JSC,B009,B009
+legal@novaan.vn,Trần Thị Mai,LEGAL_REVIEWER,Cán bộ hợp đồng,Chuyên viên pháp chế hợp đồng,Nova An Business JSC,B010,B010
+controller@novaan.vn,Đỗ Minh Khoa,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Nova An Business JSC,B010,B010
+supplier@alphatech.vn,Phạm Thu Long,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,AlphaTech Equipment JSC,S001,S001
+controller@alphatech.vn,Hoàng Văn Quân,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,AlphaTech Equipment JSC,S001,S001
+supplier@baotin.vn,Huỳnh Quốc Tú,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Bảo Tín Systems JSC,S002,S002
+controller@baotin.vn,Phan Ngọc Giang,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Bảo Tín Systems JSC,S002,S002
+supplier@cloudbridge.vn,Vũ Gia Lan,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,CloudBridge Solutions JSC,S003,S003
+controller@cloudbridge.vn,Võ Minh Phong,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,CloudBridge Solutions JSC,S003,S003
+supplier@digiworks.vn,Đặng Hữu Trang,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,DigiWorks Vietnam JSC,S004,S004
+controller@digiworks.vn,Bùi Đức Châu,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,DigiWorks Vietnam JSC,S004,S004
+supplier@econet.vn,Đỗ Thị Hùng,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,EcoNet Technology JSC,S005,S005
+controller@econet.vn,Hồ Thanh Ngân,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,EcoNet Technology JSC,S005,S005
+supplier@futuresoft.vn,Ngô Thu Tâm,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,FutureSoft Services JSC,S006,S006
+controller@futuresoft.vn,Dương Văn An,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,FutureSoft Services JSC,S006,S006
+supplier@greenbyte.vn,Lý Quốc Hạnh,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,GreenByte Solutions JSC,S007,S007
+controller@greenbyte.vn,Nguyễn Ngọc Mai,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,GreenByte Solutions JSC,S007,S007
+supplier@hungphat.vn,Trần Gia Quỳnh,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Hưng Phát Equipment JSC,S008,S008
+controller@hungphat.vn,Lê Minh Vy,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Hưng Phát Equipment JSC,S008,S008
+supplier@innodata.vn,Phạm Hữu Hà,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,InnoData Vietnam JSC,S009,S009
+controller@innodata.vn,Hoàng Đức Linh,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,InnoData Vietnam JSC,S009,S009
+supplier@ketnoiso.vn,Huỳnh Thị Phúc,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Kết Nối Số JSC,S010,S010
+controller@ketnoiso.vn,Phan Thanh Trung,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Kết Nối Số JSC,S010,S010
+supplier@linkpro.vn,Vũ Thu Dũng,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,LinkPro Technology JSC,S011,S011
+controller@linkpro.vn,Võ Văn Khánh,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,LinkPro Technology JSC,S011,S011
+supplier@mekong.vn,Đặng Quốc Nhung,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Mekong IT Services JSC,S012,S012
+controller@mekong.vn,Bùi Ngọc Thảo,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Mekong IT Services JSC,S012,S012
+supplier@nextwave.vn,Đỗ Gia Bình,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,NextWave Solutions JSC,S013,S013
+controller@nextwave.vn,Hồ Minh Hiếu,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,NextWave Solutions JSC,S013,S013
+supplier@optima.vn,Ngô Hữu Nam,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Optima Systems JSC,S014,S014
+controller@optima.vn,Dương Đức Sơn,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Optima Systems JSC,S014,S014
+supplier@phuminh.vn,Vũ Thanh Hà,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Phú Minh Technology JSC,S015,S015
+controller@phuminh.vn,Lý Thu Trang,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Phú Minh Technology JSC,S015,S015
+supplier@quantumworks.vn,Lý Thị Yến,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,QuantumWorks JSC,S016,S016
+controller@quantumworks.vn,Nguyễn Thanh Hải,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,QuantumWorks JSC,S016,S016
+supplier@redriver.vn,Trần Thu Long,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,RedRiver Digital JSC,S017,S017
+controller@redriver.vn,Lê Văn Quân,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,RedRiver Digital JSC,S017,S017
+supplier@smartcore.vn,Phạm Quốc Tú,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,SmartCore Services JSC,S018,S018
+controller@smartcore.vn,Hoàng Ngọc Giang,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,SmartCore Services JSC,S018,S018
+supplier@tanviet.vn,Huỳnh Gia Lan,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Tân Việt Equipment JSC,S019,S019
+controller@tanviet.vn,Phan Minh Phong,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Tân Việt Equipment JSC,S019,S019
+supplier@unisoft.vn,Vũ Hữu Trang,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,UniSoft Solutions JSC,S020,S020
+controller@unisoft.vn,Võ Đức Châu,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,UniSoft Solutions JSC,S020,S020
+supplier@vietlink.vn,Đặng Thị Hùng,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,VietLink Infrastructure JSC,S021,S021
+controller@vietlink.vn,Bùi Thanh Ngân,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,VietLink Infrastructure JSC,S021,S021
+supplier@wavetech.vn,Đỗ Thu Tâm,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,WaveTech Services JSC,S022,S022
+controller@wavetech.vn,Hồ Văn An,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,WaveTech Services JSC,S022,S022
+supplier@xenon.vn,Ngô Quốc Hạnh,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Xenon Digital JSC,S023,S023
+controller@xenon.vn,Dương Ngọc Mai,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Xenon Digital JSC,S023,S023
+supplier@youngtech.vn,Lý Gia Quỳnh,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,YoungTech Vietnam JSC,S024,S024
+controller@youngtech.vn,Nguyễn Minh Vy,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,YoungTech Vietnam JSC,S024,S024
+supplier@zenith.vn,Trần Hữu Hà,SUPPLIER,Nhà cung cấp,Đại diện nhà cung cấp,Zenith Systems JSC,S025,S025
+controller@zenith.vn,Lê Đức Linh,ADMIN_AUDITOR,Kiểm soát viên,Kiểm soát viên nội bộ,Zenith Systems JSC,S025,S025
+owner@anviet.vn,Phạm Thị Phúc,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,An Việt Digital Services JSC,B001,A001
+finance@anviet.vn,Hoàng Thanh Trung,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,An Việt Digital Services JSC,B001,A002
+secondary@anviet.vn,Huỳnh Thu Dũng,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,An Việt Digital Services JSC,B001,A003
+owner@bacha.vn,Phan Văn Khánh,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Bắc Hà Education Technology JSC,B002,A004
+finance@bacha.vn,Vũ Quốc Nhung,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Bắc Hà Education Technology JSC,B002,A005
+secondary@bacha.vn,Võ Ngọc Thảo,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Bắc Hà Education Technology JSC,B002,A006
+owner@cuulong.vn,Đặng Gia Bình,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Cửu Long Business Solutions JSC,B003,A007
+finance@cuulong.vn,Bùi Minh Hiếu,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Cửu Long Business Solutions JSC,B003,A008
+secondary@cuulong.vn,Đỗ Hữu Nam,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Cửu Long Business Solutions JSC,B003,A009
+owner@daiminh.vn,Hồ Đức Sơn,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Đại Minh Commerce JSC,B004,A010
+finance@daiminh.vn,Ngô Thị Yến,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Đại Minh Commerce JSC,B004,A011
+secondary@daiminh.vn,Dương Thanh Hải,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Đại Minh Commerce JSC,B004,A012
+owner@everlink.vn,Lý Thu Long,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,EverLink Vietnam JSC,B005,A013
+finance@everlink.vn,Nguyễn Văn Quân,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,EverLink Vietnam JSC,B005,A014
+secondary@everlink.vn,Trần Quốc Tú,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,EverLink Vietnam JSC,B005,A015
+owner@giaphuc.vn,Lê Ngọc Giang,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Gia Phúc Operations JSC,B006,A016
+finance@giaphuc.vn,Phạm Gia Lan,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Gia Phúc Operations JSC,B006,A017
+secondary@giaphuc.vn,Hoàng Minh Phong,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Gia Phúc Operations JSC,B006,A018
+owner@hoanam.vn,Huỳnh Hữu Trang,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Hòa Nam Services JSC,B007,A019
+finance@hoanam.vn,Phan Đức Châu,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Hòa Nam Services JSC,B007,A020
+secondary@hoanam.vn,Vũ Thị Hùng,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Hòa Nam Services JSC,B007,A021
+owner@lotus.vn,Võ Thanh Ngân,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Lotus Enterprise Solutions JSC,B008,A022
+finance@lotus.vn,Đặng Thu Tâm,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Lotus Enterprise Solutions JSC,B008,A023
+secondary@lotus.vn,Bùi Văn An,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Lotus Enterprise Solutions JSC,B008,A024
+owner@minhthanh.vn,Đỗ Quốc Hạnh,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Minh Thành Digital JSC,B009,A025
+finance@minhthanh.vn,Hồ Ngọc Mai,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Minh Thành Digital JSC,B009,A026
+secondary@minhthanh.vn,Ngô Gia Quỳnh,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Minh Thành Digital JSC,B009,A027
+owner@novaan.vn,Nguyễn Văn An,CONTRACT_OWNER,Chủ hợp đồng,Giám đốc dự án,Nova An Business JSC,B010,A028
+finance@novaan.vn,Lê Quốc Dũng,FINANCE_APPROVER,Phê duyệt tài chính,Kế toán trưởng,Nova An Business JSC,B010,A029
+secondary@novaan.vn,Phạm Minh Đức,SECONDARY_APPROVER,Phê duyệt cấp 2,Phó giám đốc,Nova An Business JSC,B010,A030
+sysadmin@codecash.vn,Trịnh Hoài Phương,SYSTEM_ADMIN,Quản trị hệ thống,Quản trị hệ thống,CodeCash · Vận hành nền tảng,OPS,
+auditor@codecash.vn,Mai Xuân Lộc,AUDITOR,Kiểm toán,Chuyên viên kiểm tra toàn vẹn,CodeCash · Vận hành nền tảng,OPS,

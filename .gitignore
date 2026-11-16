@@ -14,3 +14,6 @@ playwright-report/
 test-results/
 .data-test/
 .data-test-trust/
+# Round 3 submission package, built by tools/dong_goi_vong3/dong_goi.py
+CodeAndCash_VONG3/
+.dong_goi_tmp/

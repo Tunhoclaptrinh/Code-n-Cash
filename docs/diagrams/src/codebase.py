@@ -5,7 +5,7 @@ E = lambda label, sub, x, y, w=190: dict(label=label, sub=sub, x=x, y=y, w=w, h=
 
 m = dict(
     title="Sơ đồ ERD — Cơ sở dữ liệu CodeCash (codebase)",
-    subtitle="26 collection MongoDB của apps/api · chỉ thể hiện khóa chính, khóa ngoại và thuộc tính chính",
+    subtitle="30 collection MongoDB của apps/api · chỉ thể hiện khóa chính, khóa ngoại và thuộc tính chính",
     entities=dict(
         extraction_proposals=E("extraction_proposals", "Đề xuất bóc tách", 250, 250, 210),
         documents=E("documents", "Tệp hợp đồng", 650, 250),
@@ -33,6 +33,9 @@ m = dict(
         exceptions=E("exceptions", "Yêu cầu ngoại lệ", 1450, 1420),
         settings=E("settings", "Cấu hình", 2150, 1560),
         datasets=E("datasets", "Bộ dữ liệu tải lên", 2550, 1560),
+        contract_templates=E("contract_templates", "Mẫu hợp đồng", 1150, -70, 200),
+        amendments=E("amendments", "Phụ lục hợp đồng", 1510, 575, 180),
+        app_migrations=E("app_migrations", "Khởi tạo một lần (kỹ thuật)", 1750, 1560, 210),
     ),
     attrs=[
         ("extraction_proposals", "id", "pk", 75, 250),
@@ -56,7 +59,7 @@ m = dict(
         ("contract_drafts", "id", "pk", 960, 330),
         ("contract_drafts", "code", "uk", 1330, 330),
         ("contract_drafts", "supplierId", "fk", 960, 480),
-        ("contract_drafts", "reviewerId", "fk", 1000, 575),
+        ("contract_drafts", "reviewerId", "fk", 900, 530),
         ("contract_drafts", "ruleVersion.id", "fk", 1330, 470),
 
         ("signing_requests", "id", "pk", 450, 445),
@@ -65,16 +68,16 @@ m = dict(
 
         ("signing", "id", "pk", 440, 665),
         ("signing", "contractCode", "fk", 430, 735),
-        ("signing", "signerUserId", "fk", 450, 805),
+        ("signing", "steps[].signerUserId", "fk", 450, 805),
 
-        ("contracts", "contract_id", "pk", 1320, 630),
+        ("contracts", "contract_id", "pk", 1000, 660),
         ("contracts", "buyer_id", "fk", 980, 780),
         ("contracts", "supplier_id", "fk", 1370, 800),
-        ("contracts", "lifecycle", "attr", 1000, 640),
+        ("contracts", "lifecycle", "attr", 880, 630),
 
         ("payments", "id", "pk", 1555, 345),
         ("payments", "amountMillion", "attr", 1700, 340),
-        ("payments", "milestoneId", "fk", 1500, 530),
+        ("payments", "milestoneId", "fk", 1510, 470),
 
         ("milestones", "milestone_id", "pk", 1960, 590),
         ("milestones", "contract_id", "fk", 1560, 765),
@@ -141,6 +144,17 @@ m = dict(
         ("exceptions", "milestoneId", "fk", 1650, 1460),
         ("exceptions", "status", "attr", 1450, 1520),
 
+        ("contracts", "liquidations[]", "attr", 1010, 595),
+        ("contract_templates", "id", "pk", 960, -100),
+        ("contract_templates", "code", "attr", 960, -40),
+        ("contract_templates", "signerRoles", "attr", 1355, -100),
+        ("contract_templates", "approvalPolicy", "attr", 1365, -40),
+        ("amendments", "id", "pk", 1400, 515),
+        ("amendments", "contractCode", "fk", 1345, 655),
+        ("amendments", "state", "attr", 1625, 505),
+        ("app_migrations", "id", "pk", 1650, 1650),
+        ("app_migrations", "key", "attr", 1760, 1660),
+        ("app_migrations", "value", "attr", 1870, 1650),
         ("settings", "id", "pk", 2010, 1650),
         ("settings", "name", "attr", 2150, 1665),
         ("settings", "value", "attr", 2290, 1650),
@@ -206,26 +220,32 @@ m = dict(
              ends=[("evaluations", "zmany", []), ("payment_rules", "mone", [])]),
         dict(label="Khớp mã rule\n(release_rule_code)", x=1940, y=1000, w=160, dashed=True,
              ends=[("milestones", "zmany", [(1830, 1000)]), ("payment_rules", "omany", [])]),
+        dict(label="Theo mẫu HĐ\n(templateId)", x=1150, y=20,
+             ends=[("contract_templates", "mone", []), ("contract_drafts", "zmany", [])]),
+        dict(label="Sửa đổi\n(contractCode)", x=1330, y=575,
+             ends=[("contracts", "mone", [(1240, 575)]), ("amendments", "zmany", [])]),
         dict(label="Đính kèm\n(milestoneId)", x=1940, y=1250,
              ends=[("milestones", "mone", [(1810, 1250)]), ("attachments", "zmany", [])]),
     ],
     legend_at=(70, 1800),
     notes=[(800, 1830, [
-        "• Mọi collection có thêm trường chung: version, createdAt, updatedAt, organizationId (phạm vi tenant).",
+        "• Mọi collection có thêm trường chung: version, createdAt, updatedAt, organizationId (phạm vi tenant). MongoDB không có khóa ngoại vật lý: API kiểm tham chiếu.",
         "• parties, contracts, milestones, events, payment_rules = 5 bảng Data Pack (giữ tên cột BTC, thêm origin).",
         "• Quan hệ tự tham chiếu parent_party_id và reference_event_id: xem ERD Data Pack.",
         "• Không vẽ khóa ngoại contractId lặp lại ở evaluations, status_history, payments, exceptions;",
         "  không vẽ users → contract_drafts (reviewerId), users → events (recordedByUserId) để sơ đồ dễ đọc.",
         "• (UK) = khóa duy nhất. id (FK) gạch chân = vừa là khóa chính vừa là khóa ngoại (signing_profiles.id = users.id).",
-        "• settings, datasets không có khóa ngoại tới collection khác.",
+        "• settings, datasets, app_migrations không có khóa ngoại; app_migrations chỉ đánh dấu bước khởi tạo đã chạy (4 mẫu hợp đồng).",
+        "• Mảng nhúng: contracts.liquidations[] (biên bản thanh lý), amendments.dueDates[].milestoneId (hạn mới từng mốc), signing.steps[].",
+        "• Không vẽ: contracts.ruleVersionId (chép từ bản nháp), payments.transferredBy, exceptions.proposedBy/decidedBy → users.",
     ])],
 )
 
-SX, SY, DY = 1.0, 1.0, 50
+SX, SY, DY = 1.0, 1.0, 200
 resolve(m, SX, SY, DY)
 m["legend_at"] = (70, 1800 * SY + DY)
 m["notes"] = [(800, 1830 * SY + DY, m["notes"][0][2])]
-m["size"] = (int(2860 * SX), int(1990 * SY + DY))
+m["size"] = (int(2860 * SX), int(2060 * SY + DY))
 out = sys.argv[1]
 render_svg(m, out + ".svg")
 render_drawio(m, out + ".drawio")

@@ -1,6 +1,6 @@
 # ERD — Cơ sở dữ liệu của CodeCash (codebase)
 
-ERD cho **26 collection** mà API lưu trữ, lấy từ [repository.ts](../../apps/api/src/common/repository.ts) (danh sách collection + unique index), [records.ts](../../apps/api/src/domain/records.ts), [types.ts](../../apps/api/src/domain/types.ts), [trust/types.ts](../../apps/api/src/trust/types.ts) và [resources.json](../../packages/contracts/resources.json).
+ERD cho **30 collection** mà API lưu trữ, lấy từ [repository.ts](../../apps/api/src/common/repository.ts) (danh sách collection + unique index), [records.ts](../../apps/api/src/domain/records.ts), [types.ts](../../apps/api/src/domain/types.ts), [trust/types.ts](../../apps/api/src/trust/types.ts) và [resources.json](../../packages/contracts/resources.json).
 
 [Mở SVG để phóng to](erd-codebase.svg) · [Chỉnh sửa bằng draw.io](erd-codebase.drawio) · [Ảnh PNG](erd-codebase.png) · [Script sinh sơ đồ](src/)
 
@@ -18,5 +18,8 @@ Ký hiệu Chen: hình chữ nhật = thực thể, hình thoi = quan hệ (ghi 
 - **Liên kết với Data Pack:** `parties`, `contracts`, `milestones`, `events`, `payment_rules` là 5 bảng của BTC, import nguyên cột rồi bổ sung bản ghi `SEED`/`APP`. Tổ chức BUYER/SUPPLIER trong `organizations` dùng chung mã với `party_id`; tài khoản approver gắn với party qua `users.partyId`.
 - **Engine:** mỗi lần chạy sinh một `engine_runs`; mỗi mốc có `evaluations` (quyết định + bằng chứng) và một dòng `status_history` khi trạng thái đổi. `evaluations.ruleId` trỏ về `payment_rules.rule_id`, `evaluations.evidence` là danh sách `event_id`.
 - **Bất biến:** `audit` chỉ ghi thêm (append-only), được niêm phong hash chain trong `Repository.transact`; `audit.recordId` + `resource` trỏ tới bản ghi của bất kỳ collection nào. `anchor_jobs` neo đầu chuỗi (`seq`, `hash`) ra ngoài.
-- **JSON nhúng:** `signing.steps`, `contract_drafts.signers`, `rule_versions.rules/templates` là mảng nhúng, không phải collection riêng.
+- **Tạo hợp đồng:** `contract_drafts.templateId` trỏ về `contract_templates` (4 mẫu thứ tự ký); bản nháp khi khoá thành `contracts` (`code = contract_id`) và chép `ruleVersionId` của phiên bản luật đã ghim.
+- **Sau khi ký:** `amendments.contractCode` trỏ về hợp đồng; hạn mới từng mốc nằm trong mảng nhúng `amendments.dueDates[].milestoneId`. Biên bản thanh lý là mảng nhúng `contracts.liquidations[]`. Cả hai chỉ áp cho hợp đồng tạo trong ứng dụng, không cho hợp đồng Data Pack.
+- **JSON nhúng:** `signing.steps`, `contract_drafts.signers`, `rule_versions.rules/templates`, `contracts.liquidations`, `amendments.dueDates` là mảng nhúng, không phải collection riêng.
 - `datasets` là bộ Data Pack do người dùng tải lên để chạy engine độc lập, không nối với các bảng workflow.
+- `app_migrations` là bảng kỹ thuật đánh dấu bước khởi tạo đã chạy một lần (hiện là 4 mẫu hợp đồng), để mẫu quản trị đã xoá không bị thêm lại.

@@ -201,12 +201,22 @@
         "policy": "Choose approval policy",
         "grace": "0–60",
         "rate": "0.00–5.00",
-        "cap": "0.00–8.00"
+        "cap": "0.00–8.00",
+        "acceptanceDays": "1–60"
       },
       "workflow": {
         "label": "Milestone workflow",
         "standard": "Standard: {{name}}",
         "stages": "Milestones: {{stages}}"
+      },
+      "acceptance": {
+        "label": "Acceptance period",
+        "hint": "Days the buyer has to accept, or return the request with a reason, after the supplier asks. After that, a buyer document issued later counts at the deadline, so the supplier is not penalised for the buyer's delay.",
+        "on": "The buyer accepts within {{days}} days of the supplier's request.",
+        "off": "None: the date the buyer issues its document is the completion date, even if it is late.",
+        "toggle": "Apply an acceptance period",
+        "days": "Acceptance days",
+        "unit": "days"
       }
     },
     "preview": {

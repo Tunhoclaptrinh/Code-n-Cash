@@ -15,6 +15,7 @@ import {
   sealDecisions,
 } from "./engine";
 import { dataPackSeal, TABLE, type Tables } from "./records";
+import { REVIEW_DAYS_SETTING, reviewDaysSetting } from "./review-window";
 import { buildSeed } from "./seed";
 import type { Evaluation } from "./types";
 
@@ -46,8 +47,30 @@ export class DomainService {
    */
   async bootstrap(): Promise<AccountSpec[]> {
     await this.repo.transact(
-      ["app-migrations", "contract-templates"],
+      ["app-migrations", "contract-templates", "settings"],
       (tables) => {
+        // BR-21: databases created before the acceptance review window get its setting once.
+        if (
+          !tables["app-migrations"].some(
+            (row) => row.id === "acceptance-review-days-setting-v1",
+          )
+        ) {
+          if (
+            !tables.settings.some(
+              (row) => (row as { name?: string }).name === REVIEW_DAYS_SETTING,
+            )
+          )
+            tables.settings.push(reviewDaysSetting());
+          tables["app-migrations"].push({
+            id: "acceptance-review-days-setting-v1",
+            key: "acceptance-review-days-setting-v1",
+            value: "done",
+            version: 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            organizationId: "OPS",
+          });
+        }
         if (
           !tables["app-migrations"].some(
             (row) => row.id === "contract-template-bootstrap-v1",

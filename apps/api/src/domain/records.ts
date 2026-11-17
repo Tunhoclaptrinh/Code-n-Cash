@@ -70,7 +70,15 @@ export function dataPackSeal(tables: Tables) {
   ) as Record<string, { rows: number; hash: string }>;
 }
 
-/** Data Pack columns, in the organiser's order; the engine receives exactly these. */
+/**
+ * App columns the engine also reads, after the Data Pack ones (BR-21). They are not Data Pack columns, so
+ * the import never requires them and every Data Pack row leaves them empty.
+ */
+export const ENGINE_EXTRA_COLUMNS = {
+  contracts: ["acceptance_review_days"],
+} as const;
+
+/** Data Pack columns, in the organiser's order; the engine receives these, plus ENGINE_EXTRA_COLUMNS. */
 export const COLUMNS = {
   contracts: [
     "contract_id",
@@ -195,6 +203,11 @@ export type ContractRecord = RecordEntity &
     liquidations?: Liquidation[];
     /** End date in force after an accepted amendment; the signed end_date never changes. */
     amendedEndDate?: string;
+    /**
+     * BR-21: the buyer's acceptance review window in whole days (an app column; Data Pack contracts
+     * have none). Empty or absent: no window.
+     */
+    acceptance_review_days?: string;
   };
 
 export type MilestoneRecord = RecordEntity &
@@ -268,6 +281,8 @@ export interface DraftRecord extends RecordEntity {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /** BR-21: the acceptance review window in days; null or absent: none. */
+  acceptanceReviewDays?: number | null;
   signers: ContractDraft["signers"];
   file: ContractDraft["file"];
   appendixNames: string[];

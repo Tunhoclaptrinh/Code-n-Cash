@@ -7,6 +7,7 @@ import { writeCsv } from "./csv";
 import { entity } from "./factory";
 import {
   COLUMNS,
+  ENGINE_EXTRA_COLUMNS,
   TABLE,
   type EngineRunRecord,
   type EvaluationRecord,
@@ -26,7 +27,11 @@ import type {
 } from "./types";
 import { canonical, sha256 } from "../common/audit-chain";
 import { repoRoot } from "../common/paths";
-import { ENGINE_OUTPUT_COLUMNS, parseEngineOutput } from "./engine-contract";
+import {
+  ENGINE_OUTPUT_COLUMNS,
+  parseEngineOutput,
+  reviewWindowOf,
+} from "./engine-contract";
 
 /** Stdout of `apps/engine/cli.py`; exit code 2 means the input was rejected (message on stderr). */
 export function python(args: string[], timeoutMs: number): Promise<string> {
@@ -88,7 +93,11 @@ async function withDataset<T>(
         writeCsv([...columns], rows as Record<string, unknown>[]),
       );
     await Promise.all([
-      write("contracts.csv", COLUMNS.contracts, tables[TABLE.contracts]),
+      write(
+        "contracts.csv",
+        [...COLUMNS.contracts, ...ENGINE_EXTRA_COLUMNS.contracts],
+        tables[TABLE.contracts],
+      ),
       write("parties.csv", COLUMNS.parties, tables[TABLE.parties]),
       write("milestones.csv", COLUMNS.milestones, tables[TABLE.milestones]),
       write("events.csv", COLUMNS.events, [
@@ -231,6 +240,9 @@ export async function runEngine(
         specVersion: trace.specVersion,
         ...(r.selection ? { selection: r.selection } : {}),
         ...(explanation?.variables ? { variables: explanation.variables } : {}),
+        ...(r.review_window
+          ? { reviewWindow: reviewWindowOf(r.review_window) }
+          : {}),
       });
     }
     return {

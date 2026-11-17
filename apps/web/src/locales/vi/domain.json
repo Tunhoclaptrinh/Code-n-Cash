@@ -64,14 +64,17 @@
     "REJECTION": "Từ chối",
     "DISPUTE_OPENED": "Mở tranh chấp",
     "DISPUTE_RESOLVED": "Đóng tranh chấp",
-    "OTHER": "Tài liệu kèm theo"
+    "OTHER": "Tài liệu kèm theo",
+    "ACCEPTANCE_REQUESTED": "Đề nghị nghiệm thu",
+    "ACCEPTANCE_RETURNED": "Trả lại đề nghị nghiệm thu"
   },
   "eventStatus": {
     "CONFIRMED": "Đã xác nhận",
     "APPROVED": "Đã duyệt",
     "REJECTED": "Từ chối",
     "OPEN": "Đang mở",
-    "RESOLVED": "Đã đóng"
+    "RESOLVED": "Đã đóng",
+    "RETURNED": "Đã trả lại"
   },
   "decision": {
     "RELEASE": "Chi đủ",
@@ -154,7 +157,10 @@
     "UNAUTHORIZED": "Sai thẩm quyền",
     "WRONG_STATUS": "Sai trạng thái",
     "UNRELATED": "Không liên quan",
-    "VOIDED": "Đã vô hiệu"
+    "VOIDED": "Đã vô hiệu",
+    "ACCEPTANCE_REQUEST": "Đề nghị nghiệm thu đang hiệu lực",
+    "ACCEPTANCE_REQUEST_RETURNED": "Đề nghị đã bị trả lại",
+    "ACCEPTANCE_RETURN": "Bên mua trả lại đề nghị"
   },
   "trigger": {
     "IMPORT": "Dữ liệu ban đầu",
@@ -384,7 +390,16 @@
     "LIQUIDATION_NOT_FOUND": "Không có biên bản thanh lý đang chờ.",
     "CANNOT_DECIDE_LIQUIDATION": "Chỉ nhà cung cấp của hợp đồng xác nhận thanh lý.",
     "LIQUIDATION_STALE": "Số liệu đã thay đổi từ khi lập biên bản; bên mua cần lập lại.",
-    "INVOICE_SELLER_MISMATCH": "Mã số thuế người bán khác mã số thuế của nhà cung cấp trong hồ sơ hợp đồng."
+    "INVOICE_SELLER_MISMATCH": "Mã số thuế người bán khác mã số thuế của nhà cung cấp trong hồ sơ hợp đồng.",
+    "CANNOT_REQUEST_ACCEPTANCE": "Chỉ nhà cung cấp của hợp đồng mới đề nghị nghiệm thu được.",
+    "REVIEW_WINDOW_NOT_SET": "Hợp đồng không đặt thời hạn nghiệm thu.",
+    "NOTHING_TO_ACCEPT": "Mốc này không có chứng từ nào bên mua phải nghiệm thu.",
+    "ALREADY_ACCEPTED": "Bên mua đã nghiệm thu mốc này.",
+    "ACCEPTANCE_ALREADY_REQUESTED": "Đã có đề nghị nghiệm thu đang hiệu lực.",
+    "CANNOT_RETURN_ACCEPTANCE": "Chỉ cán bộ hợp đồng bên mua mới trả lại được đề nghị nghiệm thu.",
+    "NO_ACCEPTANCE_REQUEST": "Không có đề nghị nghiệm thu nào để trả lại.",
+    "REVIEW_WINDOW_CLOSED": "Đã quá hạn nghiệm thu; không trả lại đề nghị được nữa.",
+    "INVALID_REVIEW_DAYS": "Thời hạn nghiệm thu là số ngày nguyên từ 1 đến 60."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

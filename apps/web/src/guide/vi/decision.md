@@ -25,6 +25,16 @@ Ví dụ CT0103 mốc 2: kế hoạch **740,00**; hạn **12/10/2026**; ân hạ
 
 Ngày hoàn thành lấy từ thời điểm đã đủ bằng chứng bắt buộc hợp lệ; không đơn giản là sự kiện cuối hay ngày người duyệt bấm nút. Khi vẫn thiếu bằng chứng, kết quả giữ và không được chuyển chi.
 
+## Thời hạn nghiệm thu
+
+Hợp đồng soạn trong ứng dụng có **thời hạn nghiệm thu** (mặc định 5 ngày, đặt khi soạn hợp đồng). Ở mốc cần chứng từ do bên mua lập, như biên bản nghiệm thu, mục **Nghiệm thu trong N ngày** trên màn quyết định cho biết:
+
+1. **Nhà cung cấp** nộp đủ chứng từ của mình rồi bấm **Đề nghị nghiệm thu**.
+2. **Cán bộ hợp đồng bên mua** có N ngày để lập biên bản, hoặc bấm **Trả lại đề nghị** kèm lý do; nhà cung cấp sửa và đề nghị lại.
+3. Biên bản lập sau hạn được tính tại **hạn chót nghiệm thu**: nhà cung cấp không bị phạt cho phần chậm của bên mua. Mốc vẫn chỉ được chi khi có biên bản và đủ phê duyệt.
+
+Hợp đồng của Data Pack không có thời hạn này nên ngày lập biên bản luôn là ngày được tính.
+
 ## Đọc 8 rule theo thứ tự
 
 ![Các rule, điều kiện và trạng thái khớp](../../../public/guide/images/decision-rules.webp)

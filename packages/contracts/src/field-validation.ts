@@ -80,6 +80,17 @@ export function validIsoDate(value: unknown): value is string {
  */
 export const LEGAL_PENALTY_CAP_PCT = "8";
 
+/** BR-21: longest acceptance review window a contract may set, in days (the engine's limit too). */
+export const MAX_ACCEPTANCE_REVIEW_DAYS = 60;
+
+/** BR-21: null (no window) or a whole number of days from 1 to MAX_ACCEPTANCE_REVIEW_DAYS. */
+export const validReviewDays = (value: unknown): value is number | null =>
+  value === null ||
+  (typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 1 &&
+    value <= MAX_ACCEPTANCE_REVIEW_DAYS);
+
 export function draftProblems(input: {
   title: string;
   valueMillion: string;
@@ -88,6 +99,7 @@ export function draftProblems(input: {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  acceptanceReviewDays?: number | null;
 }): Record<string, string> {
   const errors: Record<string, string> = {};
   if (typeof input.title !== "string" || !input.title.trim())
@@ -108,6 +120,11 @@ export function draftProblems(input: {
     input.graceDays > 60
   )
     errors.graceDays = "INVALID_PENALTY";
+  if (
+    input.acceptanceReviewDays !== undefined &&
+    !validReviewDays(input.acceptanceReviewDays)
+  )
+    errors.acceptanceReviewDays = "INVALID_REVIEW_DAYS";
   if (!exactDecimal(input.penaltyRatePct, "5"))
     errors.penaltyRatePct = "INVALID_PENALTY";
   if (!exactDecimal(input.maxPenaltyPct, "100"))

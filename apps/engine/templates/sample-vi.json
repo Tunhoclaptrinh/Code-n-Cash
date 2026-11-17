@@ -175,5 +175,6 @@
   "relativeDue": "{months} tháng sau mốc {previous}",
   "dueOpen": "Các bên xác nhận sau",
   "relativeDueOne": "1 tháng sau mốc {previous}",
-  "partyIdentity": "Mã số thuế: {taxCode}. Địa chỉ: {address}."
+  "partyIdentity": "Mã số thuế: {taxCode}. Địa chỉ: {address}.",
+  "acceptanceReview": "Thời hạn nghiệm thu: {days} ngày. Khi nhà cung cấp đã nộp đủ chứng từ của mình và đề nghị nghiệm thu, bên mua nghiệm thu hoặc trả lại đề nghị kèm lý do trong {days} ngày. Quá thời hạn này mà bên mua chưa lập chứng từ, chứng từ bên mua lập sau đó được tính tại ngày hết thời hạn khi xác định ngày hoàn thành; khoản thanh toán vẫn chỉ được chi khi có chứng từ đó."
 }

@@ -21,6 +21,7 @@ import { paymentInstruction } from "../actions/payments";
 import { historyOf, toException } from "./shared";
 import { variableLabels } from "../policy";
 import { pendingItems } from "./responsibility";
+import { acceptanceReview } from "../review-window";
 
 function classify(
   e: EventRecord,
@@ -43,6 +44,15 @@ function classify(
       ? "OPEN_DISPUTE"
       : "CLOSED_DISPUTE";
   else if (e.event_type === "DISPUTE_RESOLVED") classification = "RESOLUTION";
+  else if (e.event_type === "ACCEPTANCE_REQUESTED")
+    classification =
+      ev.reviewWindow?.requestId === id
+        ? "ACCEPTANCE_REQUEST"
+        : ev.reviewWindow?.returnedIds.includes(id)
+          ? "ACCEPTANCE_REQUEST_RETURNED"
+          : "ADDITIONAL";
+  else if (e.event_type === "ACCEPTANCE_RETURNED")
+    classification = "ACCEPTANCE_RETURN";
   else if (ev.evidence.includes(id)) classification = "EVIDENCE";
   else if (e.event_status !== "CONFIRMED") classification = "WRONG_STATUS";
   else classification = "ADDITIONAL";
@@ -168,6 +178,7 @@ export function milestoneDetail(
       payableMillion: evaluation.payableMillion,
     },
     history: historyOf(ctx, (h) => h.milestoneId === m.milestone_id),
+    acceptanceReview: acceptanceReview(ctx, m),
     payment: payment
       ? {
           id: payment.id,

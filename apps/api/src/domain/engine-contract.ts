@@ -59,7 +59,36 @@ export interface EngineResult {
   warnings?: string[];
   /** How the engine chose the applied rule; optional for the same reason. */
   selection?: Evaluation["selection"];
+  /** BR-21: present only for a contract that sets an acceptance review window. */
+  review_window?: EngineReviewWindow;
 }
+
+export interface EngineReviewWindow {
+  days: number;
+  request_id: string | null;
+  requested_at: string | null;
+  starts_at: string | null;
+  deadline: string | null;
+  returned_ids: string[];
+  reviewed_types: Evaluation["missing"];
+  deemed_types: Evaluation["missing"];
+}
+
+const optionalTimestamp = (value: unknown) =>
+  value === null ||
+  (typeof value === "string" && Number.isFinite(Date.parse(value)));
+
+/** BR-21: the engine's review window in the shape of the shared domain. */
+export const reviewWindowOf = (w: EngineReviewWindow) => ({
+  days: w.days,
+  requestId: w.request_id,
+  requestedAt: w.requested_at,
+  startsAt: w.starts_at,
+  deadline: w.deadline,
+  returnedIds: w.returned_ids,
+  reviewedTypes: w.reviewed_types,
+  deemedTypes: w.deemed_types,
+});
 
 export interface EngineOutput {
   runId: string;
@@ -241,6 +270,22 @@ export function parseEngineOutput(
       result.selection === undefined || typeof result.selection === "string",
       "trace.result.selection",
     );
+    if (result.review_window !== undefined) {
+      const window = object(result.review_window, "trace.result.review_window");
+      requireValue(
+        integer(window.days) &&
+          (window.days as number) >= 1 &&
+          (window.request_id === null ||
+            typeof window.request_id === "string") &&
+          ["requested_at", "starts_at", "deadline"].every((key) =>
+            optionalTimestamp(window[key]),
+          ) &&
+          ["returned_ids", "reviewed_types", "deemed_types"].every((key) =>
+            strings(window[key]),
+          ),
+        "trace.result.review_window",
+      );
+    }
     traces.set(trace.id, result);
   }
   const ids = new Set<string>(),

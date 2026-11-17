@@ -69,10 +69,17 @@ export type BusinessEventType =
   | "SERVICE_COMPLETED"
   | "WARRANTY_COMPLETED";
 export type SupportEventType =
-  "APPROVAL" | "REJECTION" | "DISPUTE_OPENED" | "DISPUTE_RESOLVED";
+  | "APPROVAL"
+  | "REJECTION"
+  | "DISPUTE_OPENED"
+  | "DISPUTE_RESOLVED"
+  /** BR-21: the supplier asks the buyer to accept (opens the review window). */
+  | "ACCEPTANCE_REQUESTED"
+  /** BR-21: the buyer returns the request with a reason, inside the window. */
+  | "ACCEPTANCE_RETURNED";
 export type EventType = BusinessEventType | SupportEventType;
 export type EventStatus =
-  "CONFIRMED" | "APPROVED" | "REJECTED" | "OPEN" | "RESOLVED";
+  "CONFIRMED" | "APPROVED" | "REJECTED" | "OPEN" | "RESOLVED" | "RETURNED";
 
 export type Decision = "RELEASE" | "HOLD" | "REJECT" | "PENALTY";
 export type ReasonCode =
@@ -357,6 +364,10 @@ export interface EventDocument extends EvidenceDocument {
 }
 
 export type EventClass =
+  /** BR-21: the supplier's acceptance request in force, one the buyer returned, and the return. */
+  | "ACCEPTANCE_REQUEST"
+  | "ACCEPTANCE_REQUEST_RETURNED"
+  | "ACCEPTANCE_RETURN"
   | "EVIDENCE"
   | "ADDITIONAL"
   | "APPROVAL"
@@ -415,6 +426,68 @@ export interface Evaluation {
   selection?: RuleSelection;
   /** Rule variables as the engine saw them (decimals and dates as text); absent on older evaluations. */
   variables?: Record<string, string | boolean | null>;
+  /** BR-21: the contract's acceptance review window; absent when the contract sets none. */
+  reviewWindow?: ReviewWindow;
+}
+
+/** BR-21: what the engine concluded about the acceptance review window of one milestone. */
+export interface ReviewWindow {
+  /** Window length in days, from the contract. */
+  days: number;
+  /** The request in force (not returned inside its window); null when there is none. */
+  requestId: string | null;
+  requestedAt: string | null;
+  /** When the window started: the request, or later once the supplier's own documents were complete. */
+  startsAt: string | null;
+  /** End of the window; null until a request is in force and the supplier's documents are complete. */
+  deadline: string | null;
+  /** Requests the buyer returned inside their window. */
+  returnedIds: string[];
+  /** Required documents the buyer issues (the ones the window caps). */
+  reviewedTypes: BusinessEventType[];
+  /** Buyer documents issued after the deadline, counted at the deadline. */
+  deemedTypes: BusinessEventType[];
+}
+
+/** BR-21: the review window of a milestone as the milestone screen shows it, with what the user may do. */
+export interface AcceptanceReview {
+  days: number;
+  /**
+   * NOT_REQUESTED: no request in force; WAITING_SUPPLIER_DOCUMENTS: requested, the supplier's own
+   * documents are not complete yet; IN_REVIEW: the buyer is inside the window; OVERDUE: the window closed
+   * without the buyer's documents (they will count at the deadline); ACCEPTED: the buyer's documents
+   * are in and count at their own date; ACCEPTED_AFTER_DEADLINE: they came after the deadline and count
+   * at the deadline.
+   */
+  state:
+    | "NOT_REQUESTED"
+    | "WAITING_SUPPLIER_DOCUMENTS"
+    | "IN_REVIEW"
+    | "OVERDUE"
+    | "ACCEPTED"
+    | "ACCEPTED_AFTER_DEADLINE";
+  request: { eventId: string; at: string; by: string; note: string } | null;
+  startsAt: string | null;
+  deadline: string | null;
+  /** Whole days left before the deadline (0 on the last day); null without a deadline or once closed. */
+  daysLeft: number | null;
+  /** The buyer's documents the window covers, with when they were issued and when they count. */
+  documents: Array<{
+    eventType: BusinessEventType;
+    issuedAt: string | null;
+    countedAt: string | null;
+    deemed: boolean;
+  }>;
+  /** Earlier requests the buyer returned, newest first, with the reason. */
+  returns: Array<{
+    requestId: string;
+    requestedAt: string;
+    returnedAt: string;
+    by: string;
+    reason: string;
+  }>;
+  canRequest: boolean;
+  canReturn: boolean;
 }
 
 export type RuleSelection =
@@ -592,6 +665,8 @@ export interface ContractOverview {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /** BR-21: the buyer's acceptance review window in days; null when the contract sets none. */
+  acceptanceReviewDays: number | null;
   autoReleaseAllowed: boolean;
   milestones: MilestoneRow[];
   totals: {
@@ -800,6 +875,8 @@ export interface MilestoneDetail {
     payableMillion: string;
   };
   history: StatusChange[];
+  /** BR-21: the contract's acceptance review window; null when the contract sets none. */
+  acceptanceReview: AcceptanceReview | null;
   payment: Payment | null;
   /** The instruction a paying decision draws up, before finance approves it; null otherwise. */
   instruction: PaymentInstruction | null;
@@ -1486,6 +1563,11 @@ export interface ContractDraft {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /**
+   * BR-21: days the buyer has to accept once the supplier asks (1-60); null: no review window, the
+   * buyer's acceptance date counts as issued. New drafts start from the ACCEPTANCE_REVIEW_DAYS setting.
+   */
+  acceptanceReviewDays: number | null;
   signers: DraftSigner[];
   file: ContractFile;
   appendixNames: string[];

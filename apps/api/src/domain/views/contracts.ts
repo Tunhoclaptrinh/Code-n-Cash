@@ -10,6 +10,7 @@ import {
   type RuleRecord,
   TABLE,
 } from "../records";
+import { reviewDaysOf } from "../review-window";
 import { signingDigest } from "../signing";
 import { sumMillion } from "../templates";
 import type {
@@ -267,6 +268,7 @@ export function contractOverview(
       : null,
     ruleSetId: contract.rule_set_id,
     graceDays: Number(contract.grace_period_days),
+    acceptanceReviewDays: reviewDaysOf(contract),
     penaltyRatePct: contract.penalty_rate_pct_per_day,
     maxPenaltyPct: contract.max_penalty_pct,
     autoReleaseAllowed: contract.auto_release_allowed === "TRUE",

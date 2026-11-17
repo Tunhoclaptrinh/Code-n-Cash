@@ -57,6 +57,8 @@ const DOCUMENT_PREFIX: Record<EventType, string> = {
   REJECTION: "REJ",
   DISPUTE_OPENED: "DSP",
   DISPUTE_RESOLVED: "DSR",
+  ACCEPTANCE_REQUESTED: "ACR",
+  ACCEPTANCE_RETURNED: "ACB",
 };
 
 export const text = (value: unknown, max = 1000) =>

@@ -191,6 +191,11 @@ def build_document(data):
     data = {**data, 'approvalPolicyText': policy_text}
     if exempt and data.get('approvalPolicy') != 'AUTO_IF_ALL_CONDITIONS':
         labels['sections'][5]['body'] += '\n' + labels['approvalExempt'].format(milestones=', '.join(exempt))
+    # BR-21: the acceptance review window joins the penalty article, where the completion date is defined.
+    review_days = data.get('acceptanceReviewDays')
+    if review_days not in (None, ''):
+        penalty = next(section for section in labels['sections'] if '{graceDays}' in section['body'])
+        penalty['body'] += '\n' + labels['acceptanceReview'].format(days=review_days)
 
     header, table_labels = labels['header'], labels['table']
     # The motto rule is a paragraph border limited by the indents; English text is longer.

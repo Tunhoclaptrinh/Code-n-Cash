@@ -133,7 +133,11 @@
       "penalty": "Phạt trễ hạn",
       "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
       "workflow": "Quy trình mốc",
-      "ruleSet": "Bộ quy tắc thanh toán"
+      "ruleSet": "Bộ quy tắc thanh toán",
+      "acceptance": "Thời hạn nghiệm thu",
+      "acceptanceValue_one": "{{count}} ngày từ khi nhà cung cấp đề nghị",
+      "acceptanceValue_other": "{{count}} ngày từ khi nhà cung cấp đề nghị",
+      "acceptanceNone": "Không áp dụng: tính theo ngày lập chứng từ của bên mua"
     },
     "requirement": {
       "VALID": "Hợp lệ lúc {{at}}",
@@ -270,7 +274,8 @@
       "formula": "Phạt theo số ngày trễ",
       "formulaValue_one": "{{rate}}% × {{count}} ngày × {{planned}} = {{penalty}}",
       "formulaValue_other": "{{rate}}% × {{count}} ngày × {{planned}} = {{penalty}}",
-      "cap": "Phạt tối đa (trần {{cap}}%)"
+      "cap": "Phạt tối đa (trần {{cap}}%)",
+      "completedDeemed": "{{completed}} (chứng từ bên mua lập {{issued}}, tính tại hạn nghiệm thu)"
     },
     "rules": {
       "priority": "Ưu tiên",
@@ -747,5 +752,81 @@
     "rejectPlaceholder": "Lý do từ chối (bắt buộc)",
     "waitingOfficer": "Mọi mốc đã xong; chờ bên mua lập biên bản thanh lý.",
     "notYet": "Chưa thể thanh lý: còn mốc chưa được chi hoặc chưa bị từ chối."
+  },
+  "acceptanceReview": {
+    "title": "Nghiệm thu trong {{days}} ngày",
+    "state": {
+      "NOT_REQUESTED": {
+        "label": "Chưa đề nghị",
+        "body": "Nhà cung cấp chưa đề nghị nghiệm thu. Khi có đề nghị, bên mua có {{days}} ngày để lập {{documents}} hoặc trả lại đề nghị kèm lý do; quá hạn thì chứng từ được tính tại ngày hết hạn, nhà cung cấp không bị phạt thêm vì bên mua chậm."
+      },
+      "WAITING_SUPPLIER_DOCUMENTS": {
+        "label": "Chờ chứng từ nhà cung cấp",
+        "body": "Đã có đề nghị nghiệm thu nhưng nhà cung cấp chưa nộp đủ chứng từ của mình. Thời hạn {{days}} ngày bắt đầu khi đủ."
+      },
+      "IN_REVIEW": {
+        "label": "Bên mua đang xem xét",
+        "body": "Bên mua cần lập {{documents}} hoặc trả lại đề nghị trước {{deadline}}."
+      },
+      "OVERDUE": {
+        "label": "Quá hạn nghiệm thu",
+        "body": "Đã quá hạn nghiệm thu {{deadline}}. {{documents}} lập sau thời điểm này được tính tại {{deadline}}: phần chậm của bên mua không làm nhà cung cấp bị phạt. Vẫn cần chứng từ này mới được chi tiền."
+      },
+      "ACCEPTED": {
+        "label": "Đã nghiệm thu",
+        "body": "Bên mua đã lập {{documents}} lúc {{issued}}; ngày này được dùng để tính ngày hoàn thành."
+      },
+      "ACCEPTED_AFTER_DEADLINE": {
+        "label": "Nghiệm thu sau hạn",
+        "body": "{{documents}} lập lúc {{issued}}, sau hạn nghiệm thu {{deadline}}. Ngày hoàn thành được tính tại {{deadline}}, nên nhà cung cấp không bị phạt cho phần chậm của bên mua."
+      }
+    },
+    "steps": {
+      "request": "Nhà cung cấp đề nghị",
+      "requestDone": "{{at}} · {{by}}",
+      "requestWaiting": "Chưa có đề nghị",
+      "review": "Bên mua xem xét · {{days}} ngày",
+      "reviewWindow": "{{from}} → {{to}}",
+      "reviewWaitingSupplier": "Bắt đầu khi nhà cung cấp nộp đủ chứng từ",
+      "reviewNotStarted": "Bắt đầu khi có đề nghị",
+      "accept": "{{documents}}",
+      "acceptDone": "Lập lúc {{at}}"
+    },
+    "deadline": "Hạn chót nghiệm thu",
+    "deadlineLeft_one": "{{deadline}} · còn {{count}} ngày",
+    "deadlineLeft_other": "{{deadline}} · còn {{count}} ngày",
+    "noDeadline": "Chưa bắt đầu tính",
+    "documentIssued": "Lập lúc {{issued}}",
+    "documentDeemed": "Lập lúc {{issued}} · tính tại {{counted}}",
+    "documentMissing": "Chưa có",
+    "requestNote": "Ghi chú của đề nghị",
+    "returnsTitle": "Đề nghị đã bị trả lại",
+    "returnItem": "Đề nghị ngày {{requested}} bị trả lại lúc {{returned}} bởi {{by}}: {{reason}}",
+    "requestButton": "Đề nghị nghiệm thu",
+    "returnButton": "Trả lại đề nghị",
+    "requested": "Đã gửi đề nghị nghiệm thu; thời hạn bắt đầu tính.",
+    "returned": "Đã trả lại đề nghị nghiệm thu.",
+    "cancel": "Huỷ",
+    "requestDialog": {
+      "title": "Đề nghị bên mua nghiệm thu?",
+      "body": "Bên mua có {{days}} ngày để lập {{documents}} hoặc trả lại đề nghị kèm lý do. Chỉ đề nghị khi phần việc của bạn đã hoàn thành: nếu bị trả lại, bạn phải sửa và đề nghị lại.",
+      "note": "Ghi chú cho bên mua (không bắt buộc)",
+      "submit": "Gửi đề nghị"
+    },
+    "returnDialog": {
+      "title": "Trả lại đề nghị nghiệm thu?",
+      "body": "Đề nghị hết hiệu lực; nhà cung cấp sửa và đề nghị lại, thời hạn {{days}} ngày tính lại từ đầu. Chỉ trả lại được trước {{deadline}}.",
+      "note": "Lý do trả lại (bắt buộc)",
+      "noteRequired": "Cần nhập lý do trả lại.",
+      "submit": "Trả lại đề nghị"
+    },
+    "ruleTitle": "Quy tắc thời hạn nghiệm thu",
+    "rule": {
+      "1": "Nhà cung cấp nộp đủ chứng từ của mình rồi bấm Đề nghị nghiệm thu.",
+      "2": "Bên mua có {{days}} ngày, tính từ lúc đề nghị (hoặc lúc nhà cung cấp nộp đủ chứng từ nếu muộn hơn), để lập chứng từ nghiệm thu hoặc trả lại đề nghị kèm lý do.",
+      "3": "Đề nghị bị trả lại trong thời hạn thì hết hiệu lực; nhà cung cấp sửa và đề nghị lại.",
+      "4": "Chứng từ bên mua lập sau hạn được tính tại ngày hết hạn khi xác định ngày hoàn thành và số ngày trễ.",
+      "5": "Vẫn cần chứng từ nghiệm thu và đủ phê duyệt mới được chi tiền. Số ngày ghi trong hợp đồng; giá trị mặc định do quản trị hệ thống cấu hình."
+    }
   }
 }

@@ -76,6 +76,8 @@ interface Base {
   doneAt: string | null;
   waitingSince: string | null;
   dueBy: string | null;
+  /** BR-21: dueBy is the end of the acceptance review window, which has no grace period. */
+  reviewDeadline?: boolean;
 }
 
 /** The conditions of a milestone without people or actions: cheap enough for every list row. */
@@ -136,11 +138,18 @@ function conditions(ctx: Ctx, m: MilestoneRecord): Base[] {
       dueBy: null,
     });
 
+  // BR-21: once the supplier has asked for acceptance, the buyer's documents are due by the end of the
+  // review window (they count at that date if they come later), and the buyer waits from its start.
+  const review = evaluation.reviewWindow?.deadline
+    ? evaluation.reviewWindow
+    : null;
   for (const requirement of ctx.requirements(m)) {
     const side = requirement.side;
     const event = requirement.eventId
       ? (byId.get(requirement.eventId) ?? null)
       : null;
+    const reviewed =
+      review !== null && review.reviewedTypes.includes(requirement.eventType);
     items.push({
       key: `EVENT:${requirement.eventType}`,
       kind: requirement.state === "UNAUTHORIZED" ? "UNAUTHORIZED" : "EVIDENCE",
@@ -151,8 +160,13 @@ function conditions(ctx: Ctx, m: MilestoneRecord): Base[] {
       doneEvent: requirement.state === "VALID" ? event : null,
       doneAt: requirement.state === "VALID" ? requirement.at : null,
       waitingSince:
-        requirement.state === "UNAUTHORIZED" ? requirement.at : null,
-      dueBy: m.due_date || null,
+        requirement.state === "UNAUTHORIZED"
+          ? requirement.at
+          : reviewed
+            ? review.startsAt
+            : null,
+      dueBy: reviewed ? review.deadline!.slice(0, 10) : m.due_date || null,
+      reviewDeadline: reviewed,
     });
   }
 
@@ -445,9 +459,10 @@ export function pendingItems(
         ? Math.max(0, daysBetween(waitingSince, today))
         : null,
       dueBy: item.dueBy,
-      graceUntil: item.dueBy
-        ? addDays(item.dueBy, Number(m.grace_period_days))
-        : null,
+      graceUntil:
+        item.dueBy && !item.reviewDeadline
+          ? addDays(item.dueBy, Number(m.grace_period_days))
+          : null,
       // Same count as the evidence screen (Ctx.lateness): days past the due date.
       overdueDays:
         !item.done && item.dueBy

@@ -358,6 +358,21 @@ const WRITE_ACTIONS = [
     args: [at(99, { option: "RESOLVE", note: "x" })],
     reaches: "MILESTONE_NOT_FOUND",
   },
+  // BR-21: the supplier asks for acceptance; the buyer's officer (who issues the acceptance) returns it.
+  {
+    name: "requestAcceptance",
+    module: "acceptance",
+    allowed: ["SUPPLIER"],
+    args: [at(99)],
+    reaches: "MILESTONE_NOT_FOUND",
+  },
+  {
+    name: "returnAcceptanceRequest",
+    module: "acceptance",
+    allowed: ["LEGAL_REVIEWER"],
+    args: [at(99, { note: "x" })],
+    reaches: "MILESTONE_NOT_FOUND",
+  },
   {
     name: "transferToAccounting",
     module: "payments",
@@ -457,7 +472,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 25);
+  assert.equal(WRITE_ACTIONS.length, 27);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)

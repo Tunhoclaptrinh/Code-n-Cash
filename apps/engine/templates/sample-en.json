@@ -175,5 +175,6 @@
   "relativeDue": "{months} months after {previous}",
   "dueOpen": "To be confirmed",
   "relativeDueOne": "1 month after {previous}",
-  "partyIdentity": "Tax code: {taxCode}. Address: {address}."
+  "partyIdentity": "Tax code: {taxCode}. Address: {address}.",
+  "acceptanceReview": "Acceptance period: {days} days. Once the supplier has submitted its own documents and requested acceptance, the buyer accepts or returns the request with its reasons within {days} days. If the buyer has not issued its documents by then, documents it issues later count at the end of that period when the completion date is set; payment still requires those documents."
 }

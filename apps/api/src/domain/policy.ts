@@ -22,12 +22,16 @@ export interface EnginePolicy {
         | "APPROVAL"
         | "REJECTION"
         | "DISPUTE_OPEN"
-        | "DISPUTE_RESOLVE";
+        | "DISPUTE_RESOLVE"
+        | "REVIEW_REQUEST"
+        | "REVIEW_RETURN";
       side?: string;
       valid_status: string;
     }
   >;
   statuses: string[];
+  /** BR-21: the contract column with the acceptance review window and the side it binds. */
+  review_window?: { field: string; reviewed_side: string };
   decisions: Record<string, { pays: boolean }>;
   reasons: Record<string, { status: string }>;
 }

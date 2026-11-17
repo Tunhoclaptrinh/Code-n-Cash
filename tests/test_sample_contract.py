@@ -51,6 +51,12 @@ class PartialSampleContractTests(unittest.TestCase):
             self.assertNotIn('SIGNING AREA 01', xml)
             self.assertNotIn('VỊ TRÍ KÝ 01', xml)
 
+    def test_the_acceptance_review_window_is_written_into_the_penalty_article(self):
+        for language, text in (('vi', 'Thời hạn nghiệm thu: 5 ngày'), ('en', 'Acceptance period: 5 days')):
+            xml = document_xml(sample.build_document(partial_input(language, acceptanceReviewDays=5)))
+            self.assertIn(text, xml)
+            self.assertNotIn(text, document_xml(sample.build_document(partial_input(language))))
+
     def test_placeholders_pass_through_format_and_custom_body(self):
         xml = document_xml(sample.build_document(partial_input(documentBody='Value {{valueMillion}} / {literal}')))
         self.assertIn(f'Value {PLACEHOLDER} / {{literal}}', xml)

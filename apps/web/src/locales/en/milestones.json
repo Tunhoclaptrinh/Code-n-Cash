@@ -133,7 +133,11 @@
       "penalty": "Late penalty",
       "penaltyValue": "Grace {{grace}} days · {{rate}}%/day · cap {{cap}}%",
       "workflow": "Milestone workflow",
-      "ruleSet": "Payment rule set"
+      "ruleSet": "Payment rule set",
+      "acceptance": "Acceptance period",
+      "acceptanceValue_one": "{{count}} day after the supplier's request",
+      "acceptanceValue_other": "{{count}} days after the supplier's request",
+      "acceptanceNone": "None: the buyer's document date counts"
     },
     "requirement": {
       "VALID": "Valid at {{at}}",
@@ -270,7 +274,8 @@
       "formula": "Penalty for the days late",
       "formulaValue_one": "{{rate}}% × {{count}} day × {{planned}} = {{penalty}}",
       "formulaValue_other": "{{rate}}% × {{count}} days × {{planned}} = {{penalty}}",
-      "cap": "Maximum penalty ({{cap}}% cap)"
+      "cap": "Maximum penalty ({{cap}}% cap)",
+      "completedDeemed": "{{completed}} (the buyer's document is dated {{issued}} and counts at the acceptance deadline)"
     },
     "rules": {
       "priority": "Priority",
@@ -747,5 +752,81 @@
     "rejectPlaceholder": "Reason for rejecting (required)",
     "waitingOfficer": "Every milestone is settled; waiting for the buyer to make the liquidation record.",
     "notYet": "Not yet: some milestones are neither paid nor rejected."
+  },
+  "acceptanceReview": {
+    "title": "Acceptance within {{days}} days",
+    "state": {
+      "NOT_REQUESTED": {
+        "label": "Not requested",
+        "body": "The supplier has not requested acceptance yet. Once it does, the buyer has {{days}} days to issue the {{documents}} or return the request with a reason; after that, the document counts at the deadline, so the supplier is not penalised for the buyer's delay."
+      },
+      "WAITING_SUPPLIER_DOCUMENTS": {
+        "label": "Waiting for supplier documents",
+        "body": "Acceptance was requested, but the supplier's own documents are not complete. The {{days}}-day period starts once they are."
+      },
+      "IN_REVIEW": {
+        "label": "Buyer reviewing",
+        "body": "The buyer must issue the {{documents}} or return the request before {{deadline}}."
+      },
+      "OVERDUE": {
+        "label": "Acceptance overdue",
+        "body": "The acceptance deadline {{deadline}} has passed. A {{documents}} issued after it counts at {{deadline}}: the buyer's delay does not penalise the supplier. The document is still needed before payment."
+      },
+      "ACCEPTED": {
+        "label": "Accepted",
+        "body": "The buyer issued the {{documents}} at {{issued}}; that date sets the completion date."
+      },
+      "ACCEPTED_AFTER_DEADLINE": {
+        "label": "Accepted after the deadline",
+        "body": "The {{documents}} was issued at {{issued}}, after the acceptance deadline {{deadline}}. Completion counts at {{deadline}}, so the supplier is not penalised for the buyer's delay."
+      }
+    },
+    "steps": {
+      "request": "Supplier requests",
+      "requestDone": "{{at}} · {{by}}",
+      "requestWaiting": "No request yet",
+      "review": "Buyer reviews · {{days}} days",
+      "reviewWindow": "{{from}} → {{to}}",
+      "reviewWaitingSupplier": "Starts once the supplier's documents are complete",
+      "reviewNotStarted": "Starts with a request",
+      "accept": "{{documents}}",
+      "acceptDone": "Issued at {{at}}"
+    },
+    "deadline": "Acceptance deadline",
+    "deadlineLeft_one": "{{deadline}} · {{count}} day left",
+    "deadlineLeft_other": "{{deadline}} · {{count}} days left",
+    "noDeadline": "Not started",
+    "documentIssued": "Issued at {{issued}}",
+    "documentDeemed": "Issued at {{issued}} · counts at {{counted}}",
+    "documentMissing": "Not yet",
+    "requestNote": "Request note",
+    "returnsTitle": "Returned requests",
+    "returnItem": "Request of {{requested}} returned at {{returned}} by {{by}}: {{reason}}",
+    "requestButton": "Request acceptance",
+    "returnButton": "Return the request",
+    "requested": "Acceptance requested; the period has started.",
+    "returned": "The acceptance request was returned.",
+    "cancel": "Cancel",
+    "requestDialog": {
+      "title": "Ask the buyer to accept?",
+      "body": "The buyer has {{days}} days to issue the {{documents}} or return the request with a reason. Request only once your work is finished: a returned request has to be fixed and made again.",
+      "note": "Note to the buyer (optional)",
+      "submit": "Send request"
+    },
+    "returnDialog": {
+      "title": "Return the acceptance request?",
+      "body": "The request stops counting; the supplier fixes the work and asks again, and the {{days}}-day period starts over. You can return it only before {{deadline}}.",
+      "note": "Reason for returning (required)",
+      "noteRequired": "Enter the reason for returning.",
+      "submit": "Return the request"
+    },
+    "ruleTitle": "How the acceptance period works",
+    "rule": {
+      "1": "The supplier submits its own documents, then clicks Request acceptance.",
+      "2": "The buyer has {{days}} days from the request (or from when the supplier's documents are complete, if later) to issue its acceptance documents or return the request with a reason.",
+      "3": "A request returned within the period stops counting; the supplier fixes the work and asks again.",
+      "4": "A buyer document issued after the deadline counts at the deadline when the completion date and days late are set.",
+      "5": "Payment still needs the acceptance documents and the approvals. The number of days is set in the contract; the system administrator sets the default."
+    }
   }
 }

@@ -129,6 +129,18 @@
           }
         },
         {
+          "key": "acceptance:request",
+          "grants": {
+            "SUPPLIER": "own"
+          }
+        },
+        {
+          "key": "acceptance:return",
+          "grants": {
+            "LEGAL_REVIEWER": "org"
+          }
+        },
+        {
           "key": "approvals:read",
           "grants": {
             "CONTRACT_OWNER": "org",

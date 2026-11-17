@@ -317,6 +317,16 @@ export default function ContractDetailPage() {
                         cap: data.maxPenaltyPct,
                       })}
                     />
+                    <TermRow
+                      label={t("detail.terms.acceptance")}
+                      value={
+                        data.acceptanceReviewDays === null
+                          ? t("detail.terms.acceptanceNone")
+                          : t("detail.terms.acceptanceValue", {
+                              count: data.acceptanceReviewDays,
+                            })
+                      }
+                    />
                     <TechnicalDetails
                       items={[
                         {

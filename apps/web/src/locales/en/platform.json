@@ -286,6 +286,8 @@
       "signing:verify": "Verify signatures",
       "tasks:read": "View tasks",
       "evidence:submit": "Submit evidence",
+      "acceptance:request": "Request acceptance",
+      "acceptance:return": "Return an acceptance request",
       "approvals:read": "View payment approvals",
       "approvals:vote": "Approve or reject payments",
       "approvals:mark-viewed": "Record that evidence was read",
@@ -456,6 +458,10 @@
     "EVALUATION_MODE": {
       "label": "Evaluation mode",
       "hint": "how the engine reads the event history"
+    },
+    "ACCEPTANCE_REVIEW_DAYS": {
+      "label": "Default acceptance period (days)",
+      "hint": "days the buyer has to accept after the supplier asks; applies to new contracts, 1–60"
     }
   },
   "auditResources": {

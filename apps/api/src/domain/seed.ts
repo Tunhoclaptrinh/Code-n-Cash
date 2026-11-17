@@ -15,6 +15,11 @@ import {
   type StageTemplate,
   type Tables,
 } from "./records";
+import {
+  DEFAULT_REVIEW_DAYS,
+  reviewDaysOf,
+  reviewDaysSetting,
+} from "./review-window";
 import { defaultSlots, previewPagesFor } from "./signing-layout";
 import { deriveStages, stagesFor } from "./templates";
 import type {
@@ -192,6 +197,8 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
       grace_period_days: penalty.grace,
       penalty_rate_pct_per_day: penalty.rate,
       max_penalty_pct: penalty.cap,
+      // BR-21: demo contracts carry the default acceptance review window, as new drafts do.
+      acceptance_review_days: String(DEFAULT_REVIEW_DAYS),
       initial_contract_status: lifecycle === "ACTIVE" ? "ACTIVE" : "DRAFT",
       data_is_synthetic: "TRUE",
       origin: "SEED" as const,
@@ -584,14 +591,16 @@ export async function buildSeed(pack?: DataPack): Promise<SeedResult> {
       ["EVALUATION_MODE", "offline_full_history", "SEED"],
       ["DEMO_BUYER", `${DEMO_BUYER} · ${orgName(DEMO_BUYER)}`, "SEED"],
       ["DEMO_SUPPLIER", `${DEMO_SUPPLIER} · ${orgName(DEMO_SUPPLIER)}`, "SEED"],
-    ].map(([name, value, origin]) =>
-      entity(`setting-${name.toLowerCase()}`, {
-        name,
-        value,
-        origin,
-        organizationId: "OPS",
-      }),
-    ),
+    ]
+      .map(([name, value, origin]) =>
+        entity(`setting-${name.toLowerCase()}`, {
+          name,
+          value,
+          origin,
+          organizationId: "OPS",
+        }),
+      )
+      .concat(reviewDaysSetting()),
   };
 }
 
@@ -635,6 +644,7 @@ function draftOf(
     graceDays: Number(contract.grace_period_days),
     penaltyRatePct: contract.penalty_rate_pct_per_day,
     maxPenaltyPct: contract.max_penalty_pct,
+    acceptanceReviewDays: reviewDaysOf(contract),
     signers,
     file,
     appendixNames: [],

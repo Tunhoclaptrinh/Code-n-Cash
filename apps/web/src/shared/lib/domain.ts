@@ -51,6 +51,9 @@ export const contractStatusTone: Record<ContractStatus, Tone> = {
 };
 
 export const eventClassTone: Record<EventClass, Tone> = {
+  ACCEPTANCE_REQUEST: "primary",
+  ACCEPTANCE_REQUEST_RETURNED: "neutral",
+  ACCEPTANCE_RETURN: "warning",
   EVIDENCE: "success",
   ADDITIONAL: "neutral",
   APPROVAL: "success",

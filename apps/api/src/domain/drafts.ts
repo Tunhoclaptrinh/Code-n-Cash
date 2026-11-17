@@ -41,6 +41,7 @@ import type {
 import { AUTHORITY, CONTRACT_TYPES, WORKFLOW_BY_TYPE } from "./vocabulary";
 import { draftProblems, validIsoDate } from "../common/field-validation";
 import { pinnedVersion, versionRuleSet } from "./rule-versions";
+import { defaultReviewDays } from "./review-window";
 
 const POLICIES = Object.keys(APPROVAL_ROLES_BY_POLICY) as ApprovalPolicy[];
 const BUYER_SIGNER_ROLES = [
@@ -219,6 +220,7 @@ const toDraft = (d: DraftRecord): ContractDraft => ({
   graceDays: d.graceDays,
   penaltyRatePct: d.penaltyRatePct,
   maxPenaltyPct: d.maxPenaltyPct,
+  acceptanceReviewDays: d.acceptanceReviewDays ?? null,
   signers: d.signers,
   file: d.file,
   appendixNames: d.appendixNames,
@@ -269,6 +271,7 @@ export function currentDraft(
     graceDays: 5,
     penaltyRatePct: "0.10",
     maxPenaltyPct: "8.00",
+    acceptanceReviewDays: defaultReviewDays(ctx.t),
     signers: [
       ...(owner ? [{ party: "BUYER" as const, userId: owner.userId }] : []),
       ...(representative
@@ -374,6 +377,11 @@ export function saveDraft(
   const rate = decimal(input.penaltyRatePct, 5);
   const cap = decimal(input.maxPenaltyPct, 100);
   const grace = Number(input.graceDays);
+  // BR-21: absent (an older client) keeps what the draft had; null turns the window off.
+  const reviewDays =
+    input.acceptanceReviewDays === undefined
+      ? (ctx.draft(expectedCode)?.acceptanceReviewDays ?? null)
+      : input.acceptanceReviewDays;
   if (!title) throw new BadRequestException("TITLE_REQUIRED");
   if (!CONTRACT_TYPES.includes(input.type))
     throw new BadRequestException("INVALID_TYPE");
@@ -438,6 +446,7 @@ export function saveDraft(
     grace_period_days: String(grace),
     penalty_rate_pct_per_day: rate,
     max_penalty_pct: cap,
+    acceptance_review_days: reviewDays === null ? "" : String(reviewDays),
     initial_contract_status: "DRAFT",
     data_is_synthetic: "TRUE",
   };
@@ -494,6 +503,7 @@ export function saveDraft(
     graceDays: grace,
     penaltyRatePct: rate,
     maxPenaltyPct: cap,
+    acceptanceReviewDays: reviewDays,
     signers: signers.map((s) => ({ party: s.party, userId: String(s.userId) })),
     file: {
       name: file.name.slice(0, 255),

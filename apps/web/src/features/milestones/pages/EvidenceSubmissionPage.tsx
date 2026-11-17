@@ -31,6 +31,7 @@ import { PageState } from "@/shared/ui/PageState";
 import { KeyFigures, SideCard, SideSection } from "@/shared/ui/SidePanel";
 import { ToneTag } from "@/shared/ui/ToneTag";
 import { PdfTile } from "../components/PdfTile";
+import { AcceptanceReviewCard } from "../components/AcceptanceReviewPanel";
 import { MilestoneJourney } from "../components/MilestoneJourney";
 import { InvoiceFormModal } from "../components/InvoiceFormModal";
 import styles from "./EvidenceSubmissionPage.module.css";
@@ -247,136 +248,149 @@ function Workspace({
         />
       }
     >
-      <SideCard>
-        <InvoiceFormModal
-          open={!!invoiceFile}
-          fileName={invoiceFile?.name ?? ""}
-          plannedMillion={milestone.plannedMillion}
-          sellerTaxCode={data.sellerTaxCode}
-          today={localToday()}
-          busy={busy}
-          onCancel={() => setInvoiceFile(null)}
-          onSubmit={(invoice) => {
-            if (invoiceFile) onAttach("INVOICE", invoiceFile, invoice);
-            setInvoiceFile(null);
-          }}
-        />
-        <SideSection title={t("submit.required.title")}>
-          {milestone.latePenalty && deadline ? (
-            <div className={styles.penaltyLine}>
-              {t("workLite.evidence.penalty", {
-                due: formatDate(milestone.dueDate),
-                deadline: formatDate(deadline),
-                rate: formatNumber(Number(milestone.penaltyRatePct), 2),
-                cap: formatNumber(Number(milestone.maxPenaltyPct), 2),
-              })}
-            </div>
-          ) : null}
-          {data.slots.map((slot) =>
-            slot.eventType === focusType ? (
-              <div
-                key={slot.eventType}
-                className={styles.slotFocus}
-                data-testid="evidence-slot-focus"
-                ref={(node) =>
-                  node?.scrollIntoView({ block: "center", behavior: "smooth" })
-                }
-              >
+      <Space direction="vertical" size={12} style={{ width: "100%" }}>
+        <SideCard>
+          <InvoiceFormModal
+            open={!!invoiceFile}
+            fileName={invoiceFile?.name ?? ""}
+            plannedMillion={milestone.plannedMillion}
+            sellerTaxCode={data.sellerTaxCode}
+            today={localToday()}
+            busy={busy}
+            onCancel={() => setInvoiceFile(null)}
+            onSubmit={(invoice) => {
+              if (invoiceFile) onAttach("INVOICE", invoiceFile, invoice);
+              setInvoiceFile(null);
+            }}
+          />
+          <SideSection title={t("submit.required.title")}>
+            {milestone.latePenalty && deadline ? (
+              <div className={styles.penaltyLine}>
+                {t("workLite.evidence.penalty", {
+                  due: formatDate(milestone.dueDate),
+                  deadline: formatDate(deadline),
+                  rate: formatNumber(Number(milestone.penaltyRatePct), 2),
+                  cap: formatNumber(Number(milestone.maxPenaltyPct), 2),
+                })}
+              </div>
+            ) : null}
+            {data.slots.map((slot) =>
+              slot.eventType === focusType ? (
+                <div
+                  key={slot.eventType}
+                  className={styles.slotFocus}
+                  data-testid="evidence-slot-focus"
+                  ref={(node) =>
+                    node?.scrollIntoView({
+                      block: "center",
+                      behavior: "smooth",
+                    })
+                  }
+                >
+                  <SlotCard
+                    slot={slot}
+                    onPick={onPick(slot.eventType)}
+                    onRemove={onRemove}
+                  />
+                </div>
+              ) : (
                 <SlotCard
+                  key={slot.eventType}
                   slot={slot}
                   onPick={onPick(slot.eventType)}
                   onRemove={onRemove}
                 />
-              </div>
+              ),
+            )}
+            {data.extras.map((file) => (
+              <ExtraFile key={file.id} file={file} onRemove={onRemove} />
+            ))}
+            {pending.length ? (
+              <label
+                className={`${styles.dropzone} ${dragging ? styles.dropzoneActive : ""}`}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={onDrop}
+              >
+                {t("submit.dropzone")}
+                <input
+                  type="file"
+                  multiple
+                  accept={EVIDENCE_ACCEPT}
+                  className={styles.fileInput}
+                  aria-label={t("submit.dropzoneAria")}
+                  onChange={onPick("OTHER")}
+                />
+              </label>
             ) : (
-              <SlotCard
-                key={slot.eventType}
-                slot={slot}
-                onPick={onPick(slot.eventType)}
-                onRemove={onRemove}
-              />
-            ),
-          )}
-          {data.extras.map((file) => (
-            <ExtraFile key={file.id} file={file} onRemove={onRemove} />
-          ))}
-          {pending.length ? (
-            <label
-              className={`${styles.dropzone} ${dragging ? styles.dropzoneActive : ""}`}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={onDrop}
-            >
-              {t("submit.dropzone")}
-              <input
-                type="file"
-                multiple
-                accept={EVIDENCE_ACCEPT}
-                className={styles.fileInput}
-                aria-label={t("submit.dropzoneAria")}
-                onChange={onPick("OTHER")}
-              />
-            </label>
-          ) : (
-            <Alert type="success" showIcon title={t("submit.nothingLeft")} />
-          )}
-        </SideSection>
-        {preview ? (
-          <SideSection
-            title={
-              <span className={styles.titleRow}>
-                {t("submit.preview.title")}
-                <DecisionTag decision={preview.decision} />
-              </span>
-            }
-          >
-            <KeyFigures
-              items={[
-                {
-                  key: "penalty",
-                  label: t("approve.proposal.penalty"),
-                  unit: t("common.millionUnit"),
-                  value: formatDecimalString(preview.penaltyMillion),
-                  tone: isZero(preview.penaltyMillion) ? undefined : "warning",
-                },
-                {
-                  key: "payable",
-                  label: t("approve.proposal.payable"),
-                  unit: t("common.millionUnit"),
-                  value: formatDecimalString(preview.payableMillion),
-                  tone: isZero(preview.payableMillion) ? undefined : "success",
-                },
-              ]}
-            />
-            <p className={styles.explain}>
-              {td(`reason.${preview.reasonCode}`)}
-              {preview.daysLate > 0
-                ? ` · ${td("overdue", { count: preview.daysLate })}`
-                : ""}
-            </p>
+              <Alert type="success" showIcon title={t("submit.nothingLeft")} />
+            )}
           </SideSection>
-        ) : null}
-        <SideSection>
-          <p className={styles.lockNote}>{t("workLite.evidence.lockNote")}</p>
-          <div className={styles.actions}>
-            <Button onClick={() => navigate("/tasks")}>
-              {t("submit.later")}
-            </Button>
-            <Button
-              type="primary"
-              disabled={busy || !data.canSubmit}
-              loading={submitting}
-              onClick={onSubmit}
-              data-testid="submit-evidence"
+          {preview ? (
+            <SideSection
+              title={
+                <span className={styles.titleRow}>
+                  {t("submit.preview.title")}
+                  <DecisionTag decision={preview.decision} />
+                </span>
+              }
             >
-              {t("submit.submit", { count: pending.length })}
-            </Button>
-          </div>
-        </SideSection>
-      </SideCard>
+              <KeyFigures
+                items={[
+                  {
+                    key: "penalty",
+                    label: t("approve.proposal.penalty"),
+                    unit: t("common.millionUnit"),
+                    value: formatDecimalString(preview.penaltyMillion),
+                    tone: isZero(preview.penaltyMillion)
+                      ? undefined
+                      : "warning",
+                  },
+                  {
+                    key: "payable",
+                    label: t("approve.proposal.payable"),
+                    unit: t("common.millionUnit"),
+                    value: formatDecimalString(preview.payableMillion),
+                    tone: isZero(preview.payableMillion)
+                      ? undefined
+                      : "success",
+                  },
+                ]}
+              />
+              <p className={styles.explain}>
+                {td(`reason.${preview.reasonCode}`)}
+                {preview.daysLate > 0
+                  ? ` · ${td("overdue", { count: preview.daysLate })}`
+                  : ""}
+              </p>
+            </SideSection>
+          ) : null}
+          <SideSection>
+            <p className={styles.lockNote}>{t("workLite.evidence.lockNote")}</p>
+            <div className={styles.actions}>
+              <Button onClick={() => navigate("/tasks")}>
+                {t("submit.later")}
+              </Button>
+              <Button
+                type="primary"
+                disabled={busy || !data.canSubmit}
+                loading={submitting}
+                onClick={onSubmit}
+                data-testid="submit-evidence"
+              >
+                {t("submit.submit", { count: pending.length })}
+              </Button>
+            </div>
+          </SideSection>
+        </SideCard>
+        <AcceptanceReviewCard
+          contractId={contract.id}
+          sequence={milestone.sequence}
+        />
+      </Space>
     </ContractSideLayout>
   );
 }

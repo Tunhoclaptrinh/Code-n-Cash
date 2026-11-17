@@ -64,14 +64,17 @@
     "REJECTION": "Rejection",
     "DISPUTE_OPENED": "Dispute opened",
     "DISPUTE_RESOLVED": "Dispute resolved",
-    "OTHER": "Supporting file"
+    "OTHER": "Supporting file",
+    "ACCEPTANCE_REQUESTED": "Acceptance requested",
+    "ACCEPTANCE_RETURNED": "Acceptance request returned"
   },
   "eventStatus": {
     "CONFIRMED": "Confirmed",
     "APPROVED": "Approved",
     "REJECTED": "Rejected",
     "OPEN": "Open",
-    "RESOLVED": "Resolved"
+    "RESOLVED": "Resolved",
+    "RETURNED": "Returned"
   },
   "decision": {
     "RELEASE": "Pay in full",
@@ -154,7 +157,10 @@
     "UNAUTHORIZED": "Unauthorised",
     "WRONG_STATUS": "Wrong status",
     "UNRELATED": "Unrelated",
-    "VOIDED": "Voided"
+    "VOIDED": "Voided",
+    "ACCEPTANCE_REQUEST": "Acceptance request in force",
+    "ACCEPTANCE_REQUEST_RETURNED": "Request returned",
+    "ACCEPTANCE_RETURN": "Buyer returned the request"
   },
   "trigger": {
     "IMPORT": "Initial data",
@@ -384,7 +390,16 @@
     "LIQUIDATION_NOT_FOUND": "No liquidation record is waiting.",
     "CANNOT_DECIDE_LIQUIDATION": "Only the contract's supplier confirms the liquidation.",
     "LIQUIDATION_STALE": "The figures changed since the record was made; the buyer must make it again.",
-    "INVOICE_SELLER_MISMATCH": "The seller tax code differs from the supplier's tax code on record."
+    "INVOICE_SELLER_MISMATCH": "The seller tax code differs from the supplier's tax code on record.",
+    "CANNOT_REQUEST_ACCEPTANCE": "Only the contract's supplier can request acceptance.",
+    "REVIEW_WINDOW_NOT_SET": "This contract sets no acceptance period.",
+    "NOTHING_TO_ACCEPT": "This milestone has no document the buyer must accept.",
+    "ALREADY_ACCEPTED": "The buyer has already accepted this milestone.",
+    "ACCEPTANCE_ALREADY_REQUESTED": "An acceptance request is already in force.",
+    "CANNOT_RETURN_ACCEPTANCE": "Only the buyer's contract officer can return an acceptance request.",
+    "NO_ACCEPTANCE_REQUEST": "There is no acceptance request to return.",
+    "REVIEW_WINDOW_CLOSED": "The acceptance period is over; the request can no longer be returned.",
+    "INVALID_REVIEW_DAYS": "The acceptance period is a whole number of days from 1 to 60."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

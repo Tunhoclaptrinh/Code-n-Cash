@@ -201,12 +201,22 @@
         "policy": "Chọn chính sách phê duyệt",
         "grace": "0–60",
         "rate": "0.00–5.00",
-        "cap": "0.00–8.00"
+        "cap": "0.00–8.00",
+        "acceptanceDays": "1–60"
       },
       "workflow": {
         "label": "Quy trình mốc",
         "standard": "Chuẩn: {{name}}",
         "stages": "Các mốc: {{stages}}"
+      },
+      "acceptance": {
+        "label": "Thời hạn nghiệm thu",
+        "hint": "Số ngày bên mua có để nghiệm thu hoặc trả lại đề nghị kèm lý do, kể từ khi nhà cung cấp đề nghị. Quá hạn, chứng từ bên mua lập sau được tính tại ngày hết hạn nên nhà cung cấp không bị phạt vì bên mua chậm.",
+        "on": "Bên mua nghiệm thu trong {{days}} ngày kể từ khi nhà cung cấp đề nghị.",
+        "off": "Không áp dụng: ngày bên mua lập chứng từ là ngày hoàn thành, kể cả khi lập muộn.",
+        "toggle": "Áp dụng thời hạn nghiệm thu",
+        "days": "Số ngày nghiệm thu",
+        "unit": "ngày"
       }
     },
     "preview": {

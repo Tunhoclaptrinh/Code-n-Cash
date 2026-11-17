@@ -165,6 +165,25 @@ export const castVote = (
     [input],
   );
 
+/* ------------------------------ acceptance ------------------------------ */
+
+/** BR-21: the supplier asks the buyer to accept; the contract's review window starts. */
+export const requestAcceptance = (input: MilestoneRef & { note?: string }) =>
+  workflowCall<WithEvaluation<{ eventIds: string[] }>>(
+    "acceptance",
+    "requestAcceptance",
+    [input],
+  );
+/** BR-21: the buyer's contract officer returns the request with a reason, inside the window. */
+export const returnAcceptanceRequest = (
+  input: MilestoneRef & { note: string },
+) =>
+  workflowCall<WithEvaluation<{ eventIds: string[] }>>(
+    "acceptance",
+    "returnAcceptanceRequest",
+    [input],
+  );
+
 /* ------------------------------- disputes ------------------------------- */
 
 /* ------------------------------ liquidation ------------------------------ */

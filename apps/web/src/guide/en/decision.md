@@ -23,6 +23,16 @@ Read planned amount, due date, grace, completion date, late days, daily rate and
 
 Completion comes from valid required evidence, not simply the latest event or the approval date.
 
+## Acceptance period
+
+Contracts drafted in the app set an **acceptance period** (5 days by default, chosen when drafting). On a milestone that needs a document the buyer issues, such as the acceptance record, the **Acceptance within N days** section of the decision screen shows the flow:
+
+1. The **supplier** submits its own documents, then clicks **Request acceptance**.
+2. The buyer's **contract officer** has N days to issue the record, or clicks **Return the request** with a reason; the supplier fixes the work and asks again.
+3. A record issued after the period counts at the **acceptance deadline**, so the supplier is not penalised for the buyer's delay. Payment still needs the record and the approvals.
+
+Data Pack contracts set no acceptance period, so the record's own date always counts.
+
 ## Rules, evidence and replay
 
 ![Ordered rule evaluation](../../../public/guide/images/decision-rules.webp)

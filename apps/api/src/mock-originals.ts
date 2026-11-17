@@ -90,6 +90,7 @@ export function mockInput(ctx: Ctx, code: string) {
     startDate: contract.start_date,
     endDate: contract.end_date,
     graceDays: contract.grace_period_days,
+    acceptanceReviewDays: contract.acceptance_review_days || null,
     penaltyRatePct: contract.penalty_rate_pct_per_day,
     maxPenaltyPct: contract.max_penalty_pct,
     parties: {

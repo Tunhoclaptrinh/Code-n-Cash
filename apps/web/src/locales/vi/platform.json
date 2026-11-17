@@ -286,6 +286,8 @@
       "signing:verify": "Kiểm tra chữ ký",
       "tasks:read": "Xem việc cần làm",
       "evidence:submit": "Nộp chứng từ",
+      "acceptance:request": "Đề nghị nghiệm thu",
+      "acceptance:return": "Trả lại đề nghị nghiệm thu",
       "approvals:read": "Xem phê duyệt chi",
       "approvals:vote": "Phê duyệt hoặc từ chối chi",
       "approvals:mark-viewed": "Ghi nhận đã đọc chứng từ",
@@ -456,6 +458,10 @@
     "EVALUATION_MODE": {
       "label": "Chế độ đánh giá",
       "hint": "cách engine đọc lịch sử sự kiện"
+    },
+    "ACCEPTANCE_REVIEW_DAYS": {
+      "label": "Thời hạn nghiệm thu mặc định (ngày)",
+      "hint": "số ngày bên mua có để nghiệm thu sau khi nhà cung cấp đề nghị; áp cho hợp đồng mới, 1–60"
     }
   },
   "auditResources": {

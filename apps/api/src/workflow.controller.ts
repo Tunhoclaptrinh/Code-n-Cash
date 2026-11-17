@@ -375,6 +375,19 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
       (ctx, [value]) => actions.withdrawAmendment(ctx, input(value)),
     ),
   },
+  acceptance: {
+    // BR-21: the supplier asks for acceptance; the buyer's officer may return the request with a reason.
+    requestAcceptance: write(
+      "acceptance:request",
+      "requestAcceptance",
+      (ctx, [value]) => actions.requestAcceptance(ctx, input(value)),
+    ),
+    returnAcceptanceRequest: write(
+      "acceptance:return",
+      "returnAcceptanceRequest",
+      (ctx, [value]) => actions.returnAcceptanceRequest(ctx, input(value)),
+    ),
+  },
   disputes: {
     getDispute: read("disputes:read", (ctx, [id, sequence], dryRun) =>
       views.disputeView(
@@ -460,8 +473,16 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     ),
   },
   drafts: {
-    getContractDraft: read("contracts:draft-read", (ctx, [code, fresh]) =>
-      drafts.currentDraft(ctx, opt(code) as string | undefined, fresh === true),
+    // The settings table gives a new draft its acceptance review window (BR-21).
+    getContractDraft: read(
+      "contracts:draft-read",
+      (ctx, [code, fresh]) =>
+        drafts.currentDraft(
+          ctx,
+          opt(code) as string | undefined,
+          fresh === true,
+        ),
+      ["settings"],
     ),
     getUploadFormOptions: read("contracts:draft-read", (ctx) =>
       drafts.uploadFormOptions(ctx),

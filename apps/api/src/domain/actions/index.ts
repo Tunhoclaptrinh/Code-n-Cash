@@ -1,3 +1,4 @@
+export { requestAcceptance, returnAcceptanceRequest } from "./acceptance";
 export { approvalEvent, castVote } from "./approvals";
 export {
   decideLiquidation,

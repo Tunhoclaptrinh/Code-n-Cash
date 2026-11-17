@@ -233,6 +233,11 @@ export class SampleDocumentsController {
         startDate: shown("startDate"),
         endDate: shown("endDate"),
         graceDays: shown("graceDays"),
+        // BR-21: a valid window becomes a sentence of the penalty article; none, no sentence.
+        acceptanceReviewDays:
+          problems.acceptanceReviewDays || !draft.acceptanceReviewDays
+            ? null
+            : draft.acceptanceReviewDays,
         penaltyRatePct: shown("penaltyRatePct"),
         maxPenaltyPct: shown("maxPenaltyPct"),
         approvalPolicy: draft.approvalPolicy,

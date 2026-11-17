@@ -13,8 +13,16 @@ import styles from "./MilestoneDecision.module.css";
 const trimZeros = (value: string) => value.replace(/(\.\d{2}\d*?)0+$/, "$1");
 
 /** Deadline, completion and lateness behind the amounts; the calculation is folded away. */
-export function AmountsPanel({ money }: { money: MilestoneDetail["money"] }) {
+export function AmountsPanel({
+  money,
+  review = null,
+}: {
+  money: MilestoneDetail["money"];
+  /** BR-21: when a buyer document came after the review window, say it counts at the deadline. */
+  review?: MilestoneDetail["acceptanceReview"];
+}) {
   const { t } = useTranslation("milestones");
+  const deemed = review?.documents.find((d) => d.deemed);
   return (
     <SideSection title={t("decisionLite.amounts.title")}>
       <InfoGrid
@@ -34,7 +42,12 @@ export function AmountsPanel({ money }: { money: MilestoneDetail["money"] }) {
             key: "completed",
             label: t("decision.amounts.completed"),
             value: money.completedAt
-              ? formatDateTime(money.completedAt)
+              ? deemed?.issuedAt
+                ? t("decision.amounts.completedDeemed", {
+                    completed: formatDateTime(money.completedAt),
+                    issued: formatDateTime(deemed.issuedAt),
+                  })
+                : formatDateTime(money.completedAt)
               : t("decision.amounts.notCompleted"),
           },
           {

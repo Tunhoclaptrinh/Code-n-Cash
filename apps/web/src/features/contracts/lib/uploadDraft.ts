@@ -36,6 +36,7 @@ export const contentKey = (draft: DraftInput) =>
     draft.graceDays,
     draft.penaltyRatePct,
     draft.maxPenaltyPct,
+    draft.acceptanceReviewDays,
     draft.signers,
     draft.documentBody,
   ]);

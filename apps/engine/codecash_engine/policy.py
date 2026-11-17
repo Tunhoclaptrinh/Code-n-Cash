@@ -6,11 +6,12 @@ Output: a validated, compiled ``Policy``. Every predicate is compiled once; ``va
 switches (readings of the brief, run profiles) as overlays and returns another compiled policy.
 Business rules: section 2.1 (authority per event type), BR-03 (dedupe identity), BR-05 (valid status),
 BR-08 (when a dispute is closed), BR-10 (what an approval counts), BR-11 (what completes a milestone),
-BR-15 (anomalies), BR-19 (what an exception may void), section 6 (decisions, reasons, statuses, rule scope),
-section 8 (confidence) and the payment safety guards.
+BR-15 (anomalies), BR-19 (what an exception may void), BR-21 (the acceptance review window), section 6
+(decisions, reasons, statuses, rule scope), section 8 (confidence) and the payment safety guards.
 
 The engine keeps only the mechanics: the five event categories (EVIDENCE, APPROVAL, REJECTION,
-DISPUTE_OPEN, DISPUTE_RESOLVE), first-match rule selection and exact Decimal money. Which event types
+DISPUTE_OPEN, DISPUTE_RESOLVE), the two optional review categories (REVIEW_REQUEST, REVIEW_RETURN, used only
+when the policy declares ``review_window``), first-match rule selection and exact Decimal money. Which event types
 exist, who may create them, which statuses are valid, how disputes close, how approvals count, which
 reason maps to which status and which payments are safe are all read from the policy.
 """
@@ -28,6 +29,12 @@ DEFAULT_POLICY = ENGINE_DIR / "policy" / "case4_btc.json"
 CATALOG = ENGINE_DIR / "rule_language.json"
 FORMAT = "CODECASH_POLICY_V1"
 CATEGORIES = ("EVIDENCE", "APPROVAL", "REJECTION", "DISPUTE_OPEN", "DISPUTE_RESOLVE")
+# BR-21: optional categories of the acceptance review window; a policy without ``review_window`` needs none.
+REVIEW_CATEGORIES = ("REVIEW_REQUEST", "REVIEW_RETURN")
+# Categories whose events belong to one side of the contract (``side`` is required for them).
+SIDED_CATEGORIES = ("EVIDENCE",) + REVIEW_CATEGORIES
+# Longest review window a contract may set, in days.
+MAX_REVIEW_DAYS = 60
 ROUNDINGS = {"ROUND_HALF_UP": ROUND_HALF_UP, "ROUND_HALF_EVEN": ROUND_HALF_EVEN}
 # Facts the engine stages compute; a catalog variable bound to a fact must name one of these.
 ENGINE_FACTS = ("open_dispute", "valid_rejection_event_count", "unauthorized_required_event_count",
@@ -181,25 +188,36 @@ class Policy:
                 problems.append(f"categories.{name}: thiếu")
                 continue
             category_authority[name] = record(f"categories.{name}.authority", entry.get("authority"), event_spaces)
+        for name in REVIEW_CATEGORIES:
+            entry = categories.get(name)
+            if entry is not None:
+                if not isinstance(entry, dict):
+                    problems.append(f"categories.{name}: sai kiểu")
+                    continue
+                category_authority[name] = record(f"categories.{name}.authority", entry.get("authority"),
+                                                  event_spaces)
         for name in categories:
-            if name not in CATEGORIES:
+            if name not in CATEGORIES + REVIEW_CATEGORIES:
                 problems.append(f"categories.{name}: loại không được engine hỗ trợ")
         self.kinds = {}
         for name, entry in need("event_types").items():
-            if not isinstance(entry, dict) or entry.get("category") not in CATEGORIES:
-                problems.append(f"event_types.{name}.category: cần một trong {', '.join(CATEGORIES)}")
+            if not isinstance(entry, dict) or entry.get("category") not in CATEGORIES + REVIEW_CATEGORIES:
+                problems.append(f"event_types.{name}.category: cần một trong {', '.join(CATEGORIES + REVIEW_CATEGORIES)}")
                 continue
+            if entry["category"] in REVIEW_CATEGORIES and entry["category"] not in category_authority:
+                problems.append(f"event_types.{name}.category: {entry['category']} chưa khai báo trong categories")
             side = entry.get("side")
-            if entry["category"] == "EVIDENCE" and side not in self.sides:
+            if entry["category"] in SIDED_CATEGORIES and side not in self.sides:
                 problems.append(f"event_types.{name}.side: cần một bên trong sides")
-            if side is not None and entry["category"] != "EVIDENCE":
-                problems.append(f"event_types.{name}.side: chỉ dùng cho EVIDENCE")
+            if side is not None and entry["category"] not in SIDED_CATEGORIES:
+                problems.append(f"event_types.{name}.side: chỉ dùng cho {', '.join(SIDED_CATEGORIES)}")
             if not isinstance(entry.get("valid_status"), str) or not entry["valid_status"]:
                 problems.append(f"event_types.{name}.valid_status: thiếu")
             authority = (record(f"event_types.{name}.authority", entry["authority"], event_spaces)
                          if "authority" in entry else category_authority.get(entry["category"], lambda scope: False))
             self.kinds[name] = Kind(name, entry["category"], side, entry.get("valid_status", ""), authority)
         self.evidence_types = tuple(n for n, k in self.kinds.items() if k.category == "EVIDENCE")
+        self.review_window = self._review_window(d.get("review_window"), problems)
 
         dedupe = need("dedupe")
         self.dedupe_fields = tuple(dedupe.get("fields", ()))
@@ -448,6 +466,34 @@ class Policy:
             root._variants[names] = cached
         return cached
 
+    def _review_window(self, section, problems):
+        """BR-21: the acceptance review window, or None when the policy does not declare one.
+
+        ``field`` names the contract cell with the window in whole days (an app column, not a Data Pack
+        one: a contract without it, as every Data Pack contract, has no window). ``reviewed_side`` is the
+        side whose required documents the window caps; requests come from the other side.
+        """
+        if section is None:
+            return None
+        if not isinstance(section, dict):
+            problems.append("review_window: sai kiểu")
+            return None
+        field, reviewed = section.get("field"), section.get("reviewed_side")
+        if not isinstance(field, str) or not field:
+            problems.append("review_window.field: cần tên cột của hợp đồng")
+        if reviewed not in self.sides:
+            problems.append("review_window.reviewed_side: cần một bên trong sides")
+        for category in REVIEW_CATEGORIES:
+            if not any(k.category == category for k in self.kinds.values()):
+                problems.append(f"review_window: cần một event_type loại {category}")
+        requesters = {k.side for k in self.kinds.values() if k.category == "REVIEW_REQUEST"}
+        returners = {k.side for k in self.kinds.values() if k.category == "REVIEW_RETURN"}
+        if reviewed in requesters:
+            problems.append("review_window: bên đề nghị phải khác bên được đề nghị")
+        if returners and returners != {reviewed}:
+            problems.append("review_window: chỉ bên được đề nghị mới trả lại đề nghị")
+        return {"field": field, "reviewed_side": reviewed, "max_days": MAX_REVIEW_DAYS}
+
     def describe(self):
         """The vocabulary other components read: event types, sides, statuses, reasons and decisions."""
         return {"policyId": self.id, "version": self.version, "hash": self.hash,
@@ -456,6 +502,7 @@ class Policy:
                 "reasons": {n: r["status"] for n, r in self.reasons.items()},
                 "decisions": {n: {"pays": d["pays"]} for n, d in self.decisions.items()},
                 "profiles": {n: list(s) for n, s in self.profiles.items()},
+                "reviewWindow": dict(self.review_window) if self.review_window else None,
                 "readings": {c: {"weight": str(r.weight), "switch": r.switch} for c, r in self.readings.items()}}
 
 

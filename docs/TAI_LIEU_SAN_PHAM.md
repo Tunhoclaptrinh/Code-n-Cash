@@ -110,7 +110,7 @@ Phần bên ngoài:
 
 ## 6. KPI và kết quả
 
-Đo trên Data Pack chính thức, policy `CASE4_BTC` 2.1.0. Tái lập bằng `python apps/engine/cli.py --output out` → `out/metrics.json`.
+Đo trên Data Pack chính thức, policy `CASE4_BTC` 2.2.0. Tái lập bằng `python apps/engine/cli.py --output out` → `out/metrics.json`.
 
 | KPI | Cách tính | Tập đo | CodeCash | Baseline "luôn chi đủ" |
 | --- | --- | --- | --- | --- |

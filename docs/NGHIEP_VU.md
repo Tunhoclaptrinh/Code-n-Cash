@@ -35,11 +35,13 @@ Hai lớp quyền tách biệt: **thẩm quyền nghiệp vụ** (bên nào đư
 | `APPROVAL`                                                                                       | Người phê duyệt của bên mua                                                                                                                                                                                 | `parent_party_id` là bên mua, `can_approve_payment = TRUE`, vai trò thuộc `required_approval_roles`, trạng thái `APPROVED`                               |
 | `REJECTION`                                                                                      | Người phê duyệt của bên mua                                                                                                                                                                                 | Có `REJECTION` trong `allowed_event_types`, trạng thái `REJECTED`; không giới hạn theo vai trò bắt buộc                                                  |
 | `DISPUTE_OPENED`                                                                                 | Engine: mọi bản ghi của mốc. Ứng dụng: bên mua hoặc nhà cung cấp (`disputes:open`)                                                                                                                          | Engine không xét người mở hay `can_raise_dispute` (mở dễ): mở tranh chấp chỉ dẫn tới HOLD nên đây là phía an toàn. Ai được mở trong ứng dụng do API kiểm |
+| `ACCEPTANCE_REQUESTED`                                                                           | Nhà cung cấp của hợp đồng (BR-21)                                                                                                                                                                           | Đúng `supplier_id`, đang `ACTIVE`, trạng thái `CONFIRMED`; chỉ có tác dụng ở hợp đồng đặt thời hạn nghiệm thu                                           |
+| `ACCEPTANCE_RETURNED`                                                                            | Bên mua của hợp đồng (BR-21)                                                                                                                                                                                | Đúng `buyer_id`, đang `ACTIVE`, trạng thái `RETURNED`, trong thời hạn nghiệm thu                                                                         |
 | `DISPUTE_RESOLVED`                                                                               | Bài nộp BTC: không kiểm người đóng (cách hiểu A06, mục 12). Workflow: bên mua hoặc người phê duyệt của bên mua có quyền `DISPUTE`; trong ứng dụng là chủ hợp đồng hoặc cán bộ hợp đồng (`disputes:resolve`) | Trạng thái `RESOLVED`, tham chiếu đúng `DISPUTE_OPENED` cùng mốc, cùng hợp đồng, không trước lúc mở (đóng khó)                                           |
 
 Loại bên và vai trò luôn tra trong `parties.csv`, không tin cột `actor_party_type` ghi trên event. Cột `allowed_event_types` không dùng nguyên văn cho required event: cách đó làm sai 5 trong 20 mẫu công khai (mục 10).
 
-Bảng này là nội dung của policy pack (`apps/engine/policy/case4_btc.json`, mục 6.2): mỗi loại event thuộc một nhóm (`EVIDENCE`, `APPROVAL`, `REJECTION`, `DISPUTE_OPEN`, `DISPUTE_RESOLVE`), chứng từ ghi rõ bên tạo (`BUYER`, `SUPPLIER`) và trạng thái hợp lệ; điều kiện thẩm quyền của từng nhóm là một biểu thức đọc `parties.csv` và `contracts.csv`. API đọc cùng tệp này để người dùng chỉ ghi được event của bên mình.
+Bảng này là nội dung của policy pack (`apps/engine/policy/case4_btc.json`, mục 6.2): mỗi loại event thuộc một nhóm (`EVIDENCE`, `APPROVAL`, `REJECTION`, `DISPUTE_OPEN`, `DISPUTE_RESOLVE`, và hai nhóm của BR-21 là `REVIEW_REQUEST`, `REVIEW_RETURN`), chứng từ ghi rõ bên tạo (`BUYER`, `SUPPLIER`) và trạng thái hợp lệ; điều kiện thẩm quyền của từng nhóm là một biểu thức đọc `parties.csv` và `contracts.csv`. API đọc cùng tệp này để người dùng chỉ ghi được event của bên mình.
 
 ### 2.2. Vai trò người dùng hệ thống
 
@@ -112,7 +114,7 @@ Engine là package `apps/engine/codecash_engine`, mỗi bước một module có
 | 2   | `events`                           | Cắt theo thời điểm (chế độ as-of); khử trùng lặp; áp quyết định ngoại lệ đã duyệt; đánh dấu bất thường                              | BR-03, BR-16, BR-19    |
 | 3   | `requirements`                     | Phân loại required event: hợp lệ, sai thẩm quyền, sai trạng thái, không liên quan; tính loại còn thiếu và tỷ lệ hoàn thành          | BR-04 đến BR-07, BR-20 |
 | 4   | `controls`                         | Tranh chấp đang mở, từ chối hợp lệ, số vai trò đã phê duyệt                                                                         | BR-08 đến BR-10        |
-| 5   | `schedule`, `bindings`, `sequence` | Ngày hoàn thành thực tế, số ngày trễ sau ân hạn; đọc tham số mốc và hợp đồng theo khai báo của từng biến; cảnh báo trình tự event   | BR-11, BR-12           |
+| 5   | `schedule`, `bindings`, `sequence` | Ngày hoàn thành thực tế, thời hạn nghiệm thu, số ngày trễ sau ân hạn; đọc tham số mốc và hợp đồng theo khai báo của từng biến; cảnh báo trình tự event | BR-11, BR-12, BR-21 |
 | 6   | `rules`                            | Dựng biến luật, chọn luật đầu tiên khớp theo ưu tiên, nhánh ELSE, chốt an toàn thanh toán                                           | BR-02, BR-14           |
 | 7   | `amounts`                          | Tiền phạt, số được thanh toán theo công thức của luật thắng, chốt an toàn số tiền                                                   | BR-12, BR-13           |
 | 8   | `confidence`                       | Điểm tin cậy và các yếu tố hạ điểm                                                                                                  | Mục 8                  |
@@ -126,6 +128,12 @@ Chi tiết các bước:
 - **Phê duyệt (BR-10).** Đếm số **vai trò** bắt buộc đã có phê duyệt hợp lệ; một người duyệt nhiều lần chỉ tính một lần. Người duyệt có `approval_limit_vnd_mn` nhỏ hơn giá trị mốc thì phê duyệt không được tính (Data Pack không có trường hợp này, hợp đồng tạo trong ứng dụng có thể có).
 - **Cảnh báo trình tự.** Phê duyệt trước chứng từ cuối cùng, chứng từ trước ngày ký hợp đồng, chứng từ cùng loại cùng người gửi lại với mã khác trong 24 giờ (nghi trùng), tranh chấp do chính nhà cung cấp đóng, phê duyệt vượt hạn mức. Cảnh báo không đổi quyết định, chỉ hạ confidence và hiện trong trace để người duyệt xem trước khi chi. Trên Data Pack không có cảnh báo nào.
 - **Ngày hoàn thành (BR-11).** Thời điểm muộn nhất trong các required event hợp lệ (bản sớm nhất của mỗi loại). APPROVAL, DISPUTE_RESOLVED và event quản trị không đẩy ngày hoàn thành. Chưa đủ chứng từ thì chưa có ngày hoàn thành.
+- **Thời hạn nghiệm thu (BR-21).** Chỉ áp cho hợp đồng có ô `acceptance_review_days` (hợp đồng soạn trong ứng dụng). Hợp đồng Data Pack không có ô này nên BR-11 giữ nguyên và kết quả 405 mốc không đổi. Lý do: ở mốc mà chứng từ bắt buộc do bên mua lập (ví dụ `ACCEPTANCE`), bên mua nắm ngày hoàn thành; không có thời hạn, bên mua nghiệm thu muộn thì nhà cung cấp bị phạt. Cách tính:
+  - Nhà cung cấp ghi `ACCEPTANCE_REQUESTED`. Thời hạn N ngày bắt đầu từ lúc đề nghị, hoặc từ lúc nhà cung cấp nộp đủ chứng từ của mình nếu muộn hơn.
+  - Bên mua trả lại đề nghị kèm lý do (`ACCEPTANCE_RETURNED`) trong thời hạn thì đề nghị hết hiệu lực; nhà cung cấp sửa và đề nghị lại. Trả lại sau hạn không có tác dụng. Đề nghị lặp lại khi đang có đề nghị hiệu lực không đổi gì. Các event được xét theo thứ tự, nên đề nghị lại ngay sau khi bị trả lại (cùng giây) vẫn mở thời hạn mới.
+  - Chứng từ phía bên mua lập sau hạn được tính tại thời điểm hết hạn khi xác định ngày hoàn thành và số ngày trễ. Chứng từ đó vẫn bắt buộc để được chi: thời hạn chỉ dời ngày hoàn thành, không thay điều kiện thanh toán.
+  - Ô không đọc được (không phải số nguyên 1–60) là lỗi cấu trúc, mốc về ELSE.
+  - Trong ứng dụng: nhà cung cấp của hợp đồng đề nghị (`acceptance:request`), cán bộ hợp đồng bên mua trả lại (`acceptance:return`). N đặt trong bản nháp hợp đồng, mặc định lấy từ cài đặt `ACCEPTANCE_REVIEW_DAYS` (5 ngày, quản trị hệ thống sửa), được viết thành một câu trong điều khoản phạt chậm của văn bản hợp đồng và khoá khi ký. Màn quyết định của mốc có mục "Nghiệm thu trong N ngày" cho biết đề nghị, hạn chót, số ngày còn lại và ngày chứng từ được tính.
 - **Số ngày trễ.** `days_late_after_grace = max(0, ngày hoàn thành − (due_date + grace_period_days))`, tính theo ngày lịch.
 - **Cổng chất lượng (BR-15).** Lỗi cấu trúc đưa mốc về luật ELSE. Bất thường (người tạo không tồn tại, loại event lạ, từ chối không hợp lệ) chỉ hạ lệnh trả tiền xuống ELSE, không đổi các quyết định chặn.
 - **Lỗi khi tính luật.** Luật không tính được cho một mốc (ví dụ công thức chia cho tham số bằng 0) giữ riêng mốc đó qua ELSE với issue `RULE_EVALUATION_ERROR` kèm mã luật, không làm hỏng cả lượt chạy; màn xem trước phiên bản luật vẫn từ chối bộ luật như vậy (`RULE_EVALUATION_FAILED`).
@@ -175,7 +183,7 @@ Luật của BTC là căn cứ cho 405 mốc, nên phần luật và mẫu mốc
 
 ### 6.2. Policy pack
 
-`apps/engine/policy/case4_btc.json` (định dạng `CODECASH_POLICY_V1`, `CASE4_BTC` phiên bản 2.1.0) chứa toàn bộ chính sách nghiệp vụ mà trước đây nằm trong code. Engine kiểm và biên dịch tệp khi nạp; tệp sai (nhóm event lạ, bên không có, biểu thức đọc cột không tồn tại, trạng thái không có trong danh mục, định nghĩa vòng tròn) bị từ chối với danh sách lỗi, không chạy một phần.
+`apps/engine/policy/case4_btc.json` (định dạng `CODECASH_POLICY_V1`, `CASE4_BTC` phiên bản 2.2.0) chứa toàn bộ chính sách nghiệp vụ mà trước đây nằm trong code. Engine kiểm và biên dịch tệp khi nạp; tệp sai (nhóm event lạ, bên không có, biểu thức đọc cột không tồn tại, trạng thái không có trong danh mục, định nghĩa vòng tròn) bị từ chối với danh sách lỗi, không chạy một phần.
 
 | Phần                                                         | Nội dung                                                                                                                           | Quy tắc               |
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
@@ -185,6 +193,7 @@ Luật của BTC là căn cứ cho 405 mốc, nên phần luật và mẫu mốc
 | `approvals`                                                  | Phê duyệt nào được tính, một lần mỗi người duyệt, đếm theo vai trò                                                                 | BR-10                 |
 | `disputes`                                                   | Phạm vi (mốc hoặc hợp đồng) và điều kiện để `DISPUTE_RESOLVED` đóng tranh chấp                                                     | BR-08                 |
 | `completion`                                                 | Nhóm event tính vào ngày hoàn thành                                                                                                | BR-11                 |
+| `review_window`                                              | Ô hợp đồng chứa số ngày nghiệm thu và bên có chứng từ bị giới hạn bởi thời hạn                                                     | BR-21                 |
 | `anomalies`, `exceptions`                                    | Bất thường hạ lệnh trả tiền; event nào quyết định ngoại lệ được vô hiệu                                                            | BR-15, BR-19          |
 | `derived_facts`                                              | `all_required_conditions_met` viết bằng biểu thức trên các biến luật                                                               | Mục 6                 |
 | `decisions`, `reasons`, `statuses`, `fallback`, `rule_scope` | Quyết định nào trả tiền và hợp đồng số tiền của nó, trạng thái theo lý do, nhánh mặc định, điều kiện của một phạm vi luật          | Mục 4, 6, 9           |
@@ -575,6 +584,9 @@ Kết quả bước lọc bằng chứng (mục 5) cho từng sự kiện của 
 | Mã                     | Tiếng Việt trên UI        | Tiếng Anh trên UI           |
 | ---------------------- | ------------------------- | --------------------------- |
 | `EVIDENCE`             | Bằng chứng hợp lệ         | Valid evidence              |
+| `ACCEPTANCE_REQUEST`   | Đề nghị nghiệm thu đang hiệu lực | Acceptance request in force |
+| `ACCEPTANCE_REQUEST_RETURNED` | Đề nghị đã bị trả lại | Request returned |
+| `ACCEPTANCE_RETURN`    | Bên mua trả lại đề nghị   | Buyer returned the request  |
 | `ADDITIONAL`           | Hợp lệ, đã có bản sớm hơn | Valid, earlier copy counted |
 | `APPROVAL`             | Phê duyệt được tính       | Approval counted            |
 | `APPROVAL_NOT_COUNTED` | Phê duyệt không được tính | Approval not counted        |
@@ -597,6 +609,7 @@ Kết quả bước lọc bằng chứng (mục 5) cho từng sự kiện của 
 | `REJECTED`  | Từ chối            | Rejected          |
 | `OPEN`      | Đang mở            | Open              |
 | `RESOLVED`  | Đã đóng            | Resolved          |
+| `RETURNED`  | Đã trả lại         | Returned          |
 
 ### 14.7. Nguồn dữ liệu
 

@@ -6,7 +6,7 @@ Input: a Pack, a milestone id, the policy (default: the Case 4 policy), a run pr
 Output: one result dict with the decision and every fact behind it (key order is part of the contract).
 Business rules: the pipeline of spec section 5 (BR-01..BR-20), one stage module per step:
 structure (BR-15) -> events (BR-03, BR-04, BR-05, BR-16, BR-19) -> requirements (BR-04..BR-07, BR-20) ->
-controls (BR-08..BR-10) -> schedule (BR-11, BR-12) -> bindings + rules (BR-02, BR-14, payment guard) ->
+controls (BR-08..BR-10) -> schedule (BR-11, BR-12, BR-21) -> bindings + rules (BR-02, BR-14, payment guard) ->
 amounts (BR-12, BR-13, amount guard) -> trace (BR-17, sections 9.2 and 14.3).
 """
 from . import amounts, bindings, controls, events, requirements, rules, schedule, sequence, structure, trace
@@ -80,8 +80,13 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
     approvals, valid_approval_count, over_limit = controls.count_approvals(
         policy, verdicts, None if bound_issues else bound.get("planned_payment_vnd_mn"))
 
+    # BR-21: the acceptance review window of the contract, if it sets one.
+    window, window_issues = schedule.review_window(policy, verdicts, valid_req, req, contract)
+    issues += window_issues
+
     # BR-11, BR-12: completion date and days late.
-    completion_ts = schedule.completion_timestamp(valid_req, approvals, missing, policy.completion_categories)
+    completion_ts = schedule.completion_timestamp(valid_req, approvals, missing, policy.completion_categories,
+                                                  window)
     completion_date = schedule.completion_date(completion_ts)
     days_late = schedule.days_late_after_grace(completion_date, bound.get("due_date"), bound.get("grace_period_days"))
 
@@ -155,6 +160,9 @@ def evaluate(pack, mid, *, literal_permissions=False, contract_scope_dispute=Fal
         "completion_ts": completion_ts, "conditions_met": met, "missing_conditions": miss,
         "issues": issues + anomalies, "notes": notes, "warnings": warnings, "selection": selection.mode,
     }
+    if window is not None:
+        # Only contracts that set a review window carry this key, so Data Pack results keep their shape.
+        result["review_window"] = window
     if explain:
         result["explanation"] = {"variables": rules.plain_variables(env),
                                  "trail": rules.rule_trail(scope_rules, selection)}

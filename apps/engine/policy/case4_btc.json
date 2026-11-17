@@ -1,7 +1,7 @@
 {
   "format": "CODECASH_POLICY_V1",
   "policy_id": "CASE4_BTC",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": {
     "vi": "Chính sách nghiệp vụ Case 4 theo đề thi, README Data Pack và câu trả lời BTC (docs/NGHIEP_VU.md).",
     "en": "Case 4 business policy from the brief, the Data Pack README and the organiser answers (docs/NGHIEP_VU.md)."
@@ -37,6 +37,12 @@
     },
     "DISPUTE_RESOLVE": {
       "authority": "TRUE"
+    },
+    "REVIEW_REQUEST": {
+      "authority": "actor.party_type == side.party_type AND actor.status == 'ACTIVE' AND event.actor_party_id == side.party_id"
+    },
+    "REVIEW_RETURN": {
+      "authority": "actor.party_type == side.party_type AND actor.status == 'ACTIVE' AND event.actor_party_id == side.party_id"
     }
   },
   "event_types": {
@@ -110,6 +116,16 @@
     "DISPUTE_RESOLVED": {
       "category": "DISPUTE_RESOLVE",
       "valid_status": "RESOLVED"
+    },
+    "ACCEPTANCE_REQUESTED": {
+      "category": "REVIEW_REQUEST",
+      "side": "SUPPLIER",
+      "valid_status": "CONFIRMED"
+    },
+    "ACCEPTANCE_RETURNED": {
+      "category": "REVIEW_RETURN",
+      "side": "BUYER",
+      "valid_status": "RETURNED"
     }
   },
   "dedupe": {
@@ -147,6 +163,10 @@
   },
   "completion": {
     "categories": ["EVIDENCE"]
+  },
+  "review_window": {
+    "field": "acceptance_review_days",
+    "reviewed_side": "BUYER"
   },
   "amounts": {
     "quantum": "0.01",

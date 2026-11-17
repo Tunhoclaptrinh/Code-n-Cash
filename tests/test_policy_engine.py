@@ -48,7 +48,7 @@ def replace(scope, at, **changes):
 class PolicyDocumentTests(unittest.TestCase):
     def test_the_official_policy_compiles_and_describes_its_vocabulary(self):
         described = POLICY.describe()
-        self.assertEqual((described['policyId'], described['version']), ('CASE4_BTC', '2.1.0'))
+        self.assertEqual((described['policyId'], described['version']), ('CASE4_BTC', '2.2.0'))
         self.assertEqual(described['eventTypes']['DELIVERY'], {'name': 'DELIVERY', 'category': 'EVIDENCE',
                                                                'side': 'SUPPLIER', 'valid_status': 'CONFIRMED'})
         self.assertEqual(described['reasons']['APPROVAL_QUORUM_NOT_MET'], 'WAITING_APPROVAL')

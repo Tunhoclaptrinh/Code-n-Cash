@@ -207,7 +207,7 @@ Bản này đủ cho demo, staging và thử nghiệm nội bộ. Còn các đi�
 - Luồng ký số là **mô phỏng**, chưa tích hợp CA; nút tải bản đã ký đang tắt.
 - Dữ liệu là Data Pack giả lập của BTC cộng dữ liệu bổ sung có đánh dấu; không dùng cho hợp đồng hay giải ngân thật.
 - Swagger `/api/docs` mở công khai qua nginx; chặn ở reverse proxy nếu không cần.
-- `DEMO_LOGIN` phải để `false`: khi bật, ai mở trang đăng nhập cũng vào được bằng tài khoản mẫu.
+- Bản demo bật `DEMO_LOGIN=true`: người xem chọn một tài khoản mẫu ở menu "Tài khoản demo" là vào được, không cần mật khẩu. Ai mở trang đăng nhập cũng vào được như vậy, nên chỉ bật khi hệ thống chỉ chứa Data Pack và dữ liệu mẫu; đặt `false` trên mọi bản triển khai có dữ liệu thật.
 - Ma trận phân quyền nằm trong `packages/contracts/permissions.json` và được đóng vào image; đổi quyền là đổi mã, cần review hai người (SoD-4), không sửa trên giao diện.
 - Chưa có giới hạn tần suất đăng nhập, cảnh báo tự động hay sao lưu tự động; API chạy một instance.
 - Accuracy chỉ đo trên 20 mẫu công khai, không đại diện cho toàn bộ 405 mốc.

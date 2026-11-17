@@ -12,7 +12,11 @@ import { configuredTermProvider } from "../../apps/api/dist/trust/term-provider.
 const { stdout } = await promisify(execFile)(
   process.env.PYTHON ?? "python3",
   ["apps/engine/cli.py", "--json"],
-  { maxBuffer: 32 * 1024 * 1024 },
+  {
+    maxBuffer: 32 * 1024 * 1024,
+    // The engine prints JSON with Vietnamese text; Windows would use the console code page.
+    env: { ...process.env, PYTHONUTF8: "1", PYTHONIOENCODING: "utf-8" },
+  },
 );
 const reference = JSON.parse(stdout);
 const expected = { profile: "BTC_SUBMISSION", rows: reference.rows };

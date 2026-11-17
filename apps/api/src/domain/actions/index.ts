@@ -13,6 +13,14 @@ export {
   proposeAmendment,
   withdrawAmendment,
 } from "./amendments";
+export {
+  acceptanceRequestsOf,
+  declineAcceptance,
+  mayDeclineAcceptance,
+  mayRequestAcceptance,
+  openAcceptanceRequest,
+  requestAcceptance,
+} from "./acceptance";
 export { decideException, proposeException } from "./exceptions";
 export {
   attachEvidence,

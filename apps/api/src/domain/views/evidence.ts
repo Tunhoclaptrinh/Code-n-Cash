@@ -9,6 +9,7 @@ import {
 } from "../records";
 import type { EvidenceWorkspace } from "../types";
 import { TERMINAL } from "../vocabulary";
+import { openAcceptanceRequest, plain } from "../actions/acceptance";
 import type { DryRun } from "./shared";
 import { resolveTarget } from "./tasks";
 
@@ -54,6 +55,7 @@ export async function evidenceWorkspace(
       (s) =>
         s.attachment && (s.eventType !== "INVOICE" || s.attachment.invoice),
     );
+  const request = openAcceptanceRequest(ctx, m.milestone_id);
   const hypothetical = draftEvents(ctx, m);
   const preview = hypothetical.length
     ? previewOf((await dryRun(hypothetical)).get(m.milestone_id))
@@ -69,6 +71,7 @@ export async function evidenceWorkspace(
     overdueDays: ctx.lateness(m).overdueDays,
     canSubmit,
     sellerTaxCode: ctx.organizationTaxCode(contract.supplier_id),
+    acceptanceRequest: request ? plain(request) : null,
     preview,
   };
 }

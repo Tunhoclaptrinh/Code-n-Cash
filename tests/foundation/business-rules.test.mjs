@@ -296,6 +296,20 @@ const WRITE_ACTIONS = [
     reaches: "MILESTONE_NOT_FOUND",
   },
   {
+    name: "requestAcceptance",
+    module: "evidence",
+    allowed: ["LEGAL_REVIEWER", "SUPPLIER"],
+    args: [at(99)],
+    reaches: "MILESTONE_NOT_FOUND",
+  },
+  {
+    name: "declineAcceptance",
+    module: "evidence",
+    allowed: ["LEGAL_REVIEWER", "SUPPLIER"],
+    args: [at(99, { note: "x" })],
+    reaches: "MILESTONE_NOT_FOUND",
+  },
+  {
     name: "castVote",
     module: "approvals",
     allowed: APPROVERS,
@@ -457,7 +471,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 25);
+  assert.equal(WRITE_ACTIONS.length, 27);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -1553,6 +1567,164 @@ test("amendment: the buyer proposes a new schedule, the supplier agrees, the eng
     w.tbl("audit").filter((e) => e.detail?.kind === "AMENDMENT").length >= 7,
     "every step is in the audit chain",
   );
+});
+
+test("acceptance request: the buyer's documents count from the supplier's request, so a buyer who files late does not make the supplier late (BR-11)", async () => {
+  const w = await world();
+  const code = "CT0103"; // demo goods contract: #3 needs only the buyer's ACCEPTANCE
+  const ref = w.ref(code, 3);
+  const ms = w.milestone(code, 3);
+  const request = (user, extra = {}) =>
+    w.call(user, "evidence", "requestAcceptance", { ...ref, ...extra });
+  const decline = (user, note) =>
+    w.call(user, "evidence", "declineAcceptance", { ...ref, note });
+  const requests = () => w.tbl("acceptance-requests");
+
+  // Who and when: the supplier of the contract asks, only for the buyer's documents of a milestone
+  // whose supplier documents are in, never on the organiser's sealed contracts.
+  await expectCode(
+    w.call(
+      supplierOf(w, "CT0001"),
+      "evidence",
+      "requestAcceptance",
+      w.ref("CT0001", 3),
+    ),
+    "DATA_PACK_LOCKED",
+  );
+  await denied(
+    w,
+    U.LEGAL,
+    "evidence",
+    "requestAcceptance",
+    [ref],
+    "CANNOT_REQUEST_ACCEPTANCE",
+  );
+  await denied(
+    w,
+    U.OWNER,
+    "evidence",
+    "requestAcceptance",
+    [ref],
+    "ACTION_FORBIDDEN",
+  );
+  await denied(
+    w,
+    U.SUPPLIER,
+    "evidence",
+    "requestAcceptance",
+    [w.ref(code, 2)],
+    "NOTHING_TO_ACCEPT",
+  );
+  await denied(
+    w,
+    U.LEGAL,
+    "evidence",
+    "declineAcceptance",
+    [{ ...ref, note: "x" }],
+    "ACCEPTANCE_REQUEST_NOT_FOUND",
+  );
+
+  // The supplier asks; the server stamps the request and gives the buyer a deadline to answer.
+  const first = await ok(w, U.SUPPLIER, "evidence", "requestAcceptance", {
+    ...ref,
+    note: "Đã lắp xong",
+  });
+  assert.equal(first.state, "OPEN");
+  assert.deepEqual(first.eventTypes, ["ACCEPTANCE"]);
+  assert.match(first.requestedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+  assert.ok(first.respondBy > first.requestedAt.slice(0, 10));
+  await denied(
+    w,
+    U.SUPPLIER,
+    "evidence",
+    "requestAcceptance",
+    [ref],
+    "ACCEPTANCE_REQUEST_PENDING",
+  );
+  const detail = await w.call(
+    U.LEGAL,
+    "contracts",
+    "getMilestoneDetail",
+    code,
+    3,
+  );
+  assert.equal(detail.actions.declineAcceptance, true);
+  assert.equal(detail.acceptanceRequests[0].id, first.id);
+
+  // The buyer finds the work not ready: it returns the request with a reason, and the supplier
+  // asks again later, which gives a new time.
+  await denied(
+    w,
+    U.SUPPLIER,
+    "evidence",
+    "declineAcceptance",
+    [{ ...ref, note: "x" }],
+    "CANNOT_DECLINE_ACCEPTANCE",
+  );
+  await expectCode(decline(U.LEGAL, ""), "NOTE_REQUIRED");
+  const returned = await ok(w, U.LEGAL, "evidence", "declineAcceptance", {
+    ...ref,
+    note: "Thiếu thiết bị",
+  });
+  assert.equal(returned.state, "DECLINED");
+  const second = await ok(w, U.SUPPLIER, "evidence", "requestAcceptance", ref);
+  assert.notEqual(second.id, first.id);
+
+  // The request was made on the due date; the buyer files the acceptance only now, weeks later.
+  const askedAt = `${ms.due_date}T09:00:00`;
+  requests().find((r) => r.id === second.id).requestedAt = askedAt;
+  await ok(w, U.LEGAL, "evidence", "attachEvidenceFile", {
+    ...ref,
+    eventType: "ACCEPTANCE",
+    ...file(),
+  });
+  const result = await ok(w, U.LEGAL, "evidence", "submitEvidence", ref);
+  const [event] = w
+    .tbl("events")
+    .filter((e) => e.event_id === result.eventIds[0]);
+  assert.equal(event.event_type, "ACCEPTANCE");
+  assert.equal(
+    event.event_timestamp,
+    askedAt,
+    "the event takes the time of the request",
+  );
+  assert.equal(event.acceptanceRequestId, second.id);
+  assert.ok(event.recordedAt > askedAt, "the real filing time is kept");
+  assert.equal(result.evaluation.completedAt, askedAt);
+  assert.equal(
+    result.evaluation.daysLate,
+    0,
+    "the buyer's delay is not the supplier's lateness",
+  );
+  const confirmed = requests().find((r) => r.id === second.id);
+  assert.equal(confirmed.state, "CONFIRMED");
+  assert.deepEqual(confirmed.eventIds, [event.event_id]);
+  assert.ok(
+    w
+      .tbl("audit")
+      .some(
+        (e) =>
+          e.detail?.kind === "ACCEPTANCE_REQUEST" &&
+          e.detail.state === "CONFIRMED",
+      ),
+  );
+});
+
+test("acceptance request: a request the buyer leaves unanswered past its deadline becomes work for the buyer's controller", async () => {
+  const w = await world();
+  const ref = w.ref("CT0103", 3);
+  const sent = await ok(w, U.SUPPLIER, "evidence", "requestAcceptance", ref);
+  const tasks = () => w.call(U.CONTROLLER, "tasks", "getTaskInbox");
+  assert.ok(!(await tasks()).some((t) => t.kind === "ACCEPTANCE_OVERDUE"));
+  w.tbl("acceptance-requests").find((r) => r.id === sent.id).respondBy =
+    "2026-01-01";
+  const overdue = (await tasks()).find((t) => t.kind === "ACCEPTANCE_OVERDUE");
+  assert.ok(overdue, "the controller is told");
+  assert.equal(overdue.contractId, "CT0103");
+  assert.deepEqual(overdue.eventTypes, ["ACCEPTANCE"]);
+  // Only the buyer's controller: the supplier's controller watches, it does not chase the buyer.
+  const other = await w.call(U.SUPPLIER_CONTROLLER, "tasks", "getTaskInbox");
+  assert.ok(!other.some((t) => t.kind === "ACCEPTANCE_OVERDUE"));
 });
 
 test("liquidation: once every milestone is settled the buyer proposes the record, the supplier confirms and the contract is closed for good", async () => {

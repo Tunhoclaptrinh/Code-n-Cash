@@ -262,6 +262,17 @@ function Workspace({
           }}
         />
         <SideSection title={t("submit.required.title")}>
+          {data.acceptanceRequest && data.side === "BUYER" ? (
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 8 }}
+              title={t("acceptance.open", {
+                at: formatDateTime(data.acceptanceRequest.requestedAt),
+              })}
+              data-testid="acceptance-open"
+            />
+          ) : null}
           {milestone.latePenalty && deadline ? (
             <div className={styles.penaltyLine}>
               {t("workLite.evidence.penalty", {

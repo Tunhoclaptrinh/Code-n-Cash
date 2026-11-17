@@ -22,6 +22,7 @@ import type {
   WaitingOn,
 } from "../types";
 import { AUTHORITY, TERMINAL } from "../vocabulary";
+import { openAcceptanceRequest } from "../actions/acceptance";
 
 /**
  * Who answers for each condition of a milestone (spec 9.5, extra-docs/09 §3). The engine says which
@@ -136,6 +137,7 @@ function conditions(ctx: Ctx, m: MilestoneRecord): Base[] {
       dueBy: null,
     });
 
+  const request = openAcceptanceRequest(ctx, m.milestone_id);
   for (const requirement of ctx.requirements(m)) {
     const side = requirement.side;
     const event = requirement.eventId
@@ -150,8 +152,14 @@ function conditions(ctx: Ctx, m: MilestoneRecord): Base[] {
       roles: [RECORDER[side]],
       doneEvent: requirement.state === "VALID" ? event : null,
       doneAt: requirement.state === "VALID" ? requirement.at : null,
+      // The buyer's document is waited for since the supplier asked for the acceptance.
       waitingSince:
-        requirement.state === "UNAUTHORIZED" ? requirement.at : null,
+        requirement.state === "UNAUTHORIZED"
+          ? requirement.at
+          : requirement.state === "MISSING" &&
+              request?.eventTypes.includes(requirement.eventType)
+            ? request.requestedAt
+            : null,
       dueBy: m.due_date || null,
     });
   }

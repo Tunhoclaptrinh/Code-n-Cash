@@ -66,6 +66,7 @@ export class Repository implements OnModuleDestroy {
         "exceptions",
         "payments",
         "amendments",
+        "acceptance-requests",
         "anchor-jobs",
         "extraction-proposals",
         "rule-versions",

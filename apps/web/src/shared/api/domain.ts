@@ -1,4 +1,5 @@
 import type {
+  AcceptanceRequest,
   ActivityEntry,
   ContractRow,
   ListPage,
@@ -147,6 +148,12 @@ export const submitEvidence = (input: MilestoneRef) =>
     "submitEvidence",
     [input],
   );
+
+/** The supplier asks the buyer to confirm the milestone; the buyer's officer may decline. */
+export const requestAcceptance = (input: MilestoneRef & { note?: string }) =>
+  workflowCall<AcceptanceRequest>("evidence", "requestAcceptance", [input]);
+export const declineAcceptance = (input: MilestoneRef & { note: string }) =>
+  workflowCall<AcceptanceRequest>("evidence", "declineAcceptance", [input]);
 
 /* ------------------------------- approvals ------------------------------- */
 

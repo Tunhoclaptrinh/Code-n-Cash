@@ -326,6 +326,17 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
     submitEvidence: write("evidence:submit", "submitEvidence", (ctx, [value]) =>
       actions.submitEvidence(ctx, input(value)),
     ),
+    // The supplier asks the buyer to confirm a milestone; the buyer's officer may decline.
+    requestAcceptance: write(
+      "evidence:submit",
+      "requestAcceptance",
+      (ctx, [value]) => actions.requestAcceptance(ctx, input(value)),
+    ),
+    declineAcceptance: write(
+      "evidence:submit",
+      "declineAcceptance",
+      (ctx, [value]) => actions.declineAcceptance(ctx, input(value)),
+    ),
   },
   approvals: {
     getApprovalView: read("approvals:read", (ctx, [id, sequence], dryRun) =>

@@ -2,6 +2,7 @@ import { NotFoundException } from "@nestjs/common";
 import type { Ctx } from "../context";
 import { businessNow } from "../factory";
 import {
+  type AcceptanceRequestRecord,
   type ContractRecord,
   type ExceptionRecord,
   type MilestoneRecord,
@@ -18,7 +19,7 @@ import type {
   TaskWaitingFor,
 } from "../types";
 import { milestoneActions } from "./milestones";
-import { pendingItems, personRef } from "./responsibility";
+import { accountsOf, pendingItems, personRef } from "./responsibility";
 import { routes } from "./shared";
 import { mayDecideAmendment, openAmendment } from "../actions/amendments";
 import {
@@ -374,6 +375,46 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
         group: "MINE",
         waitingFor: null,
         waitingDays: daysSince(request.proposedAt),
+      });
+    }
+    // An acceptance request the buyer's officer has not answered in time: the controller chases it.
+    const today = businessNow().slice(0, 10);
+    for (const request of (ctx.t[TABLE.acceptanceRequests] ??
+      []) as AcceptanceRequestRecord[]) {
+      if (
+        request.state !== "OPEN" ||
+        request.respondBy >= today ||
+        !own.has(request.contractId)
+      )
+        continue;
+      const m = ctx.milestone(request.milestoneId);
+      const contract = ctx.contract(m.contract_id);
+      tasks.push({
+        id: `acceptance:${request.id}`,
+        kind: "ACCEPTANCE_OVERDUE",
+        contractId: m.contract_id,
+        contractTitle: contract.contract_title,
+        milestoneId: m.milestone_id,
+        sequence: request.sequence,
+        milestoneType: m.milestone_type as TaskRow["milestoneType"],
+        dueDate: request.respondBy,
+        overdueDays: daysSince(request.respondBy),
+        eventTypes: request.eventTypes,
+        roles: [],
+        amountMillion: m.planned_payment_vnd_mn,
+        reasonCode: ctx.evaluation(m.milestone_id).reasonCode,
+        badge: "MILESTONE_ON_HOLD",
+        href: routes.decision(m.contract_id, request.sequence),
+        origin: contract.origin,
+        group: "MINE",
+        waitingFor: {
+          kind: "EVIDENCE",
+          subjects: request.eventTypes,
+          organizationName: ctx.partyName(contract.buyer_id),
+          roles: ["LEGAL_REVIEWER"],
+          people: accountsOf(ctx, contract.buyer_id, ["LEGAL_REVIEWER"]),
+        },
+        waitingDays: daysSince(request.requestedAt),
       });
     }
   }

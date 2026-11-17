@@ -20,6 +20,10 @@ An invoice is attached with the details printed on it (Circular 78/2021/TT-BTC):
 
 The buyer's officer submits acceptance, UAT and other buyer records. Suppliers submit delivery, invoices, go-live, activation, service completion and warranty completion. Identity and authority come from the authenticated account; a supplier cannot record buyer acceptance.
 
+## Acceptance request
+
+The acceptance record (and UAT, requirements approval) filed by the buyer also sets the milestone's completion date. So that a buyer who files late does not make the supplier pay a late penalty, the supplier opens the milestone's **Decision** page and clicks **Request acceptance** once its own documents are in. The buyer's record filed afterwards counts from the time of the request; the real filing time stays in the activity log. If the work is not ready, the buyer's contract officer clicks **Return the request** with a reason and the supplier asks again when done. After 5 days without an answer the buyer's controller is reminded.
+
 ## Try CT0104 milestone 2
 
 Use `supplier@phuminh.vn`. Upload service-completion evidence and an invoice, then submit. The owner receives the approval task. On fresh data with submission on 23 October 2026, the milestone is five days past its grace deadline; after owner approval, the penalty is 2.40 million and payable is 477.60 million. Later submission dates change these figures.

@@ -85,6 +85,17 @@ export function signingDigest(ctx: Ctx, code: string) {
   const termsDigest = sha256(
     canonical({
       terms,
+      // The buyer's payment term and late-payment interest are signed with the rest; contracts
+      // that state none keep the digest they were signed with.
+      ...(contract.paymentTermDays !== undefined &&
+      contract.paymentTermDays !== null
+        ? {
+            payment: {
+              termDays: contract.paymentTermDays,
+              latePaymentRatePct: contract.latePaymentRatePct,
+            },
+          }
+        : {}),
       fileName: signing.fileName,
       slots: signing.slots,
       ...((draft?.appendixDocuments?.length ?? 0)

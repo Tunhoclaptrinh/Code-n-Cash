@@ -87,7 +87,9 @@
       "cancelSigning": "Hủy luồng ký",
       "cancelBody": "Hủy luồng ký của {{code}} và đưa hợp đồng về bản nháp. Chỉ làm được khi chưa ai ký; thao tác được ghi nhật ký.",
       "cancelled": "Đã hủy luồng ký, hợp đồng về bản nháp",
-      "openPage": "Mở trang chi tiết"
+      "openPage": "Mở trang chi tiết",
+      "paymentTerms": "Thời hạn thanh toán",
+      "paymentValue": "{{days}} ngày sau khi hoàn thành · lãi chậm trả {{rate}}%/năm"
     }
   },
   "contractUpload": {
@@ -201,12 +203,21 @@
         "policy": "Chọn chính sách phê duyệt",
         "grace": "0–60",
         "rate": "0.00–5.00",
-        "cap": "0.00–8.00"
+        "cap": "0.00–8.00",
+        "paymentTerm": "1–180",
+        "latePaymentRate": "0.00–100.00"
       },
       "workflow": {
         "label": "Quy trình mốc",
         "standard": "Chuẩn: {{name}}",
         "stages": "Các mốc: {{stages}}"
+      },
+      "payment": {
+        "term": "Thời hạn thanh toán (ngày)",
+        "termHint": "Số ngày Bên mua phải chi kể từ khi mốc hoàn thành (đủ chứng từ). Phê duyệt nội bộ của Bên mua không kéo dài thời hạn này.",
+        "rate": "Lãi chậm trả",
+        "rateHint": "Lãi Bên mua trả trên số tiền chậm chi, tính theo ngày (Điều 306 Luật Thương mại 2005). Nhập 0 nếu chỉ cần theo dõi thời hạn.",
+        "rateSuffix": "%/năm"
       }
     },
     "preview": {

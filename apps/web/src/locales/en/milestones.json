@@ -134,7 +134,9 @@
       "penalty": "Late penalty",
       "penaltyValue": "Grace {{grace}} days · {{rate}}%/day · cap {{cap}}%",
       "workflow": "Milestone workflow",
-      "ruleSet": "Payment rule set"
+      "ruleSet": "Payment rule set",
+      "payment": "Payment term",
+      "paymentValue": "{{days}} days after completion · late-payment interest {{rate}}% a year"
     },
     "requirement": {
       "VALID": "Valid at {{at}}",
@@ -547,7 +549,14 @@
     "amountValue": "VND {{amount}} million (after a penalty of {{penalty}} million)",
     "parties": "Payer → payee",
     "partiesValue": "{{payer}} → {{payee}}",
-    "digest": "Decision digest"
+    "digest": "Decision digest",
+    "due": "Payment due",
+    "dueOnTime": "{{date}} ({{days}} days after completion)",
+    "dueLate": "{{date}} ({{days}} days after completion) · {{late}} days late",
+    "interest": "Late-payment interest",
+    "interestValue": "{{amount}} million VND ({{rate}}% a year × {{late}} days)",
+    "total": "Total to transfer",
+    "totalValue": "{{amount}} million VND"
   },
   "evidenceDocument": {
     "signed": "Signed",

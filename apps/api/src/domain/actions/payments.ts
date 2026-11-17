@@ -15,11 +15,13 @@ import {
   TABLE,
 } from "../records";
 import type { Evaluation, PaymentInstruction } from "../types";
+import { latePaymentOf, totalWithInterest } from "../late-payment";
 import { type Outcome, outcome } from "./shared";
 
 /**
  * The instruction a paying decision draws up by itself: the buyer pays the supplier the payable amount
- * of the latest decision, identified by that decision's sealed hash. Null when the decision pays nothing.
+ * of the latest decision, identified by that decision's sealed hash, plus the late-payment interest
+ * owed if it is paid today (contracts with payment terms only). Null when the decision pays nothing.
  */
 export function paymentInstruction(
   ctx: Ctx,
@@ -28,10 +30,13 @@ export function paymentInstruction(
 ): PaymentInstruction | null {
   if (!paysOut(evaluation.decision)) return null;
   const contract = ctx.contract(m.contract_id);
+  const latePayment = latePaymentOf(ctx, m, evaluation);
   return {
     decision: evaluation.decision,
     amountMillion: evaluation.payableMillion,
     penaltyMillion: evaluation.penaltyMillion,
+    latePayment,
+    totalMillion: totalWithInterest(evaluation.payableMillion, latePayment),
     payer: { id: contract.buyer_id, name: ctx.partyName(contract.buyer_id) },
     payee: {
       id: contract.supplier_id,
@@ -65,6 +70,9 @@ export function transferToAccounting(
   if (payments.some((p) => p.milestoneId === m.milestone_id))
     throw new ConflictException("ALREADY_TRANSFERRED");
   const at = businessNow();
+  const instruction = paymentInstruction(ctx, m, evaluation);
+  const lateInterestMillion =
+    instruction?.latePayment?.interestMillion ?? "0.00";
   payments.push(
     entity(id, {
       milestoneId: m.milestone_id,
@@ -72,10 +80,12 @@ export function transferToAccounting(
       runId: evaluation.runId,
       decision: evaluation.decision,
       amountMillion: evaluation.payableMillion,
+      lateInterestMillion,
+      totalMillion: instruction?.totalMillion ?? evaluation.payableMillion,
       transferredBy: ctx.actor.displayName,
       transferredAt: at,
       organizationId: contract.buyer_id,
-      instruction: paymentInstruction(ctx, m, evaluation),
+      instruction,
       delivery: {
         channel: gatewayChannel(),
         status: "PENDING",
@@ -119,7 +129,11 @@ export function transferToAccounting(
           category: "SYSTEM",
           contractId: m.contract_id,
           milestoneId: m.milestone_id,
-          detail: { kind: "PAYMENT", amountMillion: evaluation.payableMillion },
+          detail: {
+            kind: "PAYMENT",
+            amountMillion: evaluation.payableMillion,
+            ...(lateInterestMillion !== "0.00" ? { lateInterestMillion } : {}),
+          },
         },
       ],
     },

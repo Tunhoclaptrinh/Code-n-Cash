@@ -288,6 +288,20 @@ export function ContractModal({
                             cap: data.maxPenaltyPct,
                           }),
                         },
+                        ...(data.paymentTermDays !== null
+                          ? [
+                              {
+                                key: "payment",
+                                label: t("contractList.modal.paymentTerms"),
+                                children: t("contractList.modal.paymentValue", {
+                                  days: data.paymentTermDays,
+                                  rate: formatDecimalString(
+                                    data.latePaymentRatePct ?? "0",
+                                  ),
+                                }),
+                              },
+                            ]
+                          : []),
                       ]}
                     />
                     <div>

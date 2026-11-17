@@ -87,7 +87,8 @@
     "LIQUIDATION_WITHDRAWN": "Rút lại biên bản thanh lý",
     "ACCEPTANCE_REQUEST_OPEN": "Gửi đề nghị nghiệm thu",
     "ACCEPTANCE_REQUEST_CONFIRMED": "Nộp chứng từ theo đề nghị nghiệm thu; tính theo thời điểm đề nghị",
-    "ACCEPTANCE_REQUEST_DECLINED": "Trả lại đề nghị nghiệm thu"
+    "ACCEPTANCE_REQUEST_DECLINED": "Trả lại đề nghị nghiệm thu",
+    "PAYMENT_WITH_INTEREST": "Duyệt lệnh chi {{amount}} triệu VND cộng lãi chậm trả {{interest}} triệu (khoá chống trùng)"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",

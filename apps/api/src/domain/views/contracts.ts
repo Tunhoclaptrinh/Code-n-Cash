@@ -1,5 +1,6 @@
 import { canonical, sha256 } from "../../common/audit-chain";
 import * as actions from "../actions/amendments";
+import { paymentTermsOf } from "../late-payment";
 import * as closing from "../actions/liquidation";
 import { today, type Ctx } from "../context";
 import { enginePolicy, policySha256 } from "../policy";
@@ -269,6 +270,8 @@ export function contractOverview(
     graceDays: Number(contract.grace_period_days),
     penaltyRatePct: contract.penalty_rate_pct_per_day,
     maxPenaltyPct: contract.max_penalty_pct,
+    paymentTermDays: paymentTermsOf(contract)?.termDays ?? null,
+    latePaymentRatePct: paymentTermsOf(contract)?.ratePct ?? null,
     autoReleaseAllowed: contract.auto_release_allowed === "TRUE",
     milestones: rows,
     totals: {

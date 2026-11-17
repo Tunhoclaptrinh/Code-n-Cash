@@ -197,6 +197,9 @@ export type ContractRecord = RecordEntity &
     liquidations?: Liquidation[];
     /** End date in force after an accepted amendment; the signed end_date never changes. */
     amendedEndDate?: string;
+    /** The buyer's payment term (days after completion) and annual late-payment interest rate. */
+    paymentTermDays?: number;
+    latePaymentRatePct?: string;
   };
 
 export type MilestoneRecord = RecordEntity &
@@ -274,6 +277,8 @@ export interface DraftRecord extends RecordEntity {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  paymentTermDays?: number | null;
+  latePaymentRatePct?: string | null;
   signers: ContractDraft["signers"];
   file: ContractDraft["file"];
   appendixNames: string[];

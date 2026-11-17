@@ -235,6 +235,15 @@ export class SampleDocumentsController {
         graceDays: shown("graceDays"),
         penaltyRatePct: shown("penaltyRatePct"),
         maxPenaltyPct: shown("maxPenaltyPct"),
+        // The buyer's payment term and late-payment interest, written only when validly stated.
+        ...(provided(draft.paymentTermDays) &&
+        !problems.paymentTermDays &&
+        !problems.latePaymentRatePct
+          ? {
+              paymentTermDays: draft.paymentTermDays,
+              latePaymentRatePct: draft.latePaymentRatePct,
+            }
+          : {}),
         approvalPolicy: draft.approvalPolicy,
         signers: signers.map((signer) => ({
           party: signer.party,

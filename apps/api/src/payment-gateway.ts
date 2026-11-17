@@ -29,7 +29,10 @@ export function gatewayMessage(payment: Payment) {
     contractId: payment.contractId,
     milestoneId: payment.milestoneId,
     decision: payment.decision,
-    amountMillion: payment.amountMillion,
+    // What leaves the buyer's account: the decided amount plus any late-payment interest.
+    amountMillion: payment.totalMillion ?? payment.amountMillion,
+    decidedAmountMillion: payment.amountMillion,
+    lateInterestMillion: payment.lateInterestMillion ?? "0.00",
     penaltyMillion: instruction?.penaltyMillion ?? "0.00",
     currency: "VND",
     unit: "MILLION",

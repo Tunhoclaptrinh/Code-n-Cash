@@ -191,6 +191,10 @@ def build_document(data):
     data = {**data, 'approvalPolicyText': policy_text}
     if exempt and data.get('approvalPolicy') != 'AUTO_IF_ALL_CONDITIONS':
         labels['sections'][5]['body'] += '\n' + labels['approvalExempt'].format(milestones=', '.join(exempt))
+    # The buyer's side of the contract: the payment term and the late-payment interest, when stated.
+    if data.get('paymentTermDays') not in (None, ''):
+        labels['sections'][5]['body'] += '\n' + labels['paymentTerms'].format(
+            paymentTermDays=data['paymentTermDays'], latePaymentRatePct=data.get('latePaymentRatePct') or placeholder)
 
     header, table_labels = labels['header'], labels['table']
     # The motto rule is a paragraph border limited by the indents; English text is longer.

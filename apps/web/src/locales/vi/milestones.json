@@ -134,7 +134,9 @@
       "penalty": "Phạt trễ hạn",
       "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
       "workflow": "Quy trình mốc",
-      "ruleSet": "Bộ quy tắc thanh toán"
+      "ruleSet": "Bộ quy tắc thanh toán",
+      "payment": "Thời hạn thanh toán",
+      "paymentValue": "{{days}} ngày sau khi hoàn thành · lãi chậm trả {{rate}}%/năm"
     },
     "requirement": {
       "VALID": "Hợp lệ lúc {{at}}",
@@ -547,7 +549,14 @@
     "amountValue": "{{amount}} triệu VND (đã trừ phạt {{penalty}} triệu)",
     "parties": "Bên trả → bên nhận",
     "partiesValue": "{{payer}} → {{payee}}",
-    "digest": "Mã băm quyết định"
+    "digest": "Mã băm quyết định",
+    "due": "Hạn thanh toán",
+    "dueOnTime": "{{date}} ({{days}} ngày sau khi hoàn thành)",
+    "dueLate": "{{date}} ({{days}} ngày sau khi hoàn thành) · chậm {{late}} ngày",
+    "interest": "Lãi chậm trả",
+    "interestValue": "{{amount}} triệu VND ({{rate}}%/năm × {{late}} ngày)",
+    "total": "Tổng chuyển",
+    "totalValue": "{{amount}} triệu VND"
   },
   "evidenceDocument": {
     "signed": "Đã ký",

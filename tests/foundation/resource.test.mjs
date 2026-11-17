@@ -187,6 +187,34 @@ test("password hashes are never returned and disabled accounts invalidate tokens
     auth.login({ email: "owner@novaan.vn", password: "wrong" }),
   );
 });
+test("an empty SEED_PASSWORD seeds the default password, and an empty password never signs in", async () => {
+  const auth = new AuthService(repo);
+  const previous = process.env.SEED_PASSWORD;
+  // .env.example ships the line empty; dotenv then sets the variable to "".
+  process.env.SEED_PASSWORD = "";
+  try {
+    // The seed creates the accounts that are missing; existing passwords are kept.
+    await repo.mutate("users", (items) => {
+      items.splice(
+        items.findIndex((x) => x.id === "u-secondary"),
+        1,
+      );
+    });
+    await auth.seed();
+    await assert.rejects(
+      auth.login({ email: "secondary@novaan.vn", password: "" }),
+      /INVALID_CREDENTIALS/,
+    );
+    const session = await auth.login({
+      email: "secondary@novaan.vn",
+      password: "Passw0rd!",
+    });
+    assert.equal((await auth.authenticate(session.token)).id, "u-secondary");
+  } finally {
+    if (previous === undefined) delete process.env.SEED_PASSWORD;
+    else process.env.SEED_PASSWORD = previous;
+  }
+});
 test("bulk import is all-or-nothing and bulk delete remains tenant-scoped", async () => {
   await assert.rejects(
     service.import(

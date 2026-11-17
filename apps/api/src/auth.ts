@@ -65,6 +65,7 @@ export class AuthService {
     if (
       typeof email !== "string" ||
       typeof password !== "string" ||
+      !password ||
       email.length > 254 ||
       password.length > 1024
     )
@@ -284,8 +285,10 @@ export class AuthService {
     const stored = await this.repo.list("parties");
     const parties = stored.length ? stored : (await loadDataPack()).parties;
     const { accounts } = buildDirectory(parties as never);
+    // An empty SEED_PASSWORD (the line as .env.example ships it) means the default, never an
+    // account without a password.
     const passwordHash = await bcrypt.hash(
-      process.env.SEED_PASSWORD ?? "Passw0rd!",
+      process.env.SEED_PASSWORD || "Passw0rd!",
       12,
     );
     const now = new Date().toISOString();

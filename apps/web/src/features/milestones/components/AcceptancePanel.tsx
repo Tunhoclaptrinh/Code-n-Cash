@@ -107,7 +107,7 @@ export function AcceptancePanel({
         </div>
       ))}
       {canRequest || canDecline ? (
-        <Space direction="vertical" style={{ width: "100%", marginTop: 12 }}>
+        <Space orientation="vertical" style={{ width: "100%", marginTop: 12 }}>
           <Input.TextArea
             rows={2}
             value={note}

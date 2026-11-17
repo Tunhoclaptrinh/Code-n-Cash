@@ -1298,7 +1298,9 @@ test("repeated identical failed requests share one audit entry per window", asyn
 test("an independent Python verifier checks the log and one entry's Merkle proof", async () => {
   const python = process.env.PYTHON ?? "python3";
   const verifier = (...args) =>
-    execute(python, ["tools/verify_audit.py", ...args]).then(
+    execute(python, ["tools/verify_audit.py", ...args], {
+      env: { ...process.env, PYTHONUTF8: "1", PYTHONIOENCODING: "utf-8" },
+    }).then(
       (done) => ({ code: 0, report: JSON.parse(done.stdout) }),
       (failed) => ({ code: failed.code, report: JSON.parse(failed.stdout) }),
     );

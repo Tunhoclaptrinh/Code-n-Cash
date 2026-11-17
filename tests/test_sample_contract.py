@@ -167,5 +167,21 @@ class TypesetLayoutTests(unittest.TestCase):
         self.assertIn('Second {literal} line', document)
 
 
+
+class PaymentTermsTests(unittest.TestCase):
+    def test_stated_payment_terms_are_written_in_both_languages(self):
+        for language, words in (('vi', ('trong 30 ngày', 'lãi chậm trả 10.00%/năm')),
+                                ('en', ('within 30 days', 'late-payment interest of 10.00% a year'))):
+            xml = document_xml(sample.build_document(
+                partial_input(language, paymentTermDays=30, latePaymentRatePct='10.00')))
+            for text in words:
+                self.assertIn(text, xml)
+
+    def test_a_contract_without_payment_terms_states_none(self):
+        xml = document_xml(sample.build_document(partial_input()))
+        self.assertNotIn('Thời hạn thanh toán', xml)
+        self.assertNotIn('lãi chậm trả', xml)
+
+
 if __name__ == '__main__':
     unittest.main()

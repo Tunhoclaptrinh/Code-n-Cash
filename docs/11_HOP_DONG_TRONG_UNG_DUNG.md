@@ -388,7 +388,7 @@ Chạy: `pnpm check` (typecheck, lint, định dạng, build, test), các smoke 
 | Hoá đơn kiểm định dạng, đối chiếu nội bộ và mã số thuế với hồ sơ (khi có) | Tra cứu hoá đơn điện tử trên hệ thống của cơ quan thuế |
 | Chưa có tạm ứng, giữ lại tiền bảo hành, thanh toán từng phần | Mốc tạm ứng và khấu trừ dần; tỷ lệ giữ lại trả ở mốc bảo hành (Data Pack không có, cần mở rộng engine) |
 | Chỉ bên mua đề xuất phụ lục và lập thanh lý | Cho nhà cung cấp đề xuất gia hạn; ký số biên bản thanh lý |
-| Không có thời hạn thanh toán sau khi đủ điều kiện, không có tài khoản nhận tiền trong hợp đồng | Thêm "thanh toán trong N ngày" và cảnh báo chậm trả; thông tin tài khoản trong hồ sơ tổ chức |
+| Đã có thời hạn thanh toán và lãi chậm trả (mục 6.2a của `NGHIEP_VU.md`); chưa có phạt bên mua theo thoả thuận và tài khoản nhận tiền trong hợp đồng | Điều khoản phạt chậm thanh toán (trần 8%); thông tin tài khoản trong hồ sơ tổ chức |
 | Phê duyệt: đủ mọi vai trò của chính sách, mỗi vai trò một người | Duyệt "k trên n", ngưỡng theo số tiền, uỷ quyền khi vắng (engine cần chấp nhận quorum khác số vai trò) |
 
 ## 15. Bản đồ mã nguồn

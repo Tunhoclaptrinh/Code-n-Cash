@@ -181,6 +181,12 @@ export function milestoneDetail(
           runId: payment.runId,
           decision: payment.decision,
           amountMillion: payment.amountMillion,
+          ...(payment.lateInterestMillion
+            ? {
+                lateInterestMillion: payment.lateInterestMillion,
+                totalMillion: payment.totalMillion,
+              }
+            : {}),
           transferredBy: payment.transferredBy,
           transferredAt: payment.transferredAt,
           instruction: payment.instruction,

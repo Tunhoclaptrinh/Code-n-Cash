@@ -10,7 +10,7 @@ import {
 import { spawn } from "node:child_process";
 import { RequirePermission } from "./common/permissions";
 import type { SessionRequest } from "./common/types";
-import { repoRoot } from "./common/paths";
+import { pythonEnv, repoRoot } from "./common/paths";
 import { draftProblems } from "./common/field-validation";
 import { DomainService } from "./domain/service";
 import {
@@ -102,7 +102,7 @@ export const generateSampleDocx = (input: unknown): Promise<Buffer> =>
     const child = spawn(
       process.env.PYTHON ?? "python3",
       ["apps/engine/sample_contract.py"],
-      { cwd: repoRoot(), stdio: ["pipe", "pipe", "pipe"] },
+      { cwd: repoRoot(), env: pythonEnv(), stdio: ["pipe", "pipe", "pipe"] },
     );
     const chunks: Buffer[] = [];
     let size = 0;

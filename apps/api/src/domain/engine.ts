@@ -25,7 +25,7 @@ import type {
   Trigger,
 } from "./types";
 import { canonical, sha256 } from "../common/audit-chain";
-import { repoRoot } from "../common/paths";
+import { pythonEnv, repoRoot } from "../common/paths";
 import { ENGINE_OUTPUT_COLUMNS, parseEngineOutput } from "./engine-contract";
 
 /** Stdout of `apps/engine/cli.py`; exit code 2 means the input was rejected (message on stderr). */
@@ -34,7 +34,7 @@ export function python(args: string[], timeoutMs: number): Promise<string> {
     const child = spawn(
       process.env.PYTHON ?? "python3",
       ["apps/engine/cli.py", ...args],
-      { cwd: repoRoot(), env: process.env },
+      { cwd: repoRoot(), env: pythonEnv() },
     );
     let out = "",
       err = "";

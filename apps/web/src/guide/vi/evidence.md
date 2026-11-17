@@ -27,6 +27,10 @@ Với **Hoá đơn**, hệ thống hỏi thêm thông tin in trên hoá đơn (T
 
 ![Sẵn sàng nộp: 1 — tệp đã tải; 2 — kết quả xem trước; 3 — nộp](../../../public/guide/images/evidence-ready.webp)
 
+## Đề nghị nghiệm thu
+
+Biên bản nghiệm thu (và UAT, duyệt yêu cầu) do bên mua nộp cũng quyết định ngày hoàn thành mốc. Để bên mua nộp muộn không làm NCC bị phạt trễ, NCC mở trang **Quyết định** của mốc và bấm **Gửi đề nghị nghiệm thu** khi chứng từ của mình đã đủ. Biên bản bên mua nộp sau đó được tính theo thời điểm đề nghị; thời điểm nộp thật vẫn ghi trong nhật ký. Nếu công việc chưa đạt, cán bộ hợp đồng bên mua bấm **Trả lại đề nghị** kèm lý do, NCC đề nghị lại khi xong. Quá 5 ngày bên mua chưa trả lời thì kiểm soát viên bên mua được nhắc.
+
 ## Ví dụ CT0104 mốc 2
 
 Đăng nhập `supplier@phuminh.vn`. Chọn **Xác nhận hoàn thành dịch vụ** và **Hoá đơn**, tải hai tệp tương ứng. Xem trước có thể vẫn là HOLD vì chờ chủ hợp đồng phê duyệt. Sau khi nộp, đăng nhập `owner@novaan.vn` để làm bước phê duyệt.

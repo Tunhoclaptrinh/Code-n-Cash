@@ -44,7 +44,8 @@
       "FOLLOW_UP": "Open milestone",
       "REVIEW_AMENDMENT": "Review amendment",
       "LIQUIDATE_CONTRACT": "Make liquidation record",
-      "REVIEW_LIQUIDATION": "Confirm liquidation"
+      "REVIEW_LIQUIDATION": "Confirm liquidation",
+      "ACCEPTANCE_OVERDUE": "Chase the buyer"
     },
     "detail": {
       "reason": "Why it is on hold",
@@ -747,5 +748,27 @@
     "rejectPlaceholder": "Reason for rejecting (required)",
     "waitingOfficer": "Every milestone is settled; waiting for the buyer to make the liquidation record.",
     "notYet": "Not yet: some milestones are neither paid nor rejected."
+  },
+  "acceptance": {
+    "title": "Acceptance request",
+    "explain": "Once the supplier has filed all of its own documents, it asks the buyer to accept the work. The buyer's documents filed afterwards count from the time of the request, so a buyer who files late does not make the supplier pay a late penalty. If the work is not ready, the buyer returns the request with a reason.",
+    "state": {
+      "OPEN": "Waiting for the buyer",
+      "CONFIRMED": "Accepted",
+      "DECLINED": "Returned"
+    },
+    "requestedBy": "Requested by {{name}}, {{at}}",
+    "respondBy": "The buyer should answer by {{date}}; after that the buyer's controller is reminded.",
+    "decidedBy": {
+      "CONFIRMED": "Buyer filed the documents: {{name}}, {{at}}",
+      "DECLINED": "Buyer returned it: {{name}}, {{at}}"
+    },
+    "notePlaceholder": "Note for the buyer (optional)",
+    "declineReason": "Reason for returning it (required), e.g. equipment not fully installed",
+    "request": "Request acceptance",
+    "decline": "Return the request",
+    "requested": "Acceptance request sent.",
+    "declined": "Acceptance request returned.",
+    "open": "The supplier requested acceptance at {{at}}. The documents you file will count from that time."
   }
 }

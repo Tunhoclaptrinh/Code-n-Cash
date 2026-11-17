@@ -42,6 +42,8 @@ export function describeAction(
       return t("actions.DIGITIZATION_EDITED", {
         count: action.milestoneCount,
       });
+    case "ACCEPTANCE_REQUEST":
+      return t(`actions.ACCEPTANCE_REQUEST_${action.state}`);
     case "LIQUIDATION":
       return t(`actions.LIQUIDATION_${action.state}`);
     case "AMENDMENT":

@@ -184,7 +184,8 @@
     "FOLLOW_UP": "Theo dõi mốc",
     "REVIEW_AMENDMENT": "Xem xét phụ lục hợp đồng",
     "LIQUIDATE_CONTRACT": "Lập biên bản thanh lý hợp đồng",
-    "REVIEW_LIQUIDATION": "Xác nhận thanh lý hợp đồng"
+    "REVIEW_LIQUIDATION": "Xác nhận thanh lý hợp đồng",
+    "ACCEPTANCE_OVERDUE": "Nhắc bên mua trả lời đề nghị nghiệm thu"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "Loại chứng từ này do bên kia tạo (ma trận thẩm quyền 4.2).",
@@ -384,7 +385,12 @@
     "LIQUIDATION_NOT_FOUND": "Không có biên bản thanh lý đang chờ.",
     "CANNOT_DECIDE_LIQUIDATION": "Chỉ nhà cung cấp của hợp đồng xác nhận thanh lý.",
     "LIQUIDATION_STALE": "Số liệu đã thay đổi từ khi lập biên bản; bên mua cần lập lại.",
-    "INVOICE_SELLER_MISMATCH": "Mã số thuế người bán khác mã số thuế của nhà cung cấp trong hồ sơ hợp đồng."
+    "INVOICE_SELLER_MISMATCH": "Mã số thuế người bán khác mã số thuế của nhà cung cấp trong hồ sơ hợp đồng.",
+    "CANNOT_REQUEST_ACCEPTANCE": "Chỉ nhà cung cấp của hợp đồng gửi đề nghị nghiệm thu.",
+    "NOTHING_TO_ACCEPT": "Mốc này không còn chứng từ nào của bên mua cần đề nghị.",
+    "ACCEPTANCE_REQUEST_PENDING": "Mốc này đang có một đề nghị nghiệm thu chờ bên mua trả lời.",
+    "ACCEPTANCE_REQUEST_NOT_FOUND": "Không có đề nghị nghiệm thu đang chờ.",
+    "CANNOT_DECLINE_ACCEPTANCE": "Chỉ cán bộ hợp đồng bên mua trả lời đề nghị nghiệm thu."
   },
   "milestoneNo": "Mốc {{no}}",
   "overdue_one": "Quá hạn {{count}} ngày",

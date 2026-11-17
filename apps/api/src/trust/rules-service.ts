@@ -15,7 +15,7 @@ import { resolve } from "node:path";
 import { Repository } from "../common/repository";
 import { BaseService } from "../common/services/base.service";
 import type { Actor, RecordEntity } from "../common/types";
-import { repoRoot } from "../common/paths";
+import { pythonEnv, repoRoot } from "../common/paths";
 import { exactDecimal } from "../common/field-validation";
 import { TABLE, COLUMNS } from "../domain/records";
 import { entity } from "../domain/factory";
@@ -290,7 +290,11 @@ export class RulesService {
       const child = spawn(
         processEnvPython(),
         ["apps/engine/validate_rules.py", "--inspect"],
-        { cwd: repoRoot(), stdio: ["pipe", "pipe", "ignore"] },
+        {
+          cwd: repoRoot(),
+          env: pythonEnv(),
+          stdio: ["pipe", "pipe", "ignore"],
+        },
       );
       let output = "";
       const fail = () =>
@@ -444,7 +448,11 @@ export class RulesService {
       const child = spawn(
         processEnvPython(),
         ["apps/engine/validate_rules.py", "--safety"],
-        { cwd: repoRoot(), stdio: ["pipe", "pipe", "ignore"] },
+        {
+          cwd: repoRoot(),
+          env: pythonEnv(),
+          stdio: ["pipe", "pipe", "ignore"],
+        },
       );
       let output = "";
       const fail = () =>
@@ -476,7 +484,11 @@ export class RulesService {
       const process = spawn(
         processEnvPython(),
         ["apps/engine/validate_rules.py"],
-        { cwd: repoRoot(), stdio: ["pipe", "ignore", "ignore"] },
+        {
+          cwd: repoRoot(),
+          env: pythonEnv(),
+          stdio: ["pipe", "ignore", "ignore"],
+        },
       );
       const timer = setTimeout(() => {
         process.kill();

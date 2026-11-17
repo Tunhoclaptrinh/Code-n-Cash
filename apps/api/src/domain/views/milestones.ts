@@ -17,6 +17,11 @@ import type {
   TimelinePoint,
 } from "../types";
 import { isBusinessEvent, TERMINAL } from "../vocabulary";
+import {
+  acceptanceRequestsOf,
+  mayDeclineAcceptance,
+  mayRequestAcceptance,
+} from "../actions/acceptance";
 import { paymentInstruction } from "../actions/payments";
 import { historyOf, toException } from "./shared";
 import { variableLabels } from "../policy";
@@ -185,6 +190,7 @@ export function milestoneDetail(
     // A paying decision draws up its instruction at once; finance only approves it.
     instruction: payment ? null : paymentInstruction(ctx, m, evaluation),
     exceptions: ctx.exceptionsOf(m.milestone_id).map(toException),
+    acceptanceRequests: acceptanceRequestsOf(ctx, m.milestone_id),
     actions,
   };
 }
@@ -214,6 +220,8 @@ export function milestoneActions(
       );
   const approved = votedOwn("APPROVAL");
   return {
+    requestAcceptance: mayRequestAcceptance(ctx, m),
+    declineAcceptance: mayDeclineAcceptance(ctx, m),
     submit:
       open &&
       evaluation.missing.some((t) => isBusinessEvent(t) && ctx.mayRecord(t)),

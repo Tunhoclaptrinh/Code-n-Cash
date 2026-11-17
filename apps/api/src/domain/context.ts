@@ -54,6 +54,7 @@ export const READ_TABLES = [
   TABLE.exceptions,
   TABLE.payments,
   TABLE.amendments,
+  TABLE.acceptanceRequests,
   TABLE.runs,
   TABLE.requests,
   TABLE.profiles,

@@ -9,6 +9,7 @@ import { formatDecimalString } from "@/shared/lib/format";
 import { PageState } from "@/shared/ui/PageState";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { SideCard } from "@/shared/ui/SidePanel";
+import { AcceptancePanel } from "../components/AcceptancePanel";
 import { AmountsPanel } from "../components/AmountsPanel";
 import { ConditionsPanel } from "../components/ConditionsPanel";
 import {
@@ -135,6 +136,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
             onTransfer={confirmTransfer}
           />
           <PendingPanel data={data} onTransfer={confirmTransfer} />
+          <AcceptancePanel data={data} onChanged={refresh} />
           <ConditionsPanel data={data} />
           <AmountsPanel money={money} />
           <RulesPanel data={data} />

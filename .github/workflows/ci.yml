@@ -39,6 +39,51 @@ jobs:
           done
           pnpm test:e2e
 
+  # PostgreSQL storage: the store's own tests, then the API smoke on STORAGE_DRIVER=postgres.
+  postgres:
+    runs-on: ubuntu-latest
+    needs: verify
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_USER: codecash
+          POSTGRES_PASSWORD: codecash-ci
+          POSTGRES_DB: codecash
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U codecash -d codecash"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://codecash:codecash-ci@127.0.0.1:5432/codecash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install document preview tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer poppler-utils fonts-dejavu-core
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @codecash/api build
+      - run: node tests/foundation/postgres.test.mjs
+      - name: API smoke on PostgreSQL
+        run: |
+          STORAGE_DRIVER=postgres DATA_DIR=/tmp/codecash-pg node apps/api/dist/main.js > /tmp/codecash-api.log 2>&1 &
+          API_PID=$!
+          trap 'kill "$API_PID" || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3000/api/v1/health; then break; fi
+            sleep 1
+          done
+          SMOKE_STORAGE_DRIVER=postgres node scripts/smoke.mjs
+      - name: Logs on failure
+        if: failure()
+        run: cat /tmp/codecash-api.log || true
+
   # Builds both production images and runs the compose stack end to end (nginx -> API -> MongoDB).
   docker:
     runs-on: ubuntu-latest

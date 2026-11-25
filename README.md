@@ -101,7 +101,9 @@ pnpm infra:up
 pnpm dev:api
 ```
 
-Mongo cần replica set để giao dịch cập nhật dữ liệu cùng audit. Chế độ file dành cho một tiến trình local; production bắt buộc Mongo và `JWT_SECRET`. Không sao chép `.env`, tài khoản dịch vụ hoặc khóa của UniFlow.
+PostgreSQL 17 cũng dùng được: `pnpm infra:up:pg`, rồi `STORAGE_DRIVER=postgres` và `DATABASE_URL=postgres://codecash:codecash@127.0.0.1:5432/codecash`. CSDL tự chặn sửa, xoá nhật ký và sự kiện, kiểm số thứ tự và liên kết chuỗi băm ([docs/31](docs/31_THIET_KE_CSDL_POSTGRES.md) §12).
+
+Mongo cần replica set để giao dịch cập nhật dữ liệu cùng audit. Chế độ file dành cho một tiến trình local; production bắt buộc Mongo hoặc PostgreSQL, và `JWT_SECRET`. Không sao chép `.env`, tài khoản dịch vụ hoặc khóa của UniFlow.
 
 Trên máy đã thiết lập Mongo local, chạy `nvm use`, rồi `pnpm dev:local` để chờ database sẵn sàng và mở cả web, API, dịch vụ ký. Docker daemon phải đang chạy; trên Ubuntu có thể bật bằng `sudo systemctl start docker`. Compose dùng project cố định `codecash-local`, lưu dữ liệu trong volume `codecash-local_mongo-data`; không dùng `down -v` nếu muốn giữ dữ liệu. Kiểm tra `/api/v1/health` phải trả `storage: "mongo"`; cấu hình và kết quả kiểm tra máy local xem [hướng dẫn local](docs/32_KIEM_TRA_VA_KHOI_CHAY_LOCAL.md).
 

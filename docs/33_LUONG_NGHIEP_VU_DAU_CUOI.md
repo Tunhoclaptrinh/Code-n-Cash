@@ -347,9 +347,9 @@ Mỗi người thấy việc của mình ở **Việc cần làm**, kèm "đang 
 | 7 | **Giải thích được mọi kết quả** | Mỗi quyết định lưu vết luật và con số |
 | 8 | **Dữ liệu của ban tổ chức giữ nguyên** | 405 quyết định không đổi; phụ lục và thanh lý chỉ cho hợp đồng lập trong ứng dụng |
 
-## 9. Ý tưởng từ Contract Smart, chưa có trong CodeCash
+## 9. Ý tưởng từ Contract Smart
 
-Repo Contract Smart đi theo hướng "người dùng tự dựng quy trình". Các ý tưởng đáng cân nhắc cho bản sau:
+Repo Contract Smart đi theo hướng "người dùng tự dựng quy trình". Các ý tưởng của nó và cách CodeCash đã đưa vào (25/11/2026):
 
 | Ý tưởng | Hiện trạng CodeCash | Ghi chú |
 | --- | --- | --- |
@@ -357,8 +357,8 @@ Repo Contract Smart đi theo hướng "người dùng tự dựng quy trình". C
 | **Thư viện mốc có phiên bản**: mốc mẫu (chứng từ + bộ luật) dùng lại cho nhiều loại hợp đồng; loại hợp đồng ghép từ các mốc | **Đã có** (25/11/2026): màn Thư viện mốc liệt kê mọi bản định nghĩa của từng loại mốc, nơi dùng, số hợp đồng; quy trình riêng lấy giai đoạn từ thư viện | Bản mới chỉ sinh từ phiên bản quy tắc, nên 405 quyết định của Data Pack vẫn giữ nguyên |
 | **Luật riêng cho từng hợp đồng** (khách quen được nới điều kiện), không ảnh hưởng luật chung | **Đã có** (25/11/2026): câu mẫu có con số, kiểm an toàn khi lưu, hai bên ký cùng hợp đồng | Xem [Đặc tả](NGHIEP_VU.md) §6.3 |
 | **Quản trị công ty** tự tạo và khoá tài khoản nhân viên công ty mình | **Đã có** (25/11/2026): `ORG_ADMIN`, chỉ cấp vai nghiệp vụ của công ty mình | Kiểm soát viên vẫn do quản trị hệ thống cấp (SoD-1) |
-| **PostgreSQL** có khoá ngoại và trigger khoá dữ liệu đã chốt ngay trong CSDL | Tệp JSON hoặc MongoDB, kiểm bằng mã | Thiết kế cho CodeCash: [31](31_THIET_KE_CSDL_POSTGRES.md); bản Contract Smart đã dựng: [34](34_CSDL_CONTRACT_SMART.md) |
-| **Nhật ký do CSDL niêm phong**: trigger cấp số thứ tự, giờ và mã băm; chụp lại vai trò người làm lúc thao tác | Niêm phong trong `Repository.transact` ở API; nhật ký đã ghi vai trò | Khi chuyển PostgreSQL thì dời việc niêm phong xuống trigger như [34](34_CSDL_CONTRACT_SMART.md) §6b.4 |
+| **PostgreSQL** có khoá ngoại và trigger khoá dữ liệu đã chốt ngay trong CSDL | **Đã có** (25/11/2026): `STORAGE_DRIVER=postgres`, trigger chặn sửa nhật ký và sự kiện, kiểm chuỗi băm trong CSDL; lược đồ quan hệ là bước sau | Thiết kế cho CodeCash: [31](31_THIET_KE_CSDL_POSTGRES.md); bản Contract Smart đã dựng: [34](34_CSDL_CONTRACT_SMART.md) |
+| **Nhật ký do CSDL niêm phong**: trigger cấp số thứ tự, giờ và mã băm; chụp lại vai trò người làm lúc thao tác | Trên PostgreSQL: CSDL kiểm số thứ tự, liên kết, đặt giờ ghi, chặn sửa và xoá; mã băm vẫn do API tính; nhật ký đã ghi vai trò | Tính mã băm trong CSDL cần JSON chuẩn hoá giống hệt API |
 
 Ngược lại, nhiều mục Contract Smart còn đánh dấu "chưa làm" thì CodeCash đã có: ký hai bên qua dịch vụ ký, ngoại lệ hai người, chứng từ có tệp và chữ ký, kiểm hoá đơn, cảnh báo trình tự, điểm tin cậy, phụ lục, thanh lý, việc cần làm, tổng quan.
 

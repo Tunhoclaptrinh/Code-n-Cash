@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { streamChanges } from "../api/notifications.api";
 
 export type LiveStatus = "connecting" | "live" | "offline";
@@ -16,6 +16,17 @@ const COALESCE_MS = 300;
  */
 export const refreshedByLiveUpdates = (queryKey: readonly unknown[]) =>
   queryKey[0] !== "signing-device";
+
+/**
+ * After a change every cached screen is out of date, not only the open ones: an open screen is
+ * re-read now, a screen opened later (the contract list after signing elsewhere) is re-read when
+ * it mounts instead of showing the cached answer, such as the previous signer, for up to 30 s.
+ */
+export const markChanged = (cache: QueryClient) =>
+  cache.invalidateQueries({
+    predicate: (query) => refreshedByLiveUpdates(query.queryKey),
+    refetchType: "active",
+  });
 
 /**
  * Keeps one change stream open while the user is signed in and the tab is visible. When another
@@ -40,10 +51,7 @@ export function useLiveUpdates(userId: string): LiveStatus {
       if (pending) return;
       pending = setTimeout(() => {
         pending = undefined;
-        void cache.invalidateQueries({
-          type: "active",
-          predicate: (query) => refreshedByLiveUpdates(query.queryKey),
-        });
+        void markChanged(cache);
       }, COALESCE_MS);
     };
 

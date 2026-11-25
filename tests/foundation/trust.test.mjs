@@ -1814,3 +1814,181 @@ test("a version adds its own APP_ workflow: checked for completeness, proven saf
   assert.equal(small.decision, "RELEASE", JSON.stringify(small.issues));
   assert.equal(small.approvalRequired, false);
 });
+
+test("rule sentence templates, tightening and loosening, pass the safety proof where the editor places them", async () => {
+  const {
+    scaffoldAppWorkflow,
+    nextRuleNumber,
+    appWorkflowProblems,
+    RULE_TEMPLATES,
+    templateFields,
+    templatePriority,
+  } = await import("../../apps/api/dist/trust/rule-workflows.js");
+  const author = actors["u-sysadmin"];
+  const code = "APP_GOODS_TEMPLATES";
+  const version = await rules.create(
+    { name: "Câu mẫu", reason: "Siết và nới luật bằng câu mẫu" },
+    author,
+  );
+  const added = scaffoldAppWorkflow({
+    code,
+    name: "Hàng hoá theo câu mẫu",
+    contractType: "GOODS_SUPPLY",
+    rules: version.rules,
+    templates: version.templates,
+  });
+  // Every template goes into every scope of the workflow, where `place` puts it.
+  const withTemplates = (place = templatePriority) => {
+    const result = [...added.rules];
+    for (const scope of [
+      ...new Set(added.rules.map((r) => r.release_rule_code)),
+    ])
+      for (const template of RULE_TEMPLATES) {
+        const scoped = result.filter((r) => r.release_rule_code === scope);
+        const fallback = scoped.find((r) => r.condition_expression === "ELSE");
+        const used = new Set(scoped.map((r) => Number(r.priority)));
+        const priority = place(template, used, Number(fallback.priority));
+        assert.ok(priority, `${template.key} has a place in ${scope}`);
+        result.push({
+          ...fallback,
+          ...templateFields(template),
+          rule_id: `${code}-${nextRuleNumber(result, code)}`,
+          priority: String(priority),
+          rule_name: template.key,
+          rule_group: "APP",
+          rule_description_vi: template.key,
+        });
+      }
+    return result;
+  };
+  let current = version;
+  const previewOf = async (appRules) => {
+    current = await rules.save(
+      current.id,
+      {
+        version: current.version,
+        rules: [...version.rules, ...appRules],
+        templates: [...version.templates, ...added.templates],
+      },
+      author,
+    );
+    return rules.preview(current.id, {
+      version: current.version,
+      rules: current.rules,
+      templates: current.templates,
+    });
+  };
+
+  // Where the editor places them: complete, valid expressions, proven safe, Data Pack unchanged.
+  const placed = withTemplates();
+  assert.deepEqual(appWorkflowProblems(placed, added.templates), []);
+  const preview = await previewOf(placed);
+  const syntax = await rules.checkExpressions({ rules: current.rules });
+  assert.equal(syntax.valid, true, JSON.stringify(syntax.issues?.slice(0, 3)));
+  assert.equal(preview.safety.safe, true, JSON.stringify(preview.safety));
+  assert.equal(
+    preview.changed,
+    0,
+    "the organiser's 405 milestones are untouched",
+  );
+  assert.equal(preview.canSubmit, true);
+
+  // The loosening templates repeat the blocking guards, so even moved above every blocking rule
+  // they never pay a blocked milestone.
+  const early = withTemplates((template, used, fallback) =>
+    template.kind === "LOOSEN"
+      ? [1, 2, 3, 4, 5].find((p) => !used.has(p))
+      : templatePriority(template, used, fallback),
+  );
+  assert.equal((await previewOf(early)).safety.safe, true);
+  // Without those guards the same waiver, placed first, pays a disputed or unapproved milestone.
+  const unguarded = early.map((rule) =>
+    rule.rule_name === "WAIVE_SHORT_DELAY"
+      ? {
+          ...rule,
+          condition_expression:
+            "days_late_after_grace > 0 AND days_late_after_grace <= 3",
+        }
+      : rule,
+  );
+  const unsafe = await previewOf(unguarded);
+  assert.equal(unsafe.safety.safe, false);
+  assert.equal(unsafe.canSubmit, false);
+
+  // What the loosening rules do to real late milestones of the Data Pack: moved onto the new
+  // workflow's scope, a short delay is waived, a longer one pays half the penalty, a very late one
+  // is held for review; the standard rules penalise all of them in full.
+  const { runEngine } = await import("../../apps/api/dist/domain/engine.js");
+  const { loadDataPack } =
+    await import("../../apps/api/dist/domain/datapack.js");
+  const { TABLE } = await import("../../apps/api/dist/domain/records.js");
+  const pack = await loadDataPack();
+  const run = async (milestones, ruleRows) =>
+    (
+      await runEngine({
+        [TABLE.contracts]: pack.contracts,
+        [TABLE.parties]: pack.parties,
+        [TABLE.milestones]: milestones,
+        [TABLE.events]: pack.events.filter((e) =>
+          milestones.some((m) => m.milestone_id === e.milestone_id),
+        ),
+        [TABLE.rules]: ruleRows,
+        [TABLE.exceptions]: [],
+      })
+    ).evaluations;
+  const goods = new Set(
+    pack.contracts
+      .filter((c) => c.contract_type === "GOODS_SUPPLY")
+      .map((c) => c.contract_id),
+  );
+  const standard = await run(
+    pack.milestones.filter((m) => goods.has(m.contract_id)),
+    pack.payment_rules,
+  );
+  const late = [...standard.values()].filter((e) => e.decision === "PENALTY");
+  assert.ok(late.length > 0, "the Data Pack has late goods milestones");
+  const moved = pack.milestones
+    .filter((m) => late.some((e) => e.milestoneId === m.milestone_id))
+    .map((m) => ({
+      ...m,
+      release_rule_code: `${code}:${m.milestone_type}`,
+    }));
+  const tuned = await run(moved, [...pack.payment_rules, ...placed]);
+  const cents = (value) => Math.round(Number(value) * 100);
+  const seen = new Set();
+  for (const before of late) {
+    const after = tuned.get(before.milestoneId);
+    const planned = cents(
+      moved.find((m) => m.milestone_id === before.milestoneId)
+        .planned_payment_vnd_mn,
+    );
+    // In priority order: at least 2 approvals (51), very late (53), large (55), short delay (57).
+    if (before.validApprovalCount < 2) {
+      seen.add("approvals");
+      assert.equal(after.decision, "HOLD", before.milestoneId);
+      assert.equal(after.reasonCode, "APPROVAL_QUORUM_NOT_MET");
+    } else if (before.daysLate > 30) {
+      seen.add("review");
+      assert.equal(after.decision, "HOLD", before.milestoneId);
+    } else if (planned > 100000) {
+      seen.add("large");
+      assert.equal(after.decision, "HOLD", before.milestoneId);
+    } else if (before.daysLate <= 3) {
+      seen.add("waived");
+      assert.equal(after.decision, "RELEASE", before.milestoneId);
+      assert.equal(after.penaltyMillion, "0.00");
+    } else {
+      seen.add("half");
+      assert.equal(after.decision, "PENALTY", before.milestoneId);
+      // Half the standard penalty, to the cent (each rounded half up on its own).
+      assert.ok(
+        Math.abs(
+          cents(after.penaltyMillion) * 2 - cents(before.penaltyMillion),
+        ) <= 1,
+        `${before.milestoneId}: ${after.penaltyMillion} vs ${before.penaltyMillion}`,
+      );
+    }
+  }
+  assert.ok(seen.has("waived") || seen.has("half"), [...seen].join());
+  assert.ok(seen.has("approvals"), [...seen].join());
+});

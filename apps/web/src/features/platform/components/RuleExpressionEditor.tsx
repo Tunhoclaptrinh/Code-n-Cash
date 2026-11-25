@@ -37,6 +37,7 @@ import {
 } from "@codecash/contracts";
 import { trustApi } from "@/shared/api/trust";
 import { useCurrentUser } from "@/shared/auth/session";
+import { RULE_TEMPLATES, type RuleTemplateKey } from "@codecash/contracts";
 import styles from "./RuleExpressionEditor.module.css";
 type Rule = RuleVersion["rules"][number];
 const fields: RuleExpressionField[] = [
@@ -77,7 +78,7 @@ export function RuleExpressionEditor({
   /** Copies the selected organiser rule's expressions onto its 16 copies (same priority). */
   onApplyFamily?: (id: string) => void;
   /** Adds a rule to an app scope and returns its id, which the editor then selects. */
-  onAddRule?: (scope: string) => string;
+  onAddRule?: (scope: string, template?: RuleTemplateKey) => string;
   onRemoveRule?: (id: string) => void;
   /** Opens the new-workflow form for a contract type: organiser scopes cannot gain rules. */
   onCreateWorkflow?: (contractType: string) => void;
@@ -272,14 +273,40 @@ export function RuleExpressionEditor({
           className={styles.ruleList}
         >
           {appScope && editable && onAddRule ? (
-            <Button
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={() => setRuleId(onAddRule(activeScope))}
-              data-testid="rule-add"
-            >
-              {t("rules.app.addRule")}
-            </Button>
+            <Space.Compact size="small">
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => setRuleId(onAddRule(activeScope))}
+                data-testid="rule-add"
+              >
+                {t("rules.app.addRule")}
+              </Button>
+              {/* Sentence templates: a ready rule whose number is then edited below. */}
+              <Dropdown
+                trigger={["click"]}
+                menu={{
+                  // Grouped by effect: hold in more cases, or pay more readily.
+                  items: (["TIGHTEN", "LOOSEN"] as const).map((kind) => ({
+                    type: "group" as const,
+                    key: kind,
+                    label: t(`rules.ruleTemplates.kind.${kind}`),
+                    children: RULE_TEMPLATES.filter(
+                      (template) => template.kind === kind,
+                    ).map((template) => ({
+                      key: template.key,
+                      label: t(`rules.ruleTemplates.${template.key}.name`),
+                      "data-testid": `rule-template-${template.key}`,
+                    })),
+                  })),
+                  onClick: ({ key }) =>
+                    setRuleId(onAddRule(activeScope, key as RuleTemplateKey)),
+                }}
+              >
+                <Button data-testid="rule-add-template">
+                  {t("rules.ruleTemplates.button")}
+                </Button>
+              </Dropdown>
+            </Space.Compact>
           ) : null}
           {scoped.map((row) => (
             <button

@@ -86,6 +86,15 @@ Bấm **Kiểm tra cú pháp** để kiểm cả 384 biểu thức. Bấm lỗi 
 
 ![Sai đơn vị: 1 — biểu thức cộng tiền với ngày; 2 — lỗi cần sửa](../../../public/guide/images/rules-unit-error.webp)
 
+Trong quy trình riêng (`APP_…`), nút **Câu mẫu** thêm sẵn một luật đã viết đúng, rồi chỉ cần sửa con số trong điều kiện:
+
+| Nhóm      | Câu mẫu                                                                                                                                | Ưu tiên |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Siết chặt | Chưa đủ 2 vai trò duyệt thì giữ tiền; trễ quá 30 ngày sau ân hạn thì giữ để xem xét; mốc trên 1.000 triệu thì giữ để kiểm tra thủ công | 51–55   |
+| Nới lỏng  | Trễ không quá 3 ngày sau ân hạn thì miễn phạt; trễ hạn thì phạt một nửa mức hợp đồng                                                   | 56–59   |
+
+Câu mẫu luôn nằm sau các luật chặn (10–50) và trước luật phạt (60); luật siết đứng trên luật nới, nên "mốc lớn thì giữ" thắng "trễ ít thì miễn phạt". Câu nới lỏng tự lặp lại điều kiện "đủ chứng từ, không tranh chấp, không bị từ chối", nên không bao giờ trả một mốc đang bị chặn; không câu mẫu nào bỏ qua được số người duyệt của hợp đồng. Phiên bản vẫn phải qua chạy thử và chứng minh an toàn như mọi thay đổi khác.
+
 ![Chạy thử: 1 — kết quả toàn pack; 2 — gửi duyệt](../../../public/guide/images/rules-preview.webp)
 
 Bấm **Chạy thử tác động**: kiểm cú pháp, chạy cả 405 mốc, so 20 mẫu và so quyết định/lý do/trạng thái/tiền với baseline. Có thay đổi thì mở danh sách tối đa 30 mốc để đối chiếu; bản làm đổi kết quả pack bị chặn gửi duyệt. Thay mẫu mốc chỉ áp dụng cho hồ sơ mới, không viết lại mốc BTC. Sửa bất kỳ ô cấu hình nào sẽ bỏ kết quả chạy thử cũ; phải chạy lại trước khi gửi duyệt (2). Người quản trị thứ hai mới được duyệt phát hành. Khớp 20 mẫu và giữ baseline không phải chứng nhận đúng toàn bộ ground truth ẩn.

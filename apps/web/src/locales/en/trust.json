@@ -305,7 +305,35 @@
       "organiserScopeHint": "The organiser rules must give identical results on the 405 Data Pack milestones. To add rules or stages, create an own (APP_) workflow for the same contract type: it starts as a copy of these rules and applies only to newly drafted contracts.",
       "addWorkflowFor": "Create own workflow for {{type}}"
     },
-    "empty": "No rule version yet. Choose “New version” to start from the rules in use."
+    "empty": "No rule version yet. Choose “New version” to start from the rules in use.",
+    "ruleTemplates": {
+      "button": "Templates",
+      "LATE_REVIEW": {
+        "name": "Hold for review when more than 30 days late after grace",
+        "description": "A milestone completed more than 30 days late (after grace) is neither paid nor penalised automatically; an authorised person reviews it. Edit 30 in the condition."
+      },
+      "MIN_APPROVALS": {
+        "name": "Hold until at least 2 roles have approved",
+        "description": "Requires at least 2 approving roles, even when the contract policy needs fewer. Edit 2 in the condition."
+      },
+      "LARGE_REVIEW": {
+        "name": "Hold milestones above 1,000 million for a manual check",
+        "description": "Large milestones are held for a manual check before payment. Edit the 1000 (million) threshold in the condition."
+      },
+      "kind": {
+        "TIGHTEN": "Tighten: hold the payment in more cases",
+        "LOOSEN": "Loosen: pay more readily when late"
+      },
+      "full": "No priority left for this template in the scope (51–55 to tighten, 56–59 to loosen).",
+      "WAIVE_SHORT_DELAY": {
+        "name": "Waive the penalty when at most 3 days late after grace",
+        "description": "A milestone 1–3 days late after the grace period is paid in full, without a penalty. It still applies only with no dispute, rejection, missing document or missing approval. Edit 3 in the condition."
+      },
+      "HALF_PENALTY": {
+        "name": "Penalise late completion at half the contract rate",
+        "description": "A milestone late after grace is penalised at half the contract daily rate, still within the cap. It sits before the standard penalty rule, so it replaces that rule in this scope."
+      }
+    }
   },
   "fields": {
     "valueMillion": "Contract value (million VND)",

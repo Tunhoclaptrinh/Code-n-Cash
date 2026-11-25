@@ -53,6 +53,12 @@ import { AppPage } from "@/shared/layout/AppPage";
 import { TableRowActions } from "@/shared/ui/TableRowActions";
 import { DemoFormFill } from "@/shared/ui/DemoFillButton";
 import { STAT_TONE } from "@/shared/ui/statTone";
+import {
+  RULE_TEMPLATES,
+  templateFields,
+  templatePriority,
+  type RuleTemplateKey,
+} from "@codecash/contracts";
 import { RuleExpressionEditor } from "./components/RuleExpressionEditor";
 import styles from "./components/RuleExpressionEditor.module.css";
 import { localList, useListQuery } from "@/shared/lib/useListQuery";
@@ -359,15 +365,26 @@ export default function RuleVersionsPage() {
             : row,
       );
     });
-  const addRule = (scope: string) => {
+  /** Adds a blank rule, or one from a sentence template (rule-workflows.ts), to an app scope. */
+  const addRule = (scope: string, templateKey?: RuleTemplateKey) => {
     const scoped = rules.filter((rule) => rule.release_rule_code === scope);
     const fallback = scoped.find(
       (rule) => rule.condition_expression.trim() === "ELSE",
     );
     const used = new Set(scoped.map((rule) => Number(rule.priority)));
-    const below = Number(fallback?.priority ?? 1000) - 1;
-    let priority = below;
+    const fallbackPriority = Number(fallback?.priority ?? 1000);
+    const template = RULE_TEMPLATES.find((row) => row.key === templateKey);
+    let priority = fallbackPriority - 1;
     while (priority > 0 && used.has(priority)) priority--;
+    if (template) {
+      const placed = templatePriority(template, used, fallbackPriority);
+      // Every priority of the template's window is taken: nothing is added.
+      if (placed === null) {
+        message.warning(t("rules.ruleTemplates.full"));
+        return scoped[0]?.rule_id ?? "";
+      }
+      priority = placed;
+    }
     const model = fallback ?? scoped[0];
     const ruleId = `${model.rule_set_id}-${nextRuleNumber(rules, model.rule_set_id)}`;
     setRules((all) => [
@@ -376,14 +393,24 @@ export default function RuleVersionsPage() {
         ...model,
         rule_id: ruleId,
         priority: String(Math.max(1, priority)),
-        rule_name: t("rules.app.newRuleName"),
         rule_group: "APP",
-        condition_expression: "FALSE",
-        decision: "HOLD",
-        reason_code: "UNRESOLVED_CONDITION",
-        payable_amount_formula: "0",
-        penalty_amount_formula: "0",
-        rule_description_vi: t("rules.app.newRuleDescription"),
+        ...(template
+          ? {
+              ...templateFields(template),
+              rule_name: t(`rules.ruleTemplates.${template.key}.name`),
+              rule_description_vi: t(
+                `rules.ruleTemplates.${template.key}.description`,
+              ),
+            }
+          : {
+              rule_name: t("rules.app.newRuleName"),
+              condition_expression: "FALSE",
+              decision: "HOLD",
+              reason_code: "UNRESOLVED_CONDITION",
+              payable_amount_formula: "0",
+              penalty_amount_formula: "0",
+              rule_description_vi: t("rules.app.newRuleDescription"),
+            }),
       },
     ]);
     return ruleId;

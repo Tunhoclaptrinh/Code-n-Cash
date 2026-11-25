@@ -64,6 +64,15 @@ Open **Variables, syntax and examples**, search (1), and inspect meaning, type, 
 
 ![Unit mismatch: 1 — money added to days; 2 — diagnostic to correct](../../../public/guide/images/rules-unit-error.webp)
 
+In an app workflow (`APP_…`), **Templates** adds a ready rule; then only edit the number in its condition:
+
+| Group   | Templates                                                                                                                                 | Priority |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Tighten | Hold until at least 2 roles approved; hold for review when more than 30 days late; hold milestones above 1,000 million for a manual check | 51–55    |
+| Loosen  | Waive the penalty when at most 3 days late; penalise at half the contract rate                                                            | 56–59    |
+
+Templates always sit after the blocking rules (10–50) and before the penalty (60), tightening above loosening, so "hold large milestones" wins over "waive a short delay". Loosening templates repeat the "documents complete, no dispute, no rejection" guards, so they never pay a blocked milestone, and none can skip the contract's approvals. The version still goes through preview and the safety proof like any other change.
+
 ![Preview: 1 — full-pack results; 2 — submit](../../../public/guide/images/rules-preview.webp)
 
 **Preview impact** validates syntax, runs all 405 milestones, checks 20 public examples and compares decisions, reasons, statuses and amounts with the baseline. Inspect up to 30 changed milestones; any changed pack result blocks submission. Template edits affect new contracts only, without rewriting organiser milestones. Editing configuration invalidates the previous preview; preview again before submitting (2). Another administrator must publish. Matching the public examples and preserving baseline do not verify hidden ground truth.

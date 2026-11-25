@@ -350,7 +350,7 @@ Repo Contract Smart đi theo hướng "người dùng tự dựng quy trình". C
 
 | Ý tưởng | Hiện trạng CodeCash | Ghi chú |
 | --- | --- | --- |
-| **Viết luật bằng câu mẫu** ("Trễ quá **n** ngày thì …", "Chưa đủ **n** người duyệt thì giữ") thay vì gõ biểu thức | Sửa biểu thức có kiểm tra và bảng thuật ngữ | Đang làm câu mẫu chỉ giữ tiền, vì câu mẫu trả tiền dễ đặt sai thứ tự |
+| **Viết luật bằng câu mẫu** ("Trễ quá **n** ngày thì …", "Chưa đủ **n** người duyệt thì giữ") thay vì gõ biểu thức | **Đã có** (25/11/2026): 3 câu siết, 2 câu nới, đặt tự động vào khoảng ưu tiên an toàn | Xem [Đặc tả](NGHIEP_VU.md) §6.3 |
 | **Thư viện mốc có phiên bản**: mốc mẫu (chứng từ + bộ luật) dùng lại cho nhiều loại hợp đồng; loại hợp đồng ghép từ các mốc | Quy trình riêng `APP_…` trong phiên bản luật | Thư viện mốc linh hoạt hơn nhưng phải giữ 405 quyết định của Data Pack |
 | **Luật riêng cho từng hợp đồng** (khách quen được nới điều kiện), không ảnh hưởng luật chung | Chưa có; chỉnh tay mốc chỉ đổi tỷ lệ, hạn, chứng từ, phạt, miễn duyệt | Cần chứng minh an toàn cho từng bản riêng |
 | **Quản trị công ty** tự tạo và khoá tài khoản nhân viên công ty mình | Quản trị hệ thống quản lý mọi tài khoản | Phải giữ tách nhiệm SoD-1 |

@@ -359,6 +359,37 @@ try {
     ),
     false,
   );
+  // A sentence template: the loosening "waive a short delay" lands at 57, between the blocking
+  // rules (10…50) and the penalty (60), with its guards in the condition.
+  const withBlank = await evaluate(
+    "document.querySelectorAll('[data-testid^=rule-option-]').length",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-add-template]').click()",
+  );
+  await until(
+    "!!document.querySelector('[data-testid=rule-template-WAIVE_SHORT_DELAY]')",
+  );
+  assert.ok(
+    await evaluate(
+      "document.querySelectorAll('.ant-dropdown .ant-dropdown-menu-item-group').length === 2 && !!document.querySelector('[data-testid=rule-template-LATE_REVIEW]')",
+    ),
+    "templates are grouped by effect",
+  );
+  await evaluate(
+    "document.querySelector('[data-testid=rule-template-WAIVE_SHORT_DELAY]').click()",
+  );
+  await until(
+    `document.querySelectorAll('[data-testid^=rule-option-]').length === ${withBlank + 1}`,
+  );
+  const added = await evaluate(`(() => {
+    const chosen = document.querySelector('[data-testid^=rule-option-][aria-pressed=true]');
+    return { text: chosen.innerText, detail: Array.from(document.querySelectorAll('[data-testid=rule-expression-detail] textarea')).map((x) => x.value).join('\\n') };
+  })()`);
+  assert.match(added.text, /57/);
+  assert.match(added.text, /RELEASE/);
+  assert.match(added.detail, /days_late_after_grace <= 3/);
+  assert.match(added.detail, /open_dispute == FALSE/);
   const layout = await evaluate(
     "(() => { const body=document.querySelector('.ant-modal-body'); return {width:body.clientWidth,scroll:body.scrollWidth,overflow:getComputedStyle(body).overflowY}; })()",
   );
@@ -384,7 +415,7 @@ try {
   );
   assert.equal(errors.length, 0, errors.join("\n"));
   console.log(
-    "Rule editor browser smoke passed: full preview, edit invalidation, typed errors, stable selection, restore, glossary, desktop/mobile layout; no publishing.",
+    "Rule editor browser smoke passed: full preview, edit invalidation, typed errors, stable selection, restore, glossary, sentence templates, desktop/mobile layout; no publishing.",
   );
 } finally {
   ws?.close();

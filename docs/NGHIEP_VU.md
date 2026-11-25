@@ -234,6 +234,7 @@ Chưa làm: ký số cho chính văn bản phụ lục (hiện hai bên xác nh�
 | Thêm, xoá, đổi tên giai đoạn; đổi loại mốc, tỷ lệ thanh toán, số ngày tới hạn, chứng từ bắt buộc, phạt trễ | như trên |
 | Cho một giai đoạn không cần phê duyệt dù chính sách hợp đồng có (ví dụ khởi động) | cột Phê duyệt |
 | Thêm, xoá luật trong phạm vi của quy trình riêng; đổi ưu tiên, quyết định, mã lý do, điều kiện, công thức | tab Luật |
+| Thêm luật từ **câu mẫu** rồi sửa con số: siết (giữ tiền khi chưa đủ 2 vai trò duyệt, trễ quá 30 ngày, mốc trên 1.000 triệu; ưu tiên 51–55) hoặc nới (miễn phạt khi trễ ≤ 3 ngày, phạt một nửa; ưu tiên 56–59). Câu nới lặp lại điều kiện chặn nên an toàn ở mọi vị trí; không câu nào bỏ qua số người duyệt. Định nghĩa: `RULE_TEMPLATES` trong `rule-workflows.ts` | tab Luật, nút Câu mẫu |
 | Sửa một luật của BTC rồi áp cho cả 16 bản cùng ưu tiên; cảnh báo khi các bản đã lệch nhau | tab Luật |
 | Bên soạn hợp đồng chọn quy trình riêng khi phiên bản đang công bố có quy trình cho loại hợp đồng đó | Tải hợp đồng lên, ô Quy trình mốc |
 

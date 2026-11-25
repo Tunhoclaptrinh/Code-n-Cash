@@ -468,3 +468,141 @@ export function divergedFamilies(rules: VersionRule[]): string[] {
   }
   return [...diverged].sort((a, b) => Number(a) - Number(b));
 }
+
+/**
+ * Sentence templates for adding a rule to an app workflow scope: a person picks a sentence such as
+ * "Waive the penalty when at most 3 days late" instead of writing the expression, then edits the
+ * number in the expression editor. Idea taken from the Contract Smart rule builder.
+ *
+ * Two kinds, placed between the organiser's blocking rules (10…50) and the late penalty (60):
+ * - TIGHTEN (51…55): hold the payment in more cases. They pay nothing.
+ * - LOOSEN (56…59): pay more readily than the standard rules: waive or soften a late penalty.
+ *   They only ever run after every blocking rule (dispute, rejection, unauthorized or missing
+ *   document, approval quorum) has not matched, and repeat those guards in their condition, so the
+ *   safety proof accepts them wherever the blocking rules stay above them. A template cannot skip
+ *   the approvals: the quorum is part of the contract and the safety proof treats it as a blocker.
+ * Tightening rules sit above loosening ones, so "hold large milestones" wins over "waive a short
+ * delay". The reason code also sets the milestone status (policy pack), so each template uses the
+ * reason whose status matches its decision.
+ */
+export type RuleTemplateKey =
+  | "LATE_REVIEW"
+  | "MIN_APPROVALS"
+  | "LARGE_REVIEW"
+  | "WAIVE_SHORT_DELAY"
+  | "HALF_PENALTY";
+
+export type RuleTemplateKind = "TIGHTEN" | "LOOSEN";
+
+export interface RuleTemplate {
+  key: RuleTemplateKey;
+  kind: RuleTemplateKind;
+  /** Preferred priority, inside the kind's window. */
+  priority: number;
+  condition: string;
+  decision: "HOLD" | "RELEASE" | "PENALTY";
+  reasonCode:
+    | "UNRESOLVED_CONDITION"
+    | "APPROVAL_QUORUM_NOT_MET"
+    | "ALL_CONDITIONS_MET"
+    | "LATE_COMPLETION";
+  payable: string;
+  penalty: string;
+}
+
+/** Priorities each kind may take (inclusive): after the blockers (50), before the penalty (60). */
+export const RULE_TEMPLATE_WINDOWS: Record<RuleTemplateKind, [number, number]> =
+  { TIGHTEN: [51, 55], LOOSEN: [56, 59] };
+
+/** None of the blocking facts holds: the guard every loosening template repeats. */
+const NOT_BLOCKED =
+  "all_required_conditions_met == TRUE AND open_dispute == FALSE AND valid_rejection_event_count == 0";
+
+export const RULE_TEMPLATES: RuleTemplate[] = [
+  {
+    // A milestone this late is looked at by a person, neither paid nor penalised automatically.
+    key: "LATE_REVIEW",
+    kind: "TIGHTEN",
+    priority: 53,
+    condition: "days_late_after_grace > 30",
+    decision: "HOLD",
+    reasonCode: "UNRESOLVED_CONDITION",
+    payable: "0",
+    penalty: "0",
+  },
+  {
+    // Asks more approving roles than the contract policy does.
+    key: "MIN_APPROVALS",
+    kind: "TIGHTEN",
+    priority: 51,
+    condition: "valid_approval_count < 2",
+    decision: "HOLD",
+    reasonCode: "APPROVAL_QUORUM_NOT_MET",
+    payable: "0",
+    penalty: "0",
+  },
+  {
+    // A large milestone is checked by hand before payment.
+    key: "LARGE_REVIEW",
+    kind: "TIGHTEN",
+    priority: 55,
+    condition: "planned_payment_vnd_mn > 1000",
+    decision: "HOLD",
+    reasonCode: "UNRESOLVED_CONDITION",
+    payable: "0",
+    penalty: "0",
+  },
+  {
+    // A short delay after the grace period is forgiven: paid in full.
+    key: "WAIVE_SHORT_DELAY",
+    kind: "LOOSEN",
+    priority: 57,
+    condition: `days_late_after_grace > 0 AND days_late_after_grace <= 3 AND ${NOT_BLOCKED}`,
+    decision: "RELEASE",
+    reasonCode: "ALL_CONDITIONS_MET",
+    payable: "planned_payment_vnd_mn",
+    penalty: "0",
+  },
+  {
+    // Late completion is penalised at half the contract rate, still within the cap.
+    key: "HALF_PENALTY",
+    kind: "LOOSEN",
+    priority: 59,
+    condition: `late_penalty_applicable == TRUE AND actual_completion_date > due_date + grace_period_days AND ${NOT_BLOCKED}`,
+    decision: "PENALTY",
+    reasonCode: "LATE_COMPLETION",
+    payable: "MAX(0, planned_payment_vnd_mn - penalty_amount_vnd_mn)",
+    penalty:
+      "MIN(days_late_after_grace * penalty_rate_pct_per_day / 100 * planned_payment_vnd_mn / 2, max_penalty_pct / 100 * planned_payment_vnd_mn)",
+  },
+];
+
+/**
+ * The priority a template takes in a scope: its own when free, otherwise the nearest free value of
+ * its kind's window, which also stays above the scope's fallback; null when the window is full.
+ */
+export function templatePriority(
+  template: RuleTemplate,
+  used: Set<number>,
+  fallbackPriority: number,
+): number | null {
+  const [low, windowHigh] = RULE_TEMPLATE_WINDOWS[template.kind];
+  const high = Math.min(windowHigh, fallbackPriority - 1);
+  for (let step = 0; step <= windowHigh - low; step++)
+    for (const candidate of [
+      template.priority - step,
+      template.priority + step,
+    ])
+      if (candidate >= low && candidate <= high && !used.has(candidate))
+        return candidate;
+  return null;
+}
+
+/** The rule fields a template sets; names and descriptions come from the caller's language. */
+export const templateFields = (template: RuleTemplate) => ({
+  condition_expression: template.condition,
+  decision: template.decision,
+  reason_code: template.reasonCode,
+  payable_amount_formula: template.payable,
+  penalty_amount_formula: template.penalty,
+});

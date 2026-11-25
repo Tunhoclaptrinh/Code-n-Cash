@@ -4,6 +4,7 @@ import type {
   ExtractionProposal,
   LocalProof,
   RuleVersion,
+  MilestoneLibraryEntry,
   RuleLanguage,
   RuleExpressionValidation,
   RulePreview,
@@ -80,6 +81,8 @@ export const trustApi = {
       templates,
     }),
   rules: () => platform.get<RuleVersion[]>("/trust/rules"),
+  milestoneLibrary: () =>
+    platform.get<MilestoneLibraryEntry[]>("/trust/rules/library"),
   createRuleVersion: (values: { name: string; reason: string }) =>
     write<RuleVersion>("/rules", values),
   saveRuleVersion: (

@@ -26,6 +26,7 @@ import { toCents } from "../domain/templates";
 import { BUSINESS_EVENTS } from "../domain/vocabulary";
 import { versionHash, versionRuleSet } from "../domain/rule-versions";
 import { proveSafety } from "../domain/contract-rules";
+import { milestoneLibrary } from "./milestone-library";
 import {
   MAX_VERSION_RULES,
   appWorkflowProblems,
@@ -70,6 +71,26 @@ export class RulesService {
     @Inject(Repository) private repo: Repository,
     @Inject(BaseService) private base: BaseService,
   ) {}
+  /** The milestone library: every definition of each milestone type, with where it is used. */
+  async library() {
+    const [rules, templates, versions, contracts, milestones] =
+      await Promise.all([
+        this.repo.list(TABLE.rules),
+        this.repo.list("milestone-templates"),
+        this.repo.list("rule-versions"),
+        this.repo.list(TABLE.contracts),
+        this.repo.list(TABLE.milestones),
+      ]);
+    return milestoneLibrary({
+      dataPackRules: rules.filter((rule) => rule.origin === "DATA_PACK"),
+      dataPackTemplates: templates.filter(
+        (template) => template.origin === "DATA_PACK",
+      ),
+      versions,
+      contracts,
+      milestones,
+    });
+  }
   async list() {
     return (await this.repo.list("rule-versions"))
       .map((version) => ({

@@ -353,5 +353,51 @@
   },
   "actions": "Thao tác",
   "refresh": "Làm mới",
-  "saved": "Đã lưu cấu hình."
+  "saved": "Đã lưu cấu hình.",
+  "library": {
+    "notice": "Mỗi loại mốc với mọi định nghĩa nó từng có (chứng từ, phạt, phê duyệt và bộ luật), nơi dùng và số hợp đồng đang chấm theo định nghĩa đó. Định nghĩa mới chỉ sinh ra từ một phiên bản quy tắc đã chạy thử, chứng minh an toàn và được người thứ hai công bố; hợp đồng đã ký giữ định nghĩa của phiên bản nó ghim. Khi soạn quy trình riêng có thể lấy giai đoạn từ thư viện.",
+    "empty": "Chưa có mốc nào.",
+    "search": "Tìm loại mốc, chứng từ, phiên bản hoặc quy trình…",
+    "stats": {
+      "types": "Loại mốc",
+      "versions": "Phiên bản mốc",
+      "fromVersions": "Sinh từ phiên bản quy tắc"
+    },
+    "columns": {
+      "milestone": "Loại mốc",
+      "version": "Phiên bản",
+      "documents": "Chứng từ bắt buộc",
+      "terms": "Điều kiện",
+      "firstSeen": "Xuất hiện lần đầu",
+      "changes": "Khác bản gần nhất",
+      "contracts": "Hợp đồng"
+    },
+    "versionNo": "Bản {{n}}",
+    "dataPack": "Data Pack của BTC",
+    "penalty": "Phạt trễ",
+    "noPenalty": "Không phạt",
+    "approval": {
+      "CONTRACT": "Duyệt theo chính sách",
+      "NONE": "Không cần duyệt"
+    },
+    "ruleCount_one": "{{count}} luật",
+    "ruleCount_other": "{{count}} luật",
+    "changes": {
+      "EVIDENCE": "Chứng từ",
+      "PENALTY": "Phạt",
+      "APPROVAL": "Phê duyệt",
+      "RULES": "Luật"
+    },
+    "usedBy": "Đang dùng ở",
+    "stage": "giai đoạn {{n}}",
+    "rules": {
+      "priority": "Ưu tiên",
+      "name": "Luật",
+      "condition": "Điều kiện",
+      "decision": "Quyết định"
+    },
+    "pick": "Lấy giai đoạn từ thư viện",
+    "pickOption": "{{milestone}} · bản {{n}} · {{documents}}",
+    "basedOn": "so với bản {{n}}:"
+  }
 }

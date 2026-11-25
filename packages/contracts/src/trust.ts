@@ -201,3 +201,46 @@ export interface RulePreview {
     after: Record<string, string>;
   }>;
 }
+
+/**
+ * The milestone library (idea from Contract Smart): every distinct definition of a milestone type
+ * (documents, penalty, approval and the rules of its scope) across the Data Pack and the rule
+ * versions, numbered in the order it first appeared. A rule version only adds versions; a contract
+ * keeps the definition of the version it pinned.
+ */
+export interface MilestoneLibraryEntry {
+  milestoneType: string;
+  versions: MilestoneLibraryVersion[];
+}
+
+export interface MilestoneLibraryVersion {
+  /** 1, 2, … within the milestone type. */
+  number: number;
+  hash: string;
+  requiredEvents: string[];
+  latePenalty: boolean;
+  approval: "CONTRACT" | "NONE";
+  /** The rules of the scope in priority order, as written in the rule language. */
+  rules: Record<string, string>[];
+  /** Where it first appeared: the Data Pack, or a rule version. */
+  firstSeen: {
+    ruleVersionId: string | null;
+    ruleVersionName: string | null;
+    at: string | null;
+  };
+  /** Every workflow stage with this definition, in the Data Pack and every rule version. */
+  usedBy: Array<{
+    ruleVersionId: string | null;
+    ruleVersionName: string | null;
+    status: "DATA_PACK" | "DRAFT" | "REVIEW" | "PUBLISHED" | "RETIRED";
+    workflowTemplate: string;
+    workflowName: string | null;
+    sequence: number;
+  }>;
+  /** Contracts with a milestone evaluated under this definition. */
+  contracts: number;
+  /** The earlier version of the type it is closest to (fewest differences), if any. */
+  basedOn: number | null;
+  /** What differs from that version. */
+  changes: Array<"EVIDENCE" | "PENALTY" | "APPROVAL" | "RULES">;
+}

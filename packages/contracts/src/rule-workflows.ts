@@ -409,8 +409,27 @@ export function copyScope(
     organiser.find((rule) => rule.applies_to_milestone_type === stageType)
       ?.release_rule_code ??
     organiser[0]?.release_rule_code;
-  return organiser
-    .filter((rule) => rule.release_rule_code === sourceScope)
+  return rescopeRules(
+    organiser.filter((rule) => rule.release_rule_code === sourceScope),
+    workflow,
+    contractType,
+    stageType,
+    nextNumber,
+  );
+}
+
+/**
+ * Rules of another scope (an organiser scope, or a milestone of the library) moved into a stage of
+ * an app workflow: same order and content, new ids and the stage's scope.
+ */
+export function rescopeRules(
+  rows: VersionRule[],
+  workflow: string,
+  contractType: string,
+  stageType: string,
+  nextNumber: () => number,
+): VersionRule[] {
+  return [...rows]
     .sort((a, b) => Number(a.priority) - Number(b.priority))
     .map((rule) => ({
       ...rule,

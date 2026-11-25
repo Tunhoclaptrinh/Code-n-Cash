@@ -95,6 +95,8 @@ Trong quy trình riêng (`APP_…`), nút **Câu mẫu** thêm sẵn một luậ
 
 Câu mẫu luôn nằm sau các luật chặn (10–50) và trước luật phạt (60); luật siết đứng trên luật nới, nên "mốc lớn thì giữ" thắng "trễ ít thì miễn phạt". Câu nới lỏng tự lặp lại điều kiện "đủ chứng từ, không tranh chấp, không bị từ chối", nên không bao giờ trả một mốc đang bị chặn; không câu mẫu nào bỏ qua được số người duyệt của hợp đồng. Phiên bản vẫn phải qua chạy thử và chứng minh an toàn như mọi thay đổi khác.
 
+**Thư viện mốc** (menu Quản trị) liệt kê từng loại mốc với mọi bản định nghĩa nó từng có: chứng từ bắt buộc, phạt trễ, phê duyệt và bộ luật. Mỗi bản ghi rõ xuất hiện lần đầu ở Data Pack hay ở phiên bản quy tắc nào, khác gì bản trước, đang dùng ở quy trình nào và bao nhiêu hợp đồng đang chấm theo nó. Khi soạn quy trình riêng, ô **Lấy giai đoạn từ thư viện** thêm một giai đoạn mang sẵn chứng từ, phạt, phê duyệt và luật của bản đã chọn. Thư viện không sửa trực tiếp được: bản mới chỉ sinh ra khi một phiên bản quy tắc thay đổi mốc, và hợp đồng đã ký vẫn giữ bản của phiên bản nó ghim.
+
 ![Chạy thử: 1 — kết quả toàn pack; 2 — gửi duyệt](../../../public/guide/images/rules-preview.webp)
 
 Bấm **Chạy thử tác động**: kiểm cú pháp, chạy cả 405 mốc, so 20 mẫu và so quyết định/lý do/trạng thái/tiền với baseline. Có thay đổi thì mở danh sách tối đa 30 mốc để đối chiếu; bản làm đổi kết quả pack bị chặn gửi duyệt. Thay mẫu mốc chỉ áp dụng cho hồ sơ mới, không viết lại mốc BTC. Sửa bất kỳ ô cấu hình nào sẽ bỏ kết quả chạy thử cũ; phải chạy lại trước khi gửi duyệt (2). Người quản trị thứ hai mới được duyệt phát hành. Khớp 20 mẫu và giữ baseline không phải chứng nhận đúng toàn bộ ground truth ẩn.

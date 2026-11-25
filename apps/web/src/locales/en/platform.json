@@ -472,5 +472,6 @@
     "exports": "Data export",
     "documents": "Documents",
     "engine": "Data Pack engine"
-  }
+  },
+  "libraryTitle": "Milestone library"
 }

@@ -45,6 +45,11 @@ function pages() {
     },
 
     {
+      path: "/platform/milestone-library",
+      lazy: () =>
+        import("@/features/platform/MilestoneLibraryPage").then(asRoute),
+    },
+    {
       path: "/platform/permissions",
       lazy: () =>
         import("@/features/platform/PermissionMatrixPage").then(asRoute),

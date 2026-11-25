@@ -353,5 +353,51 @@
   },
   "actions": "Actions",
   "refresh": "Refresh",
-  "saved": "Configuration saved."
+  "saved": "Configuration saved.",
+  "library": {
+    "notice": "Each milestone type with every definition it has had (documents, penalty, approval and rules), where it is used and how many contracts are evaluated under it. A new definition only comes from a rule version that was previewed, proven safe and published by a second person; a signed contract keeps the definition of the version it pinned. App workflows can take a stage from the library.",
+    "empty": "No milestones yet.",
+    "search": "Search milestone types, documents, versions or workflows…",
+    "stats": {
+      "types": "Milestone types",
+      "versions": "Milestone versions",
+      "fromVersions": "From rule versions"
+    },
+    "columns": {
+      "milestone": "Milestone type",
+      "version": "Version",
+      "documents": "Required documents",
+      "terms": "Terms",
+      "firstSeen": "First seen",
+      "changes": "Differs from closest",
+      "contracts": "Contracts"
+    },
+    "versionNo": "v{{n}}",
+    "dataPack": "Organiser's Data Pack",
+    "penalty": "Late penalty",
+    "noPenalty": "No penalty",
+    "approval": {
+      "CONTRACT": "Approval per policy",
+      "NONE": "No approval"
+    },
+    "ruleCount_one": "{{count}} rule",
+    "ruleCount_other": "{{count}} rules",
+    "changes": {
+      "EVIDENCE": "Documents",
+      "PENALTY": "Penalty",
+      "APPROVAL": "Approval",
+      "RULES": "Rules"
+    },
+    "usedBy": "Used in",
+    "stage": "stage {{n}}",
+    "rules": {
+      "priority": "Priority",
+      "name": "Rule",
+      "condition": "Condition",
+      "decision": "Decision"
+    },
+    "pick": "Take a stage from the library",
+    "pickOption": "{{milestone}} · v{{n}} · {{documents}}",
+    "basedOn": "vs v{{n}}:"
+  }
 }

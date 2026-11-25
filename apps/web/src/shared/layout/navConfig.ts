@@ -113,6 +113,11 @@ const platform: NavItem = {
   children: [
     { to: "/platform/anchors", labelKey: "anchorsTitle", ns: "platform" },
     { to: "/platform/rule-versions", labelKey: "rulesTitle", ns: "platform" },
+    {
+      to: "/platform/milestone-library",
+      labelKey: "libraryTitle",
+      ns: "platform",
+    },
     ...PLATFORM_RESOURCES.map((name) => ({
       to: `/platform/${name}`,
       labelKey: `resources.${name}`,
@@ -225,6 +230,7 @@ const ROUTE_PERMISSIONS: [path: string, permission: string][] = [
   ["/data", "engine:read"],
   ["/platform/anchors", "anchors:read"],
   ["/platform/rule-versions", "rules:read"],
+  ["/platform/milestone-library", "rules:read"],
   ["/platform/permissions", "permissions:read"],
   ...PLATFORM_RESOURCES.map((name): [string, string] => [
     `/platform/${name}`,

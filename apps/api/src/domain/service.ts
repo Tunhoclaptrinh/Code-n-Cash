@@ -156,10 +156,13 @@ export class DomainService {
     return { archive: archived.archive };
   }
 
+  /**
+   * Reads the collections in parallel: with MongoDB every collection is one round trip to the
+   * database, so reading some 25 of them one after another cost seconds on a remote cluster.
+   */
   private async load(names: string[]): Promise<Tables> {
-    const tables: Tables = {};
-    for (const name of names) tables[name] = await this.repo.list(name);
-    return tables;
+    const rows = await Promise.all(names.map((name) => this.repo.list(name)));
+    return Object.fromEntries(names.map((name, i) => [name, rows[i]]));
   }
 
   /** Runs the engine on the current data plus hypothetical events (preview, nothing is stored). */

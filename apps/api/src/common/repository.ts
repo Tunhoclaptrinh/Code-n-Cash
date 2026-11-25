@@ -194,29 +194,36 @@ export class Repository implements OnModuleDestroy {
               ),
               head,
             );
+            // One ordered bulk write per collection: a re-evaluation can change hundreds of rows,
+            // and one round trip each made a write take many seconds on a remote cluster.
             for (const name of names.filter((n) => n !== "audit")) {
-              const collection = this.db!.collection(name);
               const old = new Map(originals[name].map((x) => [x.id, x])),
                 current = new Set(tables[name].map((x) => x.id));
-              const inserts: RecordEntity[] = [];
+              const operations: mongoose.mongo.AnyBulkWriteOperation[] = [];
               for (const item of tables[name]) {
                 const previous = old.get(item.id);
-                if (!previous) inserts.push(item);
+                if (!previous)
+                  operations.push({ insertOne: { document: item } });
                 else if (JSON.stringify(previous) !== JSON.stringify(item))
-                  await collection.replaceOne(
-                    { id: item.id, version: previous.version },
-                    item,
-                    { session },
-                  );
+                  operations.push({
+                    replaceOne: {
+                      filter: { id: item.id, version: previous.version },
+                      replacement: item,
+                    },
+                  });
               }
-              if (inserts.length)
-                await collection.insertMany(inserts, { session });
               for (const item of originals[name])
                 if (!current.has(item.id))
-                  await collection.deleteOne(
-                    { id: item.id, version: item.version },
-                    { session },
-                  );
+                  operations.push({
+                    deleteOne: {
+                      filter: { id: item.id, version: item.version },
+                    },
+                  });
+              if (operations.length)
+                await this.db!.collection(name).bulkWrite(operations, {
+                  session,
+                  ordered: true,
+                });
             }
             if (entries.length)
               await this.db!.collection("audit").insertMany(entries, {

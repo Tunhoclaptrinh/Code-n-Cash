@@ -354,7 +354,8 @@ Repo Contract Smart đi theo hướng "người dùng tự dựng quy trình". C
 | **Thư viện mốc có phiên bản**: mốc mẫu (chứng từ + bộ luật) dùng lại cho nhiều loại hợp đồng; loại hợp đồng ghép từ các mốc | Quy trình riêng `APP_…` trong phiên bản luật | Thư viện mốc linh hoạt hơn nhưng phải giữ 405 quyết định của Data Pack |
 | **Luật riêng cho từng hợp đồng** (khách quen được nới điều kiện), không ảnh hưởng luật chung | Chưa có; chỉnh tay mốc chỉ đổi tỷ lệ, hạn, chứng từ, phạt, miễn duyệt | Cần chứng minh an toàn cho từng bản riêng |
 | **Quản trị công ty** tự tạo và khoá tài khoản nhân viên công ty mình | Quản trị hệ thống quản lý mọi tài khoản | Phải giữ tách nhiệm SoD-1 |
-| **PostgreSQL** có khoá ngoại và trigger khoá dữ liệu đã chốt ngay trong CSDL | Tệp JSON hoặc MongoDB, kiểm bằng mã | Thiết kế chi tiết: [31](31_THIET_KE_CSDL_POSTGRES.md) |
+| **PostgreSQL** có khoá ngoại và trigger khoá dữ liệu đã chốt ngay trong CSDL | Tệp JSON hoặc MongoDB, kiểm bằng mã | Thiết kế cho CodeCash: [31](31_THIET_KE_CSDL_POSTGRES.md); bản Contract Smart đã dựng: [34](34_CSDL_CONTRACT_SMART.md) |
+| **Nhật ký do CSDL niêm phong**: trigger cấp số thứ tự, giờ và mã băm; chụp lại vai trò người làm lúc thao tác | Niêm phong trong `Repository.transact` ở API; nhật ký đã ghi vai trò | Khi chuyển PostgreSQL thì dời việc niêm phong xuống trigger như [34](34_CSDL_CONTRACT_SMART.md) §6b.4 |
 
 Ngược lại, nhiều mục Contract Smart còn đánh dấu "chưa làm" thì CodeCash đã có: ký hai bên qua dịch vụ ký, ngoại lệ hai người, chứng từ có tệp và chữ ký, kiểm hoá đơn, cảnh báo trình tự, điểm tin cậy, phụ lục, thanh lý, việc cần làm, tổng quan.
 
@@ -377,3 +378,13 @@ Không. Engine chấm theo luật rõ ràng nên lần nào cũng ra cùng kết
 
 **Kiểm toán làm sao biết dữ liệu không bị sửa?**
 Nhật ký nối chuỗi băm: mỗi dòng chứa mã băm của dòng trước, sửa hay xoá một dòng là chuỗi đứt ở đúng chỗ đó. Kiểm toán bấm "Kiểm tra toàn vẹn" để kiểm lại bất kỳ lúc nào; chuỗi còn được niêm phong độc lập.
+
+**Ai xem được nhật ký?**
+
+| Vai | Thấy | Dùng để |
+| --- | --- | --- |
+| Kiểm toán, quản trị hệ thống | Toàn bộ nhật ký nhưng **chỉ phần khung**: số thứ tự, mã băm, hành động, đối tượng, thời điểm; không thấy ai làm, số tiền, nội dung | Kiểm chuỗi băm, xuất bằng chứng niêm phong; kiểm mà không đọc được dữ liệu kinh doanh |
+| Người làm hợp đồng và kiểm soát viên | Trang **Hoạt động**: lịch sử chứng từ, phê duyệt, tranh chấp của các hợp đồng công ty mình là một bên (nhà cung cấp: hợp đồng của chính mình) | Đối chiếu khi có tranh chấp |
+| Không ai | Sửa, xoá | |
+
+Đăng nhập sai và mọi yêu cầu bị từ chối cũng được ghi (`REQUEST_FAILED`, kèm mã lỗi); email gõ vào chỉ lưu dạng băm, và các lần sai lặp lại được gộp để nhật ký không bị làm đầy.

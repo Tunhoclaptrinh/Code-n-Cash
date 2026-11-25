@@ -1,0 +1,263 @@
+// Lược đồ CSDL contract_smart (PostgreSQL 17), sinh tự động từ CSDL đang chạy.
+// Dán vào https://dbdiagram.io để xem sơ đồ.
+
+Project contract_smart {
+  database_type: 'PostgreSQL'
+}
+
+Table event_types {
+  id integer [pk, increment, note: 'Mã loại sự kiện (tự sinh).']
+  name text [not null, note: 'Tên hiển thị trên nút, ví dụ Giao hàng.']
+  category text [not null, note: 'Nhóm: EVIDENCE (chứng từ), APPROVAL, REJECTION, DISPUTE_OPEN, DISPUTE_RESOLVE, OTHER.']
+  actor_side text [note: 'Với chứng từ: bên được ghi (BUYER hoặc SUPPLIER); NULL với các nhóm khác.']
+  valid_status text [not null, note: 'Trạng thái API tự điền cho mọi sự kiện loại này: CONFIRMED, APPROVED, REJECTED, OPEN, RESOLVED.']
+  active boolean [not null, default: `true`, note: 'FALSE: ẩn khỏi danh sách chọn; sự kiện cũ vẫn giữ.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Danh mục loại sự kiện. Engine chỉ đọc nhóm (category), không đọc tên.'
+}
+
+Table parties {
+  id integer [pk, increment, note: 'Mã bên (tự sinh).']
+  name text [not null, note: 'Tên của bên, ví dụ Nova An Business JSC.']
+  type text [not null, note: 'BUYER (bên mua), SUPPLIER (nhà cung cấp) hoặc APPROVER (người phê duyệt).']
+  parent_id integer [ref: > parties.id, note: 'Bên mua mà người phê duyệt thuộc về; NULL với bên mua và nhà cung cấp.']
+  approval_role text [note: 'Vai trò duyệt: CONTRACT_OWNER, FINANCE_APPROVER, SECONDARY_APPROVER; chỉ với người phê duyệt.']
+  approval_limit_vnd_mn numeric(18,2) [note: 'Hạn mức được duyệt (triệu VND); chỉ với người phê duyệt.']
+  allowed_event_type_ids ARRAY [not null, default: '{}', note: 'Các loại sự kiện (event_types.id) bên này được ghi.']
+  active boolean [not null, default: `true`, note: 'FALSE: không chọn được cho hợp đồng mới.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Các bên: bên mua, nhà cung cấp, người phê duyệt của bên mua.'
+}
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`, note: 'Mã người dùng (tự sinh).']
+  email text [not null, note: 'Email đăng nhập, chữ thường, không trùng.']
+  password_hash text [not null, note: 'Mật khẩu đã băm (bcrypt); không bao giờ lưu mật khẩu gốc.']
+  full_name text [not null, note: 'Họ tên hiển thị.']
+  role text [not null, note: 'Vai trò: CONTRACT_OWNER, LEGAL_REVIEWER, FINANCE_APPROVER, SECONDARY_APPROVER, ADMIN_AUDITOR, SUPPLIER, ORG_ADMIN, SYSTEM_ADMIN, AUDITOR.']
+  party_id integer [ref: > parties.id, note: 'Bên (parties.id) mà người dùng làm việc cho; NULL với SYSTEM_ADMIN và AUDITOR.']
+  active boolean [not null, default: `true`, note: 'FALSE: tài khoản bị khóa, không đăng nhập được.']
+  created_by uuid [ref: > users.id, note: 'Ai tạo tài khoản này (users.id); NULL với tài khoản nạp sẵn.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Tài khoản đăng nhập. Mỗi người làm việc cho một bên (parties); quản trị hệ thống và kiểm toán không thuộc bên nào.'
+}
+
+Table milestone_library {
+  id integer [pk, increment, note: 'Mã mốc (tự sinh).']
+  name text [not null, note: 'Tên mốc, ví dụ Nộp báo cáo.']
+  active boolean [not null, default: `true`, note: 'FALSE: không chọn được cho loại hợp đồng mới; dữ liệu cũ vẫn giữ.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Thư viện mốc thanh toán, dùng chung cho mọi loại hợp đồng. Điều kiện và luật nằm ở các phiên bản.'
+}
+
+Table milestone_versions {
+  id integer [pk, increment, note: 'Mã phiên bản (tự sinh).']
+  milestone_id integer [not null, ref: > milestone_library.id, note: 'Phiên bản của mốc nào (milestone_library.id).']
+  is_custom boolean [not null, default: `false`, note: 'FALSE: phiên bản chung trong thư viện; TRUE: luật riêng của một hợp đồng (tìm hợp đồng qua milestones).']
+  version_no integer [not null, note: 'Số phiên bản của mốc: 1, 2, 3...']
+  status text [not null, default: 'DRAFT', note: 'DRAFT (đang soạn, sửa được) -> PUBLISHED (đang dùng, khóa) -> RETIRED (ngừng dùng cho hợp đồng mới).']
+  required_event_type_ids ARRAY [not null, default: '{}', note: 'Sự kiện bắt buộc (event_types.id): phải có đủ mới được trả tiền.']
+  late_penalty boolean [not null, default: `false`, note: 'Trễ hạn có bị phạt không (luật phạt trễ đọc cờ này).']
+  note text [note: 'Lần sửa này đổi gì.']
+  published_at timestamptz [note: 'Thời điểm công bố.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Phiên bản điều kiện + luật của một mốc. Đã công bố thì khóa; muốn sửa thì tạo phiên bản mới.'
+}
+
+Table payment_rules {
+  id integer [pk, increment, note: 'Mã luật (tự sinh).']
+  milestone_version_id integer [not null, ref: > milestone_versions.id, note: 'Luật của phiên bản mốc nào (milestone_versions.id).']
+  priority integer [not null, note: 'Thứ tự xét: 10, 20... số nhỏ xét trước.']
+  name text [not null, note: 'Tên luật tiếng Việt, ví dụ Đang tranh chấp thì giữ tiền.']
+  condition text [not null, note: 'Điều kiện cho engine, ví dụ open_dispute == TRUE; luật cuối là ELSE.']
+  decision text [not null, note: 'Quyết định: RELEASE (trả), HOLD (giữ), REJECT (từ chối), PENALTY (trả có trừ phạt).']
+  reason_code text [not null, note: 'Lý do, một trong 8 mã engine biết, ví dụ MISSING_REQUIRED_EVENT.']
+  payable_formula text [not null, default: '0', note: 'Công thức tiền được trả, ví dụ planned_payment_vnd_mn.']
+  penalty_formula text [not null, default: '0', note: 'Công thức tiền phạt.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Luật của một phiên bản mốc: nếu ... thì ... vì .... Xét theo ưu tiên, luật đầu tiên khớp quyết định.'
+}
+
+Table contract_types {
+  id integer [pk, increment, note: 'Mã loại hợp đồng (tự sinh).']
+  name text [not null, note: 'Tên loại, ví dụ Tư vấn.']
+  active boolean [not null, default: `true`, note: 'FALSE: không tạo được hợp đồng mới loại này.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Loại hợp đồng. Khuôn mốc nằm ở contract_type_milestones.'
+}
+
+Table contract_type_milestones {
+  id integer [pk, increment, note: 'Mã dòng khuôn (tự sinh).']
+  contract_type_id integer [not null, ref: > contract_types.id, note: 'Loại hợp đồng (contract_types.id).']
+  position integer [not null, note: 'Thứ tự mốc trong loại hợp đồng: 1, 2, 3 (theo hạn).']
+  milestone_id integer [not null, ref: > milestone_library.id, note: 'Mốc trong thư viện (milestone_library.id).']
+  payment_percent numeric(5,2) [not null, note: 'Phần trăm giá trị hợp đồng của mốc, ví dụ 40.00; tổng các mốc = 100 mới tạo được hợp đồng.']
+  due_after_days integer [not null, note: 'Hạn = ngày bắt đầu hợp đồng + số ngày.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Khuôn của loại hợp đồng: gồm mốc nào trong thư viện, bao nhiêu %, hạn bao lâu.'
+}
+
+Table contracts {
+  id integer [pk, increment, note: 'Mã hợp đồng (tự sinh).']
+  title text [not null, note: 'Tên hợp đồng.']
+  contract_type_id integer [not null, ref: > contract_types.id, note: 'Loại hợp đồng (contract_types.id) dùng làm khuôn lúc tạo.']
+  buyer_id integer [not null, ref: > parties.id, note: 'Bên mua (parties.id, loại BUYER).']
+  supplier_id integer [not null, ref: > parties.id, note: 'Nhà cung cấp (parties.id, loại SUPPLIER).']
+  value_vnd_mn numeric(18,2) [not null, note: 'Giá trị hợp đồng (triệu VND); 1000.00 = 1 tỷ đồng.']
+  start_on date [not null, note: 'Ngày bắt đầu; hạn của mốc tính từ ngày này.']
+  end_on date [not null, note: 'Ngày kết thúc.']
+  approval_policy text [not null, note: 'Chính sách duyệt: AUTO_IF_ALL_CONDITIONS, SINGLE_BUYER_APPROVAL, DUAL_APPROVAL, FINANCE_PLUS_OWNER.']
+  grace_days integer [not null, note: 'Số ngày ân hạn sau hạn mốc trước khi tính trễ.']
+  penalty_pct_per_day numeric(7,4) [not null, note: 'Phạt mỗi ngày trễ (% tiền mốc), ví dụ 0.1000.']
+  max_penalty_pct numeric(7,4) [not null, note: 'Trần phạt (% tiền mốc), ví dụ 8.0000.']
+  status text [not null, default: 'DRAFT', note: 'DRAFT -> ACTIVE -> CLOSED.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Hợp đồng. DRAFT: đang đàm phán, chỉnh được; ACTIVE: đã ký, khóa, ghi sự kiện; CLOSED: đã đóng.'
+}
+
+Table milestones {
+  id integer [pk, increment, note: 'Mã mốc (tự sinh).']
+  contract_id integer [not null, ref: > contracts.id, note: 'Mốc thuộc hợp đồng nào (contracts.id).']
+  position integer [not null, note: 'Thứ tự mốc trong hợp đồng: 1, 2, 3 (theo hạn).']
+  milestone_version_id integer [not null, ref: > milestone_versions.id, note: 'Phiên bản mốc dùng để chấm (milestone_versions.id); tên mốc lấy qua đây.']
+  amount_vnd_mn numeric(18,2) [not null, note: 'Tiền của mốc (triệu VND) = % x giá trị hợp đồng.']
+  due_on date [not null, note: 'Hạn của mốc.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Mốc thật của hợp đồng: tiền, hạn và phiên bản luật dùng để chấm. Chỉ sửa được khi hợp đồng DRAFT.'
+}
+
+Table events {
+  id integer [pk, increment, note: 'Mã sự kiện (tự sinh).']
+  milestone_id integer [not null, ref: > milestones.id, note: 'Xảy ra ở mốc nào (milestones.id).']
+  event_type_id integer [not null, ref: > event_types.id, note: 'Loại sự kiện (event_types.id).']
+  status text [not null, note: 'Trạng thái, API tự điền theo event_types.valid_status.']
+  party_id integer [not null, ref: > parties.id, note: 'Bên thực hiện (parties.id).']
+  recorded_by uuid [ref: > users.id, note: 'Người bấm nút (users.id); NULL khi chưa có đăng nhập.']
+  happened_at timestamp [not null, note: 'Lúc xảy ra, giờ Việt Nam không múi giờ, ví dụ 2026-06-05T09:50:00.']
+  document_no text [note: 'Số giấy tờ (hóa đơn, biên bản); engine dùng để phát hiện nộp trùng.']
+  resolves_event_id integer [ref: > events.id, note: 'Chỉ với Đóng tranh chấp: đóng sự kiện Mở tranh chấp nào (events.id).']
+  note text [not null, default: '', note: 'Ghi chú.']
+  created_at timestamptz [not null, default: `now()`, note: 'Lúc lưu vào DB.']
+
+  Note: 'Sự kiện đã xảy ra trên một mốc. Chỉ thêm, không sửa, không xóa (trigger).'
+}
+
+Table milestone_evaluations {
+  id integer [pk, increment, note: 'Mã lần chấm (tự sinh).']
+  milestone_id integer [not null, ref: > milestones.id, note: 'Mốc được chấm (milestones.id).']
+  trigger_event_id integer [ref: > events.id, note: 'Sự kiện làm engine chấm lại (events.id); NULL khi chấm lúc kích hoạt hoặc bấm Chấm lại.']
+  rule_id integer [ref: > payment_rules.id, note: 'Luật quyết định (payment_rules.id); NULL khi không luật nào khớp.']
+  decision text [not null, note: 'Quyết định: RELEASE (trả), HOLD (giữ), REJECT (từ chối), PENALTY (trả có trừ phạt).']
+  reason_code text [not null, note: 'Lý do (mã lý do của luật quyết định).']
+  milestone_status text [not null, note: 'Trạng thái mốc sau khi chấm, ví dụ WAITING_EVIDENCE, ON_HOLD, ELIGIBLE_FOR_PAYMENT.']
+  payable_vnd_mn numeric(18,2) [not null, note: 'Tiền được trả (triệu VND).']
+  penalty_vnd_mn numeric(18,2) [not null, note: 'Tiền phạt (triệu VND).']
+  facts jsonb [not null, note: 'Vì sao: các con số engine tính, kết quả từng luật, chứng từ thiếu / sai thẩm quyền, cảnh báo.']
+  evaluated_at timestamptz [not null, default: `now()`, note: 'Lúc chấm.']
+
+  Note: 'Kết quả engine chấm một mốc. Mỗi lần chấm thêm một dòng, chỉ thêm (trigger); dòng mới nhất là trạng thái hiện tại.'
+}
+
+Table payments {
+  id integer [pk, increment, note: 'Mã lệnh chi (tự sinh).']
+  milestone_id integer [not null, ref: > milestones.id, note: 'Mốc được chi (milestones.id).']
+  evaluation_id integer [not null, ref: > milestone_evaluations.id, note: 'Lần chấm của engine làm căn cứ chi (milestone_evaluations.id).']
+  amount_vnd_mn numeric(18,2) [not null, note: 'Số tiền chi cho nhà cung cấp (triệu VND), đã trừ phạt.']
+  penalty_vnd_mn numeric(18,2) [not null, note: 'Tiền phạt đã trừ (triệu VND).']
+  status text [not null, default: 'PENDING', note: 'PENDING (chờ duyệt chi), PAID (đã chi), CANCELLED (đã hủy vì engine chấm lại).']
+  approved_by uuid [ref: > users.id, note: 'Người duyệt tài chính đã duyệt (users.id).']
+  paid_at timestamptz [note: 'Lúc duyệt và gửi cổng thanh toán.']
+  gateway_ref text [note: 'Mã giao dịch cổng thanh toán trả về (bản demo: SIM-...).']
+  note text [not null, default: '', note: 'Ghi chú, ví dụ lý do hủy.']
+  version integer [not null, default: `1`, note: 'Số phiên bản, tăng mỗi lần sửa (khóa lạc quan).']
+  created_at timestamptz [not null, default: `now()`, note: 'Thời điểm tạo dòng.']
+  updated_at timestamptz [not null, default: `now()`, note: 'Thời điểm sửa gần nhất.']
+
+  Note: 'Lệnh chi của một mốc: hệ thống lập khi engine cho trả, duyệt tài chính bên mua duyệt thì chi. Không xóa; đã chi thì không sửa.'
+}
+
+Table audit_log {
+  id bigint [pk, note: 'Số thứ tự trong chuỗi (trigger cấp, liên tục từ 1).']
+  occurred_at timestamptz [not null, note: 'Lúc ghi (trigger đặt bằng giờ máy chủ CSDL).']
+  actor_id uuid [ref: > users.id, note: 'Người làm (users.id); trống: hệ thống làm, ví dụ engine chấm.']
+  actor_email text [note: 'Email người làm lúc đó (chụp lại).']
+  actor_role text [note: 'Vai người làm lúc đó (chụp lại, vai có thể đổi sau).']
+  actor_organization_id integer [ref: > parties.id, note: 'Công ty của người làm lúc đó (parties.id, bên mua hoặc nhà cung cấp).']
+  action text [not null, note: 'Hành động, ví dụ CONTRACT_ACTIVATED, EVENT_RECORDED, PAYMENT_APPROVED.']
+  resource text [not null, note: 'Loại đối tượng: organization, user, contract, milestone, event, evaluation, payment.']
+  resource_id text [not null, note: 'Mã đối tượng.']
+  contract_id integer [ref: > contracts.id, note: 'Hợp đồng liên quan (contracts.id), để lọc theo hợp đồng và theo bên.']
+  organization_id integer [ref: > parties.id, note: 'Công ty mà dòng này nói tới (tài khoản, khóa công ty), để quản trị công ty xem.']
+  before jsonb [note: 'Giá trị trước khi đổi (chỉ các trường đổi).']
+  after jsonb [note: 'Giá trị sau khi đổi, hoặc nội dung mới tạo.']
+  reason text [not null, default: '', note: 'Lý do hoặc ghi chú.']
+  prev_hash char(64) [not null, note: 'Mã băm của dòng ngay trước (dòng đầu: 64 số 0).']
+  hash char(64) [unique, not null, note: 'SHA-256 của chính dòng này, kể cả prev_hash.']
+
+  Note: 'Nhật ký kiểm toán: ai làm gì, lúc nào, trên cái gì. Chỉ thêm; mỗi dòng nối mã băm dòng trước, không sửa, không xóa.'
+}
+
+// 1. Danh mục, các bên
+TableGroup danh_muc_cac_ben {
+  event_types
+  parties
+  users
+}
+
+// 2. Thư viện mốc
+TableGroup thu_vien_moc {
+  milestone_library
+  milestone_versions
+  payment_rules
+}
+
+// 3. Loại hợp đồng
+TableGroup loai_hop_dong {
+  contract_types
+  contract_type_milestones
+}
+
+// 4. Hợp đồng
+TableGroup hop_dong {
+  contracts
+  milestones
+  events
+}
+
+// 5. Chấm, chi tiền, nhật ký
+TableGroup cham_chi_nhat_ky {
+  milestone_evaluations
+  payments
+  audit_log
+}
+

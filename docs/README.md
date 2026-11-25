@@ -20,6 +20,7 @@ Festival Chuyển đổi số 2026, Bảng D, Case 4: Smart Contract Workflow.
 | [31 Thiết kế CSDL PostgreSQL](31_THIET_KE_CSDL_POSTGRES.md) | Thiết kế chuyển dữ liệu sang PostgreSQL: bảng, khoá, ràng buộc, trigger khoá dữ liệu đã chốt, DDL đã chạy thử, view chỉ đọc cho text2sql; phần bổ sung cho hoá đơn, phụ lục, thanh lý, lãi chậm trả |
 | [32 Kiểm tra và khởi chạy local](32_KIEM_TRA_VA_KHOI_CHAY_LOCAL.md) | MongoDB local, lệnh khởi chạy, sửa lỗi sau đổi nhánh và kiểm tra luồng ký |
 | [33 Luồng nghiệp vụ đầu–cuối](33_LUONG_NGHIEP_VU_DAU_CUOI.md) | Viết cho người mới: từ điển, bài toán, các bên và hai tầng kiểm quyền, câu chuyện từ soạn tới thanh lý, engine chấm thế nào, nguyên tắc an toàn, ý tưởng từ Contract Smart, hỏi đáp |
+| [34 CSDL Contract Smart](34_CSDL_CONTRACT_SMART.md) | Tham khảo: lược đồ PostgreSQL đã dựng của Contract Smart (thư viện mốc có phiên bản, luật riêng từng hợp đồng, trigger khoá sự kiện và nhật ký, `audit_verify()`), kèm sơ đồ DBML trong `diagrams/contract-smart` |
 | [Sơ đồ](diagrams/)                                                              | Class diagram Data Pack, ERD                                                                                                                                       |
 | [Lưu trữ](archive/)                                                             | Đặc tả v1.1 đầy đủ, rà soát, xác nhận BTC, ghi chép thiết kế giao diện các đợt trước                                                                               |
 

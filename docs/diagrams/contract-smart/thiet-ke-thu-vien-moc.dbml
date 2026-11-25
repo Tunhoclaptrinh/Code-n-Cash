@@ -1,0 +1,179 @@
+// Contract Smart - proposed design, trimmed (not built yet). 11 tables.
+// Milestone library with versions -> contract types -> contracts (customisable per customer) -> events.
+// Paste into https://dbdiagram.io/d to see the diagram.
+// Keys are generated ids; people only type names.
+// Every table except events also has: version (optimistic lock), created_at, updated_at.
+
+Project contract_smart_v2 {
+  database_type: 'PostgreSQL'
+  Note: 'Luong: tao moc (dieu kien + luat) -> ghep moc vao loai hop dong -> tao hop dong (chinh rieng neu can) -> ky -> ghi su kien -> engine cham'
+}
+
+// ============================ Danh muc, cac ben, nguoi dung ============================
+
+Table event_types [headercolor: #b5641b] {
+  id integer [pk, increment]
+  name text [not null, note: 'Giao hang']
+  category text [not null, note: 'EVIDENCE | APPROVAL | REJECTION | DISPUTE_OPEN | DISPUTE_RESOLVE | OTHER']
+  actor_side text [null, note: 'chi voi EVIDENCE: BUYER | SUPPLIER']
+  valid_status text [not null, note: 'may tu dien khi ghi su kien: CONFIRMED | APPROVED | REJECTED | OPEN | RESOLVED']
+  active boolean [not null, default: true]
+  Note: 'Danh muc loai su kien'
+}
+
+Table parties [headercolor: #1f7a5a] {
+  id integer [pk, increment]
+  name text [not null, note: 'Nova An Business JSC']
+  type text [not null, note: 'BUYER | SUPPLIER | APPROVER']
+  parent_id integer [null, ref: > parties.id, note: 'nguoi phe duyet thuoc ben mua nao']
+  approval_role text [null, note: 'CONTRACT_OWNER | FINANCE_APPROVER | SECONDARY_APPROVER']
+  approval_limit_vnd_mn "numeric(18,2)" [null, note: 'han muc duoc duyet']
+  allowed_event_type_ids "integer[]" [not null, note: '{1,2}: duoc ghi loai su kien nao (API kiem tung id)']
+  active boolean [not null, default: true]
+  Note: 'Cac ben: ben mua, nha cung cap, nguoi phe duyet cua ben mua'
+}
+
+Table users [headercolor: #1f7a5a] {
+  id uuid [pk]
+  email text [unique, not null]
+  password_hash text [not null]
+  full_name text [not null]
+  role text [not null, note: 'CONTRACT_OWNER | LEGAL_REVIEWER | FINANCE_APPROVER | SECONDARY_APPROVER | ADMIN_AUDITOR | SUPPLIER | SYSTEM_ADMIN | AUDITOR']
+  party_id integer [null, ref: > parties.id, note: 'NULL voi SYSTEM_ADMIN, AUDITOR']
+  active boolean [not null, default: true]
+  Note: 'Tai khoan dang nhap'
+}
+
+// ============================ Thu vien moc ============================
+
+Table milestone_library [headercolor: #7a4fd1] {
+  id integer [pk, increment]
+  name text [not null, note: 'Nop bao cao']
+  active boolean [not null, default: true]
+  Note: 'Thu vien moc thanh toan, dung chung cho moi loai hop dong'
+}
+
+Table milestone_versions [headercolor: #7a4fd1] {
+  id integer [pk, increment]
+  milestone_id integer [not null, ref: > milestone_library.id]
+  is_custom boolean [not null, default: false, note: 'false = phien ban chung (hien trong thu vien); true = luat rieng, chi 1 moc cua 1 hop dong dung (tim hop dong qua milestones)']
+  version_no integer [not null, note: '1, 2, 3...']
+  status text [not null, note: 'DRAFT -> PUBLISHED -> RETIRED']
+  required_event_type_ids "integer[]" [not null, note: '{6,7}: su kien bat buoc, du moi duoc tra tien (API kiem tung id)']
+  late_penalty boolean [not null, default: false, note: 'tre han co bi phat khong (luat 60 dung)']
+  note text [null, note: 'lan sua nay doi gi']
+  published_at timestamptz [null]
+  indexes {
+    (milestone_id, version_no) [unique, note: 'chi ap dung cho phien ban chung: partial index WHERE is_custom = false']
+  }
+  Note: 'Phien ban dieu kien + luat cua mot moc. Da cong bo thi khoa. Moi moc chi 1 phien ban chung PUBLISHED. Luat rieng (is_custom) sua duoc khi hop dong DRAFT, khoa khi kich hoat.'
+}
+
+Table payment_rules [headercolor: #7a4fd1] {
+  id integer [pk, increment]
+  milestone_version_id integer [not null, ref: > milestone_versions.id]
+  priority integer [not null, note: '10, 20... nho xet truoc']
+  name text [not null, note: 'Dang tranh chap thi giu tien']
+  condition text [not null, note: 'open_dispute == TRUE; luat cuoi la ELSE. Giao dien dung o chon, may ghep chuoi.']
+  decision text [not null, note: 'RELEASE | HOLD | REJECT | PENALTY']
+  reason_code text [not null, note: '1 trong 8 ly do (CHECK): OPEN_DISPUTE | REJECTION_PRESENT | UNAUTHORIZED_EVENT | MISSING_REQUIRED_EVENT | APPROVAL_QUORUM_NOT_MET | LATE_COMPLETION | ALL_CONDITIONS_MET | UNRESOLVED_CONDITION']
+  payable_formula text [not null, default: '0']
+  penalty_formula text [not null, default: '0']
+  indexes {
+    (milestone_version_id, priority) [unique]
+  }
+  Note: 'Luat: neu ... thi ... vi ...'
+}
+
+// ============================ Loai hop dong ============================
+
+Table contract_types [headercolor: #2f6fb3] {
+  id integer [pk, increment]
+  name text [not null, note: 'Tu van']
+  active boolean [not null, default: true]
+  Note: 'Loai hop dong'
+}
+
+Table contract_type_milestones [headercolor: #2f6fb3] {
+  id integer [pk, increment]
+  contract_type_id integer [not null, ref: > contract_types.id]
+  position integer [not null, note: 'thu tu moc: 1, 2, 3']
+  milestone_id integer [not null, ref: > milestone_library.id]
+  payment_percent "numeric(5,2)" [not null, note: '40.00; tong = 100']
+  due_after_days integer [not null, note: 'han = ngay bat dau + so ngay']
+  indexes {
+    (contract_type_id, position) [unique]
+    (contract_type_id, milestone_id) [unique]
+  }
+  Note: 'Khuon: loai hop dong gom moc nao, bao nhieu %, han bao lau'
+}
+
+// ============================ Hop dong ============================
+
+Table contracts [headercolor: #0f766e] {
+  id integer [pk, increment]
+  title text [not null]
+  contract_type_id integer [not null, ref: > contract_types.id]
+  buyer_id integer [not null, ref: > parties.id]
+  supplier_id integer [not null, ref: > parties.id]
+  value_vnd_mn "numeric(18,2)" [not null, note: '1000.00 = 1 ty dong']
+  start_on date [not null]
+  end_on date [not null]
+  approval_policy text [not null, note: 'AUTO_IF_ALL_CONDITIONS | SINGLE_BUYER_APPROVAL | DUAL_APPROVAL | FINANCE_PLUS_OWNER']
+  grace_days integer [not null, note: 'so ngay an han']
+  penalty_pct_per_day "numeric(7,4)" [not null]
+  max_penalty_pct "numeric(7,4)" [not null]
+  status text [not null, note: 'DRAFT (dang dam phan, chinh rieng duoc) -> ACTIVE (khoa) -> CLOSED']
+  Note: 'Hop dong'
+}
+
+Table milestones [headercolor: #0f766e] {
+  id integer [pk, increment]
+  contract_id integer [not null, ref: > contracts.id]
+  position integer [not null]
+  milestone_version_id integer [not null, ref: > milestone_versions.id, note: 'phien ban chung luc tao, hoac luat rieng cua hop dong; ten moc lay qua day']
+  amount_vnd_mn "numeric(18,2)" [not null, note: 'tu tinh: % x gia tri hop dong']
+  due_on date [not null]
+  indexes {
+    (contract_id, position) [unique]
+  }
+  Note: 'Moc that cua hop dong. Them / bot / sua khi hop dong DRAFT; tong tien = gia tri hop dong moi kich hoat duoc.'
+}
+
+Table events [headercolor: #0f766e] {
+  id integer [pk, increment]
+  milestone_id integer [not null, ref: > milestones.id]
+  event_type_id integer [not null, ref: > event_types.id]
+  status text [not null, note: 'may tu dien theo event_types.valid_status']
+  party_id integer [not null, ref: > parties.id, note: 'ben thuc hien']
+  recorded_by uuid [null, ref: > users.id, note: 'nguoi bam nut']
+  happened_at timestamp [not null]
+  document_no text [null, note: 'so hoa don / bien ban; engine phat hien nop trung']
+  resolves_event_id integer [null, ref: > events.id, note: 'chi voi dong tranh chap: dong cai nao']
+  note text [not null, default: '']
+  created_at timestamptz [not null]
+  Note: 'Su kien da xay ra. Chi them, khong sua, khong xoa (trigger).'
+}
+
+TableGroup danh_muc_va_cac_ben {
+  event_types
+  parties
+  users
+}
+
+TableGroup thu_vien_moc {
+  milestone_library
+  milestone_versions
+  payment_rules
+}
+
+TableGroup loai_hop_dong {
+  contract_types
+  contract_type_milestones
+}
+
+TableGroup hop_dong {
+  contracts
+  milestones
+  events
+}

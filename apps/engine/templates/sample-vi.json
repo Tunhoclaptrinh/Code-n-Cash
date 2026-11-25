@@ -175,5 +175,6 @@
   "relativeDue": "{months} tháng sau mốc {previous}",
   "dueOpen": "Các bên xác nhận sau",
   "relativeDueOne": "1 tháng sau mốc {previous}",
-  "partyIdentity": "Mã số thuế: {taxCode}. Địa chỉ: {address}."
+  "partyIdentity": "Mã số thuế: {taxCode}. Địa chỉ: {address}.",
+  "paymentTerms": "Thời hạn thanh toán: Bên mua thanh toán mỗi mốc trong {paymentTermDays} ngày kể từ ngày mốc hoàn thành, tức ngày có đủ chứng từ tại Điều 5 (nếu có tranh chấp thì kể từ ngày tranh chấp được đóng). Thời gian phê duyệt nội bộ của Bên mua không kéo dài thời hạn này. Quá thời hạn, Bên mua trả lãi chậm trả {latePaymentRatePct}%/năm trên số tiền chậm trả, tính theo số ngày chậm (Điều 306 Luật Thương mại 2005); tiền lãi được cộng vào lệnh chi của mốc."
 }

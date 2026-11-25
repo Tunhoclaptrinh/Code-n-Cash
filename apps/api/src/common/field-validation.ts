@@ -80,6 +80,10 @@ export function validIsoDate(value: unknown): value is string {
  */
 export const LEGAL_PENALTY_CAP_PCT = "8";
 
+/** Upper bounds of the payment terms a draft may state. */
+export const PAYMENT_TERM_MAX_DAYS = 180;
+export const LATE_PAYMENT_RATE_MAX_PCT = "100";
+
 export function draftProblems(input: {
   title: string;
   valueMillion: string;
@@ -88,6 +92,8 @@ export function draftProblems(input: {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  paymentTermDays?: number | null;
+  latePaymentRatePct?: string | null;
 }): Record<string, string> {
   const errors: Record<string, string> = {};
   if (typeof input.title !== "string" || !input.title.trim())
@@ -122,6 +128,22 @@ export function draftProblems(input: {
     zero(input.penaltyRatePct) !== zero(input.maxPenaltyPct)
   )
     errors.maxPenaltyPct = "PENALTY_INCONSISTENT";
+  // The buyer's side: a payment term in days after completion and an annual late-payment rate,
+  // stated together or not at all (a rate of 0 states the term without interest).
+  const term = input.paymentTermDays;
+  const rate = input.latePaymentRatePct;
+  const termGiven = term !== undefined && term !== null;
+  const rateGiven = rate !== undefined && rate !== null && rate !== "";
+  if (
+    termGiven &&
+    (!Number.isInteger(term) || term < 1 || term > PAYMENT_TERM_MAX_DAYS)
+  )
+    errors.paymentTermDays = "INVALID_PAYMENT_TERMS";
+  if (rateGiven && !exactDecimal(rate, LATE_PAYMENT_RATE_MAX_PCT))
+    errors.latePaymentRatePct = "INVALID_PAYMENT_TERMS";
+  if (termGiven !== rateGiven)
+    errors[termGiven ? "latePaymentRatePct" : "paymentTermDays"] =
+      "PAYMENT_TERMS_INCOMPLETE";
   return errors;
 }
 

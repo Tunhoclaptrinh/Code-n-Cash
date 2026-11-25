@@ -317,6 +317,17 @@ export default function ContractDetailPage() {
                         cap: data.maxPenaltyPct,
                       })}
                     />
+                    {data.paymentTermDays !== null ? (
+                      <TermRow
+                        label={t("detail.terms.payment")}
+                        value={t("detail.terms.paymentValue", {
+                          days: data.paymentTermDays,
+                          rate: formatDecimalString(
+                            data.latePaymentRatePct ?? "0",
+                          ),
+                        })}
+                      />
+                    ) : null}
                     <TechnicalDetails
                       items={[
                         {

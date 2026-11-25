@@ -483,10 +483,30 @@ export interface StatusChange {
  * The payment instruction a paying decision becomes: what to pay, to whom and why. The engine's decision
  * draws it up; finance approves it and it is sent to the payment gateway.
  */
+/**
+ * The buyer's payment term on a milestone and the late-payment interest owed when it is paid on a
+ * given day (domain/late-payment.ts). Only contracts that state payment terms have one.
+ */
+export interface LatePayment {
+  termDays: number;
+  /** Annual late-payment interest rate, percent. */
+  ratePct: string;
+  /** Completion date, or the closing of the latest dispute when later. */
+  startsOn: string;
+  dueOn: string;
+  daysLate: number;
+  interestMillion: string;
+}
+
 export interface PaymentInstruction {
   decision: Decision;
+  /** The amount the engine decided (after any late-delivery penalty). */
   amountMillion: string;
   penaltyMillion: string;
+  /** Payment term and late-payment interest; null when the contract states no payment terms. */
+  latePayment?: LatePayment | null;
+  /** What the buyer transfers: the decided amount plus any late-payment interest. */
+  totalMillion?: string;
   payer: { id: string; name: string };
   payee: { id: string; name: string };
   runId: string;
@@ -514,6 +534,10 @@ export interface Payment {
   runId: string;
   decision: Decision;
   amountMillion: string;
+  /** Late-payment interest added on approval; absent or "0.00" when none was owed. */
+  lateInterestMillion?: string;
+  /** The amount transferred: amountMillion plus the interest. */
+  totalMillion?: string;
   transferredBy: string;
   transferredAt: string;
   instruction?: PaymentInstruction;
@@ -592,6 +616,9 @@ export interface ContractOverview {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /** The buyer's payment term and late-payment interest; null when the contract states none. */
+  paymentTermDays: number | null;
+  latePaymentRatePct: string | null;
   autoReleaseAllowed: boolean;
   milestones: MilestoneRow[];
   totals: {
@@ -1212,7 +1239,7 @@ export type ActivityAction =
   | { kind: "LIQUIDATION"; state: AmendmentState }
   | { kind: "ACCEPTANCE_REQUEST"; state: AcceptanceRequestState }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
-  | { kind: "PAYMENT"; amountMillion: string }
+  | { kind: "PAYMENT"; amountMillion: string; lateInterestMillion?: string }
   | {
       kind: "PAYMENT_DELIVERY";
       channel: PaymentDelivery["channel"];
@@ -1527,6 +1554,10 @@ export interface ContractDraft {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /** Days the buyer has to pay a milestone once it is complete; null when not stated. */
+  paymentTermDays?: number | null;
+  /** Annual late-payment interest rate, percent; set together with paymentTermDays. */
+  latePaymentRatePct?: string | null;
   signers: DraftSigner[];
   file: ContractFile;
   appendixNames: string[];

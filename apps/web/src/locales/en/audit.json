@@ -87,7 +87,8 @@
     "LIQUIDATION_WITHDRAWN": "Withdrew the liquidation record",
     "ACCEPTANCE_REQUEST_OPEN": "Sent an acceptance request",
     "ACCEPTANCE_REQUEST_CONFIRMED": "Filed documents for an acceptance request; dated at the request",
-    "ACCEPTANCE_REQUEST_DECLINED": "Returned an acceptance request"
+    "ACCEPTANCE_REQUEST_DECLINED": "Returned an acceptance request",
+    "PAYMENT_WITH_INTEREST": "Payment instruction of {{amount}} million VND plus {{interest}} million late-payment interest approved (idempotency key)"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",

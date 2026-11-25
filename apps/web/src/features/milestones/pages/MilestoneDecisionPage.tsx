@@ -90,7 +90,9 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
         ? t("decision.transferConfirm.body", {
             no: milestone.sequence,
             decision: td(`decision.${instruction.decision}`),
-            amount: formatDecimalString(instruction.amountMillion),
+            amount: formatDecimalString(
+              instruction.totalMillion ?? instruction.amountMillion,
+            ),
             payer: instruction.payer.name,
             payee: instruction.payee.name,
           })

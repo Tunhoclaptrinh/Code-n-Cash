@@ -20,6 +20,7 @@ import type {
 } from "../types";
 import { milestoneActions } from "./milestones";
 import { accountsOf, pendingItems, personRef } from "./responsibility";
+import { latePaymentOf } from "../late-payment";
 import { routes } from "./shared";
 import { mayDecideAmendment, openAmendment } from "../actions/amendments";
 import {
@@ -291,6 +292,11 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
         mineNow ||= now;
         const evidence =
           kind === "SUBMIT_EVIDENCE" || kind === "RESUBMIT_EVIDENCE";
+        // A payment order is due by the contract's payment term, not by the milestone's due date.
+        const late =
+          kind === "TRANSFER_PAYMENT"
+            ? latePaymentOf(ctx, m, evaluation)
+            : null;
         tasks.push(
           row(kind, now ? "MINE" : "UPCOMING", {
             eventTypes: evidence
@@ -320,6 +326,9 @@ export function taskInbox(ctx: Ctx): TaskRow[] {
               ? null
               : waitingFor(blocking.filter((i) => !i.action?.mine)),
             waitingDays: now ? longest(items) : null,
+            ...(late
+              ? { dueDate: late.dueOn, overdueDays: late.daysLate }
+              : {}),
           }),
         );
       }

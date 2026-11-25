@@ -44,7 +44,8 @@
       "FOLLOW_UP": "Xem mốc",
       "REVIEW_AMENDMENT": "Xem xét phụ lục",
       "LIQUIDATE_CONTRACT": "Lập biên bản thanh lý",
-      "REVIEW_LIQUIDATION": "Xác nhận thanh lý"
+      "REVIEW_LIQUIDATION": "Xác nhận thanh lý",
+      "ACCEPTANCE_OVERDUE": "Nhắc bên mua"
     },
     "detail": {
       "reason": "Lý do đang giữ",
@@ -133,7 +134,9 @@
       "penalty": "Phạt trễ hạn",
       "penaltyValue": "Ân hạn {{grace}} ngày · {{rate}}%/ngày · trần {{cap}}%",
       "workflow": "Quy trình mốc",
-      "ruleSet": "Bộ quy tắc thanh toán"
+      "ruleSet": "Bộ quy tắc thanh toán",
+      "payment": "Thời hạn thanh toán",
+      "paymentValue": "{{days}} ngày sau khi hoàn thành · lãi chậm trả {{rate}}%/năm"
     },
     "requirement": {
       "VALID": "Hợp lệ lúc {{at}}",
@@ -546,7 +549,14 @@
     "amountValue": "{{amount}} triệu VND (đã trừ phạt {{penalty}} triệu)",
     "parties": "Bên trả → bên nhận",
     "partiesValue": "{{payer}} → {{payee}}",
-    "digest": "Mã băm quyết định"
+    "digest": "Mã băm quyết định",
+    "due": "Hạn thanh toán",
+    "dueOnTime": "{{date}} ({{days}} ngày sau khi hoàn thành)",
+    "dueLate": "{{date}} ({{days}} ngày sau khi hoàn thành) · chậm {{late}} ngày",
+    "interest": "Lãi chậm trả",
+    "interestValue": "{{amount}} triệu VND ({{rate}}%/năm × {{late}} ngày)",
+    "total": "Tổng chuyển",
+    "totalValue": "{{amount}} triệu VND"
   },
   "evidenceDocument": {
     "signed": "Đã ký",
@@ -747,5 +757,27 @@
     "rejectPlaceholder": "Lý do từ chối (bắt buộc)",
     "waitingOfficer": "Mọi mốc đã xong; chờ bên mua lập biên bản thanh lý.",
     "notYet": "Chưa thể thanh lý: còn mốc chưa được chi hoặc chưa bị từ chối."
+  },
+  "acceptance": {
+    "title": "Đề nghị nghiệm thu",
+    "explain": "Khi nhà cung cấp đã nộp đủ chứng từ của mình, họ gửi đề nghị nghiệm thu. Biên bản của bên mua nộp sau đó được tính theo thời điểm đề nghị, nên bên mua chậm nộp không làm nhà cung cấp bị phạt trễ. Nếu công việc chưa đạt, bên mua trả lại kèm lý do.",
+    "state": {
+      "OPEN": "Chờ bên mua",
+      "CONFIRMED": "Đã nghiệm thu",
+      "DECLINED": "Bị trả lại"
+    },
+    "requestedBy": "Đề nghị: {{name}}, {{at}}",
+    "respondBy": "Bên mua cần trả lời trước {{date}}; quá hạn thì kiểm soát viên bên mua được nhắc.",
+    "decidedBy": {
+      "CONFIRMED": "Bên mua nộp chứng từ: {{name}}, {{at}}",
+      "DECLINED": "Bên mua trả lại: {{name}}, {{at}}"
+    },
+    "notePlaceholder": "Ghi chú cho bên mua (không bắt buộc)",
+    "declineReason": "Lý do trả lại (bắt buộc), ví dụ: thiết bị chưa lắp đủ",
+    "request": "Gửi đề nghị nghiệm thu",
+    "decline": "Trả lại đề nghị",
+    "requested": "Đã gửi đề nghị nghiệm thu.",
+    "declined": "Đã trả lại đề nghị nghiệm thu.",
+    "open": "Nhà cung cấp đã đề nghị nghiệm thu lúc {{at}}. Chứng từ bạn nộp sẽ được tính theo thời điểm đó."
   }
 }

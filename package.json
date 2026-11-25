@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "concurrently -k -n api,web,signer \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:signer\"",
+    "dev:local": "pnpm infra:up && pnpm dev",
     "dev:web": "pnpm --filter @codecash/web dev",
     "dev:web:lan": "pnpm --filter @codecash/web dev:lan",
     "dev:api": "pnpm --filter @codecash/api dev",
@@ -32,7 +33,7 @@
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test",
     "check:data": "python3 tools/kiem_chung_nghiep_vu.py --check",
     "check:btc": "python3 tools/ra_soat_btc.py",
-    "infra:up": "docker compose -f infra/compose.yaml up -d",
+    "infra:up": "docker compose -f infra/compose.yaml up -d --wait",
     "infra:down": "docker compose -f infra/compose.yaml down",
     "docker:build": "docker compose -f infra/compose.prod.yaml build",
     "docker:up": "docker compose -f infra/compose.prod.yaml --env-file .env.production up -d",

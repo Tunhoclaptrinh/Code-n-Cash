@@ -4,7 +4,7 @@ import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
-import { repoRoot } from "./common/paths";
+import { pythonEnv, repoRoot } from "./common/paths";
 import type { PdfPagePreview } from "./domain/types";
 
 const execute = promisify(execFile);
@@ -34,7 +34,7 @@ export async function inspectPdf(pdf: Buffer): Promise<PdfPagePreview[]> {
       const { stdout } = await execute(
         process.env.PYTHON ?? "python3",
         [join(repoRoot(), "apps/engine/pdf_geometry.py"), bbox],
-        { timeout: 10000, maxBuffer: 4 * 1024 * 1024 },
+        { timeout: 10000, maxBuffer: 4 * 1024 * 1024, env: pythonEnv() },
       );
       return JSON.parse(stdout).map((page: PdfPagePreview) => ({
         ...page,

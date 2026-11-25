@@ -41,6 +41,10 @@ import type {
 import { AUTHORITY, CONTRACT_TYPES, WORKFLOW_BY_TYPE } from "./vocabulary";
 import { draftProblems, validIsoDate } from "../common/field-validation";
 import { pinnedVersion, versionRuleSet } from "./rule-versions";
+import {
+  DEFAULT_LATE_PAYMENT_RATE_PCT,
+  DEFAULT_PAYMENT_TERM_DAYS,
+} from "./late-payment";
 
 const POLICIES = Object.keys(APPROVAL_ROLES_BY_POLICY) as ApprovalPolicy[];
 const BUYER_SIGNER_ROLES = [
@@ -219,6 +223,8 @@ const toDraft = (d: DraftRecord): ContractDraft => ({
   graceDays: d.graceDays,
   penaltyRatePct: d.penaltyRatePct,
   maxPenaltyPct: d.maxPenaltyPct,
+  paymentTermDays: d.paymentTermDays ?? null,
+  latePaymentRatePct: d.latePaymentRatePct ?? null,
   signers: d.signers,
   file: d.file,
   appendixNames: d.appendixNames,
@@ -269,6 +275,8 @@ export function currentDraft(
     graceDays: 5,
     penaltyRatePct: "0.10",
     maxPenaltyPct: "8.00",
+    paymentTermDays: DEFAULT_PAYMENT_TERM_DAYS,
+    latePaymentRatePct: DEFAULT_LATE_PAYMENT_RATE_PCT,
     signers: [
       ...(owner ? [{ party: "BUYER" as const, userId: owner.userId }] : []),
       ...(representative
@@ -374,6 +382,14 @@ export function saveDraft(
   const rate = decimal(input.penaltyRatePct, 5);
   const cap = decimal(input.maxPenaltyPct, 100);
   const grace = Number(input.graceDays);
+  // Checked by draftProblems: both stated or neither.
+  const paymentTerms =
+    input.paymentTermDays === undefined || input.paymentTermDays === null
+      ? null
+      : {
+          paymentTermDays: Number(input.paymentTermDays),
+          latePaymentRatePct: decimal(input.latePaymentRatePct, 100)!,
+        };
   if (!title) throw new BadRequestException("TITLE_REQUIRED");
   if (!CONTRACT_TYPES.includes(input.type))
     throw new BadRequestException("INVALID_TYPE");
@@ -440,6 +456,8 @@ export function saveDraft(
     max_penalty_pct: cap,
     initial_contract_status: "DRAFT",
     data_is_synthetic: "TRUE",
+    paymentTermDays: paymentTerms?.paymentTermDays,
+    latePaymentRatePct: paymentTerms?.latePaymentRatePct,
   };
   // Hand corrections of the milestones belong to one workflow and one period; a change of either
   // drops them (they are checked again when the terms are locked anyway).
@@ -494,6 +512,8 @@ export function saveDraft(
     graceDays: grace,
     penaltyRatePct: rate,
     maxPenaltyPct: cap,
+    paymentTermDays: paymentTerms?.paymentTermDays ?? null,
+    latePaymentRatePct: paymentTerms?.latePaymentRatePct ?? null,
     signers: signers.map((s) => ({ party: s.party, userId: String(s.userId) })),
     file: {
       name: file.name.slice(0, 255),

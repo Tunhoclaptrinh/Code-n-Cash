@@ -25,7 +25,7 @@ import { Repository } from "./common/repository";
 import { BaseService } from "./common/services/base.service";
 import type { RecordEntity, SessionRequest } from "./common/types";
 import { RequirePermission } from "./common/permissions";
-import { repoRoot } from "./common/paths";
+import { pythonEnv, repoRoot } from "./common/paths";
 import { dataPackDir } from "./domain/datapack";
 import { readRecords } from "./domain/csv";
 import { parseEngineOutput } from "./domain/engine-contract";
@@ -50,7 +50,7 @@ function python(
     const child = spawn(
       process.env.PYTHON ?? "python3",
       [`apps/engine/${script}`, ...args],
-      { cwd: repoRoot(), env: process.env },
+      { cwd: repoRoot(), env: pythonEnv() },
     );
     let out = "",
       err = "";

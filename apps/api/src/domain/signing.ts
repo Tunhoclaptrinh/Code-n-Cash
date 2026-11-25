@@ -85,6 +85,17 @@ export function signingDigest(ctx: Ctx, code: string) {
   const termsDigest = sha256(
     canonical({
       terms,
+      // The buyer's payment term and late-payment interest are signed with the rest; contracts
+      // that state none keep the digest they were signed with.
+      ...(contract.paymentTermDays !== undefined &&
+      contract.paymentTermDays !== null
+        ? {
+            payment: {
+              termDays: contract.paymentTermDays,
+              latePaymentRatePct: contract.latePaymentRatePct,
+            },
+          }
+        : {}),
       fileName: signing.fileName,
       slots: signing.slots,
       ...((draft?.appendixDocuments?.length ?? 0)
@@ -574,6 +585,8 @@ export function attachTransaction(
 ): Outcome {
   const request = requestById(ctx, requestId);
   if (request.status === "PENDING") {
+    if (transaction.hash !== request.hash)
+      throw new BadRequestException("INVALID_SIGNATURE_PROOF");
     request.transactionId = transaction.id;
     request.code = transaction.confirmationCode;
     request.expiresAt = transaction.expiresAt;

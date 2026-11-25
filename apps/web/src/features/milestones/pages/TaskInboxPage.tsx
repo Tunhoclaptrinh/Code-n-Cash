@@ -62,6 +62,7 @@ const KINDS: TaskKind[] = [
   "COMPLETE_DRAFT",
   "REVIEW_EXCEPTION",
   "DECIDE_EXCEPTION",
+  "ACCEPTANCE_OVERDUE",
   "FOLLOW_UP",
 ];
 const badgeTag: Record<Badge, string> = {
@@ -436,7 +437,8 @@ export default function TaskInboxPage() {
       : kind === "RESOLVE_DISPUTE" ||
           kind === "REVIEW_EXCEPTION" ||
           kind === "REVIEW_AMENDMENT" ||
-          kind === "REVIEW_LIQUIDATION"
+          kind === "REVIEW_LIQUIDATION" ||
+          kind === "ACCEPTANCE_OVERDUE"
         ? "warning"
         : kind === "FOLLOW_UP"
           ? "neutral"

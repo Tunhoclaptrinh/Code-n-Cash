@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { exactDecimal, validIsoDate } from "../common/field-validation";
+import { pythonEnv } from "../common/paths";
 import type { ExtractionField } from "./types";
 
 const execute = promisify(execFile);
@@ -28,7 +29,7 @@ export async function documentText(
   const { stdout } = await execute(
     process.env.PYTHON ?? "python3",
     ["-c", code, path],
-    { timeout: 10_000, maxBuffer: 2 * 1024 * 1024 },
+    { timeout: 10_000, maxBuffer: 2 * 1024 * 1024, env: pythonEnv() },
   );
   return stdout;
 }

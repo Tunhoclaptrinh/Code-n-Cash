@@ -11,7 +11,7 @@ interface UploadTermsSectionProps {
   options: UploadFormOptions;
 }
 
-/** Approval policy and late-delivery penalty terms. */
+/** Approval policy, late-delivery penalty terms and the buyer's payment term. */
 export function UploadTermsSection({ form, options }: UploadTermsSectionProps) {
   const { t } = useTranslation("contracts");
   const { t: td } = useTranslation("domain");
@@ -88,6 +88,48 @@ export function UploadTermsSection({ form, options }: UploadTermsSectionProps) {
               inputMode="decimal"
               suffix="%"
               onChange={(event) => set("maxPenaltyPct", event.target.value)}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label={
+              <HelpLabel
+                label={t("contractUpload.form.payment.term")}
+                hint={t("contractUpload.form.payment.termHint")}
+              />
+            }
+            {...feedback("paymentTermDays")}
+          >
+            <InputNumber
+              min={1}
+              max={180}
+              precision={0}
+              placeholder={placeholder("paymentTerm")}
+              value={value.paymentTermDays ?? undefined}
+              style={{ width: "100%" }}
+              onChange={(days) => set("paymentTermDays", days ?? null)}
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            label={
+              <HelpLabel
+                label={t("contractUpload.form.payment.rate")}
+                hint={t("contractUpload.form.payment.rateHint")}
+              />
+            }
+            {...feedback("latePaymentRatePct")}
+          >
+            <Input
+              value={value.latePaymentRatePct ?? ""}
+              placeholder={placeholder("latePaymentRate")}
+              inputMode="decimal"
+              suffix={t("contractUpload.form.payment.rateSuffix")}
+              onChange={(event) =>
+                set("latePaymentRatePct", event.target.value || null)
+              }
             />
           </Form.Item>
         </Col>

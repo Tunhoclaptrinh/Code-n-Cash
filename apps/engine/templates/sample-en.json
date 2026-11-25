@@ -175,5 +175,6 @@
   "relativeDue": "{months} months after {previous}",
   "dueOpen": "To be confirmed",
   "relativeDueOne": "1 month after {previous}",
-  "partyIdentity": "Tax code: {taxCode}. Address: {address}."
+  "partyIdentity": "Tax code: {taxCode}. Address: {address}.",
+  "paymentTerms": "Payment term: the buyer pays each milestone within {paymentTermDays} days of the milestone's completion, that is the day the documents of Article 5 are complete (or the day a dispute is closed, if one was opened). The buyer's internal approvals do not extend this term. After the term, the buyer pays late-payment interest of {latePaymentRatePct}% a year on the overdue amount, for each day overdue (Article 306 of the Commercial Law 2005); the interest is added to the milestone's payment instruction."
 }

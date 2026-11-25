@@ -84,7 +84,11 @@
     "LIQUIDATION_PROPOSED": "Made the liquidation record",
     "LIQUIDATION_ACCEPTED": "Confirmed the contract liquidation",
     "LIQUIDATION_REJECTED": "Rejected the liquidation record",
-    "LIQUIDATION_WITHDRAWN": "Withdrew the liquidation record"
+    "LIQUIDATION_WITHDRAWN": "Withdrew the liquidation record",
+    "ACCEPTANCE_REQUEST_OPEN": "Sent an acceptance request",
+    "ACCEPTANCE_REQUEST_CONFIRMED": "Filed documents for an acceptance request; dated at the request",
+    "ACCEPTANCE_REQUEST_DECLINED": "Returned an acceptance request",
+    "PAYMENT_WITH_INTEREST": "Payment instruction of {{amount}} million VND plus {{interest}} million late-payment interest approved (idempotency key)"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -117,7 +121,9 @@
     "editDigitizedMilestones": "Edit digitised milestones",
     "proposeLiquidation": "Make liquidation record",
     "decideLiquidation": "Answer liquidation record",
-    "withdrawLiquidation": "Withdraw liquidation record"
+    "withdrawLiquidation": "Withdraw liquidation record",
+    "requestAcceptance": "Requested acceptance",
+    "declineAcceptance": "Returned an acceptance request"
   },
   "detail": {
     "view": "View details",

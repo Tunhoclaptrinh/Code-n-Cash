@@ -17,6 +17,8 @@ import {
   type ServerResponse,
 } from "node:http";
 import { resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { loadEnvFile } from "node:process";
 import {
   clientOf,
   deviceSubscriber,
@@ -27,6 +29,11 @@ import { CertificateAuthority, hashPin, pinMatches } from "./ca";
 import { JsonStore } from "./store";
 import type { Channel, Credential, Transaction } from "./types";
 import { deliver } from "./webhook";
+
+// Share the API's local configuration without overriding explicitly supplied variables.
+const envPath = resolve(__dirname, "../../../.env");
+if (process.env.NODE_ENV !== "production" && existsSync(envPath))
+  loadEnvFile(envPath);
 
 const env = (name: string, fallback: string) => process.env[name] || fallback;
 const PORT = Number(env("SIGNER_PORT", "3200"));
@@ -221,7 +228,15 @@ async function createSignature(
         (t) =>
           t.clientId === client.clientId && t.idempotencyKey === idempotencyKey,
       );
-      if (again) return { transaction: again, replaced: [] as Transaction[] };
+      if (again) {
+        if (
+          again.hash !== hash ||
+          again.subscriberId !== subscriberId ||
+          again.channel !== channel
+        )
+          throw new Problem(409, "IDEMPOTENCY_CONFLICT");
+        return { transaction: again, replaced: [] as Transaction[] };
+      }
     }
     const credential = d.credentials.find(
       (c) => c.subscriberId === subscriberId,

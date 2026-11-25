@@ -157,7 +157,8 @@ export const createSignature = (
 ) =>
   call<RemoteTransaction>("/v1/signatures", {
     method: "POST",
-    headers: { "Idempotency-Key": idempotencyKey },
+    // Request numbers restart after a demo reset; the signed payload must remain part of the key.
+    headers: { "Idempotency-Key": `${idempotencyKey}:${input.hash}` },
     body: JSON.stringify({
       subscriberId: input.subscriberId,
       hash: input.hash,

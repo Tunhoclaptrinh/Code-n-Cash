@@ -426,7 +426,8 @@ try {
         `apps/web/src/guide/${language}/${topic}.md`,
         "utf8",
       );
-      const title = markdown.split("\n")[0].replace(/^# /, "");
+      // A Windows checkout has CRLF line endings.
+      const title = markdown.split(/\r?\n/)[0].replace(/^# /, "");
       await send("Page.navigate", { url: `${base}/guide/${topic}` });
       await until(
         `document.querySelector('article h2')?.textContent === ${JSON.stringify(title)}`,

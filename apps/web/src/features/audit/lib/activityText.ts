@@ -42,6 +42,8 @@ export function describeAction(
       return t("actions.DIGITIZATION_EDITED", {
         count: action.milestoneCount,
       });
+    case "ACCEPTANCE_REQUEST":
+      return t(`actions.ACCEPTANCE_REQUEST_${action.state}`);
     case "LIQUIDATION":
       return t(`actions.LIQUIDATION_${action.state}`);
     case "AMENDMENT":
@@ -51,9 +53,14 @@ export function describeAction(
     case "EXCEPTION":
       return t(`actions.EXCEPTION_${action.state}`, { id: action.eventId });
     case "PAYMENT":
-      return t("actions.PAYMENT", {
-        amount: formatDecimalString(action.amountMillion),
-      });
+      return action.lateInterestMillion
+        ? t("actions.PAYMENT_WITH_INTEREST", {
+            amount: formatDecimalString(action.amountMillion),
+            interest: formatDecimalString(action.lateInterestMillion),
+          })
+        : t("actions.PAYMENT", {
+            amount: formatDecimalString(action.amountMillion),
+          });
     case "PAYMENT_DELIVERY":
       return t(`actions.PAYMENT_DELIVERY_${action.status}`, {
         channel: t(`paymentChannel.${action.channel}`),

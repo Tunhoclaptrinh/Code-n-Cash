@@ -483,10 +483,30 @@ export interface StatusChange {
  * The payment instruction a paying decision becomes: what to pay, to whom and why. The engine's decision
  * draws it up; finance approves it and it is sent to the payment gateway.
  */
+/**
+ * The buyer's payment term on a milestone and the late-payment interest owed when it is paid on a
+ * given day (domain/late-payment.ts). Only contracts that state payment terms have one.
+ */
+export interface LatePayment {
+  termDays: number;
+  /** Annual late-payment interest rate, percent. */
+  ratePct: string;
+  /** Completion date, or the closing of the latest dispute when later. */
+  startsOn: string;
+  dueOn: string;
+  daysLate: number;
+  interestMillion: string;
+}
+
 export interface PaymentInstruction {
   decision: Decision;
+  /** The amount the engine decided (after any late-delivery penalty). */
   amountMillion: string;
   penaltyMillion: string;
+  /** Payment term and late-payment interest; null when the contract states no payment terms. */
+  latePayment?: LatePayment | null;
+  /** What the buyer transfers: the decided amount plus any late-payment interest. */
+  totalMillion?: string;
   payer: { id: string; name: string };
   payee: { id: string; name: string };
   runId: string;
@@ -514,6 +534,10 @@ export interface Payment {
   runId: string;
   decision: Decision;
   amountMillion: string;
+  /** Late-payment interest added on approval; absent or "0.00" when none was owed. */
+  lateInterestMillion?: string;
+  /** The amount transferred: amountMillion plus the interest. */
+  totalMillion?: string;
   transferredBy: string;
   transferredAt: string;
   instruction?: PaymentInstruction;
@@ -592,6 +616,9 @@ export interface ContractOverview {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /** The buyer's payment term and late-payment interest; null when the contract states none. */
+  paymentTermDays: number | null;
+  latePaymentRatePct: string | null;
   autoReleaseAllowed: boolean;
   milestones: MilestoneRow[];
   totals: {
@@ -646,6 +673,37 @@ export interface Liquidation {
 }
 
 export type AmendmentState = "PROPOSED" | "ACCEPTED" | "REJECTED" | "WITHDRAWN";
+
+export type AcceptanceRequestState = "OPEN" | "CONFIRMED" | "DECLINED";
+
+/**
+ * The supplier's request that the buyer confirms a milestone (đề nghị nghiệm thu). The buyer's
+ * documents (ACCEPTANCE, UAT_PASSED, ...) set the completion date (BR-11), so without this the
+ * supplier would pay the late penalty for a buyer who files late. While a request is open, the
+ * buyer's documents are recorded at the time of the request; the buyer may decline it with a
+ * reason when the work is not ready, and the supplier then asks again.
+ */
+export interface AcceptanceRequest {
+  id: string;
+  contractId: string;
+  milestoneId: string;
+  sequence: number;
+  state: AcceptanceRequestState;
+  /** The buyer's required documents that were missing when the supplier asked. */
+  eventTypes: BusinessEventType[];
+  note: string | null;
+  requestedBy: { id: string; name: string };
+  /** Server time of the request: the timestamp the buyer's documents take when confirmed. */
+  requestedAt: string;
+  /** Last day for the buyer's answer before the buyer's controller is told. */
+  respondBy: string;
+  decidedBy: { id: string; name: string } | null;
+  /** When the buyer actually filed the documents or declined. */
+  decidedAt: string | null;
+  decisionNote: string | null;
+  /** The events recorded at the time of the request. */
+  eventIds: string[];
+}
 
 /**
  * An amendment (phụ lục) to a signed contract's schedule: the buyer proposes new due dates for open
@@ -804,7 +862,13 @@ export interface MilestoneDetail {
   /** The instruction a paying decision draws up, before finance approves it; null otherwise. */
   instruction: PaymentInstruction | null;
   exceptions: ExceptionRequest[];
+  /** The supplier's acceptance requests on this milestone, newest first. */
+  acceptanceRequests: AcceptanceRequest[];
   actions: {
+    /** The supplier may ask the buyer to confirm the milestone now. */
+    requestAcceptance: boolean;
+    /** The buyer's contract officer may decline the open acceptance request. */
+    declineAcceptance: boolean;
     submit: boolean;
     approve: boolean;
     reject: boolean;
@@ -850,6 +914,8 @@ export interface EvidenceWorkspace {
   canSubmit: boolean;
   /** The supplier's tax code on record; an invoice must state it as the seller's. */
   sellerTaxCode: string | null;
+  /** The open acceptance request: the buyer's documents will be recorded at its time. */
+  acceptanceRequest: AcceptanceRequest | null;
   /** Engine result if the attached documents were submitted now (dry run). */
   preview: Preview | null;
 }
@@ -927,6 +993,7 @@ export type TaskKind =
   | "REVIEW_AMENDMENT"
   | "LIQUIDATE_CONTRACT"
   | "REVIEW_LIQUIDATION"
+  | "ACCEPTANCE_OVERDUE"
   | "FOLLOW_UP";
 
 /**
@@ -1170,8 +1237,9 @@ export type ActivityAction =
   | { kind: "DIGITIZATION_EDITED"; milestoneCount: number }
   | { kind: "AMENDMENT"; state: AmendmentState; number: number }
   | { kind: "LIQUIDATION"; state: AmendmentState }
+  | { kind: "ACCEPTANCE_REQUEST"; state: AcceptanceRequestState }
   | { kind: "EXCEPTION"; state: ExceptionState; eventId: string }
-  | { kind: "PAYMENT"; amountMillion: string }
+  | { kind: "PAYMENT"; amountMillion: string; lateInterestMillion?: string }
   | {
       kind: "PAYMENT_DELIVERY";
       channel: PaymentDelivery["channel"];
@@ -1486,6 +1554,10 @@ export interface ContractDraft {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  /** Days the buyer has to pay a milestone once it is complete; null when not stated. */
+  paymentTermDays?: number | null;
+  /** Annual late-payment interest rate, percent; set together with paymentTermDays. */
+  latePaymentRatePct?: string | null;
   signers: DraftSigner[];
   file: ContractFile;
   appendixNames: string[];

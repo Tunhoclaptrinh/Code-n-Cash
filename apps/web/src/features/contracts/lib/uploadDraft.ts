@@ -36,6 +36,8 @@ export const contentKey = (draft: DraftInput) =>
     draft.graceDays,
     draft.penaltyRatePct,
     draft.maxPenaltyPct,
+    draft.paymentTermDays,
+    draft.latePaymentRatePct,
     draft.signers,
     draft.documentBody,
   ]);
@@ -75,6 +77,8 @@ export const emptyDraft = (draft: ContractDraft): DraftInput => ({
   graceDays: undefined,
   penaltyRatePct: "",
   maxPenaltyPct: "",
+  paymentTermDays: null,
+  latePaymentRatePct: null,
   signers: [],
   documentBody: "",
   templateId: undefined,
@@ -117,6 +121,8 @@ export function sampleValues(
     graceDays: 5,
     penaltyRatePct: "0.10",
     maxPenaltyPct: "8.00",
+    paymentTermDays: 30,
+    latePaymentRatePct: "10.00",
     documentBody: t("contractUpload.demo.body"),
     signers: [
       ...(owner ? [{ party: "BUYER" as const, userId: owner.userId }] : []),

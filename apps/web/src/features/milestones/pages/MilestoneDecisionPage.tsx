@@ -9,6 +9,7 @@ import { formatDecimalString } from "@/shared/lib/format";
 import { PageState } from "@/shared/ui/PageState";
 import { ContractSideLayout } from "@/shared/ui/ContractSideLayout";
 import { SideCard } from "@/shared/ui/SidePanel";
+import { AcceptancePanel } from "../components/AcceptancePanel";
 import { AmountsPanel } from "../components/AmountsPanel";
 import { ConditionsPanel } from "../components/ConditionsPanel";
 import {
@@ -89,7 +90,9 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
         ? t("decision.transferConfirm.body", {
             no: milestone.sequence,
             decision: td(`decision.${instruction.decision}`),
-            amount: formatDecimalString(instruction.amountMillion),
+            amount: formatDecimalString(
+              instruction.totalMillion ?? instruction.amountMillion,
+            ),
             payer: instruction.payer.name,
             payee: instruction.payee.name,
           })
@@ -135,6 +138,7 @@ function DecisionContent({ data }: { data: MilestoneDetail }) {
             onTransfer={confirmTransfer}
           />
           <PendingPanel data={data} onTransfer={confirmTransfer} />
+          <AcceptancePanel data={data} onChanged={refresh} />
           <ConditionsPanel data={data} />
           <AmountsPanel money={money} />
           <RulesPanel data={data} />

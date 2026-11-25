@@ -28,7 +28,7 @@ sequenceDiagram
   P->>W: Chọn phương thức, bấm "Gửi yêu cầu ký"
   W->>A: sendSigningRequest
   A->>A: Lập payload (hợp đồng, bước, digest tài liệu, chữ ký trước) và hash SHA-256
-  A->>S: POST /v1/signatures (Basic, Idempotency-Key = mã yêu cầu)
+  A->>S: POST /v1/signatures (Basic, Idempotency-Key = mã yêu cầu + hash payload)
   S-->>A: 201 TX-… PENDING, mã xác nhận 4 số, hạn 5 phút
   A-->>W: Yêu cầu PENDING kèm mã xác nhận
   S-)D: SSE event: transaction (thiết bị sáng lên)
@@ -68,6 +68,8 @@ Nếu webhook không tới (mạng, API khởi động lại), màn chờ hỏi 
 | --- | --- |
 | Dịch vụ ký không chạy khi gửi yêu cầu | Yêu cầu dừng với lý do; màn ký báo "Không kết nối được dịch vụ ký", có thể gửi lại |
 | Gửi lại cùng yêu cầu (mạng chập chờn) | `Idempotency-Key` trả đúng giao dịch cũ, không tạo giao dịch mới |
+| Khôi phục demo, số yêu cầu bắt đầu lại | Hash payload nằm trong khóa chống trùng nên yêu cầu mới không lấy nhầm giao dịch trước reset |
+| Cùng khóa chống trùng nhưng đổi hash/người ký/kênh | Dịch vụ từ chối HTTP 409 `IDEMPOTENCY_CONFLICT`; API không ghép transaction khác hash |
 | Gửi yêu cầu mới khi yêu cầu cũ đang chờ | Dịch vụ ký huỷ yêu cầu cũ trên thiết bị |
 | Webhook thất bại | Dịch vụ thử lại sau 1, 5, 25 giây; màn chờ hỏi lại mỗi 3 giây |
 | Webhook đến hai lần | Lần thứ hai không đổi gì (yêu cầu đã hết trạng thái chờ) |
@@ -79,7 +81,7 @@ Nếu webhook không tới (mạng, API khởi động lại), màn chờ hỏi 
 
 ## 5. Chạy và cấu hình
 
-Phát triển: `pnpm dev` chạy cả API, web và dịch vụ ký (cổng 3200). Bật ký qua dịch vụ trong `.env`:
+Phát triển: `pnpm dev` chạy cả API, web và dịch vụ ký (cổng 3200). API và signer cùng đọc `.env` gốc khi chạy local; biến truyền trực tiếp vào tiến trình có ưu tiên hơn. Bật ký qua dịch vụ trong `.env`:
 
 ```
 SIGNING_PROVIDER=remote

@@ -5,7 +5,11 @@ import type { MilestoneDetail, PaymentInstruction } from "@codecash/contracts";
 import { retryPaymentDelivery } from "@/shared/api/domain";
 import { useCurrentUser } from "@/shared/auth/session";
 import { useApiErrorMessage } from "../hooks/useApiErrorMessage";
-import { formatDateTime, formatDecimalString } from "@/shared/lib/format";
+import {
+  formatDate,
+  formatDateTime,
+  formatDecimalString,
+} from "@/shared/lib/format";
 import { DecisionTag } from "@/shared/ui/DomainTags";
 import { TechnicalDetails, TrackingCode } from "@/shared/ui/TechnicalInfo";
 
@@ -111,6 +115,48 @@ function InstructionDetails({
               penalty: formatDecimalString(instruction.penaltyMillion),
             }),
           },
+          ...(instruction.latePayment
+            ? [
+                {
+                  key: "due",
+                  label: t("instruction.due"),
+                  children: t(
+                    instruction.latePayment.daysLate > 0
+                      ? "instruction.dueLate"
+                      : "instruction.dueOnTime",
+                    {
+                      date: formatDate(instruction.latePayment.dueOn),
+                      days: instruction.latePayment.termDays,
+                      late: instruction.latePayment.daysLate,
+                    },
+                  ),
+                },
+                {
+                  key: "interest",
+                  label: t("instruction.interest"),
+                  children: t("instruction.interestValue", {
+                    amount: formatDecimalString(
+                      instruction.latePayment.interestMillion,
+                    ),
+                    rate: formatDecimalString(instruction.latePayment.ratePct),
+                    late: instruction.latePayment.daysLate,
+                  }),
+                },
+                {
+                  key: "total",
+                  label: t("instruction.total"),
+                  children: (
+                    <b data-testid="instruction-total">
+                      {t("instruction.totalValue", {
+                        amount: formatDecimalString(
+                          instruction.totalMillion ?? instruction.amountMillion,
+                        ),
+                      })}
+                    </b>
+                  ),
+                },
+              ]
+            : []),
           {
             key: "parties",
             label: t("instruction.parties"),

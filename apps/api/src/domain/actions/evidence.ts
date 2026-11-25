@@ -20,6 +20,7 @@ import { today } from "../context";
 import { fromCents, toCents } from "../templates";
 import type { BusinessEventType, InvoiceData } from "../types";
 import { isBusinessEvent } from "../vocabulary";
+import { acceptanceTime, confirmAcceptance } from "./acceptance";
 import { type Outcome, assertOpen, newEvent, outcome, text } from "./shared";
 
 export function attachEvidence(
@@ -216,16 +217,27 @@ export function evidenceEvents(
     if (req.state === "VALID" || !ctx.mayRecord(req.eventType)) continue;
     const attachment = attachments.find((a) => a.eventType === req.eventType);
     if (!attachment) continue;
+    // A buyer's document the supplier asked for is recorded at the time of that request, so the
+    // buyer's own delay does not move the completion date (actions/acceptance.ts).
+    const requested = acceptanceTime(ctx, m, req.eventType);
+    const notes = [
+      requested
+        ? `Theo đề nghị nghiệm thu ${requested.requestId} lúc ${requested.at}; nộp lúc ${businessNow()}.`
+        : "",
+      extras.length && !created.length ? `Kèm theo: ${extras.join(", ")}` : "",
+    ].filter(Boolean);
     const event = newEvent(ctx, m, req.eventType, "CONFIRMED", actorParty, {
       amount: attachment.invoice?.amountMillion,
       invoice: attachment.invoice,
       fileName: attachment.fileName,
       document: commit ? signedEvidence(ctx, m, attachment) : undefined,
-      note:
-        extras.length && !created.length
-          ? `Kèm theo: ${extras.join(", ")}`
-          : undefined,
+      at: requested?.at,
+      note: notes.join(" ") || undefined,
     });
+    if (requested) {
+      event.acceptanceRequestId = requested.requestId;
+      event.recordedAt = businessNow();
+    }
     created.push(event);
   }
   if (!commit)
@@ -256,11 +268,17 @@ export function submitEvidence(
     throw new BadRequestException("INVOICE_DATA_REQUIRED");
   const events = evidenceEvents(ctx, m, true);
   for (const a of mine) attachments.splice(attachments.indexOf(a), 1);
+  const audit = confirmAcceptance(
+    ctx,
+    m,
+    events.filter((e) => e.acceptanceRequestId).map((e) => e.event_id),
+  );
   return outcome(
     ctx,
     { eventIds: events.map((e) => e.event_id) },
     {
       events,
+      audit,
       evaluate: true,
       milestoneId: m.milestone_id,
       trigger: {

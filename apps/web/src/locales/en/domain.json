@@ -184,7 +184,8 @@
     "FOLLOW_UP": "Follow up a milestone",
     "REVIEW_AMENDMENT": "Review a contract amendment",
     "LIQUIDATE_CONTRACT": "Make the contract liquidation record",
-    "REVIEW_LIQUIDATION": "Confirm the contract liquidation"
+    "REVIEW_LIQUIDATION": "Confirm the contract liquidation",
+    "ACCEPTANCE_OVERDUE": "Chase the buyer's answer to an acceptance request"
   },
   "errors": {
     "NOT_YOUR_EVENT_TYPE": "The other party creates this document (authority matrix 4.2).",
@@ -384,7 +385,14 @@
     "LIQUIDATION_NOT_FOUND": "No liquidation record is waiting.",
     "CANNOT_DECIDE_LIQUIDATION": "Only the contract's supplier confirms the liquidation.",
     "LIQUIDATION_STALE": "The figures changed since the record was made; the buyer must make it again.",
-    "INVOICE_SELLER_MISMATCH": "The seller tax code differs from the supplier's tax code on record."
+    "INVOICE_SELLER_MISMATCH": "The seller tax code differs from the supplier's tax code on record.",
+    "CANNOT_REQUEST_ACCEPTANCE": "Only the contract's supplier sends an acceptance request.",
+    "NOTHING_TO_ACCEPT": "No buyer document of this milestone is left to request.",
+    "ACCEPTANCE_REQUEST_PENDING": "An acceptance request on this milestone is already waiting for the buyer.",
+    "ACCEPTANCE_REQUEST_NOT_FOUND": "No acceptance request is waiting.",
+    "CANNOT_DECLINE_ACCEPTANCE": "Only the buyer's contract officer answers an acceptance request.",
+    "INVALID_PAYMENT_TERMS": "The payment term must be 1 to 180 days and the late-payment interest 0 to 100% a year.",
+    "PAYMENT_TERMS_INCOMPLETE": "Enter both the payment term and the late-payment interest, or leave both empty."
   },
   "milestoneNo": "Milestone {{no}}",
   "overdue_one": "{{count}} day overdue",

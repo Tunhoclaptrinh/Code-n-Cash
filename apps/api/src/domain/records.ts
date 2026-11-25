@@ -21,6 +21,7 @@ import type {
   EvidenceDocument,
   InvoiceData,
   Amendment,
+  AcceptanceRequest,
   MilestoneEdit,
   Liquidation,
 } from "./types";
@@ -45,6 +46,7 @@ export const TABLE = {
   exceptions: "exceptions",
   payments: "payments",
   amendments: "amendments",
+  acceptanceRequests: "acceptance-requests",
 } as const;
 
 export type Tables = Record<string, RecordEntity[]>;
@@ -195,6 +197,9 @@ export type ContractRecord = RecordEntity &
     liquidations?: Liquidation[];
     /** End date in force after an accepted amendment; the signed end_date never changes. */
     amendedEndDate?: string;
+    /** The buyer's payment term (days after completion) and annual late-payment interest rate. */
+    paymentTermDays?: number;
+    latePaymentRatePct?: string;
   };
 
 export type MilestoneRecord = RecordEntity &
@@ -208,6 +213,10 @@ export type EventRecord = RecordEntity &
     fileName?: string | null;
     document?: SignedEvidence;
     invoice?: InvoiceData;
+    /** Set when the event takes the time of an acceptance request (actions/acceptance.ts). */
+    acceptanceRequestId?: string;
+    /** When such an event was actually filed; event_timestamp is the time of the request. */
+    recordedAt?: string;
   };
 
 /** The evidence document behind an app event with the submitter's signature over it. */
@@ -268,6 +277,8 @@ export interface DraftRecord extends RecordEntity {
   graceDays: number;
   penaltyRatePct: string;
   maxPenaltyPct: string;
+  paymentTermDays?: number | null;
+  latePaymentRatePct?: string | null;
   signers: ContractDraft["signers"];
   file: ContractDraft["file"];
   appendixNames: string[];
@@ -291,6 +302,7 @@ export type NoteRecord = RecordEntity & NoteRow;
 export type ExceptionRecord = RecordEntity & ExceptionRequest;
 export type PaymentRecord = RecordEntity & Payment;
 export type AmendmentRecord = RecordEntity & Amendment;
+export type AcceptanceRequestRecord = RecordEntity & AcceptanceRequest;
 
 /** Stage of a Data Pack workflow, as found in milestones.csv. */
 export interface StageTemplate {

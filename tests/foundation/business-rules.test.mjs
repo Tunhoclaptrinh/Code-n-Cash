@@ -296,6 +296,20 @@ const WRITE_ACTIONS = [
     reaches: "MILESTONE_NOT_FOUND",
   },
   {
+    name: "requestAcceptance",
+    module: "evidence",
+    allowed: ["LEGAL_REVIEWER", "SUPPLIER"],
+    args: [at(99)],
+    reaches: "MILESTONE_NOT_FOUND",
+  },
+  {
+    name: "declineAcceptance",
+    module: "evidence",
+    allowed: ["LEGAL_REVIEWER", "SUPPLIER"],
+    args: [at(99, { note: "x" })],
+    reaches: "MILESTONE_NOT_FOUND",
+  },
+  {
     name: "castVote",
     module: "approvals",
     allowed: APPROVERS,
@@ -457,7 +471,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 25);
+  assert.equal(WRITE_ACTIONS.length, 27);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -1553,6 +1567,164 @@ test("amendment: the buyer proposes a new schedule, the supplier agrees, the eng
     w.tbl("audit").filter((e) => e.detail?.kind === "AMENDMENT").length >= 7,
     "every step is in the audit chain",
   );
+});
+
+test("acceptance request: the buyer's documents count from the supplier's request, so a buyer who files late does not make the supplier late (BR-11)", async () => {
+  const w = await world();
+  const code = "CT0103"; // demo goods contract: #3 needs only the buyer's ACCEPTANCE
+  const ref = w.ref(code, 3);
+  const ms = w.milestone(code, 3);
+  const request = (user, extra = {}) =>
+    w.call(user, "evidence", "requestAcceptance", { ...ref, ...extra });
+  const decline = (user, note) =>
+    w.call(user, "evidence", "declineAcceptance", { ...ref, note });
+  const requests = () => w.tbl("acceptance-requests");
+
+  // Who and when: the supplier of the contract asks, only for the buyer's documents of a milestone
+  // whose supplier documents are in, never on the organiser's sealed contracts.
+  await expectCode(
+    w.call(
+      supplierOf(w, "CT0001"),
+      "evidence",
+      "requestAcceptance",
+      w.ref("CT0001", 3),
+    ),
+    "DATA_PACK_LOCKED",
+  );
+  await denied(
+    w,
+    U.LEGAL,
+    "evidence",
+    "requestAcceptance",
+    [ref],
+    "CANNOT_REQUEST_ACCEPTANCE",
+  );
+  await denied(
+    w,
+    U.OWNER,
+    "evidence",
+    "requestAcceptance",
+    [ref],
+    "ACTION_FORBIDDEN",
+  );
+  await denied(
+    w,
+    U.SUPPLIER,
+    "evidence",
+    "requestAcceptance",
+    [w.ref(code, 2)],
+    "NOTHING_TO_ACCEPT",
+  );
+  await denied(
+    w,
+    U.LEGAL,
+    "evidence",
+    "declineAcceptance",
+    [{ ...ref, note: "x" }],
+    "ACCEPTANCE_REQUEST_NOT_FOUND",
+  );
+
+  // The supplier asks; the server stamps the request and gives the buyer a deadline to answer.
+  const first = await ok(w, U.SUPPLIER, "evidence", "requestAcceptance", {
+    ...ref,
+    note: "Đã lắp xong",
+  });
+  assert.equal(first.state, "OPEN");
+  assert.deepEqual(first.eventTypes, ["ACCEPTANCE"]);
+  assert.match(first.requestedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+  assert.ok(first.respondBy > first.requestedAt.slice(0, 10));
+  await denied(
+    w,
+    U.SUPPLIER,
+    "evidence",
+    "requestAcceptance",
+    [ref],
+    "ACCEPTANCE_REQUEST_PENDING",
+  );
+  const detail = await w.call(
+    U.LEGAL,
+    "contracts",
+    "getMilestoneDetail",
+    code,
+    3,
+  );
+  assert.equal(detail.actions.declineAcceptance, true);
+  assert.equal(detail.acceptanceRequests[0].id, first.id);
+
+  // The buyer finds the work not ready: it returns the request with a reason, and the supplier
+  // asks again later, which gives a new time.
+  await denied(
+    w,
+    U.SUPPLIER,
+    "evidence",
+    "declineAcceptance",
+    [{ ...ref, note: "x" }],
+    "CANNOT_DECLINE_ACCEPTANCE",
+  );
+  await expectCode(decline(U.LEGAL, ""), "NOTE_REQUIRED");
+  const returned = await ok(w, U.LEGAL, "evidence", "declineAcceptance", {
+    ...ref,
+    note: "Thiếu thiết bị",
+  });
+  assert.equal(returned.state, "DECLINED");
+  const second = await ok(w, U.SUPPLIER, "evidence", "requestAcceptance", ref);
+  assert.notEqual(second.id, first.id);
+
+  // The request was made on the due date; the buyer files the acceptance only now, weeks later.
+  const askedAt = `${ms.due_date}T09:00:00`;
+  requests().find((r) => r.id === second.id).requestedAt = askedAt;
+  await ok(w, U.LEGAL, "evidence", "attachEvidenceFile", {
+    ...ref,
+    eventType: "ACCEPTANCE",
+    ...file(),
+  });
+  const result = await ok(w, U.LEGAL, "evidence", "submitEvidence", ref);
+  const [event] = w
+    .tbl("events")
+    .filter((e) => e.event_id === result.eventIds[0]);
+  assert.equal(event.event_type, "ACCEPTANCE");
+  assert.equal(
+    event.event_timestamp,
+    askedAt,
+    "the event takes the time of the request",
+  );
+  assert.equal(event.acceptanceRequestId, second.id);
+  assert.ok(event.recordedAt > askedAt, "the real filing time is kept");
+  assert.equal(result.evaluation.completedAt, askedAt);
+  assert.equal(
+    result.evaluation.daysLate,
+    0,
+    "the buyer's delay is not the supplier's lateness",
+  );
+  const confirmed = requests().find((r) => r.id === second.id);
+  assert.equal(confirmed.state, "CONFIRMED");
+  assert.deepEqual(confirmed.eventIds, [event.event_id]);
+  assert.ok(
+    w
+      .tbl("audit")
+      .some(
+        (e) =>
+          e.detail?.kind === "ACCEPTANCE_REQUEST" &&
+          e.detail.state === "CONFIRMED",
+      ),
+  );
+});
+
+test("acceptance request: a request the buyer leaves unanswered past its deadline becomes work for the buyer's controller", async () => {
+  const w = await world();
+  const ref = w.ref("CT0103", 3);
+  const sent = await ok(w, U.SUPPLIER, "evidence", "requestAcceptance", ref);
+  const tasks = () => w.call(U.CONTROLLER, "tasks", "getTaskInbox");
+  assert.ok(!(await tasks()).some((t) => t.kind === "ACCEPTANCE_OVERDUE"));
+  w.tbl("acceptance-requests").find((r) => r.id === sent.id).respondBy =
+    "2026-01-01";
+  const overdue = (await tasks()).find((t) => t.kind === "ACCEPTANCE_OVERDUE");
+  assert.ok(overdue, "the controller is told");
+  assert.equal(overdue.contractId, "CT0103");
+  assert.deepEqual(overdue.eventTypes, ["ACCEPTANCE"]);
+  // Only the buyer's controller: the supplier's controller watches, it does not chase the buyer.
+  const other = await w.call(U.SUPPLIER_CONTROLLER, "tasks", "getTaskInbox");
+  assert.ok(!other.some((t) => t.kind === "ACCEPTANCE_OVERDUE"));
 });
 
 test("liquidation: once every milestone is settled the buyer proposes the record, the supplier confirms and the contract is closed for good", async () => {
@@ -4660,6 +4832,8 @@ async function engine(edit) {
   const { stdout } = await execFileAsync(PYTHON, args, {
     cwd: ROOT,
     maxBuffer: 128 * 1024 * 1024,
+    // The engine prints JSON with Vietnamese text; Windows would use the console code page.
+    env: { ...process.env, PYTHONUTF8: "1", PYTHONIOENCODING: "utf-8" },
   });
   const output = JSON.parse(stdout);
   return {
@@ -6007,3 +6181,193 @@ test("random order: whatever sequence of actions the parties try, nothing is pai
 });
 
 // @@APPEND@@
+
+/* ------------------------------ 10. the buyer's payment term and late-payment interest ------------------------------ */
+
+const businessToday = () =>
+  new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
+const daysFrom = (from, to) =>
+  Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
+const plusDays = (date, days) =>
+  new Date(Date.parse(date) + days * 86_400_000).toISOString().slice(0, 10);
+/** amount × annual rate × days / 365, in hundredths of a million, half up (written from the contract text). */
+const interestOracle = (amount, ratePct, days) => {
+  if (days <= 0) return "0.00";
+  const numerator = cents(amount) * cents(ratePct) * BigInt(days);
+  const denominator = 100n * 100n * 365n;
+  return money((numerator * 2n + denominator) / (2n * denominator));
+};
+
+test("late payment: the interest formula is simple daily interest in hundredths of a million, half up, never negative", async () => {
+  const { lateInterest } =
+    await import("../../apps/api/dist/domain/late-payment.js");
+  assert.equal(lateInterest("1000.00", "10.00", 30), "8.22");
+  assert.equal(lateInterest("1000.00", "10.00", 365), "100.00");
+  assert.equal(lateInterest("555.00", "12.00", 1), "0.18");
+  assert.equal(lateInterest("1000.00", "0.00", 90), "0.00");
+  assert.equal(lateInterest("1000.00", "10.00", 0), "0.00");
+  assert.equal(lateInterest("1000.00", "10.00", -5), "0.00");
+  for (const [amount, rate, days] of [
+    ["1.00", "1.00", 1],
+    ["999999.99", "100.00", 180],
+    ["432.17", "7.35", 47],
+  ])
+    assert.equal(
+      lateInterest(amount, rate, days),
+      interestOracle(amount, rate, days),
+    );
+});
+
+test("late payment: a draft states the payment term and the interest rate together, within bounds, and the contract keeps them", async () => {
+  const w = await world();
+  const save = (patch) => w.call(U.LEGAL, "drafts", "saveContractDraft", patch);
+  const fresh = await newDraft(w);
+  assert.equal(fresh.paymentTermDays, 30, "a new draft proposes a term");
+  assert.equal(fresh.latePaymentRatePct, "10.00");
+  await expectCode(
+    save({ ...fresh, latePaymentRatePct: null }),
+    "PAYMENT_TERMS_INCOMPLETE",
+  );
+  await expectCode(
+    save({ ...fresh, paymentTermDays: null }),
+    "PAYMENT_TERMS_INCOMPLETE",
+  );
+  for (const days of [0, 181, 2.5])
+    await expectCode(
+      save({ ...fresh, paymentTermDays: days }),
+      "INVALID_PAYMENT_TERMS",
+    );
+  for (const rate of ["100.01", "-1", "abc", "1.234"])
+    await expectCode(
+      save({ ...fresh, latePaymentRatePct: rate }),
+      "INVALID_PAYMENT_TERMS",
+    );
+  const saved = await ok(w, U.LEGAL, "drafts", "saveContractDraft", {
+    ...fresh,
+    paymentTermDays: 45,
+    latePaymentRatePct: "9,5",
+  });
+  assert.equal(saved.paymentTermDays, 45);
+  assert.equal(saved.latePaymentRatePct, "9.50");
+  assert.equal(w.contract(fresh.code).paymentTermDays, 45);
+  assert.equal(w.contract(fresh.code).latePaymentRatePct, "9.50");
+  // Leaving both empty states no payment terms.
+  const none = await ok(w, U.LEGAL, "drafts", "saveContractDraft", {
+    ...fresh,
+    paymentTermDays: null,
+    latePaymentRatePct: null,
+  });
+  assert.equal(none.paymentTermDays, null);
+  assert.equal(w.contract(fresh.code).paymentTermDays, undefined);
+});
+
+test("late payment: past the payment term the buyer's transfer adds the interest; the engine's decision and amount stay as they were", async () => {
+  const w = await world();
+  const code = "CT0103";
+  const ref = w.ref(code, 2);
+  const detail = () =>
+    w.call(U.FINANCE, "contracts", "getMilestoneDetail", code, 2);
+  await ok(w, U.FINANCE, "approvals", "castVote", {
+    ...ref,
+    choice: "APPROVE",
+  });
+  // The demo contract states no payment terms: no interest, the total is the decided amount.
+  const plain = (await detail()).instruction;
+  assert.equal(plain.latePayment, null);
+  assert.equal(plain.totalMillion, plain.amountMillion);
+  // The same contract as if both parties had signed a 10-day term at 12% a year.
+  Object.assign(w.contract(code), {
+    paymentTermDays: 10,
+    latePaymentRatePct: "12.00",
+  });
+  const before = w.evaluation(w.milestone(code, 2).milestone_id);
+  const { instruction } = await detail();
+  const late = instruction.latePayment;
+  // The term runs from completion (the invoice, 16 Oct), not from the approvals (19 Oct and today).
+  assert.equal(late.startsOn, "2026-10-16");
+  assert.equal(late.dueOn, "2026-10-26");
+  const daysLate = Math.max(0, daysFrom("2026-10-26", businessToday()));
+  assert.equal(late.daysLate, daysLate);
+  const interest = interestOracle(before.payableMillion, "12.00", daysLate);
+  assert.equal(late.interestMillion, interest);
+  assert.equal(instruction.amountMillion, before.payableMillion);
+  assert.equal(
+    instruction.totalMillion,
+    money(cents(before.payableMillion) + cents(interest)),
+  );
+  // Finance's payment task is due by the payment term.
+  const { taskInbox } =
+    await import("../../apps/api/dist/domain/views/tasks.js");
+  const task = (
+    await w.domain.read(w.actor(U.FINANCE), (ctx) => taskInbox(ctx))
+  ).find(
+    (t) =>
+      t.kind === "TRANSFER_PAYMENT" &&
+      t.milestoneId === w.milestone(code, 2).milestone_id,
+  );
+  assert.equal(task.dueDate, "2026-10-26");
+  assert.equal(task.overdueDays, daysLate);
+
+  await ok(w, U.FINANCE, "payments", "transferToAccounting", ref);
+  const payment = w
+    .tbl("payments")
+    .find((p) => p.milestoneId === w.milestone(code, 2).milestone_id);
+  assert.equal(payment.amountMillion, before.payableMillion);
+  assert.equal(payment.lateInterestMillion, interest);
+  assert.equal(payment.totalMillion, instruction.totalMillion);
+  // Screens read the payment through the milestone view.
+  const shown = (await detail()).payment;
+  assert.equal(shown.lateInterestMillion ?? "0.00", interest);
+  assert.equal(
+    shown.totalMillion ?? shown.amountMillion,
+    instruction.totalMillion,
+  );
+  const { gatewayMessage } =
+    await import("../../apps/api/dist/payment-gateway.js");
+  const message = gatewayMessage(payment);
+  assert.equal(message.amountMillion, instruction.totalMillion);
+  assert.equal(message.decidedAmountMillion, before.payableMillion);
+  assert.equal(message.lateInterestMillion, interest);
+  const entry = w
+    .tbl("audit")
+    .find((e) => e.detail?.kind === "PAYMENT" && e.contractId === code);
+  if (daysLate > 0) assert.equal(entry.detail.lateInterestMillion, interest);
+  // The engine's evaluation is untouched by the interest.
+  const after = w.evaluation(w.milestone(code, 2).milestone_id);
+  assert.equal(after.payableMillion, before.payableMillion);
+  assert.equal(after.decision, before.decision);
+});
+
+test("late payment: a dispute restarts the payment term when it is closed, so a legitimate hold is not the buyer's lateness", async () => {
+  const w = await world();
+  const code = "CT0103";
+  const ref = w.ref(code, 2);
+  Object.assign(w.contract(code), {
+    paymentTermDays: 10,
+    latePaymentRatePct: "12.00",
+  });
+  await ok(w, U.SUPPLIER, "disputes", "openDispute", {
+    ...ref,
+    note: "Chênh lệch số lượng",
+  });
+  await ok(w, U.OWNER, "disputes", "resolveDispute", {
+    ...ref,
+    option: "RESOLVE",
+    note: "Đã đối chiếu",
+  });
+  await ok(w, U.FINANCE, "approvals", "castVote", {
+    ...ref,
+    choice: "APPROVE",
+  });
+  const { instruction } = await w.call(
+    U.FINANCE,
+    "contracts",
+    "getMilestoneDetail",
+    code,
+    2,
+  );
+  assert.equal(instruction.latePayment.startsOn, businessToday());
+  assert.equal(instruction.latePayment.dueOn, plusDays(businessToday(), 10));
+  assert.equal(instruction.latePayment.daysLate, 0);
+  assert.equal(instruction.latePayment.interestMillion, "0.00");
+});

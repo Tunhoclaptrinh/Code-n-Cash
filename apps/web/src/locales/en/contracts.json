@@ -87,7 +87,9 @@
       "cancelSigning": "Cancel signing",
       "cancelBody": "Cancel the signing of {{code}} and return it to draft. Only possible while nobody has signed; the action is logged.",
       "cancelled": "Signing cancelled; the contract is a draft again",
-      "openPage": "Open the detail page"
+      "openPage": "Open the detail page",
+      "paymentTerms": "Payment term",
+      "paymentValue": "{{days}} days after completion · late-payment interest {{rate}}% a year"
     }
   },
   "contractUpload": {
@@ -201,12 +203,21 @@
         "policy": "Choose approval policy",
         "grace": "0–60",
         "rate": "0.00–5.00",
-        "cap": "0.00–8.00"
+        "cap": "0.00–8.00",
+        "paymentTerm": "1–180",
+        "latePaymentRate": "0.00–100.00"
       },
       "workflow": {
         "label": "Milestone workflow",
         "standard": "Standard: {{name}}",
         "stages": "Milestones: {{stages}}"
+      },
+      "payment": {
+        "term": "Payment term (days)",
+        "termHint": "Days the buyer has to pay once the milestone is complete (all documents in). The buyer's internal approvals do not extend it.",
+        "rate": "Late-payment interest",
+        "rateHint": "Interest the buyer pays on an overdue amount, per day (Article 306 of the Commercial Law 2005). Enter 0 to track the term only.",
+        "rateSuffix": "% a year"
       }
     },
     "preview": {

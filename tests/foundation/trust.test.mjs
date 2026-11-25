@@ -1992,3 +1992,150 @@ test("rule sentence templates, tightening and loosening, pass the safety proof w
   assert.ok(seen.has("waived") || seen.has("half"), [...seen].join());
   assert.ok(seen.has("approvals"), [...seen].join());
 });
+
+test("a contract's own rules pass the type check and the safety proof at every value their sentences allow", async () => {
+  const { RULE_TEMPLATES } =
+    await import("../../apps/api/dist/trust/rule-workflows.js");
+  const { composeContractRules, proveSafety } =
+    await import("../../apps/api/dist/domain/contract-rules.js");
+  const { loadDataPack } =
+    await import("../../apps/api/dist/domain/datapack.js");
+  const pack = await loadDataPack();
+  const goods = pack.payment_rules.filter(
+    (r) => r.rule_set_id === "R_GOODS_STD",
+  );
+  const stages = [
+    ...new Set(goods.map((r) => r.applies_to_milestone_type)),
+  ].map((type, i) => ({ sequence: i + 1, type }));
+  for (const edge of ["min", "max"]) {
+    // Every sentence at the edge of its range, in every scope of the contract at once.
+    const custom = stages.flatMap(({ type }) =>
+      RULE_TEMPLATES.map((template, i) => ({
+        id: `C${type}${i}`,
+        template: template.key,
+        milestoneType: type,
+        value: template.parameter ? template.parameter[edge] : null,
+      })),
+    );
+    const composed = composeContractRules(
+      goods,
+      "R_GOODS_STD",
+      "CT9000",
+      stages,
+      custom,
+    );
+    assert.equal(composed.length, goods.length + custom.length);
+    assert.ok(composed.every((r) => r.rule_set_id === "R_GOODS_STD#CT9000"));
+    const syntax = await rules.checkExpressions({ rules: composed });
+    assert.equal(
+      syntax.valid,
+      true,
+      JSON.stringify(syntax.issues?.slice(0, 3)),
+    );
+    const safety = await proveSafety(composed);
+    assert.equal(
+      safety.safe,
+      true,
+      `${edge}: ${JSON.stringify(safety.violations?.slice(0, 2))}`,
+    );
+  }
+});
+
+test("the milestone library lists every definition of a milestone type, where it is used, and new ones only from rule versions", async () => {
+  const {
+    scaffoldAppWorkflow,
+    rescopeRules,
+    appWorkflowProblems,
+    nextRuleNumber,
+  } = await import("../../apps/api/dist/trust/rule-workflows.js");
+  const before = await rules.library();
+  const types = before.map((entry) => entry.milestoneType);
+  assert.ok(types.includes("DELIVERY") && types.includes("ACCEPTANCE"));
+  const delivery = before.find((e) => e.milestoneType === "DELIVERY");
+  assert.deepEqual(delivery.versions[0].requiredEvents, [
+    "DELIVERY",
+    "INVOICE",
+  ]);
+  assert.equal(delivery.versions[0].firstSeen.ruleVersionId, null);
+  assert.equal(delivery.versions[0].rules.length, 8);
+  assert.ok(delivery.versions[0].contracts > 0);
+  // Every definition of the Data Pack is used by at least one of its workflows.
+  for (const entry of before)
+    for (const version of entry.versions)
+      if (!version.firstSeen.ruleVersionId)
+        assert.ok(version.usedBy.length > 0);
+
+  // A version that changes a stage adds a definition, first seen in that version.
+  const author = actors["u-sysadmin"];
+  const version = await rules.create(
+    { name: "Thư viện mốc", reason: "Giao hàng cần thêm biên bản" },
+    author,
+  );
+  const added = scaffoldAppWorkflow({
+    code: "APP_GOODS_LIBRARY",
+    name: "Hàng hoá có biên bản",
+    contractType: "GOODS_SUPPLY",
+    rules: version.rules,
+    templates: version.templates,
+  });
+  const templates = added.templates.map((row) =>
+    row.milestoneType === "DELIVERY"
+      ? { ...row, requiredEvents: "DELIVERY;INVOICE;ACCEPTANCE" }
+      : row,
+  );
+  await rules.save(
+    version.id,
+    {
+      version: version.version,
+      rules: [...version.rules, ...added.rules],
+      templates: [...version.templates, ...templates],
+    },
+    author,
+  );
+  const after = await rules.library();
+  const next = after
+    .find((e) => e.milestoneType === "DELIVERY")
+    .versions.find((v) => v.firstSeen.ruleVersionId === version.id);
+  assert.ok(next, "the changed stage is a new library version");
+  assert.equal(next.number, delivery.versions.length + 1);
+  assert.deepEqual(next.changes, ["EVIDENCE"]);
+  assert.deepEqual(
+    next.usedBy.map((use) => [use.workflowTemplate, use.status]),
+    [["APP_GOODS_LIBRARY", "DRAFT"]],
+  );
+  assert.equal(next.contracts, 0);
+  // Unchanged stages of the version are the Data Pack definitions they were copied from.
+  const signing = after.find((e) => e.milestoneType === "SIGNING");
+  assert.equal(
+    signing.versions.length,
+    before.find((e) => e.milestoneType === "SIGNING").versions.length,
+  );
+
+  // Taken from the library into another workflow, a stage keeps its documents and rules.
+  let n = nextRuleNumber(added.rules, "APP_GOODS_LIBRARY");
+  const reused = rescopeRules(
+    next.rules,
+    "APP_GOODS_LIBRARY",
+    "GOODS_SUPPLY",
+    "DELIVERY",
+    () => n++,
+  );
+  assert.equal(reused.length, next.rules.length);
+  assert.ok(
+    reused.every(
+      (rule) => rule.release_rule_code === "APP_GOODS_LIBRARY:DELIVERY",
+    ),
+  );
+  assert.deepEqual(
+    appWorkflowProblems(
+      [
+        ...added.rules.filter(
+          (rule) => rule.applies_to_milestone_type !== "DELIVERY",
+        ),
+        ...reused,
+      ],
+      templates,
+    ),
+    [],
+  );
+});

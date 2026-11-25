@@ -8,7 +8,8 @@
     "ADMIN_AUDITOR",
     "SYSTEM_ADMIN",
     "AUDITOR",
-    "SUPPLIER"
+    "SUPPLIER",
+    "ORG_ADMIN"
   ],
   "modules": [
     {
@@ -118,7 +119,8 @@
             "ADMIN_AUDITOR": "own",
             "SYSTEM_ADMIN": "own",
             "AUDITOR": "own",
-            "SUPPLIER": "own"
+            "SUPPLIER": "own",
+            "ORG_ADMIN": "own"
           }
         },
         {
@@ -306,7 +308,8 @@
             "CONTRACT_OWNER": "all",
             "LEGAL_REVIEWER": "all",
             "ADMIN_AUDITOR": "all",
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {
@@ -342,25 +345,29 @@
         {
           "key": "users:read",
           "grants": {
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {
           "key": "users:create",
           "grants": {
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {
           "key": "users:update",
           "grants": {
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {
           "key": "users:delete",
           "grants": {
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {
@@ -372,13 +379,15 @@
         {
           "key": "users:export",
           "grants": {
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {
           "key": "users:reset-password",
           "grants": {
-            "SYSTEM_ADMIN": "all"
+            "SYSTEM_ADMIN": "all",
+            "ORG_ADMIN": "org"
           }
         },
         {

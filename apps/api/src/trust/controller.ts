@@ -25,6 +25,9 @@ export class TrustController {
   @Get("rules") @RequirePermission("rules:read") listRules() {
     return this.rules.list();
   }
+  @Get("rules/library") @RequirePermission("rules:read") milestoneLibrary() {
+    return this.rules.library();
+  }
   @Get("rules/language") @RequirePermission("rules:read") ruleLanguage() {
     return this.rules.language();
   }

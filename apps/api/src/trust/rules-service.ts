@@ -25,6 +25,8 @@ import { runEngine } from "../domain/engine";
 import { toCents } from "../domain/templates";
 import { BUSINESS_EVENTS } from "../domain/vocabulary";
 import { versionHash, versionRuleSet } from "../domain/rule-versions";
+import { proveSafety } from "../domain/contract-rules";
+import { milestoneLibrary } from "./milestone-library";
 import {
   MAX_VERSION_RULES,
   appWorkflowProblems,
@@ -69,6 +71,26 @@ export class RulesService {
     @Inject(Repository) private repo: Repository,
     @Inject(BaseService) private base: BaseService,
   ) {}
+  /** The milestone library: every definition of each milestone type, with where it is used. */
+  async library() {
+    const [rules, templates, versions, contracts, milestones] =
+      await Promise.all([
+        this.repo.list(TABLE.rules),
+        this.repo.list("milestone-templates"),
+        this.repo.list("rule-versions"),
+        this.repo.list(TABLE.contracts),
+        this.repo.list(TABLE.milestones),
+      ]);
+    return milestoneLibrary({
+      dataPackRules: rules.filter((rule) => rule.origin === "DATA_PACK"),
+      dataPackTemplates: templates.filter(
+        (template) => template.origin === "DATA_PACK",
+      ),
+      versions,
+      contracts,
+      milestones,
+    });
+  }
   async list() {
     return (await this.repo.list("rule-versions"))
       .map((version) => ({
@@ -444,41 +466,9 @@ export class RulesService {
   }
   /** Static safety proof of every scope, including scopes no Data Pack milestone uses yet. */
   private checkSafety(rules: unknown): Promise<RuleSafety> {
-    return new Promise((ok, reject) => {
-      const child = spawn(
-        processEnvPython(),
-        ["apps/engine/validate_rules.py", "--safety"],
-        {
-          cwd: repoRoot(),
-          env: pythonEnv(),
-          stdio: ["pipe", "pipe", "ignore"],
-        },
-      );
-      let output = "";
-      const fail = () =>
-        reject(new BadRequestException("RULE_VERSION_INVALID"));
-      const timer = setTimeout(() => {
-        child.kill();
-        fail();
-      }, 15000);
-      child.stdout.on("data", (chunk) => (output += chunk.toString()));
-      child.on("error", () => {
-        clearTimeout(timer);
-        fail();
-      });
-      child.on("close", (code) => {
-        clearTimeout(timer);
-        if (code !== 0) return fail();
-        try {
-          ok(JSON.parse(output) as RuleSafety);
-        } catch {
-          fail();
-        }
-      });
-      child.stdin.on("error", () => {});
-      child.stdin.end(JSON.stringify(rules));
-    });
+    return proveSafety(rules as unknown[]);
   }
+
   private validateExpressions(rules: unknown): Promise<void> {
     return new Promise((resolveOk, reject) => {
       const process = spawn(

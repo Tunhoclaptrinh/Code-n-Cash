@@ -378,3 +378,147 @@ test("search ignores accents, needs every word and matches a reference by its na
   assert.equal(await total("supplier co"), 1);
   assert.equal(await total("thiet xyz"), 0);
 });
+
+test("a company administrator manages only the business accounts of its own company", async () => {
+  const auth = new AuthService(repo);
+  await auth.seed();
+  const now = "2026-01-01T00:00:00.000Z";
+  const row = (fields) => ({
+    ...fields,
+    version: 1,
+    createdAt: now,
+    updatedAt: now,
+  });
+  await repo.mutate("organizations", (items) =>
+    items.push(
+      row({ id: "B010", name: "Nova An", code: "B010", kind: "BUYER" }),
+      row({ id: "S015", name: "Phú Minh", code: "S015", kind: "SUPPLIER" }),
+    ),
+  );
+  await repo.mutate("parties", (items) =>
+    items.push(
+      row({ id: "B010", party_id: "B010", party_type: "BUYER" }),
+      row({
+        id: "A028",
+        party_id: "A028",
+        party_type: "APPROVER",
+        parent_party_id: "B010",
+      }),
+      row({
+        id: "A029",
+        party_id: "A029",
+        party_type: "APPROVER",
+        parent_party_id: "B010",
+      }),
+      row({ id: "S015", party_id: "S015", party_type: "SUPPLIER" }),
+    ),
+  );
+  const { user: orgAdmin } = await auth.login({
+    email: "admin@novaan.vn",
+    password: "Passw0rd!",
+  });
+  assert.equal(orgAdmin.role, "ORG_ADMIN");
+  assert.equal(orgAdmin.organizationId, "B010");
+  assert.ok(!orgAdmin.permissions.includes("contracts:read"));
+
+  // Reads its own company and its own staff only.
+  const users = await service.list("users", { limit: 100 }, orgAdmin);
+  assert.ok(users.total > 0);
+  assert.ok(users.items.every((u) => u.organizationId === "B010"));
+  const orgs = await service.list("organizations", {}, orgAdmin);
+  assert.deepEqual(
+    orgs.items.map((o) => o.id),
+    ["B010"],
+  );
+
+  const account = (fields) => ({
+    displayName: "Ngô Thị Lan",
+    email: "lan@novaan.vn",
+    role: "FINANCE_APPROVER",
+    organizationId: "B010",
+    ...fields,
+  });
+  const created = await service.create(
+    "users",
+    account({ partyId: "A029" }),
+    orgAdmin,
+  );
+  assert.equal(created.organizationId, "B010");
+  for (const [fields, code] of [
+    [{ organizationId: "S015", role: "SUPPLIER" }, "OTHER_ORGANIZATION"],
+    [{ role: "ADMIN_AUDITOR" }, "ROLE_NOT_ASSIGNABLE"],
+    [{ role: "ORG_ADMIN" }, "ROLE_NOT_ASSIGNABLE"],
+    [{ role: "SYSTEM_ADMIN" }, "ROLE_NOT_ASSIGNABLE"],
+    [{ partyId: "S015" }, "OTHER_ORGANIZATION"],
+  ])
+    await assert.rejects(
+      service.create(
+        "users",
+        account({ email: "x@novaan.vn", ...fields }),
+        orgAdmin,
+      ),
+      new RegExp(code),
+    );
+
+  // Promoting an employee, or touching the company's controller, is the system administrator's.
+  const owner = await service.get("users", "u-owner", orgAdmin);
+  await assert.rejects(
+    service.update(
+      "users",
+      "u-owner",
+      { role: "ADMIN_AUDITOR", version: owner.version },
+      orgAdmin,
+    ),
+    /ROLE_NOT_ASSIGNABLE/,
+  );
+  const controller = await service.get(
+    "users",
+    "u-novaan-controller",
+    orgAdmin,
+  );
+  await assert.rejects(
+    service.update(
+      "users",
+      controller.id,
+      { title: "x", version: controller.version },
+      orgAdmin,
+    ),
+    /ROLE_NOT_ASSIGNABLE/,
+  );
+  await assert.rejects(
+    service.remove("users", controller.id, orgAdmin),
+    /ROLE_NOT_ASSIGNABLE/,
+  );
+  await assert.rejects(
+    auth.resetPassword(controller.id, "AnotherPassword123!", orgAdmin),
+    /ROLE_NOT_ASSIGNABLE/,
+  );
+  // Another company's accounts do not exist for it.
+  await assert.rejects(
+    service.get("users", "u-supplier", orgAdmin),
+    /RECORD_NOT_FOUND/,
+  );
+  await assert.rejects(
+    auth.resetPassword("u-supplier", "AnotherPassword123!", orgAdmin),
+    /USER_NOT_FOUND/,
+  );
+  await assert.rejects(
+    service.bulkDelete("users", { ids: [created.id, "u-supplier"] }, orgAdmin),
+  );
+  assert.ok((await repo.list("users")).some((u) => u.id === "u-supplier"));
+
+  // Its own staff: rename, reset a password, remove.
+  const renamed = await service.update(
+    "users",
+    "u-owner",
+    { title: "Giám đốc dự án cấp cao", version: owner.version },
+    orgAdmin,
+  );
+  assert.equal(renamed.title, "Giám đốc dự án cấp cao");
+  await auth.resetPassword("u-owner", "ChangedPassword123!", orgAdmin);
+  await service.remove("users", created.id, orgAdmin);
+  await assert.rejects(
+    service.list("contract-drafts", {}, orgAdmin),
+    /PERMISSION_DENIED/,
+  );
+});

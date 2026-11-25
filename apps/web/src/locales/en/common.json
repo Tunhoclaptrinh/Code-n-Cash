@@ -81,6 +81,10 @@
     "AUDITOR": {
       "name": "Integrity checker",
       "short": "IC"
+    },
+    "ORG_ADMIN": {
+      "name": "Company administrator",
+      "short": "CA"
     }
   },
   "login": {

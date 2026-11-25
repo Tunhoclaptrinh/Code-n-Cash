@@ -409,8 +409,27 @@ export function copyScope(
     organiser.find((rule) => rule.applies_to_milestone_type === stageType)
       ?.release_rule_code ??
     organiser[0]?.release_rule_code;
-  return organiser
-    .filter((rule) => rule.release_rule_code === sourceScope)
+  return rescopeRules(
+    organiser.filter((rule) => rule.release_rule_code === sourceScope),
+    workflow,
+    contractType,
+    stageType,
+    nextNumber,
+  );
+}
+
+/**
+ * Rules of another scope (an organiser scope, or a milestone of the library) moved into a stage of
+ * an app workflow: same order and content, new ids and the stage's scope.
+ */
+export function rescopeRules(
+  rows: VersionRule[],
+  workflow: string,
+  contractType: string,
+  stageType: string,
+  nextNumber: () => number,
+): VersionRule[] {
+  return [...rows]
     .sort((a, b) => Number(a.priority) - Number(b.priority))
     .map((rule) => ({
       ...rule,
@@ -484,6 +503,9 @@ export function divergedFamilies(rules: VersionRule[]): string[] {
  * Tightening rules sit above loosening ones, so "hold large milestones" wins over "waive a short
  * delay". The reason code also sets the milestone status (policy pack), so each template uses the
  * reason whose status matches its decision.
+ *
+ * A template with a `parameter` takes one whole number (days, approvals, million VND) in place of
+ * `{n}` in its pattern; a contract's own rules (contract drafts) are built the same way.
  */
 export type RuleTemplateKey =
   | "LATE_REVIEW"
@@ -499,7 +521,11 @@ export interface RuleTemplate {
   kind: RuleTemplateKind;
   /** Preferred priority, inside the kind's window. */
   priority: number;
+  /** The condition with the parameter at its default value. */
   condition: string;
+  /** The condition with `{n}` where the parameter goes; the condition itself when there is none. */
+  pattern: string;
+  parameter?: RuleTemplateParameter;
   decision: "HOLD" | "RELEASE" | "PENALTY";
   reasonCode:
     | "UNRESOLVED_CONDITION"
@@ -510,6 +536,13 @@ export interface RuleTemplate {
   penalty: string;
 }
 
+export interface RuleTemplateParameter {
+  unit: "DAYS" | "APPROVALS" | "MILLION_VND";
+  default: number;
+  min: number;
+  max: number;
+}
+
 /** Priorities each kind may take (inclusive): after the blockers (50), before the penalty (60). */
 export const RULE_TEMPLATE_WINDOWS: Record<RuleTemplateKind, [number, number]> =
   { TIGHTEN: [51, 55], LOOSEN: [56, 59] };
@@ -518,13 +551,14 @@ export const RULE_TEMPLATE_WINDOWS: Record<RuleTemplateKind, [number, number]> =
 const NOT_BLOCKED =
   "all_required_conditions_met == TRUE AND open_dispute == FALSE AND valid_rejection_event_count == 0";
 
-export const RULE_TEMPLATES: RuleTemplate[] = [
+const TEMPLATE_ROWS: Omit<RuleTemplate, "condition">[] = [
   {
     // A milestone this late is looked at by a person, neither paid nor penalised automatically.
     key: "LATE_REVIEW",
     kind: "TIGHTEN",
     priority: 53,
-    condition: "days_late_after_grace > 30",
+    pattern: "days_late_after_grace > {n}",
+    parameter: { unit: "DAYS", default: 30, min: 1, max: 365 },
     decision: "HOLD",
     reasonCode: "UNRESOLVED_CONDITION",
     payable: "0",
@@ -535,7 +569,8 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
     key: "MIN_APPROVALS",
     kind: "TIGHTEN",
     priority: 51,
-    condition: "valid_approval_count < 2",
+    pattern: "valid_approval_count < {n}",
+    parameter: { unit: "APPROVALS", default: 2, min: 1, max: 3 },
     decision: "HOLD",
     reasonCode: "APPROVAL_QUORUM_NOT_MET",
     payable: "0",
@@ -546,7 +581,8 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
     key: "LARGE_REVIEW",
     kind: "TIGHTEN",
     priority: 55,
-    condition: "planned_payment_vnd_mn > 1000",
+    pattern: "planned_payment_vnd_mn > {n}",
+    parameter: { unit: "MILLION_VND", default: 1000, min: 1, max: 1000000 },
     decision: "HOLD",
     reasonCode: "UNRESOLVED_CONDITION",
     payable: "0",
@@ -557,7 +593,8 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
     key: "WAIVE_SHORT_DELAY",
     kind: "LOOSEN",
     priority: 57,
-    condition: `days_late_after_grace > 0 AND days_late_after_grace <= 3 AND ${NOT_BLOCKED}`,
+    pattern: `days_late_after_grace > 0 AND days_late_after_grace <= {n} AND ${NOT_BLOCKED}`,
+    parameter: { unit: "DAYS", default: 3, min: 1, max: 30 },
     decision: "RELEASE",
     reasonCode: "ALL_CONDITIONS_MET",
     payable: "planned_payment_vnd_mn",
@@ -568,7 +605,7 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
     key: "HALF_PENALTY",
     kind: "LOOSEN",
     priority: 59,
-    condition: `late_penalty_applicable == TRUE AND actual_completion_date > due_date + grace_period_days AND ${NOT_BLOCKED}`,
+    pattern: `late_penalty_applicable == TRUE AND actual_completion_date > due_date + grace_period_days AND ${NOT_BLOCKED}`,
     decision: "PENALTY",
     reasonCode: "LATE_COMPLETION",
     payable: "MAX(0, planned_payment_vnd_mn - penalty_amount_vnd_mn)",
@@ -576,6 +613,34 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
       "MIN(days_late_after_grace * penalty_rate_pct_per_day / 100 * planned_payment_vnd_mn / 2, max_penalty_pct / 100 * planned_payment_vnd_mn)",
   },
 ];
+
+/** The condition of a template with `value` (a whole number in the parameter's range) put in. */
+const conditionOf = (
+  template: Pick<RuleTemplate, "pattern" | "parameter">,
+  value = template.parameter?.default,
+) =>
+  template.parameter
+    ? template.pattern.replaceAll("{n}", String(value))
+    : template.pattern;
+
+export const RULE_TEMPLATES: RuleTemplate[] = TEMPLATE_ROWS.map((row) => ({
+  ...row,
+  condition: conditionOf(row),
+}));
+
+/** Whether `value` fits the template: none for a template without parameter, else a whole number in range. */
+export function templateValueValid(
+  template: RuleTemplate,
+  value: unknown,
+): boolean {
+  if (!template.parameter) return value === undefined || value === null;
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= template.parameter.min &&
+    value <= template.parameter.max
+  );
+}
 
 /**
  * The priority a template takes in a scope: its own when free, otherwise the nearest free value of
@@ -598,9 +663,12 @@ export function templatePriority(
   return null;
 }
 
-/** The rule fields a template sets; names and descriptions come from the caller's language. */
-export const templateFields = (template: RuleTemplate) => ({
-  condition_expression: template.condition,
+/**
+ * The rule fields a template sets, with the parameter at `value` (its default when left out);
+ * names and descriptions come from the caller's language.
+ */
+export const templateFields = (template: RuleTemplate, value?: number) => ({
+  condition_expression: conditionOf(template, value),
   decision: template.decision,
   reason_code: template.reasonCode,
   payable_amount_formula: template.payable,

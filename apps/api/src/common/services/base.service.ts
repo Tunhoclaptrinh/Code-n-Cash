@@ -19,7 +19,7 @@ import { can, scopeOf } from "../permissions";
 import type { Actor, Field, Resource, RecordEntity } from "../types";
 import { repoRoot } from "../paths";
 import { fold } from "../../domain/listing";
-import { INTERNAL_ROLES } from "../../domain/vocabulary";
+import { INTERNAL_ROLES, orgAdminRefusal } from "../../domain/vocabulary";
 import { auditDigest } from "../audit-chain";
 import { fieldProblem, normalizeField } from "../field-validation";
 
@@ -57,8 +57,29 @@ export class BaseService {
   private visible(name: string, item: RecordEntity, actor: Actor) {
     return (
       scopeOf(actor.role, `${name}:read`) === "all" ||
-      item.organizationId === actor.organizationId
+      (name === "organizations"
+        ? item.id === actor.organizationId
+        : item.organizationId === actor.organizationId)
     );
+  }
+  /**
+   * A company administrator manages only the business accounts of its own company: checked on
+   * the account as it is and as it would become (vocabulary.orgAdminRefusal).
+   */
+  private async assertAccountManageable(
+    name: string,
+    actor: Actor,
+    ...accounts: Record<string, unknown>[]
+  ) {
+    if (name !== "users" || actor.role !== "ORG_ADMIN") return;
+    const tables = {
+      organizations: await this.repo.list("organizations"),
+      parties: await this.repo.list("parties"),
+    };
+    for (const account of accounts) {
+      const refusal = orgAdminRefusal(actor, account, tables);
+      if (refusal) throw new ForbiddenException(refusal);
+    }
   }
   private clean(item: RecordEntity) {
     const { passwordHash, tokenVersion, ...safe } = item;
@@ -268,6 +289,7 @@ export class BaseService {
     const def = this.access(name, actor, "create");
     const data = this.validate(def, body);
     await this.checkReferences(def, data);
+    await this.assertAccountManageable(name, actor, data);
     const item = await this.newRecord(name, data, actor);
     await this.repo.mutate(
       name,
@@ -284,7 +306,11 @@ export class BaseService {
     const def = this.access(name, actor, "update");
     const data = this.validate(def, body, true);
     await this.checkReferences(def, data);
-    await this.get(name, id, actor);
+    const current = await this.get(name, id, actor);
+    await this.assertAccountManageable(name, actor, current, {
+      ...current,
+      ...data,
+    });
     if (
       name === "users" &&
       id === actor.id &&
@@ -322,7 +348,11 @@ export class BaseService {
   }
   async remove(name: string, id: string, actor: Actor) {
     const def = this.access(name, actor, "delete");
-    await this.get(name, id, actor);
+    await this.assertAccountManageable(
+      name,
+      actor,
+      await this.get(name, id, actor),
+    );
     if (name === "users" && id === actor.id)
       throw new ForbiddenException("CANNOT_DELETE_SELF");
     await this.repo.mutate(
@@ -511,6 +541,11 @@ export class BaseService {
       throw new BadRequestException("INVALID_BATCH");
     if (name === "users" && ids.includes(actor.id))
       throw new ForbiddenException("CANNOT_DELETE_SELF");
+    await this.assertAccountManageable(
+      name,
+      actor,
+      ...(await this.repo.list(name)).filter((item) => ids.includes(item.id)),
+    );
     await this.repo.mutate(
       name,
       (items) => {

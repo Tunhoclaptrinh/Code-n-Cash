@@ -94,11 +94,16 @@ test("the Data Pack is imported as tables and evaluated by the specification eng
     if (ids.has(e.milestoneId))
       counts[e.decision] = (counts[e.decision] ?? 0) + 1;
   assert.deepEqual(counts, { RELEASE: 348, PENALTY: 15, HOLD: 36, REJECT: 6 });
-  // Seed rows are marked, and every account is linked to a Data Pack party or the internal team.
+  // Seed rows are marked, and every account is linked to a Data Pack party or the internal team;
+  // a company's account administrator acts for no party.
   assert.ok(contracts.some((c) => c.origin === "SEED"));
   assert.ok(
     users.every(
-      (u) => u.origin === "SEED" && (u.partyId || u.organizationId === "OPS"),
+      (u) =>
+        u.origin === "SEED" &&
+        (u.partyId ||
+          u.organizationId === "OPS" ||
+          (u.role === "ORG_ADMIN" && u.organizationId !== "OPS")),
     ),
   );
 });

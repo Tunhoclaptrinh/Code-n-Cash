@@ -11,6 +11,7 @@ import type { RecordEntity } from "./types";
 import { chainHead, seal } from "./audit-chain";
 import { repoRoot } from "./paths";
 import { auditChanges, enrichAudit } from "./audit-events";
+import { PostgresStore } from "./postgres-store";
 /** Adapted from UniFlow's repository/service boundary. Application writes include their audit entry. */
 @Injectable()
 export class Repository implements OnModuleDestroy {
@@ -26,6 +27,7 @@ export class Repository implements OnModuleDestroy {
     return () => this.listeners.delete(listener);
   }
   private db?: mongoose.Connection;
+  private pg?: PostgresStore;
   readonly driver = process.env.STORAGE_DRIVER ?? "file";
   readonly path = resolve(
     repoRoot(),
@@ -33,6 +35,13 @@ export class Repository implements OnModuleDestroy {
     "records.json",
   );
   async init() {
+    if (this.driver === "postgres") {
+      if (!process.env.DATABASE_URL)
+        throw new Error("DATABASE_URL is required");
+      this.pg ??= new PostgresStore(process.env.DATABASE_URL);
+      await this.pg.init();
+      return;
+    }
     if (this.driver === "mongo") {
       if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required");
       this.db = await mongoose
@@ -86,7 +95,7 @@ export class Repository implements OnModuleDestroy {
     }
     if (this.driver !== "file") throw new Error("UNKNOWN_STORAGE_DRIVER");
     if (process.env.NODE_ENV === "production")
-      throw new Error("Production requires STORAGE_DRIVER=mongo");
+      throw new Error("Production requires STORAGE_DRIVER=mongo or postgres");
     try {
       this.data = JSON.parse(await readFile(this.path, "utf8"));
     } catch (error) {
@@ -106,7 +115,8 @@ export class Repository implements OnModuleDestroy {
     const task = this.queue.then(async () => {
       const audit = await this.list("audit");
       const archive = `archive-${new Date().toISOString().replace(/[-:.]/g, "")}`;
-      if (this.db) {
+      if (this.pg) await this.pg.archive(archive);
+      else if (this.db) {
         const db = this.db.db!;
         for (const { name } of await db.listCollections().toArray())
           if (!name.startsWith("archive-"))
@@ -130,6 +140,7 @@ export class Repository implements OnModuleDestroy {
     return task;
   }
   async list(resource: string): Promise<RecordEntity[]> {
+    if (this.pg) return this.pg.list(resource);
     if (this.db)
       return (await this.db
         .collection(resource)
@@ -162,6 +173,32 @@ export class Repository implements OnModuleDestroy {
       typeof audit === "function" ? audit(result) : audit;
     const names = [...new Set(resources)];
     const task = this.queue.then(async () => {
+      if (this.pg) {
+        const store = this.pg;
+        return store.transaction(async (client) => {
+          const originals: Record<string, RecordEntity[]> = {};
+          const tables: Record<string, RecordEntity[]> = {};
+          for (const name of names) {
+            originals[name] = await store.list(name, client);
+            tables[name] = structuredClone(originals[name]);
+          }
+          const result = await fn(tables);
+          const added = names.includes("audit")
+            ? appendedTo(originals.audit, tables.audit)
+            : [];
+          const entries = seal(
+            enrichAudit(
+              [...added, ...auditFor(result)],
+              auditChanges(originals, tables),
+            ),
+            await store.head(client),
+          );
+          for (const name of names.filter((n) => n !== "audit"))
+            await store.apply(client, name, originals[name], tables[name]);
+          await store.append(client, entries);
+          return result;
+        });
+      }
       if (this.db) {
         const session = await this.db.startSession();
         let result!: T;
@@ -262,7 +299,8 @@ export class Repository implements OnModuleDestroy {
       return result;
     });
     const normalized = task.catch((error) => {
-      if (error?.code === 11000)
+      // A unique index refused the row (MongoDB 11000, PostgreSQL 23505).
+      if (error?.code === 11000 || error?.code === "23505")
         throw new ConflictException("DUPLICATE_RECORD");
       throw error;
     });
@@ -284,6 +322,7 @@ export class Repository implements OnModuleDestroy {
   async onModuleDestroy() {
     await this.queue;
     await this.db?.close();
+    await this.pg?.close();
   }
 }
 

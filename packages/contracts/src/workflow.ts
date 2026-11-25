@@ -10,7 +10,8 @@ export type Origin = "DATA_PACK" | "SEED" | "APP";
 
 /**
  * System roles (spec 17). Three internal roles keep SoD-1: the controller handles exceptions, the
- * system administrator manages configuration and accounts, the auditor only reads.
+ * system administrator manages configuration and accounts, the auditor only reads. A company's
+ * own administrator (ORG_ADMIN) manages the business accounts of that company and nothing else.
  */
 export type Role =
   | "CONTRACT_OWNER"
@@ -20,7 +21,8 @@ export type Role =
   | "ADMIN_AUDITOR"
   | "SYSTEM_ADMIN"
   | "AUDITOR"
-  | "SUPPLIER";
+  | "SUPPLIER"
+  | "ORG_ADMIN";
 
 export type PartyType = "BUYER" | "SUPPLIER" | "APPROVER";
 export type Side = "BUYER" | "SUPPLIER";
@@ -1235,6 +1237,7 @@ export type ActivityAction =
   | { kind: "SIGNATURE"; stepNo: number; totalSteps: number; isFinal: boolean }
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
   | { kind: "DIGITIZATION_EDITED"; milestoneCount: number }
+  | { kind: "CONTRACT_RULES_SET"; ruleCount: number }
   | { kind: "AMENDMENT"; state: AmendmentState; number: number }
   | { kind: "LIQUIDATION"; state: AmendmentState }
   | { kind: "ACCEPTANCE_REQUEST"; state: AcceptanceRequestState }
@@ -1681,4 +1684,24 @@ export interface Digitization {
   locked: boolean;
   /** Who corrected the milestones by hand, if anyone (MilestoneEdit). */
   edited: { by: string; at: string } | null;
+  /** The contract's own rules, added from sentence templates (ContractRule). */
+  contractRules: ContractRule[];
+  /** Who last set the contract's own rules, if anyone. */
+  contractRulesEdited: { by: string; at: string } | null;
+}
+
+/**
+ * One of a contract's own rules: a sentence template (rule-workflows RULE_TEMPLATES) for the
+ * milestones of one type, with the template's whole-number parameter. Signed with the contract.
+ */
+export interface ContractRule {
+  id: string;
+  template:
+    | "LATE_REVIEW"
+    | "MIN_APPROVALS"
+    | "LARGE_REVIEW"
+    | "WAIVE_SHORT_DELAY"
+    | "HALF_PENALTY";
+  milestoneType: string;
+  value: number | null;
 }

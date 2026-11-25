@@ -470,5 +470,43 @@
       "CANCELLED": "The previous request was cancelled.",
       "FAILED": "The signing service could not be reached. Check it and send again."
     }
+  },
+  "contractRules": {
+    "title": "Contract's own rules",
+    "edit": "Add or edit own rules",
+    "add": "Add sentence",
+    "save": "Save own rules",
+    "cancel": "Cancel",
+    "remove": "Remove this sentence",
+    "saved": "Own rules saved. The safety check passed: no sentence pays during a dispute, after a rejection, with a missing document or without the approvals.",
+    "notice": "Tighten or loosen the shared rules for this contract only (for example, forgive a short delay for a trusted supplier). The shared rules stay as they are; when the terms are locked the sentences join the contract's rule set and both parties sign it.",
+    "editedBy": "{{name}} set the own rules at {{at}}.",
+    "empty": "The contract uses the shared rules as they are.",
+    "template": "Sentence",
+    "milestone": "For milestone",
+    "value": "Value",
+    "kind": {
+      "TIGHTEN": "Tighten",
+      "LOOSEN": "Loosen"
+    },
+    "unit": {
+      "DAYS": "days",
+      "APPROVALS": "people",
+      "MILLION_VND": "million"
+    },
+    "name": {
+      "LATE_REVIEW": "Hold for review when more than n days late",
+      "MIN_APPROVALS": "Require at least n approvals",
+      "LARGE_REVIEW": "Hold milestones above n million for review",
+      "WAIVE_SHORT_DELAY": "No penalty for at most n days late",
+      "HALF_PENALTY": "Half the late penalty"
+    },
+    "sentence": {
+      "LATE_REVIEW": "{{milestone}}: more than {{n}} days late after the grace period, hold the payment for review.",
+      "MIN_APPROVALS": "{{milestone}}: fewer than {{n}} valid approvals, hold the payment.",
+      "LARGE_REVIEW": "{{milestone}}: above {{n}} million VND, hold the payment for review.",
+      "WAIVE_SHORT_DELAY": "{{milestone}}: at most {{n}} days late after the grace period, pay in full without penalty.",
+      "HALF_PENALTY": "{{milestone}}: when late, apply half the contract's penalty rate."
+    }
   }
 }

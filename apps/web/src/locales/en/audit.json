@@ -48,7 +48,8 @@
     "LEGAL_REVIEWER": "Contract officer",
     "ADMIN_AUDITOR": "Controller",
     "SYSTEM_ADMIN": "System administrator",
-    "AUDITOR": "Integrity checker"
+    "AUDITOR": "Integrity checker",
+    "ORG_ADMIN": "Company administrator"
   },
   "categories": {
     "SYSTEM": "System",
@@ -88,7 +89,9 @@
     "ACCEPTANCE_REQUEST_OPEN": "Sent an acceptance request",
     "ACCEPTANCE_REQUEST_CONFIRMED": "Filed documents for an acceptance request; dated at the request",
     "ACCEPTANCE_REQUEST_DECLINED": "Returned an acceptance request",
-    "PAYMENT_WITH_INTEREST": "Payment instruction of {{amount}} million VND plus {{interest}} million late-payment interest approved (idempotency key)"
+    "PAYMENT_WITH_INTEREST": "Payment instruction of {{amount}} million VND plus {{interest}} million late-payment interest approved (idempotency key)",
+    "CONTRACT_RULES_SET_one": "Set {{count}} rule of the contract",
+    "CONTRACT_RULES_SET_other": "Set {{count}} rules of the contract"
   },
   "workflowActions": {
     "saveContractDraft": "Saved the contract file",
@@ -123,7 +126,8 @@
     "decideLiquidation": "Answer liquidation record",
     "withdrawLiquidation": "Withdraw liquidation record",
     "requestAcceptance": "Requested acceptance",
-    "declineAcceptance": "Returned an acceptance request"
+    "declineAcceptance": "Returned an acceptance request",
+    "setContractRules": "Set the contract's own rules"
   },
   "detail": {
     "view": "View details",
@@ -278,7 +282,8 @@
     "VOID": "Void a record",
     "AMENDMENT": "Contract amendment",
     "DIGITIZATION_EDITED": "Digitised terms corrected",
-    "LIQUIDATION": "Contract liquidation"
+    "LIQUIDATION": "Contract liquidation",
+    "CONTRACT_RULES_SET": "Contract's own rules"
   },
   "auditDetail": {
     "transactionId": "Transaction ID",

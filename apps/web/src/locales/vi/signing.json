@@ -467,5 +467,43 @@
       "CANCELLED": "Yêu cầu trước đã được huỷ.",
       "FAILED": "Không kết nối được dịch vụ ký. Kiểm tra dịch vụ rồi gửi lại."
     }
+  },
+  "contractRules": {
+    "title": "Luật riêng của hợp đồng",
+    "edit": "Thêm hoặc sửa luật riêng",
+    "add": "Thêm câu",
+    "save": "Lưu luật riêng",
+    "cancel": "Huỷ",
+    "remove": "Bỏ câu này",
+    "saved": "Đã lưu luật riêng. Hệ thống đã kiểm an toàn: không câu nào cho trả tiền khi đang tranh chấp, bị từ chối, thiếu chứng từ hay chưa đủ phê duyệt.",
+    "notice": "Siết hoặc nới luật chung cho riêng hợp đồng này (ví dụ khách quen được bỏ qua trễ vài ngày). Luật chung không đổi; khi khoá điều khoản, các câu được ghép vào bộ luật của hợp đồng và hai bên ký lên đó.",
+    "editedBy": "{{name}} đặt luật riêng lúc {{at}}.",
+    "empty": "Hợp đồng dùng nguyên luật chung.",
+    "template": "Câu mẫu",
+    "milestone": "Áp cho mốc",
+    "value": "Giá trị",
+    "kind": {
+      "TIGHTEN": "Siết",
+      "LOOSEN": "Nới"
+    },
+    "unit": {
+      "DAYS": "ngày",
+      "APPROVALS": "người",
+      "MILLION_VND": "triệu"
+    },
+    "name": {
+      "LATE_REVIEW": "Trễ quá n ngày thì giữ tiền để xem xét",
+      "MIN_APPROVALS": "Cần ít nhất n phê duyệt",
+      "LARGE_REVIEW": "Mốc trên n triệu thì giữ để xem xét",
+      "WAIVE_SHORT_DELAY": "Trễ không quá n ngày thì không phạt",
+      "HALF_PENALTY": "Trễ hạn chỉ phạt một nửa"
+    },
+    "sentence": {
+      "LATE_REVIEW": "Mốc {{milestone}}: trễ quá {{n}} ngày sau ân hạn thì giữ tiền để xem xét.",
+      "MIN_APPROVALS": "Mốc {{milestone}}: chưa đủ {{n}} phê duyệt hợp lệ thì giữ tiền.",
+      "LARGE_REVIEW": "Mốc {{milestone}}: nếu trên {{n}} triệu đồng thì giữ tiền để xem xét.",
+      "WAIVE_SHORT_DELAY": "Mốc {{milestone}}: trễ không quá {{n}} ngày sau ân hạn thì vẫn trả đủ, không phạt.",
+      "HALF_PENALTY": "Mốc {{milestone}}: trễ hạn thì chỉ phạt một nửa mức của hợp đồng."
+    }
   }
 }

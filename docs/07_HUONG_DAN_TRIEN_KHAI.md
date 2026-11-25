@@ -191,7 +191,7 @@ Chạy lệnh trên bằng systemd hoặc PM2. Phục vụ `apps/web/dist` bằn
 | ------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `mongo` mãi `unhealthy`                                 | Replica set chưa khởi tạo, hoặc volume cũ có cấu hình host khác | Xem `logs mongo`; với dữ liệu thử có thể xóa volume `codecash_mongo-data`      |
 | API dừng ngay với `JWT_SECRET is required`              | Thiếu `JWT_SECRET`                                              | Điền vào `.env.production`                                                     |
-| API dừng với `Production requires STORAGE_DRIVER=mongo` | Chạy production bằng kho file                                   | Production luôn dùng Mongo; compose đã đặt sẵn                                 |
+| API dừng với `Production requires STORAGE_DRIVER=mongo or postgres` | Chạy production bằng kho file                       | Production dùng Mongo (compose đặt sẵn) hoặc PostgreSQL (`STORAGE_DRIVER=postgres`, `DATABASE_URL`, xem docs/31 §12) |
 | Trình duyệt báo 502                                     | `api` chưa healthy hoặc đang khởi động lại                      | `ps`, `logs api`                                                               |
 | Upload báo 413                                          | Tệp > 20 MB, hoặc reverse proxy host giới hạn thấp hơn          | Đặt `client_max_body_size 25m` ở proxy host                                    |
 | Trang Data Pack lỗi khi đánh giá                        | Python không chạy được hoặc thiếu Data Pack trong image         | `logs api`; image phải chứa `BangD-Case4/DataPack-CASE4_SmartContractWorkflow` |

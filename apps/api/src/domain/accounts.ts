@@ -96,6 +96,16 @@ const FIXED: Record<string, { id: string; name: string; email?: string }> = {
     email: "controller@novaan.vn",
   },
   S015: { id: "u-supplier", name: "Vũ Thanh Hà", email: "supplier@phuminh.vn" },
+  "B010:admin": {
+    id: "u-novaan-admin",
+    name: "Hoàng Thu Hằng",
+    email: "admin@novaan.vn",
+  },
+  "S015:admin": {
+    id: "u-phuminh-admin",
+    name: "Bùi Văn Kiên",
+    email: "admin@phuminh.vn",
+  },
   "S015:controller": {
     id: "u-phuminh-controller",
     name: "Lý Thu Trang",
@@ -118,6 +128,7 @@ const TITLE: Record<Role, string> = {
   ADMIN_AUDITOR: "Kiểm soát viên nội bộ",
   SYSTEM_ADMIN: "Quản trị hệ thống",
   AUDITOR: "Chuyên viên kiểm tra toàn vẹn",
+  ORG_ADMIN: "Quản trị tài khoản công ty",
 };
 
 export function buildDirectory(parties: Party[]): {
@@ -231,6 +242,22 @@ export function buildDirectory(parties: Party[]): {
       });
     }
   }
+  // Each company's own account administrator. Named last so the generated names of the accounts
+  // above stay as they were before this role existed.
+  for (const party of parties.filter((p) => p.party_type !== "APPROVER")) {
+    const fixed = FIXED[`${party.party_id}:admin`];
+    accounts.push({
+      id: fixed?.id ?? `u-${party.party_id.toLowerCase()}-admin`,
+      email: fixed?.email ?? `admin@${domains.get(party.party_id)}`,
+      displayName: fixed?.name ?? personName(),
+      title: TITLE.ORG_ADMIN,
+      role: "ORG_ADMIN",
+      organizationId: party.party_id,
+      organizationName: party.party_name,
+      partyId: null,
+      origin: "SEED",
+    });
+  }
   // Platform operator: one administrator and one integrity checker. Neither is a party to, or
   // reads, any contract.
   for (const [id, email, name, role] of [
@@ -260,6 +287,8 @@ export const FEATURED_ACCOUNTS = [
   "u-novaan-controller",
   "u-supplier",
   "u-phuminh-controller",
+  "u-novaan-admin",
+  "u-phuminh-admin",
   "u-sysadmin",
   "u-auditor",
 ];

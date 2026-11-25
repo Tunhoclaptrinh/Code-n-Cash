@@ -376,7 +376,9 @@
     "PASSWORD_MINIMUM_12_CHARACTERS": "The password must be 12 to 128 characters long.",
     "PERMISSION_DENIED": "Your role is not allowed to do this.",
     "RESOURCE_NOT_FOUND": "This kind of data does not exist.",
-    "VERSION_REQUIRED": "The record version is missing. Reload the page and try again."
+    "VERSION_REQUIRED": "The record version is missing. Reload the page and try again.",
+    "OTHER_ORGANIZATION": "You can only manage accounts of your own company.",
+    "ROLE_NOT_ASSIGNABLE": "A company administrator cannot give this role; controllers and administrator roles are given by the system administrator."
   },
   "searchPlaceholder": "Search every column, organisation names included",
   "managedDraftsNote": "Contract drafts are edited on the Upload contract screen.",
@@ -470,5 +472,6 @@
     "exports": "Data export",
     "documents": "Documents",
     "engine": "Data Pack engine"
-  }
+  },
+  "libraryTitle": "Milestone library"
 }

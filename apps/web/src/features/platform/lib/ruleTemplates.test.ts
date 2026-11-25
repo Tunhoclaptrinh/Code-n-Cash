@@ -6,6 +6,7 @@ import {
   RULE_TEMPLATES,
   templateFields,
   templatePriority,
+  templateValueValid,
 } from "@codecash/contracts";
 
 const STANDARD = new Set([10, 20, 30, 40, 50, 60, 70, 80]);
@@ -68,5 +69,26 @@ describe("rule sentence templates", () => {
     expect(
       templatePriority(waive, new Set([...STANDARD, 56, 57, 58, 59]), 80),
     ).toBeNull();
+  });
+
+  it("put a whole-number parameter in place of {n}, only inside its range", () => {
+    const waive = byKey("WAIVE_SHORT_DELAY");
+    expect(waive.condition).toContain("days_late_after_grace <= 3 ");
+    expect(templateFields(waive, 7).condition_expression).toContain(
+      "days_late_after_grace <= 7 ",
+    );
+    // The blocking guards stay whatever the value.
+    expect(templateFields(waive, 7).condition_expression).toContain(
+      "open_dispute == FALSE",
+    );
+    expect(templateValueValid(waive, 7)).toBe(true);
+    for (const bad of [0, 31, 2.5, "3", null, undefined])
+      expect(templateValueValid(waive, bad)).toBe(false);
+    const half = byKey("HALF_PENALTY");
+    expect(half.parameter).toBeUndefined();
+    expect(templateValueValid(half, undefined)).toBe(true);
+    expect(templateValueValid(half, 2)).toBe(false);
+    for (const template of RULE_TEMPLATES)
+      expect(template.pattern.includes("{n}")).toBe(!!template.parameter);
   });
 });

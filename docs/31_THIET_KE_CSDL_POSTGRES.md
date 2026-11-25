@@ -4,7 +4,7 @@ Trạng thái: **NHÁP, chờ duyệt**. Thiết kế chuyển kho dữ liệu c
 
 Nguồn: lấy từ `docs/THIET_KE_CSDL.md` của repo Contract Smart (bản viết lại theo hướng PostgreSQL), ngày 25/11/2026. Nội dung §1–10 và phụ lục giữ nguyên; §11 bổ sung những cấu trúc CodeCash có thêm sau khi thiết kế được viết. Repo đó còn có thiết kế "thư viện mốc" (mốc mẫu có phiên bản, loại hợp đồng ghép từ mốc, luật riêng cho từng hợp đồng): xem [33 Luồng nghiệp vụ đầu–cuối](33_LUONG_NGHIEP_VU_DAU_CUOI.md) §9.
 
-CodeCash hiện **chưa** dùng PostgreSQL. Tài liệu này dùng khi muốn chuyển, và làm tài liệu tham khảo cho phần thiết kế dữ liệu của bài tập lớn.
+**Cập nhật 25/11/2026:** CodeCash đã chạy được trên PostgreSQL (`STORAGE_DRIVER=postgres`), xem §12. Bước đó lưu bản ghi dạng tài liệu JSON và đặt các chốt chặn quan trọng nhất trong CSDL; lược đồ quan hệ đầy đủ ở §1–10 và phụ lục vẫn là đích đến của bước sau.
 
 Phạm vi đợt 1 là phần lõi: tài khoản, Data Pack, kết quả engine, thao tác nghiệp vụ (phê duyệt qua sự kiện, ngoại lệ, thanh toán) và nhật ký audit. Ký số, bản nháp hợp đồng, phụ lục, tệp đính kèm, trích xuất AI để đợt sau (mục 7).
 
@@ -719,3 +719,17 @@ Các tính năng làm sau khi thiết kế trên được viết. DDL ở phụ 
 | Chỉnh tay bản số hoá | `contract_drafts.milestone_edits jsonb` (đến khi khoá; sau đó mốc là dòng thật trong `milestones`) | Kiểm tổng tỷ lệ = 100,00 khi khoá | `domain/drafts.ts` (`checkMilestoneEdits`) |
 | Tệp chứng từ đã ký | Bảng `evidence_documents`: `event_id` FK UNIQUE, `sha256`, `file_name`, `size_bytes`, `media_type`, `signed_by`, `signed_at`, `proof jsonb` | Chỉ thêm, không sửa | `actions/evidence.ts` (`signedEvidence`) |
 
+## 12. Đã cài đặt: kho PostgreSQL (25/11/2026)
+
+`STORAGE_DRIVER=postgres`, `DATABASE_URL=postgres://…`, tuỳ chọn `PG_SCHEMA` (mặc định `codecash`). Mã: `apps/api/src/common/postgres-store.ts`; kiểm thử: `tests/foundation/postgres.test.mjs` (chạy khi có `DATABASE_URL`, CI dựng PostgreSQL 17 và chạy cả API smoke trên kho này). Chạy local: `pnpm infra:up:pg` rồi đặt hai biến trên trong `.env`.
+
+| Thành phần | Cách làm | Vì sao |
+| --- | --- | --- |
+| Bảng `records(collection, id, version, ord, doc json)` | Mỗi bản ghi là một tài liệu JSON, khoá `(collection, id)`; `ord` giữ thứ tự thêm | Mọi handler nghiệp vụ chạy nguyên như với tệp và MongoDB; `json` (không phải `jsonb`) giữ đúng từng byte đã ghi |
+| Chỉ mục duy nhất | Email người dùng (không phân biệt hoa thường), mã tổ chức, mã bản nháp | Trùng thì API trả `DUPLICATE_RECORD` |
+| Ghi | Một giao dịch cho cả lần ghi; khoá `pg_advisory_xact_lock` để mọi tiến trình API ghi lần lượt; sửa và xoá chỉ áp vào đúng `version` đã đọc | Nhật ký có đúng một mục cho mỗi số thứ tự; người ghi song song không đè lên nhau (`VERSION_CONFLICT`) |
+| Bảng `audit_log(seq, id, hash, prev_hash, recorded_at, doc)` | Trigger `audit_link`: mục mới phải có số thứ tự kế tiếp và `prev_hash` bằng mã băm mục cuối; `recorded_at` do CSDL đặt; ràng buộc `CHECK` buộc cột khớp tài liệu | Chèn lén, chèn sai thứ tự bị CSDL từ chối (`AUDIT_SEQUENCE_GAP`, `AUDIT_LINK_BROKEN`) |
+| Chỉ thêm | Trigger chặn `UPDATE`, `DELETE`, `TRUNCATE` trên `audit_log`, và chặn sửa, xoá sự kiện nghiệp vụ trong `records` | Kể cả người có quyền SQL qua tài khoản ứng dụng cũng không sửa được (`APPEND_ONLY_RESOURCE`); sự kiện sai đi qua ngoại lệ |
+| Khôi phục demo | Đổi tên cả schema thành `archive_<thời điểm>` rồi tạo schema mới | Chuỗi cũ giữ nguyên để đọc lại; chuỗi mới nối với đầu chuỗi cũ |
+
+Mã băm của từng mục vẫn do ứng dụng tính (JSON chuẩn hoá, `audit-chain.ts`) và được kiểm lại bằng "Kiểm tra toàn vẹn"; CSDL kiểm số thứ tự và liên kết. Người có quyền chủ CSDL vẫn có thể tắt trigger, nên đầu chuỗi được neo ra ngoài định kỳ như với các kho khác. Lược đồ quan hệ có khoá ngoại theo §1–10 (bản Contract Smart đã dựng: [34](34_CSDL_CONTRACT_SMART.md)) là bước tiếp theo; khi đó các view phân tích ở phụ lục B dùng được trực tiếp.

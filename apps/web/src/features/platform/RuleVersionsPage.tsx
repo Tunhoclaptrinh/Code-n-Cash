@@ -38,6 +38,8 @@ import {
   WORKFLOW_CONTRACT_TYPES,
   appWorkflowProblems,
   copyScope,
+  rescopeRules,
+  type MilestoneLibraryVersion,
   exactDecimal,
   isAppCode,
   isAppTemplate,
@@ -115,6 +117,12 @@ export default function RuleVersionsPage() {
   });
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<RuleVersion>();
+  // The milestone library, read when a version is open: stages can be taken from it.
+  const library = useQuery({
+    queryKey: ["milestone-library", user.id],
+    queryFn: trustApi.milestoneLibrary,
+    enabled: !!selected,
+  });
   const [rules, setRules] = useState<RuleVersion["rules"]>([]);
   const [templates, setTemplates] = useState<RuleVersion["templates"]>([]);
   const [editorTab, setEditorTab] = useState("rules");
@@ -295,7 +303,11 @@ export default function RuleVersionsPage() {
         row.workflowTemplate === code ? { ...row, ...change(row) } : row,
       ),
     );
-  const addStage = (code: string, milestoneType: string) => {
+  const addStage = (
+    code: string,
+    milestoneType: string,
+    from?: MilestoneLibraryVersion,
+  ) => {
     const stages = templates.filter((row) => row.workflowTemplate === code);
     const first = stages[0];
     const contractType = String(first.contractType);
@@ -313,16 +325,27 @@ export default function RuleVersionsPage() {
         sequence,
         milestoneType,
         name: td(`milestoneType.${milestoneType}`),
-        requiredEvents: model?.requiredEvents ?? "ACCEPTANCE",
+        requiredEvents: from
+          ? from.requiredEvents.join(";")
+          : (model?.requiredEvents ?? "ACCEPTANCE"),
         paymentPercent: "0.00",
-        latePenalty: false,
+        latePenalty: from?.latePenalty ?? false,
         offsetDays: Math.max(0, ...stages.map((row) => row.offsetDays)),
-        approval: "CONTRACT",
+        approval: from?.approval ?? "CONTRACT",
       },
     ]);
+    // A library milestone brings its own rules; otherwise the organiser's scope of the type.
     setRules((all) => [
       ...all,
-      ...copyScope(all, code, contractType, milestoneType, () => next++),
+      ...(from
+        ? rescopeRules(
+            from.rules,
+            code,
+            contractType,
+            milestoneType,
+            () => next++,
+          )
+        : copyScope(all, code, contractType, milestoneType, () => next++)),
     ]);
   };
   const removeStage = (stage: RuleVersion["templates"][number]) => {
@@ -848,6 +871,53 @@ export default function RuleVersionsPage() {
                                     }))}
                                     onChange={(type) => addStage(code, type)}
                                     data-testid={`app-stage-add-${code}`}
+                                  />
+                                  <Select<string>
+                                    placeholder={t("library.pick")}
+                                    value={null}
+                                    style={{ minWidth: 260 }}
+                                    loading={library.isFetching}
+                                    options={(library.data ?? [])
+                                      .filter(
+                                        (entry) =>
+                                          !used.has(entry.milestoneType),
+                                      )
+                                      .map((entry) => ({
+                                        label: td(
+                                          `milestoneType.${entry.milestoneType}`,
+                                        ),
+                                        options: entry.versions.map(
+                                          (version) => ({
+                                            value: `${entry.milestoneType}|${version.number}`,
+                                            label: t("library.pickOption", {
+                                              milestone: td(
+                                                `milestoneType.${entry.milestoneType}`,
+                                              ),
+                                              n: version.number,
+                                              documents: version.requiredEvents
+                                                .map((type) =>
+                                                  td(`eventType.${type}`),
+                                                )
+                                                .join(", "),
+                                            }),
+                                          }),
+                                        ),
+                                      }))}
+                                    onChange={(value) => {
+                                      const [type, number] = value.split("|");
+                                      const version = library.data
+                                        ?.find(
+                                          (entry) =>
+                                            entry.milestoneType === type,
+                                        )
+                                        ?.versions.find(
+                                          (row) =>
+                                            row.number === Number(number),
+                                        );
+                                      if (version)
+                                        addStage(code, type, version);
+                                    }}
+                                    data-testid={`app-stage-library-${code}`}
                                   />
                                   <Button
                                     danger

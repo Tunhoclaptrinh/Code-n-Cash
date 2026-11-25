@@ -2,7 +2,7 @@
 
 Ngày lập: 25/10/2026. Nhánh làm việc: `fix/contract-preview-side-panel`.
 
-> **Trạng thái (26/10/2026).** Đây là kế hoạch tại ngày lập, giữ nguyên để đối chiếu; trạng thái hiện hành nằm trong [đặc tả nghiệp vụ](NGHIEP_VU.md). Những điểm đã khác kế hoạch:
+> **Trạng thái (26/10/2026).** Đây là kế hoạch tại ngày lập, giữ nguyên để đối chiếu; trạng thái hiện hành nằm trong [đặc tả nghiệp vụ](../NGHIEP_VU.md). Những điểm đã khác kế hoạch:
 >
 > - C1 đã chốt: nút **Khôi phục dữ liệu demo** chỉ có khi bật đăng nhập demo, chỉ quản trị hệ thống dùng được, lưu trữ toàn bộ dữ liệu và chuỗi audit cũ.
 > - WS3: các module thực tế là `structure`, `events`, `requirements`, `controls`, `schedule`, `rules`, `amounts`, `confidence`, `trace` (không có `loader`, `output`); phần xuất nằm trong `apps/engine/cli.py`.

@@ -11,7 +11,7 @@ Cập nhật ngày 25/10/2026 (giờ Bangkok). Dành cho bất kỳ thành viên
 | Sửa UI hoặc thêm trang | [08 — Quy ước UI](08_HUONG_DAN_PHAT_TRIEN_UI.md), `apps/web/CLAUDE.md` |
 | Thay/nối engine, AI | [29 — Contract, adapter và lệnh kiểm tích hợp](archive/29_BAN_GIAO_TICH_HOP_ENGINE_VA_AI.md) |
 | Triển khai, Render, môi trường, sao lưu | [07 — Triển khai](07_HUONG_DAN_TRIEN_KHAI.md) |
-| Viết hồ sơ, chuẩn bị trình bày | [Kế hoạch hoàn thiện](KE_HOACH_HOAN_THIEN.md) mục WS9 đến WS11, [Kịch bản demo](KICH_BAN_DEMO.md); khung cũ: [proposal](archive/templates/PROPOSAL_OUTLINE.md), [slide](archive/templates/SLIDE_STRUCTURE.md) |
+| Viết hồ sơ, chuẩn bị trình bày | [Kế hoạch hoàn thiện](archive/KE_HOACH_HOAN_THIEN.md) mục WS9 đến WS11, [Kịch bản demo](KICH_BAN_DEMO.md); khung cũ: [proposal](archive/templates/PROPOSAL_OUTLINE.md), [slide](archive/templates/SLIDE_STRUCTURE.md) |
 | Tra toàn bộ tài liệu | [Mục lục docs](README.md) |
 
 Đọc thêm `CLAUDE.md` ở gốc. Tài liệu ghi nhận một đợt kiểm tra hoặc kế hoạch cũ không tự thay thế trạng thái code hiện tại. Khi khác nhau, xác minh bằng mã/test và nguồn BTC; cập nhật tài liệu liên quan thay vì chỉ sửa con số.

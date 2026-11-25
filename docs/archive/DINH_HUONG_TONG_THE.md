@@ -1,6 +1,6 @@
 # Định hướng tổng thể hệ thống CodeCash
 
-Tài liệu ghi lại định hướng sản phẩm do nhóm đặt ra, và đối chiếu từng định hướng với hiện trạng mã nguồn (nhánh `feat/dynamic-policy-engine`, tháng 10/2026). Nghiệp vụ đang chạy vẫn lấy theo [đặc tả nghiệp vụ](NGHIEP_VU.md); tài liệu này mô tả hướng đi, không thay đặc tả.
+Tài liệu ghi lại định hướng sản phẩm do nhóm đặt ra, và đối chiếu từng định hướng với hiện trạng mã nguồn (nhánh `feat/dynamic-policy-engine`, tháng 10/2026). Nghiệp vụ đang chạy vẫn lấy theo [đặc tả nghiệp vụ](../NGHIEP_VU.md); tài liệu này mô tả hướng đi, không thay đặc tả.
 
 ## 1. Mục tiêu
 

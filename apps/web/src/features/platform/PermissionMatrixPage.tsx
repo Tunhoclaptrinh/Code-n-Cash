@@ -52,6 +52,7 @@ const roleColor: Record<Role, { bg: string; value: string }> = {
   SYSTEM_ADMIN: { ...STAT_TONE.orange },
   AUDITOR: { ...STAT_TONE.violet },
   SUPPLIER: { ...STAT_TONE.amber },
+  ORG_ADMIN: { ...STAT_TONE.sky },
 };
 
 /**

@@ -49,7 +49,7 @@ import type {
   ResourceDefinition,
   ResourceField,
 } from "@codecash/contracts";
-import { fieldProblem } from "@codecash/contracts";
+import { fieldProblem, ORG_ADMIN_ASSIGNABLE } from "@codecash/contracts";
 import { platform } from "@/shared/api/platform";
 import { useCurrentUser } from "@/shared/auth/session";
 import { AppPage } from "@/shared/layout/AppPage";
@@ -158,6 +158,15 @@ function ResourceView({ resource }: { resource: string }) {
   );
   const definition = definitions.data?.find((x) => x.name === resource);
   const fields = useMemo(() => definition?.fields ?? [], [definition]);
+  // A company administrator gives only the business roles of its own company (the API decides).
+  const companyAdmin = resource === "users" && user.role === "ORG_ADMIN";
+  const ownKind = organizations.data?.items.find(
+    (org) => org.id === user.organizationId,
+  )?.kind as keyof typeof ORG_ADMIN_ASSIGNABLE | undefined;
+  const choices = (field: ResourceField) =>
+    companyAdmin && field.key === "role"
+      ? (ORG_ADMIN_ASSIGNABLE[ownKind ?? "SUPPLIER"] as string[])
+      : field.options;
   const readOnly = definition?.readOnly;
   const can = (operation: string) => hasPermission(`${resource}:${operation}`);
   /** Data Pack and workflow records change only through their own screens (resources.json). */
@@ -760,7 +769,18 @@ function ResourceView({ resource }: { resource: string }) {
         // A new account or template starts active; everything else starts empty.
         initialValues={
           editor === null && fields.some((f) => f.key === "active")
-            ? { active: true }
+            ? {
+                active: true,
+                // A company administrator creates accounts of its own company only.
+                ...(companyAdmin
+                  ? {
+                      organizationId: {
+                        value: user.organizationId,
+                        label: refName(user.organizationId),
+                      },
+                    }
+                  : {}),
+              }
             : toForm(editor)
         }
         loading={busy}
@@ -868,13 +888,14 @@ function ResourceView({ resource }: { resource: string }) {
                   placeholder={t("searchToPick")}
                   showSearch
                   allowClear
+                  disabled={companyAdmin && field.key === "organizationId"}
                 />
               ) : field.type === "select" ? (
                 <Select
                   placeholder={tc("forms.choose", {
                     field: fieldLabel(field.key),
                   })}
-                  options={field.options?.map((value) => ({
+                  options={choices(field)?.map((value) => ({
                     label: optionLabel(field, value),
                     value,
                   }))}

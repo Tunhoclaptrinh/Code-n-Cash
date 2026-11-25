@@ -191,6 +191,8 @@ const byRole: Record<Role, NavSection[]> = {
   // only. Neither opens a contract (spec 2.2).
   SYSTEM_ADMIN: [dataAndAdmin([platform])],
   AUDITOR: [monitoring([integrity]), dataAndAdmin([platform])],
+  // A company's account administrator sees its own company's accounts and nothing of contracts.
+  ORG_ADMIN: [dataAndAdmin([{ ...platform, to: "/platform/users" }])],
   SUPPLIER: [
     workflow([
       dashboard,
@@ -267,4 +269,5 @@ export const homeByRole: Record<Role, string> = {
   SYSTEM_ADMIN: "/platform/organizations",
   AUDITOR: "/integrity",
   SUPPLIER: "/dashboard",
+  ORG_ADMIN: "/platform/users",
 };

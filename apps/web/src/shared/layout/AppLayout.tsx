@@ -55,6 +55,7 @@ const roleColor: Record<string, string> = {
   SYSTEM_ADMIN: "volcano",
   AUDITOR: "purple",
   SUPPLIER: "gold",
+  ORG_ADMIN: "orange",
 };
 
 /**

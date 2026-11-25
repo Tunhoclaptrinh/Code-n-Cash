@@ -1,6 +1,6 @@
 # Roles, access and demo scenarios
 
-Access depends on the authenticated person, organization and role. Switching accounts demonstrates handoffs between people. There are eight roles. An evidence exception needs two people: the contract owner proposes and the buyer's own controller decides.
+Access depends on the authenticated person, organization and role. Switching accounts demonstrates handoffs between people. There are nine roles. An evidence exception needs two people: the contract owner proposes and the buyer's own controller decides.
 
 | Demo email              | Role                     | First scenario                                                 |
 | ----------------------- | ------------------------ | -------------------------------------------------------------- |
@@ -13,6 +13,7 @@ Access depends on the authenticated person, organization and role. Switching acc
 | `controller@phuminh.vn` | Supplier controller      | Follow Phu Minh's contracts; no business actions               |
 | `sysadmin@codecash.vn`  | System administrator     | Manage users, organizations and permitted configuration        |
 | `auditor@codecash.vn`   | Auditor                  | Check integrity (hash chain, anchors); no contract access      |
+| `admin@novaan.vn`       | Company administrator    | Add a new accountant to Nova An; lock a leaver's account       |
 
 ## Business access
 
@@ -28,7 +29,7 @@ The contract officer submits buyer evidence such as acceptance and UAT. The supp
 
 ![Controller navigation](../../../public/guide/images/nav-admin.webp)
 
-Each organization has one controller, who sees that organization's contracts; the buyer's controller decides evidence exceptions the contract owner proposes. Controllers cannot approve payments or manage accounts. System administrators manage configuration and accounts but cannot process exceptions or contract business actions. Auditors check integrity (hash chain, anchors) and do not open contracts; they cannot write business records or run a new stored evaluation.
+Each organization has one controller, who sees that organization's contracts; the buyer's controller decides evidence exceptions the contract owner proposes. Controllers cannot approve payments or manage accounts. System administrators manage configuration and accounts but cannot process exceptions or contract business actions. Each company also has a company administrator, who manages the business accounts of that company only (create, edit, lock, reset a password); it cannot give the controller or administrator roles and does not open contracts. Auditors check integrity (hash chain, anchors) and do not open contracts; they cannot write business records or run a new stored evaluation.
 
 ![System administrator navigation](../../../public/guide/images/nav-sysadmin.webp)
 

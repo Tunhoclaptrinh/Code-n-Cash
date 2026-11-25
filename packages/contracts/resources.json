@@ -72,7 +72,8 @@
           "ADMIN_AUDITOR",
           "SYSTEM_ADMIN",
           "AUDITOR",
-          "SUPPLIER"
+          "SUPPLIER",
+          "ORG_ADMIN"
         ]
       },
       {

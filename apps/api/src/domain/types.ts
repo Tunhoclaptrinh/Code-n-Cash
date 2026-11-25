@@ -10,7 +10,8 @@ export type Origin = "DATA_PACK" | "SEED" | "APP";
 
 /**
  * System roles (spec 17). Three internal roles keep SoD-1: the controller handles exceptions, the
- * system administrator manages configuration and accounts, the auditor only reads.
+ * system administrator manages configuration and accounts, the auditor only reads. A company's
+ * own administrator (ORG_ADMIN) manages the business accounts of that company and nothing else.
  */
 export type Role =
   | "CONTRACT_OWNER"
@@ -20,7 +21,8 @@ export type Role =
   | "ADMIN_AUDITOR"
   | "SYSTEM_ADMIN"
   | "AUDITOR"
-  | "SUPPLIER";
+  | "SUPPLIER"
+  | "ORG_ADMIN";
 
 export type PartyType = "BUYER" | "SUPPLIER" | "APPROVER";
 export type Side = "BUYER" | "SUPPLIER";

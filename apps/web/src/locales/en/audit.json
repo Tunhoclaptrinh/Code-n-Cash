@@ -48,7 +48,8 @@
     "LEGAL_REVIEWER": "Contract officer",
     "ADMIN_AUDITOR": "Controller",
     "SYSTEM_ADMIN": "System administrator",
-    "AUDITOR": "Integrity checker"
+    "AUDITOR": "Integrity checker",
+    "ORG_ADMIN": "Company administrator"
   },
   "categories": {
     "SYSTEM": "System",

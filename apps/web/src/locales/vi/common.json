@@ -81,6 +81,10 @@
     "AUDITOR": {
       "name": "Kiểm tra toàn vẹn",
       "short": "TV"
+    },
+    "ORG_ADMIN": {
+      "name": "Quản trị công ty",
+      "short": "QTC"
     }
   },
   "login": {

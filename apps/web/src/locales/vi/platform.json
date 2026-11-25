@@ -376,7 +376,9 @@
     "PASSWORD_MINIMUM_12_CHARACTERS": "Mật khẩu phải có từ 12 đến 128 ký tự.",
     "PERMISSION_DENIED": "Vai trò của bạn không có quyền thực hiện thao tác này.",
     "RESOURCE_NOT_FOUND": "Không tìm thấy loại dữ liệu này.",
-    "VERSION_REQUIRED": "Thiếu số phiên bản của bản ghi. Tải lại trang rồi thử lại."
+    "VERSION_REQUIRED": "Thiếu số phiên bản của bản ghi. Tải lại trang rồi thử lại.",
+    "OTHER_ORGANIZATION": "Bạn chỉ quản lý được tài khoản của công ty mình.",
+    "ROLE_NOT_ASSIGNABLE": "Quản trị công ty không cấp được vai trò này; kiểm soát viên và vai quản trị do quản trị hệ thống cấp."
   },
   "searchPlaceholder": "Tìm trong mọi cột, kể cả tên tổ chức (không cần dấu)",
   "managedDraftsNote": "Hồ sơ hợp đồng sửa ở màn Tải hợp đồng lên.",

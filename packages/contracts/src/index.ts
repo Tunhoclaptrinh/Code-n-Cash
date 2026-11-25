@@ -85,7 +85,21 @@ export const roles: Role[] = [
   "SYSTEM_ADMIN",
   "AUDITOR",
   "SUPPLIER",
+  "ORG_ADMIN",
 ];
+/**
+ * Roles a company administrator may give, by the kind of its company. Controllers, other
+ * administrators and platform roles stay with the system administrator (SoD-1).
+ */
+export const ORG_ADMIN_ASSIGNABLE: Record<"BUYER" | "SUPPLIER", Role[]> = {
+  BUYER: [
+    "CONTRACT_OWNER",
+    "FINANCE_APPROVER",
+    "SECONDARY_APPROVER",
+    "LEGAL_REVIEWER",
+  ],
+  SUPPLIER: ["SUPPLIER"],
+};
 export const decisions: Decision[] = ["RELEASE", "HOLD", "REJECT", "PENALTY"];
 export function pageResult<T>(
   items: T[],

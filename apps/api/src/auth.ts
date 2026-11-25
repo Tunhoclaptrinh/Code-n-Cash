@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
   CanActivate,
   ExecutionContext,
 } from "@nestjs/common";
@@ -22,6 +23,7 @@ import { Public } from "./common/decorators/roles.decorator";
 import { RequirePermission, permissionsFor } from "./common/permissions";
 import type { Actor, SessionRequest, Role, RecordEntity } from "./common/types";
 import { buildDirectory, FEATURED_ACCOUNTS } from "./domain/accounts";
+import { orgAdminRefusal } from "./domain/vocabulary";
 import { loadDataPack } from "./domain/datapack";
 import { DomainService } from "./domain/service";
 import { TrustService } from "./trust/service";
@@ -224,11 +226,23 @@ export class AuthService {
     )
       throw new BadRequestException("PASSWORD_MINIMUM_12_CHARACTERS");
     const passwordHash = await bcrypt.hash(password, 12);
+    const tables = {
+      organizations: await this.repo.list("organizations"),
+      parties: await this.repo.list("parties"),
+    };
     await this.repo.mutate(
       "users",
       (items) => {
-        const user = items.find((x) => x.id === id);
+        const user = items.find(
+          (x) =>
+            x.id === id &&
+            (actor.role !== "ORG_ADMIN" ||
+              x.organizationId === actor.organizationId),
+        );
         if (!user) throw new NotFoundException("USER_NOT_FOUND");
+        // A company administrator resets only the accounts it may manage (never a controller's).
+        const refusal = orgAdminRefusal(actor, user, tables);
+        if (refusal) throw new ForbiddenException(refusal);
         user.passwordHash = passwordHash;
         user.tokenVersion = Number(user.tokenVersion ?? 0) + 1;
         user.version++;

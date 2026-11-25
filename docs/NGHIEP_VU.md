@@ -52,8 +52,9 @@ Bảng này là nội dung của policy pack (`apps/engine/policy/case4_btc.json
 | Kiểm soát viên nội bộ (`ADMIN_AUDITOR`)    | Mỗi bên mua và mỗi nhà cung cấp có một | Xem hợp đồng của tổ chức mình; kiểm soát viên bên mua duyệt hoặc trả lại đề xuất vô hiệu của chủ hợp đồng; kiểm soát viên nhà cung cấp theo dõi bên mua chi đúng hợp đồng | Đề xuất ngoại lệ, tạo event nghiệp vụ, sửa luật, sửa quyết định, xem hợp đồng của tổ chức khác |
 | Quản trị hệ thống (`SYSTEM_ADMIN`)         | Vận hành nền tảng                      | Quản lý tài khoản, cấu hình, công bố phiên bản luật đã kiểm, neo chuỗi audit, khôi phục dữ liệu demo                                                                      | Xem nội dung hợp đồng, xử lý ngoại lệ, phê duyệt chi                                           |
 | Chuyên viên kiểm tra toàn vẹn (`AUDITOR`)  | Vận hành nền tảng                      | Kiểm chuỗi audit, neo và bằng chứng Merkle; chỉ thấy bản tóm tắt mục audit (không có nội dung)                                                                            | Xem nội dung hợp đồng, mọi thao tác ghi                                                        |
+| Quản trị công ty (`ORG_ADMIN`)             | Mỗi bên mua và mỗi nhà cung cấp có một | Tạo, sửa, khoá, xoá, đặt lại mật khẩu tài khoản nghiệp vụ của chính công ty mình (bên mua: chủ hợp đồng, hai vai phê duyệt, cán bộ hợp đồng; nhà cung cấp: nhà cung cấp) | Cấp vai kiểm soát viên, quản trị hoặc vai nền tảng; đụng tài khoản công ty khác; xem hợp đồng   |
 
-Data Pack chỉ có các bên của hợp đồng: bên mua, nhà cung cấp và ba vai trò phê duyệt. Để quy trình chạy khép kín và tách nhiệm, đội bổ sung bốn vai trò; mỗi vai trò lấp một khoảng trống cụ thể:
+Data Pack chỉ có các bên của hợp đồng: bên mua, nhà cung cấp và ba vai trò phê duyệt. Để quy trình chạy khép kín và tách nhiệm, đội bổ sung năm vai trò; mỗi vai trò lấp một khoảng trống cụ thể:
 
 | Vai trò bổ sung               | Khoảng trống cần lấp                                                                                                                                                                                                                        |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -61,6 +62,7 @@ Data Pack chỉ có các bên của hợp đồng: bên mua, nhà cung cấp và
 | Kiểm soát viên nội bộ         | Mốc bị kẹt vì chứng từ do bên không có thẩm quyền tạo cần người xử lý có kiểm soát: chủ hợp đồng đề xuất, kiểm soát viên của chính bên mua duyệt, không ai sửa trực tiếp kết quả; nhà cung cấp có kiểm soát viên riêng để theo dõi việc chi |
 | Quản trị hệ thống             | Tài khoản, mẫu hợp đồng và phiên bản luật cần người quản lý tách khỏi nghiệp vụ, để người cấu hình không đồng thời xử lý ngoại lệ hay duyệt chi                                                                                             |
 | Chuyên viên kiểm tra toàn vẹn | Cần một bên độc lập kiểm tra nhật ký không bị sửa mà không đọc nội dung hợp đồng và không thể thay đổi gì                                                                                                                                   |
+| Quản trị công ty              | Công ty tự quản lý nhân viên của mình (người nghỉ việc, người mới) mà không phải nhờ quản trị nền tảng; kiểm soát viên vẫn do quản trị hệ thống cấp, nên công ty không tự chọn người duyệt ngoại lệ cho mình (SoD-1)                      |
 
 Toàn bộ quyền nằm trong một ma trận duy nhất (`packages/contracts/permissions.json`), được kiểm ở API theo tài khoản đăng nhập và hiển thị cho quản trị tại màn Ma trận phân quyền.
 
@@ -633,6 +635,7 @@ Kết quả bước lọc bằng chứng (mục 5) cho từng sự kiện của 
 | `SECONDARY_APPROVER` | Phê duyệt cấp 2         |
 | `SYSTEM_ADMIN`       | Quản trị hệ thống       |
 | `AUDITOR`            | Kiểm tra toàn vẹn       |
+| `ORG_ADMIN`          | Quản trị công ty        |
 
 ### 14.11. Kết quả xét từng luật
 

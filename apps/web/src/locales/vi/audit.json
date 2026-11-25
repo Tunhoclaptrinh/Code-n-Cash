@@ -48,7 +48,8 @@
     "LEGAL_REVIEWER": "Cán bộ hợp đồng",
     "ADMIN_AUDITOR": "Kiểm soát viên",
     "SYSTEM_ADMIN": "Quản trị hệ thống",
-    "AUDITOR": "Kiểm tra toàn vẹn"
+    "AUDITOR": "Kiểm tra toàn vẹn",
+    "ORG_ADMIN": "Quản trị công ty"
   },
   "categories": {
     "SYSTEM": "Hệ thống",

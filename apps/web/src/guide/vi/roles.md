@@ -15,8 +15,9 @@ Quyền trong CodeCash gắn với người đã đăng nhập, tổ chức và 
 | `controller@phuminh.vn` | Kiểm soát viên NCC      | Theo dõi hợp đồng của Phú Minh, không thao tác nghiệp vụ               |
 | `sysadmin@codecash.vn`  | Quản trị hệ thống       | Quản lý tài khoản, tổ chức và bản ghi cấu hình được phép sửa           |
 | `auditor@codecash.vn`   | Kiểm toán               | Kiểm tra toàn vẹn (chuỗi băm, bằng chứng neo); không mở hợp đồng       |
+| `admin@novaan.vn`       | Quản trị công ty        | Thêm một kế toán mới cho Nova An; khoá tài khoản người nghỉ việc       |
 
-Ngoại lệ chứng từ cần hai người khác nhau: chủ hợp đồng đề xuất, kiểm soát viên của chính bên mua duyệt. Hệ thống có **8 vai trò**, không phải 9 vai trò.
+Ngoại lệ chứng từ cần hai người khác nhau: chủ hợp đồng đề xuất, kiểm soát viên của chính bên mua duyệt. Hệ thống có **9 vai trò**.
 
 ## Đọc menu theo vai trò
 
@@ -34,6 +35,7 @@ NCC nộp giao hàng, hoá đơn, hoàn thành dịch vụ và các loại chứ
 
 - **Kiểm soát viên:** mỗi tổ chức có một người, xem hợp đồng của tổ chức mình; kiểm soát viên bên mua duyệt ngoại lệ chứng từ do chủ hợp đồng đề xuất. Không duyệt chi, không quản lý tài khoản.
 - **Quản trị hệ thống:** quản lý cấu hình và tài khoản; không xử lý ngoại lệ hoặc ghi nghiệp vụ thanh toán.
+- **Quản trị công ty:** mỗi công ty có một người, quản lý tài khoản nghiệp vụ của chính công ty mình (tạo, sửa, khoá, đặt lại mật khẩu). Không cấp được vai kiểm soát viên hay quản trị, không mở hợp đồng.
 - **Kiểm toán:** chỉ kiểm tra toàn vẹn (chuỗi băm, bằng chứng neo), không mở hợp đồng; không ghi nghiệp vụ hoặc chạy đánh giá để lưu kết quả mới.
 
 ![Menu quản trị hệ thống](../../../public/guide/images/nav-sysadmin.webp)

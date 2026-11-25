@@ -585,6 +585,8 @@ export function attachTransaction(
 ): Outcome {
   const request = requestById(ctx, requestId);
   if (request.status === "PENDING") {
+    if (transaction.hash !== request.hash)
+      throw new BadRequestException("INVALID_SIGNATURE_PROOF");
     request.transactionId = transaction.id;
     request.code = transaction.confirmationCode;
     request.expiresAt = transaction.expiresAt;

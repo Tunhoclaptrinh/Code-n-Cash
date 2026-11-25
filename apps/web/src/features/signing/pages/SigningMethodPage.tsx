@@ -137,6 +137,9 @@ function MethodSelection({
   // Only the signer whose turn it is can reach this screen; everyone else goes back to the sequence.
   const sequencePath = `/contracts/${contractId}/signing`;
   if (!step) return <Navigate to={sequencePath} replace />;
+  // A webhook can refresh the overview before the request poll observes completion.
+  if (step.status === "SIGNED" && overview.myStepNo === stepNo)
+    return <Navigate to={`/verify/${contractId}`} replace />;
   const turnIsOpen = step.status === "CURRENT" && overview.myStepNo === stepNo;
   if (!turnIsOpen && !completed.current && current?.status !== "COMPLETED") {
     return <Navigate to={sequencePath} replace />;

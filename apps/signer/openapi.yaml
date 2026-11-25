@@ -130,7 +130,9 @@ paths:
       description: |
         Creates a pending transaction (5 minutes) and notifies the person's devices. Any older
         pending request of the same person is cancelled. Repeating a call with the same
-        `Idempotency-Key` returns the first transaction.
+        `Idempotency-Key` returns the first transaction when hash, subscriber and channel match;
+        otherwise returns 409 IDEMPOTENCY_CONFLICT. CodeCash includes the payload hash in the key
+        so a request number reused after a demo reset cannot select an old transaction.
       security: [{ client: [] }]
       parameters:
         - name: Idempotency-Key
@@ -177,6 +179,7 @@ paths:
               schema: { $ref: "#/components/schemas/Transaction" }
         "400": { $ref: "#/components/responses/Problem" }
         "404": { $ref: "#/components/responses/Problem" }
+        "409": { $ref: "#/components/responses/Problem" }
   /v1/signatures/{id}:
     get:
       tags: [Relying party]

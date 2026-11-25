@@ -293,3 +293,58 @@ test("three wrong PINs lock the device; a new request replaces the old one", asy
   });
   assert.equal(foreign.status, 404);
 });
+
+test("a reused request number after reset gets a new transaction for a different payload", async () => {
+  const remote = await import("../../apps/api/dist/trust/remote-signer.js");
+  await remote.enroll({
+    subscriberId: "u-reset",
+    commonName: "Reset regression",
+    organization: "Test",
+  });
+  const input = {
+    subscriberId: "u-reset",
+    hash: hashOf("before reset"),
+    channel: "MOBILE_APP",
+    title: "Reset regression",
+    reference: "RQ-000001",
+  };
+  const first = await remote.createSignature(input, "RQ-000001");
+  const retry = await remote.createSignature(input, "RQ-000001");
+  assert.equal(retry.id, first.id, "retries keep the same transaction");
+  const second = await remote.createSignature(
+    { ...input, hash: hashOf("after reset") },
+    "RQ-000001",
+  );
+  assert.notEqual(
+    second.id,
+    first.id,
+    "a new payload cannot reuse the old transaction",
+  );
+  assert.equal(second.status, "PENDING");
+  assert.equal(second.hash, hashOf("after reset"));
+
+  const conflict = await rp(
+    "/v1/signatures",
+    { subscriberId: input.subscriberId, hash: hashOf("tampered retry") },
+    { "Idempotency-Key": `RQ-000001:${input.hash}` },
+  );
+  assert.equal(conflict.status, 409);
+  assert.equal(conflict.body.code, "IDEMPOTENCY_CONFLICT");
+});
+
+test("a provider transaction for another hash cannot attach to a signing request", async () => {
+  const { attachTransaction } =
+    await import("../../apps/api/dist/domain/signing.js");
+  const request = { id: "RQ-1", status: "PENDING", hash: hashOf("expected") };
+  const context = { t: { "signing-requests": [request] } };
+  assert.throws(
+    () =>
+      attachTransaction(context, "RQ-1", {
+        id: "TX-old",
+        hash: hashOf("another document"),
+        status: "PENDING",
+      }),
+    /INVALID_SIGNATURE_PROOF/,
+  );
+  assert.equal(request.transactionId, undefined);
+});

@@ -1,8 +1,8 @@
 # Single-host production stack: nginx (web) -> NestJS API (+ Python engine) -> MongoDB replica set,
 # and the remote signing service (signer) that the API calls and signing devices reach via nginx.
-# Usage from the repository root (codecash/ subdir):
+# Usage from the repository root:
 #   cp .env.production.example .env.production   # then fill in the secrets
-#   docker compose -f infra/compose.prod.yaml up -d --build
+#   pnpm docker:up                                # build images and start in the background
 name: codecash
 
 services:
@@ -28,10 +28,9 @@ services:
   api:
     build:
       context: ..
-      dockerfile: codecash/Dockerfile
       target: api
     image: ${IMAGE_PREFIX:-codecash}/api:${IMAGE_TAG:-latest}
-    env_file: .env.production
+    env_file: ../.env.production
     environment:
       STORAGE_DRIVER: mongo
       MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/codecash?replicaSet=rs0}
@@ -50,17 +49,15 @@ services:
   signer:
     build:
       context: ..
-      dockerfile: codecash/Dockerfile
       target: signer
     image: ${IMAGE_PREFIX:-codecash}/signer:${IMAGE_TAG:-latest}
-    env_file: .env.production
+    env_file: ../.env.production
     volumes: ["signer-data:/data"]
     restart: unless-stopped
 
   web:
     build:
       context: ..
-      dockerfile: codecash/Dockerfile
       target: web
     image: ${IMAGE_PREFIX:-codecash}/web:${IMAGE_TAG:-latest}
     environment:

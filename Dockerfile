@@ -34,11 +34,6 @@ FROM manifests AS api-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile --prod --filter @codecash/api
 
-# Production dependencies of the signer only.
-FROM manifests AS signer-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --prod --filter @codecash/signer
-
 FROM ${NODE_IMAGE} AS api
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 poppler-utils libreoffice-writer fonts-dejavu-core fonts-liberation \
@@ -66,36 +61,33 @@ COPY apps/engine/codecash_engine ./apps/engine/codecash_engine
 COPY apps/engine/policy ./apps/engine/policy
 COPY tools/kiem_chung_nghiep_vu.py ./tools/
 COPY BangD-Case4/DataPack-CASE4_SmartContractWorkflow ./BangD-Case4/DataPack-CASE4_SmartContractWorkflow
-RUN mkdir -p /data && chown -R node:node /data /app
+RUN mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=5 \
-  CMD ["node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+  CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.API_PORT||3000)+'/api/v1/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
 CMD ["node", "apps/api/dist/main.js"]
 
+# The signing service is its own process with its own data and keys; it needs only Node itself.
 FROM ${NODE_IMAGE} AS signer
 ENV NODE_ENV=production \
-    SIGNER_HOST=0.0.0.0 \
     SIGNER_PORT=3200 \
-    DATA_DIR=/data
+    SIGNER_DATA_DIR=/data
 WORKDIR /app
-COPY --from=signer-deps /app/node_modules ./node_modules
-COPY --from=signer-deps /app/apps/signer/node_modules ./apps/signer/node_modules
-COPY --from=build /app/apps/signer/dist ./apps/signer/dist
-COPY apps/signer/package.json ./apps/signer/
-RUN mkdir -p /data && chown -R node:node /data /app
+COPY --from=build /app/apps/signer/dist ./dist
+RUN mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 3200
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=5 \
-  CMD ["node", "-e", "fetch('http://127.0.0.1:3200/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
-CMD ["node", "apps/signer/dist/main.js"]
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
+  CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.SIGNER_PORT||3200)+'/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+CMD ["node", "dist/main.js"]
 
 FROM ${NGINX_IMAGE} AS web
-COPY --from=build /app/apps/web/dist /usr/share/nginx/html
-COPY infra/nginx/default.conf.template /etc/nginx/templates/default.conf.template
-COPY infra/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
 ENV API_UPSTREAM=http://api:3000 \
     SIGNER_UPSTREAM=http://signer:3200
+COPY infra/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY infra/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
+COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 EXPOSE 80
-HEALTHCHECK --interval=15s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -qO- http://127.0.0.1/healthz || exit 1
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
+  CMD ["wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]

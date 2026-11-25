@@ -48,6 +48,8 @@ const U = {
   SUPPLIER_CONTROLLER: "u-phuminh-controller",
   SYSADMIN: "u-sysadmin",
   AUDITOR: "u-auditor",
+  // Nova An's account administrator: it manages accounts and records nothing of a contract.
+  ORG_ADMIN: "u-novaan-admin",
 };
 const ROLE_USER = {
   CONTRACT_OWNER: U.OWNER,
@@ -58,6 +60,7 @@ const ROLE_USER = {
   ADMIN_AUDITOR: U.CONTROLLER,
   SYSTEM_ADMIN: U.SYSADMIN,
   AUDITOR: U.AUDITOR,
+  ORG_ADMIN: U.ORG_ADMIN,
 };
 const ROLES = Object.keys(ROLE_USER);
 
@@ -450,6 +453,13 @@ const WRITE_ACTIONS = [
     args: ["CT9999", { reset: true }],
     reaches: "CONTRACT_NOT_FOUND",
   },
+  {
+    name: "setContractRules",
+    module: "drafts",
+    allowed: BUYER_EDITORS,
+    args: ["CT9999", { rules: [] }],
+    reaches: "CONTRACT_NOT_FOUND",
+  },
 ];
 
 test("who: only the roles of spec 17 reach each write action; every other role is refused and nothing is stored", async () => {
@@ -471,7 +481,7 @@ test("who: only the roles of spec 17 reach each write action; every other role i
     WRITE_ACTIONS.map((row) => row.name).sort(),
     "every write action of workflow.controller.ts is covered by the matrix",
   );
-  assert.equal(WRITE_ACTIONS.length, 27);
+  assert.equal(WRITE_ACTIONS.length, 28);
   for (const row of WRITE_ACTIONS)
     for (const role of ROLES) {
       const code = row.allowed.includes(role)
@@ -6370,4 +6380,107 @@ test("late payment: a dispute restarts the payment term when it is closed, so a 
   assert.equal(instruction.latePayment.dueOn, plusDays(businessToday(), 10));
   assert.equal(instruction.latePayment.daysLate, 0);
   assert.equal(instruction.latePayment.interestMillion, "0.00");
+});
+
+test("contract rules: the buyer's sentences become the contract's own signed rule set, proven safe, and go back with a cancelled signing", async () => {
+  const w = await world();
+  const terms = await w.call(U.LEGAL, "drafts", "getDigitization", "CT0101");
+  const types = terms.milestones.map((m) => m.type);
+  const late = terms.milestones.find((m) => m.penalty)?.type ?? types[0];
+  const base = w.contract("CT0101").rule_set_id;
+  // Refused: an unknown sentence, a type the contract does not have, a value out of range, the
+  // same sentence twice in one scope, and anyone but the buyer's editors.
+  for (const rules of [
+    [{ template: "PAY_ANYWAY", milestoneType: late }],
+    [{ template: "LATE_REVIEW", milestoneType: "NOT_A_TYPE", value: 30 }],
+    [{ template: "LATE_REVIEW", milestoneType: late, value: 0 }],
+    [{ template: "WAIVE_SHORT_DELAY", milestoneType: late, value: 31 }],
+    [{ template: "HALF_PENALTY", milestoneType: late, value: 2 }],
+    [
+      { template: "LATE_REVIEW", milestoneType: late, value: 30 },
+      { template: "LATE_REVIEW", milestoneType: late, value: 40 },
+    ],
+  ])
+    await denied(
+      w,
+      U.LEGAL,
+      "drafts",
+      "setContractRules",
+      ["CT0101", { rules }],
+      "CONTRACT_RULES_INVALID",
+    );
+  for (const user of [U.SUPPLIER, U.FINANCE, U.ORG_ADMIN, U.SYSADMIN])
+    await denied(
+      w,
+      user,
+      "drafts",
+      "setContractRules",
+      ["CT0101", { rules: [] }],
+      "ACTION_FORBIDDEN",
+    );
+  const sentences = [
+    { template: "WAIVE_SHORT_DELAY", milestoneType: late, value: 5 },
+    { template: "LARGE_REVIEW", milestoneType: types[0], value: 900 },
+  ];
+  const saved = await ok(w, U.LEGAL, "drafts", "setContractRules", "CT0101", {
+    rules: sentences,
+  });
+  assert.deepEqual(
+    saved.contractRules.map((r) => [r.id, r.template, r.value]),
+    [
+      ["C1", "WAIVE_SHORT_DELAY", 5],
+      ["C2", "LARGE_REVIEW", 900],
+    ],
+  );
+  assert.equal(saved.contractRulesEdited.by, w.actor(U.LEGAL).displayName);
+  // Nothing changes for the engine until the terms are locked.
+  assert.equal(w.contract("CT0101").rule_set_id, base);
+  await ok(w, U.LEGAL, "drafts", "confirmDigitization", "CT0101", {
+    dueDate: "2027-05-31",
+  });
+  const own = `${base}#CT0101`;
+  assert.equal(w.contract("CT0101").rule_set_id, own);
+  const milestones = w
+    .tbl("milestones")
+    .filter((m) => m.contract_id === "CT0101");
+  assert.ok(milestones.every((m) => m.release_rule_code.startsWith(`${own}:`)));
+  const rules = w.tbl("payment-rules").filter((r) => r.rule_set_id === own);
+  // Every scope of the pinned set is copied, plus one row per sentence, in its window.
+  const copied = w
+    .tbl("payment-rules")
+    .filter((r) => types.some((t) => r.release_rule_code === `${base}:${t}`));
+  assert.equal(rules.length, copied.length + 2);
+  const waiver = rules.find((r) => r.rule_id === "CT0101:C1");
+  assert.equal(waiver.release_rule_code, `${own}:${late}`);
+  assert.ok(Number(waiver.priority) >= 56 && Number(waiver.priority) <= 59);
+  assert.match(waiver.condition_expression, /days_late_after_grace <= 5 /);
+  assert.match(waiver.condition_expression, /open_dispute == FALSE/);
+  assert.equal(rules.find((r) => r.rule_id === "CT0101:C2").decision, "HOLD");
+  // The engine evaluated the new milestones with the contract's rules, without errors.
+  for (const m of milestones) {
+    const evaluation = w.evaluation(m.milestone_id);
+    assert.ok(evaluation, `no evaluation of ${m.milestone_id}`);
+    assert.ok(!JSON.stringify(evaluation).includes("RULE_EVALUATION_ERROR"));
+  }
+  // Locked terms cannot get other rules; cancelling the signing goes back to the pinned set.
+  await denied(
+    w,
+    U.LEGAL,
+    "drafts",
+    "setContractRules",
+    ["CT0101", { rules: [] }],
+    "DRAFT_LOCKED",
+  );
+  await ok(w, U.LEGAL, "signing", "cancelSigning", "CT0101");
+  assert.equal(w.contract("CT0101").rule_set_id, base);
+  // Cleared, the contract locks on the pinned rule set as before.
+  await ok(w, U.LEGAL, "drafts", "setContractRules", "CT0101", { rules: [] });
+  await ok(w, U.LEGAL, "drafts", "confirmDigitization", "CT0101", {
+    dueDate: "2027-05-31",
+  });
+  assert.equal(w.contract("CT0101").rule_set_id, base);
+  assert.equal(
+    w.tbl("payment-rules").filter((r) => r.rule_set_id === own).length,
+    0,
+  );
 });

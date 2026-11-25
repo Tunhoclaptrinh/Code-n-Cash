@@ -21,6 +21,7 @@ import {
 import { outcome, newEvent, type Outcome } from "./actions";
 import type { Ctx } from "./context";
 import { businessNow, entity, nextId } from "./factory";
+import { baseRuleSet } from "./contract-rules";
 import {
   TABLE,
   type DraftRecord,
@@ -110,6 +111,10 @@ export function signingDigest(ctx: Ctx, code: string) {
               hash: draft.ruleVersionHash,
             },
           }
+        : {}),
+      // The contract's own rules are signed with it; contracts without any keep their digest.
+      ...(draft?.contractRules?.rules.length
+        ? { contractRules: draft.contractRules.rules }
         : {}),
       signers: signing.steps.map((step) => ({
         stepNo: step.stepNo,
@@ -702,6 +707,8 @@ export function cancelSigning(ctx: Ctx, contractCode: string): Outcome {
       request.status = "CANCELLED";
   for (const step of record.steps) step.status = "WAITING";
   contract.lifecycle = "DRAFT";
+  // Back to the pinned rule set; the contract's own rules are composed again when it is locked.
+  contract.rule_set_id = baseRuleSet(contract.rule_set_id);
   contract.version += 1;
   const draft = ctx.draft(contractCode) as DraftRecord | undefined;
   if (draft) {

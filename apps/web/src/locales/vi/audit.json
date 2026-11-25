@@ -89,7 +89,9 @@
     "ACCEPTANCE_REQUEST_OPEN": "Gửi đề nghị nghiệm thu",
     "ACCEPTANCE_REQUEST_CONFIRMED": "Nộp chứng từ theo đề nghị nghiệm thu; tính theo thời điểm đề nghị",
     "ACCEPTANCE_REQUEST_DECLINED": "Trả lại đề nghị nghiệm thu",
-    "PAYMENT_WITH_INTEREST": "Duyệt lệnh chi {{amount}} triệu VND cộng lãi chậm trả {{interest}} triệu (khoá chống trùng)"
+    "PAYMENT_WITH_INTEREST": "Duyệt lệnh chi {{amount}} triệu VND cộng lãi chậm trả {{interest}} triệu (khoá chống trùng)",
+    "CONTRACT_RULES_SET_one": "Đặt {{count}} luật riêng của hợp đồng",
+    "CONTRACT_RULES_SET_other": "Đặt {{count}} luật riêng của hợp đồng"
   },
   "workflowActions": {
     "saveContractDraft": "Lưu hồ sơ hợp đồng",
@@ -124,7 +126,8 @@
     "decideLiquidation": "Trả lời biên bản thanh lý",
     "withdrawLiquidation": "Rút lại biên bản thanh lý",
     "requestAcceptance": "Đề nghị nghiệm thu",
-    "declineAcceptance": "Trả lại đề nghị nghiệm thu"
+    "declineAcceptance": "Trả lại đề nghị nghiệm thu",
+    "setContractRules": "Đặt luật riêng của hợp đồng"
   },
   "detail": {
     "view": "Xem chi tiết",
@@ -279,7 +282,8 @@
     "VOID": "Huỷ bản ghi",
     "AMENDMENT": "Phụ lục hợp đồng",
     "DIGITIZATION_EDITED": "Chỉnh tay bản số hoá",
-    "LIQUIDATION": "Thanh lý hợp đồng"
+    "LIQUIDATION": "Thanh lý hợp đồng",
+    "CONTRACT_RULES_SET": "Luật riêng của hợp đồng"
   },
   "auditDetail": {
     "transactionId": "Mã giao dịch",

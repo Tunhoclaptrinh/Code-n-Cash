@@ -1237,6 +1237,7 @@ export type ActivityAction =
   | { kind: "SIGNATURE"; stepNo: number; totalSteps: number; isFinal: boolean }
   | { kind: "DIGITIZATION_CONFIRMED"; milestoneCount: number }
   | { kind: "DIGITIZATION_EDITED"; milestoneCount: number }
+  | { kind: "CONTRACT_RULES_SET"; ruleCount: number }
   | { kind: "AMENDMENT"; state: AmendmentState; number: number }
   | { kind: "LIQUIDATION"; state: AmendmentState }
   | { kind: "ACCEPTANCE_REQUEST"; state: AcceptanceRequestState }
@@ -1683,4 +1684,24 @@ export interface Digitization {
   locked: boolean;
   /** Who corrected the milestones by hand, if anyone (MilestoneEdit). */
   edited: { by: string; at: string } | null;
+  /** The contract's own rules, added from sentence templates (ContractRule). */
+  contractRules: ContractRule[];
+  /** Who last set the contract's own rules, if anyone. */
+  contractRulesEdited: { by: string; at: string } | null;
+}
+
+/**
+ * One of a contract's own rules: a sentence template (rule-workflows RULE_TEMPLATES) for the
+ * milestones of one type, with the template's whole-number parameter. Signed with the contract.
+ */
+export interface ContractRule {
+  id: string;
+  template:
+    | "LATE_REVIEW"
+    | "MIN_APPROVALS"
+    | "LARGE_REVIEW"
+    | "WAIVE_SHORT_DELAY"
+    | "HALF_PENALTY";
+  milestoneType: string;
+  value: number | null;
 }

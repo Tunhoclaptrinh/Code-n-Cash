@@ -14,6 +14,7 @@ import {
   type ContractRecord,
   type DraftRecord,
   type HistoryRecord,
+  type RuleRecord,
   type SigningRecord,
   type StageTemplate,
 } from "./records";
@@ -41,6 +42,13 @@ import type {
 import { AUTHORITY, CONTRACT_TYPES, WORKFLOW_BY_TYPE } from "./vocabulary";
 import { draftProblems, validIsoDate } from "../common/field-validation";
 import { pinnedVersion, versionRuleSet } from "./rule-versions";
+import {
+  baseRuleSet,
+  checkContractRules,
+  composeContractRules,
+  contractRuleSet,
+  proveSafety,
+} from "./contract-rules";
 import {
   DEFAULT_LATE_PAYMENT_RATE_PCT,
   DEFAULT_PAYMENT_TERM_DAYS,
@@ -470,6 +478,13 @@ export function saveDraft(
       previousDraft.endDate !== end)
   )
     previousDraft.milestoneEdits = null;
+  // The contract's own rules name milestone types of one workflow.
+  if (
+    previousDraft?.contractRules &&
+    (previousDraft.contractType !== input.type ||
+      previousDraft.workflowTemplate !== workflow.template)
+  )
+    previousDraft.contractRules = null;
   if (existing)
     Object.assign(existing, fields, {
       version: existing.version + 1,
@@ -683,7 +698,13 @@ export function digitization(ctx: Ctx, code: string): Digitization {
   const contract = ctx.contract(code);
   const draft = ctx.draft(code);
   if (!draft) throw new NotFoundException("DRAFT_NOT_FOUND");
-  if (draft.digitization) return draft.digitization;
+  const own = {
+    contractRules: draft.contractRules?.rules ?? [],
+    contractRulesEdited: draft.contractRules
+      ? { by: draft.contractRules.byName, at: draft.contractRules.at }
+      : null,
+  };
+  if (draft.digitization) return { ...draft.digitization, ...own };
   const { base, stages, edits } = effectiveStages(ctx, draft);
   const schedule = scheduleDueDates(draft.startDate, draft.endDate, base);
   let allocated = 0n;
@@ -756,6 +777,7 @@ export function digitization(ctx: Ctx, code: string): Digitization {
     edited: draft.milestoneEdits
       ? { by: draft.milestoneEdits.byName, at: draft.milestoneEdits.at }
       : null,
+    ...own,
   };
 }
 
@@ -908,15 +930,79 @@ export function editMilestones(
 }
 
 /**
+ * Sets the contract's own rules (contract-rules.ts) while the draft is open, or clears them with an
+ * empty list. Refused unless the engine's static safety proof accepts the contract's rule set with
+ * them: no sentence can pay while a dispute, a rejection, a missing document or the approvals hold.
+ */
+export async function setContractRules(
+  ctx: Ctx,
+  code: string,
+  input: { rules?: unknown },
+): Promise<Outcome<Digitization>> {
+  assertEditor(ctx);
+  const contract = ctx.contract(code);
+  const draft = ctx.draft(code);
+  if (
+    !draft ||
+    draft.organizationId !== ctx.actor.organizationId ||
+    contract.lifecycle !== "DRAFT" ||
+    draft.state !== "DRAFT"
+  )
+    throw new BadRequestException("DRAFT_LOCKED");
+  const { stages } = effectiveStages(ctx, draft);
+  const rules = checkContractRules(stages, input?.rules);
+  if (rules.length) await assertSafe(ctx, contract, code, stages, rules);
+  draft.contractRules = rules.length
+    ? {
+        rules,
+        by: ctx.actor.id,
+        byName: ctx.actor.displayName,
+        at: new Date().toISOString(),
+      }
+    : null;
+  draft.updatedAt = new Date().toISOString();
+  return outcome(ctx, digitization(ctx, code), {
+    audit: [
+      {
+        category: "SYSTEM",
+        contractId: code,
+        milestoneId: null,
+        detail: { kind: "CONTRACT_RULES_SET", ruleCount: rules.length },
+      },
+    ],
+  });
+}
+
+/** The contract's rule set with its own rules, proven safe by the engine; throws otherwise. */
+async function assertSafe(
+  ctx: Ctx,
+  contract: ContractRecord,
+  code: string,
+  stages: StageTemplate[],
+  rules: Digitization["contractRules"],
+) {
+  const composed = composeContractRules(
+    ctx.t[TABLE.rules] as RuleRecord[],
+    baseRuleSet(contract.rule_set_id),
+    code,
+    stages,
+    rules,
+  );
+  const safety = await proveSafety(composed);
+  if (!safety.safe) throw new BadRequestException("CONTRACT_RULES_UNSAFE");
+  return composed;
+}
+
+/**
  * Locks the digitised terms: the milestones are created, the first signer's turn starts and the
  * engine evaluates the new milestones like any other. A missing due date is kept as a structural
  * gap, so the engine holds that milestone under rule 80 (BR-15) until a new version fixes it.
  */
-export function confirmDigitization(
+export async function confirmDigitization(
   ctx: Ctx,
   code: string,
   input: { dueDate: string | null },
-): Outcome<Digitization> {
+): Promise<Outcome<Digitization>> {
   assertEditor(ctx);
   const contract = ctx.contract(code);
   const draft = ctx.draft(code);
@@ -961,6 +1047,24 @@ export function confirmDigitization(
   const effective = effectiveStages(ctx, draft);
   if (effective.edits)
     checkMilestoneEdits(draft, effective.base, effective.edits);
+  // The contract's own rules become a rule set of the contract, proven safe again, before its
+  // milestones point at it; without any, the contract keeps the pinned rule set.
+  const base = baseRuleSet(contract.rule_set_id);
+  const own = contractRuleSet(base, code);
+  const ownRules = draft.contractRules?.rules.length
+    ? await assertSafe(
+        ctx,
+        contract,
+        code,
+        effective.stages,
+        checkContractRules(effective.stages, draft.contractRules.rules),
+      )
+    : [];
+  const ruleTable = ctx.t[TABLE.rules];
+  for (let i = ruleTable.length - 1; i >= 0; i--)
+    if (ruleTable[i].rule_set_id === own) ruleTable.splice(i, 1);
+  ruleTable.push(...ownRules);
+  contract.rule_set_id = ownRules.length ? own : base;
   const result = digitization(ctx, code);
   // The whole value must be a date; trailing text is refused rather than cut off.
   const dueDate = input?.dueDate ? isoDate(String(input.dueDate)) : null;

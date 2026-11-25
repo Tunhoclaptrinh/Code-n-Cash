@@ -25,6 +25,7 @@ import { runEngine } from "../domain/engine";
 import { toCents } from "../domain/templates";
 import { BUSINESS_EVENTS } from "../domain/vocabulary";
 import { versionHash, versionRuleSet } from "../domain/rule-versions";
+import { proveSafety } from "../domain/contract-rules";
 import {
   MAX_VERSION_RULES,
   appWorkflowProblems,
@@ -444,41 +445,9 @@ export class RulesService {
   }
   /** Static safety proof of every scope, including scopes no Data Pack milestone uses yet. */
   private checkSafety(rules: unknown): Promise<RuleSafety> {
-    return new Promise((ok, reject) => {
-      const child = spawn(
-        processEnvPython(),
-        ["apps/engine/validate_rules.py", "--safety"],
-        {
-          cwd: repoRoot(),
-          env: pythonEnv(),
-          stdio: ["pipe", "pipe", "ignore"],
-        },
-      );
-      let output = "";
-      const fail = () =>
-        reject(new BadRequestException("RULE_VERSION_INVALID"));
-      const timer = setTimeout(() => {
-        child.kill();
-        fail();
-      }, 15000);
-      child.stdout.on("data", (chunk) => (output += chunk.toString()));
-      child.on("error", () => {
-        clearTimeout(timer);
-        fail();
-      });
-      child.on("close", (code) => {
-        clearTimeout(timer);
-        if (code !== 0) return fail();
-        try {
-          ok(JSON.parse(output) as RuleSafety);
-        } catch {
-          fail();
-        }
-      });
-      child.stdin.on("error", () => {});
-      child.stdin.end(JSON.stringify(rules));
-    });
+    return proveSafety(rules as unknown[]);
   }
+
   private validateExpressions(rules: unknown): Promise<void> {
     return new Promise((resolveOk, reject) => {
       const process = spawn(

@@ -355,7 +355,7 @@ Repo Contract Smart đi theo hướng "người dùng tự dựng quy trình". C
 | --- | --- | --- |
 | **Viết luật bằng câu mẫu** ("Trễ quá **n** ngày thì …", "Chưa đủ **n** người duyệt thì giữ") thay vì gõ biểu thức | **Đã có** (25/11/2026): 3 câu siết, 2 câu nới, đặt tự động vào khoảng ưu tiên an toàn | Xem [Đặc tả](NGHIEP_VU.md) §6.3 |
 | **Thư viện mốc có phiên bản**: mốc mẫu (chứng từ + bộ luật) dùng lại cho nhiều loại hợp đồng; loại hợp đồng ghép từ các mốc | Quy trình riêng `APP_…` trong phiên bản luật | Thư viện mốc linh hoạt hơn nhưng phải giữ 405 quyết định của Data Pack |
-| **Luật riêng cho từng hợp đồng** (khách quen được nới điều kiện), không ảnh hưởng luật chung | Chưa có; chỉnh tay mốc chỉ đổi tỷ lệ, hạn, chứng từ, phạt, miễn duyệt | Cần chứng minh an toàn cho từng bản riêng |
+| **Luật riêng cho từng hợp đồng** (khách quen được nới điều kiện), không ảnh hưởng luật chung | **Đã có** (25/11/2026): câu mẫu có con số, kiểm an toàn khi lưu, hai bên ký cùng hợp đồng | Xem [Đặc tả](NGHIEP_VU.md) §6.3 |
 | **Quản trị công ty** tự tạo và khoá tài khoản nhân viên công ty mình | **Đã có** (25/11/2026): `ORG_ADMIN`, chỉ cấp vai nghiệp vụ của công ty mình | Kiểm soát viên vẫn do quản trị hệ thống cấp (SoD-1) |
 | **PostgreSQL** có khoá ngoại và trigger khoá dữ liệu đã chốt ngay trong CSDL | Tệp JSON hoặc MongoDB, kiểm bằng mã | Thiết kế cho CodeCash: [31](31_THIET_KE_CSDL_POSTGRES.md); bản Contract Smart đã dựng: [34](34_CSDL_CONTRACT_SMART.md) |
 | **Nhật ký do CSDL niêm phong**: trigger cấp số thứ tự, giờ và mã băm; chụp lại vai trò người làm lúc thao tác | Niêm phong trong `Repository.transact` ở API; nhật ký đã ghi vai trò | Khi chuyển PostgreSQL thì dời việc niêm phong xuống trigger như [34](34_CSDL_CONTRACT_SMART.md) §6b.4 |

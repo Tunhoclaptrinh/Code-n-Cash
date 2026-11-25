@@ -1992,3 +1992,51 @@ test("rule sentence templates, tightening and loosening, pass the safety proof w
   assert.ok(seen.has("waived") || seen.has("half"), [...seen].join());
   assert.ok(seen.has("approvals"), [...seen].join());
 });
+
+test("a contract's own rules pass the type check and the safety proof at every value their sentences allow", async () => {
+  const { RULE_TEMPLATES } =
+    await import("../../apps/api/dist/trust/rule-workflows.js");
+  const { composeContractRules, proveSafety } =
+    await import("../../apps/api/dist/domain/contract-rules.js");
+  const { loadDataPack } =
+    await import("../../apps/api/dist/domain/datapack.js");
+  const pack = await loadDataPack();
+  const goods = pack.payment_rules.filter(
+    (r) => r.rule_set_id === "R_GOODS_STD",
+  );
+  const stages = [
+    ...new Set(goods.map((r) => r.applies_to_milestone_type)),
+  ].map((type, i) => ({ sequence: i + 1, type }));
+  for (const edge of ["min", "max"]) {
+    // Every sentence at the edge of its range, in every scope of the contract at once.
+    const custom = stages.flatMap(({ type }) =>
+      RULE_TEMPLATES.map((template, i) => ({
+        id: `C${type}${i}`,
+        template: template.key,
+        milestoneType: type,
+        value: template.parameter ? template.parameter[edge] : null,
+      })),
+    );
+    const composed = composeContractRules(
+      goods,
+      "R_GOODS_STD",
+      "CT9000",
+      stages,
+      custom,
+    );
+    assert.equal(composed.length, goods.length + custom.length);
+    assert.ok(composed.every((r) => r.rule_set_id === "R_GOODS_STD#CT9000"));
+    const syntax = await rules.checkExpressions({ rules: composed });
+    assert.equal(
+      syntax.valid,
+      true,
+      JSON.stringify(syntax.issues?.slice(0, 3)),
+    );
+    const safety = await proveSafety(composed);
+    assert.equal(
+      safety.safe,
+      true,
+      `${edge}: ${JSON.stringify(safety.violations?.slice(0, 2))}`,
+    );
+  }
+});

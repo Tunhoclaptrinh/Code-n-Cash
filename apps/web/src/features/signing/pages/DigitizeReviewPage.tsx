@@ -14,6 +14,7 @@ import {
 } from "@/shared/lib/format";
 import { EditOutlined } from "@ant-design/icons";
 import { MilestoneEditor } from "../components/MilestoneEditor";
+import { ContractRulesPanel } from "../components/ContractRulesPanel";
 import { confirmDigitization, getDigitization } from "../api/digitization.api";
 import { signingKeys } from "../api/signingConfig.api";
 import { PageState } from "@/shared/ui/PageState";
@@ -428,6 +429,9 @@ function Review({
             />
           ) : null}
         </section>
+      </div>
+      <div className={cx(shared.card, styles.panel)} style={{ marginTop: 16 }}>
+        <ContractRulesPanel contractId={contractId} data={data} />
       </div>
     </>
   );

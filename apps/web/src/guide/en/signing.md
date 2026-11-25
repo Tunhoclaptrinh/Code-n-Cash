@@ -26,6 +26,8 @@ The background displays the actual uploaded PDF pages. Suggest signature areas, 
 
 The milestones are built from the workflow of the contract type, not read from the document: due dates are spread over the contract period and the last falls on the end date. When the text differs, press **Edit milestones** and correct each milestone's share, due date, required documents, penalty or approval. The API checks the shares add up to exactly 100%, dates follow the milestone order inside the period, and each milestone has 1–6 distinct documents. Corrected rows are marked **Edited** with who and when; **Back to the workflow** drops the corrections, as does changing the contract type or period in step 1.
 
+The **Contract's own rules** box tightens or loosens the shared rules for this contract only: for example, no penalty when a trusted supplier is at most 5 days late, or hold milestones above 900 million for review. Pick a sentence, the milestone and the number, then save. The safety check runs on save: no sentence can pay during a dispute, after a rejection, with a missing document or without the approvals. When the terms are locked, the sentences join the contract's rule set and both parties sign it; the shared rules stay as they are.
+
 ![Editing milestones: 1 — each share; 2 — the total must be 100%; 3 — save](../../../public/guide/images/upload-digitize-edit.webp)
 
 After signing, the schedule changes only through an **Amendment** on the contract page: the buyer proposes new dates or an extension with a reason, the supplier accepts or rejects; the signed terms stay as they are, so the signatures still verify.

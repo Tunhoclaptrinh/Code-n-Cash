@@ -53,6 +53,8 @@ Mốc được dựng từ quy trình mẫu của loại hợp đồng, không �
 
 ![Chỉnh sửa mốc: 1 — tỷ lệ từng mốc; 2 — tổng phải đúng 100%; 3 — lưu](../../../public/guide/images/upload-digitize-edit.webp)
 
+Khung **Luật riêng của hợp đồng** siết hoặc nới luật chung cho riêng hợp đồng này, ví dụ khách quen trễ không quá 5 ngày thì không phạt, hoặc mốc trên 900 triệu thì giữ lại để xem xét. Chọn câu mẫu, mốc áp dụng và con số rồi lưu. Hệ thống kiểm an toàn ngay lúc lưu: không câu nào cho trả tiền khi đang tranh chấp, bị từ chối, thiếu chứng từ hay chưa đủ phê duyệt. Khi khoá điều khoản, các câu được ghép vào bộ luật của hợp đồng và hai bên ký lên đó; luật chung không đổi.
+
 Sau khi ký, lịch mốc chỉ đổi qua **Phụ lục** ở trang hợp đồng: bên mua đề xuất hạn mới hoặc gia hạn kèm lý do, nhà cung cấp chấp nhận hay từ chối; điều khoản đã ký giữ nguyên để chữ ký vẫn kiểm được.
 
 > **Trích xuất:** nếu được quản trị bật Gemini, hệ thống gửi bản PDF đến Google để đề xuất sáu điều khoản kèm trang và đoạn trích. Với PDF có text, đoạn trích được kiểm lại trên đúng trang; điều này không thay việc xác nhận ý nghĩa và giá trị. Bản scan cần người dùng đối chiếu thủ công. Chế độ local đọc text, không gọi AI. Mốc nghiệp vụ vẫn lấy từ mẫu quy trình Data Pack. Vị trí ký gắn với trang PDF thật; chữ ký demo vẫn là bằng chứng tách rời, chưa nhúng chữ ký PAdES vào PDF.

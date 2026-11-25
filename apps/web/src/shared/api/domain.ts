@@ -30,6 +30,7 @@ import type {
   Amendment,
   Liquidation,
   MilestoneEdit,
+  ContractRule,
 } from "@codecash/contracts";
 import { ApiError as HttpError } from "@codecash/api-client";
 import { ApiError } from "./client";
@@ -350,6 +351,15 @@ export const editDigitizedMilestones = (
   input: { milestones?: MilestoneEdit[]; reset?: boolean },
 ) =>
   workflowCall<Digitization>("drafts", "editDigitizedMilestones", [
+    contractCode,
+    input,
+  ]);
+/** The contract's own rules from sentence templates; an empty list clears them. */
+export const setContractRules = (
+  contractCode: string,
+  input: { rules: Array<Omit<ContractRule, "id">> },
+) =>
+  workflowCall<Digitization>("drafts", "setContractRules", [
     contractCode,
     input,
   ]);

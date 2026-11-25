@@ -22,6 +22,7 @@ import type {
   InvoiceData,
   Amendment,
   AcceptanceRequest,
+  ContractRule,
   MilestoneEdit,
   Liquidation,
 } from "./types";
@@ -284,6 +285,13 @@ export interface DraftRecord extends RecordEntity {
   appendixNames: string[];
   appendixDocuments?: Array<{ id: string; name: string; sha256: string }>;
   digitization: Digitization | null;
+  /** The contract's own rules (contract-rules.ts), set before the terms are locked. */
+  contractRules?: {
+    rules: ContractRule[];
+    by: string;
+    byName: string;
+    at: string;
+  } | null;
   /** Hand corrections of the digitised milestones before they are locked. */
   milestoneEdits?: {
     milestones: MilestoneEdit[];

@@ -185,5 +185,10 @@ try {
   for (const b of browsers) b.chrome.kill();
   await pause(300);
   for (const b of browsers)
-    await rm(b.profile, { recursive: true, force: true });
+    await rm(b.profile, {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 200,
+    });
 }

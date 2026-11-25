@@ -34,7 +34,7 @@ Chế độ local mặc định lưu dữ liệu ở `.data/`, không cần Dock
 | `sysadmin@codecash.vn` | Quản trị hệ thống: tài khoản, tổ chức, mẫu mốc, tham số |
 | `auditor@codecash.vn` | Kiểm toán: chỉ Kiểm tra toàn vẹn (băm, bằng chứng), không mở hợp đồng |
 
-Mỗi tổ chức khác trong Data Pack cũng có tài khoản (69 tài khoản). Vai trò và quyền: [đặc tả nghiệp vụ](docs/NGHIEP_VU.md) mục 2. Muốn về dữ liệu ban đầu: đăng nhập tài khoản quản trị hệ thống, mở menu tài khoản, chọn "Khôi phục dữ liệu demo"; dữ liệu và nhật ký cũ được lưu trữ, không bị xoá.
+Các tổ chức khác trong Data Pack cũng có tài khoản tương ứng; danh sách hiện hành nằm trong menu tài khoản demo. Vai trò và quyền: [đặc tả nghiệp vụ](docs/NGHIEP_VU.md) mục 2. Muốn về dữ liệu ban đầu: đăng nhập tài khoản quản trị hệ thống, mở menu tài khoản, chọn "Khôi phục dữ liệu demo"; dữ liệu và nhật ký cũ được lưu trữ, không bị xoá.
 
 ## Cấu trúc
 
@@ -102,6 +102,8 @@ pnpm dev:api
 ```
 
 Mongo cần replica set để giao dịch cập nhật dữ liệu cùng audit. Chế độ file dành cho một tiến trình local; production bắt buộc Mongo và `JWT_SECRET`. Không sao chép `.env`, tài khoản dịch vụ hoặc khóa của UniFlow.
+
+Trên máy đã thiết lập Mongo local, chạy `nvm use`, rồi `pnpm dev:local` để chờ database sẵn sàng và mở cả web, API, dịch vụ ký. Docker daemon phải đang chạy; trên Ubuntu có thể bật bằng `sudo systemctl start docker`. Compose dùng project cố định `codecash-local`, lưu dữ liệu trong volume `codecash-local_mongo-data`; không dùng `down -v` nếu muốn giữ dữ liệu. Kiểm tra `/api/v1/health` phải trả `storage: "mongo"`; cấu hình và kết quả kiểm tra máy local xem [hướng dẫn local](docs/32_KIEM_TRA_VA_KHOI_CHAY_LOCAL.md).
 
 ## Triển khai
 

@@ -17,6 +17,7 @@ Festival Chuyển đổi số 2026, Bảng D, Case 4: Smart Contract Workflow.
 | [10 Dịch vụ ký số và thiết bị ký](10_DICH_VU_KY_SO.md) | Dịch vụ ký tách riêng (`apps/signer`), luồng ký qua thiết bị, bảo mật, xử lý lỗi, demo hai cách, chuyển sang ký thật, đối chiếu SOA |
 | [11 Hợp đồng soạn trong ứng dụng](11_HOP_DONG_TRONG_UNG_DUNG.md) | Từng bước: soạn, trích xuất, số hoá mốc (lịch co giãn, cách tính tiền và điều kiện), chỉnh tay, ký, chứng từ và hoá đơn, duyệt có xem chứng từ, phụ lục, cảnh báo; quy tắc, mã lỗi, ví dụ, lưu ý, giới hạn |
 | [30 Tiếp quản và phát triển tiếp](30_HUONG_DAN_TIEP_QUAN_VA_PHAT_TRIEN_TIEP.md) | Cách chạy, bản đồ mã nguồn, fixture kiểm thử                                                                                                                       |
+| [32 Kiểm tra và khởi chạy local](32_KIEM_TRA_VA_KHOI_CHAY_LOCAL.md) | MongoDB local, lệnh khởi chạy, sửa lỗi sau đổi nhánh và kiểm tra luồng ký |
 | [Sơ đồ](diagrams/)                                                              | Class diagram Data Pack, ERD                                                                                                                                       |
 | [Lưu trữ](archive/)                                                             | Đặc tả v1.1 đầy đủ, rà soát, xác nhận BTC, ghi chép thiết kế giao diện các đợt trước                                                                               |
 

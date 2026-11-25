@@ -38,7 +38,13 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["src/test/setup.ts"],
   },
-  server: { port: 5173, proxy },
+  server: {
+    port: 5173,
+    proxy,
+    // Allow external hosts (Cloudflare Tunnel, ngrok…) during development.
+    // This only affects the Vite dev server, never the production nginx build.
+    allowedHosts: true,
+  },
   preview: { port: 4173, proxy },
   build: {
     // Ant Design is one shared, long-cached chunk (~365 kB gzip); everything else stays well below.
